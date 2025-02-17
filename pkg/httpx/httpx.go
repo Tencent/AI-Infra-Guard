@@ -3,6 +3,7 @@ package httpx
 
 import (
 	"crypto/tls"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -195,7 +196,15 @@ func (h *HTTPX) Get(targetUrl string, headers map[string]string) (*Response, err
 	if err != nil {
 		return nil, err
 	}
-	return h.do(req)
+
+	// 防止空指针引用导致panic
+	resp, err := h.do(req)
+	if err != nil {
+		return nil, err
+	} else if resp.Headers == nil {
+		return nil, errors.New("response is nil")
+	}
+	return resp, err
 }
 
 // POST on post request
