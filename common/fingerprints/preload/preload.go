@@ -60,7 +60,6 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 	uri = strings.TrimRight(uri, "/")
 
 	indexCache, _ := r.hp.Get(uri+"/", nil)
-
 	for _, fp := range r.fps {
 		wg.Add()
 		go func(fp parser.FingerPrint) {
@@ -69,7 +68,14 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 			var err error
 			for _, req := range fp.Http {
 				if req.Path == "/" {
-					resp = indexCache
+					if indexCache != nil {
+						resp = indexCache
+					} else {
+						resp, err = r.hp.Get(uri+"/", nil)
+						if err != nil {
+							continue
+						}
+					}
 				} else {
 					resp, err = r.hp.Get(uri+req.Path, nil)
 					if err != nil {
