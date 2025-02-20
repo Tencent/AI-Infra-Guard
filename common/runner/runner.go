@@ -4,10 +4,12 @@ package runner
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
@@ -355,6 +357,15 @@ func (r *Runner) Close() {
 	_ = r.hm.Close()
 }
 
+func (r *Runner) callbackProcess(current, total int) {
+	if r.Options.Callback != nil {
+		r.Options.Callback(CallbackProcessInfo{
+			Current: current,
+			Total:   total,
+		})
+	}
+}
+
 // RunEnumeration 开始扫描所有目标
 func (r *Runner) RunEnumeration() {
 	// 检查是否有输入目标
@@ -362,6 +373,7 @@ func (r *Runner) RunEnumeration() {
 		gologger.Fatalf("没有指定输入，输入 -h 查看帮助")
 		return
 	}
+	r.callbackProcess(0, r.total)
 
 	// 启动输出处理协程
 	outputWg := sizedwaitgroup.New(1)
@@ -370,6 +382,8 @@ func (r *Runner) RunEnumeration() {
 
 	timeStart := time.Now()
 	wg := sizedwaitgroup.New(r.Options.RateLimit)
+	var numTarget uint64 = 0
+
 	r.hm.Scan(func(k, _ []byte) error {
 		wg.Add()
 		target := string(k)
@@ -378,12 +392,16 @@ func (r *Runner) RunEnumeration() {
 				defer wg.Done()
 				r.rateLimiter.Take()
 				r.runHostRequest(target)
+				atomic.AddUint64(&numTarget, 1)
+				r.callbackProcess(int(atomic.LoadUint64(&numTarget)), r.total)
 			}()
 		} else {
 			go func() {
 				defer wg.Done()
 				r.rateLimiter.Take()
 				r.runDomainRequest(target)
+				atomic.AddUint64(&numTarget, 1)
+				r.callbackProcess(int(atomic.LoadUint64(&numTarget)), r.total)
 			}()
 		}
 		return nil
@@ -464,7 +482,11 @@ func (r *Runner) handleOutput(wg *sizedwaitgroup.SizedWaitGroup) {
 			fmt.Println("Vulnerability Summary:")
 			fmt.Println(vulTable.String())
 		}
+	}
 
+	if r.Options.Callback != nil {
+		score := r.calcSecScore(results)
+		r.Options.Callback(score)
 	}
 }
 
@@ -481,6 +503,31 @@ func (r *Runner) writeResult(f *os.File, result HttpResult) {
 	fmt.Println(result.s)
 	if f != nil {
 		_, _ = f.WriteString(result.s + "\n")
+	}
+	if r.Options.Callback != nil {
+		vuls := make([]vulstruct.Info, 0)
+		for _, item := range result.Advisories {
+			vuls = append(vuls, item.Info)
+		}
+		var fpString string = ""
+		for _, fp := range result.Fingers {
+			fpString += fp.Name
+			if fp.Type != "" {
+				fpString += ":" + fp.Type
+			}
+			if fp.Version != "" {
+				fpString += ":" + fp.Version
+			}
+		}
+		if r.Options.Callback != nil {
+			r.Options.Callback(CallbackScanResult{
+				TargetURL:       result.URL,
+				StatusCode:      result.StatusCode,
+				Title:           result.Title,
+				Fingerprint:     fpString,
+				Vulnerabilities: vuls,
+			})
+		}
 	}
 	if len(result.Advisories) > 0 {
 		fmt.Println("\n存在漏洞:")
@@ -523,34 +570,54 @@ func (r *Runner) writeResult(f *os.File, result HttpResult) {
 	}
 }
 
-// ShowFpAndVulList displays the list of available fingerprints and vulnerabilities
-// 显示指纹和漏洞列表
-func (r *Runner) ShowFpAndVulList(fps, vul bool) {
+// GetFpAndVulList 获取指纹和漏洞列表
+func (r *Runner) GetFpAndVulList() []FpInfos {
 	fingerprints := make([]string, 0)
 	for _, fp := range r.fpEngine.GetFps() {
 		fingerprints = append(fingerprints, fp.Info.Name)
 	}
-	if fps {
-		if len(fingerprints) > 0 {
-			gologger.Infof("指纹列表: %v", fingerprints)
+	fps := make([]FpInfos, 0)
+	for _, fp := range fingerprints {
+		ads, err := r.advEngine.GetAdvisories(fp, "", false)
+		if err != nil {
+			gologger.WithError(err).Errorln("获取漏洞列表失败", fp)
+			continue
+		}
+		fps = append(fps, FpInfos{
+			FpName: fp,
+			Vuls:   ads,
+		})
+	}
+	return fps
+}
 
+// ShowFpAndVulList displays the list of available fingerprints and vulnerabilities
+// 显示指纹和漏洞列表
+func (r *Runner) ShowFpAndVulList(fps, vul bool) {
+	data := r.GetFpAndVulList()
+
+	if fps {
+		if len(data) > 0 {
+			fingerprints := make([]string, 0)
+			for _, item := range data {
+				fingerprints = append(fingerprints, item.FpName)
+			}
+			gologger.Infof("指纹列表: %v", fingerprints)
 		} else {
 			gologger.Infof("没有指纹")
 		}
 	}
 	if vul {
 		gologger.Infoln("漏洞列表:")
-		mark := strings.Builder{}
-		mark.WriteString("| 组件名称            | 漏洞数量 |\n|---------------------|----------|\n")
-		for _, fp := range fingerprints {
-			ads, err := r.advEngine.GetAdvisories(fp, "", false)
-			if err != nil {
-				gologger.WithError(err).Errorln("获取漏洞列表失败", fp)
-				continue
-			}
-			mark.WriteString(fmt.Sprintf("| %19s | %8d |\n", fp, len(ads)))
+		table, err := gotable.Create("组件名称", "漏洞数量")
+		if err != nil {
+			gologger.Errorf("create table error: %v", err)
+			return
 		}
-		fmt.Println(mark.String())
+		for _, item := range data {
+			table.AddRow([]string{item.FpName, strconv.Itoa(len(item.Vuls))})
+		}
+		fmt.Println(table)
 	}
 }
 
@@ -563,4 +630,52 @@ func (r *Runner) initVulnerabilityDB() error {
 	r.advEngine = engine
 	gologger.Infof("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
 	return nil
+}
+
+// calcSecScore 计算安全分数
+func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
+	var total, high, middle, low int = 0, 0, 0, 0
+	for _, result := range results {
+		total += len(result.Advisories)
+		for _, item := range result.Advisories {
+			if item.Info.Severity == "HIGH" || item.Info.Severity == "CRITICAL" {
+				high++
+			} else if item.Info.Severity == "MEDIUM" {
+				middle++
+			} else {
+				low++
+			}
+		}
+	}
+	if total == 0 {
+		return CallbackReportInfo{
+			SecScore:   0,
+			HighRisk:   0,
+			MediumRisk: 0,
+			LowRisk:    0,
+		}
+	}
+	// 计算加权风险比例
+	weightedRisk := (float64(high)/float64(total))*0.5 +
+		(float64(middle)/float64(total))*0.3 +
+		(float64(low)/float64(total))*0.2
+
+	// 计算安全评分（百分制）
+	safetyScore := 100 - weightedRisk*100
+
+	// 确保评分在0-100范围内
+	if safetyScore < 0 {
+		safetyScore = 0
+	}
+	if safetyScore > 100 {
+		safetyScore = 100
+	}
+
+	ret := CallbackReportInfo{
+		SecScore:   int(math.Round(safetyScore)),
+		HighRisk:   high,
+		MediumRisk: middle,
+		LowRisk:    low,
+	}
+	return ret
 }

@@ -11,21 +11,24 @@ import (
 
 // Options 定义了程序的所有配置选项
 type Options struct {
-	Target          multiStringFlag // 目标URL列表
-	TargetFile      string          // 包含目标的文件路径
-	Output          string          // 输出文件路径
-	ProxyURL        string          // 代理服务器URL
-	TimeOut         int             // 请求超时时间(秒)
-	JSON            bool            // 是否输出JSON格式
-	RateLimit       int             // 每秒请求限制数
-	FPTemplates     string          // 指纹模板路径
-	AdvTemplates    string          // 漏洞模板路径
-	ListFpsTemplate bool            // 是否列出指纹模板
-	ListVulTemplate bool            // 是否列出漏洞模板
-	CheckVulTargets bool            // 检查漏洞模板是否正确
-	AIAnalysis      bool            // 是否启用AI分析
-	AIToken         string          // AI服务的认证令牌
-	LocalScan       bool            // 一键检测本地
+	Target          multiStringFlag   // 目标URL列表
+	TargetFile      string            // 包含目标的文件路径
+	Output          string            // 输出文件路径
+	ProxyURL        string            // 代理服务器URL
+	TimeOut         int               // 请求超时时间(秒)
+	JSON            bool              // 是否输出JSON格式
+	RateLimit       int               // 每秒请求限制数
+	FPTemplates     string            // 指纹模板路径
+	AdvTemplates    string            // 漏洞模板路径
+	ListFpsTemplate bool              // 是否列出指纹模板
+	ListVulTemplate bool              // 是否列出漏洞模板
+	CheckVulTargets bool              // 检查漏洞模板是否正确
+	AIAnalysis      bool              // 是否启用AI分析
+	AIToken         string            // AI服务的认证令牌
+	LocalScan       bool              // 一键检测本地
+	WebServer       bool              // 是否启用WebSocket服务器
+	WebServerAddr   string            // WebSocket服务器地址
+	Callback        func(interface{}) // 回调函数
 }
 
 // multiStringFlag 用于支持命令行中多个相同参数的输入
@@ -59,6 +62,8 @@ func ParseOptions() *Options {
 	flag.BoolVar(&options.AIAnalysis, "ai", false, "AI分析")
 	flag.StringVar(&options.AIToken, "token", "", "混元token")
 	flag.BoolVar(&options.LocalScan, "localscan", false, "一键检测本地")
+	flag.BoolVar(&options.WebServer, "ws", false, "启用WebServer服务器")
+	flag.StringVar(&options.WebServerAddr, "ws-addr", "127.0.0.1:8088", "WebSocket服务器地址")
 	flag.Parse()
 	options.configureOutput()
 	ShowBanner()
@@ -96,6 +101,11 @@ func isValidURL(urlString string) bool {
 	_, err := url.Parse(urlString)
 
 	return err == nil
+}
+
+// SetCallback 设置回调函数
+func (options *Options) SetCallback(callback func(interface{})) {
+	options.Callback = callback
 }
 
 // configureOutput 配置程序的输出选项

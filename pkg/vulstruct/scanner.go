@@ -12,22 +12,22 @@ import (
 // Info represents vulnerability information structure
 // 存储漏洞信息的结构体
 type Info struct {
-	FingerPrintName string `yaml:"name"`                      // Name of the fingerprint
-	CVEName         string `yaml:"cve"`                       // CVE identifier
-	Summary         string `yaml:"summary"`                   // Brief summary of the vulnerability
-	Details         string `yaml:"details"`                   // Detailed description
-	CVSS            string `yaml:"cvss"`                      // CVSS score
-	Severity        string `yaml:"severity"`                  // Severity level
-	SecurityAdvise  string `yaml:"security_advise,omitempty"` // Security advisory
+	FingerPrintName string `yaml:"name" json:"-"`                                    // Name of the fingerprint
+	CVEName         string `yaml:"cve" json:"cve"`                                   // CVE identifier
+	Summary         string `yaml:"summary" json:"summary"`                           // Brief summary of the vulnerability
+	Details         string `yaml:"details" json:"details"`                           // Detailed description
+	CVSS            string `yaml:"cvss" json:"cvss"`                                 // CVSS score
+	Severity        string `yaml:"severity" json:"severity"`                         // Severity level
+	SecurityAdvise  string `yaml:"security_advise,omitempty" json:"security_advise"` // Security advisory
 }
 
 // VersionVul represents a version-based vulnerability
 // 版本相关的漏洞结构体
 type VersionVul struct {
-	Info        Info         `yaml:"info"`       // Basic vulnerability information
-	Rule        string       `yaml:"rule"`       // Rule expression in string format
-	RuleCompile *parser.Rule `yaml:"-"`          // Compiled rule for evaluation
-	References  []string     `yaml:"references"` // Reference links
+	Info        Info         `yaml:"info" json:"info"`             // Basic vulnerability information
+	Rule        string       `yaml:"rule" json:"-"`                // Rule expression in string format
+	RuleCompile *parser.Rule `yaml:"-" json:"-"`                   // Compiled rule for evaluation
+	References  []string     `yaml:"references" json:"references"` // Reference links
 }
 
 // ReadVersionVulSingFile reads and parses a single vulnerability file
