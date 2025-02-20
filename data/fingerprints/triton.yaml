@@ -1,0 +1,12 @@
+info:
+  name: triton-inference-server
+  author:
+  severity: info
+  metadata:
+    product: triton-inference-server
+    vendor: NVIDIA
+http:
+  - method: POST
+    path: '/v2/repository/models/simple/load'
+    matchers:
+      - body="{\"error\":\"explicit model load"
