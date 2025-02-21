@@ -651,9 +651,16 @@ func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
 			}
 		}
 	}
-	if total == 0 {
+	if len(results) == 0 && total == 0 {
 		return CallbackReportInfo{
 			SecScore:   0,
+			HighRisk:   0,
+			MediumRisk: 0,
+			LowRisk:    0,
+		}
+	} else if total == 0 {
+		return CallbackReportInfo{
+			SecScore:   100,
 			HighRisk:   0,
 			MediumRisk: 0,
 			LowRisk:    0,
@@ -671,7 +678,7 @@ func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
 	if safetyScore < 0 {
 		safetyScore = 0
 	}
-	if safetyScore > 100 {
+	if safetyScore >= 100 {
 		safetyScore = 100
 	}
 

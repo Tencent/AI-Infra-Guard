@@ -68,10 +68,14 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 			var resp *httpx.Response
 			var err error
 			for _, req := range fp.Http {
-				if req.Path == "/" {
+				if req.Path == "/" && req.Method == "GET" {
 					resp = indexCache
 				} else {
-					resp, err = r.hp.Get(uri+req.Path, nil)
+					if req.Method == "POST" {
+						resp, err = r.hp.POST(uri+req.Path, req.Data, nil)
+					} else {
+						resp, err = r.hp.Get(uri+req.Path, nil)
+					}
 					if err != nil {
 						gologger.WithError(err).Debugln("请求失败")
 						continue

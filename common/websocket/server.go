@@ -1,12 +1,18 @@
 package websocket
 
 import (
+	"embed"
 	"encoding/json"
 	"github.com/Tencent/AI-Infra-Guard/common/runner"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/options"
+	"mime"
 	"net/http"
+	"path/filepath"
 )
+
+//go:embed static/*
+var staticFS embed.FS
 
 func RunWebServer(options *options.Options) {
 	// 创建WebSocket服务器
@@ -44,6 +50,19 @@ func RunWebServer(options *options.Options) {
 		}
 		w.Write(resp)
 		return
+	})
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		filePath := r.RequestURI
+		assetPath := "static" + filePath
+		assetData, err := staticFS.ReadFile(assetPath)
+		if err != nil {
+			assetData, _ = staticFS.ReadFile("static/index.html")
+		}
+
+		// 设置正确的MIME类型
+		mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
+		w.Header().Set("Content-Type", mimeType)
+		w.Write(assetData)
 	})
 	// 启动HTTP服务器
 	gologger.Infof("Starting WebServer on %s\n", options.WebServerAddr)

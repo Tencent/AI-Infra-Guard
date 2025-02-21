@@ -84,7 +84,11 @@ func (s *WSServer) handleMessages(conn *websocket.Conn) {
 
 // handleScanRequest 处理扫描请求
 func (s *WSServer) handleScanRequest(conn *websocket.Conn, req *ScanRequest) {
-	opts := s.options
+	// 深拷贝options
+	vv, _ := json.Marshal(s.options)
+	opts := &options.Options{}
+	_ = json.Unmarshal(vv, &opts)
+
 	switch req.ScanType {
 	case "localscan":
 		opts.LocalScan = true

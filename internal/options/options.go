@@ -29,7 +29,7 @@ type Options struct {
 	WebServer       bool              // 是否启用WebSocket服务器
 	WebServerAddr   string            // WebSocket服务器地址
 	Headers         multiStringFlag   // HTTP请求头
-	Callback        func(interface{}) // 回调函数
+	Callback        func(interface{}) `json:"-"` // 回调函数
 }
 
 // multiStringFlag 用于支持命令行中多个相同参数的输入

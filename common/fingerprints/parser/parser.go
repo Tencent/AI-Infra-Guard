@@ -28,6 +28,7 @@ type HttpRule struct {
 	Method    string    `yaml:"method"`
 	Path      string    `yaml:"path"`
 	Matchers  []string  `yaml:"matchers"`
+	Data      string    `yaml:"data,omitempty"`
 	dsl       []*Rule   `yaml:"-"`
 	Extractor Extractor `yaml:"extractor,omitempty"`
 }
