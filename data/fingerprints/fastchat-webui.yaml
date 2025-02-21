@@ -1,6 +1,6 @@
 info:
   name: fastchat-webui
-  author:
+  author: 腾讯朱雀实验室
   severity: info
   metadata:
     product: fastchat-webui

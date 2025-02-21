@@ -1,6 +1,6 @@
 info:
   name: clickhouse
-  author:
+  author: 腾讯朱雀实验室
   severity: info
   metadata:
     product: clickhouse

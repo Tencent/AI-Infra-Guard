@@ -1,6 +1,6 @@
 info:
   name: pyload-ng
-  author:
+  author: 腾讯朱雀实验室
   severity: info
   metadata:
     product: pyload

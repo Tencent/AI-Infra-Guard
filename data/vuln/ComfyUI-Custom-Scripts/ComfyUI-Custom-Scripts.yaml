@@ -3,7 +3,7 @@ info:
   cve: ComfyUI-Custom-Scripts 本地文件读取漏洞
   summary: ""
   details: |+
-    ComfyUI-Custom-Scripts存在本地文件读取漏洞，目前该漏洞为内部0day状态
+    腾讯朱雀实验室发现:ComfyUI-Custom-Scripts存在本地文件读取漏洞，目前该漏洞为内部0day状态
   cvss:
   severity: HIGH
 rule: ""

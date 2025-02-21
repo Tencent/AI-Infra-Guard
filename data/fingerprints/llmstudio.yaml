@@ -1,12 +1,12 @@
 info:
   name: llmstudio
-  author:
+  author: 腾讯朱雀实验室
   severity: info
   metadata:
     product: lmstudio
     vendor: lmstudio
 http:
   - method: GET
-    path: '/'
+    path: '/zuqu3'
     matchers:
-      - "body=\"Unexpected endpoint or method. (GET /)\" && header=\"x-powered-by: Express\""
+      - "body=\"Unexpected endpoint or method. (GET /zuqu3)\" && header=\"x-powered-by: Express\""
