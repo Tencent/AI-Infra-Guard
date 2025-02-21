@@ -58,12 +58,18 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 ![AI 安全扫描器演示](img/img.jpg)
 
 ![](img/img2.png)
+**WEBUI**
+![](img/img3.png)
 
 ## 📦 安装与使用
 ### 安装
 下载地址: [https://github.com/Tencent/AI-Infra-Guard/releases](https://github.com/Tencent/AI-Infra-Guard/releases)
 
 ### 使用
+**WEBUI 可视化操作**
+```
+./ai-infra-guard -ws
+```
 **本地一键检测**
 ```
 ./ai-infra-guard -localscan

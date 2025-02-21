@@ -56,12 +56,17 @@ AI Infra Guard is an **efficient**, **lightweight**, and **user-friendly** AI in
 
 ![AI Security Scanner Demo](img/img.jpg)
 ![](img/img2.png)
-
+**WEBUI**
+![](img/img3.png)
 ## 📦 Installation and Usage
 ### Installation
 Download from: [https://github.com/Tencent/AI-Infra-Guard/releases](https://github.com/Tencent/AI-Infra-Guard/releases)
 
 ### Usage
+**WEBUI**
+```
+./ai-infra-guard -ws
+```
 **Local Scan**
 ```
 ./ai-infra-guard -localscan
