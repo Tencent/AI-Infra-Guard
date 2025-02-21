@@ -667,9 +667,9 @@ func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
 		}
 	}
 	// 计算加权风险比例
-	weightedRisk := (float64(high)/float64(total))*0.5 +
-		(float64(middle)/float64(total))*0.3 +
-		(float64(low)/float64(total))*0.2
+	weightedRisk := (float64(high)/float64(total))*0.7 +
+		(float64(middle)/float64(total))*0.5 +
+		(float64(low)/float64(total))*0.3
 
 	// 计算安全评分（百分制）
 	safetyScore := 100 - weightedRisk*100
