@@ -125,6 +125,9 @@ http:
 
 ## 🤝 Contributing
 Community contributions are highly welcome! Feel free to submit [PRs](https://github.com/Tencent/AI-Infra-Guard/pulls) and [Issues](https://github.com/Tencent/AI-Infra-Guard/issues).
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
 
 ## 📄 License
 "AI Infra Guard" is licensed under the MIT License except for the third-party components. Visit [License.txt](./License.txt)
