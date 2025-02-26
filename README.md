@@ -50,6 +50,7 @@ AI Infra Guard is an **efficient**, **lightweight**, and **user-friendly** AI in
 |         tensorboard |        0 |
 |                vllm |        4 |
 |          xinference |        0 |
+| triton-inference-server |    7|
 
 ## 🚀 Quick Preview
 **Quick Usage**

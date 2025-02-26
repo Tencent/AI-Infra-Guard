@@ -17,8 +17,8 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
     * 跨平台支持
 
 ## 📊 AI组件覆盖情况
-| 组件名称            | 漏洞数量 |
-|---------------------|----------|
+| 组件名称           | 漏洞数量 |
+|--------------------|-|
 |         anythingllm |        8 |
 |           langchain |       33 |
 |          Chuanhugpt |        0 |
@@ -48,6 +48,7 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 |         tensorboard |        0 |
 |                vllm |        4 |
 |          xinference |        0 |
+| triton-inference-server |    7|
 
 
 
