@@ -1,7 +1,8 @@
 info:
   name: triton-inference-server
-  author:
+  author: 腾讯朱雀实验室
   severity: info
+  desc: Triton 推理服务器提供优化的云和边缘推理解决方案。
   metadata:
     product: triton-inference-server
     vendor: NVIDIA

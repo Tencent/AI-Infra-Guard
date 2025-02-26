@@ -2,6 +2,7 @@ info:
   name: qanything
   author: 腾讯朱雀实验室
   severity: info
+  desc: 网易有道开发的开源企业级本地知识库问答系统，支持多种数据格式和数据库的本地查询。
   metadata:
     product: qanything
     vendor: netease-youdao

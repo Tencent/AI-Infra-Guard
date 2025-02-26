@@ -2,6 +2,7 @@ info:
   name: ragflow
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个开源RAG引擎，通过深度文档理解增强AI能力，提供准确的、引用支持的回答。
   metadata:
     product: ragflow
     vendor: ragflow

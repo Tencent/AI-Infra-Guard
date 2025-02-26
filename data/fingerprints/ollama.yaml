@@ -2,6 +2,7 @@ info:
   name: ollama
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个开源工具，允许在本地运行大语言模型，确保数据隐私和控制。
   metadata:
     product: ollama
     vendor: ollama

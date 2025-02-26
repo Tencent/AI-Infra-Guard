@@ -2,6 +2,7 @@ info:
   name: jupyter-server
   author: 腾讯朱雀实验室
   severity: info
+  desc: 为Jupyter网页应用（如Notebook和Lab）提供核心服务和API的后端组件。
   metadata:
     product: jupyter-server
     vendor: jupyter

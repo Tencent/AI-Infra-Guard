@@ -2,6 +2,7 @@ info:
   name: fastchat
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个开源平台，用于训练、服务和评估大语言模型。
   metadata:
     product: fastchat-controller
     vendor: lm-sys

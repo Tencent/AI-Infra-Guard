@@ -2,6 +2,7 @@ info:
   name: anythingllm
   author: 腾讯朱雀实验室
   severity: info
+  desc: 用于使用任何大语言模型（LLM）与文档对话的AI应用，确保隐私和易用性。
   metadata:
     product: anythingllm
     vendor: anythingllm

@@ -2,6 +2,7 @@ info:
   name: ComfyUI-Custom-Scripts
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个集合，包含自定义脚本和节点，增强ComfyUI的用户界面和功能。
   metadata:
     product: ComfyUI-Custom-Scripts
     vendor: comfyui

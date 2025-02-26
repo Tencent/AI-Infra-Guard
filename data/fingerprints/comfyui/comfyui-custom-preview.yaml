@@ -2,6 +2,7 @@ info:
   name: ComfyUI-Prompt-Preview
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个ComfyUI扩展，用于可视化sdxl_prompt_styler的提示风格。
   metadata:
     product: ComfyUI-Prompt-Preview
     vendor: comfyui

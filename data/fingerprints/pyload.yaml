@@ -2,6 +2,7 @@ info:
   name: pyload-ng
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个用Python编写的免费开源下载管理器，提供基于网页的界面管理跨平台下载。
   metadata:
     product: pyload
     vendor: pyload

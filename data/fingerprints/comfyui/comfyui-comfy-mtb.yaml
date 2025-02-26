@@ -2,6 +2,7 @@ info:
   name: comfy_mtb
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个ComfyUI扩展，提供用于AI艺术创作的动画和图像处理节点。
   metadata:
     product: comfy_mtb
     vendor: comfyui

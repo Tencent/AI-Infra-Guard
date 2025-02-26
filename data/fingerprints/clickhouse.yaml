@@ -2,6 +2,7 @@ info:
   name: clickhouse
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个高性能的开源列式数据库，适合实时分析处理。
   metadata:
     product: clickhouse
     vendor: clickhouse

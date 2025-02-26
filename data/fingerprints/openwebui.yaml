@@ -2,6 +2,7 @@ info:
   name: open-webui
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个开源、自托管的AI平台，提供用户友好的本地运行大语言模型的界面，支持Ollama等运行器。
   metadata:
     product: open-webui
     vendor: open-webui

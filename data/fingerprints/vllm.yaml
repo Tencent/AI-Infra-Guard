@@ -2,6 +2,7 @@ info:
   name: vllm
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个高性能开源引擎，用于高效推理和服务大语言模型，优化速度和内存使用。
   metadata:
     product: vllm
     vendor: vllm-project

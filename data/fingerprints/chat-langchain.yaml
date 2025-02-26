@@ -2,6 +2,7 @@ info:
   name: langchain
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个灵活的开源框架，用于构建利用大语言模型与外部数据源的应用。
   metadata:
     product: ChatLangChain
     vendor: LangChain

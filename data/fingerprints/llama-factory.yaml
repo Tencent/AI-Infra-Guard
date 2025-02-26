@@ -2,6 +2,7 @@ info:
   name: llamafactory
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个统一框架，用于高效微调100多个大语言模型和视觉语言模型，提供LLaMA Board网页界面。
   metadata:
     product: llamafactory
     vendor: llama-factory

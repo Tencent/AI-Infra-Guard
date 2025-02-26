@@ -2,6 +2,7 @@ info:
   name: ray
   author: 腾讯朱雀实验室
   severity: info
+  desc: 一个开源框架，用于扩展AI和Python应用，提供分布式计算和机器学习工作负载的统一方式。
   metadata:
     product: dashboard
     vendor: ray
