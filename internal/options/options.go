@@ -23,7 +23,8 @@ type Options struct {
 	ListVulTemplate bool              // 是否列出漏洞模板
 	CheckVulTargets bool              // 检查漏洞模板是否正确
 	AIAnalysis      bool              // 是否启用AI分析
-	AIToken         string            // AI服务的认证令牌
+	AIHunyuanToken  string            // AI服务的认证令牌
+	AIDeepSeekToken string            // deepseek的认证令牌
 	LocalScan       bool              // 一键检测本地
 	WebServer       bool              // 是否启用WebSocket服务器
 	WebServerAddr   string            // WebSocket服务器地址
@@ -59,11 +60,12 @@ func ParseOptions() *Options {
 	flag.StringVar(&options.AdvTemplates, "vul", "data/vuln", "指定漏洞库目录")
 	flag.BoolVar(&options.ListVulTemplate, "list-vul", false, "输出漏洞库列表")
 	flag.BoolVar(&options.CheckVulTargets, "check-vul", false, "检查漏洞模板是否正确")
-	flag.BoolVar(&options.AIAnalysis, "ai", false, "AI分析")
-	flag.StringVar(&options.AIToken, "token", "", "混元token")
 	flag.BoolVar(&options.LocalScan, "localscan", false, "一键检测本地")
 	flag.BoolVar(&options.WebServer, "ws", false, "启用WebServer服务器")
 	flag.StringVar(&options.WebServerAddr, "ws-addr", "127.0.0.1:8088", "WebSocket服务器地址")
+	flag.BoolVar(&options.AIAnalysis, "ai", false, "AI分析")
+	flag.StringVar(&options.AIHunyuanToken, "hunyuan-token", "", "混元token")
+	flag.StringVar(&options.AIDeepSeekToken, "deepseek-token", "", "deepseek r1 token")
 	flag.Parse()
 	options.configureOutput()
 	ShowBanner()

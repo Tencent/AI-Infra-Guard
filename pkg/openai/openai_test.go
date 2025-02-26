@@ -1,4 +1,4 @@
-package hunyuan
+package openai
 
 import (
 	"github.com/stretchr/testify/assert"

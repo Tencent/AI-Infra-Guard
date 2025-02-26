@@ -1,5 +1,5 @@
 // Package hunyuan 大模型接口实现
-package hunyuan
+package openai
 
 import (
 	"context"
@@ -11,8 +11,22 @@ import (
 	"github.com/openai/openai-go/option"
 )
 
-// HunyuanAI Golang实现
+// HunyuanAI Hunyuan 实现
 func HunyuanAI(prompt string, key string) (string, error) {
+	baseUrl := "https://api.hunyuan.cloud.tencent.com/v1/"
+	model := "hunyuan-lite"
+	return OpenAI(prompt, key, baseUrl, model)
+}
+
+// DeepSeekR1API DeepSeek AI接入
+func DeepSeekR1API(prompt, key string) (string, error) {
+	baseUrl := "https://api.deepseek.ai/v1/"
+	model := "deepseek-reasoner"
+	return OpenAI(prompt, key, baseUrl, model)
+}
+
+// OpenAI API接入
+func OpenAI(prompt, key, baseUrl, model string) (string, error) {
 	// 设置默认值
 	if key == "" {
 		key = os.Getenv("OPENAI_API_KEY")
@@ -21,13 +35,11 @@ func HunyuanAI(prompt string, key string) (string, error) {
 	if key == "" {
 		return "", errors.New("OPENAI_API_KEY is empty")
 	}
-	baseUrl := os.Getenv("OPENAI_BASE_URL") // 默认值
 	if baseUrl == "" {
-		baseUrl = "https://api.hunyuan.cloud.tencent.com/v1/"
+		baseUrl = os.Getenv("OPENAI_BASE_URL")
 	}
-	model := os.Getenv("OPENAI_MODEL")
 	if model == "" {
-		model = "hunyuan-lite"
+		model = os.Getenv("OPENAI_MODEL")
 	}
 	client := openai.NewClient(option.WithBaseURL(baseUrl), option.WithAPIKey(key))
 	ctx := context.Background()
