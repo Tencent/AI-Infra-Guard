@@ -28,4 +28,5 @@ type CallbackReportInfo struct {
 type FpInfos struct {
 	FpName string                 `json:"name"`
 	Vuls   []vulstruct.VersionVul `json:"vuls"`
+	Desc   string                 `json:"desc"`
 }

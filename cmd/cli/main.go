@@ -22,9 +22,9 @@ func main() {
 		if parseOptions.CheckVulTargets {
 			return
 		}
-		if parseOptions.ListFpsTemplate || parseOptions.ListVulTemplate {
+		if parseOptions.ListVulTemplate {
 			// 打印指纹和漏洞列表
-			r.ShowFpAndVulList(parseOptions.ListFpsTemplate, parseOptions.ListVulTemplate)
+			r.ShowFpAndVulList(parseOptions.ListVulTemplate)
 			return
 		}
 		r.RunEnumeration() // 执行枚举

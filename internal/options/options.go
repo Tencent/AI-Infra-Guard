@@ -20,7 +20,6 @@ type Options struct {
 	RateLimit       int               // 每秒请求限制数
 	FPTemplates     string            // 指纹模板路径
 	AdvTemplates    string            // 漏洞模板路径
-	ListFpsTemplate bool              // 是否列出指纹模板
 	ListVulTemplate bool              // 是否列出漏洞模板
 	CheckVulTargets bool              // 检查漏洞模板是否正确
 	AIAnalysis      bool              // 是否启用AI分析
@@ -58,7 +57,6 @@ func ParseOptions() *Options {
 	flag.IntVar(&options.RateLimit, "limit", 200, "限制每秒的并发数量")
 	flag.StringVar(&options.FPTemplates, "fps", "data/fingerprints", "指定指纹文件或目录")
 	flag.StringVar(&options.AdvTemplates, "vul", "data/vuln", "指定漏洞库目录")
-	flag.BoolVar(&options.ListFpsTemplate, "list-fps", false, "输出指纹列表")
 	flag.BoolVar(&options.ListVulTemplate, "list-vul", false, "输出漏洞库列表")
 	flag.BoolVar(&options.CheckVulTargets, "check-vul", false, "检查漏洞模板是否正确")
 	flag.BoolVar(&options.AIAnalysis, "ai", false, "AI分析")

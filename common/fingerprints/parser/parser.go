@@ -12,6 +12,7 @@ type FingerPrintInfo struct {
 	Name     string            `yaml:"name"`
 	Author   string            `yaml:"author"`
 	Example  []string          `yaml:"example,omitempty"`
+	Desc     string            `yaml:"desc,omitempty"`
 	Severity string            `yaml:"severity"`
 	Metadata map[string]string `yaml:"metadata"`
 }

@@ -23,7 +23,6 @@ func RunWebServer(options *options.Options) {
 		w.Header().Set("Content-Type", "application/json")
 		ops := options
 		ops.ListVulTemplate = true
-		ops.ListFpsTemplate = true
 		instance, err := runner.New(ops) // 创建runner
 		if err != nil {
 			ret := Response{
