@@ -20,8 +20,8 @@ func HunyuanAI(prompt string, key string) (string, error) {
 
 // DeepSeekR1API DeepSeek AI接入
 func DeepSeekR1API(prompt, key string) (string, error) {
-	baseUrl := "https://api.deepseek.ai/v1/"
-	model := "deepseek-reasoner"
+	baseUrl := "https://api.deepseek.com/v1/"
+	model := "deepseek-chat"
 	return OpenAI(prompt, key, baseUrl, model)
 }
 
