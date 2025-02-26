@@ -3,7 +3,7 @@ info:
   cve: ComfyUI-Prompt-Preview 本地文件读取漏洞
   summary: ""
   details: |+
-    腾讯朱雀实验室发现:ComfyUI-Prompt-Preview存在本地文件读取漏洞，目前该漏洞为内部0day状态
+    ComfyUI-Prompt-Preview存在本地文件读取漏洞，目前该漏洞为内部0day状态
   cvss:
   severity: HIGH
 rule: ""
