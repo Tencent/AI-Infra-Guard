@@ -3,7 +3,12 @@
 [中文版](./README_CN.md)
 
 AI Infra Guard is an **efficient**, **lightweight**, and **user-friendly** AI infrastructure security assessment tool designed to discover and detect potential security risks in AI systems.
-
+## 🚀 Quick Preview
+**WEBUI**
+![](img/img3.png)
+**Command line**
+![AI Security Scanner Demo](img/img.jpg)
+![](img/img2.png)
 ## 🚀 Project Highlights
 * **Efficient Scanning*** Supports 28 AI framework fingerprint identifications
     * Covers 200+ security vulnerability databases
@@ -52,13 +57,6 @@ AI Infra Guard is an **efficient**, **lightweight**, and **user-friendly** AI in
 |          xinference |        0 |
 | triton-inference-server |    7|
 
-## 🚀 Quick Preview
-**Quick Usage**
-
-![AI Security Scanner Demo](img/img.jpg)
-![](img/img2.png)
-**WEBUI**
-![](img/img3.png)
 ## 📦 Installation and Usage
 ### Installation
 Download from: [https://github.com/Tencent/AI-Infra-Guard/releases](https://github.com/Tencent/AI-Infra-Guard/releases)

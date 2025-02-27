@@ -1,5 +1,11 @@
 # 🛡️ AI基础设施安全评估系统
 AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易用**的AI基础设施安全评估工具，专为发现和检测AI系统潜在安全风险而设计。
+## 🚀 快速预览
+**WEBUI模式**
+![](img/img3.png)  
+**命令行**
+![AI 安全扫描器演示](img/img.jpg)  
+![](img/img2.png)  
 
 ## 🚀 项目亮点
 * **高效扫描**
@@ -53,14 +59,6 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 
 
 
-## 🚀 快速预览
-**快速使用**
-
-![AI 安全扫描器演示](img/img.jpg)
-
-![](img/img2.png)
-**WEBUI**
-![](img/img3.png)
 
 ## 📦 安装与使用
 ### 安装
