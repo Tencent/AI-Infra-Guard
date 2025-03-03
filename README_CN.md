@@ -24,37 +24,37 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 
 ## 📊 AI组件覆盖情况
 | 组件名称           | 漏洞数量 |
-|--------------------|-|
-|         anythingllm |        8 |
-|           langchain |       33 |
-|          Chuanhugpt |        0 |
-|          clickhouse |       22 |
-|           comfy_mtb |        1 |
-| ComfyUI-Prompt-Preview |        1 |
-| ComfyUI-Custom-Scripts |        1 |
-|             comfyui |        1 |
-|                dify |        0 |
-|      fastchat-webui |        0 |
-|            fastchat |        1 |
-|               feast |        0 |
-|              gradio |       42 |
-|          jupyterlab |        6 |
-|    jupyter-notebook |        1 |
-|      jupyter-server |       13 |
-|            kubeflow |        4 |
-|              kubepi |        5 |
-|        llamafactory |        1 |
-|           llmstudio |        0 |
-|              ollama |        7 |
-|          open-webui |        8 |
-|           pyload-ng |       18 |
-|           qanything |        2 |
-|             ragflow |        2 |
-|                 ray |        4 |
-|         tensorboard |        0 |
-|                vllm |        4 |
-|          xinference |        0 |
-| triton-inference-server |    7|
+|--------------------|------|
+|         anythingllm | 8    |
+|           langchain | 33   |
+|          Chuanhugpt | 0    |
+|          clickhouse | 22   |
+|           comfy_mtb | 1    |
+| ComfyUI-Prompt-Preview | 1    |
+| ComfyUI-Custom-Scripts | 1    |
+|             comfyui | 1    |
+|                dify | 11   |
+|      fastchat-webui | 0    |
+|            fastchat | 1    |
+|               feast | 0    |
+|              gradio | 42   |
+|          jupyterlab | 6    |
+|    jupyter-notebook | 1    |
+|      jupyter-server | 13   |
+|            kubeflow | 4    |
+|              kubepi | 5    |
+|        llamafactory | 1    |
+|           llmstudio | 0    |
+|              ollama | 7    |
+|          open-webui | 8    |
+|           pyload-ng | 18   |
+|           qanything | 2    |
+|             ragflow | 2    |
+|                 ray | 4    |
+|         tensorboard | 0    |
+|                vllm | 4    |
+|          xinference | 0    |
+| triton-inference-server | 7    |
 
 
 
