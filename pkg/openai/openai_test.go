@@ -13,3 +13,9 @@ func TestHunyuanAI(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log(retMsg)
 }
+
+func TestDeepSeekR1API(t *testing.T) {
+	s, err := DeepSeekR1API("你好", "xx")
+	assert.NoError(t, err)
+	t.Log(s)
+}
