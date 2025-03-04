@@ -6,7 +6,7 @@ import (
 )
 
 func TestAdvisoryEngine(t *testing.T) {
-	dir := "data/advisories"
+	dir := "data/vuln"
 	ad, err := NewAdvisoryEngine(dir)
 	assert.NoError(t, err)
 	results, err := ad.GetAdvisories("mlflow", "2.13", true)

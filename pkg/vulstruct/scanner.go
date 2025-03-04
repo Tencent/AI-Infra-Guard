@@ -12,13 +12,14 @@ import (
 // Info represents vulnerability information structure
 // 存储漏洞信息的结构体
 type Info struct {
-	FingerPrintName string `yaml:"name" json:"-"`                                    // Name of the fingerprint
-	CVEName         string `yaml:"cve" json:"cve"`                                   // CVE identifier
-	Summary         string `yaml:"summary" json:"summary"`                           // Brief summary of the vulnerability
-	Details         string `yaml:"details" json:"details"`                           // Detailed description
-	CVSS            string `yaml:"cvss" json:"cvss"`                                 // CVSS score
-	Severity        string `yaml:"severity" json:"severity"`                         // Severity level
-	SecurityAdvise  string `yaml:"security_advise,omitempty" json:"security_advise"` // Security advisory
+	FingerPrintName string   `yaml:"name" json:"-"`                                    // Name of the fingerprint
+	CVEName         string   `yaml:"cve" json:"cve"`                                   // CVE identifier
+	Summary         string   `yaml:"summary" json:"summary"`                           // Brief summary of the vulnerability
+	Details         string   `yaml:"details" json:"details"`                           // Detailed description
+	CVSS            string   `yaml:"cvss" json:"cvss"`                                 // CVSS score
+	Severity        string   `yaml:"severity" json:"severity"`                         // Severity level
+	SecurityAdvise  string   `yaml:"security_advise,omitempty" json:"security_advise"` // Security advisory
+	References      []string `yaml:"references" json:"references"`
 }
 
 // VersionVul represents a version-based vulnerability
@@ -48,6 +49,7 @@ func ReadVersionVulSingFile(filename string) (*VersionVul, error) {
 		return nil, err
 	}
 	advisory.Info.Details = strings.TrimSpace(advisory.Info.Details)
+	advisory.Info.References = advisory.References
 
 	// Parse rule string into tokens
 	// 将规则字符串解析为词法单元
