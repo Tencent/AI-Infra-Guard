@@ -64,7 +64,7 @@ func RunWebServer(options *options.Options) {
 		w.Write(assetData)
 	})
 	// 启动HTTP服务器
-	gologger.Infof("Starting WebServer on %s\n", options.WebServerAddr)
+	gologger.Infof("Starting WebServer on http://%s\n", options.WebServerAddr)
 	if err := http.ListenAndServe(options.WebServerAddr, nil); err != nil {
 		gologger.Fatalf("Could not start WebSocket server: %s\n", err)
 	}
