@@ -1,0 +1,16 @@
+info:
+  name: ComfyUI-Custom-Scripts
+  cve: ComfyUI-Custom-Scripts local file read
+  summary: Vulnerability in ComfyUI due to insecure custom script execution
+  details: |
+    The vulnerability arises from the ability to execute arbitrary custom scripts within the ComfyUI environment. 
+    This could allow attackers to run malicious code, potentially leading to data theft, system compromise, or unauthorized access.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H  # Placeholder CVSS score, replace with actual score if available
+  severity: CRITICAL
+  security_advise: |
+    1. Disable custom script execution unless absolutely necessary.
+    2. Implement strict validation and sanitization of any scripts that are allowed to run.
+    3. Regularly update ComfyUI to the latest version to benefit from security patches.
+rule: version < "1.2.3"  # Placeholder version rule, replace with actual version if available
+references:
+  - ""

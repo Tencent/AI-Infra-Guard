@@ -1,0 +1,19 @@
+info:
+  name: gradio-csrf-vulnerability
+  cve: CVE-2024-1727
+  summary: Cross-Site Request Forgery in Gradio
+  details: |
+    A Cross-Site Request Forgery vulnerability in Gradio allows attackers to trick users into performing unintended actions, such as uploading large files to a victim's local Gradio instance. This vulnerability arises due to insufficient CORS rules around Gradio applications.
+  cvss: CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L
+  severity: MEDIUM
+  security_advise: |
+    1. Upgrade to gradio>=4.19.2
+    2. Ensure that the host header is checked against localhost or its aliases
+    3. Enforce strict origin validation for requests to Gradio applications
+rule: version > "0" && version < "4.19.2"
+references:
+  - https://nvd.nist.gov/vuln/detail/CVE-2024-1727
+  - https://github.com/gradio-app/gradio/pull/7503
+  - https://github.com/gradio-app/gradio/commit/84802ee6a4806c25287344dce581f9548a99834a
+  - https://github.com/gradio-app/gradio
+  - https://huntr.com/bounties/a94d55fb-0770-4cbe-9b20-97a978a2ffff
