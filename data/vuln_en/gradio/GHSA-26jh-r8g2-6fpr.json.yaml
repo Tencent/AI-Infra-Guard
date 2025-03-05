@@ -1,15 +1,15 @@
 info:
-  name: gradio-dropdown-validation-vulnerability
-  cve: CVE-2024-XXXXX
+  name: gradio
+  cve: GHSA-26jh-r8g2-6fpr
   summary: Gradio's dropdown component pre-process step does not limit the values to those in the dropdown list
   details: |
-    This vulnerability is a data validation issue in the Gradio `Dropdown` component's pre-processing step. Even if the `allow_custom_value` parameter is set to `False`, attackers can bypass this restriction by sending custom requests with arbitrary values, effectively breaking the developer’s intended input constraints. While this alone is not a severe vulnerability, it can lead to more critical security issues, particularly when paired with other vulnerabilities like file downloads from the user's machine.
+    This vulnerability is a **data validation issue** in the Gradio `Dropdown` component's pre-processing step. Even if the `allow_custom_value` parameter is set to `False`, attackers can bypass this restriction by sending custom requests with arbitrary values, effectively breaking the developer’s intended input constraints. While this alone is not a severe vulnerability, it can lead to more critical security issues, particularly when paired with other vulnerabilities like file downloads from the user's machine.
   cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
   severity: LOW
   security_advise: |
-    1. Upgrade to gradio>=5.0.0 to resolve the issue.
-    2. As a workaround, add manual validation in your prediction function to check the received values against the allowed dropdown values before processing them.
-rule: version > "0" && version < "5.0.0"
+    1. Upgrade to gradio>=5.0 to resolve the issue.
+    2. As a workaround, developers can add manual validation in their prediction function to check the received values against the allowed dropdown values before processing them.
+rule: version >= "0" && version < "5.0.0"
 references:
   - https://github.com/gradio-app/gradio/security/advisories/GHSA-26jh-r8g2-6fpr
   - https://github.com/gradio-app/gradio

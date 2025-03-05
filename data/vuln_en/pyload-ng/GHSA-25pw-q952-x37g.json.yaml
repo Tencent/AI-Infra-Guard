@@ -1,15 +1,16 @@
 info:
-  name: pyload-ng-rce-vulnerability
+  name: pyload-ng
   cve: CVE-2024-39205
   summary: pyload-ng vulnerable to RCE with js2py sandbox escape
   details: |
     An issue in pyload-ng v0.5.0b3.dev85 running under python3.11 or below allows attackers to execute arbitrary code via a crafted HTTP request.
-  cvss: UNKNOWN
+  cvss: CVSS:3.x/...
   severity: HIGH
   security_advise: |
-    1. Upgrade to pyload-ng >=0.5.0b3.dev86
-    2. Monitor for any further advisories related to pyload-ng and apply updates promptly
-rule: version < "0.5.0b3.dev86"
+    1. Upgrade to pyload-ng version greater than 0.5.0b3.dev85 once a fix is available
+    2. Monitor for updates and patches from the pyload-ng development team
+    3. Implement additional security measures such as network segmentation and input validation to mitigate risk
+rule: version == "0.5.0b3.dev85"
 references:
   - https://github.com/pyload/pyload/security/advisories/GHSA-r9pp-r4xf-597r
   - https://nvd.nist.gov/vuln/detail/CVE-2024-39205

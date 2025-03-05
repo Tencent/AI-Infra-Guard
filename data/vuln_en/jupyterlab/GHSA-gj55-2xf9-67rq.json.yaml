@@ -1,19 +1,28 @@
 info:
-  name: jupyterlab-html-injection
+  name: jupyterlab
   cve: GHSA-gj55-2xf9-67rq
   summary: HTML injection in JupyterLite leading to DOM Clobbering
   details: |
     The vulnerability depends on user interaction by opening a malicious notebook with Markdown cells, or Markdown file using JupyterLab preview feature.
+    
     A malicious user can access any data accessible from JupyterLite and perform arbitrary actions in JupyterLite environment.
+    
+    JupyterLite 0.4.1 was patched.
+    
+    There is no workaround for the underlying DOM Clobbering susceptibility. However, select plugins can be disabled on deployments which cannot update in a timely fashion to minimise the risk.
+    
+    To disable these extensions populate the `disabledExtensions` key in `jupyter-config-data` stanza of `jupyter-lite.json`.
+    
+    To confirm that the plugins were disabled manual inspection of the built page is required.
   cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N
   severity: MEDIUM
   security_advise: |
     1. Upgrade to JupyterLite >= 0.4.1
-    2. Disable select plugins on deployments which cannot update in a timely fashion:
-       - `@jupyterlab/mathjax-extension:plugin`
+    2. Disable the following extensions in `jupyter-lite.json` to minimize risk:
        - `@jupyterlab/markdownviewer-extension:plugin`
+       - `@jupyterlab/mathjax-extension:plugin`
        - `@jupyterlab/mathjax2-extension:plugin` (if installed with optional `jupyterlab-mathjax2` package)
-    3. Populate the `disabledExtensions` key in `jupyter-config-data` stanza of `jupyter-lite.json` as documented on https://jupyterlite.readthedocs.io/en/stable/howto/configure/config_files.html#jupyter-lite-json
+    3. Manually inspect the built page to confirm that the plugins were disabled.
 rule: version < "0.4.1"
 references:
   - https://github.com/jupyterlab/jupyterlab/security/advisories/GHSA-9q39-rmj3-p4r2

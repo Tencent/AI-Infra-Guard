@@ -1,5 +1,5 @@
 info:
-  name: gradio-arbitrary-file-access
+  name: gradio
   cve: CVE-2024-1728
   summary: Gradio allows users to access arbitrary files
   details: |
@@ -8,8 +8,8 @@ info:
   severity: CRITICAL
   security_advise: |
     1. Upgrade to gradio>=4.19.2
-    2. Review and restrict public access to Gradio applications if not necessary
-    3. Monitor for any suspicious activity related to file access
+    2. Monitor and restrict access to Gradio applications with public links
+    3. Regularly review and update security configurations for Gradio deployments
 rule: version < "4.19.2"
 references:
   - https://github.com/gradio-app/gradio/security/advisories/GHSA-m842-4qm8-7gpq

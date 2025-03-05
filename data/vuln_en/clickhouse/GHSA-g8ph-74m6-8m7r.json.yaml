@@ -1,19 +1,21 @@
 info:
-  name: clickhouse-client-certificate-password-exposure
+  name: clickhouse
   cve: GHSA-g8ph-74m6-8m7r
-  summary: ClickHouse vulnerable to client certificate password exposure in client exceptions
+  summary: ClickHouse vulnerable to client certificate password exposure in client exception
   details: |
     ### Summary
-    When client certificate authentication is enabled with password protection, the password (referred to as the client option `sslkey`) may be exposed in client exceptions (e.g., ClickHouseException or SQLException). This vulnerability can potentially lead to unauthorized access, data breaches, and violations of user privacy.
+    As initially reported in issue #1331, when client certificate authentication is enabled with password protection, the password (referred to as the client option `sslkey`) may be exposed in client exceptions (e.g., ClickHouseException or SQLException). This vulnerability can potentially lead to unauthorized access, data breaches, and violations of user privacy.
     ### Details
     During the handling of ClickHouseException, the client certificate password may be inadvertently exposed when sslkey is specified. This issue can arise when an exception is thrown during the execution of a query or a database operation. The client certificate password is then included in the exception message, which could be logged or exposed to unauthorized parties.
+    ### Impact
+    This vulnerability enables an attacker with access to client exception error messages or logs to obtain client certificate passwords, potentially allowing unauthorized access to sensitive information, data manipulation, and denial of service attacks. The extent of the risk depends on the specific implementation and usage of the affected systems. However, any exposure of client certificate passwords should be treated as a high-priority security concern.
   cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L
-  severity: HIGH
+  severity: MEDIUM
   security_advise: |
-    1. Upgrade to com.clickhouse:clickhouse-client, com.clickhouse:clickhouse-jdbc, or com.clickhouse:clickhouse-r2dbc version 0.4.6 or higher.
-    2. Review and adjust exception handling to prevent exposure of sensitive information.
-    3. Implement additional security measures such as monitoring for unauthorized access attempts and regular security audits.
-rule: version >= "0" && version < "0.4.6"
+    1. Upgrade to com.clickhouse:clickhouse-client, com.clickhouse:clickhouse-jdbc, and com.clickhouse:clickhouse-r2dbc versions >= 0.4.6
+    2. Implement additional logging and monitoring to detect unauthorized access attempts
+    3. Review and update security policies to include client certificate password handling
+rule: version < "0.4.6"
 references:
   - https://github.com/ClickHouse/clickhouse-java/security/advisories/GHSA-g8ph-74m6-8m7r
   - https://github.com/ClickHouse/clickhouse-java/issues/1331

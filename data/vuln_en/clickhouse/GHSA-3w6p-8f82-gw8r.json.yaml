@@ -1,14 +1,13 @@
 info:
-  name: clickhouse-log4j-vulnerability
+  name: clickhouse
   cve: CVE-2021-4104
   summary: Using JMSAppender in log4j configuration may lead to deserialization of untrusted data
   details: |
     ClickHouse JDBC Bridge uses slf4j-log4j12 1.7.32, which depends on log4j 1.2.17. It allows a remote attacker to execute code on the server if you changed default log4j configuration by adding JMSAppender and an insecure JMS broker.
     
-    ### Patches
     The patch version `2.0.7` removed log4j dependency by replacing slf4j-log4j12 to slf4j-jdk14. Logging configuration is also changed from log4j.properties to logging.properties.
     
-    ### Workarounds
+    Workarounds:
     1. Do NOT change log4j configuration to use JMSAppender along with insecure JMS broker
     2. Alternatively, you can issue below command to remove `JMSAppender.class`:
     
@@ -23,7 +22,7 @@ info:
   security_advise: |
     1. Upgrade to clickhouse-jdbc-bridge version 2.0.7 or higher
     2. Avoid using JMSAppender in log4j configuration with insecure JMS brokers
-    3. If using an older version, remove the JMSAppender.class from the clickhouse-jdbc-bridge JAR file using the provided command
+    3. If JMSAppender must be used, ensure the JMS broker is secure and properly configured
 rule: version < "2.0.7"
 references:
   - https://github.com/ClickHouse/clickhouse-jdbc-bridge/security/advisories/GHSA-3w6p-8f82-gw8r

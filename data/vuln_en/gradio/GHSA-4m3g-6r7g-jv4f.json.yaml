@@ -1,28 +1,21 @@
 info:
-  name: gradio-pdf-arbitrary-js-execution
+  name: gradio
   cve: CVE-2024-4367
-  summary: Arbitrary JavaScript execution due to using outdated pdf.js library
+  summary: Arbitrary JavaScript execution due to using outdated libraries in gradio-pdf
   details: |
     gradio-pdf projects with dependencies on the pdf.js library are vulnerable to CVE-2024-4367, which allows arbitrary JavaScript execution. Malicious scripts can be injected into the code, and when linked with vulnerabilities such as CSRF, it can cause even greater damage.
     
-    ### PoC
-    1. Generate a pdf file with a malicious script in the fontmatrix. (This will run `alert('XSS').`)
-    [poc.pdf](https://github.com/user-attachments/files/15516798/poc.pdf)
-    
-    2. Run the app. In this PoC, I've used the demo for a simple proof.
-    ![1](https://github.com/freddyaboulton/gradio-pdf/assets/114328108/d1bb7626-3d0f-4984-8873-297658d6e77e)
-    
+    **PoC:**
+    1. Generate a pdf file with a malicious script in the fontmatrix.
+    2. Run the app.
     3. Upload a PDF file containing the script.
-    ![2](https://github.com/freddyaboulton/gradio-pdf/assets/114328108/803d8080-c946-446e-bb34-cf5640e1b4de)
-    
     4. Check that the script is running.
-    ![3](https://github.com/freddyaboulton/gradio-pdf/assets/114328108/4956b95f-acca-4bb1-a3c2-7dfc96adf890)
   cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:L/I:N/A:N
-  severity: HIGH
+  severity: LOW
   security_advise: |
     1. Upgrade the pdf.js to v4.2.67, which removes the vulnerability.
-    2. Alternatively, set the option `isEvalSupported` to `false`.
-rule: version >= "0" && version < "0.0.10"
+    2. Alternatively, set the option `isEvalSupported` to `false` in pdf.js.
+  rule: version >= "0" && version < "0.0.10"
 references:
   - https://codeanlabs.com/blog/research/cve-2024-4367-arbitrary-js-execution-in-pdf-js/
   - https://github.com/mozilla/pdf.js/pull/18015
