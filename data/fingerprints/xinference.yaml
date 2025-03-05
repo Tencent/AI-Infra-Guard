@@ -1,12 +1,20 @@
 info:
-  name: xinference
+  name: Xinference
   author: 腾讯朱雀实验室
   severity: info
+  desc: Xorbits Inference (Xinference) is an open-source platform to streamline the operation and integration of a wide array of AI models. With Xinference, you’re empowered to run inference using any open-source LLMs, embedding models, and multimodal models either in the cloud or on your own premises, and create robust AI-driven applications.
   metadata:
-    product: xinference
+    product: inference
     vendor: xorbitsai
 http:
   - method: GET
-    path: '/'
+    path: '/ui/'
     matchers:
-      - body="<title>Xinference</title>" || icon="1830133050"
+      - body="<title>Xinference</title>"
+version:
+  - method: GET
+    path: '/v1/cluster/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"(.*?)"}'
