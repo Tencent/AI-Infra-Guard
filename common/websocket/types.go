@@ -22,8 +22,10 @@ const (
 
 // ScanRequest 扫描请求结构
 type ScanRequest struct {
-	ScanType string   `json:"scan_type"`
-	Target   []string `json:"target,omitempty"`
+	ScanType string            `json:"scan_type"`
+	Target   []string          `json:"target,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Lang     string            `json:"lang,omitempty"`
 }
 
 // Response 基础响应结构

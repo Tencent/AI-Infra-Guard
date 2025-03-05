@@ -623,7 +623,11 @@ func (r *Runner) ShowFpAndVulList(vul bool) {
 
 // initVulnerabilityDB initializes the vulnerability advisory engine
 func (r *Runner) initVulnerabilityDB() error {
-	engine, err := vulstruct.NewAdvisoryEngine(r.Options.AdvTemplates)
+	vulDir := strings.TrimRight(r.Options.AdvTemplates, "/")
+	if r.Options.Language == "en" {
+		vulDir = vulDir + "_en"
+	}
+	engine, err := vulstruct.NewAdvisoryEngine(vulDir)
 	if err != nil {
 		gologger.Fatalf("无法初始化漏洞库:%s", err)
 	}

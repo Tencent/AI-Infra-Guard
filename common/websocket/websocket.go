@@ -111,6 +111,15 @@ func (s *WSServer) handleScanRequest(conn *websocket.Conn, req *ScanRequest) {
 		}
 	}
 	opts.SetCallback(processFunc)
+	headers := make([]string, 0)
+	for k, v := range req.Headers {
+		headers = append(headers, k+":"+v)
+	}
+	opts.Headers = headers
+	if req.Lang == "en" {
+		opts.Language = "en"
+	}
+
 	r, err := runner.New(opts) // 创建runner
 	if err != nil {
 		s.SendMessage(conn, WSMsgTypeLog, Log{

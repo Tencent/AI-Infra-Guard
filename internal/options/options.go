@@ -29,6 +29,7 @@ type Options struct {
 	WebServer       bool              // 是否启用WebSocket服务器
 	WebServerAddr   string            // WebSocket服务器地址
 	Headers         multiStringFlag   // HTTP请求头
+	Language        string            // 语言
 	Callback        func(interface{}) `json:"-"` // 回调函数
 }
 
@@ -65,7 +66,8 @@ func ParseOptions() *Options {
 	flag.StringVar(&options.WebServerAddr, "ws-addr", "127.0.0.1:8088", "WebSocket服务器地址")
 	flag.BoolVar(&options.AIAnalysis, "ai", false, "AI分析")
 	flag.StringVar(&options.AIHunyuanToken, "hunyuan-token", "", "混元token")
-	flag.StringVar(&options.AIDeepSeekToken, "deepseek-token", "", "deepseek r1 token")
+	flag.StringVar(&options.AIDeepSeekToken, "deepseek-token", "", "deepseek token")
+	flag.StringVar(&options.Language, "lang", "zh", "返回语言 zh/en")
 	flag.Parse()
 	options.configureOutput()
 	ShowBanner()
