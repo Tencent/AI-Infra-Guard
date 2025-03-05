@@ -2,6 +2,7 @@
 package vulstruct
 
 import (
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"os"
 	"strings"
@@ -26,9 +27,36 @@ type Info struct {
 // 版本相关的漏洞结构体
 type VersionVul struct {
 	Info        Info         `yaml:"info" json:"info"`             // Basic vulnerability information
-	Rule        string       `yaml:"rule" json:"-"`                // Rule expression in string format
+	Rule        string       `yaml:"rule" json:"rule"`             // Rule expression in string format
 	RuleCompile *parser.Rule `yaml:"-" json:"-"`                   // Compiled rule for evaluation
 	References  []string     `yaml:"references" json:"references"` // Reference links
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface
+func (v *VersionVul) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	// 定义临时结构体，Rule字段为指针类型
+	type tmpStruct struct {
+		Info       Info     `yaml:"info"`
+		Rule       *string  `yaml:"rule"`
+		References []string `yaml:"references"`
+	}
+
+	var tmp tmpStruct
+	if err := unmarshal(&tmp); err != nil {
+		return err
+	}
+
+	// 检查Rule字段是否存在
+	if tmp.Rule == nil {
+		return fmt.Errorf("missing required field 'rule'")
+	}
+
+	// 将临时结构体的值赋给原结构体
+	v.Info = tmp.Info
+	v.Rule = *tmp.Rule // 即使为空字符串也允许
+	v.References = tmp.References
+
+	return nil
 }
 
 // ReadVersionVulSingFile reads and parses a single vulnerability file

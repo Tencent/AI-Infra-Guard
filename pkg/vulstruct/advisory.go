@@ -17,9 +17,15 @@ type AdvisoryEngine struct {
 // dir: 包含漏洞建议yaml文件的目录路径
 // 返回: 漏洞建议引擎实例和可能的错误
 func NewAdvisoryEngine(dir string) (*AdvisoryEngine, error) {
-	files, err := utils.ScanDir(dir)
-	if err != nil {
-		return nil, err
+	var files []string
+	var err error
+	if utils.IsDir(dir) {
+		files, err = utils.ScanDir(dir)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		files = []string{dir}
 	}
 	ads := make([]VersionVul, 0)
 	for _, file := range files {
