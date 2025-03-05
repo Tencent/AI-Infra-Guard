@@ -15,7 +15,7 @@ info:
   security_advise: |
     1. Upgrade the pdf.js to v4.2.67, which removes the vulnerability.
     2. Alternatively, set the option `isEvalSupported` to `false` in pdf.js.
-  rule: version >= "0" && version < "0.0.10"
+rule: version >= "0" && version < "0.0.10"
 references:
   - https://codeanlabs.com/blog/research/cve-2024-4367-arbitrary-js-execution-in-pdf-js/
   - https://github.com/mozilla/pdf.js/pull/18015
