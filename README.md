@@ -4,8 +4,8 @@
 
 AI Infra Guard is an **efficient**, **lightweight**, and **user-friendly** AI infrastructure security assessment tool designed to discover and detect potential security risks in AI systems.
 ## 🚀 Quick Preview
-**WEBUI**
-<img src="img/web-en.png" height="400">
+**WEBUI**  
+<img src="img/web-en.png" height="800"><br>
 **Command line**
 ![AI Security Scanner Demo](img/img.jpg)
 ![](img/img2.png)
