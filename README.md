@@ -88,7 +88,10 @@ Download from: [https://github.com/Tencent/AI-Infra-Guard/releases](https://gith
 
 **AI Analysis**
 ```
-./ai-infra-guard -target [IP/Domain] -ai -token [Hunyuan token]
+# hunyuan token
+./ai-infra-guard -target [IP/Domain] -ai -hunyuan-token [Hunyuan token]
+# deepseek token
+./ai-infra-guard -target [IP/Domain] -ai -deepseek-token [deepseek token]
 ```
 
 ## 🔍 Fingerprint Matching Rules

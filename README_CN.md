@@ -91,7 +91,10 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 
 **AI分析**
 ```
-./ai-infra-guard -target [IP/域名] -ai -token [混元token]
+# hunyuan token
+./ai-infra-guard -target [IP/Domain] -ai -hunyuan-token [Hunyuan token]
+# deepseek token
+./ai-infra-guard -target [IP/Domain] -ai -deepseek-token [Deepseek token]
 ```
 
 ## 🔍 指纹匹配规则
