@@ -9,6 +9,7 @@ import (
 	"mime"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 //go:embed static/*
@@ -51,17 +52,34 @@ func RunWebServer(options *options.Options) {
 		return
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		filePath := r.RequestURI
-		assetPath := "static" + filePath
+		assetPath := "static" + r.RequestURI
+		if strings.Contains(r.RequestURI, "..") {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 		assetData, err := staticFS.ReadFile(assetPath)
 		if err != nil {
-			assetData, _ = staticFS.ReadFile("static/index.html")
+			// 如果请求的文件不存在，返回index.html
+			var readErr error
+			assetPath = "static/index.html"
+			assetData, readErr = staticFS.ReadFile("static/index.html")
+			if readErr != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 		}
 
-		// 设置正确的MIME类型
+		// 设置MIME类型，如果无法确定则默认为text/plain
 		mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
+		if mimeType == "" {
+			mimeType = "text/plain"
+		}
 		w.Header().Set("Content-Type", mimeType)
-		w.Write(assetData)
+
+		// 写入响应内容
+		if _, err := w.Write(assetData); err != nil {
+			gologger.Errorln("Error writing response:", err)
+		}
 	})
 	// 启动HTTP服务器
 	gologger.Infof("Starting WebServer on http://%s\n", options.WebServerAddr)
