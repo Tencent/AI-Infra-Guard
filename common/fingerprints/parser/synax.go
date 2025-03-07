@@ -224,6 +224,9 @@ func (r *Rule) Eval(config *Config) bool {
 // 去除版本号中的字母并进行格式统一化
 func versionCheck(version string) string {
 	version = strings.TrimPrefix(version, "v")
+	if version == "latest" {
+		return "999"
+	}
 	// 正则替换所有单词
 	compile := regexp.MustCompile(`[A-Za-z]+`)
 	if compile.MatchString(version) {
@@ -231,6 +234,9 @@ func versionCheck(version string) string {
 		newVersion = compile.ReplaceAllString(newVersion, "")
 		//gologger.Debugf("version:%s=>%s", version, newVersion)
 		version = newVersion
+	}
+	if version == "" {
+		return "0"
 	}
 	return version
 }

@@ -70,3 +70,18 @@ func TestParseAdvisorTokens(t *testing.T) {
 	t.Log(b)
 	//assert.Equal(t, dsl.AdvisoryEval(config), true)
 }
+
+func TestParseAdvisorLatestTokens(t *testing.T) {
+	tokens, err := ParseAdvisorTokens(`version > "0" && version < "latest"`)
+	assert.NoError(t, err)
+	err = CheckBalance(tokens)
+	assert.NoError(t, err)
+	dsl, err := TransFormExp(tokens)
+	assert.NoError(t, err)
+	config := &AdvisoryConfig{
+		Version: "1.3",
+	}
+	b := dsl.AdvisoryEval(config)
+	t.Log(b)
+	//assert.Equal(t, dsl.AdvisoryEval(config), true)
+}
