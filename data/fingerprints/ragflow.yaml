@@ -9,5 +9,16 @@ info:
 http:
   - method: GET
     path: '/'
+    subpart:
+      regex: '/umi\..*\.js'
+      method: GET
     matchers:
-      - body="<title>RAGFlow</title>"
+      - body="ragflow-ui-theme"
+version:
+  - method: GET
+    path: '/v1/system/version'
+    auth: true
+    extractor:
+      part: body
+      group: 1
+      regex: '"data":\s*"v(\d+\.\d+\.?\d+?).*",'

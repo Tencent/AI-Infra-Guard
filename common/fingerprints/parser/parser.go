@@ -32,6 +32,8 @@ type HttpRule struct {
 	Data      string    `yaml:"data,omitempty"`
 	dsl       []*Rule   `yaml:"-"`
 	Extractor Extractor `yaml:"extractor,omitempty"`
+	Auth      bool      `yaml:"auth,omitempty"`
+	Subpart   Subpart   `yaml:"subpart,omitempty"`
 }
 
 // GetDsl 返回解析后的DSL规则列表
@@ -122,4 +124,10 @@ type FpResult struct {
 //   - bool: 是否匹配规则
 func Eval(config *Config, dsl *Rule) bool {
 	return dsl.Eval(config)
+}
+
+// Subpart 定义了子匹配规则
+type Subpart struct {
+	Regex  string `yaml:"regex"`
+	Method string `yaml:"method"`
 }

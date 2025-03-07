@@ -2,6 +2,7 @@
 package preload
 
 import (
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
@@ -84,6 +85,40 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 				if resp == nil {
 					continue
 				}
+				// 添加subpart查询支持
+				if req.Subpart.Regex != "" {
+					// 编译正则表达式
+					compileRegex, err := regexp.Compile(req.Subpart.Regex)
+					if err != nil {
+						gologger.WithError(err).Errorln("compile regex error:", req.Subpart.Regex)
+						continue
+					}
+
+					// 查找所有匹配项
+					matches := compileRegex.FindAllStringSubmatch(resp.DataStr, -1)
+					if len(matches) == 0 {
+						gologger.Errorln("no matches found for regex:", req.Subpart.Regex)
+						continue
+					}
+
+					// 提取匹配结果
+					for _, match := range matches {
+						req.Path = match[0]
+					}
+
+					// 设置默认请求方法
+					if req.Subpart.Method == "" {
+						req.Subpart.Method = "GET"
+					}
+
+					// 发起新的请求
+					resp, err = r.hp.Get(uri+req.Path, nil)
+					if err != nil {
+						gologger.WithError(err).Errorln("request failed")
+						continue
+					}
+				}
+
 				// 文件指纹
 				fpConfig := parser.Config{
 					Body:   resp.DataStr,
@@ -176,6 +211,11 @@ func (r *Runner) GetFps() []parser.FingerPrint {
 // 通过正则表达式从响应中提取版本号
 func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, error) {
 	for _, req := range fp.Version {
+		// 根据指纹需要，要求用户传入凭证以获得指定指纹的版本信息
+		if req.Auth && len(hp.CustomHeaders) == 0 {
+			gologger.Fatalf(fmt.Sprintf("%s 的指纹版本识别需要身份认证，请使用-header传入认证", fp.Info.Name))
+		}
+
 		resp, err := hp.Get(uri+req.Path, nil)
 		if err != nil {
 			gologger.WithError(err).Errorln("请求失败")

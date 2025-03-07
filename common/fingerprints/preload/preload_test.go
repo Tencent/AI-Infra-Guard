@@ -55,3 +55,32 @@ func TestRunner_RunFpReqs(t *testing.T) {
 		t.Logf("%+v", fp)
 	}
 }
+
+func TestRunner_RunFpReqs2(t *testing.T) {
+	dialer, err := fastdialer.NewDialer(fastdialer.DefaultOptions)
+	assert.NoError(t, err)
+	httpOptions := &httpx.HTTPOptions{
+		Timeout:          time.Duration(3) * time.Second,
+		RetryMax:         1,
+		FollowRedirects:  false,
+		HTTPProxy:        "",
+		Unsafe:           false,
+		DefaultUserAgent: httpx.GetRandomUserAgent(),
+		Dialer:           dialer,
+		CustomHeaders:    []string{"Authorization: XXX"},
+	}
+	hp, err := httpx.NewHttpx(httpOptions)
+	assert.NoError(t, err)
+
+	currentDir, err := os.Getwd()
+	t.Logf(currentDir)
+	data, err := os.ReadFile(currentDir + "/../../../" + "data/fingerprints/ragflow.yaml")
+	assert.NoError(t, err)
+	fp, err := parser.InitFingerPrintFromData(data)
+	assert.NoError(t, err)
+	instance := New(hp, []parser.FingerPrint{*fp})
+	fps := instance.RunFpReqs("http://localhost:18080/", 10, 0)
+	for _, fp := range fps {
+		t.Logf("%+v", fp)
+	}
+}
