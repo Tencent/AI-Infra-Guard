@@ -1,5 +1,5 @@
 info:
-  name: mcp
+  name: mcp sse
   author: 腾讯朱雀实验室
   severity: info
   desc: Anthropic Context MCP Protocol fingerprinting
