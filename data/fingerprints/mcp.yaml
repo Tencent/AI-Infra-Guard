@@ -1,0 +1,13 @@
+info:
+  name: mcp
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: Anthropic Context MCP Protocol fingerprinting
+  metadata:
+    product: Anthropic
+    vendor: Anthropic
+http:
+  - method: GET
+    path: '/messages/'
+    matchers:
+      - body="session_id is required"
