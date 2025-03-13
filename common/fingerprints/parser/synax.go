@@ -1,12 +1,14 @@
-// Package parser 实现栈结构
+// Package parser 实现AST语法解析
 package parser
 
 import (
 	"errors"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 
 	vv "github.com/hashicorp/go-version"
 )
@@ -19,13 +21,13 @@ type Exp interface {
 
 // Rule 表示一个规则，包含多个表达式
 type Rule struct {
-	exps []Exp
+	root Exp
 }
 
 type dslExp struct {
-	p1        string
-	p2        string
-	p3        string
+	op        string
+	left      string
+	right     string
 	cacheRegx *regexp.Regexp
 }
 
@@ -34,7 +36,9 @@ func (d dslExp) Name() string {
 }
 
 type logicExp struct {
-	p string
+	op    string
+	left  Exp
+	right Exp
 }
 
 func (l logicExp) Name() string {
@@ -42,7 +46,7 @@ func (l logicExp) Name() string {
 }
 
 type bracketExp struct {
-	p string
+	inner Exp
 }
 
 func (b bracketExp) Name() string {
@@ -54,125 +58,155 @@ func (b bracketExp) Name() string {
 // 主要功能：解析tokens并构建DSL表达式、逻辑表达式和括号表达式
 func TransFormExp(tokens []Token) (*Rule, error) {
 	stream := newTokenStream(tokens)
-	var ret []Exp
-	for stream.hasNext() {
-		tmpToken, err := stream.next()
-		if err != nil {
-			return nil, err
-		}
-		switch tmpToken.name {
-		case tokenBody, tokenHeader, tokenIcon, tokenVersion, tokenIsInternal:
-			p2, err := stream.next()
-			if err != nil {
-				return nil, err
-			}
-			if !(p2.name == tokenContains ||
-				p2.name == tokenFullEqual ||
-				p2.name == tokenNotEqual ||
-				p2.name == tokenRegexEqual ||
-				p2.name == tokenGte ||
-				p2.name == tokenLte ||
-				p2.name == tokenGt ||
-				p2.name == tokenLt) {
-				return nil, errors.New("synax error in " + tmpToken.content + " " + p2.content)
-			}
-			p3, err := stream.next()
-			if err != nil {
-				return nil, err
-			}
-			if !(p3.name == tokenText) {
-				return nil, errors.New("synax error in" + tmpToken.content + " " + p2.content + " " + p3.content)
-			}
-			// 正则缓存对象
-			var dsl dslExp
-			if p2.name == tokenRegexEqual {
-				compile, err := regexp.Compile(p3.content)
-				if err != nil {
-					gologger.WithError(err).WithField("regex", p3.content).Errorln("指纹规则 正则编译失败")
-					return nil, err
-				}
-				dsl = dslExp{p1: tmpToken.content, p2: p2.content, cacheRegx: compile}
-			} else {
-				dsl = dslExp{p1: tmpToken.content, p2: p2.content, p3: p3.content}
-			}
-			ret = append(ret, &dsl)
-		case tokenAnd, tokenOr:
-			exp := &logicExp{tmpToken.content}
-			ret = append(ret, exp)
-		case tokenLeftBracket, tokenRightBracket:
-			exp := &bracketExp{tmpToken.content}
-			ret = append(ret, exp)
-		}
-	}
-	ret, err := infix2ToPostfix(ret)
+	root, err := parseExpr(stream)
 	if err != nil {
 		return nil, err
 	}
-	rule := new(Rule)
-	rule.exps = ret
-	return rule, nil
+
+	if stream.hasNext() {
+		return nil, errors.New("unexpected tokens after expression")
+	}
+
+	return &Rule{root: root}, nil
 }
 
-// infix2ToPostfix 将中缀表达式转换为后缀表达式
-// 输入表达式切片，返回转换后的后缀表达式切片和error
-// 使用栈实现运算符优先级处理
-func infix2ToPostfix(exps []Exp) ([]Exp, error) {
-	stack := NewStack()
-	var ret []Exp
-	for i := 0; i < len(exps); i++ {
-		switch tmpExp := exps[i].(type) {
-		case *dslExp:
-			ret = append(ret, tmpExp)
-		case *bracketExp:
-			if tmpExp.p == tokenLeftBracket {
-				// 左括号直接入栈
-				stack.push(tmpExp)
-			} else if tmpExp.p == tokenRightBracket {
-				// 右括号则弹出元素,直到遇到左括号
-				for !stack.isEmpty() {
-					pre, exist := stack.top().(*bracketExp)
-					if exist && pre.p == tokenLeftBracket {
-						stack.pop()
-						break
-					}
+// parseExpr 解析表达式
+func parseExpr(stream *tokenStream) (Exp, error) {
+	expr, err := parsePrimaryExpr(stream)
+	if err != nil {
+		return nil, err
+	}
 
-					ret = append(ret, stack.pop().(Exp))
-
-				}
+	for stream.hasNext() {
+		token, err := stream.next()
+		if err != nil {
+			return nil, err
+		}
+		if token.name == tokenAnd || token.name == tokenOr {
+			right, err := parsePrimaryExpr(stream)
+			if err != nil {
+				return nil, err
 			}
-		case *logicExp:
-			if !stack.isEmpty() {
-				top := stack.top()
-				bracket, exist := top.(*bracketExp)
-				if exist && bracket.p == tokenLeftBracket {
-					stack.push(tmpExp)
-					continue
-				}
-				ret = append(ret, top.(Exp))
-				stack.pop()
+			// 提高括号表达式的优先级
+			if _, ok := right.(*bracketExp); ok {
+				expr = &logicExp{op: token.content, left: right, right: expr}
+			} else {
+				expr = &logicExp{op: token.content, left: expr, right: right}
 			}
-			stack.push(tmpExp)
-		default:
-			return nil, errors.New("unknown transform type")
+		} else {
+			stream.rewind()
+			break
 		}
 	}
-	for !stack.isEmpty() {
-		tmp := stack.pop()
-		ret = append(ret, tmp.(Exp))
+	return expr, nil
+}
+
+// parsePrimary 解析括号语句和基础表达式
+func parsePrimaryExpr(stream *tokenStream) (Exp, error) {
+	tmpToken, err := stream.next()
+	if err != nil {
+		return nil, err
 	}
-	return ret, nil
+
+	switch tmpToken.name {
+	case tokenBody, tokenHeader, tokenIcon, tokenVersion, tokenIsInternal:
+		p2, err := stream.next()
+		if err != nil {
+			return nil, err
+		}
+		if !(p2.name == tokenContains ||
+			p2.name == tokenFullEqual ||
+			p2.name == tokenNotEqual ||
+			p2.name == tokenRegexEqual ||
+			p2.name == tokenGte ||
+			p2.name == tokenLte ||
+			p2.name == tokenGt ||
+			p2.name == tokenLt) {
+			return nil, errors.New("synax error in " + tmpToken.content + " " + p2.content)
+		}
+		p3, err := stream.next()
+		if err != nil {
+			return nil, err
+		}
+		if p3.name != tokenText {
+			return nil, errors.New("synax error in" + tmpToken.content + " " + p2.content + " " + p3.content)
+		}
+		// 正则缓存对象
+		var dsl dslExp
+		if p2.name == tokenRegexEqual {
+			compile, err := regexp.Compile(p3.content)
+			if err != nil {
+				gologger.WithError(err).WithField("regex", p3.content).Errorln("指纹规则 正则编译失败")
+				return nil, err
+			}
+			dsl = dslExp{left: tmpToken.content, op: p2.content, cacheRegx: compile}
+		} else {
+			dsl = dslExp{left: tmpToken.content, op: p2.content, right: p3.content}
+		}
+		return &dsl, nil
+	case tokenLeftBracket:
+		inner, err := parseExpr(stream)
+		if err != nil {
+			return nil, err
+		}
+		closingToken, err := stream.next()
+		if err != nil || closingToken.name != tokenRightBracket {
+			return nil, errors.New("missing or invalid closing bracket")
+		}
+		return &bracketExp{inner: inner}, nil
+	default:
+		return nil, errors.New("unexpected token: " + tmpToken.content)
+	}
+}
+
+// PrintAST 递归打印表达式
+func (r *Rule) PrintAST() {
+	if r.root == nil {
+		return
+	}
+
+	var printExpr func(expr Exp, level int)
+	printExpr = func(expr Exp, level int) {
+		indent := strings.Repeat("  ", level)
+
+		switch e := expr.(type) {
+		case *dslExp:
+			if e.cacheRegx != nil {
+				fmt.Printf("%s    dslExp: %s %s regex('%s')\n", indent, e.left, e.op, e.cacheRegx.String())
+			} else {
+				fmt.Printf("%s    dslExp: %s %s '%s'\n", indent, e.left, e.op, e.right)
+			}
+
+		case *logicExp:
+			fmt.Printf("%s logicExp: %s\n", indent, e.op)
+			fmt.Printf("%s  - left:\n", indent)
+			printExpr(e.left, level+1)
+			fmt.Printf("%s  - right:\n", indent)
+			printExpr(e.right, level+1)
+
+		case *bracketExp:
+			fmt.Printf("%s bracketExp:\n", indent)
+			printExpr(e.inner, level+1)
+
+		default:
+			fmt.Printf("%s Unknown expression type\n", indent)
+		}
+	}
+
+	printExpr(r.root, 0)
 }
 
 // Eval 评估规则是否匹配
 // 输入配置对象，返回布尔值表示是否匹配
 // 使用栈实现后缀表达式求值
 func (r *Rule) Eval(config *Config) bool {
-	stack := NewStack()
-	for i := 0; i < len(r.exps); i++ {
-		switch next := r.exps[i].(type) {
+	var evalExpr func(expr Exp, config *Config) bool
+
+	evalExpr = func(expr Exp, config *Config) bool {
+		switch next := expr.(type) {
 		case *dslExp:
 			var s1 string
-			switch next.p1 {
+			switch next.left {
 			case tokenBody:
 				s1 = config.Body
 			case tokenHeader:
@@ -180,12 +214,12 @@ func (r *Rule) Eval(config *Config) bool {
 			case tokenIcon:
 				s1 = strconv.Itoa(int(config.Icon))
 			default:
-				panic("unknown s1 token")
+				panic("unknown left token")
 			}
 			s1 = strings.ToLower(s1)
-			text := strings.ToLower(next.p3)
+			text := strings.ToLower(next.right)
 			var r bool
-			switch next.p2 {
+			switch next.op {
 			case tokenFullEqual:
 				r = text == s1
 			case tokenContains:
@@ -195,28 +229,37 @@ func (r *Rule) Eval(config *Config) bool {
 			case tokenRegexEqual:
 				r = next.cacheRegx.MatchString(s1)
 			default:
-				panic("unknown p2 token")
+				panic("unknown op token")
 			}
-			stack.push(r)
+			return r
 		case *logicExp:
-			p1 := stack.pop().(bool)
-			p2 := stack.pop().(bool)
-			var r bool
-			switch next.p {
+			switch next.op {
 			case tokenAnd:
-				r = p1 && p2
+				leftVal := evalExpr(next.left, config)
+				if !leftVal { // short-circuit evaluation
+					return false
+				}
+				return evalExpr(next.right, config)
 			case tokenOr:
-				r = p1 || p2
+				leftVal := evalExpr(next.left, config)
+				if leftVal { // short-circuit evaluation
+					return true
+				}
+				return evalExpr(next.right, config)
 			default:
 				panic("unknown logic type")
 			}
-			stack.push(r)
+		case *bracketExp:
+			return evalExpr(next.inner, config)
 		default:
 			panic("error eval")
 		}
 	}
-	top := stack.top().(bool)
-	return top
+
+	if r.root == nil {
+		return false
+	}
+	return evalExpr(r.root, config)
 }
 
 // versionCheck 版本号格式标准化处理
@@ -245,16 +288,16 @@ func versionCheck(version string) string {
 // 输入建议配置对象，返回布尔值表示是否匹配
 // 主要用于版本号比较的规则评估
 func (r *Rule) AdvisoryEval(config *AdvisoryConfig) bool {
-	stack := NewStack()
 	var err error
-	for i := 0; i < len(r.exps); i++ {
-		switch next := r.exps[i].(type) {
+	var evalExpr func(expr Exp, config *AdvisoryConfig) bool
+	evalExpr = func(expr Exp, config *AdvisoryConfig) bool {
+		switch next := expr.(type) {
 		case *dslExp:
 			var s1 string
 			var v1 *vv.Version
 			var text string
 			var r bool
-			switch next.p1 {
+			switch next.left {
 			case tokenVersion:
 				s1 = versionCheck(config.Version)
 				v1, err = vv.NewVersion(s1)
@@ -262,8 +305,8 @@ func (r *Rule) AdvisoryEval(config *AdvisoryConfig) bool {
 					gologger.Debugf("无法解析版本号:%s=>%s", config.Version, "0.0.0")
 					v1, _ = vv.NewVersion("0.0.0")
 				}
-				text = versionCheck(next.p3)
-				switch next.p2 {
+				text = versionCheck(next.right)
+				switch next.op {
 				case tokenFullEqual:
 					r = v1.Equal(vv.Must(vv.NewVersion(text)))
 				case tokenContains:
@@ -280,31 +323,40 @@ func (r *Rule) AdvisoryEval(config *AdvisoryConfig) bool {
 					r = v1.LessThanOrEqual(vv.Must(vv.NewVersion(text)))
 
 				default:
-					panic("unknown p2 token")
+					panic("unknown op token")
 				}
 			case tokenIsInternal:
 				r = config.IsInternal
 			default:
-				panic("unknown s1 token")
+				panic("unknown left token")
 			}
-			stack.push(r)
+			return r
 		case *logicExp:
-			p1 := stack.pop().(bool)
-			p2 := stack.pop().(bool)
-			var r bool
-			switch next.p {
+			switch next.op {
 			case tokenAnd:
-				r = p1 && p2
+				leftVal := evalExpr(next.left, config)
+				if !leftVal { // short-circuit evaluation
+					return false
+				}
+				return evalExpr(next.right, config)
 			case tokenOr:
-				r = p1 || p2
+				leftVal := evalExpr(next.left, config)
+				if leftVal { // short-circuit evaluation
+					return true
+				}
+				return evalExpr(next.right, config)
 			default:
 				panic("unknown logic type")
 			}
-			stack.push(r)
+		case *bracketExp:
+			return evalExpr(next.inner, config)
 		default:
 			panic("error eval")
 		}
 	}
-	top := stack.top().(bool)
-	return top
+
+	if r.root == nil {
+		return false
+	}
+	return evalExpr(r.root, config)
 }
