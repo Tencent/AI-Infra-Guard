@@ -9,4 +9,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<meta name=\"application-name\" content=\"川虎 Chat\">"
+      - body="<meta name=\"application-name\" content=\"Chuanhu Chat\">"
