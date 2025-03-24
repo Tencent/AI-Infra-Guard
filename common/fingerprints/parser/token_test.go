@@ -20,6 +20,21 @@ func TestParseTokens2(t *testing.T) {
 	t.Log(tokens)
 }
 
+func TestParseTokensInvalidOperator(t *testing.T) {
+	for _, s := range []string{
+		`body~~"test operator"`,
+		`body~!"test operator"`,
+	} {
+		tokens, err := ParseTokens(s)
+		if err == nil {
+			t.Log(tokens)
+			t.Fatal("expect error, but got nil")
+		} else {
+			t.Logf("parse token `%s` error: %s", s, err)
+		}
+	}
+}
+
 func TestParseAdvisorTokens2(t *testing.T) {
 	s := "version >= \"1.0.0\" || version < \"2.0.0\" || version == \"3.0.0\""
 	tokens, err := ParseAdvisorTokens(s)

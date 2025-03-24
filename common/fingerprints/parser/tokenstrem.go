@@ -14,10 +14,7 @@ type tokenStream struct {
 // newTokenStream creates a new token stream from a slice of tokens
 // 从token切片创建新的token流
 func newTokenStream(tokens []Token) *tokenStream {
-
-	var ret *tokenStream
-
-	ret = new(tokenStream)
+	ret := new(tokenStream)
 	ret.tokens = tokens
 	ret.tokenLength = len(tokens)
 	return ret
@@ -25,25 +22,24 @@ func newTokenStream(tokens []Token) *tokenStream {
 
 // rewind moves the current position back by one
 // 将当前位置回退一步
-func (this *tokenStream) rewind() {
-	this.index -= 1
+func (ts *tokenStream) rewind() {
+	ts.index -= 1
 }
 
 // next returns the next token in the stream and advances the position
 // 返回流中的下一个token并前进位置
-func (this *tokenStream) next() (Token, error) {
+func (ts *tokenStream) next() (Token, error) {
 	// Fix the logic error: check bounds before accessing token
-	if this.index >= len(this.tokens) {
+	if ts.index >= len(ts.tokens) {
 		return Token{}, errors.New("token index great token's length")
 	}
-	token := this.tokens[this.index]
-	this.index += 1
+	token := ts.tokens[ts.index]
+	ts.index += 1
 	return token, nil
 }
 
 // hasNext checks if there are more tokens available in the stream
 // 检查流中是否还有更多token可用
-func (this tokenStream) hasNext() bool {
-
-	return this.index < this.tokenLength
+func (ts tokenStream) hasNext() bool {
+	return ts.index < ts.tokenLength
 }

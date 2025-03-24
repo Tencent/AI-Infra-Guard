@@ -59,6 +59,8 @@ func ParseAdvisorTokens(s1 string) ([]Token, error) {
 
 // parseTokensWithOptions 提取Token的公共解析函数
 func parseTokensWithOptions(s1 string, validKeywords []string) ([]Token, error) {
+	brackets := map[rune]string{'(': tokenLeftBracket, ')': tokenRightBracket}
+
 	s, tokens := []rune(s1), []Token{}
 	for i := 0; i < len(s); {
 		switch x := s[i]; x {
@@ -70,18 +72,19 @@ func parseTokensWithOptions(s1 string, validKeywords []string) ([]Token, error) 
 			tokens = append(tokens, token)
 			i = newPos + 1
 		case '=', '~', '!', '|', '&', '>', '<':
-			token, skip := parseOperator(s[i:])
-			if token.name != "" {
-				tokens = append(tokens, token)
-				i += skip
+			token, skip, err := parseOperator(s[i:])
+			if err != nil {
+				return nil, err
 			}
+			tokens = append(tokens, token)
+			i += skip
 		case '(', ')':
 			tokens = append(tokens, Token{
-				name:    map[rune]string{'(': tokenLeftBracket, ')': tokenRightBracket}[x],
+				name:    brackets[x],
 				content: string(x),
 			})
 			i++
-		case ' ':
+		case ' ', '\t', '\n', '\r': // skip whitespace
 			i++
 		default:
 			token, newPos, err := parseKeyword(s[i:], validKeywords)
@@ -100,10 +103,10 @@ func parseQuotedText(s []rune, start int) (Token, int, error) {
 	var n []rune
 	i := start + 1
 	for i < len(s) {
-		if s[i] == '\\' {
+		if s[i] == '\\' { // skip escape '\"'
 			n = append(n, s[i+1])
 			i += 2
-		} else if s[i] == '"' {
+		} else if s[i] == '"' { // end of quoted
 			return Token{name: tokenText, content: string(n)}, i, nil
 		} else {
 			n = append(n, s[i])
@@ -114,7 +117,7 @@ func parseQuotedText(s []rune, start int) (Token, int, error) {
 }
 
 // 辅助函数：解析操作符
-func parseOperator(s []rune) (Token, int) {
+func parseOperator(s []rune) (Token, int, error) {
 	ops := []struct {
 		name, content string
 		skip          int
@@ -132,10 +135,10 @@ func parseOperator(s []rune) (Token, int) {
 	}
 	for _, op := range ops {
 		if strings.HasPrefix(string(s), op.content) {
-			return Token{name: op.name, content: op.content}, op.skip
+			return Token{name: op.name, content: op.content}, op.skip, nil
 		}
 	}
-	return Token{}, 0
+	return Token{}, 0, errors.New("invalid operator")
 }
 
 // CheckBalance verifies if parentheses in token sequence are balanced
