@@ -1,0 +1,10 @@
+info:
+  name: ollama
+  cve: ollama部署安全提示
+  summary: ollama外部开放将导致算力窃取和数据资源滥用
+  details: ollama外部开放将导致算力窃取和数据资源滥用
+  cvss:
+  severity: LOW
+  security_advise: ollama建议仅在本地开放
+rule: is_internal=="true"
+references:
