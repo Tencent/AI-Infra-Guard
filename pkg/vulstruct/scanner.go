@@ -79,6 +79,11 @@ func ReadVersionVulSingFile(filename string) (*VersionVul, error) {
 	advisory.Info.Details = strings.TrimSpace(advisory.Info.Details)
 	advisory.Info.References = advisory.References
 
+	if advisory.Rule == "" {
+		advisory.RuleCompile = nil
+		return &advisory, nil
+	}
+
 	// Parse rule string into tokens
 	// 将规则字符串解析为词法单元
 	tokens, err := parser.ParseAdvisorTokens(advisory.Rule)
