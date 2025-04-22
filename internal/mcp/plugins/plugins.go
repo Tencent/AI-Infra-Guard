@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/mark3labs/mcp-go/client"
 )
 
@@ -31,12 +32,10 @@ type Plugin struct {
 
 // Issue 安全问题
 type Issue struct {
-	Title       string
-	Description string
-	Level       Level
-	Suggestion  string
-	Input       string
-	Type        MCPType // 输入类型：命令行、SSE链接、MCP代码
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Level       Level  `json:"level"`
+	Suggestion  string `json:"suggestion"`
 }
 
 type McpInput struct {
@@ -44,7 +43,13 @@ type McpInput struct {
 	Type  MCPType // 输入类型：命令行、SSE链接、MCP代码
 }
 
+type McpPluginConfig struct {
+	Client   *client.Client
+	CodePath string
+	AIModel  models.AIModel
+}
+
 type McpPlugin interface {
 	GetPlugin() Plugin
-	Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error)
+	Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error)
 }

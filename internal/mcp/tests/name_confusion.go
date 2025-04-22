@@ -1,9 +1,9 @@
-package plugins
+package tests
 
 import (
 	"context"
 	"fmt"
-	"github.com/mark3labs/mcp-go/client"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"strings"
 )
 
@@ -46,16 +46,16 @@ func NewNameConfusionPlugin() *NameConfusionPlugin {
 }
 
 // 获取插件信息
-func (p *NameConfusionPlugin) GetPlugin() Plugin {
-	return Plugin{
+func (p *NameConfusionPlugin) GetPlugin() plugins.Plugin {
+	return plugins.Plugin{
 		Name: "命名混淆检测",
 		Desc: "检测MCP服务名称混淆与抢注风险",
 	}
 }
 
 // 执行检测
-func (p *NameConfusionPlugin) Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error) {
-	var issues []Issue
+func (p *NameConfusionPlugin) Check(ctx context.Context, config *plugins.McpPluginConfig) ([]plugins.Issue, error) {
+	var issues []plugins.Issue
 
 	// 构建服务信息
 	for _, input := range inputs {
@@ -104,8 +104,8 @@ type mcpServiceInfo struct {
 }
 
 // 检测服务名称混淆
-func (p *NameConfusionPlugin) checkServiceName(serviceInfo mcpServiceInfo) []Issue {
-	var issues []Issue
+func (p *NameConfusionPlugin) checkServiceName(serviceInfo mcpServiceInfo) []plugins.Issue {
+	var issues []plugins.Issue
 
 	// 获取所有官方供应商名单
 	officialVendors := make([]string, 0)
@@ -117,13 +117,13 @@ func (p *NameConfusionPlugin) checkServiceName(serviceInfo mcpServiceInfo) []Iss
 
 	// 检查供应商是否可信
 	if !p.isVendorTrusted(serviceInfo.Vendor, officialVendors) {
-		issue := Issue{
+		issue := plugins.Issue{
 			Title:       "非官方供应商",
 			Description: fmt.Sprintf("服务供应商'%s'不在官方供应商列表中，可能存在安全风险", serviceInfo.Vendor),
-			Level:       LevelMedium,
+			Level:       plugins.LevelMedium,
 			Suggestion:  "建议使用官方供应商提供的MCP服务，或对第三方服务进行严格的安全审查",
 			Input:       "服务元数据",
-			Type:        MCPTypeCode,
+			Type:        plugins.MCPTypeCode,
 		}
 		issues = append(issues, issue)
 	}
@@ -131,14 +131,14 @@ func (p *NameConfusionPlugin) checkServiceName(serviceInfo mcpServiceInfo) []Iss
 	// 检查名称混淆
 	for _, officialService := range p.officialServices {
 		if p.isPotentialNameConfusion(serviceInfo.Name, officialService, p.similarityThreshold) {
-			issue := Issue{
+			issue := plugins.Issue{
 				Title: "命名混淆风险",
 				Description: fmt.Sprintf("服务名称'%s'与官方服务'%s'高度相似，可能导致AI错误调用",
 					serviceInfo.Name, officialService.OfficialName),
-				Level:      LevelHigh,
+				Level:      plugins.LevelHigh,
 				Suggestion: "更改服务名称，避免与官方服务名称相似，或确认是否为官方服务的正式替代品",
 				Input:      "服务名称",
-				Type:       MCPTypeCode,
+				Type:       plugins.MCPTypeCode,
 			}
 			issues = append(issues, issue)
 		}
@@ -146,13 +146,13 @@ func (p *NameConfusionPlugin) checkServiceName(serviceInfo mcpServiceInfo) []Iss
 
 	// 检查名称与描述不匹配
 	if len(serviceInfo.Description) < 10 {
-		issue := Issue{
+		issue := plugins.Issue{
 			Title:       "服务描述不充分",
 			Description: "服务描述过于简短，难以判断服务真实功能",
-			Level:       LevelLow,
+			Level:       plugins.LevelLow,
 			Suggestion:  "提供详细的服务功能描述，包括用途、权限和数据处理方式",
 			Input:       "服务描述",
-			Type:        MCPTypeCode,
+			Type:        plugins.MCPTypeCode,
 		}
 		issues = append(issues, issue)
 	}

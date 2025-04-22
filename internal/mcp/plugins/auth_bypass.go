@@ -2,67 +2,19 @@ package plugins
 
 import (
 	"context"
-	"github.com/mark3labs/mcp-go/client"
-	"regexp"
-	"strconv"
-	"strings"
+	"encoding/json"
+	"fmt"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
-// 身份验证绕过插件
+// AuthBypassPlugin 身份验证绕过插件
 type AuthBypassPlugin struct {
-	rules []authBypassRule
 }
 
-// 身份验证绕过检测规则
-type authBypassRule struct {
-	Name        string
-	Pattern     *regexp.Regexp
-	Level       Level
-	Description string
-	Suggestion  string
-}
-
-// 创建新的身份验证绕过插件
+// NewAuthBypassPlugin 创建新的身份验证绕过插件
 func NewAuthBypassPlugin() *AuthBypassPlugin {
-	return &AuthBypassPlugin{
-		rules: []authBypassRule{
-			{
-				Name:        "弱密码检测",
-				Pattern:     regexp.MustCompile(`(?i)password\s*=\s*['"]?(admin|password|123456|qwerty|default)['"]?`),
-				Level:       LevelHigh,
-				Description: "发现硬编码的弱密码，可能被攻击者利用",
-				Suggestion:  "使用强密码政策并避免在代码中硬编码密码",
-			},
-			{
-				Name:        "未加密令牌传输",
-				Pattern:     regexp.MustCompile(`(?i)(token|auth_token|access_token|session_id)\s*=\s*['"][^'"]{5,}['"]`),
-				Level:       LevelHigh,
-				Description: "发现明文传输的认证令牌",
-				Suggestion:  "使用HTTPS或其他加密方式传输认证信息",
-			},
-			{
-				Name:        "不安全的OAuth实现",
-				Pattern:     regexp.MustCompile(`(?i)(oauth|oauth2).*?(redirect_uri|client_secret)\s*=\s*['"][^'"]+['"]`),
-				Level:       LevelMedium,
-				Description: "OAuth实现可能存在缺陷",
-				Suggestion:  "确保OAuth流程安全，避免硬编码client_secret",
-			},
-			{
-				Name:        "缺少身份验证检查",
-				Pattern:     regexp.MustCompile(`(?i)function\s+handle.*?\{\s*[^{]*?response\s*\(`),
-				Level:       LevelCritical,
-				Description: "处理函数可能缺少身份验证检查",
-				Suggestion:  "在处理请求前增加身份验证检查",
-			},
-			{
-				Name:        "硬编码JWT密钥",
-				Pattern:     regexp.MustCompile(`(?i)(secret|key|jwt).*?['"][a-zA-Z0-9+/=]{16,}['"]`),
-				Level:       LevelCritical,
-				Description: "发现硬编码的JWT密钥",
-				Suggestion:  "从环境变量或安全存储中获取JWT密钥",
-			},
-		},
-	}
+	return &AuthBypassPlugin{}
 }
 
 // 获取插件信息
@@ -73,69 +25,15 @@ func (p *AuthBypassPlugin) GetPlugin() Plugin {
 	}
 }
 
-// 执行检测
-func (p *AuthBypassPlugin) Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error) {
-	var issues []Issue
-
-	// 对每个输入进行检测
-	for _, input := range inputs {
-		// 只处理代码类型的输入
-		if input.Type == MCPTypeCode {
-			issues = append(issues, p.checkCode(input)...)
-		}
-	}
-	return issues, nil
-}
-
-// 检测代码中的身份验证绕过问题
-func (p *AuthBypassPlugin) checkCode(input McpInput) []Issue {
-	var issues []Issue
-
-	for _, rule := range p.rules {
-		matches := rule.Pattern.FindAllStringIndex(input.Input, -1)
-		for _, match := range matches {
-			startPos := match[0]
-			endPos := match[1]
-
-			// 获取匹配上下文
-			start := startPos - 20
-			if start < 0 {
-				start = 0
-			}
-			end := endPos + 20
-			if end > len(input.Input) {
-				end = len(input.Input)
-			}
-
-			location := ""
-			if strings.Count(input.Input[:startPos], "\n") > 0 {
-				line := strings.Count(input.Input[:startPos], "\n") + 1
-				location = "第" + strconv.Itoa(line) + "行"
-			} else {
-				location = "字符位置: " + strconv.Itoa(startPos) + "-" + strconv.Itoa(endPos)
-			}
-
-			issue := Issue{
-				Title:       rule.Name,
-				Description: rule.Description,
-				Level:       rule.Level,
-				Suggestion:  rule.Suggestion,
-				Input:       location,
-				Type:        input.Type,
-			}
-
-			issues = append(issues, issue)
-		}
-	}
-
-	return issues
-}
-
 // AI提示词模板
 const authBypassAIPrompt = `
-分析以下MCP代码或链接，检测可能存在的身份验证绕过漏洞：
-
+分析源代码文件夹，检测可能存在的身份验证绕过漏洞。
+源代码文件夹路径:%s
+目录详情:
+-------
 %s
+-------
+根据目录内容推测需要检测的文件。
 
 需要重点检查：
 1. 弱密码或硬编码凭证
@@ -148,7 +46,50 @@ const authBypassAIPrompt = `
 对于每个潜在问题，提供：
 - 问题类型
 - 严重程度(低/中/高/严重)
-- 详细描述
-- 问题位置
+- 详细描述,以代码为例子说明问题造成的原因
 - 修复建议
+
+你必须要保证检测结果准确无误，不要误报或漏报。
 `
+
+const authBypassResultPrompt = `以json 格式返回检测结果，格式如下：
+[
+	{
+			"title": "漏洞名称",
+			"description": "漏洞详细描述,可以代码代码输出详情等,markdown格式",
+			"level": "规则等级",
+			"suggestion": "修复建议",
+	},
+	...
+]	
+`
+
+// 执行检测
+func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
+	var issues []Issue
+	dirPrompt, err := utils.ListDir(config.CodePath)
+	if err != nil {
+		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
+		return issues, err
+	}
+	agent := utils.NewAutoGPT([]string{
+		fmt.Sprintf(authBypassAIPrompt, config.CodePath, dirPrompt),
+	}, authBypassResultPrompt)
+	result, err := agent.Run(ctx, config.AIModel)
+	if err != nil {
+		gologger.WithError(err).Warningln("")
+		return issues, err
+	}
+	if result == "" {
+		gologger.Warningln("检测结果为空")
+		return issues, err
+	}
+	var issue []Issue
+	err = json.Unmarshal([]byte(result), &issue)
+	if err != nil {
+		gologger.WithError(err).Warningln("解析检测结果失败")
+		gologger.Warningln("检测结果为空")
+	}
+	issues = append(issues, issue...)
+	return issues, nil
+}

@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/mark3labs/mcp-go/client"
 	"sync"
@@ -12,12 +13,14 @@ type Scanner struct {
 	mutex   sync.Mutex
 	results []*plugins.Issue
 	plugins []plugins.McpPlugin
+	aiModel models.AIModel
 }
 
-func NewScanner() *Scanner {
+func NewScanner(aiConfig models.AIModel) *Scanner {
 	return &Scanner{
 		results: make([]*plugins.Issue, 0),
 		plugins: make([]plugins.McpPlugin, 0),
+		aiModel: aiConfig,
 	}
 }
 
@@ -25,11 +28,11 @@ func (s *Scanner) RegisterPlugin() {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	plugin := []plugins.McpPlugin{
-		&plugins.AuthBypassPlugin{},
-		&plugins.CmdExecPlugin{},
-		&plugins.NameConfusionPlugin{},
+		plugins.NewAuthBypassPlugin(),
+		//tests.NewCmdExecPlugin(),
+		//tests.NewNameConfusionPlugin(),
 	}
-	gologger.Infoln("注册插件: %d", len(plugin))
+	gologger.Infof("注册插件数量: %d", len(plugin))
 	s.plugins = append(s.plugins, plugin...)
 }
 
@@ -62,7 +65,12 @@ func (s *Scanner) scanInput(ctx context.Context, client *client.Client, codePath
 
 	// 运行所有插件
 	for _, plugin := range s.plugins {
-		issues, err := plugin.Check(ctx, client, codePath)
+		config := plugins.McpPluginConfig{
+			Client:   client,
+			CodePath: codePath,
+			AIModel:  s.aiModel,
+		}
+		issues, err := plugin.Check(ctx, &config)
 		if err != nil {
 			pluginInfo := plugin.GetPlugin()
 			gologger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)

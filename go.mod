@@ -8,6 +8,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/mark3labs/mcp-go v0.22.0
 	github.com/openai/openai-go v0.1.0-alpha.38
 	github.com/projectdiscovery/fastdialer v0.2.9
 	github.com/projectdiscovery/fdmax v0.0.4
@@ -46,8 +47,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
-	github.com/mark3labs/mcp-go v0.22.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
@@ -66,6 +65,7 @@ require (
 	github.com/refraction-networking/utls v1.6.7 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
+	github.com/spf13/cast v1.7.1 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tidwall/btree v1.6.0 // indirect
 	github.com/tidwall/buntdb v1.3.0 // indirect
@@ -79,6 +79,7 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/weppos/publicsuffix-go v0.30.2-0.20230730094716-a20f9abcc222 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/zmap/rc2 v0.0.0-20190804163417-abaa70531248 // indirect
 	github.com/zmap/zcrypto v0.0.0-20230814193918-dbe676986518 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
