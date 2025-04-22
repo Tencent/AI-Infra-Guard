@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"context"
+	"github.com/mark3labs/mcp-go/client"
 	"regexp"
 	"strconv"
 	"strings"
@@ -141,7 +143,7 @@ func (p *CmdExecPlugin) GetPlugin() Plugin {
 }
 
 // 执行检测
-func (p *CmdExecPlugin) Check(inputs []McpInput) ([]Issue, error) {
+func (p *CmdExecPlugin) Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error) {
 	var issues []Issue
 
 	// 对每个输入进行检测
@@ -154,7 +156,7 @@ func (p *CmdExecPlugin) Check(inputs []McpInput) ([]Issue, error) {
 }
 
 // 检测输入中的命令执行问题
-func (p *CmdExecPlugin) checkInput(input McpInput) []Issue {
+func (p *CmdExecPlugin) checkInput(ctx context.Context, client *client.Client, codePath string) []Issue {
 	var issues []Issue
 
 	for _, rule := range p.rules {
@@ -196,3 +198,33 @@ func (p *CmdExecPlugin) checkInput(input McpInput) []Issue {
 
 	return issues
 }
+
+// AI验证提示词模板
+const cmdExecAIPrompt = `
+分析以下MCP工具代码或描述，检测可能存在的命令执行漏洞：
+
+%s
+
+需要重点检查：
+1. 是否直接执行系统命令或代码
+2. 是否存在未经过滤的用户输入被传递给执行函数
+3. 是否存在命令链接字符(如 &&, ;, |, $(), ${})被用于绕过限制
+4. 执行环境是否有足够的沙箱控制和权限限制
+5. 是否有文件系统访问权限控制
+6. 是否存在权限提升风险
+
+对于每个潜在的命令执行漏洞，提供：
+- 漏洞类型
+- 严重程度(低/中/高/严重)
+- 详细描述，包括可能的利用方式
+- 漏洞所在位置
+- 修复建议，包括具体的代码改进方法
+- 最小权限原则实施建议
+
+特别关注危险函数和方法:
+- Python: os.system, subprocess.*, eval, exec
+- JavaScript: eval, Function, setTimeout接收字符串, child_process.exec
+- Java: Runtime.exec, ProcessBuilder
+- PHP: system, exec, shell_exec, passthru
+- Go: exec.Command, os/exec
+`

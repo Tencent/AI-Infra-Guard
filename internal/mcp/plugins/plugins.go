@@ -1,5 +1,10 @@
 package plugins
 
+import (
+	"context"
+	"github.com/mark3labs/mcp-go/client"
+)
+
 // 威胁级别常量
 type Level string
 
@@ -24,7 +29,7 @@ type Plugin struct {
 	Desc string
 }
 
-// 安全问题
+// Issue 安全问题
 type Issue struct {
 	Title       string
 	Description string
@@ -41,5 +46,5 @@ type McpInput struct {
 
 type McpPlugin interface {
 	GetPlugin() Plugin
-	Check(input []McpInput) ([]Issue, error)
+	Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error)
 }

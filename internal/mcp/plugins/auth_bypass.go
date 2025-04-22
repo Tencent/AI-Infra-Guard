@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"context"
+	"github.com/mark3labs/mcp-go/client"
 	"regexp"
 	"strconv"
 	"strings"
@@ -72,7 +74,7 @@ func (p *AuthBypassPlugin) GetPlugin() Plugin {
 }
 
 // 执行检测
-func (p *AuthBypassPlugin) Check(inputs []McpInput) ([]Issue, error) {
+func (p *AuthBypassPlugin) Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error) {
 	var issues []Issue
 
 	// 对每个输入进行检测
@@ -128,3 +130,25 @@ func (p *AuthBypassPlugin) checkCode(input McpInput) []Issue {
 
 	return issues
 }
+
+// AI提示词模板
+const authBypassAIPrompt = `
+分析以下MCP代码或链接，检测可能存在的身份验证绕过漏洞：
+
+%s
+
+需要重点检查：
+1. 弱密码或硬编码凭证
+2. 未加密的令牌传输
+3. 不安全的OAuth实现
+4. 缺失的身份验证检查
+5. JWT实现缺陷
+6. 会话管理问题
+
+对于每个潜在问题，提供：
+- 问题类型
+- 严重程度(低/中/高/严重)
+- 详细描述
+- 问题位置
+- 修复建议
+`

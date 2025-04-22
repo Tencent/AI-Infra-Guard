@@ -1,7 +1,9 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
+	"github.com/mark3labs/mcp-go/client"
 	"strings"
 )
 
@@ -52,7 +54,7 @@ func (p *NameConfusionPlugin) GetPlugin() Plugin {
 }
 
 // 执行检测
-func (p *NameConfusionPlugin) Check(inputs []McpInput) ([]Issue, error) {
+func (p *NameConfusionPlugin) Check(ctx context.Context, client *client.Client, codePath string) ([]Issue, error) {
 	var issues []Issue
 
 	// 构建服务信息
@@ -248,3 +250,25 @@ func max(a, b int) int {
 	}
 	return b
 }
+
+// AI提示词模板
+const nameConfusionAIPrompt = `
+分析以下MCP服务或工具的名称和描述，检测可能存在的命名混淆和抢注攻击：
+
+服务名称: %s
+服务描述: %s
+服务提供商: %s
+
+需要重点检查：
+1. 名称是否与官方MCP服务名称相似，可能导致AI错误调用
+2. 服务提供商是否为官方厂商，而非第三方开发者
+3. 服务功能描述是否与服务名称匹配
+4. 是否存在刻意模仿官方服务的行为
+
+对于每个潜在问题，提供：
+- 问题类型
+- 严重程度(低/中/高/严重)
+- 详细描述，包括可能导致的风险
+- 修复建议
+- 防御措施
+`
