@@ -21,6 +21,7 @@ type MCPType string
 const (
 	MCPTypeCommand MCPType = "command"
 	MCPTypeSSE     MCPType = "sse"
+	MCPTypeSTREAM  MCPType = "stream"
 	MCPTypeCode    MCPType = "code"
 )
 

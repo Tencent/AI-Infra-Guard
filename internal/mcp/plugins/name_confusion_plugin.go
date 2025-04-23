@@ -3,12 +3,12 @@ package plugins
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
+	"strings"
 )
 
 // NameConfusionPlugin 名称混淆检测插件
@@ -34,7 +34,7 @@ const nameConfusionAIPrompt = `
 %s
 
 需要重点检查：
-1. 工具名称是否与官方或知名MCP服务名称高度相似
+1. 工具名称是否与官方或知名MCP服务名称高度相似,如read_file exec_cmd之类
 2. 工具名称是否具有误导性，可能导致用户或AI错误调用
 3. 工具名称是否存在相互混淆的情况
 4. 是否存在刻意模仿官方服务的命名模式
@@ -69,29 +69,29 @@ type toolInfo struct {
 // 执行检测
 func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
-
+	if config.Client == nil {
+		return issues, errors.New("client未初始化")
+	}
 	// 扫描所有工具名称
-	gologger.Infoln("开始扫描目录：" + config.CodePath)
-	tools, err := p.scanTools(config.CodePath)
+	tools, err := utils.ListMcpTools(ctx, config.Client)
 	if err != nil {
 		gologger.WithError(err).Errorln("扫描工具名称失败")
 		return issues, err
 	}
 
-	gologger.Infoln(fmt.Sprintf("发现 %d 个工具", len(tools)))
+	gologger.Infoln(fmt.Sprintf("发现 %d 个工具", len(tools.Tools)))
 
 	// 如果找到工具且AI模型可用，直接使用AI进行分析
-	if len(tools) > 0 && config.AIModel != nil {
+	if len(tools.Tools) > 0 && config.AIModel != nil {
 		// 构建AI分析的输入
 		var toolsInfo strings.Builder
-		for i, tool := range tools {
+		for i, tool := range tools.Tools {
 			toolsInfo.WriteString(fmt.Sprintf("%d. 工具名称: %s\n", i+1, tool.Name))
 			if tool.Description != "" {
 				toolsInfo.WriteString(fmt.Sprintf("   描述: %s\n", tool.Description))
 			}
-			if tool.Vendor != "" {
-				toolsInfo.WriteString(fmt.Sprintf("   供应商: %s\n", tool.Vendor))
-			}
+			inputSchema, _ := json.Marshal(tool.InputSchema)
+			toolsInfo.WriteString(fmt.Sprintf("   参数InputSchema: %s\n", string(inputSchema)))
 			toolsInfo.WriteString("\n")
 		}
 

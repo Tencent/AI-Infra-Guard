@@ -2,7 +2,10 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"github.com/mark3labs/mcp-go/client"
+	"github.com/mark3labs/mcp-go/mcp"
 	"io"
 	"os"
 	"path/filepath"
@@ -163,4 +166,22 @@ func ListDir(dir string) (string, error) {
 		userPrompt += fmt.Sprintf("- %s (%s)\n", file.Name(), file.Type())
 	}
 	return userPrompt, nil
+}
+func InitMcpClient(ctx context.Context, client *client.Client) error {
+	err := client.Start(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = client.Initialize(context.Background(), mcp.InitializeRequest{})
+	if err != nil {
+		return err
+	}
+	return err
+}
+func ListMcpTools(ctx context.Context, client *client.Client) (*mcp.ListToolsResult, error) {
+	result, err := client.ListTools(ctx, mcp.ListToolsRequest{})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
