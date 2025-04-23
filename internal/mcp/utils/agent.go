@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -55,6 +54,7 @@ func (a *AutoGPT) userPrompt() string {
 	}
 
 	systemPrompt := `
+You are an AI agent that can perform a variety of tasks. Your goal is to complete the goals listed below.
 Your decisions must always be made independently without seeking user assistance. Play to your strengths and pursue simple strategies with no legal complications.
 
 GOALS:
@@ -65,24 +65,30 @@ Performance Evaluation:
 2. Constructively self-criticize your big-picture behavior constantly.
 3. Reflect on past decisions and strategies to refine your approach.
 4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
+5. Your main goal is to follow the USER's instructions at each message,Be conversational but professional
 
 You can only use the following commands:
 
+RESULT FORMAT:
+<result>
+	<title>漏洞名称</title>
+	<desc>漏洞描述详情,输出代码路径，以上下文相关代码举例输出详情,markdown格式</desc>
+	<level>规则等级</level>
+	<suggestion>修复建议</suggestion>
+</result>
+
+
 COMMANDS:
-1. read_file: Use this tool when you need to read a file. args: "arg": "<filename>", filename must be absolute path.
-2. continue_read: Continue reading the previous file. args: "arg": "next" to read next chunk.
-3. list_dir: Use this tool when you need to list a directory. args: "arg": "<dir>", dir must be absolute path.
-4. grep_file: Search for a pattern in a file and return matching lines with context. args: "arg": "<filename>|<pattern>|<context_lines>"
-5. finish: Complete the task at hand and report back results.if task can't finish,you can return "". args: "arg": "<result format>"
+1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path.
+2. continue_read: Continue reading the previous file. args: arg is "next" to read next chunk.
+3. list_dir: Use this tool when you need to list a directory. arg is dir must be absolute path.
+4. grep_file: Search for a pattern in a file and return matching lines with context. arg is <filename>|<pattern>|<context_lines>,filename must be absolute path
+5. finish: When the finish event is triggered, the program will return, and the final result's output format will be wrapped in <arg> tags to be provided to the next program. arg is finally results(obtained RESULT FORMAT). eg:<arg><result>...</result></arg>
 
 Your output format must follow the following specifications: Output in the order of conclusion,think,command,criticism,plan.
 Keep realistic and detailed.Don't use fake data or irrelevant information.
-The command should be in JSON format and can only contain a name field and a code field.
 
 Response in chinese.
-
-RESULT FORMAT:
-%s
 
 RESPONSE FORMAT:
 ## conclusion
@@ -95,14 +101,14 @@ Explain why you chose a certain command or strategy.
 Critique your mistakes, offer suggestions for improvement, and always be goal-oriented.
 ## plan
 Plan the next step.
-## command
-` + "```command\n" + `
-{
-    "name": "<command name>",
-    "arg": "<arg>"
-}
-` + "`"
-	systemPrompt = fmt.Sprintf(systemPrompt, goalsStr.String(), a.ResultFormat)
+
+command is next step to use command, must use tag <name></name> and <arg></arg> to specify the command name and parameters.only return one command.
+<command>
+<name>command name</name>
+<arg>parameter,don't need quote</arg>
+</command>
+`
+	systemPrompt = fmt.Sprintf(systemPrompt, goalsStr.String())
 	return strings.TrimSpace(systemPrompt)
 }
 
@@ -111,15 +117,18 @@ func (a *AutoGPT) NextPrompt(retMsg string) string {
 	return fmt.Sprintf("The returned result is as follows. Please draw your conclusion in the \"conclusion\" part.Determine which next command to use, and respond using the format specified above.\nReturn:%s", retMsg)
 }
 
-// ExtractJSON 从文本中提取JSON部分
-func (a *AutoGPT) ExtractJSON(text string) string {
-	startIndex := strings.Index(text, "```command")
-	tmp := text[startIndex+len("```command"):]
-	endIndex := strings.Index(tmp, "```") + startIndex + len("```command")
+// ExtractTag 从文本中提取tag部分
+func (a *AutoGPT) ExtractTag(text, tag string) string {
+	startText := fmt.Sprintf("<%s>", tag)
+	endText := fmt.Sprintf("</%s>", tag)
+	startIndex := strings.Index(text, startText)
+	tmp := text[startIndex+len(startText):]
+
+	endIndex := strings.Index(tmp, endText) + startIndex + len(startText)
 	if startIndex == -1 || endIndex == -1 || endIndex <= startIndex {
 		return ""
 	}
-	return strings.TrimSpace(text[startIndex+len("```command") : endIndex])
+	return strings.TrimSpace(text[startIndex+len(startText) : endIndex])
 }
 
 // Command 表示LLM返回的命令结构
@@ -270,23 +279,25 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 		})
 
 		// 尝试解析JSON命令
-		jsonStr := a.ExtractJSON(msg)
+		jsonStr := a.ExtractTag(msg, "command")
 		if jsonStr == "" {
-			gologger.Warningln("JSON解析失败,重新尝试中")
+			gologger.Warningln("command 解析失败,重新尝试中")
 			// JSON解析失败
 			history = append(history, map[string]string{
 				"role":    "user",
-				"content": "你的输出json格式错误,请根据上一个问题回答并重新整理你的输出格式",
+				"content": "你的输出command格式错误,请根据上一个问题回答并重新整理你的输出格式 以<command>整理格式重新回答",
 			})
 			continue
 		}
 
 		var command Command
-		if err := json.Unmarshal([]byte(jsonStr), &command); err != nil {
+		command.Name = a.ExtractTag(jsonStr, "name")
+		command.Arg1 = a.ExtractTag(jsonStr, "arg")
+		if command.Name == "" {
 			// JSON解析失败
 			history = append(history, map[string]string{
 				"role":    "user",
-				"content": fmt.Sprintf("你的输出json格式错误Error decoding JSON: %v\n\n请根据上一个问题回答并重新整理你的输出格式", err),
+				"content": fmt.Sprintf("你的输出格式错误\n请根据上一个问题回答并重新整理你的输出格式"),
 			})
 			continue
 		}
@@ -320,6 +331,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 			// 获取文件信息
 			fileInfo, err := os.Stat(command.Arg1)
 			if err != nil {
+				gologger.WithError(err).Warningln("读取文件失败")
 				userPrompt = fmt.Sprintf("读取文件失败: %v", err)
 			} else {
 				// 检查文件大小，决定如何读取

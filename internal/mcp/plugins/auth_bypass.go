@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
@@ -43,25 +42,18 @@ const authBypassAIPrompt = `
 5. JWT实现缺陷
 6. 会话管理问题
 
-对于每个潜在问题，提供：
-- 问题类型
-- 严重程度(低/中/高/严重)
-- 详细描述,以代码为例子说明问题造成的原因
-- 修复建议
-
-你必须要保证检测结果准确无误，不要误报或漏报。
+如果存在风险，请按风险解释、问题代码输出markdown描述，你必须要保证检测结果准确无误，不要误报或漏报。
 `
 
-const authBypassResultPrompt = `以json 格式返回检测结果，格式如下：
-[
-	{
-			"title": "漏洞名称",
-			"description": "漏洞详细描述,可以代码代码输出详情等,markdown格式",
-			"level": "规则等级",
-			"suggestion": "修复建议",
-	},
-	...
-]	
+const authBypassResultPrompt = `
+返回格式如下,结果用<result>包裹，可返回多个。为空则返回空。
+<result>
+	<title>漏洞名称</title>
+	<desc>漏洞详细描述,可以代码代码输出详情等,markdown格式</desc>
+	<level>规则等级</level>
+	<suggestion>修复建议</suggestion>
+</result>
+...
 `
 
 // 执行检测
@@ -80,16 +72,7 @@ func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) (
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	if result == "" {
-		gologger.Warningln("检测结果为空")
-		return issues, err
-	}
-	var issue []Issue
-	err = json.Unmarshal([]byte(result), &issue)
-	if err != nil {
-		gologger.WithError(err).Warningln("解析检测结果失败")
-		gologger.Warningln("检测结果为空")
-	}
+	issue := ParseIssues(result)
 	issues = append(issues, issue...)
 	return issues, nil
 }

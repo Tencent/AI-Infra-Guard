@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -219,6 +218,7 @@ const cmdInjectionAIPrompt = `
 
 %s
 
+文件夹路径：%s
 需要重点检查：
 1. 是否直接执行系统命令或代码
 2. 是否存在未经过滤的用户输入被传递给执行函数
@@ -226,12 +226,9 @@ const cmdInjectionAIPrompt = `
 4. 执行环境是否有足够的沙箱控制和权限限制
 5. 是否有文件系统访问权限控制
 
-对于每个潜在的命令注入漏洞，提供：
-- 漏洞类型
-- 严重程度(低/中/高/严重)
-- 详细描述，包括可能的利用方式
-- 漏洞所在位置
-- 修复建议，包括具体的代码改进方法
+如果存在风险，请按风险解释、问题代码输出markdown描述
+
+
 `
 
 const cmdInjectionResultPrompt = `以json格式返回检测结果，格式如下：
@@ -402,7 +399,7 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 	}
 
 	agent := utils.NewAutoGPT([]string{
-		fmt.Sprintf(cmdInjectionAIPrompt, sb.String()),
+		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
 	}, cmdInjectionResultPrompt)
 
 	result, err := agent.Run(ctx, config.AIModel)
@@ -416,14 +413,8 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 		return issues, nil
 	}
 
-	var aiIssues []Issue
-	err = json.Unmarshal([]byte(result), &aiIssues)
-	if err != nil {
-		gologger.WithError(err).Warningln("解析AI分析结果失败")
-		return issues, err
-	}
-
-	return aiIssues, nil
+	issue := ParseIssues(result)
+	return issue, nil
 }
 
 // 执行检测

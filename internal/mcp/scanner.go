@@ -34,6 +34,12 @@ func (s *Scanner) RegisterPlugin() {
 		plugins.NewAuthBypassPlugin(),
 		plugins.NewCmdInjectionPlugin(),
 		plugins.NewNameConfusionPlugin(),
+		plugins.NewToolPoisoningPlugin(),
+		plugins.NewRugPullPlugin(),
+		plugins.NewCredentialTheftPlugin(),
+		plugins.NewHardcodedApiKeyPlugin(),
+		plugins.NewResourcePoisoningPlugin(),
+		plugins.NewToolShadowingPlugin(),
 	}
 	gologger.Infof("注册插件数量: %d", len(plugin))
 	s.plugins = append(s.plugins, plugin...)
@@ -103,6 +109,8 @@ func (s *Scanner) Scan(ctx context.Context) ([]plugins.Issue, error) {
 			gologger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)
 			continue
 		}
+		gologger.Infof("插件 %s 运行成功", pluginInfo.Name)
+		gologger.Infof("共发现 %d 个问题", len(issues))
 		// 转换插件结果
 		result = append(result, issues...)
 	}

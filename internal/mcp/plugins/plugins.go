@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/mark3labs/mcp-go/client"
+	"regexp"
+	"strings"
 )
 
 // 威胁级别常量
@@ -41,7 +43,7 @@ type Issue struct {
 
 type McpInput struct {
 	Input string
-	Type  MCPType // 输入类型：命令行、SSE链接、MCP代码
+	Type  MCPType // 输入类型：命令行、SSE链接、Stream链接、MCP代码
 }
 
 type McpPluginConfig struct {
@@ -53,4 +55,36 @@ type McpPluginConfig struct {
 type McpPlugin interface {
 	GetPlugin() Plugin
 	Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error)
+}
+
+// ExtractBatchResults 从文本中提取结果
+func ParseIssues(input string) []Issue {
+	var vulns []Issue
+	// 解析漏洞数据的正则表达式
+	var (
+		blockRegex  = regexp.MustCompile(`(?s)<result>(.*?)</result>`)
+		titleRegex  = regexp.MustCompile(`<title>(.*?)</title>`)
+		descRegex   = regexp.MustCompile(`(?s)<desc>(.*?)</desc>`)
+		levelRegex  = regexp.MustCompile(`<level>(.*?)</level>`)
+		suggesRegex = regexp.MustCompile(`(?s)<suggestion>(.*?)</suggestion>`)
+	)
+	blocks := blockRegex.FindAllStringSubmatch(input, -1)
+	for _, block := range blocks {
+		var vuln Issue
+		// 提取各个字段
+		if title := titleRegex.FindStringSubmatch(block[1]); len(title) > 1 {
+			vuln.Title = strings.TrimSpace(title[1])
+		}
+		if desc := descRegex.FindStringSubmatch(block[1]); len(desc) > 1 {
+			vuln.Description = strings.TrimSpace(desc[1])
+		}
+		if level := levelRegex.FindStringSubmatch(block[1]); len(level) > 1 {
+			vuln.Level = Level(strings.TrimSpace(level[1]))
+		}
+		if sugges := suggesRegex.FindStringSubmatch(block[1]); len(sugges) > 1 {
+			vuln.Suggestion = strings.TrimSpace(sugges[1])
+		}
+		vulns = append(vulns, vuln)
+	}
+	return vulns
 }

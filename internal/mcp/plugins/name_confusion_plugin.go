@@ -33,6 +33,7 @@ const nameConfusionAIPrompt = `
 
 %s
 
+文件夹路径: %s
 需要重点检查：
 1. 工具名称是否与官方或知名MCP服务名称高度相似,如read_file exec_cmd之类
 2. 工具名称是否具有误导性，可能导致用户或AI错误调用
@@ -43,7 +44,7 @@ const nameConfusionAIPrompt = `
 对于每个潜在问题，提供：
 - 问题类型（名称混淆/抢注/误导性命名）
 - 严重程度（低/中/高/严重）
-- 详细描述，包括可能导致的安全风险
+- 详细描述，包括可能导致的安全风险,按风险解释、问题代码输出markdown描述
 - 修复建议
 `
 
@@ -96,7 +97,7 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 		}
 
 		// 使用大模型进行名称混淆分析
-		aiResults, err := p.aiAnalysis(ctx, toolsInfo.String(), config.AIModel)
+		aiResults, err := p.aiAnalysis(ctx, toolsInfo.String(), config.AIModel, config.CodePath)
 		if err != nil {
 			gologger.WithError(err).Warningln("AI分析失败")
 			return nil, err
@@ -111,9 +112,9 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 }
 
 // 使用AI进行名称混淆分析
-func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel models.AIModel) ([]Issue, error) {
+func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel models.AIModel, codePath string) ([]Issue, error) {
 	agent := utils.NewAutoGPT([]string{
-		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo),
+		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, codePath),
 	}, nameConfusionResultPrompt)
 
 	result, err := agent.Run(ctx, aiModel)
@@ -124,12 +125,6 @@ func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, 
 	if result == "" {
 		return nil, nil
 	}
-
-	var issues []Issue
-	err = json.Unmarshal([]byte(result), &issues)
-	if err != nil {
-		return nil, err
-	}
-
-	return issues, nil
+	issue := ParseIssues(result)
+	return issue, nil
 }

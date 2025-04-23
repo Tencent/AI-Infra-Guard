@@ -1,0 +1,17 @@
+# MCP 扫描器配置
+
+# 模型类型: hunyuan 或 openai
+type: hunyuan
+
+# 模型名称
+# 对于 hunyuan: hunyuan-turbo
+# 对于 openai: gpt-4-turbo 等
+model: hunyuan-turbo
+
+# API 令牌
+token: "your-api-token-here"
+
+# API 基础 URL (可选)
+# 对于 hunyuan: http://hunyuanapi.woa.com/openapi/v1
+# 对于 openai: https://api.openai.com/
+base_url: "" 
