@@ -26,6 +26,7 @@ func (p *HardcodedApiKeyPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "硬编码API密钥检测",
 		Desc: "检测MCP代码中可能存在的硬编码API密钥或敏感凭证",
+		ID:   "hardcoded_api_key",
 	}
 }
 

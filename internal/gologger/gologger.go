@@ -39,7 +39,7 @@ var Logger *logrus.Logger
 
 func init() {
 	Logger = logrus.New()
-	Logger.SetLevel(logrus.DebugLevel)
+	Logger.SetLevel(logrus.TraceLevel)
 	Logger.SetReportCaller(true)
 	Logger.SetFormatter(&LogFormatter{})
 	Logger.AddHook(ContextHook{})
@@ -150,6 +150,9 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	default:
 		levelColor = blue
 	}
+	if entry.Level == logrus.TraceLevel {
+		return []byte(entry.Message), nil
+	}
 	var b *bytes.Buffer
 	if entry.Buffer != nil {
 		b = entry.Buffer
@@ -189,7 +192,10 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 		b.WriteByte(' ')
 	}
-	fmt.Fprintf(b, "%s\n", entry.Message)
+	fmt.Fprintf(b, "%s", entry.Message)
+	if !strings.HasSuffix(entry.Message, "\n") {
+		b.WriteByte('\n')
+	}
 	return b.Bytes(), nil
 }
 
@@ -232,7 +238,7 @@ func Debug(args ...interface{}) {
 // Print logs a message at level Info on the standard Logger
 // 在标准Logger上记录Info级别的消息
 func Print(args ...interface{}) {
-	Logger.Print(args...)
+	Logger.Log(logrus.TraceLevel, args...)
 }
 
 // Info logs a message at level Info on the standard Logger

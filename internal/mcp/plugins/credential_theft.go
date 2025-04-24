@@ -27,6 +27,7 @@ func (p *CredentialTheftPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "凭证盗窃检测",
 		Desc: "检测MCP代码中可能存在的凭证盗窃风险",
+		ID:   "credential_theft",
 	}
 }
 

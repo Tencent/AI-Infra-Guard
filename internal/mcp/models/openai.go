@@ -13,11 +13,10 @@ type AIModel interface {
 }
 
 type OpenAI struct {
-	Key       string
-	BaseUrl   string
-	Model     string
-	UseToken  int64
-	CacheText string
+	Key      string
+	BaseUrl  string
+	Model    string
+	UseToken int64
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -54,16 +53,19 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 	})
 	// 循环读取结果
 	go func() {
+		var totalToken int64 = 0
 		for stream.Next() {
 			evt := stream.Current()
 			if len(evt.Choices) > 0 {
 				word := evt.Choices[0].Delta.Content
 				if evt.Usage.TotalTokens > 0 {
-					ai.UseToken = evt.Usage.TotalTokens
+					totalToken = evt.Usage.TotalTokens
 				}
-				ai.CacheText += word
 				resp <- word
 			}
+		}
+		if totalToken > 0 {
+			ai.UseToken += totalToken
 		}
 		if stream.Err() != nil {
 			// 处理错误

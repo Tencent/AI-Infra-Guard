@@ -209,6 +209,7 @@ func (p *CmdInjectionPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "命令注入漏洞检测",
 		Desc: "检测MCP代码中可能存在的命令注入漏洞",
+		ID:   "cmd_injection",
 	}
 }
 

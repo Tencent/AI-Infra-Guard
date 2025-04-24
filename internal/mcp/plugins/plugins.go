@@ -31,6 +31,7 @@ const (
 type Plugin struct {
 	Name string
 	Desc string
+	ID   string
 }
 
 // Issue 安全问题

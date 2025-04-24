@@ -7,49 +7,53 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
-	"os"
+	"strconv"
 	"sync"
 	"time"
 )
 
 type Scanner struct {
-	mutex    sync.Mutex
-	results  []*plugins.Issue
-	plugins  []plugins.McpPlugin
-	aiModel  *models.OpenAI
-	client   *client.Client
-	codePath string
-	log      string
+	mutex     sync.Mutex
+	results   []*plugins.Issue
+	plugins   []plugins.McpPlugin
+	aiModel   *models.OpenAI
+	client    *client.Client
+	csvResult [][]string
+	codePath  string
 }
 
 func NewScanner(aiConfig *models.OpenAI) *Scanner {
 	return &Scanner{
-		results: make([]*plugins.Issue, 0),
-		plugins: make([]plugins.McpPlugin, 0),
-		aiModel: aiConfig,
+		results:   make([]*plugins.Issue, 0),
+		plugins:   make([]plugins.McpPlugin, 0),
+		aiModel:   aiConfig,
+		csvResult: make([][]string, 0),
 	}
 }
 
-func (s *Scanner) SetLog(log string) {
-	s.log = log
-}
-
-func (s *Scanner) RegisterPlugin() {
+func (s *Scanner) RegisterPlugin(names []string) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
 	plugin := []plugins.McpPlugin{
 		plugins.NewCmdInjectionPlugin(),
-		//plugins.NewAuthBypassPlugin(),
-		//plugins.NewNameConfusionPlugin(),
-		//plugins.NewToolPoisoningPlugin(),
-		//plugins.NewRugPullPlugin(),
-		//plugins.NewCredentialTheftPlugin(),
-		//plugins.NewHardcodedApiKeyPlugin(),
-		//plugins.NewResourcePoisoningPlugin(),
-		//plugins.NewToolShadowingPlugin(),
+		plugins.NewAuthBypassPlugin(),
+		plugins.NewNameConfusionPlugin(),
+		plugins.NewToolPoisoningPlugin(),
+		plugins.NewRugPullPlugin(),
+		plugins.NewCredentialTheftPlugin(),
+		plugins.NewHardcodedApiKeyPlugin(),
+		plugins.NewResourcePoisoningPlugin(),
+		plugins.NewToolShadowingPlugin(),
 	}
-	gologger.Infof("注册插件数量: %d", len(plugin))
-	s.plugins = append(s.plugins, plugin...)
+	for _, name := range names {
+		for _, p := range plugin {
+			if p.GetPlugin().ID == name {
+				gologger.Infof("加载插件 %s", p.GetPlugin().Name)
+				s.plugins = append(s.plugins, p)
+			}
+		}
+	}
 }
 
 func (s *Scanner) InputCommand(ctx context.Context, command string, argv []string) error {
@@ -98,12 +102,37 @@ func (s *Scanner) InputCodePath(codePath string) error {
 	s.codePath = codePath
 	return nil
 }
-func (s *Scanner) Scan(ctx context.Context) ([]plugins.Issue, error) {
+
+type ScannerIssue struct {
+	PluginId string
+	plugins.Issue
+}
+
+func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	result := make([]plugins.Issue, 0)
+	result := make([]ScannerIssue, 0)
 	// 运行所有插件
-	s.aiModel.CacheText = ""
+	info := plugins.NewCollectionInfoPlugin()
+	gologger.Infoln("信息收集中...")
+	issue, err := info.Check(ctx, &plugins.McpPluginConfig{
+		Client:   s.client,
+		CodePath: s.codePath,
+		AIModel:  s.aiModel,
+	})
+	if err != nil {
+		gologger.Warningf("信息收集失败: %v", err)
+	}
+	var infoPrompt string
+	if len(issue) != 1 {
+		gologger.Warningf("信息收集失败 结果为空")
+	} else {
+		infoPrompt = issue[0].Description
+		ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
+		gologger.Infoln("信息收集完成", infoPrompt)
+	}
+
+	s.csvResult = append(s.csvResult, []string{"Scan Folder", s.codePath})
 	for _, plugin := range s.plugins {
 		pluginInfo := plugin.GetPlugin()
 		gologger.Infof("运行插件 %s", pluginInfo.Name)
@@ -122,11 +151,19 @@ func (s *Scanner) Scan(ctx context.Context) ([]plugins.Issue, error) {
 		gologger.Infof("插件 %s 运行成功", pluginInfo.Name)
 		gologger.Infof("共发现 %d 个问题", len(issues))
 		gologger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
+		s.csvResult = append(s.csvResult, []string{"PluginId", pluginInfo.ID, "PluginName", pluginInfo.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
 		// 转换插件结果
-		result = append(result, issues...)
-	}
-	if s.log != "" {
-		os.WriteFile(s.log, []byte(s.aiModel.CacheText), 0644)
+		for _, issue := range issues {
+			r := ScannerIssue{
+				PluginId: pluginInfo.Name,
+				Issue:    issue,
+			}
+			result = append(result, r)
+		}
 	}
 	return result, nil
+}
+
+func (s *Scanner) GetCsvResult() [][]string {
+	return s.csvResult
 }

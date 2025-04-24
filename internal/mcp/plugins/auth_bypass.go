@@ -21,6 +21,7 @@ func (p *AuthBypassPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "身份验证绕过检测",
 		Desc: "检测MCP代码中可能存在的身份验证绕过漏洞",
+		ID:   "auth_bypass",
 	}
 }
 
@@ -45,7 +46,7 @@ const authBypassAIPrompt = `
 如果存在风险，请按风险解释、问题代码输出markdown描述，你必须要保证检测结果准确无误，不要误报或漏报。
 `
 
-// 执行检测
+// Check 执行检测
 func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)

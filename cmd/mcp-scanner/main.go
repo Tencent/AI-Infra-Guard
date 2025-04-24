@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"strings"
 
@@ -15,9 +18,9 @@ import (
 
 type Config struct {
 	Model   string `yaml:"model"`
-	Type    string `yaml:"type"`
 	Token   string `yaml:"token"`
 	BaseURL string `yaml:"base_url"`
+	Plugins string `yaml:"plugins"`
 }
 
 func main() {
@@ -28,9 +31,20 @@ func main() {
 	streamLink := flag.String("stream", "", "Stream 链接")
 	cmdName := flag.String("cmd", "", "命令行名称")
 	cmdArgs := flag.String("args", "", "命令行参数，用英文逗号分隔")
+	logArg := flag.String("log", "", "日志保存路径")
+	csvArg := flag.String("csv", "", "输出 CSV 文件路径")
 
 	flag.Parse()
 
+	if *logArg != "" {
+		writer1 := os.Stdout
+		writer2, err := os.OpenFile(*logArg, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+		defer writer2.Close()
+		if err != nil {
+			log.Fatalf("create file log.txt failed: %v", err)
+		}
+		gologger.Logger.SetOutput(io.MultiWriter(writer1, writer2))
+	}
 	// 检查参数
 	if *configFile == "" {
 		gologger.Fatalf("请提供配置文件路径 (-config)")
@@ -47,17 +61,11 @@ func main() {
 	}
 
 	// 创建 AI 模型
-	var aiModel *models.OpenAI
-	switch strings.ToLower(config.Type) {
-	case "openai":
-		aiModel = models.NewOpenAI(config.Token, config.Model, config.BaseURL)
-	default:
-		gologger.Fatalf("不支持的模型类型: %s", config.Type)
-	}
+	aiModel := models.NewOpenAI(config.Token, config.Model, config.BaseURL)
 
 	// 创建扫描器
 	scanner := mcp.NewScanner(aiModel)
-	scanner.RegisterPlugin()
+	scanner.RegisterPlugin(strings.Split(config.Plugins, ","))
 
 	// 设置输入
 	ctx := context.Background()
@@ -95,22 +103,48 @@ func main() {
 
 	// 执行扫描
 	gologger.Infof("开始扫描...")
-	issues, err := scanner.Scan(ctx)
+	results, err := scanner.Scan(ctx)
 	if err != nil {
 		gologger.Fatalf("扫描失败: %v", err)
 	}
 
 	// 输出结果
-	if len(issues) == 0 {
-		gologger.Infof("没有发现问题")
-	} else {
-		gologger.Infof("发现 %d 个问题:", len(issues))
-		for i, issue := range issues {
-			fmt.Printf("问题 %d:\n", i+1)
-			fmt.Printf("  - 标题: %s\n", issue.Title)
-			fmt.Printf("  - 等级: %s\n", issue.Level)
-			fmt.Printf("  - 描述: %s\n", issue.Description)
-			fmt.Printf("  - 建议修复: %s\n\n", issue.Suggestion)
+	gologger.Infof("发现 %d 个问题:", len(results))
+	for i, issue := range results {
+		fmt.Printf("问题 %d:\n", i+1)
+		fmt.Printf("  - 标题: %s\n", issue.Title)
+		fmt.Printf("  - 等级: %s\n", issue.Level)
+		fmt.Printf("  - 描述: %s\n", issue.Description)
+		fmt.Printf("  - 建议修复: %s\n\n", issue.Suggestion)
+	}
+	if *csvArg != "" {
+		//OpenFile读取文件，不存在时则创建，使用追加模式
+		File, err := os.OpenFile(*csvArg, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+		if err != nil {
+			log.Println("文件打开失败！")
+		}
+		defer File.Close()
+
+		//创建写入接口
+		WriterCsv := csv.NewWriter(File)
+		for _, item := range scanner.GetCsvResult() {
+			WriterCsv.Write(item)
+			WriterCsv.Flush()
+		}
+		WriterCsv.Write([]string{})
+		lines := []string{"pluginID", "title", "desc", "level", "suggestion"} //需要写入csv的数据，切片类型
+		err1 := WriterCsv.Write(lines)
+		if err1 != nil {
+			gologger.WithError(err1).Error("写入csv文件失败")
+		}
+		WriterCsv.Flush() //刷新，不刷新是无法写入的
+		for _, issue := range results {
+			lines = []string{issue.PluginId, issue.Title, issue.Description, string(issue.Level), issue.Suggestion} //需要写入csv的数据，切片类型
+			err1 = WriterCsv.Write(lines)
+			if err1 != nil {
+				gologger.WithError(err1).Error("写入csv文件失败")
+			}
+			WriterCsv.Flush() //刷新，不刷新是无法写入的
 		}
 	}
 }

@@ -21,6 +21,7 @@ type AutoGPT struct {
 	MaxFileReadLines int                         // 单次读取文件的最大行数
 	MaxFileReadBytes int                         // 单次读取文件的最大字节数
 	FileReaderState  map[string]*FileReaderState // 文件读取状态
+	history          []map[string]string
 }
 
 // FileReaderState 保存文件读取的状态
@@ -44,7 +45,7 @@ func NewAutoGPT(goals []string) *AutoGPT {
 }
 
 // userPrompt 生成初始系统提示
-func (a *AutoGPT) userPrompt() string {
+func (a *AutoGPT) userPrompt(ctx context.Context) string {
 	// 构建目标字符串
 	var goalsStr strings.Builder
 	for _, goal := range a.Goals {
@@ -54,6 +55,8 @@ func (a *AutoGPT) userPrompt() string {
 	systemPrompt := `
 You are an AI agent capable of performing various tasks. Your objective is to accomplish the goals listed below.
 All decisions must be made independently without seeking user assistance. Leverage your strengths and employ straightforward, legally compliant strategies.
+
+%s
 
 GOALS:
 %s
@@ -74,7 +77,7 @@ COMMANDS:
 4. grep_file: Search for a pattern in a file and return matching lines with context. arg is <filename>|<pattern>|<context_lines>,filename must be absolute path
 5. finish: Triggers completion. The program will return the final vulnerability scan results, which must be valid and wrapped in <arg> tags (e.g., <arg>[RESULT FORMAT]</arg>). If no results, return <arg></arg>.
 
-RESULT FORMAT:
+Unless otherwise specified, the RESULT FORMAT is as follows:
 <result>  
   <title>Vulnerability Name</title>  
   <desc>Detailed vulnerability description, including code paths and contextual examples (Markdown format).</desc>  
@@ -107,7 +110,14 @@ command is next step to use command, must use tag <name></name> and <arg></arg> 
 <arg>parameter,don't need quote</arg>
 </command>
 `
-	systemPrompt = fmt.Sprintf(systemPrompt, goalsStr.String())
+	var infoPromtp string
+	if ctx.Value("collection_prompt") != nil {
+		infoPromtp = ctx.Value("collection_prompt").(string)
+		if infoPromtp != "" {
+			infoPromtp = "项目概览:\n" + infoPromtp
+		}
+	}
+	systemPrompt = fmt.Sprintf(systemPrompt, infoPromtp, goalsStr.String())
 	return strings.TrimSpace(systemPrompt)
 }
 
@@ -245,12 +255,16 @@ func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (s
 	return strings.Join(results, "\n"), nil
 }
 
+func (a *AutoGPT) GetHistory() []map[string]string {
+	return a.history
+}
+
 // Run 运行AutoGPT代理
 func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, error) {
 	history := []map[string]string{
 		{
 			"role":    "user",
-			"content": a.userPrompt(),
+			"content": a.userPrompt(ctx),
 		},
 	}
 
@@ -268,7 +282,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 				"content": userPrompt,
 			})
 		}
-		fmt.Printf("------------------- 第%d轮 -------------------\n", index+1)
+		gologger.Infof("------------------- 第%d轮 -------------------\n", index+1)
 		index++
 
 		// 调用LLM API生成响应
@@ -276,19 +290,19 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		stream := aiModel.ChatStream(ctx, m)
 		msg := ""
 		for chunk := range stream {
-			fmt.Print(chunk)
+			gologger.Print(chunk)
 			msg += chunk
 		}
 		if msg == "" {
 			return "", fmt.Errorf("ai empty response")
 		}
-		fmt.Println()
-
+		gologger.Print("\n")
 		// 添加响应到历史记录
 		history = append(history, map[string]string{
 			"role":    "assistant",
 			"content": msg,
 		})
+		a.history = history
 
 		// 尝试解析JSON命令
 		jsonStr := a.ExtractTag(msg, "command")
@@ -323,7 +337,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			continue
 		}
 
-		fmt.Printf("Executing command: %s with args: %s\n", command.Name, command.Arg1)
+		gologger.Infof("Executing command: %s with args: %s\n", command.Name, command.Arg1)
 
 		// 执行命令
 		var userPrompt string
@@ -437,7 +451,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			}
 
 		case "finish":
-			fmt.Println("任务完成")
+			gologger.Infoln("任务完成")
 			result := command.Arg1
 			return result, nil
 		default:
@@ -449,5 +463,6 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			"role":    "user",
 			"content": a.NextPrompt(userPrompt),
 		})
+		a.history = history
 	}
 }

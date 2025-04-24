@@ -24,6 +24,7 @@ func (p *NameConfusionPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "名称混淆检测",
 		Desc: "检测MCP服务名称混淆与抢注风险",
+		ID:   "name_confusion",
 	}
 }
 

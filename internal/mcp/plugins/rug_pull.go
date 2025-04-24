@@ -21,6 +21,7 @@ func (p *RugPullPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "Rug Pull攻击检测",
 		Desc: "检测MCP代码中可能存在的Rug Pull攻击风险",
+		ID:   "rug_pull",
 	}
 }
 

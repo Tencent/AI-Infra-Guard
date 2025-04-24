@@ -22,6 +22,7 @@ func (p *ToolPoisoningPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "工具投毒攻击检测",
 		Desc: "检测MCP代码中可能存在的工具投毒攻击风险",
+		ID:   "tool_poisoning",
 	}
 }
 

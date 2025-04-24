@@ -22,6 +22,7 @@ func (p *ToolShadowingPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "工具覆盖攻击检测",
 		Desc: "检测MCP代码中可能存在的工具覆盖攻击风险",
+		ID:   "tool_shadowing",
 	}
 }
 
