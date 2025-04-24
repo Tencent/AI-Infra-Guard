@@ -48,26 +48,7 @@ const nameConfusionAIPrompt = `
 - 修复建议
 `
 
-const nameConfusionResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-		"title": "问题名称",
-		"description": "问题详细描述，可以包含分析理由和风险说明",
-		"level": "规则等级（low/medium/high/critical）",
-		"suggestion": "修复建议",
-	},
-	...
-]	
-`
-
-// 工具信息结构
-type toolInfo struct {
-	Name        string // 工具名称
-	Description string // 工具描述
-	Vendor      string // 供应商
-}
-
-// 执行检测
+// Check 执行检测
 func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
 	if config.Client == nil {
@@ -115,7 +96,7 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel *models.OpenAI, codePath string) ([]Issue, error) {
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, codePath),
-	}, nameConfusionResultPrompt)
+	})
 
 	result, err := agent.Run(ctx, aiModel)
 	if err != nil {

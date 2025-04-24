@@ -39,14 +39,14 @@ func (s *Scanner) RegisterPlugin() {
 	defer s.mutex.Unlock()
 	plugin := []plugins.McpPlugin{
 		plugins.NewCmdInjectionPlugin(),
-		plugins.NewAuthBypassPlugin(),
-		plugins.NewNameConfusionPlugin(),
-		plugins.NewToolPoisoningPlugin(),
-		plugins.NewRugPullPlugin(),
-		plugins.NewCredentialTheftPlugin(),
-		plugins.NewHardcodedApiKeyPlugin(),
-		plugins.NewResourcePoisoningPlugin(),
-		plugins.NewToolShadowingPlugin(),
+		//plugins.NewAuthBypassPlugin(),
+		//plugins.NewNameConfusionPlugin(),
+		//plugins.NewToolPoisoningPlugin(),
+		//plugins.NewRugPullPlugin(),
+		//plugins.NewCredentialTheftPlugin(),
+		//plugins.NewHardcodedApiKeyPlugin(),
+		//plugins.NewResourcePoisoningPlugin(),
+		//plugins.NewToolShadowingPlugin(),
 	}
 	gologger.Infof("注册插件数量: %d", len(plugin))
 	s.plugins = append(s.plugins, plugin...)

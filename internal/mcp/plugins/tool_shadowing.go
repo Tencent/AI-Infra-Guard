@@ -45,19 +45,6 @@ Tool Shadowing 指的是一个MCP工具描述中的隐藏指令重新定义或�
 根据目录内容推测需要检测的文件。
 `
 
-const toolShadowingResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-			"title": "工具覆盖攻击风险",
-			"description": "漏洞详细描述,可以包含代码输出详情等,markdown格式",
-			"level": "高",
-			"suggestion": "移除工具描述中试图重新定义或修改其他工具行为的隐藏指令，确保每个工具行为独立且透明",
-	},
-	...
-]
-如果没有检测到风险，请返回空数组 []
-`
-
 // 执行检测
 func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
@@ -68,7 +55,7 @@ func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolShadowingAIPrompt, config.CodePath, dirPrompt),
-	}, toolShadowingResultPrompt)
+	})
 	result, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")

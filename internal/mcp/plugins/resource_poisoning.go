@@ -65,19 +65,6 @@ const resourcePoisoningAIPrompt = `
 根据目录内容推测需要检测的文件。
 `
 
-const resourcePoisoningResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-			"title": "资源投毒风险",
-			"description": "漏洞详细描述,可以包含代码输出详情等,markdown格式",
-			"level": "高",
-			"suggestion": "移除资源文件中的隐藏指令，确保提供的所有资源内容透明可见且无恶意代码",
-	},
-	...
-]
-如果没有检测到风险，请返回空数组 []
-`
-
 // 执行检测
 func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
@@ -111,7 +98,7 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 	// 使用AI分析潜在的资源投毒风险
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(resourcePoisoningAIPrompt, config.CodePath, dirPrompt),
-	}, resourcePoisoningResultPrompt)
+	})
 
 	result, err := agent.Run(ctx, config.AIModel)
 	if err != nil {

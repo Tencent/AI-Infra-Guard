@@ -45,19 +45,6 @@ Tool Poisoning Attack指的是在MCP工具的描述（docstring）中隐藏恶�
 根据目录内容推测需要检测的文件。
 `
 
-const toolPoisoningResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-			"title": "工具投毒攻击风险",
-			"description": "漏洞详细描述,可以包含代码输出详情等,markdown格式",
-			"level": "高",
-			"suggestion": "移除工具描述中的隐藏指令，确保所有工具描述都是透明的，不包含可能被LLM执行的特殊指令",
-	},
-	...
-]
-如果没有检测到风险，请返回空数组 []
-`
-
 // 执行检测
 func (p *ToolPoisoningPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
@@ -68,7 +55,7 @@ func (p *ToolPoisoningPlugin) Check(ctx context.Context, config *McpPluginConfig
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolPoisoningAIPrompt, config.CodePath, dirPrompt),
-	}, toolPoisoningResultPrompt)
+	})
 	result, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")

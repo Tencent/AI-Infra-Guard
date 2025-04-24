@@ -214,10 +214,10 @@ func (p *CmdInjectionPlugin) GetPlugin() Plugin {
 
 // AI提示词模板
 const cmdInjectionAIPrompt = `
-分析以下代码，找出可能存在的命令注入漏洞：
-
+分析以下正则扫描结果，找出可能存在的命令注入漏洞：
+---
 %s
-
+---
 文件夹路径：%s
 需要重点检查：
 1. 是否直接执行系统命令或代码
@@ -226,21 +226,7 @@ const cmdInjectionAIPrompt = `
 4. 执行环境是否有足够的沙箱控制和权限限制
 5. 是否有文件系统访问权限控制
 
-如果存在风险，请按风险解释、问题代码输出markdown描述
-
-
-`
-
-const cmdInjectionResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-		"title": "漏洞名称",
-		"description": "漏洞详细描述,可以包含代码和位置等信息,markdown格式",
-		"level": "规则等级",
-		"suggestion": "修复建议",
-	},
-	...
-]	
+如果存在风险，请按风险解释、问题代码输出markdown描述,无风险则不输出
 `
 
 // GetLocation 根据起始位置和间隔行数获取文件的行位置
@@ -334,14 +320,11 @@ func (p *CmdInjectionPlugin) checkFile(filePath string, contextLines int) ([]Iss
 			// 获取匹配位置和上下文
 			location, contextCode := GetLocation(fileContent, startPos, endPos, contextLines)
 
-			description := fmt.Sprintf("**%s**\n\n%s\n\n代码上下文:\n```\n%s```",
-				rule.Name, rule.Description, contextCode)
+			description := fmt.Sprintf("代码上下文:\n```\n%s```", contextCode)
 
 			issue := Issue{
-				Title:       fmt.Sprintf("[%s] %s 在 %s (%s)", rule.Language, rule.Name, filepath.Base(filePath), location),
+				Title:       fmt.Sprintf("[%s] 疑似%s 在 %s (%s)", rule.Language, rule.Name, filepath.Base(filePath), location),
 				Description: description,
-				Level:       rule.Level,
-				Suggestion:  rule.Suggestion,
 			}
 
 			issues = append(issues, issue)
@@ -385,30 +368,29 @@ func (p *CmdInjectionPlugin) scanDirectory(dirPath string, contextLines int) ([]
 // 使用AI进行深度分析
 func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, config *McpPluginConfig) ([]Issue, error) {
 	if len(issues) == 0 {
-		return issues, nil
+		return nil, nil
 	}
 
 	// 构建AI分析的输入
 	var sb strings.Builder
 	for _, issue := range issues {
-		sb.WriteString(fmt.Sprintf("问题: %s\n", issue.Title))
-		sb.WriteString(fmt.Sprintf("严重程度: %s\n", issue.Level))
+		sb.WriteString(fmt.Sprintf("%s\n", issue.Title))
 		sb.WriteString(fmt.Sprintf("描述: %s\n\n", issue.Description))
 	}
 
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
-	}, cmdInjectionResultPrompt)
+	})
 
 	result, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("AI分析失败")
-		return issues, err
+		return nil, err
 	}
 
 	if result == "" {
 		gologger.Warningln("AI分析结果为空")
-		return issues, nil
+		return nil, nil
 	}
 
 	issue := ParseIssues(result)

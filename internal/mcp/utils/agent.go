@@ -14,10 +14,9 @@ import (
 
 // AutoGPT 是一个代理，可以自动执行任务，类似于AutoGPT功能
 type AutoGPT struct {
-	Goals        []string // 代理需要完成的目标列表
-	ResultFormat string
-	AutoSure     bool // 是否自动确认命令执行，无需用户确认
-	MaxIter      int  // 最大迭代次数
+	Goals    []string // 代理需要完成的目标列表
+	AutoSure bool     // 是否自动确认命令执行，无需用户确认
+	MaxIter  int      // 最大迭代次数
 	// 文件读取相关配置
 	MaxFileReadLines int                         // 单次读取文件的最大行数
 	MaxFileReadBytes int                         // 单次读取文件的最大字节数
@@ -33,10 +32,9 @@ type FileReaderState struct {
 }
 
 // NewAutoGPT 创建一个新的AutoGPT实例
-func NewAutoGPT(goals []string, resultFormat string) *AutoGPT {
+func NewAutoGPT(goals []string) *AutoGPT {
 	return &AutoGPT{
 		Goals:            goals,
-		ResultFormat:     resultFormat,
 		AutoSure:         false,
 		MaxIter:          60,
 		MaxFileReadLines: 300,       // 默认每次读取100行
@@ -54,8 +52,8 @@ func (a *AutoGPT) userPrompt() string {
 	}
 
 	systemPrompt := `
-You are an AI agent that can perform a variety of tasks. Your goal is to complete the goals listed below.
-Your decisions must always be made independently without seeking user assistance. Play to your strengths and pursue simple strategies with no legal complications.
+You are an AI agent capable of performing various tasks. Your objective is to accomplish the goals listed below.
+All decisions must be made independently without seeking user assistance. Leverage your strengths and employ straightforward, legally compliant strategies.
 
 GOALS:
 %s
@@ -69,27 +67,25 @@ Performance Evaluation:
 
 You can only use the following commands:
 
-RESULT FORMAT:
-<result>
-	<title>漏洞名称</title>
-	<desc>漏洞描述详情,输出代码路径，以上下文相关代码举例输出详情,markdown格式</desc>
-	<level>规则等级 critical/high/medium/low</level>
-	<suggestion>修复建议</suggestion>
-</result>
-
-if no result, return nothing.
-
-
 COMMANDS:
 1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path. 
 2. continue_read: Continue reading the previous file. args: arg is "next" to read next chunk.
 3. list_dir: Use this tool when you need to list a directory. arg is dir must be absolute path.
 4. grep_file: Search for a pattern in a file and return matching lines with context. arg is <filename>|<pattern>|<context_lines>,filename must be absolute path
-5. finish: When the finish event is triggered, the program will return, and the final result's output format will be wrapped in <arg> tags to be provided to the next program. arg is finally results(obtained RESULT FORMAT). eg:<arg><result></result></arg> if there is no result, return <arg></arg>
+5. finish: Triggers completion. The program will return the final vulnerability scan results, which must be valid and wrapped in <arg> tags (e.g., <arg>[RESULT FORMAT]</arg>). If no results, return <arg></arg>.
 
-You cannot read directories or files outside the specified root directory.
-Your output format must follow the following specifications: Output in the order of conclusion,think,command,criticism,plan.
-Keep realistic and detailed.Don't use fake data or irrelevant information.
+RESULT FORMAT:
+<result>  
+  <title>Vulnerability Name</title>  
+  <desc>Detailed vulnerability description, including code paths and contextual examples (Markdown format).</desc>  
+  <level>Severity level (critical/high/medium/low)</level>  
+  <suggestion>Remediation suggestions</suggestion>  
+</result>
+
+Limitations:
+- You cannot read directories or files outside the specified root directory.
+- Your output format must follow the following specifications: Output in the order of conclusion,think,command,criticism,plan.
+- Keep realistic and detailed.Don't use fake data or irrelevant information.
 
 Response in chinese.
 
@@ -129,7 +125,6 @@ func (a *AutoGPT) ExtractTag(text, tag string) string {
 		return ""
 	}
 	tmp := text[startIndex+len(startText):]
-
 	endIndex := strings.Index(tmp, endText) + startIndex + len(startText)
 	if startIndex == -1 || endIndex == -1 || endIndex <= startIndex {
 		return ""

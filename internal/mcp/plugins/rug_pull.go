@@ -3,7 +3,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
@@ -43,19 +42,6 @@ Rug Pull Attack 指的是一个MCP工具在初始安装和批准时看起来是�
 根据目录内容推测需要检测的文件。
 `
 
-const rugPullResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-			"title": "Rug Pull攻击风险",
-			"description": "漏洞详细描述,可以包含代码输出详情等,markdown格式",
-			"level": "高",
-			"suggestion": "移除工具中可能动态改变行为或描述的代码，确保工具行为与描述保持一致透明",
-	},
-	...
-]
-如果没有检测到风险，请返回空数组 []
-`
-
 // 执行检测
 func (p *RugPullPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
@@ -66,7 +52,7 @@ func (p *RugPullPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]I
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(rugPullAIPrompt, config.CodePath, dirPrompt),
-	}, rugPullResultPrompt)
+	})
 	result, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")

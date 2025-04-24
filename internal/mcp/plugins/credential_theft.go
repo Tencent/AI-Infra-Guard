@@ -115,19 +115,6 @@ const credentialTheftAIPrompt = `
 根据目录内容推测需要检测的文件。
 `
 
-const credentialTheftResultPrompt = `以json格式返回检测结果，格式如下：
-[
-	{
-			"title": "凭证盗窃风险",
-			"description": "漏洞详细描述,可以包含代码输出详情等,markdown格式",
-			"level": "高",
-			"suggestion": "移除工具描述中要求读取配置文件或环境变量的指令，不要在工具描述中引导用户或AI提供敏感凭证信息",
-	},
-	...
-]
-如果没有检测到风险，请返回空数组 []
-`
-
 // 执行检测
 func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
@@ -176,7 +163,7 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	if len(issues) == 0 {
 		agent := utils.NewAutoGPT([]string{
 			fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt),
-		}, credentialTheftResultPrompt)
+		})
 		result, err := agent.Run(ctx, config.AIModel)
 		if err != nil {
 			gologger.WithError(err).Warningln("")
