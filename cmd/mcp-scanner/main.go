@@ -47,10 +47,8 @@ func main() {
 	}
 
 	// 创建 AI 模型
-	var aiModel models.AIModel
+	var aiModel *models.OpenAI
 	switch strings.ToLower(config.Type) {
-	case "hunyuan":
-		aiModel = models.NewHunyuanAI(config.Token, config.Model, config.BaseURL)
 	case "openai":
 		aiModel = models.NewOpenAI(config.Token, config.Model, config.BaseURL)
 	default:

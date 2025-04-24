@@ -112,7 +112,7 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 }
 
 // 使用AI进行名称混淆分析
-func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel models.AIModel, codePath string) ([]Issue, error) {
+func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel *models.OpenAI, codePath string) ([]Issue, error) {
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, codePath),
 	}, nameConfusionResultPrompt)

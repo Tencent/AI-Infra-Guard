@@ -61,7 +61,7 @@ const toolPoisoningResultPrompt = `以json格式返回检测结果，格式如�
 // 执行检测
 func (p *ToolPoisoningPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
-	dirPrompt, err := utils.ListDir(config.CodePath)
+	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
 		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return issues, err

@@ -134,7 +134,7 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 
 	// 第一步：基于启发式规则进行扫描
 	// 使用列出目录内容并查找工具描述
-	dirPrompt, err := utils.ListDir(config.CodePath)
+	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
 		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return issues, err

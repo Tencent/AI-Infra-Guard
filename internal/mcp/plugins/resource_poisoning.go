@@ -83,7 +83,7 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 	var issues []Issue
 
 	// 使用列出目录内容
-	dirPrompt, err := utils.ListDir(config.CodePath)
+	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
 		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return issues, err
@@ -101,7 +101,7 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 		if dirExists(path) {
 			resourcePaths = append(resourcePaths, path)
 			// 获取该目录的详细信息添加到dirPrompt中
-			subDirPrompt, _ := utils.ListDir(path)
+			subDirPrompt, _ := utils.ListDir(path, 2)
 			if subDirPrompt != "" {
 				dirPrompt += "\n\n目录: " + path + "\n" + subDirPrompt
 			}

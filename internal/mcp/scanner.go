@@ -7,19 +7,22 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
+	"os"
 	"sync"
+	"time"
 )
 
 type Scanner struct {
 	mutex    sync.Mutex
 	results  []*plugins.Issue
 	plugins  []plugins.McpPlugin
-	aiModel  models.AIModel
+	aiModel  *models.OpenAI
 	client   *client.Client
 	codePath string
+	log      string
 }
 
-func NewScanner(aiConfig models.AIModel) *Scanner {
+func NewScanner(aiConfig *models.OpenAI) *Scanner {
 	return &Scanner{
 		results: make([]*plugins.Issue, 0),
 		plugins: make([]plugins.McpPlugin, 0),
@@ -27,12 +30,16 @@ func NewScanner(aiConfig models.AIModel) *Scanner {
 	}
 }
 
+func (s *Scanner) SetLog(log string) {
+	s.log = log
+}
+
 func (s *Scanner) RegisterPlugin() {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	plugin := []plugins.McpPlugin{
-		plugins.NewAuthBypassPlugin(),
 		plugins.NewCmdInjectionPlugin(),
+		plugins.NewAuthBypassPlugin(),
 		plugins.NewNameConfusionPlugin(),
 		plugins.NewToolPoisoningPlugin(),
 		plugins.NewRugPullPlugin(),
@@ -96,9 +103,12 @@ func (s *Scanner) Scan(ctx context.Context) ([]plugins.Issue, error) {
 	defer s.mutex.Unlock()
 	result := make([]plugins.Issue, 0)
 	// 运行所有插件
+	s.aiModel.CacheText = ""
 	for _, plugin := range s.plugins {
 		pluginInfo := plugin.GetPlugin()
 		gologger.Infof("运行插件 %s", pluginInfo.Name)
+		s.aiModel.ResetToken()
+		startTime := time.Now()
 		config := plugins.McpPluginConfig{
 			Client:   s.client,
 			CodePath: s.codePath,
@@ -111,8 +121,12 @@ func (s *Scanner) Scan(ctx context.Context) ([]plugins.Issue, error) {
 		}
 		gologger.Infof("插件 %s 运行成功", pluginInfo.Name)
 		gologger.Infof("共发现 %d 个问题", len(issues))
+		gologger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		// 转换插件结果
 		result = append(result, issues...)
+	}
+	if s.log != "" {
+		os.WriteFile(s.log, []byte(s.aiModel.CacheText), 0644)
 	}
 	return result, nil
 }

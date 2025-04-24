@@ -49,7 +49,7 @@ type McpInput struct {
 type McpPluginConfig struct {
 	Client   *client.Client
 	CodePath string
-	AIModel  models.AIModel
+	AIModel  *models.OpenAI
 }
 
 type McpPlugin interface {

@@ -2,8 +2,10 @@ package models
 
 import (
 	"context"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
+	"strings"
 )
 
 type AIModel interface {
@@ -11,14 +13,19 @@ type AIModel interface {
 }
 
 type OpenAI struct {
-	Key     string
-	BaseUrl string
-	Model   string
+	Key       string
+	BaseUrl   string
+	Model     string
+	UseToken  int64
+	CacheText string
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
 	if url == "" {
 		url = "https://api.openai.com/"
+	}
+	if !strings.HasSuffix(url, "/") {
+		url += "/"
 	}
 	return &OpenAI{
 		Key:     key,
@@ -51,10 +58,26 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 			evt := stream.Current()
 			if len(evt.Choices) > 0 {
 				word := evt.Choices[0].Delta.Content
+				if evt.Usage.TotalTokens > 0 {
+					ai.UseToken = evt.Usage.TotalTokens
+				}
+				ai.CacheText += word
 				resp <- word
 			}
+		}
+		if stream.Err() != nil {
+			// 处理错误
+			gologger.WithError(stream.Err()).Errorln("ChatStream error")
 		}
 		close(resp)
 	}()
 	return resp
+}
+
+func (ai *OpenAI) GetTotalToken() int64 {
+	return ai.UseToken
+}
+
+func (ai *OpenAI) ResetToken() {
+	ai.UseToken = 0
 }

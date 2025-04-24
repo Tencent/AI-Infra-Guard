@@ -321,8 +321,6 @@ func (p *CmdInjectionPlugin) checkFile(filePath string, contextLines int) ([]Iss
 			if fileExt == ".go" {
 				applicableRules = append(applicableRules, rule)
 			}
-		default:
-			applicableRules = append(applicableRules, rule)
 		}
 	}
 
@@ -428,7 +426,6 @@ func (p *CmdInjectionPlugin) Check(ctx context.Context, config *McpPluginConfig)
 	}
 
 	gologger.Infoln(fmt.Sprintf("初步检测完成，发现 %d 个潜在问题", len(issues)))
-
 	// 使用AI进行深度分析
 	if len(issues) > 0 && config.AIModel != nil {
 		gologger.Infoln("正在使用AI进行深度分析...")

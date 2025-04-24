@@ -38,9 +38,9 @@ func NewAutoGPT(goals []string, resultFormat string) *AutoGPT {
 		Goals:            goals,
 		ResultFormat:     resultFormat,
 		AutoSure:         false,
-		MaxIter:          200,
-		MaxFileReadLines: 100,       // 默认每次读取100行
-		MaxFileReadBytes: 10 * 1024, // 默认每次读取10KB
+		MaxIter:          60,
+		MaxFileReadLines: 300,       // 默认每次读取100行
+		MaxFileReadBytes: 20 * 1024, // 默认每次读取10KB
 		FileReaderState:  make(map[string]*FileReaderState),
 	}
 }
@@ -73,18 +73,21 @@ RESULT FORMAT:
 <result>
 	<title>漏洞名称</title>
 	<desc>漏洞描述详情,输出代码路径，以上下文相关代码举例输出详情,markdown格式</desc>
-	<level>规则等级</level>
+	<level>规则等级 critical/high/medium/low</level>
 	<suggestion>修复建议</suggestion>
 </result>
 
+if no result, return nothing.
+
 
 COMMANDS:
-1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path.
+1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path. 
 2. continue_read: Continue reading the previous file. args: arg is "next" to read next chunk.
 3. list_dir: Use this tool when you need to list a directory. arg is dir must be absolute path.
 4. grep_file: Search for a pattern in a file and return matching lines with context. arg is <filename>|<pattern>|<context_lines>,filename must be absolute path
-5. finish: When the finish event is triggered, the program will return, and the final result's output format will be wrapped in <arg> tags to be provided to the next program. arg is finally results(obtained RESULT FORMAT). eg:<arg><result>...</result></arg>
+5. finish: When the finish event is triggered, the program will return, and the final result's output format will be wrapped in <arg> tags to be provided to the next program. arg is finally results(obtained RESULT FORMAT). eg:<arg><result></result></arg> if there is no result, return <arg></arg>
 
+You cannot read directories or files outside the specified root directory.
 Your output format must follow the following specifications: Output in the order of conclusion,think,command,criticism,plan.
 Keep realistic and detailed.Don't use fake data or irrelevant information.
 
@@ -122,6 +125,9 @@ func (a *AutoGPT) ExtractTag(text, tag string) string {
 	startText := fmt.Sprintf("<%s>", tag)
 	endText := fmt.Sprintf("</%s>", tag)
 	startIndex := strings.Index(text, startText)
+	if startIndex == -1 {
+		return ""
+	}
 	tmp := text[startIndex+len(startText):]
 
 	endIndex := strings.Index(tmp, endText) + startIndex + len(startText)
@@ -245,7 +251,7 @@ func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (s
 }
 
 // Run 运行AutoGPT代理
-func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, error) {
+func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, error) {
 	history := []map[string]string{
 		{
 			"role":    "user",
@@ -257,7 +263,15 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 	index := 0
 	for {
 		if a.MaxIter > 0 && index >= a.MaxIter {
-			return "", fmt.Errorf("maximum iteration reached")
+			userPrompt := fmt.Sprintf("已达到最大迭代次数: %d,请根据历史记录直接完成，输出command为finish，生成最终结果", a.MaxIter)
+			// history删除上一个
+			if len(history) > 1 {
+				history = history[:len(history)-1]
+			}
+			history = append(history, map[string]string{
+				"role":    "user",
+				"content": userPrompt,
+			})
 		}
 		fmt.Printf("------------------- 第%d轮 -------------------\n", index+1)
 		index++
@@ -269,6 +283,9 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 		for chunk := range stream {
 			fmt.Print(chunk)
 			msg += chunk
+		}
+		if msg == "" {
+			return "", fmt.Errorf("ai empty response")
 		}
 		fmt.Println()
 
@@ -332,7 +349,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 			fileInfo, err := os.Stat(command.Arg1)
 			if err != nil {
 				gologger.WithError(err).Warningln("读取文件失败")
-				userPrompt = fmt.Sprintf("读取文件失败: %v", err)
+				userPrompt = fmt.Sprintf("读取文件 %s 失败: %v", command.Arg1, err)
 			} else {
 				// 检查文件大小，决定如何读取
 				if fileInfo.Size() < int64(a.MaxFileReadBytes) {
@@ -380,8 +397,8 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel models.AIModel) (string, erro
 				if state.HistoryIndex >= 0 && state.HistoryIndex < len(history) {
 					// 从历史记录中删除而不是更新，避免历史太长
 					historyLen := len(history)
-					if historyLen > state.HistoryIndex {
-						history = append(history[:state.HistoryIndex], history[state.HistoryIndex+2:]...)
+					if historyLen > state.HistoryIndex+1 {
+						history = append(history[:state.HistoryIndex], history[state.HistoryIndex+1:]...)
 					}
 				}
 

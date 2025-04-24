@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/client"
 	"github.com/mark3labs/mcp-go/mcp"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,7 @@ var ignoreFiles = []string{
 	".DS_Store", "Thumbs.db",
 
 	// 版本控制相关
-	".gitignore", ".gitattributes", ".gitmodules", ".gitkeep",
+	".gitignore", ".gitattributes", ".gitmodules", ".gitkeep", ".git", ".svn",
 
 	// 环境配置文件
 	".env", "env", ".env.local", ".env.example", ".env.test", ".env.production",
@@ -156,17 +157,94 @@ func GetFileLineCount(file string) int {
 	}
 }
 
-func ListDir(dir string) (string, error) {
-	files, err := os.ReadDir(dir)
+// ListDir 递归列出目录结构并生成树形图
+// dir: 要列出的目录路径
+// maxLevel: 最大递归深度（0表示不限制）
+func ListDir(dir string, maxLevel int) (string, error) {
+	var builder strings.Builder
+	err := listDirRecursive(dir, 0, true, &builder, []bool{}, maxLevel)
 	if err != nil {
 		return "", err
 	}
-	var userPrompt string
-	for _, file := range files {
-		userPrompt += fmt.Sprintf("- %s (%s)\n", file.Name(), file.Type())
-	}
-	return userPrompt, nil
+	return builder.String(), nil
 }
+
+// listDirRecursive 递归生成目录树
+// dir: 当前目录路径
+// depth: 当前递归深度
+// isLast: 是否是父目录的最后一项
+// builder: 字符串构建器
+// hasLast: 记录父目录的层级状态
+// maxLevel: 允许的最大递归深度
+func listDirRecursive(dir string, depth int, isLast bool, builder *strings.Builder, hasLast []bool, maxLevel int) error {
+	if maxLevel != 0 && depth >= maxLevel {
+		return nil
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+
+	// 过滤忽略文件
+	var validEntries []fs.DirEntry
+	for _, entry := range entries {
+		if !IsIgnoreFile(filepath.Join(dir, entry.Name())) {
+			validEntries = append(validEntries, entry)
+		}
+	}
+
+	for i, entry := range validEntries {
+		// 绘制树形结构线
+		for d := 0; d < depth; d++ {
+			if hasLast[d] {
+				builder.WriteString("    ")
+			} else {
+				builder.WriteString("│   ")
+			}
+		}
+
+		// 判断是否是最后一项
+		isLastEntry := i == len(validEntries)-1
+		if isLastEntry {
+			builder.WriteString("└── ")
+		} else {
+			builder.WriteString("├── ")
+		}
+
+		// 添加条目名称和类型
+		builder.WriteString(fmt.Sprintf("%s (%s)\n", entry.Name(), getSimpleType(entry)))
+
+		// 递归处理子目录（不超过最大深度时）
+		if entry.IsDir() && (maxLevel <= 0 || depth < maxLevel) {
+			newHasLast := append(hasLast, isLastEntry)
+			err = listDirRecursive(
+				filepath.Join(dir, entry.Name()),
+				depth+1,
+				isLastEntry,
+				builder,
+				newHasLast,
+				maxLevel,
+			)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// getSimpleType 简化文件类型显示
+func getSimpleType(entry fs.DirEntry) string {
+	if entry.IsDir() {
+		return "dir"
+	}
+	if entry.Type().IsRegular() {
+		return "file"
+	}
+	return entry.Type().String()
+}
+
 func InitMcpClient(ctx context.Context, client *client.Client) error {
 	err := client.Start(ctx)
 	if err != nil {
@@ -178,6 +256,7 @@ func InitMcpClient(ctx context.Context, client *client.Client) error {
 	}
 	return err
 }
+
 func ListMcpTools(ctx context.Context, client *client.Client) (*mcp.ListToolsResult, error) {
 	result, err := client.ListTools(ctx, mcp.ListToolsRequest{})
 	if err != nil {
