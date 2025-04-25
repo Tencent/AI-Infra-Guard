@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
@@ -33,6 +35,7 @@ func main() {
 	cmdArgs := flag.String("args", "", "命令行参数，用英文逗号分隔")
 	logArg := flag.String("log", "", "日志保存路径")
 	csvArg := flag.String("csv", "", "输出 CSV 文件路径")
+	jsonArg := flag.String("json", "", "输出 JSON 文件路径")
 
 	flag.Parse()
 
@@ -50,8 +53,8 @@ func main() {
 		gologger.Fatalf("请提供配置文件路径 (-config)")
 	}
 
-	if *codePath == "" && *sseLink == "" && *streamLink == "" && *cmdName == "" {
-		gologger.Fatalf("请至少提供以下一种输入：源代码路径 (-code)、SSE 链接 (-sse)、Stream 链接 (-stream) 或命令行 (-cmd)")
+	if *codePath == "" {
+		gologger.Fatalf("请至少提供以下一种输入：源代码路径 (-code)")
 	}
 
 	// 读取配置文件
@@ -70,7 +73,13 @@ func main() {
 	// 设置输入
 	ctx := context.Background()
 	if *codePath != "" {
-		err = scanner.InputCodePath(*codePath)
+		filename, err := filepath.Abs(*codePath)
+		if err != nil {
+			gologger.Errorln("获取文件路径失败: %v", err)
+			filename = *codePath
+		}
+		gologger.Infof("设置代码路径: %s", filename)
+		err = scanner.InputCodePath(filename)
 		if err != nil {
 			gologger.Fatalf("设置代码路径失败: %v", err)
 		}
@@ -117,6 +126,18 @@ func main() {
 		fmt.Printf("  - 描述: %s\n", issue.Description)
 		fmt.Printf("  - 建议修复: %s\n\n", issue.Suggestion)
 	}
+	if *jsonArg != "" {
+		dd, err := json.Marshal(results)
+		if err != nil {
+			gologger.Errorf("输出 JSON 失败: %v", err)
+		} else {
+			err = os.WriteFile(*jsonArg, dd, 0644)
+			if err != nil {
+				gologger.Errorf("保存 JSON 失败: %v", err)
+			}
+			gologger.Infoln("输出 JSON 文件成功")
+		}
+	}
 	if *csvArg != "" {
 		//OpenFile读取文件，不存在时则创建，使用追加模式
 		File, err := os.OpenFile(*csvArg, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
@@ -146,6 +167,7 @@ func main() {
 			}
 			WriterCsv.Flush() //刷新，不刷新是无法写入的
 		}
+		gologger.Infoln("输出CSV文件成功")
 	}
 }
 

@@ -19,7 +19,7 @@ func NewNameConfusionPlugin() *NameConfusionPlugin {
 	return &NameConfusionPlugin{}
 }
 
-// 获取插件信息
+// GetPlugin 获取插件信息
 func (p *NameConfusionPlugin) GetPlugin() Plugin {
 	return Plugin{
 		Name: "名称混淆检测",

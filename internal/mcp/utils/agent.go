@@ -74,7 +74,7 @@ COMMANDS:
 1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path. 
 2. continue_read: Continue reading the previous file. args: arg is "next" to read next chunk.
 3. list_dir: Use this tool when you need to list a directory. arg is dir must be absolute path.
-4. grep_file: Search for a pattern in a file and return matching lines with context. arg is <filename>|<pattern>|<context_lines>,filename must be absolute path
+4. grep: Search for a pattern in a file or directory and return matching lines with context. arg is <path>|<pattern>|<context_lines>, path can be a file or directory with absolute path.
 5. finish: Triggers completion. The program will return the final vulnerability scan results, which must be valid and wrapped in <arg> tags (e.g., <arg>[RESULT FORMAT]</arg>). If no results, return <arg></arg>.
 
 Unless otherwise specified, the RESULT FORMAT is as follows:
@@ -93,18 +93,8 @@ Limitations:
 Response in chinese.
 
 RESPONSE FORMAT:
-## conclusion
-Extract key information from the previous round, and user responses to generate a rich and detailed conclusion.
-## think
-Think step by step about the next actions.
-## reason
-Explain why you chose a certain command or strategy.
-## criticism
-Critique your mistakes, offer suggestions for improvement, and always be goal-oriented.
-## plan
-Plan the next step.
-
-command is next step to use command, must use tag <name></name> and <arg></arg> to specify the command name and parameters.only return one command.
+Your response includes five aspects: [Integration Phase: Consolidate key information from dialogue history, user feedback, and system observations to generate actionable conclusions], [Distributed Reasoning: Break down complex problems into sequential thinking steps, using weighted indicators to evaluate solution feasibility], [Strategic Basis: Explain decision criteria based on an evidence chain, comparing alternatives through cost-benefit analysis], [Critical Reflection: Conduct a SWOT analysis of the current strategy, proposing three improvement directions with specific examples], and [Action Blueprint: Define next-step goals using the SMART principle, clarifying success criteria and risk responses]. Then provide the response instruction: the command is the next step to use the command, must use the tags and to specify the command name and parameters. Only return one command.
+Command Format:
 <command>
 <name>command name</name>
 <arg>parameter,don't need quote</arg>
@@ -197,19 +187,100 @@ func (a *AutoGPT) ReadFileChunk(filename string, startLine int, maxLines int, ma
 	return result, currentLine, nil
 }
 
-// GrepFile 在文件中搜索特定模式并返回匹配行及其上下文
-func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (string, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
+// Grep 在文件或目录中搜索特定模式并返回匹配行及其上下文
+func (a *AutoGPT) Grep(path string, pattern string, contextLines int) (string, error) {
 	// 编译正则表达式
 	re, err := regexp.Compile(pattern)
 	if err != nil {
 		return "", fmt.Errorf("正则表达式无效: %v", err)
 	}
+
+	// 检查路径是文件还是目录
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+
+	var results []string
+	if fileInfo.IsDir() {
+		// 如果是目录，遍历目录中的所有文件
+		results = append(results, fmt.Sprintf("在目录 '%s' 中搜索 '%s':\n", path, pattern))
+		err = a.grepDirectory(path, re, contextLines, &results)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		// 如果是文件，直接搜索文件
+		fileResults, err := a.grepFile(path, re, contextLines)
+		if err != nil {
+			return "", err
+		}
+		if fileResults != "" {
+			results = append(results, fmt.Sprintf("文件: %s\n", path))
+			results = append(results, fileResults)
+		}
+	}
+
+	if len(results) == 0 || (len(results) == 1 && strings.HasPrefix(results[0], "在目录")) {
+		return fmt.Sprintf("未找到匹配模式 '%s' 的内容", pattern), nil
+	}
+
+	return strings.Join(results, "\n"), nil
+}
+
+// grepDirectory 在目录中搜索特定模式
+func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines int, results *[]string) error {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+
+	foundMatches := false
+	for _, entry := range entries {
+		entryPath := fmt.Sprintf("%s/%s", dirPath, entry.Name())
+
+		// 跳过隐藏文件和目录
+		if strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+
+		if entry.IsDir() {
+			// 递归搜索子目录
+			err := a.grepDirectory(entryPath, re, contextLines, results)
+			if err != nil {
+				// 只记录错误，继续处理其他文件
+				*results = append(*results, fmt.Sprintf("搜索目录 %s 时出错: %v", entryPath, err))
+			}
+		} else {
+			// 只处理常见文本文件类型
+			if isTextFile(entry.Name()) {
+				fileResults, err := a.grepFile(entryPath, re, contextLines)
+				if err != nil {
+					// 只记录错误，继续处理其他文件
+					continue
+				}
+
+				if fileResults != "" {
+					if !foundMatches {
+						foundMatches = true
+					}
+					*results = append(*results, fmt.Sprintf("\n文件: %s", entryPath))
+					*results = append(*results, fileResults)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// grepFile 在单个文件中搜索特定模式
+func (a *AutoGPT) grepFile(filename string, re *regexp.Regexp, contextLines int) (string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
 
 	// 读取文件的所有行
 	var lines []string
@@ -223,8 +294,10 @@ func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (s
 
 	// 搜索匹配行并保存上下文
 	var results []string
+	matchFound := false
 	for i, line := range lines {
 		if re.MatchString(line) {
+			matchFound = true
 			// 添加匹配行的上下文
 			startLine := i - contextLines
 			if startLine < 0 {
@@ -248,11 +321,37 @@ func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (s
 		}
 	}
 
-	if len(results) == 0 {
-		return fmt.Sprintf("未找到匹配模式 '%s' 的内容", pattern), nil
+	if !matchFound {
+		return "", nil
 	}
 
 	return strings.Join(results, "\n"), nil
+}
+
+// isTextFile 检查文件是否为文本文件
+func isTextFile(filename string) bool {
+	// 常见文本文件扩展名
+	textExtensions := []string{
+		".txt", ".md", ".go", ".py", ".js", ".ts", ".html", ".css",
+		".json", ".xml", ".yaml", ".yml", ".toml", ".ini", ".conf",
+		".c", ".cpp", ".h", ".hpp", ".java", ".sh", ".bat", ".ps1",
+		".php", ".rb", ".rs", ".swift", ".kt", ".scala", ".sql",
+	}
+
+	lowerFilename := strings.ToLower(filename)
+
+	for _, ext := range textExtensions {
+		if strings.HasSuffix(lowerFilename, ext) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// GrepFile 保留旧函数作为兼容层，内部调用新的Grep函数
+func (a *AutoGPT) GrepFile(filename string, pattern string, contextLines int) (string, error) {
+	return a.Grep(filename, pattern, contextLines)
 }
 
 func (a *AutoGPT) GetHistory() []map[string]string {
@@ -323,7 +422,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			// JSON解析失败
 			history = append(history, map[string]string{
 				"role":    "user",
-				"content": fmt.Sprintf("你的输出格式错误\n请根据上一个问题回答并重新整理你的输出格式"),
+				"content": fmt.Sprintf("你的输出格式错误\n请根据上一个问题回答并重新整理你的输出格式,你需要保证输出<command></command>标签以及<name></name>标签"),
 			})
 			continue
 		}
@@ -426,13 +525,13 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 				}
 			}
 
-		case "grep_file":
-			// 解析参数: filename|pattern|context_lines
+		case "grep":
+			// 解析参数: path|pattern|context_lines
 			args := strings.Split(command.Arg1, "|")
 			if len(args) < 2 {
-				userPrompt = "grep_file 命令格式错误，正确格式: filename|pattern|context_lines"
+				userPrompt = "grep 命令格式错误，正确格式: path|pattern|context_lines"
 			} else {
-				filename := args[0]
+				path := args[0]
 				pattern := args[1]
 
 				contextLines := 3 // 默认值
@@ -441,12 +540,12 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 				}
 
 				// 执行grep
-				results, err := a.GrepFile(filename, pattern, contextLines)
+				results, err := a.Grep(path, pattern, contextLines)
 				if err != nil {
-					userPrompt = fmt.Sprintf("在文件中搜索失败: %v", err)
+					userPrompt = fmt.Sprintf("搜索失败: %v", err)
 				} else {
-					userPrompt = fmt.Sprintf("在文件 %s 中搜索 '%s' (上下文行数: %d):\n%s",
-						filename, pattern, contextLines, results)
+					userPrompt = fmt.Sprintf("搜索结果 (路径: %s, 模式: '%s', 上下文行数: %d):\n%s",
+						path, pattern, contextLines, results)
 				}
 			}
 
@@ -455,7 +554,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			result := command.Arg1
 			return result, nil
 		default:
-			userPrompt = fmt.Sprintf("未知命令：%s 你只能使用 read_file, continue_read, list_dir, grep_file, finish 命令", command.Name)
+			userPrompt = fmt.Sprintf("未知命令：%s 你只能使用 read_file, continue_read, list_dir, grep, finish 命令", command.Name)
 		}
 
 		// 添加用户提示到历史记录
