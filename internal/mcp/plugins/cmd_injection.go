@@ -391,19 +391,13 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
 	})
 
-	result, err := agent.Run(ctx, config.AIModel)
+	_, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("AI分析失败")
 		return nil, err
 	}
 
-	if result == "" {
-		gologger.Warningln("AI分析结果为空")
-		return nil, nil
-	}
-
-	issue := ParseIssues(result)
-	return issue, nil
+	return SummaryResult(ctx, agent, config.AIModel)
 }
 
 // 执行检测

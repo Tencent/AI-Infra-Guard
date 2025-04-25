@@ -54,21 +54,18 @@ const authBypassAIPrompt = `
 
 // Check 执行检测
 func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
-	var issues []Issue
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
 		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
-		return issues, err
+		return nil, err
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(authBypassAIPrompt, config.CodePath, dirPrompt),
 	})
-	result, err := agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
-		return issues, err
+		return nil, err
 	}
-	issue := ParseIssues(result)
-	issues = append(issues, issue...)
-	return issues, nil
+	return SummaryResult(ctx, agent, config.AIModel)
 }

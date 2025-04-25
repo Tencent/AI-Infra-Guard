@@ -105,6 +105,8 @@ const credentialTheftAIPrompt = `
 -------
 %s
 -------
+可能存在的问题:
+%s
 ## 检测目标
 识别MCP代码中可能导致敏感凭证泄露的代码模式，包括但不限于：
 - 硬编码凭证路径
@@ -124,24 +126,22 @@ const credentialTheftAIPrompt = `
 
 // 执行检测
 func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
-	var issues []Issue
-
-	// 第一步：基于启发式规则进行扫描
 	// 使用列出目录内容并查找工具描述
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
 		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
-		return issues, err
+		return nil, err
 	}
 
 	// 查找所有可能包含工具描述的文件
 	files, err := findFiles(config.CodePath, "*.go")
 	if err != nil {
 		gologger.WithError(err).Errorln("查找文件失败")
-		return issues, err
+		return nil, err
 	}
 
 	// 检查每个文件中的工具描述
+	maybePrompt := ""
 	for _, file := range files {
 		content, err := readFile(file)
 		if err != nil {
@@ -152,38 +152,23 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 		// 查找文件中所有的文档字符串或注释
 		// 这里简化处理，实际应根据语言特性进行更精确的提取
 		docStrings := extractDocStrings(content)
-
 		for _, doc := range docStrings {
 			if scanAccessSensitiveFiles(doc) {
-				issue := Issue{
-					Title:       "凭证盗窃风险",
-					Description: fmt.Sprintf("在文件 %s 中发现可能的凭证盗窃风险。工具描述中包含读取敏感文件或环境变量的指令，可能导致API密钥、密码或其他凭证泄露。\n\n```\n%s\n```", file, doc),
-					Level:       LevelHigh,
-					Suggestion:  "移除工具描述中要求读取配置文件或环境变量的指令，不要在工具描述中引导用户或AI提供敏感凭证信息",
-				}
-				issues = append(issues, issue)
+				maybePrompt += fmt.Sprintf("在文件 %s 中发现可能的凭证盗窃风险。工具描述中包含读取敏感文件或环境变量的指令，可能导致API密钥、密码或其他凭证泄露。\n\n```\n%s\n```", file, doc)
 			}
 		}
 	}
 
-	// 第二步：如果启发式规则没有发现问题，使用AI进行深度检测
-	if len(issues) == 0 {
-		agent := utils.NewAutoGPT([]string{
-			fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt),
-		})
-		result, err := agent.Run(ctx, config.AIModel)
-		if err != nil {
-			gologger.WithError(err).Warningln("")
-			return issues, err
-		}
-		if result == "" {
-			return issues, nil
-		}
-		issue := ParseIssues(result)
-		issues = append(issues, issue...)
+	// 使用AI进行深度检测
+	agent := utils.NewAutoGPT([]string{
+		fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt, maybePrompt),
+	})
+	_, err = agent.Run(ctx, config.AIModel)
+	if err != nil {
+		gologger.WithError(err).Warningln("")
+		return nil, err
 	}
-
-	return issues, nil
+	return SummaryResult(ctx, agent, config.AIModel)
 }
 
 // 从文件内容中提取可能的文档字符串或注释

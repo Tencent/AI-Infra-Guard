@@ -99,14 +99,9 @@ func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, 
 		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, codePath),
 	})
 
-	result, err := agent.Run(ctx, aiModel)
+	_, err := agent.Run(ctx, aiModel)
 	if err != nil {
 		return nil, err
 	}
-
-	if result == "" {
-		return nil, nil
-	}
-	issue := ParseIssues(result)
-	return issue, nil
+	return SummaryResult(ctx, agent, aiModel)
 }

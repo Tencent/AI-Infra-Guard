@@ -33,7 +33,7 @@ MCP 是一个开放协议，它规范了应用程序向 LLM 提供上下文的�
 - 技术栈识别
 	- 识别前后端框架、通信协议、持久层技术
 	- 标记非常规依赖（如自定义SDK）
-- 接口攻击面
+- 接口
 	- 识别http端点和其功能
 - 从功能角度出发,列举需重点关注文件以及功能和业务逻辑
 - 文档解析优先
@@ -45,26 +45,25 @@ MCP 是一个开放协议，它规范了应用程序向 LLM 提供上下文的�
 ------
 %s
 ------
-特别注意:
-当command为finish，结果格式: 输出总结为markdown格式大模型提示词,给接下来插件获取项目基本信息提供帮助. 
-eg:<arg>信息收集信息结果</arg>
 `
 
 const summaryCollectionPrompt = `
-忘记以上格式要求,现在按照以下要求总结信息:
-- 读取项目内文档[readme]获取项目概览。
+根据上下文生成信息收集报告:
+- 获取项目概览
+  - 核心业务目标与系统边界  
+  - 关键模块组成与交互关系
 - 技术栈识别
-	- 识别前后端框架、通信协议、持久层技术
-	- 标记非常规依赖（如自定义SDK）
-- 接口攻击面
-	- 识别http端点和其功能
+  - 识别前后端框架、通信协议、持久层技术
+  - 标记非常规依赖（如自定义SDK）
+- 接口功能识别
+  - 识别http端点,接口功能及描述
 - 从功能角度出发,列举需重点关注文件以及功能和业务逻辑
-- 文档解析优先
-	- 扫描所有.md/.rst文件，提取项目定位、核心功能、架构图信息
-	- 特别关注API_GUIDELINES/SECURITY.md中的接口规范
-	- 从CHANGELOG提取近3个版本的关键变更
+  - 核心业务逻辑文件
+  - 权限控制相关代码
+  - 第三方服务集成点
+- 提取项目定位、核心功能、架构图信息
 
-直接回复我markdown格式大模型提示词,给接下来插件获取项目基本信息提供帮助.
+直接回复我markdown格式
 `
 
 // Check 执行检测
@@ -78,22 +77,20 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(CollectionInfoPluginPrompt, config.CodePath, dirPrompt),
 	})
-	result, err := agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	if result == "" {
-		gologger.Warningln("重新总结信息...")
-		history := agent.GetHistory()
-		history = append(history, map[string]string{
-			"role":    "user",
-			"content": summaryCollectionPrompt,
-		})
-		result = ""
-		for word := range config.AIModel.ChatStream(ctx, history) {
-			result += word
-		}
+	gologger.Infoln("总结信息...")
+	history := agent.GetHistory()
+	history = append(history, map[string]string{
+		"role":    "user",
+		"content": summaryCollectionPrompt,
+	})
+	var result = ""
+	for word := range config.AIModel.ChatStream(ctx, history) {
+		result += word
 	}
 	return []Issue{
 		{

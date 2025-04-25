@@ -2,7 +2,9 @@ package plugins
 
 import (
 	"context"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
 	"regexp"
 	"strings"
@@ -88,4 +90,36 @@ func ParseIssues(input string) []Issue {
 		vulns = append(vulns, vuln)
 	}
 	return vulns
+}
+func SummaryResult(ctx context.Context, agent *utils.AutoGPT, model *models.OpenAI) ([]Issue, error) {
+	history := agent.GetHistory()
+	const summaryPrompt = `
+The task is now complete, and the final vulnerability scan results must be returned. All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). If no vulnerabilities are found, return <arg></arg>.  
+Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.  
+
+## EXAMPLE:  
+<arg>
+	<result>
+	<title>Vulnerability Name</title>
+	<desc>Detailed description in Markdown format, including code paths, file locations, code snippets, relevant context, and technical analysis (using professional terminology to explain the vulnerability's principle and potential impact).</desc>
+	<level>Severity level (critical, high, medium)</level>
+	<suggestion>Step-by-step remediation guidance</suggestion>
+	</result>
+	<!-- Additional <result> entries can be added -->
+</arg>
+
+If no vulnerabilities are detected, strictly return:  
+<arg></arg>
+`
+	history = append(history, map[string]string{
+		"role":    "user",
+		"content": summaryPrompt,
+	})
+	var result string = ""
+	gologger.Infoln("generate summary result")
+	for word := range model.ChatStream(ctx, history) {
+		result += word
+		gologger.Print(word)
+	}
+	return ParseIssues(result), nil
 }

@@ -57,17 +57,10 @@ func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolShadowingAIPrompt, config.CodePath, dirPrompt),
 	})
-	result, err := agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	if result == "" {
-		gologger.Warningln("检测结果为空")
-		return issues, nil
-	}
-	var issue []Issue
-	issue = ParseIssues(result)
-	issues = append(issues, issue...)
-	return issues, nil
+	return SummaryResult(ctx, agent, config.AIModel)
 }

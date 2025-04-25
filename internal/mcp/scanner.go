@@ -51,6 +51,7 @@ func (s *Scanner) RegisterPlugin(names []string) {
 			if p.GetPlugin().ID == name {
 				gologger.Infof("加载插件 %s", p.GetPlugin().Name)
 				s.plugins = append(s.plugins, p)
+				break
 			}
 		}
 	}

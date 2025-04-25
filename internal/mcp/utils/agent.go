@@ -74,16 +74,8 @@ COMMANDS:
 1. read_file: Use this tool when you need to read a file. arg is filename must be absolute path. 
 2. continue_read: Continue reading the previous file. args: arg is "next" to read next chunk.
 3. list_dir: Use this tool when you need to list a directory. arg is dir must be absolute path.
-4. grep: Search for a pattern in a file or directory and return matching lines with context. arg is <path>|<pattern>|<context_lines>, path can be a file or directory with absolute path.
-5. finish: Triggers completion. The program will return the final vulnerability scan results, which must be valid and wrapped in <arg> tags (e.g., <arg>[RESULT FORMAT]</arg>). If no results, return <arg></arg>.
-
-Unless otherwise specified, the RESULT FORMAT is as follows:
-<result>  
-  <title>Vulnerability Name</title>  
-  <desc>Detailed vulnerability description, including code paths and contextual examples (Markdown format).</desc>  
-  <level>Severity level (critical/high/medium/low)</level>  
-  <suggestion>Remediation suggestions</suggestion>  
-</result>
+4. grep: Search for a pattern in a file or directory and return matching lines with context. arg is <path>#<pattern1,pattern2,...>#<context_lines>, path can be a file or directory with absolute path. Multiple patterns can be separated by commas.
+5. finish: When the GOALS are completed, trigger the finish command to indicate that the task has been perfectly executed. arg is "finish"
 
 Limitations:
 - You cannot read directories or files outside the specified root directory.
@@ -189,29 +181,48 @@ func (a *AutoGPT) ReadFileChunk(filename string, startLine int, maxLines int, ma
 
 // Grep 在文件或目录中搜索特定模式并返回匹配行及其上下文
 func (a *AutoGPT) Grep(path string, pattern string, contextLines int) (string, error) {
-	// 编译正则表达式
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return "", fmt.Errorf("正则表达式无效: %v", err)
-	}
-
 	// 检查路径是文件还是目录
 	fileInfo, err := os.Stat(path)
 	if err != nil {
 		return "", err
 	}
 
+	// 支持多个表达式，通过逗号分隔
+	patterns := strings.Split(pattern, ",")
+	if len(patterns) == 0 {
+		return "", fmt.Errorf("未提供搜索模式")
+	}
+
+	// 编译所有正则表达式
+	regexps := make([]*regexp.Regexp, 0, len(patterns))
+	for _, p := range patterns {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		re, err := regexp.Compile(p)
+		if err != nil {
+			return "", fmt.Errorf("正则表达式无效 '%s': %v", p, err)
+		}
+		regexps = append(regexps, re)
+	}
+
+	if len(regexps) == 0 {
+		return "", fmt.Errorf("没有有效的正则表达式")
+	}
+
 	var results []string
 	if fileInfo.IsDir() {
 		// 如果是目录，遍历目录中的所有文件
-		results = append(results, fmt.Sprintf("在目录 '%s' 中搜索 '%s':\n", path, pattern))
-		err = a.grepDirectory(path, re, contextLines, &results)
+		patternStr := strings.Join(patterns, "', '")
+		results = append(results, fmt.Sprintf("在目录 '%s' 中搜索模式 ['%s']:\n", path, patternStr))
+		err = a.grepDirectoryMulti(path, regexps, contextLines, &results)
 		if err != nil {
 			return "", err
 		}
 	} else {
 		// 如果是文件，直接搜索文件
-		fileResults, err := a.grepFile(path, re, contextLines)
+		fileResults, err := a.grepFileMulti(path, regexps, contextLines)
 		if err != nil {
 			return "", err
 		}
@@ -222,14 +233,15 @@ func (a *AutoGPT) Grep(path string, pattern string, contextLines int) (string, e
 	}
 
 	if len(results) == 0 || (len(results) == 1 && strings.HasPrefix(results[0], "在目录")) {
-		return fmt.Sprintf("未找到匹配模式 '%s' 的内容", pattern), nil
+		patternStr := strings.Join(patterns, "', '")
+		return fmt.Sprintf("未找到匹配模式 ['%s'] 的内容", patternStr), nil
 	}
 
 	return strings.Join(results, "\n"), nil
 }
 
-// grepDirectory 在目录中搜索特定模式
-func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines int, results *[]string) error {
+// grepDirectoryMulti 在目录中搜索多个模式
+func (a *AutoGPT) grepDirectoryMulti(dirPath string, regexps []*regexp.Regexp, contextLines int, results *[]string) error {
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return err
@@ -246,7 +258,7 @@ func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines 
 
 		if entry.IsDir() {
 			// 递归搜索子目录
-			err := a.grepDirectory(entryPath, re, contextLines, results)
+			err := a.grepDirectoryMulti(entryPath, regexps, contextLines, results)
 			if err != nil {
 				// 只记录错误，继续处理其他文件
 				*results = append(*results, fmt.Sprintf("搜索目录 %s 时出错: %v", entryPath, err))
@@ -254,7 +266,7 @@ func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines 
 		} else {
 			// 只处理常见文本文件类型
 			if isTextFile(entry.Name()) {
-				fileResults, err := a.grepFile(entryPath, re, contextLines)
+				fileResults, err := a.grepFileMulti(entryPath, regexps, contextLines)
 				if err != nil {
 					// 只记录错误，继续处理其他文件
 					continue
@@ -274,8 +286,8 @@ func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines 
 	return nil
 }
 
-// grepFile 在单个文件中搜索特定模式
-func (a *AutoGPT) grepFile(filename string, re *regexp.Regexp, contextLines int) (string, error) {
+// grepFileMulti 在单个文件中搜索多个模式
+func (a *AutoGPT) grepFileMulti(filename string, regexps []*regexp.Regexp, contextLines int) (string, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return "", err
@@ -295,29 +307,36 @@ func (a *AutoGPT) grepFile(filename string, re *regexp.Regexp, contextLines int)
 	// 搜索匹配行并保存上下文
 	var results []string
 	matchFound := false
-	for i, line := range lines {
-		if re.MatchString(line) {
-			matchFound = true
-			// 添加匹配行的上下文
-			startLine := i - contextLines
-			if startLine < 0 {
-				startLine = 0
-			}
-			endLine := i + contextLines
-			if endLine >= len(lines) {
-				endLine = len(lines) - 1
-			}
+	matchedLines := make(map[int]bool) // 记录哪些行已经匹配过，避免重复
 
-			// 添加行号和上下文
-			results = append(results, fmt.Sprintf("=== 匹配行 %d ===", i+1))
-			for j := startLine; j <= endLine; j++ {
-				prefix := "  "
-				if j == i {
-					prefix = ">"
+	// 对每个正则表达式进行匹配
+	for _, re := range regexps {
+		for i, line := range lines {
+			if re.MatchString(line) && !matchedLines[i] {
+				matchFound = true
+				matchedLines[i] = true
+
+				// 添加匹配行的上下文
+				startLine := i - contextLines
+				if startLine < 0 {
+					startLine = 0
 				}
-				results = append(results, fmt.Sprintf("%s %d: %s", prefix, j+1, lines[j]))
+				endLine := i + contextLines
+				if endLine >= len(lines) {
+					endLine = len(lines) - 1
+				}
+
+				// 添加行号和上下文
+				results = append(results, fmt.Sprintf("=== 匹配行 %d ===", i+1))
+				for j := startLine; j <= endLine; j++ {
+					prefix := "  "
+					if j == i {
+						prefix = ">"
+					}
+					results = append(results, fmt.Sprintf("%s %d: %s", prefix, j+1, lines[j]))
+				}
+				results = append(results, "")
 			}
-			results = append(results, "")
 		}
 	}
 
@@ -526,10 +545,10 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			}
 
 		case "grep":
-			// 解析参数: path|pattern|context_lines
-			args := strings.Split(command.Arg1, "|")
+			// 解析参数: path#pattern1,pattern2,pattern3#context_lines
+			args := strings.Split(command.Arg1, "#")
 			if len(args) < 2 {
-				userPrompt = "grep 命令格式错误，正确格式: path|pattern|context_lines"
+				userPrompt = "grep 命令格式错误，正确格式: path#pattern1,pattern2,pattern3#context_lines"
 			} else {
 				path := args[0]
 				pattern := args[1]
@@ -544,8 +563,14 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 				if err != nil {
 					userPrompt = fmt.Sprintf("搜索失败: %v", err)
 				} else {
-					userPrompt = fmt.Sprintf("搜索结果 (路径: %s, 模式: '%s', 上下文行数: %d):\n%s",
-						path, pattern, contextLines, results)
+					patternDesc := strings.Replace(pattern, ",", "', '", -1)
+					if strings.Contains(pattern, ",") {
+						patternDesc = fmt.Sprintf("['%s']", patternDesc)
+					} else {
+						patternDesc = fmt.Sprintf("'%s'", pattern)
+					}
+					userPrompt = fmt.Sprintf("搜索结果 (路径: %s, 模式: %s, 上下文行数: %d):\n%s",
+						path, patternDesc, contextLines, results)
 				}
 			}
 
@@ -556,7 +581,11 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		default:
 			userPrompt = fmt.Sprintf("未知命令：%s 你只能使用 read_file, continue_read, list_dir, grep, finish 命令", command.Name)
 		}
-
+		maxLength := 200
+		if len(userPrompt) < maxLength {
+			maxLength = len(userPrompt)
+		}
+		gologger.Infoln("executing result:", userPrompt[:maxLength], "...")
 		// 添加用户提示到历史记录
 		history = append(history, map[string]string{
 			"role":    "user",
@@ -564,4 +593,16 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		})
 		a.history = history
 	}
+}
+
+// grepFile 在单个文件中搜索特定模式 (兼容旧版本)
+func (a *AutoGPT) grepFile(filename string, re *regexp.Regexp, contextLines int) (string, error) {
+	// 使用新的多模式搜索函数
+	return a.grepFileMulti(filename, []*regexp.Regexp{re}, contextLines)
+}
+
+// grepDirectory 在目录中搜索特定模式 (兼容旧版本)
+func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines int, results *[]string) error {
+	// 使用新的多模式搜索函数
+	return a.grepDirectoryMulti(dirPath, []*regexp.Regexp{re}, contextLines, results)
 }

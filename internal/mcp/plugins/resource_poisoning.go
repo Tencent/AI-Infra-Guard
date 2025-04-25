@@ -3,12 +3,9 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
+	"os"
 )
 
 // ResourcePoisoningPlugin 资源投毒检测插件
@@ -78,47 +75,15 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 		return issues, err
 	}
 
-	// 检查是否存在常见资源文件目录
-	resourceDirs := []string{
-		"resources", "assets", "docs", "data", "static", "templates",
-		"public", "files", "content", "media", "documents", "examples",
-	}
-
-	var resourcePaths []string
-	for _, dir := range resourceDirs {
-		path := filepath.Join(config.CodePath, dir)
-		if dirExists(path) {
-			resourcePaths = append(resourcePaths, path)
-			// 获取该目录的详细信息添加到dirPrompt中
-			subDirPrompt, _ := utils.ListDir(path, 2)
-			if subDirPrompt != "" {
-				dirPrompt += "\n\n目录: " + path + "\n" + subDirPrompt
-			}
-		}
-	}
-
 	// 使用AI分析潜在的资源投毒风险
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(resourcePoisoningAIPrompt, config.CodePath, dirPrompt),
 	})
 
-	result, err := agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-
-	if result == "" {
-		gologger.Warningln("检测结果为空")
-		return issues, nil
-	}
-
-	// 如果结果是"no risk"或空数组，表示没有发现问题
-	if strings.TrimSpace(result) == "no risk" || strings.TrimSpace(result) == "[]" {
-		return issues, nil
-	}
-
-	issue := ParseIssues(result)
-	issues = append(issues, issue...)
-	return issues, nil
+	return SummaryResult(ctx, agent, config.AIModel)
 }
