@@ -19,7 +19,8 @@ func RunWebServer(options *options.Options) {
 	// 创建WebSocket服务器
 	wsServer := NewWSServer(options)
 	// 设置WebSocket路由
-	http.HandleFunc("/ws", wsServer.HandleWS)
+	http.HandleFunc("/ws", wsServer.HandleAIInfraWS)
+	// 展示漏洞列表
 	http.HandleFunc("/show", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		ops := options
@@ -81,6 +82,9 @@ func RunWebServer(options *options.Options) {
 			gologger.Errorln("Error writing response:", err)
 		}
 	})
+	// mcp
+	http.HandleFunc("/mcp/plugins", mcpPlugins)
+	http.HandleFunc("/mcp_ws", wsServer.HandleMcpWS)
 	// 启动HTTP服务器
 	gologger.Infof("Starting WebServer on http://%s\n", options.WebServerAddr)
 	if err := http.ListenAndServe(options.WebServerAddr, nil); err != nil {

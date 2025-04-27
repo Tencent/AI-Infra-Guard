@@ -49,13 +49,12 @@ func (a *AutoGPT) userPrompt(ctx context.Context) string {
 	// 构建目标字符串
 	var goalsStr strings.Builder
 	for _, goal := range a.Goals {
-		goalsStr.WriteString(fmt.Sprintf("- %s\n", goal))
+		goalsStr.WriteString(fmt.Sprintf("%s\n", goal))
 	}
 
 	systemPrompt := `
 You are an AI agent capable of performing various tasks. Your objective is to accomplish the goals listed below.
 All decisions must be made independently without seeking user assistance. Leverage your strengths and employ straightforward, legally compliant strategies.
-
 %s
 
 GOALS:

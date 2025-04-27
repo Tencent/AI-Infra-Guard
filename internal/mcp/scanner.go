@@ -20,6 +20,15 @@ type Scanner struct {
 	client    *client.Client
 	csvResult [][]string
 	codePath  string
+	callback  func(data interface{})
+}
+type McpCallbackProcessing struct {
+	Current int `json:"current"`
+	Total   int `json:"total"`
+}
+
+type McpCallbackReadMe struct {
+	Content string `json:"content"`
 }
 
 func NewScanner(aiConfig *models.OpenAI) *Scanner {
@@ -29,6 +38,9 @@ func NewScanner(aiConfig *models.OpenAI) *Scanner {
 		aiModel:   aiConfig,
 		csvResult: make([][]string, 0),
 	}
+}
+func (s *Scanner) SetCallback(callback func(data interface{})) {
+	s.callback = callback
 }
 
 func (s *Scanner) RegisterPlugin(names []string) {
@@ -105,7 +117,7 @@ func (s *Scanner) InputCodePath(codePath string) error {
 }
 
 type ScannerIssue struct {
-	PluginId string
+	PluginId string `json:"pluginId"`
 	plugins.Issue
 }
 
@@ -113,6 +125,9 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	result := make([]ScannerIssue, 0)
+
+	totalProcessing := len(s.plugins) + 1
+	currentProcessing := 0
 	// 运行所有插件
 	info := plugins.NewCollectionInfoPlugin()
 	gologger.Infoln("信息收集中...")
@@ -132,6 +147,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 		gologger.Infoln("信息收集完成", infoPrompt)
 	}
+	if s.callback != nil {
+		currentProcessing += 1
+		s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+		s.callback(McpCallbackReadMe{infoPrompt})
+	}
 
 	s.csvResult = append(s.csvResult, []string{"Scan Folder", s.codePath})
 	for _, plugin := range s.plugins {
@@ -145,6 +165,10 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			AIModel:  s.aiModel,
 		}
 		issues, err := plugin.Check(ctx, &config)
+		if s.callback != nil {
+			currentProcessing += 1
+			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+		}
 		if err != nil {
 			gologger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)
 			continue

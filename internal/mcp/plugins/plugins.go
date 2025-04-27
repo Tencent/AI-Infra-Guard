@@ -31,9 +31,9 @@ const (
 
 // Plugin MCP插件信息
 type Plugin struct {
-	Name string
-	Desc string
-	ID   string
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+	ID   string `json:"id"`
 }
 
 // Issue 安全问题
@@ -96,6 +96,7 @@ func SummaryResult(ctx context.Context, agent *utils.AutoGPT, model *models.Open
 	const summaryPrompt = `
 The task is now complete, and the final vulnerability scan results must be returned. All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). If no vulnerabilities are found, return <arg></arg>.  
 Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.  
+Response in chinese is preferred.
 
 ## EXAMPLE:  
 <arg>
