@@ -42,6 +42,7 @@ type Issue struct {
 	Description string `json:"description"`
 	Level       Level  `json:"level"`
 	Suggestion  string `json:"suggestion"`
+	RiskType    string `json:"risk_type"`
 }
 
 type McpInput struct {
@@ -65,11 +66,12 @@ func ParseIssues(input string) []Issue {
 	var vulns []Issue
 	// 解析漏洞数据的正则表达式
 	var (
-		blockRegex  = regexp.MustCompile(`(?s)<result>(.*?)</result>`)
-		titleRegex  = regexp.MustCompile(`<title>(.*?)</title>`)
-		descRegex   = regexp.MustCompile(`(?s)<desc>(.*?)</desc>`)
-		levelRegex  = regexp.MustCompile(`<level>(.*?)</level>`)
-		suggesRegex = regexp.MustCompile(`(?s)<suggestion>(.*?)</suggestion>`)
+		blockRegex    = regexp.MustCompile(`(?s)<result>(.*?)</result>`)
+		titleRegex    = regexp.MustCompile(`<title>(.*?)</title>`)
+		descRegex     = regexp.MustCompile(`(?s)<desc>(.*?)</desc>`)
+		levelRegex    = regexp.MustCompile(`<level>(.*?)</level>`)
+		riskTypeRegex = regexp.MustCompile(`<risk_type>(.*?)</risk_type>`)
+		suggesRegex   = regexp.MustCompile(`(?s)<suggestion>(.*?)</suggestion>`)
 	)
 	blocks := blockRegex.FindAllStringSubmatch(input, -1)
 	for _, block := range blocks {
@@ -87,6 +89,9 @@ func ParseIssues(input string) []Issue {
 		if sugges := suggesRegex.FindStringSubmatch(block[1]); len(sugges) > 1 {
 			vuln.Suggestion = strings.TrimSpace(sugges[1])
 		}
+		if riskType := riskTypeRegex.FindStringSubmatch(block[1]); len(riskType) > 1 {
+			vuln.RiskType = strings.TrimSpace(riskType[1])
+		}
 		vulns = append(vulns, vuln)
 	}
 	return vulns
@@ -103,6 +108,7 @@ Response in chinese is preferred.
 	<result>
 	<title>Vulnerability Name</title>
 	<desc>Detailed description in Markdown format, including code paths, file locations, code snippets, relevant context, and technical analysis (using professional terminology to explain the vulnerability's principle and potential impact).</desc>
+	<risk_type>Vulnerability risk type</risk_type>
 	<level>Severity level (critical, high, medium)</level>
 	<suggestion>Step-by-step remediation guidance</suggestion>
 	</result>

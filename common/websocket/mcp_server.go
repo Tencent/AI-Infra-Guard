@@ -68,7 +68,7 @@ type WsWrite struct {
 }
 
 func (w *WsWrite) Write(p []byte) (n int, err error) {
-	err = w.Server.SendMessage(w.Conn, WSMsgTypeMcpProcessing, string(p))
+	err = w.Server.SendMessage(w.Conn, WSMsgTypeMcpLog, string(p))
 	if err != nil {
 		return 0, err
 	}
@@ -85,7 +85,7 @@ func (s *WSServer) handleMcpScan(conn *websocket.Conn, req *WsReq) {
 		case mcp.McpCallbackProcessing:
 			s.SendMessage(conn, WSMsgTypeMcpProcessing, v)
 		case mcp.McpCallbackReadMe:
-			s.SendMessage(conn, WSMsgTypeProcessInfo, v)
+			s.SendMessage(conn, WSMsgTypeMcpREADME, v)
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)
 		}
