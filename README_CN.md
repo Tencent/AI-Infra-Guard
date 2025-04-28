@@ -1,15 +1,16 @@
 # 🛡️ AI基础设施安全评估系统
 
-AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易用**的AI基础设施安全评估工具，专为发现和检测AI系统潜在安全风险而设计。支持传统安全漏洞扫描、MCP Server静态扫描和Web界面操作三种方式，全方位保障AI基础设施安全。
+AI Infra Guard 是业界首个深度集成MCP安全检测的AI基础设施防护工具，通过创新的静态代码分析与AI Agent技术，为模型计算平台（Model
+Computing Platform）提供企业级安全防护。
+
+- v2版本上线，新增AI Agent的MCP Server代码安全扫描
 
 ## 🚀 快速预览
 
-**WEBUI**  
-<img src="img/web-zh.png" height="800"><br>
-
-**命令行**
-![AI 安全扫描器演示](img/img.jpg)  
-![](img/img2.png)  
+**MCP Server代码检测**  
+<img src="img/mcp.png" height="600"><br>
+**基础设施检测**  
+<img src="img/scan.png" height="600"><br>
 
 ## 🚀 项目亮点
 
@@ -37,7 +38,7 @@ AI Infra Guard(AI Infrastructure Guard) 是一个**高效**、**轻量**、**易
 AI Infra Guard提供三大核心功能：
 
 1. **安全漏洞扫描 (scan)** - 检测AI系统中的传统安全漏洞
-2. **MCP Server静态扫描 (mcp)** - 检测MCP代码的安全性
+2. **MCP Server静态扫描 (mcp)** - 基于AI Agent检测MCP代码的安全性
 3. **Web服务器界面 (webserver)** - 提供可视化操作界面
 
 ## 📦 安装与使用
@@ -55,8 +56,9 @@ ai-infra-guard [子命令] [选项]
 ```
 
 可用的子命令：
+
 - `scan`: 执行安全漏洞扫描
-- `mcp`: 执行模型污染保护检测
+- `mcp`: MCP Server代码安全检测
 - `webserver`: 启动Web界面服务器
 
 ### 使用方法
@@ -70,21 +72,25 @@ ai-infra-guard [子命令] [选项]
 #### 安全漏洞扫描 (scan)
 
 **本地一键检测**
+
 ```
 ./ai-infra-guard scan --localscan
 ```
 
 **单个目标**
+
 ```
 ./ai-infra-guard scan --target [IP/域名] 
 ```
 
 **多个目标**
+
 ```
 ./ai-infra-guard scan --target [IP/域名] --target [IP/域名]
 ```
 
 **从文件读取**
+
 ```
 ./ai-infra-guard scan --file target.txt
 ```
@@ -96,6 +102,7 @@ ai-infra-guard [子命令] [选项]
 ```
 
 输出：
+
 ```
 执行原始的扫描功能，扫描指定目标的安全漏洞。
 
@@ -127,11 +134,14 @@ Flags:
 MCP扫描功能用于检测MCP Server中存在的安全问题，基于AI Agent自动检测代码问题。
 
 **基本使用**
+默认AI使用OPENAI，可自定义
+
 ```
-./ai-infra-guard mcp --code [源代码路径] --model [模型名称] --token [API令牌]
+./ai-infra-guard mcp --code [源代码路径] --model [模型名称] --token [API令牌] --base-url 
 ```
 
 **指定输出格式**
+
 ```
 ./ai-infra-guard mcp --code [源代码路径] --model [模型名称] --token [API令牌] --csv results.csv --json results.json
 ```
@@ -143,6 +153,7 @@ MCP扫描功能用于检测MCP Server中存在的安全问题，基于AI Agent�
 ```
 
 输出：
+
 ```
 
 Usage:
@@ -162,42 +173,43 @@ Flags:
 
 ## 📊 AI组件覆盖情况
 
-| 组件名称           | 漏洞数量 |
-|--------------------|------|
-|         anythingllm | 8    |
-|           langchain | 33   |
-|          Chuanhugpt | 0    |
-|          clickhouse | 22   |
-|           comfy_mtb | 1    |
-| ComfyUI-Prompt-Preview | 1    |
-| ComfyUI-Custom-Scripts | 1    |
-|             comfyui | 1    |
-|                dify | 11   |
-|      fastchat-webui | 0    |
-|            fastchat | 1    |
-|               feast | 0    |
-|              gradio | 42   |
-|          jupyterlab | 6    |
-|    jupyter-notebook | 1    |
-|      jupyter-server | 13   |
-|            kubeflow | 4    |
-|              kubepi | 5    |
-|        llamafactory | 1    |
-|           llmstudio | 0    |
-|              ollama | 7    |
-|          open-webui | 8    |
-|           pyload-ng | 18   |
-|           qanything | 2    |
-|             ragflow | 2    |
-|                 ray | 4    |
-|         tensorboard | 0    |
-|                vllm | 4    |
-|          xinference | 0    |
+| 组件名称                    | 漏洞数量 |
+|-------------------------|------|
+| anythingllm             | 8    |
+| langchain               | 33   |
+| Chuanhugpt              | 0    |
+| clickhouse              | 22   |
+| comfy_mtb               | 1    |
+| ComfyUI-Prompt-Preview  | 1    |
+| ComfyUI-Custom-Scripts  | 1    |
+| comfyui                 | 1    |
+| dify                    | 11   |
+| fastchat-webui          | 0    |
+| fastchat                | 1    |
+| feast                   | 0    |
+| gradio                  | 42   |
+| jupyterlab              | 6    |
+| jupyter-notebook        | 1    |
+| jupyter-server          | 13   |
+| kubeflow                | 4    |
+| kubepi                  | 5    |
+| llamafactory            | 1    |
+| llmstudio               | 0    |
+| ollama                  | 7    |
+| open-webui              | 8    |
+| pyload-ng               | 18   |
+| qanything               | 2    |
+| ragflow                 | 2    |
+| ray                     | 4    |
+| tensorboard             | 0    |
+| vllm                    | 4    |
+| xinference              | 0    |
 | triton-inference-server | 7    |
 
 ## 🔍 指纹匹配规则
 
-AI Infra Guard 基于WEB指纹识别组件，指纹规则在[data/fingerprints](./data/fingerprints)目录中，漏洞匹配规则在[data/vuln](./data/vuln)目录中。
+AI Infra Guard 基于WEB指纹识别组件，指纹规则在[data/fingerprints](./data/fingerprints)
+目录中，漏洞匹配规则在[data/vuln](./data/vuln)目录中。
 
 ### 示例：Gradio 指纹规则
 
@@ -219,12 +231,14 @@ http:
 ### 🛠️ 指纹匹配语法
 
 #### 匹配位置
+
 - 标题（title）
 - 正文（body）
 - 请求头（header）
 - 图标哈希（icon）
 
 #### 逻辑运算符
+
 - `=` 模糊匹配
 - `==` 全等
 - `!=` 不等
@@ -235,7 +249,8 @@ http:
 
 ## 🤝 贡献
 
-我们非常欢迎社区贡献！欢迎提交 [PR](https://github.com/Tencent/AI-Infra-Guard/pulls) 和 [Issue](https://github.com/Tencent/AI-Infra-Guard/issues)。
+我们非常欢迎社区贡献！欢迎提交 [PR](https://github.com/Tencent/AI-Infra-Guard/pulls)
+和 [Issue](https://github.com/Tencent/AI-Infra-Guard/issues)。
 
 ## Star History
 
@@ -243,7 +258,8 @@ http:
 
 ## 📄 许可证
 
-"AI Infra Guard" is licensed under the MIT License except for the third-party components. Visited [License.txt](./License.txt)
+"AI Infra Guard" is licensed under the MIT License except for the third-party components.
+Visited [License.txt](./License.txt)
 
 ---
 

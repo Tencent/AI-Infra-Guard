@@ -78,16 +78,19 @@ func processMessages(ctx context.Context, wsConn *WsConnection) {
 		case <-ctx.Done():
 			return
 		case msg := <-wsConn.sendQueue:
+			wsConn.lock.Lock()
 			data, err := json.Marshal(map[string]interface{}{
 				"type":    msg.Type,
 				"content": msg.Data,
 			})
 			if err != nil {
 				gologger.Errorf("消息序列化失败: %v\n", err)
+				wsConn.lock.Unlock()
 				continue
 			}
 
 			err = wsConn.conn.WriteMessage(websocket.TextMessage, data)
+			wsConn.lock.Unlock()
 			if err != nil {
 				gologger.Errorf("发送WebSocket消息失败: %v\n", err)
 			}
