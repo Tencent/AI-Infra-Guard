@@ -41,7 +41,7 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 	- 扫描所有.md/.rst文件，提取项目定位、核心功能、架构图信息
 	- 特别关注API_GUIDELINES/SECURITY.md中的接口规范
 	- 从CHANGELOG提取近3个版本的关键变更
-
+报告名称: 项目信息收集报告
 目录详情:
 ------
 %s

@@ -155,6 +155,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 
 	s.csvResult = append(s.csvResult, []string{"Scan Folder", s.codePath})
 	for _, plugin := range s.plugins {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
 		pluginInfo := plugin.GetPlugin()
 		gologger.Infof("运行插件 %s", pluginInfo.Name)
 		s.aiModel.ResetToken()

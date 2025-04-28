@@ -116,6 +116,9 @@ func (a *AutoGPT) ExtractTag(text, tag string) string {
 		return ""
 	}
 	tmp := text[startIndex+len(startText):]
+	if strings.Index(tmp, endText) == -1 {
+		return ""
+	}
 	endIndex := strings.Index(tmp, endText) + startIndex + len(startText)
 	if startIndex == -1 || endIndex == -1 || endIndex <= startIndex {
 		return ""

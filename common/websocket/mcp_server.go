@@ -46,7 +46,7 @@ var connectionManager = struct {
 }
 
 // 获取或创建连接
-func getOrCreateConnection(conn *websocket.Conn) *WsConnection {
+func getOrCreateConnection(ctx context.Context, conn *websocket.Conn) *WsConnection {
 	connectionManager.RLock()
 	wsConn, exists := connectionManager.connections[conn]
 	connectionManager.RUnlock()
@@ -63,7 +63,7 @@ func getOrCreateConnection(conn *websocket.Conn) *WsConnection {
 			connectionManager.connections[conn] = wsConn
 
 			// 启动消息处理goroutine
-			go processMessages(wsConn)
+			go processMessages(ctx, wsConn)
 		}
 		connectionManager.Unlock()
 	}
@@ -72,24 +72,26 @@ func getOrCreateConnection(conn *websocket.Conn) *WsConnection {
 }
 
 // 处理消息队列
-func processMessages(wsConn *WsConnection) {
-	for msg := range wsConn.sendQueue {
-		wsConn.lock.Lock()
-		data, err := json.Marshal(map[string]interface{}{
-			"type":    msg.Type,
-			"content": msg.Data,
-		})
-		if err != nil {
-			gologger.Errorf("消息序列化失败: %v\n", err)
-			wsConn.lock.Unlock()
-			continue
-		}
+func processMessages(ctx context.Context, wsConn *WsConnection) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg := <-wsConn.sendQueue:
+			data, err := json.Marshal(map[string]interface{}{
+				"type":    msg.Type,
+				"content": msg.Data,
+			})
+			if err != nil {
+				gologger.Errorf("消息序列化失败: %v\n", err)
+				continue
+			}
 
-		err = wsConn.conn.WriteMessage(websocket.TextMessage, data)
-		if err != nil {
-			gologger.Errorf("发送WebSocket消息失败: %v\n", err)
+			err = wsConn.conn.WriteMessage(websocket.TextMessage, data)
+			if err != nil {
+				gologger.Errorf("发送WebSocket消息失败: %v\n", err)
+			}
 		}
-		wsConn.lock.Unlock()
 	}
 }
 
@@ -150,10 +152,11 @@ type WsWrite struct {
 	mu      sync.Mutex
 	size    int // 当前缓冲区大小
 	maxSize int // 缓冲区最大大小，达到此值时发送
+	ctx     context.Context
 }
 
 // NewWsWrite 创建一个新的带缓冲的WsWrite
-func NewWsWrite(server *WSServer, conn *websocket.Conn, maxSize int) *WsWrite {
+func NewWsWrite(ctx context.Context, server *WSServer, conn *websocket.Conn, maxSize int) *WsWrite {
 	if maxSize <= 0 {
 		maxSize = 4096 // 默认4KB缓冲区
 	}
@@ -162,6 +165,7 @@ func NewWsWrite(server *WSServer, conn *websocket.Conn, maxSize int) *WsWrite {
 		Conn:    conn,
 		buffer:  make([]byte, 0, maxSize),
 		maxSize: maxSize,
+		ctx:     ctx,
 	}
 }
 
@@ -174,7 +178,7 @@ func (w *WsWrite) Flush() error {
 		return nil
 	}
 
-	err := w.Server.SendMessage2(w.Conn, WSMsgTypeMcpLog, string(w.buffer[:w.size]))
+	err := w.Server.SendMessage2(w.ctx, w.Conn, WSMsgTypeMcpLog, string(w.buffer[:w.size]))
 	if err != nil {
 		return err
 	}
@@ -191,7 +195,7 @@ func (w *WsWrite) Write(p []byte) (n int, err error) {
 
 	// 如果数据过大，直接发送不缓存
 	if len(p) > w.maxSize {
-		err = w.Server.SendMessage2(w.Conn, WSMsgTypeMcpLog, string(p))
+		err = w.Server.SendMessage2(w.ctx, w.Conn, WSMsgTypeMcpLog, string(p))
 		if err != nil {
 			return 0, err
 		}
@@ -201,7 +205,7 @@ func (w *WsWrite) Write(p []byte) (n int, err error) {
 	// 如果当前缓冲区容量不足，先发送缓冲区内容
 	if w.size+len(p) > w.maxSize {
 		if w.size > 0 {
-			err = w.Server.SendMessage2(w.Conn, WSMsgTypeMcpLog, string(w.buffer[:w.size]))
+			err = w.Server.SendMessage2(w.ctx, w.Conn, WSMsgTypeMcpLog, string(w.buffer[:w.size]))
 			if err != nil {
 				return 0, err
 			}
@@ -226,31 +230,34 @@ func (w *WsWrite) Write(p []byte) (n int, err error) {
 }
 
 // 更新SendMessage2方法
-func (s *WSServer) SendMessage2(conn *websocket.Conn, msgType string, data interface{}) error {
-	wsConn := getOrCreateConnection(conn)
+func (s *WSServer) SendMessage2(ctx context.Context, conn *websocket.Conn, msgType string, data interface{}) error {
+	wsConn := getOrCreateConnection(ctx, conn)
 	select {
 	case wsConn.sendQueue <- WsMessage{Type: msgType, Data: data}:
 		return nil
 	}
 }
 
-func (s *WSServer) handleMcpScan(conn *websocket.Conn, req *WsReq) {
+func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req *WsReq) {
 	// setlogger
 	writer1 := os.Stdout
-	writer2 := NewWsWrite(s, conn, 50)
+	writer2 := NewWsWrite(ctx, s, conn, 50)
 	gologger.Logger.SetOutput(io.MultiWriter(writer1, writer2))
 
 	// 在扫描结束时确保刷新缓冲区
 	defer writer2.Flush()
+	mu := sync.Mutex{}
 
 	processFunc := func(data interface{}) {
+		mu.Lock()
+		defer mu.Unlock()
 		switch v := data.(type) {
 		case mcp.McpCallbackProcessing:
-			s.SendMessage2(conn, WSMsgTypeMcpProcessing, v)
+			s.SendMessage2(ctx, conn, WSMsgTypeMcpProcessing, v)
 		case mcp.McpCallbackReadMe:
-			s.SendMessage2(conn, WSMsgTypeMcpREADME, v)
+			s.SendMessage2(ctx, conn, WSMsgTypeMcpREADME, v)
 		case mcp.ScannerIssue:
-			s.SendMessage2(conn, WSMsgTypeMcpResult, v)
+			s.SendMessage2(ctx, conn, WSMsgTypeMcpResult, v)
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)
 		}
@@ -266,22 +273,22 @@ func (s *WSServer) handleMcpScan(conn *websocket.Conn, req *WsReq) {
 		gologger.Errorf("输入代码路径失败: %v\n", err)
 		return
 	}
-	ctx := context.Background()
 	_, err = scanner.Scan(ctx)
 	if err != nil {
 		gologger.Errorf("扫描失败: %v\n", err)
-		writer2.Flush() // 确保错误信息立即发送
+		writer2.Flush()
 		return
 	}
-
 	// 确保所有日志都发送出去
 	writer2.Flush()
 	gologger.Infof("扫描完成\n")
-	s.SendMessage2(conn, WSMsgTypeMcpFinish, nil)
+	s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, nil)
 }
 
 func (s *WSServer) handleMessages2(conn *websocket.Conn) {
+	ctx, cancel := context.WithCancel(context.Background())
 	defer removeConnection(conn)
+	defer cancel()
 
 	for {
 		_, message, err := conn.ReadMessage()
@@ -294,7 +301,7 @@ func (s *WSServer) handleMessages2(conn *websocket.Conn) {
 			continue
 		}
 		// 处理扫描请求
-		go s.handleMcpScan(conn, &scanReq)
+		go s.handleMcpScan(ctx, conn, &scanReq)
 	}
 }
 
