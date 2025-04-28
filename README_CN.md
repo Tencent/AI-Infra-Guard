@@ -1,7 +1,6 @@
 # 🛡️ AI基础设施安全评估系统
 
-AI Infra Guard 是业界首个深度集成MCP安全检测的AI基础设施防护工具，通过创新的静态代码分析与AI Agent技术，为模型计算平台（Model
-Computing Platform）提供企业级安全防护。
+AI Infra Guard 是业界首个深度集成MCP安全检测的AI基础设施防护工具，提供创新的AI Agent静态代码分析与AI基础设施漏洞发现功能。
 
 - v2版本上线，新增AI Agent的MCP Server代码安全扫描
 
