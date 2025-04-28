@@ -23,6 +23,7 @@ const (
 	WSMsgTypeMcpREADME     = "readme"
 	WSMsgTypeMcpProcessing = "processing"
 	WSMsgTypeMcpFinish     = "finish"
+	WSMsgTypeMcpError      = "error"
 )
 
 // 添加消息队列和锁相关结构
@@ -300,7 +301,13 @@ func (s *WSServer) handleMessages2(conn *websocket.Conn) {
 		}
 		var scanReq WsReq
 		if err := json.Unmarshal(message, &scanReq); err != nil {
-			fmt.Printf("解析消息失败: %v\n", err)
+			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("解析消息失败: %v\n", err))
+			continue
+		}
+		folder := scanReq.Data.Path
+		// 判断文件夹是否存在
+		if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
+			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("文件夹不存在: %v\n", err))
 			continue
 		}
 		// 处理扫描请求

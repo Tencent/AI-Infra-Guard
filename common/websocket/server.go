@@ -53,6 +53,10 @@ func RunWebServer(options *options.Options) {
 		w.Write(resp)
 		return
 	})
+	// mcp
+	http.HandleFunc("/mcp/plugins", mcpPlugins)
+	http.HandleFunc("/mcp_ws", wsServer.HandleMcpWS)
+	// 处理静态文件请求
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		assetPath := "static" + r.RequestURI
 		if strings.Contains(r.RequestURI, "..") {
@@ -83,9 +87,6 @@ func RunWebServer(options *options.Options) {
 			gologger.Errorln("Error writing response:", err)
 		}
 	})
-	// mcp
-	http.HandleFunc("/mcp/plugins", mcpPlugins)
-	http.HandleFunc("/mcp_ws", wsServer.HandleMcpWS)
 	// 启动HTTP服务器
 	gologger.Infof("Starting WebServer on http://%s\n", options.WebServerAddr)
 	if err := http.ListenAndServe(options.WebServerAddr, nil); err != nil {
