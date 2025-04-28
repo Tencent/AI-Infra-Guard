@@ -32,5 +32,6 @@ archives:
       - README*
       - data/*
       - License.txt
+      - mcp-testcase/*
 checksum:
   algorithm: sha256
