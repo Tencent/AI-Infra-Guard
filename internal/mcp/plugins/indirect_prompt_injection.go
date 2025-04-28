@@ -20,9 +20,9 @@ func NewResourcePoisoningPlugin() *ResourcePoisoningPlugin {
 // 获取插件信息
 func (p *ResourcePoisoningPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "资源投毒检测",
-		Desc: "检测MCP代码中可能存在的资源投毒风险",
-		ID:   "resource_poisoning",
+		Name: "间接提示注入",
+		Desc: "检测MCP代码中可能存在的间接提示注入",
+		ID:   "indirect_prompt_injection",
 	}
 }
 

@@ -577,7 +577,6 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			}
 
 		case "finish":
-			gologger.Infoln("任务完成")
 			result := command.Arg1
 			return result, nil
 		default:
