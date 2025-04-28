@@ -183,6 +183,9 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 				PluginId: pluginInfo.Name,
 				Issue:    issue,
 			}
+			if s.callback != nil {
+				s.callback(r)
+			}
 			result = append(result, r)
 		}
 	}

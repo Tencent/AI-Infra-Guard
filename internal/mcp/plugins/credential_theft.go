@@ -99,6 +99,8 @@ func readFile(path string) (string, error) {
 // AI提示词模板
 const credentialTheftAIPrompt = `
 你是一个专业的网络安全分析助手，需要严格分析给定的源代码目录结构，检测可能存在的敏感凭证泄露。你的分析必须基于专业知识和确凿证据，**绝对禁止任何猜测性或不确定的输出**。
+MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入输出。如果项目只支持STDIO，会由于利用门槛较高，将漏洞标记为低风险。
+
 ## 输入数据
 源代码文件夹路径:%s
 目录详情:

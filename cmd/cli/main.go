@@ -9,7 +9,7 @@ import (
 
 func main() {
 	parseOptions := options.ParseOptions() // 解析命令行参数
-	gologger.Logger.SetLevel(gologger.InfoLevel)
+	gologger.Logger.SetLevel(gologger.TraceLevel)
 	if parseOptions.WebServer {
 		websocket.RunWebServer(parseOptions)
 	} else {

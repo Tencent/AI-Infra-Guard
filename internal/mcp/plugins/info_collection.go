@@ -28,6 +28,7 @@ func (p *CollectionInfoPlugin) GetPlugin() Plugin {
 const CollectionInfoPluginPrompt = `
 你所做的工作是以资深程序员视角对本地mcp代码 "%s" 进行前期[代码信息收集],方便后面插件更迅速了解项目的信息。
 MCP 是一个开放协议，它规范了应用程序向 LLM 提供上下文的方式。MCP 就像 AI 应用程序的 USB-C 端口一样。正如 USB-C 提供了一种标准化的方式将您的设备连接到各种外围设备和配件一样，MCP 也提供了一种标准化的方式将 AI 模型连接到不同的数据源和工具。
+MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入输出。如果项目只支持STDIO，会由于利用门槛较高，将漏洞标记为低风险。
 [信息收集信息]
 - 读取项目内文档[readme]获取项目概览。
 - 技术栈识别
@@ -48,7 +49,7 @@ MCP 是一个开放协议，它规范了应用程序向 LLM 提供上下文的�
 `
 
 const summaryCollectionPrompt = `
-根据上下文生成信息收集报告:
+根据上下文生成该项目信息收集报告:
 - 获取项目概览
   - 核心业务目标与系统边界  
   - 关键模块组成与交互关系
