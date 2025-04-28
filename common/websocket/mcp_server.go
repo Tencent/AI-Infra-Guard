@@ -237,7 +237,7 @@ func (s *WSServer) SendMessage2(conn *websocket.Conn, msgType string, data inter
 func (s *WSServer) handleMcpScan(conn *websocket.Conn, req *WsReq) {
 	// setlogger
 	writer1 := os.Stdout
-	writer2 := NewWsWrite(s, conn, 100)
+	writer2 := NewWsWrite(s, conn, 50)
 	gologger.Logger.SetOutput(io.MultiWriter(writer1, writer2))
 
 	// 在扫描结束时确保刷新缓冲区
@@ -276,8 +276,8 @@ func (s *WSServer) handleMcpScan(conn *websocket.Conn, req *WsReq) {
 
 	// 确保所有日志都发送出去
 	writer2.Flush()
-	s.SendMessage2(conn, WSMsgTypeMcpFinish, nil)
 	gologger.Infof("扫描完成\n")
+	s.SendMessage2(conn, WSMsgTypeMcpFinish, nil)
 }
 
 func (s *WSServer) handleMessages2(conn *websocket.Conn) {
