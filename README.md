@@ -254,9 +254,7 @@ http:
 - `!=` Not equal
 - `~=` Regex match
 - `&&` And
--
-
-`||` Or
+- `||` Or
 - `()` Grouping parentheses
 
 ## 🤝 Contributing
