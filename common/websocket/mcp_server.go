@@ -308,7 +308,7 @@ func (s *WSServer) handleMessages2(conn *websocket.Conn) {
 func (s *WSServer) HandleMcpWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		gologger.Errorln("升级WebSocket连接失败: %v\n", err)
+		gologger.Errorf("升级WebSocket连接失败: %v\n", err)
 		return
 	}
 	go s.handleMessages2(conn)
