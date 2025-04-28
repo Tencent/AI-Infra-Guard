@@ -20,6 +20,10 @@ var webserverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// 创建Options对象
 		webOptions := &options.Options{
+			TimeOut:       10,
+			RateLimit:     200,
+			FPTemplates:   "data/fingerprints",
+			AdvTemplates:  "data/vuln",
 			WebServer:     true,
 			WebServerAddr: webServerAddr,
 		}
