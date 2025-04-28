@@ -1,154 +1,155 @@
 # 🛡️ AI Infrastructure Security Assessment System
+
 [中文版](./README_CN.md)  
 
-AI Infra Guard 是业界首个深度集成MCP安全检测的AI基础设施安全工具，提供全面、智能化的MCP服务代码安全扫描与AI基础设施漏洞发现功能。
+AI Infra Guard is the industry's first AI infrastructure security tool deeply integrated with MCP security detection. It provides comprehensive, intelligent MCP service code security scanning and AI infrastructure vulnerability detection features.
 
-- v2版本上线，新增基于AI Agent的MCP Server代码安全扫描
+- Version 2 is now live, introducing AI Agent-based MCP Server code security scanning.
 
-## 🚀 快速预览
+## 🚀 Quick Preview
 
-**MCP Server代码检测**  
+**MCP Server Code Detection**  
 <img src="img/mcp.png" height="600"><br>
-**基础设施检测**  
+**Infrastructure Detection**  
 <img src="img/scan.png" height="600"><br>
 
-## 🚀 项目亮点
+## 🚀 Project Highlights
 
-* **更全面的安全检测能力**
-  * 支持9类MCP常见安全风险检测，并持续更新
-  * 支持28种AI组件框架识别，涵盖200+漏洞指纹
-  * 可私有化部署，适合集成到内部安全扫描流水线
+* **More comprehensive security detection capabilities**
+  * Supports detection of 9 common MCP security risks, with continuous updates.
+  * Supports identification of 28 AI component frameworks, covering over 200 vulnerability fingerprints.
+  * Can be deployed privately, suitable for integration into internal security scanning pipelines.
 
-* **更智能易用的功能体验**
-  * MCP安全检测由AI Agent驱动分析，更低误报漏报
-  * AI组件漏洞扫描支持自定义指纹、漏洞YAML规则
-  * 开箱即用，无复杂配置，提供Web界面可视化操作
+* **Smarter, more user-friendly functionality**
+  * MCP security detection is powered by AI Agent analysis, with reduced false positives and omissions.
+  * AI component vulnerability scanning supports custom fingerprints and vulnerability YAML rules.
+  * Out-of-the-box, no complex configuration, with a Web interface for visual operations.
 
-* **轻量级**
-  * 核心组件简洁高效
-  * 二进制体积小，资源占用低
-  * 跨平台支持
+* **Lightweight**
+  * Core components are simple and efficient.
+  * Small binary size, low resource usage.
+  * Cross-platform support.
 
-## 📋 功能说明
+## 📋 Feature Description
 
-AI Infra Guard的三大核心模块：
+The three core modules of AI Infra Guard:
 
-1. **AI组件安全扫描 (scan)** - 在命令行中检测AI组件系统中的传统Web安全漏洞
-2. **MCP安全检测 (mcp)** - 在命令行中基于AI Agent检测MCP Server代码的安全性
-3. **WebUI模式 (webserver)** - 提供Web可视化操作界面
+1. **AI Component Security Scan (scan)** - Detect traditional web security vulnerabilities in AI component systems via command line.
+2. **MCP Security Detection (mcp)** - Detect security issues in MCP Server code based on AI Agent via command line.
+3. **WebUI Mode (webserver)** - Provides a Web visual operation interface.
 
-## 📦 安装与使用
+## 📦 Installation and Usage
 
-### 安装
+### Installation
 
-下载地址: [https://github.com/Tencent/AI-Infra-Guard/releases](https://github.com/Tencent/AI-Infra-Guard/releases)
+Download link: [https://github.com/Tencent/AI-Infra-Guard/releases](https://github.com/Tencent/AI-Infra-Guard/releases)
 
-### 命令行结构
+### Command Line Structure
 
-AI Infra Guard采用子命令结构，提供三个主要子命令：
+AI Infra Guard adopts a subcommand structure, providing three main subcommands:
 
 ```
-ai-infra-guard [子命令] [选项]
+ai-infra-guard [subcommand] [options]
 ```
 
-可用的子命令：
+Available subcommands:
 
-- `scan`: 执行安全漏洞扫描
-- `mcp`: MCP Server代码安全检测
-- `webserver`: 启动Web界面服务器
+- `scan`: Perform security vulnerability scanning.
+- `mcp`: Perform MCP Server code security detection.
+- `webserver`: Start the Web interface server.
 
-### 使用方法
+### Usage
 
-#### WEBUI 可视化操作
+#### WEBUI Visualization
 
 ```
 ./ai-infra-guard webserver [--ws-addr 127.0.0.1:8088]
 ```
 
-#### 安全漏洞扫描 (scan)
+#### Security Vulnerability Scan (scan)
 
-**本地一键检测**
+**Local Scan**
 
 ```
 ./ai-infra-guard scan --localscan
 ```
 
-**单个目标**
+**Single Target**
 
 ```
-./ai-infra-guard scan --target [IP/域名] 
+./ai-infra-guard scan --target [IP/domain] 
 ```
 
-**多个目标**
+**Multiple Targets**
 
 ```
-./ai-infra-guard scan --target [IP/域名] --target [IP/域名]
+./ai-infra-guard scan --target [IP/domain] --target [IP/domain]
 ```
 
-**从文件读取**
+**Read from File**
 
 ```
 ./ai-infra-guard scan --file target.txt
 ```
 
-**完整参数**
+**Full Parameters**
 
 ```
 ./ai-infra-guard scan --help
 ```
 
-输出：
+Output:
 
 ```
-执行原始的扫描功能，扫描指定目标的安全漏洞。
+Executes the raw scan function to scan the specified target for security vulnerabilities.
 
 Usage:
   ai-infra-guard scan [flags]
 
 Flags:
-      --ai                      启用AI分析
-      --check-vul               验证漏洞模板
-      --deepseek-token string   DeepSeek API令牌
-  -f, --file string             包含目标URL的文件路径
-      --fps string              指纹模板文件或目录 (default "data/fingerprints")
-      --header stringArray      HTTP请求头，可以指定多个，例如: --header "key:value" --header "key:value"
+      --ai                      Enable AI analysis
+      --check-vul               Validate vulnerability templates
+      --deepseek-token string   DeepSeek API token
+  -f, --file string             Path to the file containing target URLs
+      --fps string              Fingerprint template file or directory (default "data/fingerprints")
+      --header stringArray      HTTP request headers, can specify multiple, e.g.: --header "key:value" --header "key:value"
   -h, --help                    help for scan
-      --hunyuan-token string    混元API令牌
-      --lang string             响应语言 zh/en (default "zh")
-      --limit int               每秒最大请求数 (default 200)
-      --list-vul                列出漏洞模板
-      --localscan               一键本地扫描
-  -o, --output string           输出文件路径
-      --proxy-url string        代理服务器URL
-  -t, --target stringArray      目标URL，可以指定多个目标，例如: --target xx.com --target aa.com
-      --timeout int             请求超时时间(秒) (default 5)
-      --vul string              漏洞数据库目录 (default "data/vuln")
+      --hunyuan-token string    Hunyuan API token
+      --lang string             Response language zh/en (default "zh")
+      --limit int               Max requests per second (default 200)
+      --list-vul                List vulnerability templates
+      --localscan               One-click local scan
+  -o, --output string           Output file path
+      --proxy-url string        Proxy server URL
+  -t, --target stringArray      Target URL, can specify multiple, e.g.: --target xx.com --target aa.com
+      --timeout int             Request timeout in seconds (default 5)
+      --vul string              Vulnerability database directory (default "data/vuln")
 ```
 
-#### MCP Server扫描
+#### MCP Server Scan
 
-MCP扫描功能用于检测MCP Server中存在的安全问题，基于AI Agent自动检测代码问题。
+MCP scan detects security issues in MCP Server based on AI Agent's automatic code analysis.
 
-**基本使用**
-默认的LLM API接口使用OPENAI，可自定义。
-
-```
-./ai-infra-guard mcp --code [源代码路径] --model [模型名称] --token [API令牌] --base-url 
-```
-
-**指定输出格式**
+**Basic Usage**
+The default LLM API interface uses OPENAI, customizable.
 
 ```
-./ai-infra-guard mcp --code [源代码路径] --model [模型名称] --token [API令牌] --csv results.csv --json results.json
+./ai-infra-guard mcp --code [source code path] --model [model name] --token [API token] --base-url 
 ```
 
-**完整参数**
+**Specify Output Format**
+
+```
+./ai-infra-guard mcp --code [source code path] --model [model name] --token [API token] --csv results.csv --json results.json
+```
+
+**Full Parameters**
 
 ```
 ./ai-infra-guard mcp --help
 ```
 
-输出：
+Output:
 
 ```
 
@@ -156,74 +157,71 @@ Usage:
   ai-infra-guard mcp [flags]
 
 Flags:
-      --base-url string   LLM API基础URL
-      --code string       源代码路径
-      --csv string        输出 CSV 文件路径
+      --base-url string   LLM API base URL
+      --code string       Source code path
+      --csv string        Output CSV file path
   -h, --help              help for mcp
-      --json string       输出 JSON 文件路径
-      --log string        日志保存路径
-      --model string      AI模型名称
-      --plugins string    插件列表，用英文逗号分隔
-      --token string      API令牌
+      --json string       Output JSON file path
+      --log string        Log save path
+      --model string      AI model name
+      --plugins string    List of plugins, separated by commas
+      --token string      API token
 ```
 
-## 📊 MCP安全风险覆盖情况
+## 📊 MCP Security Risk Coverage
 
-| 风险名称                | 风险说明                                                                                                                                                                                                 |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 工具投毒攻击            | 恶意MCP服务通过工具描述插入隐藏指令，操纵AI执行未授权操作，窃取敏感数据或执行恶意行为。                                                                                                                 |
-| 地毯式骗局              | 恶意MCP服务在用户初次批准或正常工作特定次数后更改行为，从无害工具变为含恶意指令的工具，用户难以察觉。                                                                                                   |
-| 工具覆盖攻击            | 恶意MCP服务通过隐藏指令重新定义其他可信MCP工具的行为，例如修改邮件接收者或执行额外操作。                                                                                                               |
-| 恶意代码/命令执行       | MCP服务支持直接执行代码或命令，缺乏沙箱隔离，攻击者可利用其在托管服务器或用户本地安装环境执行恶意操作。                                                                                                 |
-| 数据窃取                | 恶意MCP服务诱导AI读取并传输敏感数据（如API密钥、SSH密钥），或直接将用户授权后输入的数据发送至外部服务器。                                                                                               |
-| 未授权访问/鉴权不当     | MCP服务缺乏授权认证或认证机制存在缺陷，攻击者可绕过验证访问受限资源或用户数据。                                                                                                                         |
-| 间接提示词注入          | MCP服务将外部数据（如网页、文档）输出至AI对话，若含恶意指令，可能影响AI决策和行为。                                                                                                                     |
-| 包名混淆与抢注攻击      | MCP客户端中已安装的MCP服务名称、工具名称与描述相近，可能导致AI错误调用，或第三方抢注官方MCP服务，并导致后门与投毒风险。                                                                                 |
-| 明文存储密钥            | 敏感MCP服务在代码或其它文件中硬编码与存储明文密钥，可能导致数据泄露。                                                                                                                                   |
+| Risk Name               | Risk Description                                                                                                                                                                                          |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Tool Poisoning Attack    | Malicious MCP services insert hidden instructions via tool descriptions to manipulate AI into executing unauthorized actions, stealing sensitive data, or performing malicious activities.                      |
+| Carpet Scam              | Malicious MCP services alter behavior after initial approval or a few normal operations, changing from harmless tools to malicious ones, making it difficult for users to detect.                          |
+| Tool Overlay Attack      | Malicious MCP services redefine behaviors of trusted MCP tools via hidden instructions, such as modifying email recipients or executing additional operations.                                            |
+| Malicious Code/Command Execution | MCP services support executing code or commands without sandbox isolation, allowing attackers to execute malicious operations in hosted servers or local environments.                                 |
+| Data Theft               | Malicious MCP services induce AI to read and transmit sensitive data (e.g., API keys, SSH keys), or directly send user-authorized input to external servers.                                               |
+| Unauthorized Access/Authentication Flaw | MCP services lack proper authentication or authorization, allowing attackers to bypass validation and access restricted resources or user data.                                                      |
+| Indirect Prompt Injection | MCP services output external data (e.g., web pages, documents) to AI dialogues, which may affect AI decisions and behavior if it contains malicious instructions.                                         |
+| Package Name Confusion and Typosquatting | MCP client installed services have names or descriptions similar to official services, which could lead to incorrect AI calls or third-party services hijacking the official MCP services, introducing backdoors. |
+| Plaintext Key Storage    | Sensitive MCP services hard-code or store plaintext keys in code or files, risking data leakage.                                                                                                          |
 
+## 📊 AI Component Vulnerability Coverage
 
+| Component Name           | Vulnerability Count |
+|-------------------------|---------------------|
+| anythingllm             | 8                   |
+| langchain               | 33                  |
+| Chuanhugpt              | 0                   |
+| clickhouse              | 22                  |
+| comfy_mtb               | 1                   |
+| ComfyUI-Prompt-Preview  | 1                   |
+| ComfyUI-Custom-Scripts  | 1                   |
+| comfyui                 | 1                   |
+| dify                    | 11                  |
+| fastchat-webui          | 0                   |
+| fastchat                | 1                   |
+| feast                   | 0                   |
+| gradio                  | 42                  |
+| jupyterlab              | 6                   |
+| jupyter-notebook        | 1                   |
+| jupyter-server          | 13                  |
+| kubeflow                | 4                   |
+| kubepi                  | 5                   |
+| llamafactory            | 1                   |
+| llmstudio               | 0                   |
+| ollama                  | 7                   |
+| open-webui              | 8                   |
+| pyload-ng               | 18                  |
+| qanything               | 2                   |
+| ragflow                 | 2                   |
+| ray                     | 4                   |
+| tensorboard             | 0                   |
+| vllm                    | 4                   |
+| xinference              | 0                   |
+| triton-inference-server | 7                   |
 
-## 📊 AI组件漏洞覆盖情况
+## 🔍 Fingerprint Matching Rules
 
-| 组件名称                    | 漏洞数量 |
-|-------------------------|------|
-| anythingllm             | 8    |
-| langchain               | 33   |
-| Chuanhugpt              | 0    |
-| clickhouse              | 22   |
-| comfy_mtb               | 1    |
-| ComfyUI-Prompt-Preview  | 1    |
-| ComfyUI-Custom-Scripts  | 1    |
-| comfyui                 | 1    |
-| dify                    | 11   |
-| fastchat-webui          | 0    |
-| fastchat                | 1    |
-| feast                   | 0    |
-| gradio                  | 42   |
-| jupyterlab              | 6    |
-| jupyter-notebook        | 1    |
-| jupyter-server          | 13   |
-| kubeflow                | 4    |
-| kubepi                  | 5    |
-| llamafactory            | 1    |
-| llmstudio               | 0    |
-| ollama                  | 7    |
-| open-webui              | 8    |
-| pyload-ng               | 18   |
-| qanything               | 2    |
-| ragflow                 | 2    |
-| ray                     | 4    |
-| tensorboard             | 0    |
-| vllm                    | 4    |
-| xinference              | 0    |
-| triton-inference-server | 7    |
+AI Infra Guard is based on web fingerprint recognition components, with fingerprint rules in the [data/fingerprints](./data/fingerprints) directory and vulnerability matching rules in the [data/vuln](./data/vuln) directory.
 
-## 🔍 指纹匹配规则
-
-AI Infra Guard 基于WEB指纹识别组件，指纹规则在[data/fingerprints](./data/fingerprints)
-目录中，漏洞匹配规则在[data/vuln](./data/vuln)目录中。
-
-### 示例：Gradio 指纹规则
+### Example: Gradio Fingerprint Rule
 
 ```yaml
 info:
@@ -240,39 +238,44 @@ http:
       - body="<script>window.gradio_config = {" || body="document.getElementsByTagName(\"gradio-app\");"
 ```
 
-### 🛠️ 指纹匹配语法
+### 🛠️ Fingerprint Matching Syntax
 
-#### 匹配位置
+#### Match Locations
 
-- 标题（title）
-- 正文（body）
-- 请求头（header）
-- 图标哈希（icon）
+- Title
+- Body
+- Header
+- Icon hash
 
-#### 逻辑运算符
+#### Logical Operators
 
-- `=` 模糊匹配
-- `==` 全等
-- `!=` 不等
-- `~=` 正则匹配
-- `&&` 与
-- `||` 或
-- `()` 括号分组
+- `=` Fuzzy match
+- `==` Exact match
+- `!=` Not equal
+- `~=` Regex match
+- `&&` And
+-
 
-## 🤝 贡献
+`||` Or
+- `()` Grouping parentheses
 
-我们非常欢迎社区贡献！欢迎提交 [PR](https://github.com/Tencent/AI-Infra-Guard/pulls)
-和 [Issue](https://github.com/Tencent/AI-Infra-Guard/issues)。
+## 🤝 Contributing
+
+We welcome community contributions! Feel free to submit [PR](https://github.com/Tencent/AI-Infra-Guard/pulls) and [Issues](https://github.com/Tencent/AI-Infra-Guard/issues).
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
 
-## 📄 许可证
+## 📄 License
 
-"AI Infra Guard" is licensed under the MIT License except for the third-party components.
-Visited [License.txt](./License.txt)
+"AI Infra Guard" is licensed under the MIT License except for third-party components.  
+Visit [License.txt](./License.txt)
 
 ---
 
-💡 **提示**：持续关注更新，保护您的AI基础设施与MCP安全！
+💡 **Tip**: Stay updated and protect your AI infrastructure and MCP security!
+
+---
+
+I hope this helps! Let me know if you need any further adjustments!
