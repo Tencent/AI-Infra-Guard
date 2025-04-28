@@ -29,6 +29,7 @@ const (
 	ErrorLevel = logrus.ErrorLevel
 	WarnLevel  = logrus.WarnLevel
 	InfoLevel  = logrus.InfoLevel
+	TraceLevel = logrus.TraceLevel
 )
 const (
 	maximumCallerDepth int = 25
@@ -36,13 +37,17 @@ const (
 )
 
 var Logger *logrus.Logger
+var noColor = false
 
 func init() {
 	Logger = logrus.New()
-	Logger.SetLevel(logrus.DebugLevel)
+	Logger.SetLevel(logrus.TraceLevel)
 	Logger.SetReportCaller(true)
 	Logger.SetFormatter(&LogFormatter{})
 	Logger.AddHook(ContextHook{})
+}
+func SetColor(color bool) {
+	noColor = !color
 }
 
 // getPackageName reduces a fully qualified function name to the package name
@@ -150,6 +155,9 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	default:
 		levelColor = blue
 	}
+	if entry.Level == logrus.TraceLevel {
+		return []byte(entry.Message), nil
+	}
 	var b *bytes.Buffer
 	if entry.Buffer != nil {
 		b = entry.Buffer
@@ -158,14 +166,18 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 	//自定义日期格式
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
-	if entry.HasCaller() {
-		//自定义文件路径
-		//funcVal := entry.Caller.Function
-		fileVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
-		//自定义输出格式
-		fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m %s ", timestamp, levelColor, entry.Level, fileVal)
+	if noColor {
+		fmt.Fprintf(b, "[%s] [%s] ", timestamp, entry.Level)
 	} else {
-		fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m ", timestamp, levelColor, entry.Level)
+		if entry.HasCaller() {
+			//自定义文件路径
+			//funcVal := entry.Caller.Function
+			fileVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
+			//自定义输出格式
+			fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m %s ", timestamp, levelColor, entry.Level, fileVal)
+		} else {
+			fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m ", timestamp, levelColor, entry.Level)
+		}
 	}
 	data := make(map[string]interface{})
 	for k, v := range entry.Data {
@@ -189,7 +201,10 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 		b.WriteByte(' ')
 	}
-	fmt.Fprintf(b, "%s\n", entry.Message)
+	fmt.Fprintf(b, "%s", entry.Message)
+	if !strings.HasSuffix(entry.Message, "\n") {
+		b.WriteByte('\n')
+	}
 	return b.Bytes(), nil
 }
 
@@ -232,7 +247,7 @@ func Debug(args ...interface{}) {
 // Print logs a message at level Info on the standard Logger
 // 在标准Logger上记录Info级别的消息
 func Print(args ...interface{}) {
-	Logger.Print(args...)
+	Logger.Log(logrus.TraceLevel, args...)
 }
 
 // Info logs a message at level Info on the standard Logger
