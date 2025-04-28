@@ -9,7 +9,7 @@ AI Infra Guard is the industry's first AI infrastructure security tool deeply in
 ## 🚀 Quick Preview
 
 **MCP Server Code Detection**  
-<img src="img/mcp.png" height="600"><br>
+<img src="img/mcp.png" height="400"><br>
 **Infrastructure Detection**  
 <img src="img/scan.png" height="600"><br>
 

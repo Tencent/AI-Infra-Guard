@@ -7,7 +7,7 @@ AI Infra Guard 是业界首个深度集成MCP安全检测的AI基础设施安全
 ## 🚀 快速预览
 
 **MCP Server代码检测**  
-<img src="img/mcp.png" height="600"><br>
+<img src="img/mcp.png" height="400"><br>
 **基础设施检测**  
 <img src="img/scan.png" height="600"><br>
 
