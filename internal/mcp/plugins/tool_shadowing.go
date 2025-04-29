@@ -20,9 +20,11 @@ func NewToolShadowingPlugin() *ToolShadowingPlugin {
 // 获取插件信息
 func (p *ToolShadowingPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "工具覆盖攻击检测",
-		Desc: "检测MCP代码中可能存在的工具覆盖攻击风险",
-		ID:   "tool_shadowing",
+		Name:   "工具覆盖攻击检测",
+		Desc:   "检测MCP代码中可能存在的工具覆盖攻击风险",
+		ID:     "tool_shadowing",
+		NameEn: "Tool Shadowing",
+		DescEn: "Detect possible tool shadowing vulnerabilities in MCP code.",
 	}
 }
 
@@ -56,11 +58,11 @@ func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolShadowingAIPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }

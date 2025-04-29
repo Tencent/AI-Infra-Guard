@@ -22,6 +22,7 @@ type Scanner struct {
 	codePath    string
 	callback    func(data interface{})
 	saveHistory bool
+	language    string
 }
 type McpCallbackProcessing struct {
 	Current int `json:"current"`
@@ -39,6 +40,7 @@ func NewScanner(aiConfig *models.OpenAI) *Scanner {
 		aiModel:     aiConfig,
 		csvResult:   make([][]string, 0),
 		saveHistory: false,
+		language:    "zh",
 	}
 }
 func (s *Scanner) SetCallback(callback func(data interface{})) {
@@ -123,6 +125,14 @@ func (s *Scanner) SaveHistory(b bool) error {
 	return nil
 }
 
+func (s *Scanner) SetLanguage(language string) error {
+	if language == "zh-CN" {
+		s.language = "zh"
+	}
+	s.language = language
+	return nil
+}
+
 type ScannerIssue struct {
 	PluginId string `json:"pluginId"`
 	plugins.Issue
@@ -143,6 +153,7 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		CodePath:    s.codePath,
 		AIModel:     s.aiModel,
 		SaveHistory: s.saveHistory,
+		Language:    s.language,
 	})
 	if err != nil {
 		gologger.Warningf("信息收集失败: %v", err)
@@ -173,9 +184,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		s.aiModel.ResetToken()
 		startTime := time.Now()
 		config := plugins.McpPluginConfig{
-			Client:   s.client,
-			CodePath: s.codePath,
-			AIModel:  s.aiModel,
+			Client:      s.client,
+			CodePath:    s.codePath,
+			AIModel:     s.aiModel,
+			Language:    s.language,
+			SaveHistory: s.saveHistory,
 		}
 		issues, err := plugin.Check(ctx, &config)
 		if s.callback != nil {
@@ -193,7 +206,7 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		// 转换插件结果
 		for _, issue := range issues {
 			r := ScannerIssue{
-				PluginId: pluginInfo.Name,
+				PluginId: pluginInfo.ID,
 				Issue:    issue,
 			}
 			if s.callback != nil {

@@ -19,9 +19,11 @@ func NewAuthBypassPlugin() *AuthBypassPlugin {
 // 获取插件信息
 func (p *AuthBypassPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "身份验证绕过检测",
-		Desc: "检测MCP代码中可能存在的身份验证绕过漏洞",
-		ID:   "auth_bypass",
+		Name:   "身份验证绕过检测",
+		NameEn: "Auth Bypass",
+		Desc:   "检测MCP代码中可能存在的身份验证绕过漏洞",
+		DescEn: "Detect possible authentication bypass vulnerabilities in MCP code.",
+		ID:     "auth_bypass",
 	}
 }
 
@@ -62,11 +64,11 @@ func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) (
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(authBypassAIPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return nil, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }

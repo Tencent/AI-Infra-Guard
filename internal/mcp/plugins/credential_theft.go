@@ -25,9 +25,11 @@ func NewCredentialTheftPlugin() *CredentialTheftPlugin {
 // 获取插件信息
 func (p *CredentialTheftPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "凭证盗窃检测",
-		Desc: "检测MCP代码中可能存在的凭证盗窃风险",
-		ID:   "credential_theft",
+		Name:   "凭证盗窃检测",
+		Desc:   "检测MCP代码中可能存在的凭证盗窃风险",
+		ID:     "credential_theft",
+		NameEn: "credential theft",
+		DescEn: "detect credential theft risk in MCP code",
 	}
 }
 
@@ -167,13 +169,13 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	// 使用AI进行深度检测
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt, maybePrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return nil, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }
 
 // 从文件内容中提取可能的文档字符串或注释

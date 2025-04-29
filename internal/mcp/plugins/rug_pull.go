@@ -19,9 +19,11 @@ func NewRugPullPlugin() *RugPullPlugin {
 // 获取插件信息
 func (p *RugPullPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "Rug Pull攻击检测",
-		Desc: "检测MCP代码中可能存在的Rug Pull攻击风险",
-		ID:   "rug_pull",
+		Name:   "Rug Pull攻击检测",
+		Desc:   "检测MCP代码中可能存在的Rug Pull攻击风险",
+		ID:     "rug_pull",
+		NameEn: "Rug Pull Attack",
+		DescEn: "Detect possible Rug Pull attack vulnerabilities in MCP code",
 	}
 }
 
@@ -66,11 +68,11 @@ func (p *RugPullPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]I
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(rugPullAIPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }

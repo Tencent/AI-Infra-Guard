@@ -20,9 +20,11 @@ func NewToolPoisoningPlugin() *ToolPoisoningPlugin {
 // 获取插件信息
 func (p *ToolPoisoningPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "工具投毒攻击检测",
-		Desc: "检测MCP代码中可能存在的工具投毒攻击风险",
-		ID:   "tool_poisoning",
+		Name:   "工具投毒攻击检测",
+		Desc:   "检测MCP代码中可能存在的工具投毒攻击风险",
+		ID:     "tool_poisoning",
+		NameEn: "Tool Poisoning Attack Detection",
+		DescEn: "Detect possible Tool Poisoning Attack vulnerabilities in MCP code",
 	}
 }
 
@@ -58,11 +60,11 @@ func (p *ToolPoisoningPlugin) Check(ctx context.Context, config *McpPluginConfig
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolPoisoningAIPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }

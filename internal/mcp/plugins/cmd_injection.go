@@ -207,9 +207,11 @@ func NewCmdInjectionPlugin() *CmdInjectionPlugin {
 // 获取插件信息
 func (p *CmdInjectionPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "命令注入漏洞检测",
-		Desc: "检测MCP代码中可能存在的命令注入漏洞",
-		ID:   "cmd_injection",
+		Name:   "命令注入漏洞检测",
+		Desc:   "检测MCP代码中可能存在的命令注入漏洞",
+		ID:     "cmd_injection",
+		NameEn: "Command Injection",
+		DescEn: "Detect command injection vulnerabilities in MCP code",
 	}
 }
 
@@ -389,7 +391,7 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
-	})
+	}, config.Language)
 
 	_, err := agent.Run(ctx, config.AIModel)
 	if err != nil {
@@ -397,7 +399,7 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 		return nil, err
 	}
 
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }
 
 // 执行检测

@@ -42,7 +42,7 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 	- 特别关注API_GUIDELINES/SECURITY.md中的接口规范
 	- 从CHANGELOG提取近3个版本的关键变更
 报告名称: 项目信息收集报告
-目录详情:
+代码目录:
 ------
 %s
 ------
@@ -65,6 +65,7 @@ const summaryCollectionPrompt = `
 - 提取项目定位、核心功能、架构图信息
 
 直接回复我markdown格式
+%s
 `
 
 // Check 执行检测
@@ -77,7 +78,7 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(CollectionInfoPluginPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
@@ -87,11 +88,12 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	history := agent.GetHistory()
 	history = append(history, map[string]string{
 		"role":    "user",
-		"content": summaryCollectionPrompt,
+		"content": fmt.Sprintf(summaryCollectionPrompt, utils.LanguagePrompt(config.Language)),
 	})
 	var result = ""
 	for word := range config.AIModel.ChatStream(ctx, history) {
 		result += word
+		gologger.Print(word)
 	}
 	return []Issue{
 		{

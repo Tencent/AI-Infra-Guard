@@ -23,6 +23,7 @@ const (
 	WSMsgTypeMcpREADME     = "readme"
 	WSMsgTypeMcpProcessing = "processing"
 	WSMsgTypeMcpFinish     = "finish"
+	WSMsgTypeMcpStop       = "stpp"
 	WSMsgTypeMcpError      = "error"
 )
 
@@ -79,17 +80,15 @@ func processMessages(ctx context.Context, wsConn *WsConnection) {
 		case <-ctx.Done():
 			return
 		case msg := <-wsConn.sendQueue:
-			wsConn.lock.Lock()
 			data, err := json.Marshal(map[string]interface{}{
 				"type":    msg.Type,
 				"content": msg.Data,
 			})
 			if err != nil {
 				gologger.Errorf("消息序列化失败: %v\n", err)
-				wsConn.lock.Unlock()
 				continue
 			}
-
+			wsConn.lock.Lock()
 			err = wsConn.conn.WriteMessage(websocket.TextMessage, data)
 			wsConn.lock.Unlock()
 			if err != nil {
@@ -141,12 +140,13 @@ type ScanMcpRequest struct {
 		Token   string `json:"token"`
 		BaseUrl string `json:"base_url"`
 	} `json:"model"`
-	Plugins string `json:"plugins"`
+	Plugins  string `json:"plugins"`
+	Language string `json:"language"`
 }
 
 type WsReq struct {
-	Type string         `json:"type"`
-	Data ScanMcpRequest `json:"data"`
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
 }
 
 type WsWrite struct {
@@ -242,7 +242,7 @@ func (s *WSServer) SendMessage2(ctx context.Context, conn *websocket.Conn, msgTy
 	}
 }
 
-func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req *WsReq) {
+func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req *ScanMcpRequest) {
 	// setlogger
 	writer1 := os.Stdout
 	writer2 := NewWsWrite(ctx, s, conn, 50)
@@ -266,18 +266,14 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 			gologger.Errorf("processFunc unknown type: %T\n", v)
 		}
 	}
-	config := req.Data
-	modelConfig := models.NewOpenAI(config.Model.Token, config.Model.Model, config.Model.BaseUrl)
+	modelConfig := models.NewOpenAI(req.Model.Token, req.Model.Model, req.Model.BaseUrl)
 	scanner := mcp.NewScanner(modelConfig)
-	rPlugins := strings.Split(config.Plugins, ",")
+	rPlugins := strings.Split(req.Plugins, ",")
 	scanner.RegisterPlugin(rPlugins)
+	scanner.SetLanguage(req.Language)
 	scanner.SetCallback(processFunc)
-	err := scanner.InputCodePath(config.Path)
-	if err != nil {
-		gologger.Errorf("输入代码路径失败: %v\n", err)
-		return
-	}
-	_, err = scanner.Scan(ctx)
+	scanner.InputCodePath(req.Path)
+	_, err := scanner.Scan(ctx)
 	if err != nil {
 		gologger.Errorf("扫描失败: %v\n", err)
 		writer2.Flush()
@@ -304,14 +300,24 @@ func (s *WSServer) handleMessages2(conn *websocket.Conn) {
 			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("解析消息失败: %v\n", err))
 			continue
 		}
-		folder := scanReq.Data.Path
-		// 判断文件夹是否存在
-		if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
-			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("文件夹不存在: %v\n", err))
-			continue
+		if scanReq.Type == "start" {
+			var data ScanMcpRequest
+			if err := json.Unmarshal(scanReq.Data, &data); err != nil {
+				s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("解析消息失败: %v\n", err))
+				continue
+			}
+			folder := data.Path
+			// 判断文件夹是否存在
+			if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
+				s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("文件夹不存在: %v\n", err))
+				continue
+			}
+			// 处理扫描请求
+			go s.handleMcpScan(ctx, conn, &data)
+		} else if scanReq.Type == "stop" {
+			s.SendMessage(conn, WSMsgTypeMcpStop, "扫描已停止")
+			cancel()
 		}
-		// 处理扫描请求
-		go s.handleMcpScan(ctx, conn, &scanReq)
 	}
 }
 

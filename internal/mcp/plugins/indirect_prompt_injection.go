@@ -19,9 +19,11 @@ func NewResourcePoisoningPlugin() *ResourcePoisoningPlugin {
 // 获取插件信息
 func (p *ResourcePoisoningPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "间接提示注入",
-		Desc: "检测MCP代码中可能存在的间接提示注入",
-		ID:   "indirect_prompt_injection",
+		Name:   "间接提示注入",
+		Desc:   "检测MCP代码中可能存在的间接提示注入",
+		ID:     "indirect_prompt_injection",
+		NameEn: "Indirect Prompt Injection",
+		DescEn: "Detecting indirect prompt injection in MCP code",
 	}
 }
 
@@ -70,12 +72,12 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 	// 使用AI分析潜在的资源投毒风险
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(resourcePoisoningAIPrompt, config.CodePath, dirPrompt),
-	})
+	}, config.Language)
 
 	_, err = agent.Run(ctx, config.AIModel)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+	return SummaryResult(ctx, agent, config)
 }

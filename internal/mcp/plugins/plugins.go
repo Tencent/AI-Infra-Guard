@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
@@ -31,9 +32,11 @@ const (
 
 // Plugin MCP插件信息
 type Plugin struct {
-	Name string `json:"name"`
-	Desc string `json:"desc"`
-	ID   string `json:"id"`
+	Name   string `json:"name"`
+	Desc   string `json:"desc"`
+	NameEn string `json:"name_en"`
+	DescEn string `json:"desc_en"`
+	ID     string `json:"id"`
 }
 
 // Issue 安全问题
@@ -55,6 +58,7 @@ type McpPluginConfig struct {
 	CodePath    string
 	AIModel     *models.OpenAI
 	SaveHistory bool
+	Language    string // zh / en
 }
 
 type McpPlugin interface {
@@ -97,13 +101,12 @@ func ParseIssues(input string) []Issue {
 	}
 	return vulns
 }
-func SummaryResult(ctx context.Context, agent *utils.AutoGPT, model *models.OpenAI, saveHistory bool) ([]Issue, error) {
+func SummaryResult(ctx context.Context, agent *utils.AutoGPT, config *McpPluginConfig) ([]Issue, error) {
 	history := agent.GetHistory()
 	const summaryPrompt = `
 The task is now complete, and the final vulnerability scan results must be returned. All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). If no vulnerabilities are found, return <arg></arg>.  
 Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.  
-Response in chinese is preferred.
-
+%s
 ## EXAMPLE:  
 <arg>
 	<result>
@@ -121,11 +124,11 @@ If no vulnerabilities are detected, strictly return:
 `
 	history = append(history, map[string]string{
 		"role":    "user",
-		"content": summaryPrompt,
+		"content": fmt.Sprintf(summaryPrompt, utils.LanguagePrompt(config.Language)),
 	})
 	var result string = ""
 	gologger.Infoln("generate summary result")
-	for word := range model.ChatStream(ctx, history) {
+	for word := range config.AIModel.ChatStream(ctx, history) {
 		result += word
 		gologger.Print(word)
 	}
@@ -133,7 +136,7 @@ If no vulnerabilities are detected, strictly return:
 		"role":    "assistant",
 		"content": result,
 	})
-	if saveHistory {
+	if config.SaveHistory {
 		err := utils.SaveHistory(history)
 		if err != nil {
 			gologger.Errorln("save history failed")

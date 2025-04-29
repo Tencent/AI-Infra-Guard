@@ -22,6 +22,7 @@ type AutoGPT struct {
 	MaxFileReadBytes int                         // 单次读取文件的最大字节数
 	FileReaderState  map[string]*FileReaderState // 文件读取状态
 	history          []map[string]string
+	language         string
 }
 
 // FileReaderState 保存文件读取的状态
@@ -33,7 +34,7 @@ type FileReaderState struct {
 }
 
 // NewAutoGPT 创建一个新的AutoGPT实例
-func NewAutoGPT(goals []string) *AutoGPT {
+func NewAutoGPT(goals []string, language string) *AutoGPT {
 	return &AutoGPT{
 		Goals:            goals,
 		AutoSure:         false,
@@ -41,6 +42,7 @@ func NewAutoGPT(goals []string) *AutoGPT {
 		MaxFileReadLines: 300,       // 默认每次读取100行
 		MaxFileReadBytes: 20 * 1024, // 默认每次读取10KB
 		FileReaderState:  make(map[string]*FileReaderState),
+		language:         language,
 	}
 }
 
@@ -81,10 +83,11 @@ Limitations:
 - Your output format must follow the following specifications: Output in the order of conclusion,think,command,criticism,plan.
 - Keep realistic and detailed.Don't use fake data or irrelevant information.
 
-Response in chinese.
+Please output your response in the reply format, and then output the next command in the command format.%s
 
-RESPONSE FORMAT:
+Reply FORMAT:
 Your response includes five aspects: [Integration Phase: Consolidate key information from dialogue history, user feedback, and system observations to generate actionable conclusions], [Distributed Reasoning: Break down complex problems into sequential thinking steps, using weighted indicators to evaluate solution feasibility], [Strategic Basis: Explain decision criteria based on an evidence chain, comparing alternatives through cost-benefit analysis], [Critical Reflection: Conduct a SWOT analysis of the current strategy, proposing three improvement directions with specific examples], and [Action Blueprint: Define next-step goals using the SMART principle, clarifying success criteria and risk responses]. Then provide the response instruction: the command is the next step to use the command, must use the tags and to specify the command name and parameters. Only return one command.
+
 Command Format:
 <command>
 <name>command name</name>
@@ -98,13 +101,13 @@ Command Format:
 			infoPromtp = "项目概览:\n" + infoPromtp
 		}
 	}
-	systemPrompt = fmt.Sprintf(systemPrompt, infoPromtp, goalsStr.String())
+	systemPrompt = fmt.Sprintf(systemPrompt, infoPromtp, goalsStr.String(), LanguagePrompt(a.language))
 	return strings.TrimSpace(systemPrompt)
 }
 
 // NextPrompt 生成下一个提示
 func (a *AutoGPT) NextPrompt(retMsg string) string {
-	return fmt.Sprintf("The returned result is as follows. Please draw your conclusion in the \"conclusion\" part.Determine which next command to use, and respond using the format specified above.\nReturn:%s", retMsg)
+	return fmt.Sprintf("The returned result is as follows. Please draw your conclusion in the \"reply format\".Determine which next command to use, and respond using the format specified above.\nReturn:%s", retMsg)
 }
 
 // ExtractTag 从文本中提取tag部分

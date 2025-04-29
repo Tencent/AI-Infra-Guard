@@ -301,3 +301,13 @@ func SaveHistory(history []map[string]string) error {
 	}
 	return nil
 }
+
+func LanguagePrompt(language string) string {
+	var languagePrompt string
+	if language == "zh" {
+		languagePrompt = "Response in Chinese."
+	} else {
+		languagePrompt = "Response in English."
+	}
+	return languagePrompt
+}

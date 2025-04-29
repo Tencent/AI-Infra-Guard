@@ -21,9 +21,11 @@ func NewNameConfusionPlugin() *NameConfusionPlugin {
 // GetPlugin 获取插件信息
 func (p *NameConfusionPlugin) GetPlugin() Plugin {
 	return Plugin{
-		Name: "名称混淆检测",
-		Desc: "检测MCP服务名称混淆与抢注风险",
-		ID:   "name_confusion",
+		Name:   "名称混淆检测",
+		Desc:   "检测MCP服务名称混淆与抢注风险",
+		ID:     "name_confusion",
+		NameEn: "Name Confusion Detection",
+		DescEn: "Detect name confusion and registration risks for MCP services",
 	}
 }
 
@@ -80,13 +82,13 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 		// 使用大模型进行名称混淆分析
 		agent := utils.NewAutoGPT([]string{
 			fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, config.CodePath),
-		})
+		}, config.Language)
 
 		_, err := agent.Run(ctx, config.AIModel)
 		if err != nil {
 			return nil, err
 		}
-		return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
+		return SummaryResult(ctx, agent, config)
 	} else {
 		gologger.Warningln("未找到工具或AI模型不可用，无法进行名称混淆检测")
 	}
