@@ -51,9 +51,10 @@ type McpInput struct {
 }
 
 type McpPluginConfig struct {
-	Client   *client.Client
-	CodePath string
-	AIModel  *models.OpenAI
+	Client      *client.Client
+	CodePath    string
+	AIModel     *models.OpenAI
+	SaveHistory bool
 }
 
 type McpPlugin interface {
@@ -96,7 +97,7 @@ func ParseIssues(input string) []Issue {
 	}
 	return vulns
 }
-func SummaryResult(ctx context.Context, agent *utils.AutoGPT, model *models.OpenAI) ([]Issue, error) {
+func SummaryResult(ctx context.Context, agent *utils.AutoGPT, model *models.OpenAI, saveHistory bool) ([]Issue, error) {
 	history := agent.GetHistory()
 	const summaryPrompt = `
 The task is now complete, and the final vulnerability scan results must be returned. All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). If no vulnerabilities are found, return <arg></arg>.  
@@ -128,5 +129,16 @@ If no vulnerabilities are detected, strictly return:
 		result += word
 		gologger.Print(word)
 	}
+	history = append(history, map[string]string{
+		"role":    "assistant",
+		"content": result,
+	})
+	if saveHistory {
+		err := utils.SaveHistory(history)
+		if err != nil {
+			gologger.Errorln("save history failed")
+		}
+	}
+	// 保存模型输出
 	return ParseIssues(result), nil
 }

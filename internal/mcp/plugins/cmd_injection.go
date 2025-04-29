@@ -397,7 +397,7 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 		return nil, err
 	}
 
-	return SummaryResult(ctx, agent, config.AIModel)
+	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 }
 
 // 执行检测

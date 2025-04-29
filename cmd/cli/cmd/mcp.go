@@ -18,18 +18,19 @@ import (
 )
 
 var (
-	mcpCodePath   string
-	mcpSseLink    string
-	mcpStreamLink string
-	mcpCmdName    string
-	mcpCmdArgs    string
-	mcpLogPath    string
-	mcpCsvPath    string
-	mcpJsonPath   string
-	mcpModel      string
-	mcpToken      string
-	mcpBaseURL    string
-	mcpPlugins    string
+	mcpCodePath    string
+	mcpSseLink     string
+	mcpStreamLink  string
+	mcpCmdName     string
+	mcpCmdArgs     string
+	mcpLogPath     string
+	mcpCsvPath     string
+	mcpJsonPath    string
+	mcpSaveHistory bool
+	mcpModel       string
+	mcpToken       string
+	mcpBaseURL     string
+	mcpPlugins     string
 )
 
 // mcpCmd 表示mcp子命令
@@ -71,9 +72,7 @@ var mcpCmd = &cobra.Command{
 		scanner := mcp.NewScanner(aiModel)
 
 		// 注册插件
-		if mcpPlugins != "" {
-			scanner.RegisterPlugin(strings.Split(mcpPlugins, ","))
-		}
+		scanner.RegisterPlugin(strings.Split(mcpPlugins, ","))
 
 		// 设置输入
 		ctx := context.Background()
@@ -88,6 +87,9 @@ var mcpCmd = &cobra.Command{
 			if err != nil {
 				gologger.Fatalf("设置代码路径失败: %v", err)
 			}
+		}
+		if mcpSaveHistory {
+			scanner.SaveHistory(mcpSaveHistory)
 		}
 
 		// if mcpSseLink != "" {
@@ -189,6 +191,7 @@ func init() {
 	mcpCmd.Flags().StringVar(&mcpLogPath, "log", "", "日志保存路径")
 	mcpCmd.Flags().StringVar(&mcpCsvPath, "csv", "", "输出 CSV 文件路径")
 	mcpCmd.Flags().StringVar(&mcpJsonPath, "json", "", "输出 JSON 文件路径")
+	mcpCmd.Flags().BoolVar(&mcpSaveHistory, "save-history", false, "保存对话历史,将保存为history.jsonl")
 
 	// 添加原来在YAML配置中的参数
 	mcpCmd.Flags().StringVar(&mcpModel, "model", "", "AI模型名称")

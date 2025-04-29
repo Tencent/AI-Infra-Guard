@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"strings"
 )
@@ -79,29 +78,18 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 		}
 
 		// 使用大模型进行名称混淆分析
-		aiResults, err := p.aiAnalysis(ctx, toolsInfo.String(), config.AIModel, config.CodePath)
+		agent := utils.NewAutoGPT([]string{
+			fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, config.CodePath),
+		})
+
+		_, err := agent.Run(ctx, config.AIModel)
 		if err != nil {
-			gologger.WithError(err).Warningln("AI分析失败")
 			return nil, err
 		}
-
-		issues = append(issues, aiResults...)
+		return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 	} else {
 		gologger.Warningln("未找到工具或AI模型不可用，无法进行名称混淆检测")
 	}
 
 	return issues, nil
-}
-
-// 使用AI进行名称混淆分析
-func (p *NameConfusionPlugin) aiAnalysis(ctx context.Context, toolsInfo string, aiModel *models.OpenAI, codePath string) ([]Issue, error) {
-	agent := utils.NewAutoGPT([]string{
-		fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, codePath),
-	})
-
-	_, err := agent.Run(ctx, aiModel)
-	if err != nil {
-		return nil, err
-	}
-	return SummaryResult(ctx, agent, aiModel)
 }

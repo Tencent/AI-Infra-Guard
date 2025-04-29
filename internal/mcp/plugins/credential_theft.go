@@ -173,7 +173,7 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 		gologger.WithError(err).Warningln("")
 		return nil, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel)
+	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 }
 
 // 从文件内容中提取可能的文档字符串或注释

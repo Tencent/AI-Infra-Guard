@@ -77,5 +77,5 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel)
+	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 }

@@ -68,5 +68,5 @@ func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) (
 		gologger.WithError(err).Warningln("")
 		return nil, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel)
+	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 }

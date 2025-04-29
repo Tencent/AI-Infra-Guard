@@ -62,5 +62,5 @@ func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig
 		gologger.WithError(err).Warningln("")
 		return issues, err
 	}
-	return SummaryResult(ctx, agent, config.AIModel)
+	return SummaryResult(ctx, agent, config.AIModel, config.SaveHistory)
 }

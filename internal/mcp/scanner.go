@@ -13,14 +13,15 @@ import (
 )
 
 type Scanner struct {
-	mutex     sync.Mutex
-	results   []*plugins.Issue
-	plugins   []plugins.McpPlugin
-	aiModel   *models.OpenAI
-	client    *client.Client
-	csvResult [][]string
-	codePath  string
-	callback  func(data interface{})
+	mutex       sync.Mutex
+	results     []*plugins.Issue
+	plugins     []plugins.McpPlugin
+	aiModel     *models.OpenAI
+	client      *client.Client
+	csvResult   [][]string
+	codePath    string
+	callback    func(data interface{})
+	saveHistory bool
 }
 type McpCallbackProcessing struct {
 	Current int `json:"current"`
@@ -33,10 +34,11 @@ type McpCallbackReadMe struct {
 
 func NewScanner(aiConfig *models.OpenAI) *Scanner {
 	return &Scanner{
-		results:   make([]*plugins.Issue, 0),
-		plugins:   make([]plugins.McpPlugin, 0),
-		aiModel:   aiConfig,
-		csvResult: make([][]string, 0),
+		results:     make([]*plugins.Issue, 0),
+		plugins:     make([]plugins.McpPlugin, 0),
+		aiModel:     aiConfig,
+		csvResult:   make([][]string, 0),
+		saveHistory: false,
 	}
 }
 func (s *Scanner) SetCallback(callback func(data interface{})) {
@@ -116,6 +118,11 @@ func (s *Scanner) InputCodePath(codePath string) error {
 	return nil
 }
 
+func (s *Scanner) SaveHistory(b bool) error {
+	s.saveHistory = b
+	return nil
+}
+
 type ScannerIssue struct {
 	PluginId string `json:"pluginId"`
 	plugins.Issue
@@ -132,9 +139,10 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 	info := plugins.NewCollectionInfoPlugin()
 	gologger.Infoln("信息收集中...")
 	issue, err := info.Check(ctx, &plugins.McpPluginConfig{
-		Client:   s.client,
-		CodePath: s.codePath,
-		AIModel:  s.aiModel,
+		Client:      s.client,
+		CodePath:    s.codePath,
+		AIModel:     s.aiModel,
+		SaveHistory: s.saveHistory,
 	})
 	if err != nil {
 		gologger.Warningf("信息收集失败: %v", err)
