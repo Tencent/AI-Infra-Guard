@@ -1,7 +1,7 @@
 # 🛡️ AI Infra Guard
 [中文版](./README_CN.md)  
 
-A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vulnerability Discovery and MCP Server Security Risk Scanning Tool, developed by Tencent Zhuque Lab.
+A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vulnerability Assessment and MCP Server Security Analysis Tool, developed by Tencent Zhuque Lab.
 
 ## Table of Contents
 
@@ -16,9 +16,9 @@ A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vul
     - [WebUI Visual Operation](#webui-visual-operation)
     - [Security Vulnerability Scanning (scan)](#security-vulnerability-scanning-scan)
     - [MCP Server Scanning (mcp)](#mcp-server-scanning-mcp)
-- [📊 MCP Security Risk Coverage](#-mcp-security-risk-coverage)
-- [📊 AI Component Vulnerability Coverage](#-ai-component-vulnerability-coverage)
-- [🔍 AI Component Fingerprint Matching Rules](#-ai-component-fingerprint-matching-rules)
+- [📊 Covered MCP Security Risks](#-covered-mcp-security-risks)
+- [📊 Covered AI Component Vulnerabilities](#-covered-ai-component-vulnerabilities)
+- [🔍 Component Fingerprinting Rules](#-component-fingerprinting-rules)
   - [Example: Gradio Fingerprint Rule](#example-gradio-fingerprint-rule)
   - [Fingerprint Matching Syntax](#fingerprint-matching-syntax)
 - [🤝 Contribution](#-contribution)
@@ -26,24 +26,24 @@ A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vul
 
 ## 🚀 Quick Preview
 
-**MCP Server Code Detection**
+**MCP Server Code Analysis**
 <br>
 <img src="img/mcp.png" alt="MCP Server Code Detection Preview" height="400">
 <br>
 
-**Infrastructure Detection**
+**Infrastructure Vulnerability Scanning**
 <br>
 <img src="img/scan.png" alt="Infrastructure Detection Preview" height="600">
 <br>
 
 ## ✨ Project Highlights
 
-*   **Comprehensive Security Detection Capabilities**
-  *   Supports detection of 9 common MCP security risks, continuously updated.
+*   **Comprehensive Security Assessment Capabilities**
+  *   Supports analysis of 9 common MCP security risks, continuously updated.
   *   Supports identification of 28 AI component frameworks, covering 200+ vulnerability fingerprints.
   *   Supports private deployment for easy integration into internal security scanning pipelines.
 *   **Intelligent and User-Friendly Experience**
-  *   MCP security detection driven by AI Agent for one-click intelligent analysis.
+  *   MCP security analysis driven by AI Agent for one-click intelligent analysis.
   *   AI component vulnerability scanning supports custom fingerprints and YAML vulnerability rules.
   *   Out-of-the-box usability with no complex configuration required, providing a Web interface for visual operation.
 *   **Lightweight Design**
@@ -52,7 +52,7 @@ A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vul
   *   Cross-platform support (Windows/MacOS/Linux).
 
 ## 🤝 MCP Security Certification and Cooperation
-AI Infra Guard is committed to providing professional MCP security detection and certification solutions. We welcome MCP marketplaces, developer platforms, and hosting providers to integrate our tool into their pre-listing security scanning process for MCP Servers and display the scan results in the MCP marketplace, collectively building a safer MCP ecosystem.
+AI Infra Guard is committed to providing professional MCP security analysis and certification solutions. We welcome MCP marketplaces, developer platforms, and hosting providers to integrate our tool into their pre-listing security scanning process for MCP Servers and display the scan results in the MCP marketplace, collectively building a safer MCP ecosystem.
 
 If you are interested in cooperating with us, please contact Tencent Zhuque Lab at zhuque [at] tencent.com.
 
@@ -62,8 +62,8 @@ We also welcome you to share your implementation cases within the MCP community.
 
 AI Infra Guard consists of three core modules:
 
-1.  **AI Component Security Scanning (`scan`)**: Detects known security vulnerabilities in web-based components within AI infrastructure via the command line.
-2.  **MCP Security Detection (`mcp`)**: Detects security risks in MCP Server code based on AI Agent via the command line.
+1.  **AI Component Vulnerability Scanning (`scan`)**: Detects known security vulnerabilities in web-based components within AI infrastructure via the command line.
+2.  **MCP Security Analysis (`mcp`)**: Analyzes security risks in MCP Server code based on AI Agent via the command line.
 3.  **WebUI Mode (`webserver`)**: Enables the web-based visual operation interface.
 
 ## 📦 Installation and Usage
@@ -83,7 +83,7 @@ AI Infra Guard uses a subcommand structure:
 Main subcommands:
 
 *   `scan`: Executes AI component security vulnerability scanning.
-*   `mcp`: Executes MCP Server code security detection.
+*   `mcp`: Executes MCP Server code security analysis.
 *   `webserver`: Starts the Web interface server.
 
 ### Usage
@@ -103,7 +103,7 @@ Specify the listening address and port:
 ```
 *Example: `./ai-infra-guard webserver --ws-addr 0.0.0.0:9090`*
 
-#### AI Component Security Vulnerability Scanning (`scan`)
+#### AI Component Vulnerability Scanning (`scan`)
 
 **Local One-Click Detection** (Scans common local service ports):
 
@@ -146,7 +146,7 @@ Usage:
 
 Flags:
       --ai                      Enable AI analysis (requires LLM Token configuration)
-      --check-vul               Validate vulnerability template effectiveness
+      --check-vul               Validate the effectiveness of vulnerability templates
       --deepseek-token string   DeepSeek API token (for --ai feature)
   -f, --file string             File path containing target URLs
       --fps string              Fingerprint template file or directory (default: "data/fingerprints")
@@ -164,9 +164,9 @@ Flags:
       --vul string              Vulnerability database directory (default: "data/vuln")
 ```
 
-#### MCP Server Security Risk Detection (`mcp`)
+#### MCP Server Security Risk Analysis (`mcp`)
 
-This feature automatically detects security issues in MCP Server code using an AI Agent.
+This feature automatically analyzes security issues in MCP Server code using an AI Agent.
 
 **Basic Usage** (Uses OpenAI API by default, requires Token):
 
@@ -205,23 +205,23 @@ Flags:
       --token string      LLM API token (required)
 ```
 
-## 📊 MCP Security Risk Coverage
+## 📊 Covered MCP Security Risks
 
-AI Infra Guard can detect the following common MCP security risks, with continuous updates:
+AI Infra Guard can analyze the following common MCP security risks, with continuous updates:
 
 | Risk Name                   | Risk Description                                                                                                                                                                                                                            |
 |-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Tool Poisoning Attack       | Malicious MCP Server injects hidden instructions via tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., stealing data, executing malicious behaviors).                                                    |
-| Rug Pull Scam               | Malicious MCP Server behaves normally initially but changes behavior after user approval or several runs to execute malicious instructions, leading to hard-to-detect malicious activities.                                                    |
-| Tool Overriding Attack      | Malicious MCP Server uses hidden instructions to redefine the behavior of other trusted MCP Server tools (e.g., modifying email recipients, executing additional operations).                                                               |
-| Malicious Code/Command Exec | If an MCP Server supports direct code or command execution without proper sandboxing, attackers could exploit it to execute malicious operations on the server or user's local machine.                                                        |
-| Data Theft                  | Malicious MCP Server induces the AI Agent to read and transmit sensitive data (e.g., API keys, SSH keys) or directly sends user-authorized input data to external servers.                                                                     |
-| Unauthorized Access/Auth    | MCP Server lacks effective authorization/authentication or has flaws, allowing attackers to bypass verification and access restricted resources or user data.                                                                               |
-| Indirect Prompt Injection   | MCP Server outputs external data containing malicious instructions (e.g., web pages, documents) to the AI Agent, potentially influencing the AI Agent's decisions and behavior.                                                               |
-| Package Name Squatting      | Malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into incorrect calls; or a third party squats on an official MCP Server name to implant backdoors.                               |
-| Plaintext Key Storage       | MCP Server hardcodes or stores sensitive keys in plaintext within code or configuration files, leading to easy leakage risks.                                                                                                          |
+| Tool Poisoning Attack       | Malicious MCP Server injects hidden instructions via tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., data exfiltration, executing malicious code or commands).                                                    |
+| Rug Pull                | Malicious MCP Server behaves normally initially but changes behavior after user approval or several runs to execute malicious instructions, leading to difficult-to-detect malicious activities.                                                    |
+| Tool Shadowing Attack      | Malicious MCP Server uses hidden instructions to redefine the behavior of other trusted MCP Server tools (e.g., modifying email recipients, executing unauthorized operations).                                                               |
+| Malicious Code/Command Execution | If an MCP Server supports direct code or command execution without proper sandboxing, attackers could exploit it to execute malicious operations on the server or user's local machine.                                                        |
+| Data Exfiltration           | Malicious MCP Server induces the AI Agent to exfiltrate sensitive data (e.g., API keys, SSH keys) or directly transmits user-authorized input data to external servers.                                                                     |
+| Unauthorized Access/Authentication | MCP Server lacks effective authorization/authentication mechanisms or has flaws, allowing attackers to bypass verification and access restricted resources or user data.                                                                               |
+| Indirect Prompt Injection   | MCP Server outputs external data containing malicious instructions (e.g., web pages, documents) to the AI Agent, potentially compromising the AI Agent's integrity and leading to unintended actions.                                                               |
+| Package Name Squatting      | Malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into invoking malicious services; or a third party squats on an official MCP Server name to distribute malware or implant backdoors. |
+| Insecure Storage of Sensitive Keys | MCP Server hardcodes or stores sensitive keys in plaintext within code or configuration files, leading to potential key leakage risks.                                                                                                          |
 
-## 📊 AI Component Vulnerability Coverage
+## 📊 Covered AI Component Vulnerabilities
 
 AI Infra Guard supports detection of known vulnerabilities in various AI-related components:
 
@@ -261,9 +261,9 @@ AI Infra Guard supports detection of known vulnerabilities in various AI-related
 
 *Note: The vulnerability database is continuously updated.*
 
-## 🔍 AI Component Fingerprint Matching Rules
+## 🔍 Component Fingerprinting Rules
 
-AI Infra Guard uses YAML-based rules for web fingerprinting and vulnerability matching.
+AI Infra Guard uses YAML-based rules for web component fingerprinting and vulnerability matching.
 
 *   **Fingerprint Rules**: Stored in the `data/fingerprints` directory.
 *   **Vulnerability Rules**: Stored in the `data/vuln` directory.
@@ -293,7 +293,7 @@ http:
 *   `title`: HTML page title
 *   `body`: HTTP response body
 *   `header`: HTTP response header
-*   `icon`: Hash value of the website icon (favicon)
+*   `icon`: Hash value (e.g., MurmurHash3) of the website's favicon
 
 #### Logical Operators
 
