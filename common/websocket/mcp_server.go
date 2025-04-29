@@ -23,7 +23,7 @@ const (
 	WSMsgTypeMcpREADME     = "readme"
 	WSMsgTypeMcpProcessing = "processing"
 	WSMsgTypeMcpFinish     = "finish"
-	WSMsgTypeMcpStop       = "stpp"
+	WSMsgTypeMcpStop       = "stop"
 	WSMsgTypeMcpError      = "error"
 )
 

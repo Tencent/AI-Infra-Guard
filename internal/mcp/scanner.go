@@ -128,8 +128,9 @@ func (s *Scanner) SaveHistory(b bool) error {
 func (s *Scanner) SetLanguage(language string) error {
 	if language == "zh-CN" {
 		s.language = "zh"
+	} else {
+		s.language = language
 	}
-	s.language = language
 	return nil
 }
 

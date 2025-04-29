@@ -586,10 +586,11 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			userPrompt = fmt.Sprintf("未知命令：%s 你只能使用 read_file, continue_read, list_dir, grep, finish 命令", command.Name)
 		}
 		maxLength := 200
-		if len(userPrompt) < maxLength {
-			maxLength = len(userPrompt)
+		userPrompt2 := []rune(userPrompt)
+		if len(userPrompt2) < maxLength {
+			maxLength = len(userPrompt2)
 		}
-		gologger.Infoln("executing result:", userPrompt[:maxLength], "...")
+		gologger.Infoln("executing result:", string(userPrompt2[:maxLength]), "...")
 		// 添加用户提示到历史记录
 		history = append(history, map[string]string{
 			"role":    "user",
