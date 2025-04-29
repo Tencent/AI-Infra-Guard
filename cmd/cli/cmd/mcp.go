@@ -194,5 +194,5 @@ func init() {
 	mcpCmd.Flags().StringVar(&mcpModel, "model", "", "AI模型名称")
 	mcpCmd.Flags().StringVar(&mcpToken, "token", "", "API令牌")
 	mcpCmd.Flags().StringVar(&mcpBaseURL, "base-url", "", "API基础URL")
-	mcpCmd.Flags().StringVar(&mcpPlugins, "plugins", "", "插件列表，用英文逗号分隔")
+	mcpCmd.Flags().StringVar(&mcpPlugins, "plugins", "auth_bypass,cmd_injection,credential_theft,hardcoded_api_key,indirect_prompt_injection,name_confusion,rug_pull,tool_poisoning,tool_shadowing", "插件列表，用英文逗号分隔")
 }

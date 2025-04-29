@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
-	"os"
 )
 
 // ResourcePoisoningPlugin 资源投毒检测插件
@@ -24,15 +23,6 @@ func (p *ResourcePoisoningPlugin) GetPlugin() Plugin {
 		Desc: "检测MCP代码中可能存在的间接提示注入",
 		ID:   "indirect_prompt_injection",
 	}
-}
-
-// 检查目录是否存在
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
 }
 
 // AI提示词模板
