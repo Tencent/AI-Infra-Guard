@@ -1,0 +1,20 @@
+info:
+  name: langflow
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: Langflow is a powerful tool for building and deploying AI-powered agents and workflows.
+  metadata:
+    product: langflow
+    vendor: langflow-ai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Langflow</title>"
+version:
+  - method: GET
+    path: '/api/v1/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"(.*?)",'
