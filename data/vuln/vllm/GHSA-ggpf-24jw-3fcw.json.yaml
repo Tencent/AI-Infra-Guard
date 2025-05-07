@@ -1,0 +1,19 @@
+info:
+  name: vllm
+  cve: CVE-2025-24357
+  summary: 使用 PyTorch < 2.6.0 时恶意模型远程代码执行修复绕过
+  details: |
+    加载恶意模型可能会导致在 vllm 主机上执行代码。在 PyTorch 2.6.0 之前，应用于调用 `torch.load()` 时指定 `weights_only=True` 的修复程序并未解决该问题。
+    vLLM 使用的 PyTorch 版本在 2.6.0 之前易受此问题的影响。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: |
+    1. 将 PyTorch 升级到 2.6.0 或更高版本。
+    2. 确保所有 vLLM 的安装都使用安全版本的 PyTorch。
+    3. 监控与该漏洞相关的任何进一步更新或补丁。
+rule: version < "0.8.0"
+references:
+  - https://github.com/pytorch/pytorch/security/advisories/GHSA-53q9-r3pm-6pq6
+  - https://github.com/vllm-project/vllm/security/advisories/GHSA-ggpf-24jw-3fcw
+  - https://github.com/vllm-project/vllm/security/advisories/GHSA-rh4j-5rhw-hr54
+  - https://github.com/vllm-project/vllm
