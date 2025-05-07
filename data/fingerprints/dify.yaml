@@ -12,8 +12,8 @@ http:
       - body="<title>Dify</title>" || icon="97378986"
 version:
   - method: GET
-    path: '/console/api/version?current_version=0.1'
+    path: '/console/api/version'
     extractor:
-      part: body
+      part: header
       group: 1
-      regex: '{"version":\s*"(\d+\.\d+\.?\d+?)",'
+      regex: 'x-version:\s*(\d+\.\d+\.?\d+?)'

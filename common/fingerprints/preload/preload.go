@@ -190,7 +190,7 @@ func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, 
 		version := ""
 		if req.Extractor.Regex != "" {
 			// 继续测试version
-			compileRegex, err := regexp.Compile(req.Extractor.Regex)
+			compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
 			if err != nil {
 				gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
 			} else {
