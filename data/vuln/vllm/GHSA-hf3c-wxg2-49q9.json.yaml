@@ -1,0 +1,22 @@
+info:
+  name: vllm
+  cve: GHSA-hf3c-wxg2-49q9
+  summary: vLLM易受通过滥用xgrammar缓存导致的拒绝服务攻击
+  details: |
+    ### 影响
+    本报告指出vLLM中使用的XGrammar库的一个漏洞。XGrammar的安全公告在此处：https://github.com/mlc-ai/xgrammar/security/advisories/GHSA-389x-67px-mjg3
+    [xgrammar](https://xgrammar.mlc.ai/docs/)库是vLLM支持结构化输出（又称引导解码）的默认后端。XGrammar为其编译的语法提供了一个必需的内置缓存，存储在RAM中。xgrammar默认可通过OpenAI兼容API服务器使用，支持V0和V1引擎。
+    恶意用户可以发送一系列非常短的解码请求，每个请求都有唯一的模式，这将导致缓存中每个请求的增加。这可能会通过消耗系统的所有RAM导致拒绝服务。
+    请注意，即使vLLM默认配置为使用不同的后端，仍然可以在使用V0引擎时，通过在请求的`extra_body`字段中使用`guided_decoding_backend`键来选择xgrammar。使用V1引擎时，不提供这种按请求选择的功能。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
+  severity: MEDIUM
+  security_advise: |
+    1. 升级到vllm >= 0.8.4
+    2. 防止对OpenAI兼容API服务器的不受信任的访问
+rule: version >= "0.6.5" && version < "0.8.4"
+references:
+  - https://github.com/mlc-ai/xgrammar/security/advisories/GHSA-389x-67px-mjg3
+  - https://github.com/vllm-project/vllm/security/advisories/GHSA-hf3c-wxg2-49q9
+  - https://github.com/vllm-project/vllm/pull/16283
+  - https://github.com/vllm-project/vllm/commit/cb84e45ac75b42ba6795145923e8eb323bb825ad
+  - https://github.com/vllm-project/vllm

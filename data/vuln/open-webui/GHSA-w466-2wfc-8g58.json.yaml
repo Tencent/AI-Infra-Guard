@@ -1,0 +1,20 @@
+info:
+  name: open-webui
+  cve: CVE-2024-47874
+  summary: Open WebUI 通过 fastapi 对 starlette 存在易受攻击的依赖
+  details: |
+    在 open-webui 的 0.3.32 版本中，该应用程序通过其对 fastapi 的依赖使用了易受攻击的 starlette 包版本。
+    starlette 包版本 <=0.49 容易受到不受控制的资源消耗的影响，这可以被利用来通过内存耗尽导致拒绝服务。
+    此问题在 fastapi 版本 0.115.3 中得到解决。
+  cvss: CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: |
+    1. 升级到 open-webui >=0.3.33
+    2. 确保 fastapi 更新到 0.115.3 或更高版本
+    3. 监控 starlette 包和 fastapi 的更新，以获取任何进一步的安全补丁
+rule: version < "0.3.33"
+references:
+  - https://github.com/encode/starlette/security/advisories/GHSA-f96h-pmfr-66vw
+  - https://nvd.nist.gov/vuln/detail/CVE-2024-47874
+  - https://github.com/open-webui/open-webui
+  - https://huntr.com/bounties/56175583-70e3-4d53-94de-3f3a8e2423ec

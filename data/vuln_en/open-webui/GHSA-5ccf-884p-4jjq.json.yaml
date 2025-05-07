@@ -1,0 +1,18 @@
+info:
+  name: open-webui
+  cve: CVE-2024-53981
+  summary: Open WebUI Unauthenticated Multipart Boundary Denial of Service (DoS) Vulnerability
+  details: |
+    A Denial of Service (DoS) vulnerability exists in open-webui/open-webui version 0.3.21. This vulnerability affects multiple endpoints, including `/ollama/models/upload`, `/audio/api/v1/transcriptions`, and `/rag/api/v1/doc`. The application processes multipart boundaries without authentication, leading to resource exhaustion. By appending additional characters to the multipart boundary, an attacker can cause the server to parse each byte of the boundary, ultimately leading to service unavailability. This vulnerability can be exploited remotely, resulting in high CPU and memory usage, and rendering the service inaccessible to legitimate users.
+  cvss: CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: |
+    1. Upgrade to open-webui >= 0.3.22
+    2. Implement authentication for multipart boundary processing
+    3. Monitor server resources for unusual activity
+rule: version < "0.3.22"
+references:
+  - https://github.com/Kludex/python-multipart/security/advisories/GHSA-59g5-xgcq-4qw3
+  - https://nvd.nist.gov/vuln/detail/CVE-2024-53981
+  - https://github.com/open-webui/open-webui
+  - https://huntr.com/bounties/9178f09e-4d4f-4a5b-bc32-cada7445b03c

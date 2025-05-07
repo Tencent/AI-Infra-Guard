@@ -1,0 +1,22 @@
+info:
+  name: gradio
+  cve: GHSA-26jh-r8g2-6fpr
+  summary: Gradio的dropdown组件预处理步骤未将值限制在dropdown列表中
+  details: |
+    ### 影响
+    **这是什么类型的漏洞？谁受到影响？**
+    此漏洞是Gradio `Dropdown`组件的预处理步骤中的**数据验证问题**。即使将`allow_custom_value`参数设置为`False`，攻击者也可以通过发送带有任意值的自定义请求来绕过此限制，从而有效地破坏开发人员预期的输入约束。虽然这本身不是一个严重的漏洞，但它可能导致更关键的安全问题，特别是与其他漏洞（如从用户的机器下载文件）结合使用时。
+    ### 补丁
+    是的，此问题在`gradio>=5.0`中得到解决。请升级到最新版本以解决问题。
+    ### 变通方法  
+    **用户是否有办法在不升级的情况下修复或缓解漏洞？**
+    为了在不升级的情况下缓解问题，开发人员可以在其预测函数中添加手动验证，以在处理之前检查接收到的值是否与允许的dropdown值匹配。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
+  severity: 低
+  security_advise: |
+    1. 升级到gradio>=5.0
+    2. 在预测函数中添加手动验证，以在处理之前检查接收到的值是否与允许的dropdown值匹配。
+rule: version > "0" && version < "5.0.0"
+references:
+  - https://github.com/gradio-app/gradio/security/advisories/GHSA-26jh-r8g2-6fpr
+  - https://github.com/gradio-app/gradio
