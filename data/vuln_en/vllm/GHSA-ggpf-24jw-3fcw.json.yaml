@@ -10,7 +10,7 @@ info:
   security_advise: |
     1. Upgrade to PyTorch version 2.6.0 or higher.
     2. Ensure that all installations of vLLM use a secure version of PyTorch as specified in the official documentation.
-  rule: version < "0.8.0"
+rule: version < "0.8.0"
 references:
   - https://github.com/pytorch/pytorch/security/advisories/GHSA-53q9-r3pm-6pq6
   - https://github.com/vllm-project/vllm/security/advisories/GHSA-ggpf-24jw-3fcw
