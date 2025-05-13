@@ -205,10 +205,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		gologger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		s.csvResult = append(s.csvResult, []string{"PluginId", pluginInfo.ID, "PluginName", pluginInfo.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
 		// 转换插件结果
-		for _, issue := range issues {
+		for _, res := range issues {
+			res2 := res
 			r := ScannerIssue{
 				PluginId: pluginInfo.ID,
-				Issue:    issue,
+				Issue:    res2,
 			}
 			if s.callback != nil {
 				s.callback(r)
