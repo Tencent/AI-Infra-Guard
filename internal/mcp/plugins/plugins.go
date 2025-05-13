@@ -104,23 +104,29 @@ func ParseIssues(input string) []Issue {
 func SummaryResult(ctx context.Context, agent *utils.AutoGPT, config *McpPluginConfig) ([]Issue, error) {
 	history := agent.GetHistory()
 	const summaryPrompt = `
-The task is now complete, and the final vulnerability scan results must be returned. All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). If no vulnerabilities are found, return <arg></arg>.  
-Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.  
+The task is now complete, and the discovered vulnerabilities are being returned.
+**Return Format**
+All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). 
+If no vulnerabilities are found, return <arg></arg>.  
+Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
+**Rules**
+1. You must ensure that the vulnerability truly exists; if no vulnerability is found, return empty.
+2. The desc field in the vulnerability description should include a detailed evidence chain for the vulnerability.
+3. Determine the severity 'level'' of the vulnerability based on its title and description: critical, high, medium, low.
 %s
-## EXAMPLE:  
+**EXAMPLE**
+1. if no vulnerabilities are found, return <arg></arg>.
+2. if vulnerabilities are found, return:
 <arg>
 	<result>
 	<title>Vulnerability Name</title>
 	<desc>Detailed description in Markdown format, including code paths, file locations, code snippets, relevant context, and technical analysis (using professional terminology to explain the vulnerability's principle and potential impact).</desc>
 	<risk_type>Vulnerability risk type</risk_type>
-	<level>Severity level (critical, high, medium)</level>
+	<level>Severity level (critical, high, medium,low)</level>
 	<suggestion>Step-by-step remediation guidance</suggestion>
 	</result>
 	<!-- Additional <result> entries can be added -->
 </arg>
-
-If no vulnerabilities are detected, strictly return:  
-<arg></arg>
 `
 	history = append(history, map[string]string{
 		"role":    "user",

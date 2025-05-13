@@ -27,8 +27,10 @@ func (p *RugPullPlugin) GetPlugin() Plugin {
 	}
 }
 
-// AI提示词模板
-const rugPullAIPrompt = `
+// 执行检测
+func (p *RugPullPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
+	// AI提示词模板
+	const rugPullAIPrompt = `
 你作为资深智能合约安全审计师，将对MCP工具实施系统性Rug Pull攻击检测。你的分析必须基于专业知识和确凿证据，**绝对禁止任何猜测性或不确定的输出**,请按照军工级安全标准执行以下审计流程：
 Rug Pull Attack 指的是一个MCP工具在初始安装和批准时看起来是安全的，但在后续使用中会改变其行为或描述，以执行恶意操作或诱导用户/LLM 执行危险行为（例如，访问敏感数据）。
 
@@ -57,9 +59,6 @@ Rug Pull Attack 指的是一个MCP工具在初始安装和批准时看起来是�
 ## 输出
 漏洞描述给出证据:文件位置、代码片段、技术分析(专业术语说明漏洞原理及潜在影响)
 `
-
-// 执行检测
-func (p *RugPullPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	var issues []Issue
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
