@@ -40,7 +40,7 @@ var mcpCmd = &cobra.Command{
 	Long:  `MCP Server扫描，检测MCP代码的安全性。`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 设置日志级别
-		gologger.Logger.SetLevel(gologger.TraceLevel)
+		logger := gologger.NewLogger()
 
 		if mcpLogPath != "" {
 			writer1 := os.Stdout
@@ -49,7 +49,7 @@ var mcpCmd = &cobra.Command{
 				log.Fatalf("create file log.txt failed: %v", err)
 			}
 			defer writer2.Close()
-			gologger.Logger.SetOutput(io.MultiWriter(writer1, writer2))
+			logger.Logrus().SetOutput(io.MultiWriter(writer1, writer2))
 		}
 
 		// 检查必要参数
@@ -69,7 +69,7 @@ var mcpCmd = &cobra.Command{
 		aiModel := models.NewOpenAI(mcpToken, mcpModel, mcpBaseURL)
 
 		// 创建扫描器
-		scanner := mcp.NewScanner(aiModel)
+		scanner := mcp.NewScanner(aiModel, logger)
 
 		// 注册插件
 		scanner.RegisterPlugin(strings.Split(mcpPlugins, ","))

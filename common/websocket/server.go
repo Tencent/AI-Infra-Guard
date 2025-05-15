@@ -17,7 +17,6 @@ var staticFS embed.FS
 
 func RunWebServer(options *options.Options) {
 	// 创建WebSocket服务器
-	gologger.SetColor(false)
 	wsServer := NewWSServer(options)
 	// 设置WebSocket路由
 	http.HandleFunc("/ws", wsServer.HandleAIInfraWS)

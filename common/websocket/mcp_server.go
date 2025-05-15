@@ -246,7 +246,8 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	// setlogger
 	writer1 := os.Stdout
 	writer2 := NewWsWrite(ctx, s, conn, 50)
-	gologger.Logger.SetOutput(io.MultiWriter(writer1, writer2))
+	logger := gologger.NewLogger()
+	logger.Logrus().SetOutput(io.MultiWriter(writer1, writer2))
 
 	// 在扫描结束时确保刷新缓冲区
 	defer writer2.Flush()
@@ -267,7 +268,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 		}
 	}
 	modelConfig := models.NewOpenAI(req.Model.Token, req.Model.Model, req.Model.BaseUrl)
-	scanner := mcp.NewScanner(modelConfig)
+	scanner := mcp.NewScanner(modelConfig, logger)
 	rPlugins := strings.Split(req.Plugins, ",")
 	scanner.RegisterPlugin(rPlugins)
 	scanner.SetLanguage(req.Language)

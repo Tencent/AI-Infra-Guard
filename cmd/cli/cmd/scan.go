@@ -54,7 +54,7 @@ var scanCmd = &cobra.Command{
 		}
 
 		// 设置日志级别
-		gologger.Logger.SetLevel(gologger.InfoLevel)
+		gologger.StdLogger.Logrus().SetLevel(gologger.InfoLevel)
 
 		r, err := runner.New(scanOptions)
 		if err != nil {
