@@ -23,6 +23,7 @@ type Scanner struct {
 	callback    func(data interface{})
 	saveHistory bool
 	language    string
+	logger      *gologger.Logger
 }
 type McpCallbackProcessing struct {
 	Current int `json:"current"`
@@ -33,7 +34,10 @@ type McpCallbackReadMe struct {
 	Content string `json:"content"`
 }
 
-func NewScanner(aiConfig *models.OpenAI) *Scanner {
+func NewScanner(aiConfig *models.OpenAI, logger *gologger.Logger) *Scanner {
+	if logger == nil {
+		logger = gologger.NewLogger()
+	}
 	return &Scanner{
 		results:     make([]*plugins.Issue, 0),
 		plugins:     make([]plugins.McpPlugin, 0),
@@ -41,6 +45,7 @@ func NewScanner(aiConfig *models.OpenAI) *Scanner {
 		csvResult:   make([][]string, 0),
 		saveHistory: false,
 		language:    "zh",
+		logger:      logger,
 	}
 }
 func (s *Scanner) SetCallback(callback func(data interface{})) {
@@ -143,29 +148,31 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	result := make([]ScannerIssue, 0)
+	logger := s.logger
 
 	totalProcessing := len(s.plugins) + 1
 	currentProcessing := 0
 	// 运行所有插件
 	info := plugins.NewCollectionInfoPlugin()
-	gologger.Infoln("信息收集中...")
+	logger.Infoln("信息收集中...")
 	issue, err := info.Check(ctx, &plugins.McpPluginConfig{
 		Client:      s.client,
 		CodePath:    s.codePath,
 		AIModel:     s.aiModel,
 		SaveHistory: s.saveHistory,
 		Language:    s.language,
+		Logger:      logger,
 	})
 	if err != nil {
-		gologger.Warningf("信息收集失败: %v", err)
+		logger.Warningf("信息收集失败: %v", err)
 	}
 	var infoPrompt string
 	if len(issue) != 1 {
-		gologger.Warningf("信息收集失败 结果为空")
+		logger.Warningf("信息收集失败 结果为空")
 	} else {
 		infoPrompt = issue[0].Description
 		ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
-		gologger.Infoln("信息收集完成", infoPrompt)
+		logger.Infoln("信息收集完成", infoPrompt)
 	}
 	if s.callback != nil {
 		currentProcessing += 1
@@ -181,7 +188,7 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		default:
 		}
 		pluginInfo := plugin.GetPlugin()
-		gologger.Infof("运行插件 %s", pluginInfo.Name)
+		logger.Infof("运行插件 %s", pluginInfo.Name)
 		s.aiModel.ResetToken()
 		startTime := time.Now()
 		config := plugins.McpPluginConfig{
@@ -190,6 +197,7 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			AIModel:     s.aiModel,
 			Language:    s.language,
 			SaveHistory: s.saveHistory,
+			Logger:      logger,
 		}
 		issues, err := plugin.Check(ctx, &config)
 		if s.callback != nil {
@@ -197,12 +205,12 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 		}
 		if err != nil {
-			gologger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)
+			logger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)
 			continue
 		}
-		gologger.Infof("插件 %s 运行成功", pluginInfo.Name)
-		gologger.Infof("共发现 %d 个问题", len(issues))
-		gologger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
+		logger.Infof("插件 %s 运行成功", pluginInfo.Name)
+		logger.Infof("共发现 %d 个问题", len(issues))
+		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		s.csvResult = append(s.csvResult, []string{"PluginId", pluginInfo.ID, "PluginName", pluginInfo.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
 		// 转换插件结果
 		for _, res := range issues {

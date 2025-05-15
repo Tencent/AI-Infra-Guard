@@ -3,7 +3,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
@@ -65,7 +64,7 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 	// 使用列出目录内容
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
-		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
+		config.Logger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return issues, err
 	}
 
@@ -74,9 +73,9 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 		fmt.Sprintf(resourcePoisoningAIPrompt, config.CodePath, dirPrompt),
 	}, config.Language)
 
-	_, err = agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
-		gologger.WithError(err).Warningln("")
+		config.Logger.WithError(err).Warningln("")
 		return issues, err
 	}
 	return SummaryResult(ctx, agent, config)

@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
@@ -51,7 +50,6 @@ func scanAccessSensitiveFiles(description string) bool {
 	// 编译正则表达式
 	re, err := regexp.Compile(pattern)
 	if err != nil {
-		gologger.WithError(err).Errorln("编译正则表达式失败")
 		return false
 	}
 
@@ -136,14 +134,14 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	// 使用列出目录内容并查找工具描述
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
-		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
+		config.Logger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return nil, err
 	}
 
 	// 查找所有可能包含工具描述的文件
 	files, err := findFiles(config.CodePath, "*.go")
 	if err != nil {
-		gologger.WithError(err).Errorln("查找文件失败")
+		config.Logger.WithError(err).Errorln("查找文件失败")
 		return nil, err
 	}
 
@@ -152,7 +150,7 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	for _, file := range files {
 		content, err := readFile(file)
 		if err != nil {
-			gologger.WithError(err).Warningln("读取文件失败: " + file)
+			config.Logger.WithError(err).Warningln("读取文件失败: " + file)
 			continue
 		}
 
@@ -170,9 +168,9 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt, maybePrompt),
 	}, config.Language)
-	_, err = agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
-		gologger.WithError(err).Warningln("")
+		config.Logger.WithError(err).Warningln("")
 		return nil, err
 	}
 	return SummaryResult(ctx, agent, config)

@@ -59,6 +59,7 @@ type McpPluginConfig struct {
 	AIModel     *models.OpenAI
 	SaveHistory bool
 	Language    string // zh / en
+	Logger      *gologger.Logger
 }
 
 type McpPlugin interface {
@@ -133,10 +134,10 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 		"content": fmt.Sprintf(summaryPrompt, utils.LanguagePrompt(config.Language)),
 	})
 	var result string = ""
-	gologger.Infoln("generate summary result")
+	config.Logger.Infoln("generate summary result")
 	for word := range config.AIModel.ChatStream(ctx, history) {
 		result += word
-		gologger.Print(word)
+		config.Logger.Print(word)
 	}
 	history = append(history, map[string]string{
 		"role":    "assistant",
@@ -145,7 +146,7 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 	if config.SaveHistory {
 		err := utils.SaveHistory(history)
 		if err != nil {
-			gologger.Errorln("save history failed")
+			config.Logger.Errorln("save history failed")
 		}
 	}
 	// 保存模型输出

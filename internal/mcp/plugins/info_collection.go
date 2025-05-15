@@ -81,7 +81,7 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(CollectionInfoPluginPrompt, config.CodePath, dirPrompt),
 	}, config.Language)
-	_, err = agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err

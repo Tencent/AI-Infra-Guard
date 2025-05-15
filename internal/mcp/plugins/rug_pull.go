@@ -68,7 +68,7 @@ Rug Pull Attack 指的是一个MCP工具在初始安装和批准时看起来是�
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(rugPullAIPrompt, config.CodePath, dirPrompt),
 	}, config.Language)
-	_, err = agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		gologger.WithError(err).Warningln("")
 		return issues, err

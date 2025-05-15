@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
@@ -393,9 +392,9 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
 	}, config.Language)
 
-	_, err := agent.Run(ctx, config.AIModel)
+	_, err := agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
-		gologger.WithError(err).Warningln("AI分析失败")
+		config.Logger.WithError(err).Warningln("AI分析失败")
 		return nil, err
 	}
 
@@ -405,17 +404,17 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 // 执行检测
 func (p *CmdInjectionPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	// 初始规则检测
-	gologger.Infoln("开始检测命令注入漏洞...")
+	config.Logger.Infoln("开始检测命令注入漏洞...")
 	issues, err := p.scanDirectory(config.CodePath, 3) // 默认上下文为3行
 	if err != nil {
-		gologger.WithError(err).Errorln("扫描目录失败: " + config.CodePath)
+		config.Logger.WithError(err).Errorln("扫描目录失败: " + config.CodePath)
 		return issues, err
 	}
 
-	gologger.Infoln(fmt.Sprintf("初步检测完成，发现 %d 个潜在问题", len(issues)))
+	config.Logger.Infoln(fmt.Sprintf("初步检测完成，发现 %d 个潜在问题", len(issues)))
 	// 使用AI进行深度分析
 	if len(issues) > 0 && config.AIModel != nil {
-		gologger.Infoln("正在使用AI进行深度分析...")
+		config.Logger.Infoln("正在使用AI进行深度分析...")
 		return p.aiAnalysis(ctx, issues, config)
 	}
 

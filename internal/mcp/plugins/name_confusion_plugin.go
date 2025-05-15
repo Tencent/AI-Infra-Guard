@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"strings"
 )
@@ -59,11 +58,11 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 	// 扫描所有工具名称
 	tools, err := utils.ListMcpTools(ctx, config.Client)
 	if err != nil {
-		gologger.WithError(err).Errorln("扫描工具名称失败")
+		config.Logger.WithError(err).Errorln("扫描工具名称失败")
 		return issues, err
 	}
 
-	gologger.Infoln(fmt.Sprintf("发现 %d 个工具", len(tools.Tools)))
+	config.Logger.Infoln(fmt.Sprintf("发现 %d 个工具", len(tools.Tools)))
 
 	// 如果找到工具且AI模型可用，直接使用AI进行分析
 	if len(tools.Tools) > 0 && config.AIModel != nil {
@@ -84,13 +83,13 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 			fmt.Sprintf(nameConfusionAIPrompt, toolsInfo, config.CodePath),
 		}, config.Language)
 
-		_, err := agent.Run(ctx, config.AIModel)
+		_, err := agent.Run(ctx, config.AIModel, config.Logger)
 		if err != nil {
 			return nil, err
 		}
 		return SummaryResult(ctx, agent, config)
 	} else {
-		gologger.Warningln("未找到工具或AI模型不可用，无法进行名称混淆检测")
+		config.Logger.Warningln("未找到工具或AI模型不可用，无法进行名称混淆检测")
 	}
 
 	return issues, nil

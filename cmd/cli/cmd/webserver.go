@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/Tencent/AI-Infra-Guard/common/websocket"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/options"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +27,6 @@ var webserverCmd = &cobra.Command{
 			WebServerAddr: webServerAddr,
 		}
 		// 设置日志级别
-		gologger.Logger.SetLevel(gologger.TraceLevel)
 		websocket.RunWebServer(webOptions)
 	},
 }

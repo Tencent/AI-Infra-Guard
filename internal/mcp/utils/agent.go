@@ -383,7 +383,7 @@ func (a *AutoGPT) GetHistory() []map[string]string {
 }
 
 // Run 运行AutoGPT代理
-func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, error) {
+func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *gologger.Logger) (string, error) {
 	history := []map[string]string{
 		{
 			"role":    "user",
@@ -405,7 +405,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 				"content": userPrompt,
 			})
 		}
-		gologger.Infof("------------------- 第%d轮 -------------------\n", index+1)
+		logger.Infof("------------------- 第%d轮 -------------------\n", index+1)
 		index++
 
 		// 调用LLM API生成响应
@@ -413,13 +413,13 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		stream := aiModel.ChatStream(ctx, m)
 		msg := ""
 		for chunk := range stream {
-			gologger.Print(chunk)
+			logger.Print(chunk)
 			msg += chunk
 		}
 		if msg == "" {
 			return "", fmt.Errorf("ai empty response")
 		}
-		gologger.Print("\n")
+		logger.Print("\n")
 		// 添加响应到历史记录
 		history = append(history, map[string]string{
 			"role":    "assistant",
@@ -430,7 +430,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		// 尝试解析JSON命令
 		jsonStr := a.ExtractTag(msg, "command")
 		if jsonStr == "" {
-			gologger.Warningln("command 解析失败,重新尝试中")
+			logger.Warningln("command 解析失败,重新尝试中")
 			// JSON解析失败
 			history = append(history, map[string]string{
 				"role":    "user",
@@ -460,7 +460,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			continue
 		}
 
-		gologger.Infof("Executing command: %s with args: %s\n", command.Name, command.Arg1)
+		logger.Infof("Executing command: %s with args: %s\n", command.Name, command.Arg1)
 
 		// 执行命令
 		var userPrompt string
@@ -480,7 +480,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 			// 获取文件信息
 			fileInfo, err := os.Stat(command.Arg1)
 			if err != nil {
-				gologger.WithError(err).Warningln("读取文件失败")
+				logger.WithError(err).Warningln("读取文件失败")
 				userPrompt = fmt.Sprintf("读取文件 %s 失败: %v", command.Arg1, err)
 			} else {
 				// 检查文件大小，决定如何读取
@@ -590,7 +590,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI) (string, erro
 		if len(userPrompt2) < maxLength {
 			maxLength = len(userPrompt2)
 		}
-		gologger.Infoln("executing result:", string(userPrompt2[:maxLength]), "...")
+		logger.Infoln("executing result:", string(userPrompt2[:maxLength]), "...")
 		// 添加用户提示到历史记录
 		history = append(history, map[string]string{
 			"role":    "user",

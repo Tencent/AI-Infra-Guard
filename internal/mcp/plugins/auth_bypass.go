@@ -3,7 +3,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
@@ -59,15 +58,15 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
-		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
+		config.Logger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return nil, err
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(authBypassAIPrompt, config.CodePath, dirPrompt),
 	}, config.Language)
-	_, err = agent.Run(ctx, config.AIModel)
+	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
-		gologger.WithError(err).Warningln("")
+		config.Logger.WithError(err).Warningln("")
 		return nil, err
 	}
 	return SummaryResult(ctx, agent, config)

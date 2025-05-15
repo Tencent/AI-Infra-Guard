@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
 // HardcodedApiKeyPlugin 硬编码API密钥检测插件
@@ -130,7 +128,7 @@ func (p *HardcodedApiKeyPlugin) Check(ctx context.Context, config *McpPluginConf
 	// 查找所有需要检查的文件
 	files, err := findFilesForApiKeyCheck(config.CodePath)
 	if err != nil {
-		gologger.WithError(err).Errorln("查找文件失败")
+		config.Logger.WithError(err).Errorln("查找文件失败")
 		return issues, err
 	}
 
@@ -138,7 +136,7 @@ func (p *HardcodedApiKeyPlugin) Check(ctx context.Context, config *McpPluginConf
 	for _, file := range files {
 		content, err := ioutil.ReadFile(file)
 		if err != nil {
-			gologger.WithError(err).Warningln("读取文件失败: " + file)
+			config.Logger.WithError(err).Warningln("读取文件失败: " + file)
 			continue
 		}
 
