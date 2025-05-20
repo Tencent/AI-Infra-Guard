@@ -62,6 +62,7 @@ func (p *VulnReview) Check(ctx context.Context, config *McpPluginConfig) ([]Issu
 【输出要求】
 1. 保留原始XML结构但需要：
    • 验证所有标签闭合
+   • 按照不同的独立漏洞输出报告，每个漏洞占一个<result>标签
    • 格式类似
 	 <arg>
 		<result>
@@ -80,7 +81,7 @@ func (p *VulnReview) Check(ctx context.Context, config *McpPluginConfig) ([]Issu
 • 不可引入原始数据外的假设条件
 
 代码路径:%s
-### INPUT
+### 原始报告
 %s
 `
 	var issues []Issue

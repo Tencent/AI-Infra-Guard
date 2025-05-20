@@ -3,7 +3,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 )
 
@@ -75,7 +74,7 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	var issues []Issue
 	dirPrompt, err := utils.ListDir(config.CodePath, 2)
 	if err != nil {
-		gologger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
+		config.Logger.WithError(err).Errorln("读取目录失败: " + config.CodePath)
 		return issues, err
 	}
 	agent := utils.NewAutoGPT([]string{
@@ -83,10 +82,10 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	}, config.Language)
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
-		gologger.WithError(err).Warningln("")
+		config.Logger.WithError(err).Warningln("")
 		return issues, err
 	}
-	gologger.Infoln("总结信息...")
+	config.Logger.Infoln("总结信息...")
 	history := agent.GetHistory()
 	history = append(history, map[string]string{
 		"role":    "user",
@@ -95,7 +94,7 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	var result = ""
 	for word := range config.AIModel.ChatStream(ctx, history) {
 		result += word
-		gologger.Print(word)
+		config.Logger.Print(word)
 	}
 	return []Issue{
 		{
