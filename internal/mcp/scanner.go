@@ -263,6 +263,8 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.GetPlugin().Name, len(issues))
 			for _, res := range issues {
 				res2 := res
+				// 替换绝对路径
+				res2.Description = strings.ReplaceAll(res2.Description, s.codePath, "")
 				r := ScannerIssue{
 					Issue: res2,
 				}
