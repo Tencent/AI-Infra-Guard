@@ -104,6 +104,9 @@ func parseQuotedText(s []rune, start int) (Token, int, error) {
 	i := start + 1
 	for i < len(s) {
 		if s[i] == '\\' { // skip escape '\"'
+			if i+1 >= len(s) { // string ends with \, missing escape character
+				return Token{}, 0, errors.New("invalid escape at end of input: " + string(s[start:]))
+			}
 			n = append(n, s[i+1])
 			i += 2
 		} else if s[i] == '"' { // end of quoted
@@ -113,7 +116,7 @@ func parseQuotedText(s []rune, start int) (Token, int, error) {
 			i++
 		}
 	}
-	return Token{}, 0, errors.New("unknown text:" + string(s[start:]))
+	return Token{}, 0, errors.New("unterminated quoted text: " + string(s[start:]))
 }
 
 // 辅助函数：解析操作符
