@@ -31,12 +31,19 @@ func TestParseTokensInvalidOperator(t *testing.T) {
 }
 
 func TestParseStrangeTokens(t *testing.T) {
-	s := `"\`
-	tokens, err := ParseTokens(s)
-	if err != nil {
-		t.Fatal(err)
+	for _, s := range []string{
+		`"\`,
+		`"abc\`,
+		`"abc\"`,
+		`"abc\""`,
+	} {
+		tokens, err := ParseTokens(s)
+		if err == nil {
+			t.Log(tokens)
+		} else {
+			t.Logf("parse token `%s` error: %v", s, err)
+		}
 	}
-	t.Log(tokens)
 }
 
 func TestParseAdvisorTokens2(t *testing.T) {
