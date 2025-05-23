@@ -213,9 +213,8 @@ func listDirRecursive(dir string, depth int, isLast bool, builder *strings.Build
 			builder.WriteString("├── ")
 		}
 
-		// 添加条目名称和类型
-		builder.WriteString(fmt.Sprintf("%s (%s)\n", entry.Name(), getSimpleType(entry)))
-
+		// 添加条目名称和类型和权限
+		builder.WriteString(fmt.Sprintf("%s (%s)\n", entry.Name(), getSimpleType(dir, entry)))
 		// 递归处理子目录（不超过最大深度时）
 		if entry.IsDir() && (maxLevel <= 0 || depth < maxLevel) {
 			newHasLast := append(hasLast, isLastEntry)
@@ -236,12 +235,17 @@ func listDirRecursive(dir string, depth int, isLast bool, builder *strings.Build
 }
 
 // getSimpleType 简化文件类型显示
-func getSimpleType(entry fs.DirEntry) string {
+func getSimpleType(dir string, entry fs.DirEntry) string {
 	if entry.IsDir() {
 		return "dir"
 	}
+	fsPath := filepath.Join(dir, entry.Name())
 	if entry.Type().IsRegular() {
-		return "file"
+		if isTextFile(fsPath) {
+			return "file"
+		} else {
+			return "binary"
+		}
 	}
 	return entry.Type().String()
 }
@@ -310,4 +314,29 @@ func LanguagePrompt(language string) string {
 		languagePrompt = "Response in English."
 	}
 	return languagePrompt
+}
+
+// IsTextFile 检查文件是否为文本文件
+func IsTextFile(filename string) (bool, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	buf := make([]byte, 512)
+	n, err := file.Read(buf)
+	if err != nil && err != io.EOF {
+		return false, err
+	}
+
+	// 检查每个字节是否为非文本字符
+	for i := 0; i < n; i++ {
+		b := buf[i]
+		if b <= 8 || b == 0x0B || b == 0x0C || (b >= 0x0E && b <= 0x1F) || b == 0x7F {
+			return false, nil // 发现控制字符或NULL，视为二进制文件
+		}
+	}
+
+	return true, nil // 未找到非文本字符，视为文本文件
 }

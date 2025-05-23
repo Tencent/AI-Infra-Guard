@@ -466,16 +466,12 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 		var userPrompt string
 		switch command.Name {
 		case "list_dir":
-			data, err := os.ReadDir(command.Arg1)
+			data, err := ListDir(command.Arg1, 1)
 			if err != nil {
 				userPrompt = fmt.Sprintf("读取目录失败: %v", err)
 			} else {
-				userPrompt = fmt.Sprintf("读取目录完成，path:%s\n", command.Arg1)
+				userPrompt = fmt.Sprintf("读取目录完成，dir:%s\ndir tree:\n%s\n", command.Arg1, data)
 			}
-			for _, file := range data {
-				userPrompt += fmt.Sprintf("- %s (%s)\n", file.Name(), file.Type())
-			}
-
 		case "read_file":
 			// 获取文件信息
 			fileInfo, err := os.Stat(command.Arg1)
