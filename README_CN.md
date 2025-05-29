@@ -311,6 +311,8 @@ http:
 
 *   **报告问题**: [提交 Issue](https://github.com/Tencent/AI-Infra-Guard/issues)
 *   **提交代码**: [发起 Pull Request](https://github.com/Tencent/AI-Infra-Guard/pulls)
+## Wechat Group
+![](img/wechat-group.jpg)
 
 ## 📄 许可证
 
