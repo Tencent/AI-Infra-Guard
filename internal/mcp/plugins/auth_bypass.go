@@ -29,13 +29,6 @@ func (p *AuthBypassPlugin) GetPlugin() Plugin {
 // AI提示词模板
 const authBypassAIPrompt = `
 你是一个专业的网络安全分析助手，需要严格分析给定的源代码目录结构，检测可能存在的身份验证绕过漏洞。你的分析必须基于专业知识和确凿证据，**绝对禁止任何猜测性或不确定的输出**。
-MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入输出。如果项目只支持STDIO，会由于利用门槛较高，将漏洞标记为低风险。
-## 输入
-源代码文件夹路径:%s
-目录详情:
-------
-%s
-------
 ## 检测要求
 1. **准确性第一**：必须确认存在真实风险才可输出结果
 2. **无风险不输出**：如果未发现确切漏洞，保持静默不输出任何检测结果
@@ -43,15 +36,21 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 
 ## 重点检测项
 发现以下至少一项确凿证据才可报告：
-1. 弱密码/硬编码凭证：发现明文密码、APIKEY、可预测的凭证生成逻辑，对于项目中配置的默认密码不报告
-2. 未加密的令牌传输：检测到HTTP明文传输认证令牌的代码,此类严重等级为low
-3. OAuth缺陷：存在错误的redirect_uri验证或state参数缺失
-4. 缺失身份验证检查：关键接口缺少必要的auth验证中间件
-5. JWT问题：存在不安全的签名验证或过长的有效期设置
-6. 会话管理缺陷：发现会话固定、CSRF防护缺失等问题
+- 弱密码/硬编码凭证：发现明文密码、APIKEY、可预测的凭证生成逻辑，但是对于项目中配置的默认密码不报告
+- OAuth缺陷：存在错误的redirect_uri验证或state参数缺失
+- 缺失身份验证检查：关键接口缺少必要的auth验证中间件
+- JWT问题：存在不安全的签名验证绕过、jwt token泄露、jwt token重放等
+- 会话管理缺陷：发现会话固定、CSRF防护缺失等问题
 
 ## 输出
 漏洞描述给出证据:文件位置、代码片段、技术分析(专业术语说明漏洞原理及潜在影响)
+
+## 输入
+源代码文件夹路径:%s
+目录详情:
+------
+%s
+------
 `
 
 // Check 执行检测
@@ -63,7 +62,7 @@ func (p *AuthBypassPlugin) Check(ctx context.Context, config *McpPluginConfig) (
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(authBypassAIPrompt, config.CodePath, dirPrompt),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Warningln("")

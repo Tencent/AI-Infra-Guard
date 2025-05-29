@@ -390,7 +390,7 @@ func (p *CmdInjectionPlugin) aiAnalysis(ctx context.Context, issues []Issue, con
 
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(cmdInjectionAIPrompt, sb.String(), config.CodePath),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 
 	_, err := agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {

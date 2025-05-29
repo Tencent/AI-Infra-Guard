@@ -99,8 +99,6 @@ func readFile(path string) (string, error) {
 // AI提示词模板
 const credentialTheftAIPrompt = `
 你是一个专业的网络安全分析助手，需要严格分析给定的源代码目录结构，检测可能存在的敏感凭证泄露。你的分析必须基于专业知识和确凿证据，**绝对禁止任何猜测性或不确定的输出**。
-MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入输出。如果项目只支持STDIO，会由于利用门槛较高，将漏洞标记为低风险。
-
 ## 输入数据
 源代码文件夹路径:%s
 目录详情:
@@ -111,13 +109,12 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 %s
 ## 检测目标
 识别MCP代码中可能导致敏感凭证泄露的代码模式，包括但不限于：
-- 用户可以通过在线接口获取敏感环境变量
-- 用户可能通过在线接口获取API密钥、SSH密钥、身份验证令牌、AK/SK或其他敏感凭证
+- 用户可通过在线接口获取API密钥、SSH密钥、身份验证令牌、AK/SK或其他敏感凭证
 - 源代码中的硬编码key
 
 特别关注以下内容：
 1. 是否引导读取敏感文件，如 ~/.cursor/mcp.json、.env、config 文件等
-2. 是否引导读取环境变量，尤其是包含 API_KEY、TOKEN、PASSWORD 等敏感信息的变量
+2. 是否引导读取环境变量，尤其是包含 API_KEY、TOKEN、PASSWORD 等敏感信息的变量,此类变量的值能通过在线接口获取
 3. 是否要求将读取到的凭证信息返回或发送至其他位置
 
 ## 输出规则
@@ -168,7 +165,7 @@ func (p *CredentialTheftPlugin) Check(ctx context.Context, config *McpPluginConf
 	// 使用AI进行深度检测
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(credentialTheftAIPrompt, config.CodePath, dirPrompt, maybePrompt),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Warningln("")

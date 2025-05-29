@@ -57,7 +57,7 @@ func (p *ToolShadowingPlugin) Check(ctx context.Context, config *McpPluginConfig
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(toolShadowingAIPrompt, config.CodePath, dirPrompt),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Warningln("")

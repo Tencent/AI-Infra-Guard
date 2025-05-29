@@ -32,20 +32,19 @@ func (p *VulnReview) GetPlugin() Plugin {
 func (p *VulnReview) Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error) {
 	// AI提示词模板
 	const prompt = `
-【角色】您是企业级代码安全专家，负责对漏洞报告进行专业复查和增强处理
+【角色】您是企业级代码安全专家，负责对漏洞报告进行专业复查和增强处理,你的分析必须基于专业知识和确凿证据，**绝对禁止任何猜测性或不确定的输出**。
 【任务】请严格按以下流程处理输入的漏洞数据：
 1. 重复性核查 
    • 对比所有<result>条目内容
    • 通过匹配代码路径/漏洞类型/漏洞详情特征识别重复项
    • 保留最完整的条目，合并相似报告的补充信息
 2. 漏洞误报核查
-	1. 要拥有证据链的真实漏洞，属于'安全风险'应降低风险到low,危害(影响操作系统或主要业务逻辑)不大的则属于漏洞误报，不要报告
-	2. 每个result要真实危害到系统、用户，没有危害属于代码风格类、用户体验类属于漏洞误报不要报告
-	3. 敏感环境变量暴露需找到url路由调用，若无路由接口调用则属于误报，不要报告
+	1. 识别漏洞是否真实存在,需识别到用户可控点(source)和触发点(sink)
+	2. 绝对禁止任何猜测性的漏洞报告
 	4. 未授权访问需发现严重问题或功能上高危问题,若无以上问题则不要报告
-	5. 通过环境变量加载敏感信息，属于正常功能，不报告
+	5. 通过环境变量加载敏感信息，除非发现可通过在线接口暴露，否则属于正常功能，不报告
 	6. 对于敏感变量硬编码,若为占位符或demo举例，不报告
-	7. MCP程序区分SSE、Stream与STDIO的区别，STDIO是标准输入输出，SSE/Stream是网络流式输入输出。识别项目的支持方式,如果项目只支持STDIO，不报告
+	7. MCP程序区分SSE、Stream与STDIO的区别，STDIO是标准输入输出，SSE/Stream是网络流式输入输出。识别项目的支持方式,如果项目只支持STDIO，漏洞影响较小,不报告
 3. 技术细节增强
    • 检查<desc>字段完整性：
    1.精确的代码路径定位(文件路径+行号范围)
@@ -57,8 +56,11 @@ func (p *VulnReview) Check(ctx context.Context, config *McpPluginConfig) ([]Issu
    ② 污点传播路径图示（用graphviz语法描述）
    • 污点分析中检查外部用户是否可控输入,若不可控则降低漏洞等级或不报告
 4. 风险等级校准
-   • 根据CVSS v3.1标准重新评估<level>
-   • 结合OWASP TOP 10分类验证<risk_type>
+   • 根据漏洞影响范围和修复成本，评估漏洞等级，critical/high/medium/low
+	- critical: 严重漏洞,能够获取服务器权限,命令注入
+	- high: 高危漏洞,SQL注入、凭证盗窃检测、硬编码可造成敏感信息泄漏、rug_pull、工具投毒攻击
+	- medium: 中危漏洞,身份验证绕过、提示词注入
+	- low: 低危漏洞,影响范围小其他漏洞
    • 特殊场景识别：
     1. 涉及身份验证前置条件的降权处理
     2. 暴露在公网的Service自动提级
@@ -96,7 +98,7 @@ func (p *VulnReview) Check(ctx context.Context, config *McpPluginConfig) ([]Issu
 	var issues []Issue
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(prompt, config.CodePath, p.origin),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 	_, err := agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Warningln("")

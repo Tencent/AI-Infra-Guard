@@ -71,7 +71,7 @@ func (p *ResourcePoisoningPlugin) Check(ctx context.Context, config *McpPluginCo
 	// 使用AI分析潜在的资源投毒风险
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(resourcePoisoningAIPrompt, config.CodePath, dirPrompt),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {

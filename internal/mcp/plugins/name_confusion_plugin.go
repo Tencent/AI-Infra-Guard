@@ -81,7 +81,7 @@ func (p *NameConfusionPlugin) Check(ctx context.Context, config *McpPluginConfig
 		// 使用大模型进行名称混淆分析
 		agent := utils.NewAutoGPT([]string{
 			fmt.Sprintf(nameConfusionAIPrompt, toolsInfo.String(), config.CodePath),
-		}, config.Language)
+		}, config.Language, config.CodePath)
 
 		_, err := agent.Run(ctx, config.AIModel, config.Logger)
 		if err != nil {

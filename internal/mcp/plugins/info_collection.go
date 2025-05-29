@@ -35,6 +35,7 @@ MCP区分SSE与STDIO的区别，STDIO是标准输入输出，SSE是流式输入�
 	- 标记非常规依赖（如自定义SDK）
 - 接口
 	- 识别http端点和其功能
+	- 识别权限校验过程
 - 从功能角度出发,列举需重点关注文件以及功能和业务逻辑
 - 文档解析优先
 	- 扫描所有.md/.rst文件，提取项目定位、核心功能、架构图信息
@@ -62,6 +63,7 @@ const summaryCollectionPrompt = `
   - 核心业务逻辑文件
   - 权限控制相关代码
   - 第三方服务集成点
+  - 权限校验关系
 - 提取项目定位、核心功能、架构图信息
 - 通过提供的代码目录分析,识别每个目录的功能和业务逻辑，返回新的目录树并标注
 
@@ -79,7 +81,7 @@ func (p *CollectionInfoPlugin) Check(ctx context.Context, config *McpPluginConfi
 	}
 	agent := utils.NewAutoGPT([]string{
 		fmt.Sprintf(CollectionInfoPluginPrompt, config.CodePath, dirPrompt),
-	}, config.Language)
+	}, config.Language, config.CodePath)
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Warningln("")

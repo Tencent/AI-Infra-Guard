@@ -3,8 +3,10 @@ package utils
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -23,6 +25,7 @@ type AutoGPT struct {
 	FileReaderState  map[string]*FileReaderState // 文件读取状态
 	history          []map[string]string
 	language         string
+	folder           string
 }
 
 // FileReaderState 保存文件读取的状态
@@ -34,7 +37,7 @@ type FileReaderState struct {
 }
 
 // NewAutoGPT 创建一个新的AutoGPT实例
-func NewAutoGPT(goals []string, language string) *AutoGPT {
+func NewAutoGPT(goals []string, language string, folder string) *AutoGPT {
 	return &AutoGPT{
 		Goals:            goals,
 		AutoSure:         false,
@@ -43,6 +46,7 @@ func NewAutoGPT(goals []string, language string) *AutoGPT {
 		MaxFileReadBytes: 20 * 1024, // 默认每次读取10KB
 		FileReaderState:  make(map[string]*FileReaderState),
 		language:         language,
+		folder:           folder,
 	}
 }
 
@@ -466,6 +470,11 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 		var userPrompt string
 		switch command.Name {
 		case "list_dir":
+			err := a.inFolder(command.Arg1)
+			if err != nil {
+				userPrompt = err.Error()
+				break
+			}
 			data, err := ListDir(command.Arg1, 1)
 			if err != nil {
 				userPrompt = fmt.Sprintf("读取目录失败: %v", err)
@@ -473,6 +482,11 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 				userPrompt = fmt.Sprintf("读取目录完成，dir:%s\ndir tree:\n%s\n", command.Arg1, data)
 			}
 		case "read_file":
+			err := a.inFolder(command.Arg1)
+			if err != nil {
+				userPrompt = err.Error()
+				break
+			}
 			// 获取文件信息
 			fileInfo, err := os.Stat(command.Arg1)
 			if err != nil {
@@ -558,7 +572,11 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 				if len(args) > 2 {
 					fmt.Sscanf(args[2], "%d", &contextLines)
 				}
-
+				err := a.inFolder(command.Arg1)
+				if err != nil {
+					userPrompt = err.Error()
+					break
+				}
 				// 执行grep
 				results, err := a.Grep(path, pattern, contextLines)
 				if err != nil {
@@ -606,4 +624,15 @@ func (a *AutoGPT) grepFile(filename string, re *regexp.Regexp, contextLines int)
 func (a *AutoGPT) grepDirectory(dirPath string, re *regexp.Regexp, contextLines int, results *[]string) error {
 	// 使用新的多模式搜索函数
 	return a.grepDirectoryMulti(dirPath, []*regexp.Regexp{re}, contextLines, results)
+}
+
+func (a *AutoGPT) inFolder(arg1 string) error {
+	folder, err := filepath.Abs(arg1)
+	if err != nil {
+		return errors.New(fmt.Sprintf("读取目录失败: %v", err))
+	}
+	if !strings.HasPrefix(folder, a.folder) {
+		return errors.New(fmt.Sprintf("读取目录失败: %s 不在当前目录下", folder))
+	}
+	return nil
 }
