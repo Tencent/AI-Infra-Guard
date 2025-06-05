@@ -10,7 +10,7 @@ info:
     1. 升级到open-webui >= 0.4.7
     2. 对多部分边界实施输入验证以防止过长输入
     3. 监控服务器日志以发现可能表明DoS尝试的不寻常活动
-rule: 版本 < "0.4.7"
+rule: version < "0.4.7"
 references:
   - https://github.com/Kludex/python-multipart/security/advisories/GHSA-59g5-xgcq-4qw3
   - https://nvd.nist.gov/vuln/detail/CVE-2024-53981

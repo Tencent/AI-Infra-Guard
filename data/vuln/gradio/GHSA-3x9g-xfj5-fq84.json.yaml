@@ -10,7 +10,7 @@ info:
     1. 升级到gradio >= 4.19.2以应用修复。
     2. 在您的Gradio应用程序中审查并执行严格的CORS策略。
     3. 升级后监控任何可疑的文件上传活动。
-rule: 版本 >= "0" && 版本 < "4.19.2"
+rule: version >= "0" && version < "4.19.2"
 references:
   - https://nvd.nist.gov/vuln/detail/CVE-2024-1727
   - https://github.com/gradio-app/gradio/pull/7503
