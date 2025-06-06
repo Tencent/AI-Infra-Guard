@@ -119,7 +119,7 @@ var mcpCmd = &cobra.Command{
 
 		// 执行扫描
 		gologger.Infof("开始扫描...")
-		results, err := scanner.Scan(ctx)
+		results, err := scanner.Scan(ctx, false)
 		if err != nil {
 			gologger.Fatalf("扫描失败: %v", err)
 		}

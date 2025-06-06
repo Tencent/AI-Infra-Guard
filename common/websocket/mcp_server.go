@@ -274,7 +274,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	scanner.SetLanguage(req.Language)
 	scanner.SetCallback(processFunc)
 	scanner.InputCodePath(req.Path)
-	_, err := scanner.Scan(ctx)
+	_, err := scanner.Scan(ctx, false)
 	if err != nil {
 		gologger.Errorf("扫描失败: %v\n", err)
 		writer2.Flush()
