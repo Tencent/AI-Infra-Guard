@@ -1,4 +1,4 @@
-# 🛡️ AI Infra Guard
+# 🛡️ A.I.G（AI-Infra-Guard）
 [中文版](./README_CN.md)  
 
 A comprehensive, intelligent, easy-to-use, and lightweight AI Infrastructure Vulnerability Assessment and MCP Server Security Analysis Tool, developed by Tencent Zhuque Lab.

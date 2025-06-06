@@ -1,4 +1,4 @@
-# 🛡️ AI Infra Guard
+# 🛡️ A.I.G（AI-Infra-Guard）
 
 腾讯朱雀实验室推出的一款全面、智能、易用且轻量化的AI基础设施漏洞发现与MCP Server安全风险扫描工具。
 
