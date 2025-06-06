@@ -145,10 +145,10 @@ type ScannerIssue struct {
 	plugins.Issue
 }
 
-func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
+func (s *Scanner) Scan(ctx context.Context, parallel bool) ([]ScannerIssue, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	result := make([]ScannerIssue, 0)
+	results := make([]ScannerIssue, 0)
 	logger := s.logger
 
 	totalProcessing := len(s.plugins) + 2 // 信息收集和review插件
@@ -182,7 +182,9 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 	}
 
 	s.csvResult = append(s.csvResult, []string{"Scan Folder", s.codePath})
-	for _, plugin := range s.plugins {
+	lock := sync.Mutex{}
+
+	runPlugin := func(ctx context.Context, plugin plugins.McpPlugin) ([]ScannerIssue, error) {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -202,18 +204,22 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 		}
 		issues, err := plugin.Check(ctx, &config)
 		if s.callback != nil {
+			lock.Lock()
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			lock.Unlock()
 		}
 		if err != nil {
 			logger.Warningf("插件 %s 运行失败: %v", pluginInfo.Name, err)
-			continue
 		}
 		logger.Infof("插件 %s 运行成功", pluginInfo.Name)
 		logger.Infof("共发现 %d 个问题", len(issues))
 		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", pluginInfo.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
+		lock.Lock()
 		s.csvResult = append(s.csvResult, []string{"PluginId", pluginInfo.ID, "PluginName", pluginInfo.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
+		lock.Unlock()
 		// 转换插件结果
+		var result []ScannerIssue
 		for _, res := range issues {
 			res2 := res
 			r := ScannerIssue{
@@ -221,11 +227,39 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 				Issue:    res2,
 			}
 			if s.callback != nil {
+				lock.Lock()
 				s.callback(r)
+				lock.Unlock()
 			}
 			result = append(result, r)
 		}
+		return result, nil
 	}
+	wg := sync.WaitGroup{}
+	for _, plugin := range s.plugins {
+		if parallel {
+			wg.Add(1)
+			go func(plugin plugins.McpPlugin) {
+				defer wg.Done()
+				result, err := runPlugin(ctx, plugin)
+				if err != nil {
+					gologger.WithError(err).Errorln("插件运行失败")
+				}
+				lock.Lock()
+				results = append(results, result...)
+				lock.Unlock()
+			}(plugin)
+		} else {
+			result, err := runPlugin(ctx, plugin)
+			if err != nil {
+				gologger.WithError(err).Errorln("插件运行失败")
+			}
+			lock.Lock()
+			results = append(results, result...)
+			lock.Unlock()
+		}
+	}
+	wg.Wait()
 	defer func() {
 		// 最后的review插件
 		if s.callback != nil {
@@ -233,11 +267,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 		}
 	}()
-	if len(result) > 0 {
+	if len(results) > 0 {
 		// vuln review
-		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(result))
+		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))
 		origin := strings.Builder{}
-		for _, res := range result {
+		for _, res := range results {
 			origin.WriteString("<result>")
 			origin.WriteString("<title>" + res.Title + "</title>")
 			origin.WriteString("<desc>" + res.Description + "</desc>")
@@ -247,7 +281,7 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 			origin.WriteString("</result>")
 			origin.WriteString("\n\n")
 		}
-		result = make([]ScannerIssue, 0)
+		results = make([]ScannerIssue, 0)
 		reviewPlugin := plugins.VulnReviewPlugin(origin.String())
 		issues, err := reviewPlugin.Check(context.Background(), &plugins.McpPluginConfig{
 			Client:      s.client,
@@ -271,11 +305,11 @@ func (s *Scanner) Scan(ctx context.Context) ([]ScannerIssue, error) {
 				if s.callback != nil {
 					s.callback(r)
 				}
-				result = append(result, r)
+				results = append(results, r)
 			}
 		}
 	}
-	return result, nil
+	return results, nil
 }
 
 func (s *Scanner) GetCsvResult() [][]string {
