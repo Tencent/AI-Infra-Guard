@@ -274,7 +274,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	scanner.SetLanguage(req.Language)
 	scanner.SetCallback(processFunc)
 	scanner.InputCodePath(req.Path)
-	_, err := scanner.Scan(ctx, false)
+	results, err := scanner.Scan(ctx, false)
 	if err != nil {
 		gologger.Errorf("扫描失败: %v\n", err)
 		writer2.Flush()
@@ -283,7 +283,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	// 确保所有日志都发送出去
 	writer2.Flush()
 	gologger.Infof("扫描完成\n")
-	s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, nil)
+	s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, results)
 }
 
 func (s *WSServer) handleMessages2(conn *websocket.Conn) {

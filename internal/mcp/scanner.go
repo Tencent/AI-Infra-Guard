@@ -7,6 +7,7 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -122,7 +123,11 @@ func (s *Scanner) InputStreamLink(ctx context.Context, link string) error {
 }
 
 func (s *Scanner) InputCodePath(codePath string) error {
-	s.codePath = codePath
+	c, err := filepath.Abs(codePath)
+	if err != nil {
+		return err
+	}
+	s.codePath = c
 	return nil
 }
 
