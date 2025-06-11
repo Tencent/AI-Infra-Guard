@@ -7,6 +7,7 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
+	"github.com/remeh/sizedwaitgroup"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -240,10 +241,10 @@ func (s *Scanner) Scan(ctx context.Context, parallel bool) ([]ScannerIssue, erro
 		}
 		return result, nil
 	}
-	wg := sync.WaitGroup{}
+	wg := sizedwaitgroup.New(5)
 	for _, plugin := range s.plugins {
 		if parallel {
-			wg.Add(1)
+			wg.Add()
 			go func(plugin plugins.McpPlugin) {
 				defer wg.Done()
 				result, err := runPlugin(ctx, plugin)

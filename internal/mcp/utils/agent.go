@@ -219,6 +219,8 @@ func (a *AutoGPT) ParseCommandParam(arg string, param interface{}) error {
 	case *GrepParam:
 		param.FilePath = a.ExtractTag(arg, "filepath")
 		param.Pattern = a.ExtractTag(arg, "regex")
+		param.Pattern = strings.Replace(param.Pattern, "&lt;", "<", -1)
+		param.Pattern = strings.Replace(param.Pattern, "&gt;", ">", -1)
 		param.Context = 3
 		contextArg := a.ExtractTag(arg, "contextline")
 		if contextArg != "" {
