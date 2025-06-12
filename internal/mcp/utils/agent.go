@@ -71,7 +71,7 @@ You have access to the following tools. Use them precisely when needed:
 You have access to the following tools. Use them precisely when needed:
 
 1.  Command: read_file
-       Purpose: Read the content of a file. IMPORTANT: Due to resource limitations, this tool may only return a PARTIAL file segment (i.e., specific line range). You will be informed of the total number of lines and the current read line range. You MUST evaluate if further reads are needed to complete the task and issue subsequent read_file commands accordingly.
+       Purpose: Read the content of a file. IMPORTANT: Due to resource limitations, this tool may only return a PARTIAL file segment (i.e., specific line range). You will be informed of the total number of lines and the current read line range. You MUST evaluate if further reads are needed to complete the task and issue subsequent read_file commands accordingly.Determine the file size. If it is less than 5KB, the entire file can be read. If reading line by line, it is recommended to read 200 lines.
        Parameters:
            filepath (string, required): Absolute path to the file.
            startline (integer, optional): Starting line number (0-indexed). Default is 0.
@@ -82,7 +82,7 @@ You have access to the following tools. Use them precisely when needed:
        Parameters:
            filepath (string, required): Absolute path to the directory.
            depth (integer, optional): Recursion depth. 1 lists only immediate children, -1 lists all recursively. Default is 3.
-           exts (string, optional): Only retrieve specified suffixes, separate multiple ones with commas, e.g.: .txt,.md,leave empty for no suffix restrictions,default is empty.
+           exts (string, optional): Only retrieve specified suffixes, separate multiple ones with commas, e.g.: .txt,.md,leave empty for no suffix restrictions,default is empty.Unless you want to get a specific file, it is recommended to leave it blank to read all files.
 
 3.  Command: grep
        Purpose: Search file(s) for lines matching a regular expression pattern. Can search a single file or all files in a directory recursively. Outputs matching lines with surrounding context.
@@ -95,17 +95,22 @@ You have access to the following tools. Use them precisely when needed:
        Purpose: Signal task completion. Call this command ONLY when you are certain that the user's GOALS have been fully and perfectly executed. This command terminates the process.
        Parameters: None.
 
-
-4.  Command: finish
-       Purpose: Signal task completion. Call this command ONLY when you are certain that the user's GOALS have been fully and perfectly executed. This command terminates the process.
-       Parameters: None.
-
 Command Format:
 <command>
 <name>command name</name>
 <arg>
-	<parameters1>parameter content</parameters1>
-	<parameters2>parameter content</parameters2>
+	<parameters name>parameter content</parameters name>
+	<parameters name>parameter content</parameters name>
+</arg>
+</command>
+
+For example:
+<command>
+<name>read_file</name>
+<arg>
+	<filepath>/path/to/file.txt</filepath>
+	<startline>1</startline>
+	<endline>10</endline>
 </arg>
 </command>
 
@@ -188,6 +193,9 @@ func (a *AutoGPT) ParseCommandParam(arg string, param interface{}) error {
 	switch param := param.(type) {
 	case *ReadFileParam:
 		param.FilePath = a.ExtractTag(arg, "filepath")
+		if param.FilePath == "" {
+			return errors.New("filepath参数未找到，请按照command格式重新输出")
+		}
 		param.StartLine = 0
 		param.EndLine = 0
 		startarg := a.ExtractTag(arg, "startline")
@@ -206,6 +214,9 @@ func (a *AutoGPT) ParseCommandParam(arg string, param interface{}) error {
 		}
 	case *ListDirParam:
 		param.FilePath = a.ExtractTag(arg, "filepath")
+		if param.FilePath == "" {
+			return errors.New("filepath参数未找到，请按照command格式重新输出")
+		}
 		param.Depth = 3
 		param.Exts = a.ExtractTag(arg, "exts")
 		depthArg := a.ExtractTag(arg, "depth")
@@ -218,6 +229,9 @@ func (a *AutoGPT) ParseCommandParam(arg string, param interface{}) error {
 		}
 	case *GrepParam:
 		param.FilePath = a.ExtractTag(arg, "filepath")
+		if param.FilePath == "" {
+			return errors.New("filepath参数未找到，请按照command格式重新输出")
+		}
 		param.Pattern = a.ExtractTag(arg, "regex")
 		param.Pattern = strings.Replace(param.Pattern, "&lt;", "<", -1)
 		param.Pattern = strings.Replace(param.Pattern, "&gt;", ">", -1)

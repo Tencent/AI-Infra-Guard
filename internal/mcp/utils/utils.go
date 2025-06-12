@@ -75,6 +75,19 @@ func ListDir(dir string, maxLevel int, exts string) (string, error) {
 	return builder.String(), nil
 }
 
+// formatFileSize 格式化文件大小，返回带单位的字符串
+func formatFileSize(size int64) string {
+	if size < 1024 {
+		return fmt.Sprintf("%dB", size)
+	} else if size < 1024*1024 {
+		return fmt.Sprintf("%.1fKB", float64(size)/1024)
+	} else if size < 1024*1024*1024 {
+		return fmt.Sprintf("%.1fMB", float64(size)/(1024*1024))
+	} else {
+		return fmt.Sprintf("%.1fGB", float64(size)/(1024*1024*1024))
+	}
+}
+
 func listDirRecursive(dir string, depth int, builder *strings.Builder, hasLast []bool, maxLevel int, exts []string) error {
 	if maxLevel > 0 && depth >= maxLevel {
 		return nil
@@ -129,8 +142,17 @@ func listDirRecursive(dir string, depth int, builder *strings.Builder, hasLast [
 			builder.WriteString("├── ")
 		}
 
-		// 添加条目名称和类型和权限
-		builder.WriteString(fmt.Sprintf("%s (%s)\n", entry.Name(), getSimpleType(dir, entry)))
+		// 添加条目名称和类型和权限以及文件大小
+		var sizeInfo string
+		if !entry.IsDir() {
+			// 获取文件信息
+			entryPath := filepath.Join(dir, entry.Name())
+			if fileInfo, err := os.Stat(entryPath); err == nil {
+				sizeInfo = fmt.Sprintf(" [%s]", formatFileSize(fileInfo.Size()))
+			}
+		}
+		builder.WriteString(fmt.Sprintf("%s (%s)%s\n", entry.Name(), getSimpleType(dir, entry), sizeInfo))
+
 		// 递归处理子目录（不超过最大深度时）
 		if entry.IsDir() && (maxLevel <= 0 || depth < maxLevel) {
 			newHasLast := append(hasLast, isLastEntry)
