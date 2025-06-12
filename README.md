@@ -33,7 +33,7 @@ https://doc.weixin.qq.com/forms/AJEAIQdfAAoAbUAxgbhAIQCNfZu1TQeRf
 
 **MCP Server Code Analysis**
 <br>
-<img src="img/mcp-en.png" alt="MCP Server Code Detection Preview" height="400">
+<img src="img/mcp-en.png" alt="MCP Server Code Detection Preview" height="600">
 <br>
 
 **Infrastructure Vulnerability Scanning**
