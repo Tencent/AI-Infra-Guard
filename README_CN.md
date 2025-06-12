@@ -32,12 +32,12 @@ https://doc.weixin.qq.com/forms/AJEAIQdfAAoAbUAxgbhAIQCNfZu1TQeRf
 
 **MCP Server代码检测**
 <br>
-<img src="img/mcp.png" alt="MCP Server 代码检测预览" height="400">
+<img src="img/mcp-zh.png" alt="MCP Server 代码检测预览" height="400">
 <br>
 
 **基础设施检测**
 <br>
-<img src="img/scan.png" alt="基础设施检测预览" height="600">
+<img src="img/mcp-zh.png" alt="基础设施检测预览" height="600">
 <br>
 
 ## ✨ 项目亮点

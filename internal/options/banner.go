@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-const version = "v2.4.1-dev"
+const version = "v2.5-dev"
 
 // ShowBanner is used to show the banner to the user
 func ShowBanner() {

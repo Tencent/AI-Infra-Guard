@@ -33,12 +33,12 @@ https://doc.weixin.qq.com/forms/AJEAIQdfAAoAbUAxgbhAIQCNfZu1TQeRf
 
 **MCP Server Code Analysis**
 <br>
-<img src="img/mcp.png" alt="MCP Server Code Detection Preview" height="400">
+<img src="img/mcp-en.png" alt="MCP Server Code Detection Preview" height="400">
 <br>
 
 **Infrastructure Vulnerability Scanning**
 <br>
-<img src="img/scan.png" alt="Infrastructure Detection Preview" height="600">
+<img src="img/scan-en.png" alt="Infrastructure Detection Preview" height="600">
 <br>
 
 ## ✨ Project Highlights
