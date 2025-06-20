@@ -2,93 +2,164 @@ package websocket
 
 import (
 	"embed"
-	"encoding/json"
-	"github.com/Tencent/AI-Infra-Guard/common/runner"
+	"mime"
+	"path/filepath"
+
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/options"
-	"mime"
-	"net/http"
-	"path/filepath"
-	"strings"
+	"github.com/Tencent/AI-Infra-Guard/pkg/database"
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed static/*
 var staticFS embed.FS
 
 func RunWebServer(options *options.Options) {
-	// 创建WebSocket服务器
+	r := gin.Default()
 	wsServer := NewWSServer(options)
-	// 设置WebSocket路由
-	http.HandleFunc("/ws", wsServer.HandleAIInfraWS)
-	// 展示漏洞列表
-	http.HandleFunc("/show", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		ops := options
-		ops.ListVulTemplate = true
-		instance, err := runner.New(ops) // 创建runner
-		if err != nil {
-			ret := Response{
-				Status:  1,
-				Message: err.Error(),
-				Data:    nil,
+
+	// 1. 初始化数据库和AgentStore
+	dbConfig := database.NewConfig("db/tasks.db") // 推荐单独目录
+	db, err := database.InitDB(dbConfig)
+	if err != nil {
+		gologger.Fatalf("数据库初始化失败: %v", err)
+	}
+	taskStore := database.NewTaskStore(db)
+	if err := taskStore.Init(); err != nil {
+		gologger.Fatalf("初始化agent表失败: %v", err)
+	}
+
+	// 初始化AgentManager
+	agentManager := NewAgentManager()
+	taskManager := NewTaskManager(agentManager, taskStore)
+
+	// 将 TaskManager 注入到 AgentManager
+	agentManager.SetTaskManager(taskManager)
+
+	// API 版本分组
+	v1 := r.Group("/api/v1")
+	{
+		// 1. 知识库模块
+		knowledge := v1.Group("/knowledge")
+		{
+			// 对抗样本库
+			knowledge.Group("/samples")
+
+			// AI应用指纹
+			fingerprints := knowledge.Group("/fingerprints")
+			{
+				// 管理功能
+				fingerprints.GET("", HandleListFingerprints)
+				fingerprints.POST("", HandleCreateFingerprint)
+				fingerprints.PUT("/:name", HandleEditFingerprint)
+				fingerprints.DELETE("", HandleDeleteFingerprint)
 			}
-			resp, err := json.Marshal(&ret)
-			if err != nil {
-				gologger.Errorln(err)
+
+			// 漏洞库
+			vulnerabilities := knowledge.Group("/vulnerabilities")
+			{
+				// 管理功能
+				vulnerabilities.GET("", HandleListVulnerabilities(options))
+				vulnerabilities.POST("", HandleCreateVulnerability(options))
+				vulnerabilities.PUT("/:cve", HandleEditVulnerability)
+				vulnerabilities.DELETE("", HandleBatchDeleteVulnerabilities)
 			}
-			w.Write(resp)
-			return
 		}
-		defer instance.Close() // 关闭runner
-		ret := Response{
-			Status:  0,
-			Message: "success",
-			Data:    instance.GetFpAndVulList(),
+
+		// 2. 模型安全中心
+		modelSecurity := v1.Group("/model-security")
+		{
+			// 任务管理
+			modelSecurity.Group("/tasks")
+
+			// WebSocket 连接 (原有 /ws 接口迁移)
+			modelSecurity.GET("/ws", func(c *gin.Context) {
+				wsServer.HandleAIInfraWS(c.Writer, c.Request)
+			})
 		}
-		resp, err := json.Marshal(&ret)
-		if err != nil {
-			gologger.Errorln(err)
+
+		// 3. AI应用安全中心
+		appSecurity := v1.Group("/app-security")
+		{
+			// 任务管理
+			tasks := appSecurity.Group("/tasks")
+			{
+				// SSE接口
+				tasks.GET("/sse", func(c *gin.Context) {
+					HandleTaskSSE(c, taskManager)
+				})
+				// 新建任务接口
+				tasks.POST("", func(c *gin.Context) {
+					HandleTaskCreate(c, taskManager)
+				})
+				// 文件上传接口
+				tasks.POST("/uploadFile", func(c *gin.Context) {
+					HandleUploadFile(c, taskManager)
+				})
+				// 更新任务信息接口
+				tasks.PUT("/:sessionId", func(c *gin.Context) {
+					HandleUpdateTask(c, taskManager)
+				})
+				// 删除任务接口
+				tasks.DELETE("/:sessionId", func(c *gin.Context) {
+					HandleDeleteTask(c, taskManager)
+				})
+				// 终止任务接口
+				tasks.POST("/:sessionId/terminate", func(c *gin.Context) {
+					HandleTerminateTask(c, taskManager)
+				})
+			}
 		}
-		w.Write(resp)
-		return
+
+		// 4. Agent 管理
+		agents := v1.Group("/agents")
+		{
+			// 只需要WebSocket入口
+			agents.GET("/ws", agentManager.HandleAgentWebSocket())
+		}
+	}
+
+	// 保持原有路由的兼容性（重定向到新路由）
+	r.GET("/show", func(c *gin.Context) {
+		c.Redirect(301, "/api/v1/knowledge/vulnerabilities")
 	})
-	// mcp
-	http.HandleFunc("/mcp/plugins", mcpPlugins)
-	http.HandleFunc("/mcp_ws", wsServer.HandleMcpWS)
-	// 处理静态文件请求
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		assetPath := "static" + r.RequestURI
-		if strings.Contains(r.RequestURI, "..") {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
+	r.GET("/ws", func(c *gin.Context) {
+		c.Redirect(301, "/api/v1/model-security/ws")
+	})
+	r.GET("/mcp/plugins", func(c *gin.Context) {
+		c.Redirect(301, "/api/v1/app-security/mcp/plugins")
+	})
+	r.GET("/mcp_ws", func(c *gin.Context) {
+		c.Redirect(301, "/api/v1/app-security/mcp/ws")
+	})
+
+	// 静态文件处理
+	r.NoRoute(func(c *gin.Context) {
+		assetPath := "static" + c.Request.URL.Path
+		if c.Request.URL.Path == "/" {
+			assetPath = "static/index.html"
 		}
+
 		assetData, err := staticFS.ReadFile(assetPath)
 		if err != nil {
-			// 如果请求的文件不存在，返回index.html
-			var readErr error
-			assetPath = "static/index.html"
-			assetData, readErr = staticFS.ReadFile("static/index.html")
-			if readErr != nil {
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			assetData, err = staticFS.ReadFile("static/index.html")
+			if err != nil {
+				c.String(500, "Internal Server Error")
 				return
 			}
 		}
 
-		// 设置MIME类型，如果无法确定则默认为text/plain
 		mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
 		if mimeType == "" {
 			mimeType = "text/plain"
 		}
-		w.Header().Set("Content-Type", mimeType)
-
-		// 写入响应内容
-		if _, err := w.Write(assetData); err != nil {
-			gologger.Errorln("Error writing response:", err)
-		}
+		c.Header("Content-Type", mimeType)
+		c.Data(200, mimeType, assetData)
 	})
-	// 启动HTTP服务器
+
+	// 启动服务器
 	gologger.Infof("Starting WebServer on http://%s\n", options.WebServerAddr)
-	if err := http.ListenAndServe(options.WebServerAddr, nil); err != nil {
+	if err := r.Run(options.WebServerAddr); err != nil {
 		gologger.Fatalf("Could not start WebSocket server: %s\n", err)
 	}
 }
