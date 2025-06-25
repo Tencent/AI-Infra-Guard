@@ -3,6 +3,8 @@ info:
   name: "Vulnerability Review Plugin"
   description: "Review and validate existing vulnerability reports"
   author: "Zhuque Security Team"
+  categories:
+    - review
 
 prompt_template: |
   As a professional enterprise-level code security expert, you need to conduct strict review and quality control of vulnerability reports. This review requires zero false positive tolerance - only vulnerabilities confirmed to pose real threats can pass the audit.
@@ -112,10 +114,12 @@ prompt_template: |
 
   ## Original Vulnerability Report Analysis
   Original vulnerability reports for review:
-  {{original_reports}}
+  {{.OriginalReports}}
 
   ## Input Data
-  Code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  {{end}}
 
   ## Output Requirements
   Only output rigorously verified real vulnerabilities:

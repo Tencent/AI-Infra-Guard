@@ -3,6 +3,9 @@ info:
   name: "Tool Poisoning Attack Detection"
   description: "Detect tool poisoning attacks in MCP code"
   author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
 
 prompt_template: |
   As a professional MCP security analyst, you need to precisely detect Tool Poisoning attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of malicious tool manipulation.
@@ -57,11 +60,21 @@ prompt_template: |
   - Inconsistent version or authorship information
 
   ## Input Data
-  Source code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+
 
   ## Output Requirements
   Only report confirmed tool poisoning attacks with:

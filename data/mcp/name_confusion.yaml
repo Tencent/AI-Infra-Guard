@@ -3,6 +3,8 @@ info:
   name: "Name Confusion Attack Detection"
   description: "Detect name confusion and typosquatting attacks in MCP tools"
   author: "Zhuque Security Team"
+  categories:
+    - dynamic
 
 prompt_template: |
   As a professional MCP security analyst, you need to precisely detect Name Confusion attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of intentional impersonation or deceptive naming patterns.
@@ -34,11 +36,19 @@ prompt_template: |
   - Backdoor or trojan horse functionality
 
   ## Input Data
-  Source code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
 
   ## Output Requirements
   Only report confirmed name confusion attacks with:

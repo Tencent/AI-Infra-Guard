@@ -3,17 +3,8 @@ info:
   name: "Hardcoded API Key Detection"
   description: "Detect hardcoded API keys or sensitive credentials in MCP code"
   author: "Zhuque Security Team"
-
-rules:
-  - name: "API Key Pattern"
-    pattern: '\b(AKIA[A-Za-z0-9]{16}|GOOG[\w\W]{10,30}|AZ[A-Za-z0-9]{34,40}|IBM[A-Za-z0-9]{10,40}|OCID[A-Za-z0-9]{10,40}|LTAI[A-Za-z0-9]{12,20}|AKID[A-Za-z0-9]{13,20}|QCS[\w\W]{10,30}|SLS[\w\W]{10,30}|S3[A-Za-z0-9]{12,20}|AK[A-Za-z0-9]{10,40}|
-    description: "API key pattern"
-  - name: "API Key Variable Pattern"
-    pattern: '\b(api_?key|app_?key|secret|token|password|credential|auth|access_?key|client_?secret)\s*=\s*([\'""])(?!\$\{)([^\'""]+)([\'""])'
-    description: "API key variable pattern"
-  - name: "Sensitive File Pattern"
-    pattern: '(\.env|config\.(ini|json|yml)|secrets|credentials|\.key|\.pem|\.ppk)'
-    description: "Sensitive file pattern"
+  categories:
+    - code
 
 prompt_template: |
   As a professional cybersecurity analyst, you need to analyze the hardcoded API key detection results and determine if they represent actual security vulnerabilities.
@@ -103,13 +94,13 @@ prompt_template: |
   - Integration test fixtures
   - Development environment configurations
   - Example code in documentation
-
-  ## Static Analysis Results
-  The following potential hardcoded credentials were detected:
-  {{detection_results}}
-
+  
   ## Input Data
-  Source code path: {{code_path}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
   
   ## Output Requirements
   For each confirmed hardcoded credential vulnerability:

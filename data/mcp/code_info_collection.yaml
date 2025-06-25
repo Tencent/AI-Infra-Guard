@@ -1,14 +1,16 @@
 info:
-  id: "info_collection"
+  id: "code_info_collection"
   name: "Information Collection Plugin"
   description: "Initialize information collection and attack surface analysis"
   author: "Zhuque Security Team"
+  categories:
+    - code_info_collection
 
 prompt_template: |
   As a professional MCP security analysis expert, you need to conduct comprehensive security information collection and analysis of the target MCP project. This phase provides foundational information support for subsequent security detection.
 
   ## Analysis Objectives
-  Conduct systematic information collection on MCP project "{{code_path}}" to provide accurate project background and technical architecture information for subsequent security plugins.
+  Conduct systematic information collection on MCP project "{{ .CodePath}}" to provide accurate project background and technical architecture information for subsequent security plugins.
 
   ## MCP Protocol Foundation
   MCP (Model Context Protocol) is a standardized protocol connecting AI models with data sources/tools, similar to the USB-C interface for AI applications.
@@ -121,10 +123,12 @@ prompt_template: |
   - Audit and logging
 
   ## Input Data
-  Code directory:
+  Source code path: {{ .CodePath }}
+  Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
+
 
   ## Output Requirements
   Generate a detailed project information collection report to provide accurate technical background and risk assessment foundation for subsequent security detection. The report should include complete technical architecture analysis, functional module inventory, and security concern identification.

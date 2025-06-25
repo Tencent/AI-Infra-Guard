@@ -3,6 +3,9 @@ info:
   name: "Tool Shadowing Attack Detection"
   description: "Detect possible tool shadowing vulnerabilities in MCP code"
   author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
 
 prompt_template: |
   As a professional MCP security analyst, you need to precisely detect Tool Shadowing attacks. This detection requires extremely high precision - only report when you find clear evidence of malicious shadowing behavior.
@@ -113,11 +116,20 @@ prompt_template: |
   - Data exfiltration through legitimate channels
 
   ## Input Data
-  Source code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
   Directory structure:
-  -------
-  {{directory_structure}}
-  -------
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
 
   ## Output Requirements
   Only output when finding concrete Tool Shadowing attacks:

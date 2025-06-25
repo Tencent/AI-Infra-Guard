@@ -3,6 +3,9 @@ info:
   name: "Rug Pull Attack Detection"
   description: "Detect rug pull attack patterns in MCP code"
   author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
 
 prompt_template: |
   As a professional MCP security analyst, you need to precisely detect Rug Pull attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of malicious abandonment or service termination patterns.
@@ -85,11 +88,20 @@ prompt_template: |
   - Limited user recourse options
 
   ## Input Data
-  Source code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
 
   ## Output Requirements
   Only report confirmed rug pull attack mechanisms with:

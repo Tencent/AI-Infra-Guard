@@ -3,7 +3,9 @@ info:
   name: "Indirect Prompt Injection Detection"
   description: "Detect indirect prompt injection vulnerabilities in MCP code"
   author: "Zhuque Security Team"
-
+  categories:
+    - code
+    - dynamic
 prompt_template: |
   As a professional AI security analyst, you need to precisely detect Indirect Prompt Injection vulnerabilities in MCP code. This detection requires extremely high accuracy - only report when you find concrete evidence of malicious prompt manipulation through external data sources.
 
@@ -114,12 +116,19 @@ prompt_template: |
   - Audit trails and monitoring systems
 
   ## Input Data
-  Source code path: {{code_path}}
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
-
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
   ## Output Requirements
   Only report confirmed indirect prompt injection vulnerabilities with:
   - Specific file paths and vulnerable code segments

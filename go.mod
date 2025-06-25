@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
 	github.com/logrusorgru/aurora v2.0.3+incompatible
-	github.com/mark3labs/mcp-go v0.22.0
+	github.com/mark3labs/mcp-go v0.32.0
 	github.com/openai/openai-go v0.1.0-alpha.38
 	github.com/projectdiscovery/fastdialer v0.2.9
 	github.com/projectdiscovery/fdmax v0.0.4

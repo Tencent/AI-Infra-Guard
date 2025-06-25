@@ -3,6 +3,8 @@ info:
   name: "Authentication Bypass Detection"
   description: "Detect possible authentication bypass vulnerabilities in MCP code"
   author: "Zhuque Security Team"
+  categories:
+    - code
 
 prompt_template: |
   As a professional cybersecurity analyst, you need to precisely detect authentication bypass vulnerabilities in MCP code. This detection requires extremely high accuracy - only report when you find concrete evidence of authentication bypass risks.
@@ -110,10 +112,10 @@ prompt_template: |
   - **Permission Verification Project Level Assessment**: If no permission verification exists, assess whether the project information collection indicates an important project (i.e., capable of operating local host or database operations). If the project is not important, do not report
 
   ## Input Data
-  Source code path: {{code_path}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
 
   ## Output Requirements

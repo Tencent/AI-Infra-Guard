@@ -7,13 +7,11 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/gorilla/websocket"
 )
 
@@ -106,31 +104,6 @@ func removeConnection(conn *websocket.Conn) {
 		delete(connectionManager.connections, conn)
 	}
 	connectionManager.Unlock()
-}
-
-func mcpPlugins(w http.ResponseWriter, r *http.Request) {
-	pp := []plugins.McpPlugin{
-		plugins.NewCmdInjectionPlugin(),
-		plugins.NewAuthBypassPlugin(),
-		plugins.NewNameConfusionPlugin(),
-		plugins.NewToolPoisoningPlugin(),
-		plugins.NewRugPullPlugin(),
-		plugins.NewCredentialTheftPlugin(),
-		plugins.NewHardcodedApiKeyPlugin(),
-		plugins.NewResourcePoisoningPlugin(),
-		plugins.NewToolShadowingPlugin(),
-	}
-	ret := make([]plugins.Plugin, 0)
-	for _, p := range pp {
-		info := p.GetPlugin()
-		ret = append(ret, info)
-	}
-	resp, err := json.Marshal(&ret)
-	if err != nil {
-		gologger.Errorln(err)
-	}
-	w.Write(resp)
-	return
 }
 
 type ScanMcpRequest struct {
@@ -269,12 +242,10 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	}
 	modelConfig := models.NewOpenAI(req.Model.Token, req.Model.Model, req.Model.BaseUrl)
 	scanner := mcp.NewScanner(modelConfig, logger)
-	rPlugins := strings.Split(req.Plugins, ",")
-	scanner.RegisterPlugin(rPlugins)
 	scanner.SetLanguage(req.Language)
 	scanner.SetCallback(processFunc)
 	scanner.InputCodePath(req.Path)
-	results, err := scanner.Scan(ctx, false)
+	results, err := scanner.ScanCode(ctx, false)
 	if err != nil {
 		gologger.Errorf("扫描失败: %v\n", err)
 		writer2.Flush()

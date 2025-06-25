@@ -3,6 +3,8 @@ info:
   name: "Command Injection Detection"
   description: "Detect possible command injection vulnerabilities in MCP code"
   author: "Zhuque Security Team"
+  categories:
+    - code
 
 # Detection rules for static analysis
 rules:
@@ -106,15 +108,17 @@ prompt_template: |
   - Limited file access within application directory
   - Information disclosure with minimal impact
   - Functionality that requires specific conditions
-
+  
+  {{ if .StaticAnalysisResults }}
   ## Static Analysis Results
-  {{static_analysis_results}}
+  {{.StaticAnalysisResults}}
+  {{ end }}
 
   ## Input Data
-  Source code path: {{code_path}}
+  Source code path: {{ .CodePath }}
   Directory structure:
   ------
-  {{directory_structure}}
+  {{ .DirectoryStructure }}
   ------
 
   ## Output Format
