@@ -400,7 +400,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 
 	totalProcessing := len(s.PluginConfigs) + 2 // 信息收集和review插件
 	currentProcessing := 0
-
+	if s.callback != nil {
+		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
+	}
 	// 1. 运行信息收集插件
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
@@ -594,6 +596,9 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		scheme, _ := json.Marshal(tool.InputSchema)
 		mcpStructure += fmt.Sprintf("inputSchema:%s\n\n", scheme)
 	}
+	if s.callback != nil {
+		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
+	}
 
 	if err != nil {
 		s.logger.Warningf("信息收集插件加载失败: %v", err)
@@ -706,6 +711,48 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 		}
 	}()
+	if len(results) > 0 {
+		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))
+		origin := strings.Builder{}
+		for _, res := range results {
+			origin.WriteString("<result>")
+			origin.WriteString("<title>" + res.Title + "</title>")
+			origin.WriteString("<desc>" + res.Description + "</desc>")
+			origin.WriteString("<risk_type>" + res.RiskType + "</risk_type>")
+			origin.WriteString("<level>" + string(res.Level) + "</level>")
+			origin.WriteString("<suggestion>" + res.Suggestion + "</suggestion>")
+			origin.WriteString("</result>")
+			origin.WriteString("\n\n")
+		}
+		ctx = context.WithValue(ctx, "original_reports", origin.String())
+		reviewPlugin, err := s.getPluginByID("vuln_review")
+		if err != nil {
+			logger.Warningf("漏洞评审插件加载失败: %v", err)
+		} else {
+			issues, err := runDynamicAnalysis(ctx, reviewPlugin, &McpPluginConfig{
+				Client:       s.client,
+				AIModel:      s.aiModel,
+				Language:     s.language,
+				Logger:       s.logger,
+				McpStructure: mcpStructure,
+			})
+			if err != nil {
+				logger.Warningf("插件 %s 运行失败: %v", reviewPlugin.Info.Name, err)
+			} else {
+				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues))
+				results = make([]ScannerIssue, 0) // 清空之前的结果
+				for _, res := range issues {
+					r := ScannerIssue{
+						Issue: res,
+					}
+					if s.callback != nil {
+						s.callback(r)
+					}
+					results = append(results, r)
+				}
+			}
+		}
+	}
 	return results, nil
 }
 func (s *Scanner) getPluginByID(id string) (*PluginConfig, error) {

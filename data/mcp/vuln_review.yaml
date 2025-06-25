@@ -119,6 +119,16 @@ prompt_template: |
   ## Input Data
   {{if .CodePath}}
   Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
   {{end}}
 
   ## Output Requirements
