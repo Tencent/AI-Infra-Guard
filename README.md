@@ -31,7 +31,7 @@ https://doc.weixin.qq.com/forms/AJEAIQdfAAoAbUAxgbhAIQCNfZu1TQeRf
 
 ## 🚀 Quick Preview
 
-**MCP Server Code Analysis**
+**MCP Server Code/Online Service Analysis**
 <br>
 <img src="img/mcp-en.png" alt="MCP Server Code Detection Preview" height="600">
 <br>
@@ -67,8 +67,8 @@ We also welcome you to share your implementation cases within the MCP community.
 
 AI Infra Guard consists of three core modules:
 
-1.  **AI Component Vulnerability Scanning (`scan`)**: Detects known security vulnerabilities in web-based components within AI infrastructure via the command line.
-2.  **MCP Security Analysis (`mcp`)**: Analyzes security risks in MCP Server code based on AI Agent via the command line.
+1.  **AI Component Vulnerability Scanning (`scan`)**: Detects known security vulnerabilities in web-based components within AI infrastructure.
+2.  **MCP Security Analysis (`mcp`)**: Analyzes security risks in MCP Server code based on AI Agent.
 3.  **WebUI Mode (`webserver`)**: Enables the web-based visual operation interface.
 
 ## 📦 Installation and Usage
