@@ -30,7 +30,7 @@ https://doc.weixin.qq.com/forms/AJEAIQdfAAoAbUAxgbhAIQCNfZu1TQeRf
 
 ## 🚀 快速预览
 
-**MCP Server代码检测**
+**MCP Server代码/在线服务检测**
 <br>
 <img src="img/mcp-zh.png" alt="MCP Server 代码检测预览" height="600">
 <br>
@@ -66,8 +66,8 @@ AI Infra Guard 致力于提供专业的MCP安全检测与安全认证解决方�
 
 AI Infra Guard 包含三大核心模块：
 
-1.  **AI组件安全扫描 (`scan`)**: 在命令行中检测AI基础设施中Web类组件的已知安全漏洞。
-2.  **MCP安全检测 (`mcp`)**: 在命令行中基于AI Agent检测MCP Server代码的安全风险。
+1.  **AI组件安全扫描 (`scan`)**: 检测AI基础设施中Web类组件的已知安全漏洞。
+2.  **MCP安全检测 (`mcp`)**: 检测MCP Server代码或在线MCP Server服务的安全风险。
 3.  **WebUI模式 (`webserver`)**: 启用Web可视化操作界面。
 
 ## 📦 安装与使用
