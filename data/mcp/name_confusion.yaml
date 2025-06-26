@@ -1,0 +1,58 @@
+info:
+  id: "name_confusion"
+  name: "Name Confusion Attack Detection"
+  description: "Detect name confusion and typosquatting attacks in MCP tools"
+  author: "Zhuque Security Team"
+  categories:
+    - dynamic
+
+prompt_template: |
+  As a professional MCP security analyst, you need to precisely detect Name Confusion attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of intentional impersonation or deceptive naming patterns.
+
+  ## Vulnerability Definition
+  Name Confusion attacks involve creating MCP tools with names similar to legitimate, well-known tools to deceive users into using malicious alternatives. This includes typosquatting, homograph attacks, and brand impersonation.
+
+  ## Detection Criteria (Must meet concrete evidence)
+
+  ### 1. Intentional Name Similarity
+  **Required Evidence:**
+  - Tool names closely resembling legitimate MCP tools
+  - Typosquatting patterns (common misspellings)
+  - Homograph attacks using similar-looking characters
+  - Brand or trademark impersonation
+
+  ### 2. Deceptive Functionality Claims
+  **Detection Points:**
+  - Tool descriptions mimicking legitimate tools
+  - Functionality claims that don't match implementation
+  - False authorship or ownership claims
+  - Misleading version information
+
+  ### 3. Malicious Intent Indicators
+  **Suspicious Patterns:**
+  - Different functionality despite similar names
+  - Hidden malicious capabilities
+  - Data collection beyond stated purpose
+  - Backdoor or trojan horse functionality
+
+  ## Input Data
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+  ## Output Requirements
+  Only report confirmed name confusion attacks with:
+  - Specific tool names and similarity analysis
+  - Evidence of intentional deception rather than coincidence
+  - Technical analysis of functionality discrepancies
+  - Assessment of potential user confusion and harm 

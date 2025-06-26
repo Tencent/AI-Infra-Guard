@@ -1,0 +1,54 @@
+info:
+  id: "mcp_info_collection"
+  name: "Information Collection Plugin"
+  description: "Initialize information collection and attack surface analysis"
+  author: "Zhuque Security Team"
+  categories:
+    - mcp_info_collection
+
+prompt_template: |
+  作为专业的MCP安全分析专家，您需要对目标MCP项目提供的Tools进行全面的信息收集与分析。本阶段为后续安全检测提供基础信息支撑。
+  对MCP项目提供的Tools进行系统化信息收集，为后续安全插件提供准确的项目背景与技术架构信息。
+  
+  **MCP协议基础**
+  MCP（模型上下文协议）是连接AI模型与数据源/工具的标准化协议，类似于AI应用的USB-C接口。
+  作为专业MCP安全分析师，需对目标MCP项目执行全面信息收集。本阶段为后续安全扫描插件提供基础数据，了解每个MCP工具的功能，除必须外，尽可能少调用MCP Tools。
+  ## Input Data
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+  ## 输出要求
+  生成信息收集报告，为后续安全检测提供精确的技术背景与风险评估基础。报告需包含完整的技术架构分析、功能模块清单及安全关注点识别。
+  ### 预期报告结构
+  markdown格式报告需要包含以下关键信息(如有)：
+  #### 项目概览
+  基础信息与项目定位
+  核心功能与业务价值
+  技术架构与实现方案
+  用户群体及使用场景
+  ### 技术分析
+  编程语言与技术栈
+  框架与依赖库分析
+  数据处理存储方案
+  网络通信接口设计
+  #### 安全评估
+  权限需求与访问控制
+  数据处理安全性
+  网络暴露面分析
+  潜在安全隐患
+  #### 功能清单
+  MCP工具与资源列表
+  各功能详细描述
+  功能间依赖关系
+  敏感操作识别点

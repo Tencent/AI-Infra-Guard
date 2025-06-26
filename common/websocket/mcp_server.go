@@ -13,7 +13,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/plugins"
 	"github.com/gorilla/websocket"
 )
 
@@ -107,35 +106,36 @@ func removeConnection(conn *websocket.Conn) {
 	}
 	connectionManager.Unlock()
 }
-
 func mcpPlugins(w http.ResponseWriter, r *http.Request) {
-	pp := []plugins.McpPlugin{
-		plugins.NewCmdInjectionPlugin(),
-		plugins.NewAuthBypassPlugin(),
-		plugins.NewNameConfusionPlugin(),
-		plugins.NewToolPoisoningPlugin(),
-		plugins.NewRugPullPlugin(),
-		plugins.NewCredentialTheftPlugin(),
-		plugins.NewHardcodedApiKeyPlugin(),
-		plugins.NewResourcePoisoningPlugin(),
-		plugins.NewToolShadowingPlugin(),
+	type plugin struct {
+		Name   string `json:"name"`
+		Desc   string `json:"desc"`
+		NameEn string `json:"name_en"`
+		DescEn string `json:"desc_en"`
+		ID     string `json:"id"`
 	}
-	ret := make([]plugins.Plugin, 0)
-	for _, p := range pp {
-		info := p.GetPlugin()
-		ret = append(ret, info)
+	scanner := mcp.NewScanner(nil, nil)
+	plugins := make([]plugin, 0)
+	for _, p := range scanner.PluginConfigs {
+		plugins = append(plugins, plugin{
+			Name:   p.Info.Name,
+			Desc:   p.Info.Description,
+			NameEn: p.Info.Name,
+			DescEn: p.Info.Description,
+			ID:     p.Info.ID,
+		})
 	}
-	resp, err := json.Marshal(&ret)
+	resp, err := json.Marshal(plugins)
 	if err != nil {
-		gologger.Errorln(err)
+		w.Write([]byte(err.Error()))
 	}
 	w.Write(resp)
 	return
 }
 
 type ScanMcpRequest struct {
-	Path  string `json:"path"`
-	Model struct {
+	Content string `json:"content"`
+	Model   struct {
 		Model   string `json:"model"`
 		Token   string `json:"token"`
 		BaseUrl string `json:"base_url"`
@@ -269,21 +269,43 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	}
 	modelConfig := models.NewOpenAI(req.Model.Token, req.Model.Model, req.Model.BaseUrl)
 	scanner := mcp.NewScanner(modelConfig, logger)
-	rPlugins := strings.Split(req.Plugins, ",")
-	scanner.RegisterPlugin(rPlugins)
 	scanner.SetLanguage(req.Language)
 	scanner.SetCallback(processFunc)
-	scanner.InputCodePath(req.Path)
-	results, err := scanner.Scan(ctx, false)
-	if err != nil {
-		gologger.Errorf("扫描失败: %v\n", err)
+	if strings.HasPrefix(req.Content, "http://") || strings.HasPrefix(req.Content, "https://") {
+		url := req.Content
+		r, err := scanner.InputUrl(ctx, url)
+		if err != nil {
+			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("输入流链接无效: %v\n", err))
+			return
+		}
+		results, err := scanner.ScanLink(ctx, r, false)
+		if err != nil {
+			gologger.Errorf("扫描失败: %v\n", err)
+			writer2.Flush()
+			return
+		}
+		// 确保所有日志都发送出去
 		writer2.Flush()
-		return
+		s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, results)
+	} else {
+		folder := req.Content
+		// 判断文件夹是否存在
+		if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
+			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("文件夹不存在: %v\n", err))
+			return
+		}
+		scanner.InputCodePath(req.Content)
+		results, err := scanner.ScanCode(ctx, false)
+		if err != nil {
+			gologger.Errorf("扫描失败: %v\n", err)
+			writer2.Flush()
+			return
+		}
+		// 确保所有日志都发送出去
+		writer2.Flush()
+		s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, results)
 	}
-	// 确保所有日志都发送出去
-	writer2.Flush()
 	gologger.Infof("扫描完成\n")
-	s.SendMessage2(ctx, conn, WSMsgTypeMcpFinish, results)
 }
 
 func (s *WSServer) handleMessages2(conn *websocket.Conn) {
@@ -305,12 +327,6 @@ func (s *WSServer) handleMessages2(conn *websocket.Conn) {
 			var data ScanMcpRequest
 			if err := json.Unmarshal(scanReq.Data, &data); err != nil {
 				s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("解析消息失败: %v\n", err))
-				continue
-			}
-			folder := data.Path
-			// 判断文件夹是否存在
-			if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
-				s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("文件夹不存在: %v\n", err))
 				continue
 			}
 			// 处理扫描请求

@@ -1,0 +1,113 @@
+info:
+  id: "hardcoded_api_key"
+  name: "Hardcoded API Key Detection"
+  description: "Detect hardcoded API keys or sensitive credentials in MCP code"
+  author: "Zhuque Security Team"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional cybersecurity analyst, you need to analyze the hardcoded API key detection results and determine if they represent actual security vulnerabilities.
+
+  ## Analysis Objectives
+  Evaluate the static detection results for hardcoded API keys and credentials, filtering out false positives while confirming real security risks.
+
+  ## Detection Patterns Analyzed
+
+  ### Common API Key Formats
+  **Cloud Service Providers:**
+  - AWS Access Keys: AKIA*, AGPA*, AIDA*, AROA*, AIPA*, ANPA*, ANVA*, ASIA*
+  - Google Cloud: GOOG*, AIza*
+  - Azure: Various formats including tenant IDs and client secrets
+  - Alibaba Cloud: LTAI*, AKID*
+  - Tencent Cloud: QCS*, SLS*
+
+  **Code Hosting Platforms:**
+  - GitHub Personal Access Tokens: ghp_*, gho_*, ghu_*, ghs_*
+  - GitLab Personal Access Tokens: glpat-*
+  - Bitbucket App Passwords: Various formats
+
+  **AI/ML Services:**
+  - OpenAI API Keys: sk-proj-*, sk-ant-api*, sk-*
+  - Anthropic Claude API Keys: sk-ant-*
+  - Various other AI service tokens
+
+  ### Variable Assignment Patterns
+  **High-Risk Assignments:**
+  - api_key = "actual_key_value"
+  - SECRET_TOKEN = "real_token"
+  - password = "hardcoded_password"
+  - auth_header = "Bearer actual_token"
+
+  ## Risk Assessment Criteria
+
+  ### Critical Risk Indicators
+  - Real API keys with valid format and sufficient entropy
+  - Production service credentials
+  - Database connection strings with embedded passwords
+  - Private keys (RSA, SSH, SSL certificates)
+
+  ### Medium Risk Indicators
+  - API keys in configuration files
+  - Tokens in environment variable assignments
+  - Service account credentials
+  - Third-party service API keys
+
+  ### Low Risk or False Positives
+  - Test/demo/example credentials
+  - Placeholder values (e.g., "your_api_key_here")
+  - Environment variable references (${API_KEY})
+  - Template or documentation examples
+
+  ## Context Analysis
+
+  ### File Context Evaluation
+  **High-Risk Contexts:**
+  - Production configuration files
+  - Main application code
+  - Deployment scripts
+  - CI/CD configuration
+
+  **Lower-Risk Contexts:**
+  - Test files and test data
+  - Documentation and examples
+  - Development environment configs
+  - Sample or template files
+
+  ### Code Context Analysis
+  **Security Validation:**
+  - Check if credentials are used for actual authentication
+  - Verify if the code can access external services
+  - Assess the scope of access granted by the credentials
+  - Determine if credentials are transmitted or logged
+
+  ## Exclusion Criteria
+
+  ### Legitimate Development Practices
+  - Environment variable references: os.getenv("API_KEY")
+  - Configuration file placeholders
+  - Encrypted credential storage
+  - Key management service integration
+
+  ### Test and Development Code
+  - Unit test mock credentials
+  - Integration test fixtures
+  - Development environment configurations
+  - Example code in documentation
+  
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  
+  ## Output Requirements
+  For each confirmed hardcoded credential vulnerability:
+  - Exact file location and line numbers
+  - Complete code snippet showing the hardcoded credential
+  - Risk assessment: type of credential and potential impact
+  - Context analysis: how the credential is used
+  - Remediation recommendations: secure alternatives
+
+  **Verification Standard**: Only report credentials that pose actual security risks. Exclude test data, placeholders, and development configurations unless they contain real production credentials. 

@@ -1,0 +1,86 @@
+info:
+  id: "tool_poisoning"
+  name: "Tool Poisoning Attack Detection"
+  description: "Detect tool poisoning attacks in MCP code"
+  author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
+
+prompt_template: |
+  As a professional MCP security analyst, you need to precisely detect Tool Poisoning attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of malicious tool manipulation.
+
+  ## Vulnerability Definition
+  Tool Poisoning refers to malicious modification or injection of harmful functionality into legitimate MCP tools, causing them to perform unintended malicious actions while maintaining their apparent normal functionality.
+
+  ## Detection Criteria (Must meet multiple conditions)
+
+  ### 1. Tool Functionality Manipulation
+  **Required Evidence:**
+  - Modification of legitimate tool behavior without user knowledge
+  - Injection of malicious code into existing tool functions
+  - Replacement of safe operations with dangerous alternatives
+  - Hidden backdoor functionality within normal tool operations
+
+  ### 2. Covert Malicious Behavior
+  **Required Patterns:**
+  - Conditional execution based on specific triggers
+  - Time-delayed or environment-specific activation
+  - Data exfiltration disguised as normal operations
+  - Privilege escalation through tool misuse
+
+  ### 3. Stealth Mechanisms
+  **Detection Points:**
+  - Obfuscated code within tool implementations
+  - Environmental checks to hide malicious behavior
+  - Legitimate API abuse for malicious purposes
+  - Social engineering through tool descriptions
+
+  ## Technical Detection Methods
+
+  ### Code Analysis Patterns
+  **Suspicious Implementations:**
+  - Tools with dual functionality (legitimate + malicious)
+  - Conditional malicious code execution
+  - Hidden communication channels
+  - Unexpected network or file system access
+
+  ### Behavioral Analysis
+  **Anomalous Activities:**
+  - Tools accessing resources beyond their stated purpose
+  - Unexpected data collection or transmission
+  - Privilege requests exceeding functional requirements
+  - Communication with unauthorized external services
+
+  ### Metadata Inspection
+  **Deceptive Indicators:**
+  - Misleading tool descriptions
+  - Hidden parameters or options
+  - Undocumented functionality
+  - Inconsistent version or authorship information
+
+  ## Input Data
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+
+
+  ## Output Requirements
+  Only report confirmed tool poisoning attacks with:
+  - Specific file paths and code segments
+  - Technical analysis of the poisoning mechanism
+  - Evidence of malicious intent and capability
+  - Impact assessment and remediation guidance
+
+  **Strict Standard**: Require definitive proof of intentional malicious modification, not accidental bugs or legitimate functionality. 

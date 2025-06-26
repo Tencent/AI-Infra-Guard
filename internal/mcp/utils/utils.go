@@ -63,6 +63,10 @@ func IsIgnoreFile(path string) bool {
 	return false
 }
 
+type Agent interface {
+	GetHistory() []map[string]string
+}
+
 // ListDir 递归列出目录结构并生成树形图
 // dir: 要列出的目录路径
 // maxLevel: 最大递归深度（0表示不限制）
@@ -188,16 +192,16 @@ func getSimpleType(dir string, entry fs.DirEntry) string {
 	return entry.Type().String()
 }
 
-func InitMcpClient(ctx context.Context, client *client.Client) error {
+func InitMcpClient(ctx context.Context, client *client.Client) (*mcp.InitializeResult, error) {
 	err := client.Start(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = client.Initialize(context.Background(), mcp.InitializeRequest{})
+	r, err := client.Initialize(context.Background(), mcp.InitializeRequest{})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return err
+	return r, err
 }
 
 func ListMcpTools(ctx context.Context, client *client.Client) (*mcp.ListToolsResult, error) {
@@ -205,6 +209,7 @@ func ListMcpTools(ctx context.Context, client *client.Client) (*mcp.ListToolsRes
 	if err != nil {
 		return nil, err
 	}
+	client.CallTool(ctx, mcp.CallToolRequest{})
 	return result, nil
 }
 

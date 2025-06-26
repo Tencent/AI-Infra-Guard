@@ -1,15 +1,51 @@
-package plugins
+package mcp
 
 import (
 	"context"
 	"fmt"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
-	"regexp"
-	"strings"
+	"gopkg.in/yaml.v3"
 )
+
+type PluginConfig struct {
+	Info struct {
+		ID          string   `yaml:"id"`
+		Name        string   `yaml:"name"`
+		Description string   `yaml:"description"`
+		Author      string   `yaml:"author"`
+		Category    []string `yaml:"categories"`
+	} `yaml:"info"`
+	Rules          []Rule `yaml:"rules,omitempty"`
+	PromptTemplate string `yaml:"prompt_template"`
+}
+
+type Rule struct {
+	Name        string `yaml:"name"`
+	Pattern     string `yaml:"pattern"`
+	Description string `yaml:"description"`
+}
+
+func NewYAMLPlugin(configPath string) (*PluginConfig, error) {
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var config PluginConfig
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
 
 // 威胁级别常量
 type Level string
@@ -30,15 +66,6 @@ const (
 	MCPTypeCode    MCPType = "code"
 )
 
-// Plugin MCP插件信息
-type Plugin struct {
-	Name   string `json:"name"`
-	Desc   string `json:"desc"`
-	NameEn string `json:"name_en"`
-	DescEn string `json:"desc_en"`
-	ID     string `json:"id"`
-}
-
 // Issue 安全问题
 type Issue struct {
 	Title       string `json:"title"`
@@ -54,17 +81,12 @@ type McpInput struct {
 }
 
 type McpPluginConfig struct {
-	Client      *client.Client
-	CodePath    string
-	AIModel     *models.OpenAI
-	SaveHistory bool
-	Language    string // zh / en
-	Logger      *gologger.Logger
-}
-
-type McpPlugin interface {
-	GetPlugin() Plugin
-	Check(ctx context.Context, config *McpPluginConfig) ([]Issue, error)
+	Client       *client.Client
+	CodePath     string
+	McpStructure string
+	AIModel      *models.OpenAI
+	Language     string // zh / en
+	Logger       *gologger.Logger
 }
 
 // ExtractBatchResults 从文本中提取结果
@@ -102,7 +124,8 @@ func ParseIssues(input string) []Issue {
 	}
 	return vulns
 }
-func SummaryResult(ctx context.Context, agent *utils.AutoGPT, config *McpPluginConfig) ([]Issue, error) {
+
+func SummaryResult(ctx context.Context, agent utils.Agent, config *McpPluginConfig) ([]Issue, error) {
 	history := agent.GetHistory()
 	const summaryPrompt = `
 The task is now complete, and the discovered vulnerabilities are being returned.
@@ -143,12 +166,26 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 		"role":    "assistant",
 		"content": result,
 	})
-	if config.SaveHistory {
-		err := utils.SaveHistory(history)
-		if err != nil {
-			config.Logger.Errorln("save history failed")
-		}
-	}
 	// 保存模型输出
 	return ParseIssues(result), nil
+}
+
+func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig, prompt string) (string, error) {
+	history := agent.GetHistory()
+	history = append(history, map[string]string{
+		"role":    "user",
+		"content": fmt.Sprintf(prompt, utils.LanguagePrompt(config.Language)),
+	})
+	var result string = ""
+	config.Logger.Infoln("generate summary result")
+	for word := range config.AIModel.ChatStream(ctx, history) {
+		result += word
+		config.Logger.Print(word)
+	}
+	history = append(history, map[string]string{
+		"role":    "assistant",
+		"content": result,
+	})
+	// 保存模型输出
+	return result, nil
 }

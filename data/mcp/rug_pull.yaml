@@ -1,0 +1,114 @@
+info:
+  id: "rug_pull"
+  name: "Rug Pull Attack Detection"
+  description: "Detect rug pull attack patterns in MCP code"
+  author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
+
+prompt_template: |
+  As a professional MCP security analyst, you need to precisely detect Rug Pull attacks. This detection requires extremely high accuracy - only report when you find concrete evidence of malicious abandonment or service termination patterns.
+
+  ## Vulnerability Definition
+  Rug Pull in MCP context refers to malicious sudden withdrawal of service, data destruction, or intentional service termination after gaining user trust or access to sensitive resources, causing significant harm to users.
+
+  ## Detection Criteria (Must meet concrete evidence)
+
+  ### 1. Malicious Service Termination
+  **Required Evidence:**
+  - Intentional service shutdown mechanisms without user notification
+  - Resource cleanup that destroys user data
+  - Emergency exit functions that bypass normal procedures
+  - Backdoor termination triggers hidden from users
+
+  ### 2. Resource Withdrawal Patterns
+  **Detection Points:**
+  - Sudden revocation of previously granted access
+  - Unauthorized data deletion or corruption
+  - Service degradation through intentional sabotage
+  - Resource hoarding followed by withdrawal
+
+  ### 3. Trust Violation Mechanisms
+  **Malicious Indicators:**
+  - Deceptive service promises vs. actual implementation
+  - Hidden terms or conditions that allow service termination
+  - Gradual degradation designed to force migration
+  - Bait-and-switch functionality changes
+
+  ## Technical Detection Methods
+
+  ### Service Lifecycle Analysis
+  **Suspicious Patterns:**
+  - Abrupt service termination without graceful shutdown
+  - Data persistence mechanisms that can be remotely disabled
+  - Authentication systems with hidden revocation capabilities
+  - Resource allocation with built-in expiration traps
+
+  ### Resource Management Analysis
+  **Malicious Resource Control:**
+  - File deletion or corruption capabilities beyond normal operation
+  - Database connection poisoning or termination
+  - Memory/storage exhaustion attacks
+  - Network communication sabotage
+
+  ### Business Logic Examination
+  **Trust Violation Patterns:**
+  - Economic incentives misaligned with user interests
+  - Centralized control points susceptible to abuse
+  - Insufficient transparency in operation
+  - Lack of user recourse mechanisms
+
+  ## Exclusion Conditions
+
+  ### Legitimate Operations
+  - Normal error handling and recovery mechanisms
+  - Planned maintenance and upgrade procedures
+  - Security-driven service suspensions
+  - Regulatory compliance terminations
+
+  ### Standard Business Practices
+  - Terms of service violations enforcement
+  - Resource limitations in free tier services
+  - End-of-life product sunset procedures
+  - Emergency security responses
+
+  ## Risk Assessment Framework
+
+  ### Critical Risk Indicators
+  - Immediate and irreversible data loss capability
+  - No user notification or consent mechanisms
+  - Hidden or obfuscated termination triggers
+  - Financial or reputation damage potential
+
+  ### Medium Risk Indicators
+  - Gradual service degradation patterns
+  - Insufficient user control over their data
+  - Opaque business model sustainability
+  - Limited user recourse options
+
+  ## Input Data
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+
+  ## Output Requirements
+  Only report confirmed rug pull attack mechanisms with:
+  - Specific implementation details and code location
+  - Technical analysis of the attack mechanism
+  - Evidence of malicious intent rather than legitimate business operations
+  - Assessment of potential user impact and harm
+  - Clear distinction from normal service operations
+
+  **Verification Standard**: Require definitive evidence of intentional user harm or deception, not normal business operations or legitimate service limitations. 

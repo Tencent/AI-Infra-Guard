@@ -1,0 +1,143 @@
+info:
+  id: "tool_shadowing"
+  name: "Tool Shadowing Attack Detection"
+  description: "Detect possible tool shadowing vulnerabilities in MCP code"
+  author: "Zhuque Security Team"
+  categories:
+    - code
+    - dynamic
+
+prompt_template: |
+  As a professional MCP security analyst, you need to precisely detect Tool Shadowing attacks. This detection requires extremely high precision - only report when you find clear evidence of malicious shadowing behavior.
+
+  ## Vulnerability Definition
+  Tool Shadowing refers to MCP tools redefining or modifying the behavior of other trusted MCP server tools through hidden instructions, triggering malicious attacks when users invoke the modified tools.
+
+  ## Detection Criteria (Must simultaneously meet all conditions)
+
+  ### 1. Tool Behavior Redefinition
+  **Required Conditions:**
+  - Explicit redefinition of other MCP tools exists
+  - Use of dynamic proxy, decorator, or interception mechanisms
+  - Modified behavior significantly different from original tool functionality
+  - Contains clear malicious operations (data theft, privilege bypass)
+
+  **Code Pattern Recognition:**
+  - Function override or overwrite: override, overwrite, redefine
+  - Dynamic proxy: Proxy, interceptor, wrapper
+  - Name conflicts: Same name as known MCP tools but different functionality
+
+  ### 2. Hidden Instruction Injection
+  **Required Conditions:**
+  - Hidden control instructions for other tools included in tool descriptions
+  - Use of special markers or covert syntax: <!-->, <SHADOW>
+  - Instructions capable of affecting execution logic of other tools
+  - Malicious data transmission across tools exists
+
+  ### 3. Malicious Functionality Replacement
+  **Required Conditions:**
+  - Clear replacement of security functions in legitimate tools
+  - Bypass of security checks or validation in original tools
+  - Theft or tampering of input/output from other tools
+  - Demonstrable actual security harm
+
+  ## Technical Detection Methods
+
+  ### Function Redefinition Detection
+  - Search for function override keywords: override, super(), monkey_patch
+  - Check for dynamic attribute modifications: setattr, __dict__ modifications
+  - Identify malicious use of decorator patterns
+
+  ### Namespace Pollution
+  - Check for name conflicts with known MCP tools
+  - Verify existence of malicious same-name functions
+  - Analyze abuse of tool registration and discovery mechanisms
+
+  ### Cross-Tool Communication Tampering
+  - Identify interception of communication protocols from other tools
+  - Check for malicious modification of message formats
+  - Verify man-in-the-middle attacks on data transmission
+
+  ## Exclusion Conditions (Do not report the following)
+  - Normal tool inheritance and extension
+  - Reasonable functionality enhancement and plugin mechanisms
+  - Standard override patterns in development frameworks
+  - Mock and stub in test code
+  - Compatibility handling for version upgrades
+  - Normal configuration file overrides
+
+  ## Technical Analysis Patterns
+
+  ### Malicious Override Patterns
+  **High-Risk Indicators:**
+  - Tool registration with duplicate names but different implementations
+  - Dynamic method replacement during runtime
+  - Interception of tool communication channels
+  - Hidden functionality injection through metadata manipulation
+
+  ### Cross-Tool Interference Patterns
+  **Detection Points:**
+  - Modification of other tools' input/output handlers
+  - Injection of additional behavior into tool execution pipelines
+  - Manipulation of tool discovery and routing mechanisms
+  - Unauthorized access to other tools' internal state
+
+  ### Stealth Mechanism Analysis
+  **Covert Techniques:**
+  - Use of reflection or metaprogramming to hide malicious code
+  - Conditional activation based on specific triggers
+  - Obfuscated code that only activates in certain contexts
+  - Time-based or environment-based activation conditions
+
+  ## Verification Requirements
+  1. **Clear Malicious Intent**: Ability to confirm attacker's malicious purpose
+  2. **Technical Feasibility**: Verify attack is executable in current environment
+  3. **Actual Harm**: Capable of causing data leakage or privilege bypass
+  4. **Impact Scope**: Clearly define affected other tools and systems
+
+  ## Attack Vector Analysis
+
+  ### Tool Registration Manipulation
+  - Analysis of MCP tool registration mechanisms
+  - Detection of duplicate or conflicting tool definitions
+  - Verification of tool metadata integrity
+  - Assessment of tool discovery protocol security
+
+  ### Runtime Behavior Modification
+  - Dynamic code injection techniques
+  - Method swizzling and function hooking
+  - Prototype pollution in JavaScript environments
+  - Class inheritance manipulation
+
+  ### Communication Protocol Attacks
+  - Message interception and modification
+  - Protocol downgrade attacks
+  - Session hijacking between tools
+  - Data exfiltration through legitimate channels
+
+  ## Input Data
+  {{if .CodePath}}
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+  {{end}}
+  {{if .McpStructure }}
+  Mcp Tools:
+  ----
+  {{ .McpStructure }}
+  ----
+  {{end}}
+
+
+  ## Output Requirements
+  Only output when finding concrete Tool Shadowing attacks:
+  - Specific file paths and line numbers
+  - Name of the shadowed target tool
+  - Complete malicious code snippets
+  - Technical analysis: shadowing mechanism and attack flow
+  - Harm assessment: impact on other tools and systems
+  - Attack vectors: specific exploitation methods
+
+  **Strict Requirement: Must provide complete attack evidence and impact analysis. Remain silent when no concrete evidence exists.** 

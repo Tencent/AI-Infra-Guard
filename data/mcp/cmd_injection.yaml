@@ -1,0 +1,131 @@
+info:
+  id: "cmd_injection"
+  name: "Command Injection Detection"
+  description: "Detect possible command injection vulnerabilities in MCP code"
+  author: "Zhuque Security Team"
+  categories:
+    - code
+
+# Detection rules for static analysis
+rules:
+  - name: "Python os.system Command Injection"
+    pattern: "(?i)os\\s*\\.\\s*system\\s*\\("
+    description: "Using os.system() to execute system commands directly may lead to command injection"
+  - name: "Python subprocess Command Injection"
+    pattern: "(?i)(subprocess\\s*\\.\\s*(Popen|call|run|check_output|check_call))"
+    description: "Using subprocess module to execute system commands may lead to command injection"
+
+  - name: "Python eval/exec Code Injection"
+    pattern: "(?i)(eval|exec)\\s*\\("
+    description: "Using eval() or exec() to execute dynamic code may lead to code injection"
+
+  - name: "Python Template Injection"
+    pattern: "(?i)(flask\\.render_template_string|jinja2\\.Template|django\\.template\\.Template)"
+    description: "Using template strings may lead to server-side template injection"
+
+  - name: "Node.js Command Injection"
+    pattern: "(?i)(child_process|require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)).*?(exec|spawn|execSync|spawnSync)"
+    description: "Using child_process module to execute system commands may lead to command injection"
+
+  - name: "JavaScript eval Injection"
+    pattern: "(?i)(eval|new\\s+Function|setTimeout|setInterval)\\s*\\("
+    description: "Using eval() or Function constructor to execute dynamic code may lead to code injection"
+
+  - name: "Java Runtime.exec Command Injection"
+    pattern: "(?i)(Runtime\\s*\\.\\s*getRuntime\\s*\\(\\s*\\)\\s*\\.\\s*exec|ProcessBuilder)"
+    description: "Using Runtime.exec() or ProcessBuilder to execute system commands may lead to command injection"
+
+  - name: "PHP Command Injection"
+    pattern: "(?i)(system|exec|shell_exec|passthru|proc_open|popen)"
+    description: "Using PHP command execution functions may lead to command injection"
+
+  - name: "Go exec.Command Injection"
+    pattern: "(?i)(exec\\s*\\.\\s*Command|os/exec)"
+    description: "Using exec.Command to execute system commands may lead to command injection"
+
+prompt_template: |
+  As a professional code security expert, please perform in-depth analysis and verification of the potential command injection vulnerabilities discovered based on the static analysis results above.
+
+  ## Analysis Requirements
+  1. **Data Flow Analysis**: Track the complete data flow from user input to command execution
+  2. **Context Understanding**: Analyze code context to determine if input filtering or validation exists
+  3. **Vulnerability Confirmation**: Confirm whether it's a real security vulnerability rather than a false positive
+  4. **Impact Assessment**: Evaluate the actual severity of the vulnerability
+
+  ## Filtering Conditions
+  Please exclude the following situations:
+  - Command execution in test code
+  - Command execution with hardcoded parameters and no user input
+  - Code with sufficient input validation and filtering
+  - Normal functionality of development tools and scripts
+
+  ## Technical Detection Patterns
+
+  ### High-Risk Code Patterns
+  **Critical Patterns:**
+  - Direct user input concatenation: `os.system("cmd " + user_input)`
+  - Unfiltered parameter passing: `subprocess.call(user_command, shell=True)`
+  - Dynamic code construction: `eval("import " + module_name)`
+  - Template injection: `Template(user_template).render()`
+
+  ### Data Flow Analysis
+  **Source Identification:**
+  - HTTP request parameters
+  - Command line arguments
+  - Environment variables
+  - File content input
+  - Network data reception
+
+  **Sink Identification:**
+  - System command execution functions
+  - Dynamic code evaluation functions
+  - Template rendering engines
+  - Script interpretation interfaces
+
+  ### Context Security Checks
+  **Validation Mechanisms:**
+  - Input sanitization and filtering
+  - Parameter type checking
+  - Command whitelist verification
+  - Permission boundary checks
+
+  ## Vulnerability Classification
+
+  ### Critical Severity
+  - Remote Code Execution (RCE) with system privileges
+  - Arbitrary command execution without restrictions
+  - Direct shell access capability
+  - System configuration modification ability
+
+  ### High Severity
+  - Limited command execution with user privileges
+  - File system access beyond application scope
+  - Network resource access capability
+  - Sensitive information disclosure risk
+
+  ### Medium Severity
+  - Restricted command execution in sandboxed environment
+  - Limited file access within application directory
+  - Information disclosure with minimal impact
+  - Functionality that requires specific conditions
+  
+  {{ if .StaticAnalysisResults }}
+  ## Static Analysis Results
+  {{.StaticAnalysisResults}}
+  {{ end }}
+
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+
+  ## Output Format
+  For each confirmed vulnerability, please provide:
+  - Specific vulnerability location and code snippets
+  - Detailed attack vector analysis
+  - Possible attack payload examples
+  - Remediation recommendations and secure coding practices
+
+  **Strict Requirement: Only report vulnerabilities with confirmed exploitability and clear security impact. Remain silent when evidence is insufficient.** 

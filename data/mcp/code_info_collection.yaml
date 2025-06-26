@@ -1,0 +1,162 @@
+info:
+  id: "code_info_collection"
+  name: "Information Collection Plugin"
+  description: "Initialize information collection and attack surface analysis"
+  author: "Zhuque Security Team"
+  categories:
+    - code_info_collection
+
+prompt_template: |
+  As a professional MCP security analysis expert, you need to conduct comprehensive security information collection and analysis of the target MCP project. This phase provides foundational information support for subsequent security detection.
+
+  ## Analysis Objectives
+  Conduct systematic information collection on MCP project "{{ .CodePath}}" to provide accurate project background and technical architecture information for subsequent security plugins.
+
+  ## MCP Protocol Foundation
+  MCP (Model Context Protocol) is a standardized protocol connecting AI models with data sources/tools, similar to the USB-C interface for AI applications.
+
+  ### Protocol Type Identification
+  - **STDIO Mode**: Standard input/output, local process communication, good security isolation
+  - **SSE Mode**: Server-Sent Events, HTTP-based streaming communication
+  - **Streaming Mode**: HTTP-based streaming communication
+
+  ## Information Collection Scope
+
+  ### 1. Project Basic Information
+  **Core Analysis Points:**
+  - Project name, version, developer information
+  - Project positioning and main functional description
+  - Target user groups and usage scenarios
+
+  ### 2. Technical Architecture Analysis
+  **Technology Stack Identification:**
+  - Programming languages and version requirements
+  - Dependency frameworks and third-party libraries
+  - Database and storage solutions
+  - Network communication protocols and interface design
+
+  **Architecture Patterns:**
+  - MCP server implementation methods
+  - Tool registration and discovery mechanisms
+  - Resource management and access control
+  - Error handling and logging mechanisms
+
+  ### 3. Security Critical Information
+  **Permissions and Access Control:**
+  - File system access permission requirements
+  - Network access permissions and scope
+  - System resource access capabilities
+  - User permission verification mechanisms
+
+  **Data Processing Capabilities:**
+  - Input data types and sources
+  - Data processing and storage methods
+  - Output data formats and targets
+  - Sensitive information processing workflows
+
+  ### 4. Functional Module Organization
+  **Tools and Resource Inventory:**
+  - List of provided MCP tools
+  - Functional description of each tool
+  - Dependencies between tools
+  - Resource access capability assessment
+
+  **Interface Analysis:**
+  - API endpoints and parameter definitions
+  - Authentication and authorization mechanisms
+  - Error responses and status codes
+  - Interface security protection measures
+
+  ### 5. Deployment and Configuration
+  **Environment Requirements:**
+  - Operating system compatibility
+  - Runtime environment requirements
+  - Network environment requirements
+  - Configuration files and parameters
+
+  **Security Configuration:**
+  - Default security settings
+  - Configurable security options
+  - Logging and audit configuration
+  - Backup and recovery mechanisms
+
+  ## Analysis Methods
+
+  ### Documentation-First Strategy
+  1. **README.md Analysis**: Project overview, installation configuration, usage instructions
+  2. **Technical Documentation**: API documentation, architecture design, security instructions
+  3. **Configuration Files**: package.json, requirements.txt, Dockerfile, etc.
+  4. **Change Records**: CHANGELOG, release notes, security updates
+
+  ### Code Structure Analysis
+  1. **Directory Structure**: Organization methods and module division
+  2. **Core Files**: Main functionality implementation and entry points
+  3. **Configuration Management**: Configuration files and environment variable handling
+  4. **Dependency Relationships**: External dependencies and internal module relationships
+
+  ## Security Assessment Framework
+
+  ### Attack Surface Mapping
+  **External Interfaces:**
+  - Network-exposed endpoints and services
+  - File system access points
+  - Environment variable dependencies
+  - Inter-process communication channels
+
+  **Data Flow Analysis:**
+  - Input validation and sanitization
+  - Data transformation and processing
+  - Output encoding and filtering
+  - Storage and transmission security
+
+  ### Privilege Analysis
+  **Required Permissions:**
+  - File system read/write access
+  - Network communication capabilities
+  - System command execution rights
+  - Database access permissions
+
+  **Access Control Mechanisms:**
+  - Authentication requirements
+  - Authorization granularity
+  - Session management
+  - Audit and logging
+
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+
+
+  ## Output Requirements
+  Generate a detailed project information collection report to provide accurate technical background and risk assessment foundation for subsequent security detection. The report should include complete technical architecture analysis, functional module inventory, and security concern identification.
+
+  ### Expected Report Structure
+
+  #### Project Overview
+  - Basic project information and positioning
+  - Core functionality and business value
+  - Technical architecture and implementation approach
+  - User groups and usage scenarios
+
+  #### Technical Analysis
+  - Programming languages and technology stack
+  - Framework and dependency library analysis
+  - Data processing and storage solutions
+  - Network communication and interface design
+
+  #### Security Assessment
+  - Permission requirements and access control
+  - Data processing security
+  - Network exposure surface analysis
+  - Potential security concerns
+
+  #### Functional Inventory
+  - List of MCP tools and resources
+  - Detailed description of each function
+  - Dependencies between functions
+  - Security-sensitive operation identification
+
+  **Analysis Depth**: Provide comprehensive technical details while focusing on security-relevant aspects that will inform subsequent vulnerability detection plugins. 
