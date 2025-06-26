@@ -127,8 +127,8 @@ Your response includes five aspects: [Integration Phase: Consolidate key informa
 }
 
 // NextPrompt generates next prompt
-func (a *AutoGPT) NextPrompt(retMsg string) string {
-	return fmt.Sprintf("The returned result is as follows. Please draw your conclusion in the \"reply format\".Determine which next command to use, and respond using the format specified above.\nReturn:%s", retMsg)
+func (a *AutoGPT) NextPrompt(retMsg string, round int) string {
+	return fmt.Sprintf("The current round is the %dth conversation. Please try to minimize the number of exchanges to obtain the result.\n.The returned result is as follows. Please draw your conclusion in the \"reply format\".Determine which next command to use, and respond using the format specified above.\nReturn:%s", round, retMsg)
 }
 
 // ExtractTag extracts tag part from text
@@ -426,7 +426,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 		// Add user prompt to history
 		history = append(history, map[string]string{
 			"role":    "user",
-			"content": a.NextPrompt(userPrompt),
+			"content": a.NextPrompt(userPrompt, index+1),
 		})
 		a.history = history
 	}

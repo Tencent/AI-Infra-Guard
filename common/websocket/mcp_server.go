@@ -273,13 +273,10 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	scanner.SetCallback(processFunc)
 	if strings.HasPrefix(req.Content, "http://") || strings.HasPrefix(req.Content, "https://") {
 		url := req.Content
-		r, err := scanner.InputStreamLink(ctx, url)
+		r, err := scanner.InputUrl(ctx, url)
 		if err != nil {
-			r, err = scanner.InputSSELink(ctx, url)
-			if err != nil {
-				s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("输入流链接无效: %v\n", err))
-				return
-			}
+			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("输入流链接无效: %v\n", err))
+			return
 		}
 		results, err := scanner.ScanLink(ctx, r, false)
 		if err != nil {

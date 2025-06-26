@@ -129,6 +129,30 @@ func (s *Scanner) InputCommand(ctx context.Context, command string, argv []strin
 	return utils.InitMcpClient(ctx, s.client)
 }
 
+func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResult, error) {
+	dirs := []string{"/", "/mcp", "/sse"}
+	url = strings.TrimRight(url, "/")
+	scan := func(ctx context.Context, url string) (*mcp.InitializeResult, error) {
+		r, err := s.InputStreamLink(ctx, url)
+		if err != nil {
+			r, err = s.InputSSELink(ctx, url)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return r, err
+	}
+	var err error
+	for _, u := range dirs {
+		link := url + u
+		r, err := scan(ctx, link)
+		if err == nil {
+			return r, nil
+		}
+	}
+	return nil, err
+}
+
 func (s *Scanner) InputSSELink(ctx context.Context, link string) (*mcp.InitializeResult, error) {
 	mcpClient, err := client.NewSSEMCPClient(link)
 	if err != nil {
