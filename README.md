@@ -317,7 +317,7 @@ We welcome community contributions!
 *   **Report Issues**: [Submit an Issue](https://github.com/Tencent/AI-Infra-Guard/issues)
 *   **Submit Code**: [Create a Pull Request](https://github.com/Tencent/AI-Infra-Guard/pulls)
 ## Wechat Group
-![](img/wechat-group.jpg)
+![](img/wechatgroup.png)
 
 ## 📄 License
 
