@@ -1,0 +1,127 @@
+plugins:                                          #插件配置
+  log:                                            #日志配置
+    default:                                      #默认日志的配置，可支持多输出
+      - writer: console                           #控制台标准输出 默认
+        level: error                              #标准输出日志的级别
+      - writer: file                              #本地文件日志
+        level: info                               #本地文件滚动日志的级别
+        writer_config:
+          filename: /ai-infra-guard/logs/trpc.log              #本地文件滚动日志存放的路径
+          max_size: 10                              #本地文件滚动日志的大小 单位 MB
+          max_backups: 10                           #最大日志文件数
+          max_age: 7                                #最大日志保留天数
+          compress:  false                          #日志文件是否压缩
+      - writer: zhiyan                              #zhiyan日志汇sdk
+        level: debug
+        remote_config:
+          report_topic: 'sdk-8a90371f9eb2f9ba'
+  
+  # 监控配置
+  metrics:
+    # 智研插件名字
+    zhiyan:
+      # 框架版本 trpc grpc等 [可选，默认为trpc]
+      frameCode: trpc
+      # 全局的appMark，下面各个场景的appMark为空时使用该值替换，避免重复填写相同的appMark
+      appMark: 18188_160297_aig-test
+      # 自定义的主调上报appMark[可选，默认为空，即使用appMark替换]
+      aModAppMark: ""
+      # 自定义的主调上报指标组[可选，一般不需要填写，由sdk自动填充]
+      aModMetricGroup: ""
+      # 自定义的被调上报appMark[可选，默认为空]
+      pModAppMark: ""
+      # 自定义的被调上报指标组[可选，一般不需要填写，由sdk自动填充]
+      pModMetricGroup: ""
+      # 本机IP，作用是作为智研上报的InstanceMark
+      ip: ""
+      # 数据上报的智研监控环境
+      env: ""
+      # useGlobalEnv 作用是使用 tRPC 框架配置中的 global.env_name 作为 env
+      useGlobalEnv: true
+      # 自定义的属性上报使用的智研appMark
+      attrAppMark: 18188_160297_aig-test
+      # 自定义的属性上报使用的智研指标组
+      attrMetricGroup: http_request
+      # 自定义属性上报时添加的维度，是在server、app、ip、namespace、env、container六个维度之外的维度
+      attrDimensions:
+        # 可以添加自定义维度
+        # service_type: ai_infra_guard
+      # 自定义属性上报的扩展计算方式，每种计算方式会产生一个新的属性上报指标
+      attrMetrics: [
+          avg,
+          max,
+          min,
+          counter,
+          gauge,
+        ]
+      # 进行自定义上报的时候，如果没有指定appMark，那么将使用该值作为appMark
+      defaultCustomAppMark: 18188_160297_aig-test
+      # 进行自定义上报的时候，如果没有指定指标组，那么将使用该值作为指标组
+      defaultCustomMetricGroup: http_request
+      # 智研上报sdk的配置
+      agentConfig:
+        # 智研agent的相关配置
+        agent:
+          # 智研agent的配置文件
+          agent_config_file: /usr/local/zhiyan/agent/etc/agent.yaml
+          # 每个批次，智研sdk可以向智研agent发送的最大数据条数
+          max_packet_size: 100
+          # 智研agent监听的unix socket
+          agent_socket_path: /usr/local/zhiyan/agent/bin/agent_socket
+          # 上报字符串告警的使用的agent监听的Unix socket
+          agent_string_socket_path: /usr/local/zhiyan/agent/plugins/plugin_socket
+          # 使用http方式上报监控指标时，使用的http地址，是个字符串数组
+          agent_access_addrs: ["zhiyan.monitor.access.inner.woa.com:8080"]
+          # 使用http方式上报监控指标时，使用的http路径，与agent_access_addrs配合使用
+          agent_access_url_path: access_v1.http_service/HttpCurveReportRpc
+          # 使用http方式上报字符串告警时，使用的http路径，与agent_access_addrs配合使用
+          agent_string_access_url_path: access_v1.http_service/HttpStringReportRpc
+          # 使用udp方式上报监控指标时，使用的udp地址
+          agent_udp_addrs: []
+          # 使用udp方式上报字符串告警时，使用的udp地址
+          agent_string_udp_addrs: []
+          # 关闭智研sdk时，等待sdk将剩余数据发送给智研agent的最大时间
+          max_stop_wait_time: 3
+        # 智研sdk的日志配置
+        logconfig:
+          # 智研sdk日志路径
+          path: /ai-infra-guard/logs/
+          # 智研sdk日志文件
+          name: zhiyan_agent_go_sdk.log
+          # 智研sdk日志级别
+          level: debug
+          # 智研sdk日志文件允许大小
+          size: 104857600
+          # 智研sdk日志翻滚时，允许留存的日志文件数量
+          number: 10
+          # 是否关闭智研sdk日志
+          close_log: false
+        # 智研sdk向智研agent进行数据上报的配置
+        reportconfig:
+          # 智研sdk向智研agent进行数据上报的周期，以ms计算
+          interval_report_time_ms: 1000
+          # 智研sdk中的数据发送channel的size
+          net_channel_size: 1000
+          # 智研sdk向智研agent进行数据发送的协程数量
+          net_routine_size: 10
+          # 智研sdk读取智研agent返回数据的超时时间
+          read_timeout_seconds: 3
+          # 智研sdk向智研agent发送数据的超时时间
+          write_timeout_seconds: 3
+          # 智研sdk向智研agent发送数据的重试次数
+          send_retry_num: 3
+          # 智研sdk与智研agent连接是否使用连接池
+          use_conn_pool: false
+          metric_chan_size: 1000000
+      # 配置服务
+      service:
+        - serviceName: trpc.test.helloworld.Greeter
+          successCode: 0,200,404
+      # 采样配置
+      sampleConfig:
+        # 可以添加采样配置
+      # 黑名单过滤配置
+      filterMetricConfigs:
+        # 可以添加过滤配置
+      # 上报模式，1.dimension-以维度形式上报(默认) 2.attr-以指标形式上报
+      reportMode: "dimension"

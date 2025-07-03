@@ -35,5 +35,5 @@ func init() {
 	rootCmd.AddCommand(webserverCmd)
 
 	// 设置webserver子命令的标志
-	webserverCmd.Flags().StringVar(&webServerAddr, "ws-addr", "127.0.0.1:8088", "WebSocket服务器地址")
+	webserverCmd.Flags().StringVar(&webServerAddr, "ws-addr", "0.0.0.0:8088", "WebSocket服务器地址")
 }

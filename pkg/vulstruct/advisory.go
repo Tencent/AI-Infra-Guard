@@ -2,10 +2,11 @@
 package vulstruct
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"strings"
 )
 
 // AdvisoryEngine 漏洞建议引擎结构体，用于管理版本漏洞信息
@@ -34,8 +35,7 @@ func NewAdvisoryEngine(dir string) (*AdvisoryEngine, error) {
 		}
 		ad, err := ReadVersionVulSingFile(file)
 		if err != nil {
-			gologger.WithError(err).Errorln("read advisory file error", file)
-			continue
+			return nil, fmt.Errorf("read advisory file error %s: %w", file, err)
 		}
 		ads = append(ads, *ad)
 	}
