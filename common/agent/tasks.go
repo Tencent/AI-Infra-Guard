@@ -113,8 +113,9 @@ func (t *TestDemoAgent) Execute(ctx context.Context, request TaskRequest, callba
 
 // ScanRequest 扫描请求结构
 type ScanRequest struct {
-	Target  []string          `json:"target,omitempty"`
-	Headers map[string]string `json:"headers,omitempty"`
+	Target  []string          `json:"target"`
+	Headers map[string]string `json:"headers"`
+	Timeout int               `json:"timeout"`
 }
 
 type AIInfraScanAgent struct {
@@ -160,7 +161,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 
 	// 深拷贝options
 	opts := &options.Options{
-		TimeOut:      10,
+		TimeOut:      reqScan.Timeout,
 		RateLimit:    200,
 		FPTemplates:  "data/fingerprints",
 		AdvTemplates: "data/vuln",
@@ -336,10 +337,10 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		defer mu.Unlock()
 		switch v := data.(type) {
 		case mcp.McpCallbackProcessing:
-			callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("处理进度: %d/%d", v.Current, v.Total))
+			//callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("处理进度: %d/%d", v.Current, v.Total))
 		case mcp.McpCallbackReadMe:
-			callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("读取文档内容: %s", v.Content))
-		case mcp.ScannerIssue:
+			//callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("读取文档内容: %s", v.Content))
+		case mcp.Issue:
 			callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusRunning, "发现安全问题",
 				fmt.Sprintf("标题:%s\n描述:%s\n严重级别:%s", v.Title, v.Description, string(v.Level)))
 		default:
@@ -433,10 +434,9 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	//8. 发送任务最终结果
 	result := map[string]interface{}{
-		"Brief":       "MCP安全扫描完成",
-		"Description": fmt.Sprintf("MCP扫描任务已完成，扫描类型: %s", scanType),
-		"ScanType":    scanType,
-		"Results":     scanResults,
+		"readme":   "",
+		"scanType": scanType,
+		"results":  scanResults,
 	}
 	tasks[1].Status = SubTaskStatusDone
 	callbacks.PlanUpdateCallback(tasks)

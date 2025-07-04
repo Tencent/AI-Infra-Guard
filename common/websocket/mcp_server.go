@@ -261,7 +261,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpProcessing, v)
 		case mcp.McpCallbackReadMe:
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpREADME, v)
-		case mcp.ScannerIssue:
+		case mcp.Issue:
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpResult, v)
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)

@@ -189,3 +189,40 @@ func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig
 	// 保存模型输出
 	return result, nil
 }
+
+func SummaryReport(ctx context.Context, agent utils.Agent, config *McpPluginConfig) (string, error) {
+	prompt := `
+你已对目标系统执行了完整的漏洞扫描流程，但最终未发现任何可报告的漏洞。现在需要生成一份技术分析报告说明原因：
+
+# 任务角色
+网络安全分析报告撰写专家
+
+# 核心要求
+1. 结构化解释未发现漏洞的技术原因
+2. 涵盖潜在可能性分析
+3. 提出后续行动建议
+4. 使用专业安全术语但避免复杂术语堆砌
+
+# 报告框架（Markdown格式）
+- 重新表述扫描的核心目标
+- 简述扫描过程和覆盖的关键组件（文件/接口/代码范围）
+- 未发现漏洞的原因
+	- 详细说明未发现漏洞的原因
+	- 说明可能的原因
+	- 说明潜在的漏洞发现机会
+
+**Return Format**
+All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). 
+If no vulnerabilities are found, return <arg></arg>.  
+Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
+
+**EXAMPLE**
+<arg>
+	<result>
+	<title>[漏洞类型]检测报告</title>
+	<desc>技术分析报告内容,markdown格式</desc>
+	</result>
+</arg>
+`
+	return SummaryChat(ctx, agent, config, prompt)
+}
