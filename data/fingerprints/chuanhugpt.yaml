@@ -10,3 +10,10 @@ http:
     path: '/'
     matchers:
       - body="<meta name=\"application-name\" content=\"Chuanhu Chat\">"
+version:  
+  - method: GET  
+    path: '/'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '<span[^>]*id="current-version"[^>]*>([^<]+)</span>'

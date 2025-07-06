@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>Jupyter Server</title>"
+version:  
+  - method: GET  
+    path: '/tree'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '"appVersion":"(\d+\.\d+\.?\d*)"'

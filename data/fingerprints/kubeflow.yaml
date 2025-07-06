@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>Kubeflow Central Dashboard</title>"
+version:  
+  - method: GET  
+    path: '/api/workgroup/env-info'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '"kubeflowVersion":"([^"]+)"'

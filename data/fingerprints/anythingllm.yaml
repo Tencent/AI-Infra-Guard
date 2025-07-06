@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>AnythingLLM | Your personal LLM trained on anything</title>"
+version:  
+  - method: GET  
+    path: '/utils/metrics'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '{"online":true,"version":"([^"]+)"'

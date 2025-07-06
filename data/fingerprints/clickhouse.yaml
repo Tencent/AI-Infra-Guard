@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - header="x-clickhouse-summary"
+version:  
+  - method: GET  
+    path: '/?query=SELECT%20version()'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '(\d+\.\d+\.\d+\.\d+)'
