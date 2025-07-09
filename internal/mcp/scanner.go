@@ -204,10 +204,14 @@ type McpResult struct {
 
 func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig, staticResults []string) (*McpResult, error) {
 	// 获取目录结构
+	ret := McpResult{
+		Issues: make([]Issue, 0),
+		Report: make([]Issue, 0),
+	}
 	dirPrompt, err := utils.ListDir(config.CodePath, 2, "")
 	if err != nil {
 		config.Logger.WithError(err).Errorln("read directory failed: " + config.CodePath)
-		return nil, err
+		return &ret, err
 	}
 
 	// 构建AI提示词
@@ -233,13 +237,10 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Errorln("run ai analysis failed")
-		return nil, err
+		return &ret, err
 	}
 
-	var ret McpResult
-	ret.Issues = make([]Issue, 0)
-
-	if p.Info.ID == "mcp_info_collection" {
+	if p.Info.ID == "mcp_info_collection" || p.Info.ID == "code_info_collection" {
 		summaryPrompt := `
 根据上下文生成详细的项目信息收集报告，为后续安全检测提供准确的技术背景和风险评估基础。报告应包含完整的技术架构分析、功能模块清单和安全关注点识别
 
@@ -273,7 +274,7 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 `
 		infoCollections, err := SummaryChat(ctx, agent, config, summaryPrompt)
 		if err != nil {
-			return nil, err
+			return &ret, err
 		}
 		ret.Issues = []Issue{
 			{
@@ -282,16 +283,29 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 			},
 		}
 		return &ret, nil
+	} else if p.Info.ID == "vuln_review" {
+		issues, err := SummaryResult(ctx, agent, config)
+		if err != nil {
+			return &ret, err
+		}
+		ret.Issues = issues
+		reporterResp, err := SummaryReport(ctx, agent, config)
+		if err != nil {
+			return &ret, err
+		}
+		reporter := ParseIssues(reporterResp)
+		ret.Report = reporter
+		return &ret, nil
 	} else {
 		issues, err := SummaryResult(ctx, agent, config)
 		if err != nil {
-			return nil, err
+			return &ret, err
 		}
 		ret.Issues = issues
 		if len(issues) == 0 {
 			reporterResp, err := SummaryReport(ctx, agent, config)
 			if err != nil {
-				return nil, err
+				return &ret, err
 			}
 			reporter := ParseIssues(reporterResp)
 			ret.Report = reporter
@@ -473,7 +487,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			logger.Warningf("信息收集失败: %v", err)
 		}
 		var infoPrompt string
-		if len(result.Issues) == 1 {
+		if result != nil && len(result.Issues) == 1 {
 			infoPrompt = result.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 			logger.Infoln("信息收集完成")
@@ -520,8 +534,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			lock.Unlock()
 		}
-		if err != nil {
+		if err != nil || result == nil {
 			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
+			return nil, err
 		}
 		logger.Infof("插件 %s 运行成功", plugin.Info.Name)
 		logger.Infof("共发现 %d 个问题", len(result.Issues))
@@ -551,8 +566,14 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 					gologger.WithError(err).Errorln("插件运行失败")
 				}
 				lock.Lock()
-				ret.Issues = append(ret.Issues, result.Issues...)
-				ret.Report = append(ret.Report, result.Report...)
+				if result != nil {
+					if len(result.Report) > 0 {
+						ret.Report = append(ret.Report, result.Report...)
+					}
+					if len(result.Issues) > 0 {
+						ret.Issues = append(ret.Issues, result.Issues...)
+					}
+				}
 				lock.Unlock()
 			}(plugin)
 		} else {
@@ -561,8 +582,14 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 				gologger.WithError(err).Errorln("插件运行失败")
 			}
 			lock.Lock()
-			ret.Issues = append(ret.Issues, result.Issues...)
-			ret.Report = append(ret.Report, result.Report...)
+			if result != nil {
+				if len(result.Report) > 0 {
+					ret.Report = append(ret.Report, result.Report...)
+				}
+				if len(result.Issues) > 0 {
+					ret.Issues = append(ret.Issues, result.Issues...)
+				}
+			}
 			lock.Unlock()
 		}
 	}
@@ -618,6 +645,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 					results = append(results, res2)
 				}
 				ret.Issues = results
+				if len(ret.Report) > 0 {
+					ret.Report = append(ret.Report, issues.Report...)
+				}
 			}
 		}
 	}

@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,9 +65,7 @@ func (t *TestDemoAgent) GetName() string {
 func (t *TestDemoAgent) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
 	//0. 发送初始任务计划
 	taskTitles := []string{
-		"环境检测和准备",
-		"AI基础设施扫描",
-		"漏洞分析和报告生成",
+		"测试任务",
 	}
 	var tasks []SubTask
 	for _, title := range taskTitles {
@@ -98,8 +98,6 @@ func (t *TestDemoAgent) Execute(ctx context.Context, request TaskRequest, callba
 
 	//7. 更新任务计划 - 完成第一个子任务，开始下一个
 	tasks[0].Status = SubTaskStatusDone
-	tasks[1].Status = SubTaskStatusDoing
-	tasks[1].StartedAt = time.Now().Unix()
 	callbacks.PlanUpdateCallback(tasks)
 
 	//8. 发送任务最终结果
@@ -113,13 +111,12 @@ func (t *TestDemoAgent) Execute(ctx context.Context, request TaskRequest, callba
 
 // ScanRequest 扫描请求结构
 type ScanRequest struct {
-	Target  []string          `json:"target"`
+	Target  []string          `json:"-"`
 	Headers map[string]string `json:"headers"`
 	Timeout int               `json:"timeout"`
 }
 
-type AIInfraScanAgent struct {
-}
+type AIInfraScanAgent struct{}
 
 func (t *AIInfraScanAgent) GetName() string {
 	return TaskTypeAIInfraScan
@@ -130,6 +127,11 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 	var reqScan ScanRequest
 	if err := json.Unmarshal(request.Params, &reqScan); err != nil {
 		return err
+	}
+	targets := strings.Split(strings.TrimSpace(request.Content), "\n")
+	reqScan.Target = targets
+	if reqScan.Timeout == 0 {
+		reqScan.Timeout = 30
 	}
 
 	//0. 发送初始任务计划
@@ -273,13 +275,12 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 }
 
 type ScanMcpRequest struct {
-	Content string `json:"content"`
+	Content string `json:"-"`
 	Model   struct {
 		Model   string `json:"model"`
 		Token   string `json:"token"`
 		BaseUrl string `json:"base_url"`
 	} `json:"model"`
-	Plugins  string `json:"plugins"`
 	Language string `json:"language"`
 }
 
@@ -295,7 +296,14 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 	if err := json.Unmarshal(request.Params, &params); err != nil {
 		return err
 	}
-
+	params.Content = request.Content
+	files := request.Attachments
+	transport := "code" // code or url
+	if len(files) > 0 || strings.Contains(request.Content, "github.com") {
+		transport = "code"
+	} else {
+		transport = "url"
+	}
 	//0. 发送初始任务计划
 	taskTitles := []string{
 		"初始化MCP扫描环境",
@@ -378,27 +386,60 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 	var scanResults interface{}
 	var scanType string
 
-	if strings.HasPrefix(params.Content, "http://") || strings.HasPrefix(params.Content, "https://") {
+	if transport == "url" {
 		scanType = "URL扫描"
 		url := params.Content
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "开始URL扫描: "+url)
-
 		r, err := scanner.InputUrl(ctx, url)
 		if err != nil {
 			return err
 		}
-
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "URL输入成功，开始安全扫描...")
-
 		results, err := scanner.ScanLink(ctx, r, false)
 		if err != nil {
 			return err
 		}
 		scanResults = results
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "URL扫描完成")
-	} else {
+	} else if transport == "code" {
 		scanType = "代码扫描"
-		folder := params.Content
+		// todo: github下载和zip下载
+		// 创建临时目录用于存储上传的文件
+		tempDir := "temp_uploads"
+		if err := os.MkdirAll(tempDir, 0755); err != nil {
+			gologger.Errorf("创建临时目录失败: %v", err)
+			return err
+		}
+		var folder string
+		if len(files) > 0 {
+			// 远程下载
+			for _, file := range files {
+				// 下载文件
+				gologger.Infof("开始下载文件: %s", file)
+				fileName := fmt.Sprintf("tmp-%d.zip", time.Now().UnixMicro())
+				err := utils.DownloadFile(file, filepath.Join(tempDir, fileName))
+				if err != nil {
+					gologger.Errorf("下载文件失败: %v", err)
+					return err
+				}
+				extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
+				gologger.Infof("文件下载成功: %s", file)
+				err = utils.ExtractZipFile(fileName, extractPath)
+				if err != nil {
+					gologger.Errorf("解压文件失败: %v", err)
+					return err
+				}
+				folder = extractPath
+			}
+		} else {
+			extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
+			err := utils.GitClone(params.Content, extractPath, 30*time.Second)
+			if err != nil {
+				gologger.Errorf("克隆代码仓库失败: %v", err)
+				return err
+			}
+		}
+
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "开始代码路径扫描: "+folder)
 
 		// 判断文件夹是否存在
@@ -416,7 +457,6 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		scanResults = results
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "代码扫描完成")
 	}
-
 	//6. 完成扫描
 
 	//7. 生成最终报告
@@ -443,4 +483,79 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	callbacks.ResultCallback(result)
 	return nil
+}
+
+type ModelRedteamReport struct{}
+
+func (m *ModelRedteamReport) GetName() string {
+	return TaskTypeModelRedteamReport
+}
+
+func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
+	type params struct {
+		Model struct {
+			BaseUrl string `json:"base_url"`
+			Token   string `json:"token"`
+			Model   string `json:"model"`
+		} `json:"model"`
+		Datasets struct {
+			NumPrompts int `json:"numPrompts"`
+			RandomSeed int `json:"randomSeed"`
+		} `json:"datasets"`
+	}
+	var param params
+	if err := json.Unmarshal(request.Params, &param); err != nil {
+		return err
+	}
+
+	planId := uuid.New().String()
+	err := utils.RunCmd("python", []string{
+		"cli_run.py",
+		"--model", param.Model.Model,
+		"--base_url", param.Model.BaseUrl,
+		"--api_key", param.Model.Token,
+		"--scenarios", fmt.Sprintf("MultiDataset:num_prompts=%d,random_seed=%d", param.Datasets.NumPrompts, param.Datasets.RandomSeed),
+		"--techniques", "ICRTRedteam",
+		"--metric", "JailbreakMetric",
+		"--choice", "serial",
+	}, func(line string) {
+		ParseStdoutLine(planId, line, callbacks)
+	})
+	return err
+}
+
+type ModelJailbreak struct{}
+
+func (m *ModelJailbreak) GetName() string {
+	return TaskTypeModelJailbreak
+}
+
+func (m *ModelJailbreak) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
+	type params struct {
+		Model struct {
+			BaseUrl string `json:"base_url"`
+			Token   string `json:"token"`
+			Model   string `json:"model"`
+		} `json:"model"`
+		Prompt string `json:"prompt"`
+	}
+	var param params
+	if err := json.Unmarshal(request.Params, &param); err != nil {
+		return err
+	}
+	planId := uuid.New().String()
+
+	err := utils.RunCmd("python", []string{
+		"cli_run.py",
+		"--model", param.Model.Model,
+		"--base_url", param.Model.BaseUrl,
+		"--api_key", param.Model.Token,
+		"--scenarios", fmt.Sprintf("Custom:prompt=%s", param.Prompt),
+		"--techniques", "ICRTJailbreak",
+		"--metric", "JailbreakMetric",
+		"--choice", "serial",
+	}, func(line string) {
+		ParseStdoutLine(planId, line, callbacks)
+	})
+	return err
 }

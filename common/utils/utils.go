@@ -2,11 +2,16 @@
 package utils
 
 import (
+	"archive/zip"
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"io"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -270,4 +275,158 @@ func GetLocalOpenPorts() ([]PortInfo, error) {
 	}
 
 	return result, nil
+}
+
+// DownloadFile 下载文件
+func DownloadFile(url string, path string) error {
+	// 创建 HTTP 客户端
+	client := &http.Client{}
+
+	// 发送 GET 请求
+	resp, err := client.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// 检查 HTTP 状态码
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("下载失败，HTTP 状态码：%d", resp.StatusCode)
+	}
+
+	// 创建文件
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 将响应体复制到文件
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ExtractZipFile 解压ZIP文件
+func ExtractZipFile(zipFile string, destPath string) error {
+	// 打开ZIP文件
+	reader, err := zip.OpenReader(zipFile)
+	if err != nil {
+		return fmt.Errorf("打开ZIP文件失败: %v", err)
+	}
+	defer reader.Close()
+
+	// 确保目标目录存在
+	if err := os.MkdirAll(destPath, 0755); err != nil {
+		return fmt.Errorf("创建目标目录失败: %v", err)
+	}
+
+	// 解压文件
+	for _, file := range reader.File {
+		// 检查文件路径是否安全
+		filePath := filepath.Join(destPath, file.Name)
+		if !strings.HasPrefix(filePath, filepath.Clean(destPath)+string(os.PathSeparator)) {
+			gologger.Errorln(fmt.Sprintf("不安全的路径: %s", file.Name))
+			continue
+		}
+
+		// 创建目录
+		if file.FileInfo().IsDir() {
+			if err := os.MkdirAll(filePath, 0755); err != nil {
+				return fmt.Errorf("创建目录失败: %v", err)
+			}
+			continue
+		}
+
+		// 确保文件的父目录存在
+		if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+			return fmt.Errorf("创建父目录失败: %v", err)
+		}
+
+		// 创建文件
+		outFile, err := os.Create(filePath)
+		if err != nil {
+			return fmt.Errorf("创建文件失败: %v", err)
+		}
+		defer outFile.Close()
+
+		// 打开文件内容
+		rc, err := file.Open()
+		if err != nil {
+			return fmt.Errorf("打开压缩文件内容失败: %v", err)
+		}
+		defer rc.Close()
+
+		// 复制内容
+		if _, err := io.Copy(outFile, rc); err != nil {
+			return fmt.Errorf("复制文件内容失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// GitClone 克隆Git仓库
+func GitClone(repoURL, targetDir string, timeout time.Duration) error {
+	var err error
+	for i := 0; i < 3; i++ {
+		err = func() error {
+			ctx := context.Background()
+			ctx, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, "git", "clone", "--", repoURL, targetDir)
+			done := make(chan error)
+			go func() {
+				_, err := cmd.CombinedOutput()
+				done <- err
+			}()
+
+			select {
+			case <-ctx.Done():
+				_ = cmd.Process.Kill()
+				return fmt.Errorf("操作超时")
+			case err = <-done:
+				return err
+			}
+		}()
+		if err == nil {
+			return nil
+		}
+	}
+	return err
+}
+
+func RunCmd(name string, arg []string, callback func(line string)) error {
+	// 命令行执行,stdio读取
+	cmd := exec.Command(name, arg...)
+	// 使用管道获取标准输出
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	cmd.Stderr = cmd.Stdout // 将错误输出合并到标准输出
+	// 启动扫描器goroutine
+	scanner := bufio.NewScanner(stdout)
+	done := make(chan struct{}) // 用于等待读取完成
+	go func() {
+		defer close(done)
+		for scanner.Scan() {
+			line := scanner.Text()
+			callback(line)
+		}
+	}()
+	// 启动命令
+	if err = cmd.Start(); err != nil {
+		return err
+	}
+	// 等待命令执行完成
+	if err = cmd.Wait(); err != nil {
+		return err
+	}
+	// 确保读取完所有输出
+	<-done
+	return nil
 }

@@ -110,6 +110,9 @@ func ParseIssues(input string) []Issue {
 		}
 		if desc := descRegex.FindStringSubmatch(block[1]); len(desc) > 1 {
 			vuln.Description = strings.TrimSpace(desc[1])
+			if vuln.Description == "" {
+				continue
+			}
 		}
 		if level := levelRegex.FindStringSubmatch(block[1]); len(level) > 1 {
 			vuln.Level = Level(strings.TrimSpace(level[1]))
@@ -219,10 +222,13 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 **EXAMPLE**
 <arg>
 	<result>
-	<title>[漏洞类型]检测报告</title>
+	<title>未发现[漏洞类型]</title>
 	<desc>技术分析报告内容,markdown格式</desc>
 	</result>
 </arg>
+
+若无，则返回
+<arg></arg>
 `
 	return SummaryChat(ctx, agent, config, prompt)
 }

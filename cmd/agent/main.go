@@ -1,0 +1,44 @@
+package main
+
+import (
+	"flag"
+	"github.com/Tencent/AI-Infra-Guard/common/agent"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+)
+
+func main() {
+	var server string
+	// 基于flag命令行解析 server
+	flag.StringVar(&server, "server", "ws://21.6.190.156:8088/api/v1/agents/ws", "server")
+	flag.Parse()
+
+	x := agent.NewAgent(agent.AgentConfig{
+		ServerURL: server,
+		Info: agent.AgentInfo{
+			ID:       "test",
+			HostName: "test",
+			IP:       "127.0.0.1",
+			Version:  "0.1",
+			Metadata: "",
+		},
+	})
+	defer x.Disconnect("主动退出")
+	agent1 := agent.TestDemoAgent{}
+	agent2 := agent.AIInfraScanAgent{}
+	agent3 := agent.McpScanAgent{}
+	agent4 := agent.ModelJailbreak{}
+	agent5 := agent.ModelRedteamReport{}
+
+	x.RegisterTaskFunc(&agent1)
+	x.RegisterTaskFunc(&agent2)
+	x.RegisterTaskFunc(&agent3)
+	x.RegisterTaskFunc(&agent4)
+	x.RegisterTaskFunc(&agent5)
+
+	gologger.Infoln("wait task")
+	err := x.Start()
+	if err != nil {
+		gologger.WithError(err).Fatalln("ok")
+	}
+	defer x.Stop()
+}

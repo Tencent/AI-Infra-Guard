@@ -83,7 +83,7 @@ func (a *Agent) Start() error {
 	}
 	// 启动各种协程
 	go a.handleSend()
-	go a.handleReceive()
+	a.handleReceive()
 	return nil
 }
 
@@ -210,7 +210,6 @@ func (a *Agent) processMessage(data []byte) error {
 		if err := json.Unmarshal(baseMsg.Content, &task); err != nil {
 			return err
 		}
-		gologger.Debugln("收到任务", task)
 		taskType := task.TaskType
 		taskCtx, cancel := context.WithCancel(a.ctx)
 		// 创建任务上下文
@@ -251,7 +250,7 @@ func (a *Agent) processMessage(data []byte) error {
 						a.SendPlanUpdate(task.SessionId, tasks)
 					},
 				}
-				taskFunc.Execute(taskCtx, task, callbacks)
+				go taskFunc.Execute(taskCtx, task, callbacks)
 				break
 			}
 		}

@@ -5,8 +5,7 @@ import "encoding/json"
 // Agent消息类型常量
 const (
 	// Agent -> Server 消息类型
-	AgentMsgTypeRegister   = "register"    // 注册消息
-	AgentMsgTypeTaskResult = "task_result" // 任务结果
+	AgentMsgTypeRegister = "register" // 注册消息
 
 	AgentMsgTypeResultUpdate = "resultUpdate" // 结果更新
 	AgentMsgTypeActionLog    = "actionLog"    // 插件日志
@@ -53,10 +52,11 @@ const (
 
 // 任务类型
 const (
-	TaskTypeTestDemo    = "Test-Demo"
-	TaskTypeAIInfraScan = "AI-Infra-Scan"
-	TaskTypeMcpScan     = "Mcp-Scan"
-	TaskTypePromptScan  = "Prompt-Scan"
+	TaskTypeTestDemo           = "Test-Demo"
+	TaskTypeAIInfraScan        = "AI-Infra-Scan"
+	TaskTypeMcpScan            = "Mcp-Scan"
+	TaskTypeModelRedteamReport = "Model-Redteam-Report"
+	TaskTypeModelJailbreak     = "Model-Jailbreak"
 )
 
 type AgentInfo struct {
@@ -96,11 +96,13 @@ type Disconnect struct {
 
 // TaskRequest 任务请求
 type TaskRequest struct {
-	SessionId string          `json:"session_id"` // 任务ID
-	TaskType  string          `json:"task_type"`  // 任务类型
-	Params    json.RawMessage `json:"params"`     // 任务参数
-	Timeout   int             `json:"timeout"`    // 超时时间(秒)
-	Content   string          `json:"content"`
+	SessionId   string          `json:"session_id"` // 任务ID
+	TaskType    string          `json:"task_type"`  // 任务类型
+	Params      json.RawMessage `json:"params"`     // 任务参数
+	Timeout     int             `json:"timeout"`    // 超时时间(秒)
+	Content     string          `json:"content"`
+	Language    string          `json:"countryIsoCode"`
+	Attachments []string        `json:"attachments"`
 }
 
 // Event 事件结构
