@@ -488,7 +488,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		Issues: []Issue{},
 	}
 	// 1. 运行信息收集插件
-	s.callback(McpModuleStart{ModuleName: "信息收集"})
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "信息收集"})
+	}
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
 		logger.Warningf("信息收集插件加载失败: %v", err)

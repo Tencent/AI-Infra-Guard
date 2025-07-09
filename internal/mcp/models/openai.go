@@ -47,9 +47,9 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 		}
 	}
 	stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
-		Messages: openai.F(chatMessages),
+		Messages: chatMessages,
 		Seed:     openai.Int(24),
-		Model:    openai.F(ai.Model),
+		Model:    ai.Model,
 	})
 	// 循环读取结果
 	go func() {
