@@ -274,7 +274,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	if strings.HasPrefix(req.Content, "http://") || strings.HasPrefix(req.Content, "https://") {
 		url := req.Content
 		r, err := scanner.InputUrl(ctx, url)
-		if err != nil {
+		if err != nil || r == nil {
 			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("输入流链接无效: %v\n", err))
 			return
 		}

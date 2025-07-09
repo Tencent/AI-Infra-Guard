@@ -139,7 +139,7 @@ func (s *Scanner) InputCommand(ctx context.Context, command string, argv []strin
 }
 
 func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResult, error) {
-	dirs := []string{"/", "/mcp", "/sse"}
+	dirs := []string{"", "/mcp", "/sse"}
 	url = strings.TrimRight(url, "/")
 	scan := func(ctx context.Context, url string) (*mcp.InitializeResult, error) {
 		r, err := s.InputStreamLink(ctx, url)
@@ -149,7 +149,7 @@ func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResu
 				return nil, err
 			}
 		}
-		return r, err
+		return r, nil
 	}
 	var err error
 	for _, u := range dirs {
@@ -167,8 +167,12 @@ func (s *Scanner) InputSSELink(ctx context.Context, link string) (*mcp.Initializ
 	if err != nil {
 		return nil, err
 	}
+	r, err := utils.InitMcpClient(ctx, mcpClient)
+	if err != nil {
+		return nil, err
+	}
 	s.client = mcpClient
-	return utils.InitMcpClient(ctx, s.client)
+	return r, err
 }
 
 func (s *Scanner) InputStreamLink(ctx context.Context, link string) (*mcp.InitializeResult, error) {
@@ -176,8 +180,12 @@ func (s *Scanner) InputStreamLink(ctx context.Context, link string) (*mcp.Initia
 	if err != nil {
 		return nil, err
 	}
+	r, err := utils.InitMcpClient(ctx, mcpClient)
+	if err != nil {
+		return nil, err
+	}
 	s.client = mcpClient
-	return utils.InitMcpClient(ctx, s.client)
+	return r, nil
 }
 
 func (s *Scanner) InputCodePath(codePath string) error {
@@ -712,7 +720,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			s.logger.Warningf("信息收集失败: %v", err)
 		}
 		var infoPrompt string
-		if len(issues.Issues) == 1 {
+		if issues.Issues != nil && len(issues.Issues) == 1 {
 			infoPrompt = issues.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 			s.logger.Infoln("信息收集完成")
@@ -748,6 +756,9 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			lock.Unlock()
+		}
+		if issues == nil {
+			return nil, fmt.Errorf("插件 %s 运行失败", plugin.Info.Name)
 		}
 		if err != nil {
 			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
