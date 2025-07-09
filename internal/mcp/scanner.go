@@ -47,6 +47,15 @@ type McpCallbackReadMe struct {
 	Content string `json:"content"`
 }
 
+type McpModuleStart struct {
+	ModuleName string
+}
+
+type McpModuleEnd struct {
+	ModuleName string
+	Result     string
+}
+
 func NewScanner(aiConfig *models.OpenAI, logger *gologger.Logger) *Scanner {
 	if logger == nil {
 		logger = gologger.NewLogger()
@@ -471,6 +480,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		Issues: []Issue{},
 	}
 	// 1. 运行信息收集插件
+	s.callback(McpModuleStart{ModuleName: "信息收集"})
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
 		logger.Warningf("信息收集插件加载失败: %v", err)
@@ -498,6 +508,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			s.callback(McpCallbackReadMe{infoPrompt})
+			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
 		}
 	}
 
@@ -527,11 +538,17 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			Language: s.language,
 			Logger:   logger,
 		}
+		if s.callback != nil {
+			lock.Lock()
+			s.callback(McpModuleStart{ModuleName: plugin.Info.Name})
+			lock.Unlock()
+		}
 		result, err := s.runCheckCode(ctx, plugin, &config)
 		if s.callback != nil {
 			lock.Lock()
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: plugin.Info.Name, Result: ""})
 			lock.Unlock()
 		}
 		if err != nil || result == nil {
@@ -600,9 +617,12 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
 		}
 	}()
-
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+	}
 	if len(ret.Issues) > 0 {
 		results := ret.Issues
 		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))

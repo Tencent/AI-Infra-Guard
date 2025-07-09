@@ -1,11 +1,11 @@
 package agent
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -55,8 +55,7 @@ type TaskInterface interface {
 	Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error
 }
 
-type TestDemoAgent struct {
-}
+type TestDemoAgent struct{}
 
 func (t *TestDemoAgent) GetName() string {
 	return TaskTypeTestDemo
@@ -330,9 +329,9 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	callbacks.ToolUseLogCallback(toolId01, "mcp_scanner_init", step01, "正在配置MCP扫描参数...")
 
-	writer1 := os.Stdout
+	writer1 := bytes.Buffer{}
 	logger := gologger.NewLogger()
-	logger.Logrus().SetOutput(io.MultiWriter(writer1))
+	logger.Logrus().SetOutput(&writer1)
 
 	// 结果收集
 	mu := sync.Mutex{}
@@ -340,23 +339,36 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 	step02 := uuid.New().String()
 	statusId02 := uuid.New().String()
 
+	readMe := ""
+
+	var moduleStatusId string
+	var moduleToolId string
+
 	processFunc := func(data interface{}) {
 		mu.Lock()
 		defer mu.Unlock()
 		switch v := data.(type) {
+		case mcp.McpModuleStart:
+			moduleStatusId = uuid.New().String()
+			moduleToolId = uuid.New().String()
+			callbacks.StepStatusUpdateCallback(step02, moduleStatusId, AgentStatusCompleted, "MCP安全插件扫描", "开始MCP安全扫描:"+v.ModuleName)
+			callbacks.ToolUsedCallback(step02, moduleStatusId, "开始扫描MCP安全扫描",
+				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDoing, "开始扫描MCP安全扫描", "开始扫描", v.ModuleName, "")})
+		case mcp.McpModuleEnd:
+			callbacks.ToolUsedCallback(step02, moduleStatusId, "MCP安全扫描完成",
+				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDone, "MCP安全扫描完成", "扫描完成", v.ModuleName, "")})
 		case mcp.McpCallbackProcessing:
-			//callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("处理进度: %d/%d", v.Current, v.Total))
 		case mcp.McpCallbackReadMe:
-			//callbacks.ToolUseLogCallback(toolId01, "mcp_scanner", step02, fmt.Sprintf("读取文档内容: %s", v.Content))
+			readMe = v.Content
 		case mcp.Issue:
-			callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusRunning, "发现安全问题",
+			callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusCompleted, "发现安全问题",
 				fmt.Sprintf("标题:%s\n描述:%s\n严重级别:%s", v.Title, v.Description, string(v.Level)))
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)
 		}
 	}
-
 	callbacks.ToolUseLogCallback(toolId01, "mcp_scanner_init", step01, "配置AI模型: "+params.Model.Model)
+
 	modelConfig := models.NewOpenAI(params.Model.Token, params.Model.Model, params.Model.BaseUrl)
 	scanner := mcp.NewScanner(modelConfig, logger)
 	scanner.SetLanguage(params.Language)
@@ -381,9 +393,11 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	toolId02 := uuid.New().String()
 	callbacks.ToolUsedCallback(step02, statusId02, "执行MCP扫描",
-		[]Tool{CreateTool(toolId02, "mcp_scanner", ToolStatusDoing, "正在执行MCP安全扫描", "扫描", "目标内容", "")})
+		[]Tool{
+			CreateTool(toolId02, "mcp_scanner", ToolStatusDoing, "正在执行MCP安全扫描", "扫描", "目标内容", ""),
+		})
 
-	var scanResults interface{}
+	var scanResults *mcp.McpResult
 	var scanType string
 
 	if transport == "url" {
@@ -438,6 +452,7 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 				gologger.Errorf("克隆代码仓库失败: %v", err)
 				return err
 			}
+			folder = extractPath
 		}
 
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "开始代码路径扫描: "+folder)
@@ -446,10 +461,8 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
 			return fmt.Errorf("代码路径不存在或不是目录: %s", folder)
 		}
-
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "代码路径验证成功，开始安全扫描...")
-
-		scanner.InputCodePath(params.Content)
+		scanner.InputCodePath(folder)
 		results, err := scanner.ScanCode(ctx, false)
 		if err != nil {
 			return err
@@ -457,26 +470,24 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		scanResults = results
 		callbacks.ToolUseLogCallback(toolId02, "mcp_scanner", step02, "代码扫描完成")
 	}
-	//6. 完成扫描
-
-	//7. 生成最终报告
 	step03 := uuid.New().String()
 	callbacks.NewPlanStepCallback(step03, "生成扫描报告")
 
 	statusId03 := uuid.New().String()
-	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusRunning, "A.I.G正在工作", "开始生成MCP扫描报告")
+	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusCompleted, "A.I.G正在工作", "开始生成MCP扫描报告")
 
 	toolId03 := uuid.New().String()
 	callbacks.ToolUsedCallback(step03, statusId03, "生成报告",
-		[]Tool{CreateTool(toolId03, "mcp_report_generator", ToolStatusDoing, "正在生成MCP扫描报告", "报告", "扫描结果", "")})
+		[]Tool{CreateTool(toolId03, "mcp_report_generator", ToolStatusDone, "正在生成MCP扫描报告", "扫描日志", "日志内容", writer1.String())})
 
 	callbacks.ToolUseLogCallback(toolId03, "mcp_report_generator", step03, "正在分析MCP扫描结果...")
 
 	//8. 发送任务最终结果
 	result := map[string]interface{}{
-		"readme":   "",
+		"readme":   readMe,
 		"scanType": scanType,
-		"results":  scanResults,
+		"results":  scanResults.Issues,
+		"report":   scanResults.Report,
 	}
 	tasks[1].Status = SubTaskStatusDone
 	callbacks.PlanUpdateCallback(tasks)
