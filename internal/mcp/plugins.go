@@ -154,6 +154,8 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 	</result>
 	<!-- Additional <result> entries can be added -->
 </arg>
+
+**请注意,必须是漏洞输出详情，没有漏洞则只输出<arg></arg>**
 `
 	history = append(history, map[string]string{
 		"role":    "user",
@@ -195,8 +197,7 @@ func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig
 
 func SummaryReport(ctx context.Context, agent utils.Agent, config *McpPluginConfig) (string, error) {
 	prompt := `
-你已对目标系统执行了完整的漏洞扫描流程，但最终未发现任何可报告的漏洞。现在需要生成一份技术分析报告说明原因：
-
+你已对目标系统执行了完整的漏洞扫描流程，但最终未发现任何可报告的漏洞。现在需要生成一份简要的技术分析报告说明原因,按照以下结构输出即可：
 # 任务角色
 网络安全分析报告撰写专家
 
