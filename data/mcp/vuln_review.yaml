@@ -48,6 +48,18 @@ prompt_template: |
   - **Code Evidence**: Complete display of key code segments
   - **Attack Path**: Complete path from attack entry to harm realization
   - **Impact Assessment**: Clear security consequences and impact scope
+  
+  ## Risk Type Classification
+  The vulnerability type (risk_type) needs to be one of the following categories:
+    - Auth Bypass: Detect possible authentication bypass vulnerabilities
+    - Command Injection: Detect possible command injection vulnerabilities
+    - Credential Theft: Detect credential theft risks
+    - Hardcoded API Key: Detect hardcoded API keys or sensitive credentials
+    - Indirect Prompt Injection: Detect indirect prompt injection vulnerabilities
+    - Name Confusion: Detect name confusion and typosquatting attacks in MCP tools
+    - Rug Pull Attack: Rug Pull in MCP context refers to malicious sudden withdrawal of service, data destruction, or intentional service termination after gaining user trust or access to sensitive resources, causing significant harm to users.
+    - Tool Poisoning Attack: Tool Poisoning refers to malicious modification or injection of harmful functionality into legitimate MCP tools, causing them to perform unintended malicious actions while maintaining their apparent normal functionality.
+    - Tool Shadowing Attack: Tool Shadowing refers to MCP tools redefining or modifying the behavior of other trusted MCP server tools through hidden instructions, triggering malicious attacks when users invoke the modified tools.
 
   ## Risk Level Calibration
 
@@ -61,13 +73,14 @@ prompt_template: |
   - SQL injection, command injection (with clear exploitation paths)
   - Sensitive credential leakage (non-test data)
   - Privilege escalation vulnerabilities
-  - Large-scale sensitive data leakage
+  - **Large-scale** sensitive data leakage
 
   ### Medium
   - Limited privilege bypass
   - Local information disclosure
   - Vulnerabilities requiring specific conditions
   - Security issues with limited impact scope
+  - Indirect prompt injection
 
   ### Low
   - Information disclosure with minimal risk

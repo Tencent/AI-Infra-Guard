@@ -8,7 +8,6 @@ import (
 
 func main() {
 	var server string
-	// 基于flag命令行解析 server
 	flag.StringVar(&server, "server", "ws://21.6.190.156:8088/api/v1/agents/ws", "server")
 	flag.Parse()
 

@@ -137,7 +137,7 @@ All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>).
 If no vulnerabilities are found, return <arg></arg>.  
 Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
 **Rules**
-1. You must ensure that the vulnerability truly exists; if no vulnerability is found, return empty.
+1. You must ensure that the vulnerability truly exists. if no vulnerability is found, return empty.
 2. The desc field in the vulnerability description should include a detailed evidence chain for the vulnerability.
 3. Determine the severity 'level'' of the vulnerability based on its title and description: critical, high, medium, low.
 %s
