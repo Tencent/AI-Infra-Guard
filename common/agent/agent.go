@@ -178,14 +178,13 @@ func (a *Agent) handleReceive() {
 			return
 		default:
 			if a.conn == nil {
-				time.Sleep(time.Second)
-				continue
+				break
 			}
 			_, message, err := a.conn.ReadMessage()
 			if err != nil {
 				gologger.WithError(err).Errorln("Failed to read message")
 				a.conn = nil
-				continue
+				break
 			}
 			gologger.Debugln("recv", string(message))
 			if err := a.processMessage(message); err != nil {
@@ -214,7 +213,7 @@ func (a *Agent) processMessage(data []byte) error {
 		taskCtx, cancel := context.WithCancel(a.ctx)
 		// 创建任务上下文
 		if task.Timeout > 0 {
-			taskCtx, cancel = context.WithTimeout(taskCtx, time.Duration(task.Timeout)*time.Second)
+			//taskCtx, cancel = context.WithTimeout(taskCtx, time.Duration(task.Timeout)*time.Second)
 		}
 		// 加入task 上下文
 		taskContext := &TaskContext{
@@ -233,21 +232,27 @@ func (a *Agent) processMessage(data []byte) error {
 				callbacks := TaskCallbacks{
 					ResultCallback: func(result map[string]interface{}) {
 						a.SendTaskResult(task.SessionId, result)
+						gologger.Debugln("ResultCallback", result)
 					},
 					ToolUseLogCallback: func(actionId, tool, planStepId, actionLog string) {
 						a.SendsToolUsedLog(task.SessionId, actionId, tool, planStepId, actionLog)
+						gologger.Debugln("ToolUseLogCallback", actionId, tool, planStepId, actionLog)
 					},
 					ToolUsedCallback: func(planStepId, statusId, description string, tools []Tool) {
 						a.SendToolUsed(task.SessionId, planStepId, statusId, description, tools)
+						gologger.Debugln("ToolUsedCallback", planStepId, statusId, description, tools)
 					},
 					NewPlanStepCallback: func(stepId, title string) {
 						a.SendNewPlanStep(task.SessionId, stepId, title)
+						gologger.Debugln("NewPlanStepCallback", stepId, title)
 					},
 					StepStatusUpdateCallback: func(planStepId, statusId, agentStatus, brief, description string) {
 						a.SendStepStatusUpdate(task.SessionId, planStepId, statusId, agentStatus, brief, description)
+						gologger.Debugln("StepStatusUpdateCallback", planStepId, statusId, agentStatus, brief, description)
 					},
 					PlanUpdateCallback: func(tasks []SubTask) {
 						a.SendPlanUpdate(task.SessionId, tasks)
+						gologger.Debugln("PlanUpdateCallback", tasks)
 					},
 				}
 				go taskFunc.Execute(taskCtx, task, callbacks)

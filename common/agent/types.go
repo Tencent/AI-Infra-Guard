@@ -96,10 +96,10 @@ type Disconnect struct {
 
 // TaskRequest 任务请求
 type TaskRequest struct {
-	SessionId   string          `json:"session_id"` // 任务ID
-	TaskType    string          `json:"task_type"`  // 任务类型
-	Params      json.RawMessage `json:"params"`     // 任务参数
-	Timeout     int             `json:"timeout"`    // 超时时间(秒)
+	SessionId   string          `json:"sessionId"` // 任务ID
+	TaskType    string          `json:"taskType"`  // 任务类型
+	Params      json.RawMessage `json:"params"`    // 任务参数
+	Timeout     int             `json:"timeout"`   // 超时时间(秒)
 	Content     string          `json:"content"`
 	Language    string          `json:"countryIsoCode"`
 	Attachments []string        `json:"attachments"`

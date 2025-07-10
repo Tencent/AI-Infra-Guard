@@ -11,7 +11,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"io"
 	"net"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -275,39 +274,6 @@ func GetLocalOpenPorts() ([]PortInfo, error) {
 	}
 
 	return result, nil
-}
-
-// DownloadFile 下载文件
-func DownloadFile(url string, path string) error {
-	// 创建 HTTP 客户端
-	client := &http.Client{}
-
-	// 发送 GET 请求
-	resp, err := client.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// 检查 HTTP 状态码
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("下载失败，HTTP 状态码：%d", resp.StatusCode)
-	}
-
-	// 创建文件
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// 将响应体复制到文件
-	_, err = io.Copy(file, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // ExtractZipFile 解压ZIP文件

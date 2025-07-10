@@ -43,6 +43,11 @@ type Runner struct {
 	advEngine   *vulstruct.AdvisoryEngine // 漏洞建议引擎
 	total       int                       // 总目标数
 	done        chan struct{}             // 用于优雅关闭的通道
+	callback    func(interface{})
+}
+
+type Step01 struct {
+	Text string
 }
 
 // New 初始化一个新的 Runner 实例
@@ -119,7 +124,12 @@ func (r *Runner) initFingerprints() error {
 		gologger.Fatalf("没有指定指纹模板")
 	}
 	r.fpEngine = preload.New(r.hp, fps)
-	gologger.Infof("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	gologger.Infoln(text)
+	if r.Options.Callback != nil {
+		r.Options.Callback(Step01{Text: text})
+	}
+
 	r.result = make(chan HttpResult)
 	return nil
 }
@@ -632,7 +642,11 @@ func (r *Runner) initVulnerabilityDB() error {
 		gologger.Fatalf("无法初始化漏洞库:%s", err)
 	}
 	r.advEngine = engine
-	gologger.Infof("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	text := fmt.Sprintf("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	gologger.Infoln(text)
+	if r.Options.Callback != nil {
+		r.Options.Callback(Step01{Text: text})
+	}
 	return nil
 }
 

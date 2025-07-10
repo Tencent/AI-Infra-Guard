@@ -2,17 +2,20 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
 func main() {
 	var server string
-	flag.StringVar(&server, "server", "ws://21.6.190.156:8088/api/v1/agents/ws", "server")
+	flag.StringVar(&server, "server", "21.6.190.156:8088", "server")
 	flag.Parse()
 
+	serverUrl := fmt.Sprintf("ws://%s/api/v1/agents/ws", server)
+
 	x := agent.NewAgent(agent.AgentConfig{
-		ServerURL: server,
+		ServerURL: serverUrl,
 		Info: agent.AgentInfo{
 			ID:       "test",
 			HostName: "test",
@@ -24,7 +27,7 @@ func main() {
 	defer x.Disconnect("主动退出")
 	agent1 := agent.TestDemoAgent{}
 	agent2 := agent.AIInfraScanAgent{}
-	agent3 := agent.McpScanAgent{}
+	agent3 := agent.McpScanAgent{Server: server}
 	agent4 := agent.ModelJailbreak{}
 	agent5 := agent.ModelRedteamReport{}
 

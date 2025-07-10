@@ -198,6 +198,10 @@ func (s *Scanner) InputCodePath(codePath string) error {
 }
 
 func (s *Scanner) SetLanguage(language string) error {
+	if language == "" {
+		s.language = "zh"
+		return nil
+	}
 	if language == "zh-CN" {
 		s.language = "zh"
 	} else {
