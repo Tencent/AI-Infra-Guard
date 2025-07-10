@@ -1,6 +1,6 @@
 Tencent is pleased to support the open source community by making "AI Infra Guard" available. 
 
-Copyright (C) 2024 THL A29 Limited, a Tencent company.  All rights reserved. 
+Copyright (C) 2024 Tencent.  All rights reserved. 
 
 "AI Infra Guard" is licensed under the MIT License except for the third-party components listed below.
 
