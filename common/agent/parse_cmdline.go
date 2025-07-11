@@ -93,6 +93,11 @@ func ParseStdoutLine(tasks []SubTask, line string, callbacks TaskCallbacks) {
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeResultUpdate unmarshal command", cmd.Content)
 			return
 		}
+		for i, _ := range tasks {
+			tasks[i].Status = SubTaskStatusDone
+		}
+		callbacks.PlanUpdateCallback(tasks)
+
 		callbacks.ResultCallback(content)
 	}
 }
