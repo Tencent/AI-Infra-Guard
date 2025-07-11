@@ -261,7 +261,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpProcessing, v)
 		case mcp.McpCallbackReadMe:
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpREADME, v)
-		case mcp.ScannerIssue:
+		case mcp.Issue:
 			s.SendMessage2(ctx, conn, WSMsgTypeMcpResult, v)
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)
@@ -274,7 +274,7 @@ func (s *WSServer) handleMcpScan(ctx context.Context, conn *websocket.Conn, req 
 	if strings.HasPrefix(req.Content, "http://") || strings.HasPrefix(req.Content, "https://") {
 		url := req.Content
 		r, err := scanner.InputUrl(ctx, url)
-		if err != nil {
+		if err != nil || r == nil {
 			s.SendMessage(conn, WSMsgTypeMcpError, fmt.Sprintf("输入流链接无效: %v\n", err))
 			return
 		}
