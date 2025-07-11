@@ -2,34 +2,36 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
 type CmdNewPlanStep struct {
-	StepId string `json:"stepId"`
 	Title  string `json:"title"`
+	StepId string `json:"stepId"`
 }
 
 type CmdStatusUpdate struct {
-	StepId      string `json:"stepId"`
 	Brief       string `json:"brief"`
 	Description string `json:"description"`
+	StepId      string `json:"stepId"`
 }
 
 type CmdToolUsed struct {
-	StepId   string `json:"stepId"`
 	ToolId   string `json:"tool_id"`
 	ToolName string `json:"tool_name"`
 	Brief    string `json:"brief"`
 	Status   string `json:"status"`
+	StepId   string `json:"stepId"`
 }
 
 type CmdActionLog struct {
 	ToolId   string `json:"tool_id"`
 	ToolName string `json:"tool_name"`
-	StepId   string `json:"stepId"`
 	Log      string `json:"log"`
+	StepId   string `json:"stepId"`
 }
 
 type CmdContent struct {
@@ -37,10 +39,12 @@ type CmdContent struct {
 	Content json.RawMessage `json:"content"`
 }
 
-func ParseStdoutLine(planId string, line string, callbacks TaskCallbacks) {
+var statusId string
+
+func ParseStdoutLine(tasks []SubTask, line string, callbacks TaskCallbacks) {
 	var cmd CmdContent
 	if err := json.Unmarshal([]byte(line), &cmd); err != nil {
-		gologger.WithError(err).Errorln("Failed to parse stdout line", line)
+		fmt.Println(line)
 		return
 	}
 	switch cmd.Type {
@@ -51,21 +55,31 @@ func ParseStdoutLine(planId string, line string, callbacks TaskCallbacks) {
 			return
 		}
 		callbacks.NewPlanStepCallback(content.StepId, content.Title)
+		// 更新任务状态
+		for i, _ := range tasks {
+			if tasks[i].StepId < content.StepId {
+				tasks[i].Status = SubTaskStatusDone
+			} else if tasks[i].StepId == content.StepId {
+				tasks[i].Status = SubTaskStatusDoing
+			}
+		}
+		callbacks.PlanUpdateCallback(tasks)
 	case AgentMsgTypeStatusUpdate:
 		var content CmdStatusUpdate
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeStatusUpdate unmarshal command", cmd.Content)
 			return
 		}
-		callbacks.StepStatusUpdateCallback(planId, content.StepId, AgentStatusCompleted, content.Brief, content.Description)
+		statusId = uuid.NewString()
+		callbacks.StepStatusUpdateCallback(content.StepId, statusId, AgentStatusCompleted, content.Brief, content.Description)
 	case AgentMsgTypeToolUsed:
 		var content CmdToolUsed
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeToolUsed unmarshal command", cmd.Content)
 			return
 		}
-		tool := CreateTool(content.ToolId, content.ToolName, statusString(content.Status), content.Brief, "", "", "")
-		callbacks.ToolUsedCallback(planId, content.StepId, content.Brief, []Tool{tool})
+		tool := CreateTool(content.ToolId, content.ToolId, statusString(content.Status), content.Brief, content.Brief, "", "")
+		callbacks.ToolUsedCallback(content.StepId, statusId, content.Brief, []Tool{tool})
 	case AgentMsgTypeActionLog:
 		var content CmdActionLog
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {

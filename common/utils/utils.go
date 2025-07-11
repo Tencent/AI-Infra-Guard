@@ -365,9 +365,11 @@ func GitClone(repoURL, targetDir string, timeout time.Duration) error {
 	return err
 }
 
-func RunCmd(name string, arg []string, callback func(line string)) error {
+func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 	// 命令行执行,stdio读取
 	cmd := exec.Command(name, arg...)
+	cmd.Dir = dir
+	cmd.Env = os.Environ()
 	// 使用管道获取标准输出
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

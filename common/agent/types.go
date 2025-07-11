@@ -256,6 +256,7 @@ type SubTask struct {
 	Status    statusString `json:"status"`    // 子任务进度（todo，doing，done）
 	Title     string       `json:"title"`     // 子任务名称
 	StartedAt int64        `json:"startedAt"` // 子任务开始时间
+	StepId    string       `json:"stepId"`    // 子任务id
 }
 
 // PlanUpdateEvent 更新任务计划事件结构

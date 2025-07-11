@@ -119,6 +119,20 @@ func (a *Agent) connect() error {
 		return err
 	}
 	a.conn = conn
+
+	// 设置ping处理器：收到ping消息后自动回复pong
+	a.conn.SetPingHandler(func(appData string) error {
+		gologger.Debugln("Received ping message, sending pong response", appData)
+		return a.conn.WriteControl(websocket.PongMessage, []byte(""), time.Now().Add(time.Second*60))
+	})
+
+	// 设置pong处理器：收到pong消息时的处理逻辑
+	a.conn.SetPongHandler(func(appData string) error {
+		gologger.Debugln("Received pong message")
+		// 更新读取超时时间，保持连接活跃
+		return a.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	})
+
 	// 发送注册消息
 	return a.register()
 }
@@ -500,10 +514,11 @@ func (a *Agent) SendPlanUpdate(sessionId string, tasks []SubTask) error {
 }
 
 // CreateSubTask 创建子任务的便捷方法
-func CreateSubTask(status statusString, title string, startedAt int64) SubTask {
+func CreateSubTask(status statusString, title string, startedAt int64, stepId string) SubTask {
 	return SubTask{
 		Status:    status,
 		Title:     title,
 		StartedAt: startedAt,
+		StepId:    stepId,
 	}
 }

@@ -499,7 +499,13 @@ func (r *Runner) handleOutput(wg *sizedwaitgroup.SizedWaitGroup) {
 	}
 
 	if r.Options.Callback != nil {
-		score := r.calcSecScore(results)
+		advies := make([]vulstruct.Info, 0)
+		for _, item := range results {
+			for _, ad := range item.Advisories {
+				advies = append(advies, ad.Info)
+			}
+		}
+		score := r.CalcSecScore(advies)
 		r.Options.Callback(score)
 	}
 }
@@ -650,29 +656,20 @@ func (r *Runner) initVulnerabilityDB() error {
 	return nil
 }
 
-// calcSecScore 计算安全分数
-func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
+// CalcSecScore 计算安全分数
+func (r *Runner) CalcSecScore(advisories []vulstruct.Info) CallbackReportInfo {
 	var total, high, middle, low int = 0, 0, 0, 0
-	for _, result := range results {
-		total += len(result.Advisories)
-		for _, item := range result.Advisories {
-			if item.Info.Severity == "HIGH" || item.Info.Severity == "CRITICAL" {
-				high++
-			} else if item.Info.Severity == "MEDIUM" {
-				middle++
-			} else {
-				low++
-			}
+	total = len(advisories)
+	for _, item := range advisories {
+		if item.Severity == "HIGH" || item.Severity == "CRITICAL" {
+			high++
+		} else if item.Severity == "MEDIUM" {
+			middle++
+		} else {
+			low++
 		}
 	}
-	if len(results) == 0 && total == 0 {
-		return CallbackReportInfo{
-			SecScore:   0,
-			HighRisk:   0,
-			MediumRisk: 0,
-			LowRisk:    0,
-		}
-	} else if total == 0 {
+	if total == 0 {
 		return CallbackReportInfo{
 			SecScore:   100,
 			HighRisk:   0,
