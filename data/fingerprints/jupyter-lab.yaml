@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>JupyterLab</title>"
+version:  
+  - method: GET  
+    path: '/lab'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: 'appVersion["\']:\s*["\'](\d+\.\d+\.\d+)["\']'

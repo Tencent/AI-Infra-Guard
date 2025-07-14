@@ -11,3 +11,10 @@ http:
     path: '/v2/repository/models/simple/load'
     matchers:
       - body="{\"error\":\"explicit model load"
+version:  
+  - method: GET  
+    path: '/v2'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '"version":"(\d+\.\d+\.?\d*)"'

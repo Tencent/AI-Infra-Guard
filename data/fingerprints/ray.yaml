@@ -15,3 +15,10 @@ http:
     path: '/'
     matchers:
       - icon="463802404"
+version:  
+  - method: GET  
+    path: '/api/version'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '"ray_version":"([^"]+)"'

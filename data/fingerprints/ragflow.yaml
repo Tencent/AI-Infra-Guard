@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>RAGFlow</title>"
+version:  
+  - method: GET  
+    path: '/version'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '{"version":"([^"]+)"'

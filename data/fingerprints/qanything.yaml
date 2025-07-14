@@ -15,3 +15,10 @@ http:
     path: '/'
     matchers:
       - body="<title>Application QAnything cannot handle your request</title>"
+version:  
+  - method: GET  
+    path: '/qanything/version.json'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '{"version":"(\d+\.\d+\.?\d+?)"'

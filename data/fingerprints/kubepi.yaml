@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<title>KubePi</title>"
+version:  
+  - method: GET  
+    path: '/'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: 'version.*?v(\d+\.\d+\.\d+)'
