@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -56,59 +55,6 @@ type TaskInterface interface {
 	Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error
 }
 
-type TestDemoAgent struct{}
-
-func (t *TestDemoAgent) GetName() string {
-	return TaskTypeTestDemo
-}
-
-func (t *TestDemoAgent) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
-	//0. 发送初始任务计划
-	taskTitles := []string{
-		"测试任务",
-	}
-	var tasks []SubTask
-	for _, title := range taskTitles {
-		tasks = append(tasks, CreateSubTask(SubTaskStatusTodo, title, 0, uuid.NewString()))
-	}
-	callbacks.PlanUpdateCallback(tasks)
-
-	//1. 创建新的执行步骤
-	step01 := tasks[0].StepId
-	callbacks.NewPlanStepCallback(step01, "环境检测和准备")
-
-	//2. 发送步骤运行状态
-	statusId := uuid.New().String()
-	callbacks.StepStatusUpdateCallback(step01, statusId, AgentStatusRunning, "A.I.G正在工作", "开始扫描AI基础设施")
-
-	//3. 调用插件
-	toolId := uuid.New().String()
-	callbacks.ToolUsedCallback(step01, statusId, "开始AI基础设施扫描",
-		[]Tool{CreateTool(toolId, "ai_scanner", ToolStatusDoing, "正在启动AI扫描器", "扫描", "目标系统", "")})
-
-	//4. 发送插件执行日志
-	callbacks.ToolUseLogCallback(toolId, "ai_scanner", step01, "正在初始化扫描模块... 显示插件日志")
-
-	//5. 发送插件完成状态
-	completedTool := CreateTool(toolId, "ai_scanner", ToolStatusDone, "AI扫描器已完成", "扫描", "目标系统", "发现3个高危漏洞")
-	callbacks.ToolUsedCallback(step01, statusId, "扫描完成", []Tool{completedTool})
-
-	//6. 发送步骤完成状态
-	callbacks.StepStatusUpdateCallback(step01, statusId, AgentStatusCompleted, "A.I.G完成工资", "完成扫描AI基础设施")
-
-	//7. 更新任务计划 - 完成第一个子任务，开始下一个
-	tasks[0].Status = SubTaskStatusDone
-	callbacks.PlanUpdateCallback(tasks)
-
-	//8. 发送任务最终结果
-	result := map[string]any{
-		"Brief":       "AI基础设施扫描完成",
-		"Description": "扫描发现了3个高危漏洞：CVE-2024-001, CVE-2024-002, CVE-2024-003",
-	}
-	callbacks.ResultCallback(result)
-	return nil
-}
-
 // ScanRequest 扫描请求结构
 type ScanRequest struct {
 	Target  []string          `json:"-"`
@@ -116,7 +62,9 @@ type ScanRequest struct {
 	Timeout int               `json:"timeout"`
 }
 
-type AIInfraScanAgent struct{}
+type AIInfraScanAgent struct {
+	Server string
+}
 
 func (t *AIInfraScanAgent) GetName() string {
 	return TaskTypeAIInfraScan
@@ -129,6 +77,31 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		return err
 	}
 	targets := strings.Split(strings.TrimSpace(request.Content), "\n")
+	if len(request.Attachments) > 0 {
+		// 创建临时目录用于存储上传的文件
+		tempDir := "temp_uploads"
+		if err := os.MkdirAll(tempDir, 0755); err != nil {
+			gologger.Errorf("创建临时目录失败: %v", err)
+			return err
+		}
+		// 远程下载
+		for _, file := range request.Attachments {
+			// 下载文件
+			gologger.Infof("开始下载文件: %s", file)
+			fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.%s", time.Now().UnixMicro(), filepath.Ext(file)))
+			err := DownloadFile(t.Server, request.SessionId, file, fileName)
+			if err != nil {
+				gologger.WithError(err).Errorln("下载文件失败")
+				return err
+			}
+			lines, err := os.ReadFile(fileName)
+			if err != nil {
+				gologger.WithError(err).Errorln("读取文件失败")
+				return err
+			}
+			targets = append(targets, strings.Split(string(lines), "\n")...)
+		}
+	}
 	reqScan.Target = targets
 	if reqScan.Timeout == 0 {
 		reqScan.Timeout = 30
@@ -290,6 +263,33 @@ func (m *McpScanAgent) GetName() string {
 	return TaskTypeMcpScan
 }
 
+type tmpCallback struct {
+	Text []byte
+}
+type tmpWriter struct {
+	Callback func(data interface{})
+	Mux      sync.Mutex
+	cache    []byte
+}
+
+func (t *tmpWriter) Write(p []byte) (n int, err error) {
+	t.Mux.Lock()
+	defer t.Mux.Unlock()
+	t.cache = append(t.cache, p...)
+	if len(t.cache) > 100 {
+		t.Callback(tmpCallback{t.cache})
+		t.cache = []byte{}
+	}
+	return len(p), nil
+}
+
+func (t *tmpWriter) Finally() {
+	if len(t.cache) > 0 {
+		t.Callback(tmpCallback{t.cache})
+		t.cache = []byte{}
+	}
+}
+
 func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
 	var params ScanMcpRequest
 	if err := json.Unmarshal(request.Params, &params); err != nil {
@@ -322,33 +322,33 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	//2. 发送步骤运行状态
 	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, "A.I.G正在工作", "开始初始化MCP安全扫描环境")
-
-	writer1 := bytes.Buffer{}
-	logger := gologger.NewLogger()
-	logger.Logrus().SetOutput(&writer1)
-
-	// 结果收集
 	mu := sync.Mutex{}
 
+	// 结果收集
 	readMe := ""
 
 	var moduleStatusId string
 	var moduleToolId string
+	//var toolName string
 
 	processFunc := func(data interface{}) {
 		mu.Lock()
 		defer mu.Unlock()
 		switch v := data.(type) {
+		case tmpCallback:
+			//callbacks.ToolUseLogCallback(moduleToolId, toolName, step02, string(v.Text))
 		case mcp.McpModuleStart:
 			moduleStatusId = uuid.New().String()
 			moduleToolId = uuid.New().String()
 			callbacks.StepStatusUpdateCallback(step02, moduleStatusId, AgentStatusRunning, "MCP安全插件扫描", "开始MCP安全扫描,模块名:"+v.ModuleName)
 			callbacks.ToolUsedCallback(step02, moduleStatusId, "开始扫描MCP安全扫描",
 				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDoing, "开始扫描MCP安全扫描", "开始扫描", v.ModuleName, "")})
+			//toolName = v.ModuleName
 		case mcp.McpModuleEnd:
 			callbacks.StepStatusUpdateCallback(step02, moduleStatusId, AgentStatusCompleted, "MCP安全插件扫描", "结束MCP安全扫描,模块名:"+v.ModuleName)
 			callbacks.ToolUsedCallback(step02, moduleStatusId, "MCP安全扫描完成",
 				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDone, "MCP安全扫描完成", "扫描完成", v.ModuleName, "")})
+			//writer1.Finally()
 		case mcp.McpCallbackProcessing:
 		case mcp.McpCallbackReadMe:
 			readMe = v.Content
@@ -369,6 +369,14 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		}
 	}
 	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, "配置AI模型", fmt.Sprintf("配置AI模型: %s", params.Model.Model))
+
+	writer1 := tmpWriter{
+		Callback: processFunc,
+		Mux:      sync.Mutex{},
+		cache:    make([]byte, 0),
+	}
+	logger := gologger.NewLogger()
+	logger.Logrus().SetOutput(&writer1)
 
 	modelConfig := models.NewOpenAI(params.Model.Token, params.Model.Model, params.Model.BaseUrl)
 	scanner := mcp.NewScanner(modelConfig, logger)
@@ -401,7 +409,7 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		url := params.Content
 		callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, "A.I.G开始扫描", fmt.Sprintf("开始扫描URL: %s", url))
 		r, err := scanner.InputUrl(ctx, url)
-		if err != nil {
+		if err != nil || r == nil {
 			return err
 		}
 		results, err := scanner.ScanLink(ctx, r, false)
@@ -424,15 +432,33 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 			for _, file := range files {
 				// 下载文件
 				gologger.Infof("开始下载文件: %s", file)
-				fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.zip", time.Now().UnixMicro()))
+				ext := ""
+				supports := []string{".zip", ".tar.gz", ".tgz", ".whl"}
+				for _, support := range supports {
+					if strings.HasSuffix(file, support) {
+						ext = support
+						break
+					}
+				}
+				if ext == "" {
+					gologger.Errorln("不支持的文件类型，仅支持: ", strings.Join(supports, ","))
+					continue
+				}
+
+				fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), ext))
 				err := DownloadFile(m.Server, request.SessionId, file, fileName)
 				if err != nil {
 					gologger.Errorf("下载文件失败: %v", err)
 					return err
 				}
-				extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
 				gologger.Infof("文件下载成功: %s", file)
-				err = utils.ExtractZipFile(fileName, extractPath)
+				extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
+				switch ext {
+				case ".zip", ".whl":
+					err = utils.ExtractZipFile(fileName, extractPath)
+				case ".tgz", ".tar.gz":
+					err = utils.ExtractTGZ(fileName, extractPath)
+				}
 				if err != nil {
 					gologger.Errorf("解压文件失败: %v", err)
 					return err
@@ -460,6 +486,7 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		}
 		scanResults = results
 	}
+	writer1.Finally()
 	callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, "A.I.G完成工作", "MCP安全扫描任务完成")
 
 	// 更新任务计划
@@ -474,13 +501,12 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 
 	statusId03 := uuid.New().String()
 	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusCompleted, "A.I.G正在工作", "开始生成MCP扫描报告")
-
 	toolId03 := uuid.New().String()
 
 	// 完成报告生成
 	completedTool03 := CreateTool(toolId03, "mcp_report_generator", ToolStatusDone, "MCP扫描报告生成完成", "生成", "扫描日志", "")
 	callbacks.ToolUsedCallback(step03, statusId03, "报告生成完成", []Tool{completedTool03})
-	callbacks.ToolUseLogCallback(toolId03, "mcp_report_generator", step03, writer1.String())
+	//callbacks.ToolUseLogCallback(toolId03, "mcp_report_generator", step03, writer1.String())
 	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusCompleted, "A.I.G完成工作", "MCP扫描报告生成完成")
 
 	//7. 发送任务最终结果

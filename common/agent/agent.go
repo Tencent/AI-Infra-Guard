@@ -118,6 +118,7 @@ func (a *Agent) connect() error {
 	if err != nil {
 		return err
 	}
+	conn.SetReadLimit(1024 * 1024 * 5)
 	a.conn = conn
 
 	// 设置ping处理器：收到ping消息后自动回复pong

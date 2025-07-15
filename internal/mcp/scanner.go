@@ -689,6 +689,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 }
 
 func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, parallel bool) (*McpResult, error) {
+	if s.client == nil {
+		return nil, fmt.Errorf("client is nil")
+	}
 	tools, err := utils.ListMcpTools(ctx, s.client)
 	if err != nil {
 		return nil, err
@@ -709,6 +712,9 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 	}
 	if s.callback != nil {
 		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
+	}
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "信息收集"})
 	}
 
 	if err != nil {
@@ -737,6 +743,8 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			s.callback(McpCallbackReadMe{infoPrompt})
+			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
+
 		}
 	}
 	lock := sync.Mutex{}
@@ -756,11 +764,18 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			Language:     s.language,
 			Logger:       logger,
 		}
+		if s.callback != nil {
+			lock.Lock()
+			s.callback(McpModuleStart{ModuleName: plugin.Info.Name})
+			lock.Unlock()
+		}
 		issues, err := runDynamicAnalysis(ctx, plugin, &config)
 		if s.callback != nil {
 			lock.Lock()
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: plugin.Info.Name, Result: ""})
+
 			lock.Unlock()
 		}
 		if issues == nil {
@@ -822,8 +837,13 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
 		}
 	}()
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+	}
+
 	if len(results.Issues) > 0 {
 		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results.Issues))
 		origin := strings.Builder{}

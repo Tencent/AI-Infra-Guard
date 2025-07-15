@@ -27,7 +27,8 @@ func DownloadFile(server, sessionId, uri, path string) error {
 
 	// 检查 HTTP 状态码
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("下载失败，HTTP 状态码：%d", resp.StatusCode)
+		dd, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("下载失败，HTTP 状态码：%d content:%s", resp.StatusCode, string(dd))
 	}
 	contentType := resp.Header.Get("Content-Type")
 

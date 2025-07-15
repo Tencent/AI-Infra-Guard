@@ -24,14 +24,11 @@ func main() {
 			Metadata: "",
 		},
 	})
-	defer x.Disconnect("主动退出")
-	agent1 := agent.TestDemoAgent{}
 	agent2 := agent.AIInfraScanAgent{}
 	agent3 := agent.McpScanAgent{Server: server}
 	agent4 := agent.ModelJailbreak{}
 	agent5 := agent.ModelRedteamReport{Server: server}
 
-	x.RegisterTaskFunc(&agent1)
 	x.RegisterTaskFunc(&agent2)
 	x.RegisterTaskFunc(&agent3)
 	x.RegisterTaskFunc(&agent4)
@@ -40,7 +37,7 @@ func main() {
 	gologger.Infoln("wait task")
 	err := x.Start()
 	if err != nil {
-		gologger.WithError(err).Fatalln("ok")
+		gologger.WithError(err).Fatalln("start agent failed")
 	}
 	defer x.Stop()
 }

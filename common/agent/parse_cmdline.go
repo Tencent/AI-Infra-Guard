@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"os"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
@@ -98,6 +99,14 @@ func ParseStdoutLine(tasks []SubTask, line string, callbacks TaskCallbacks) {
 		}
 		callbacks.PlanUpdateCallback(tasks)
 
+		content["msgType"] = "markdown"
+		filename := content["content"].(string)
+		data, err := os.ReadFile(filename)
+		if err != nil {
+			gologger.WithError(err).Errorln("Failed to read result file", filename)
+			return
+		}
+		content["content"] = string(data)
 		callbacks.ResultCallback(content)
 	}
 }
