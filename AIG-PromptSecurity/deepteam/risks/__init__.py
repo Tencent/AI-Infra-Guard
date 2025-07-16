@@ -1,1 +1,0 @@
-from .risks import getRiskCategory
