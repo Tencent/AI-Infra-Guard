@@ -4,16 +4,14 @@ package vulstruct
 import (
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
-	"os"
-	"strings"
-
 	"gopkg.in/yaml.v3"
+	"strings"
 )
 
 // Info represents vulnerability information structure
 // 存储漏洞信息的结构体
 type Info struct {
-	FingerPrintName string   `yaml:"name" json:"-"`                                    // Name of the fingerprint
+	FingerPrintName string   `yaml:"name" json:"name"`                                 // Name of the fingerprint
 	CVEName         string   `yaml:"cve" json:"cve"`                                   // CVE identifier
 	Summary         string   `yaml:"summary" json:"summary"`                           // Brief summary of the vulnerability
 	Details         string   `yaml:"details" json:"details"`                           // Detailed description
@@ -59,20 +57,13 @@ func (v *VersionVul) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// ReadVersionVulSingFile reads and parses a single vulnerability file
+// ReadVersionVul reads and parses a single vulnerability file
 // 读取并解析单个漏洞文件
-func ReadVersionVulSingFile(filename string) (*VersionVul, error) {
-	// Read file content
-	// 读取文件内容
-	body, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
+func ReadVersionVul(body []byte) (*VersionVul, error) {
 	// Unmarshal YAML content into VersionVul struct
 	// 将YAML内容解析到VersionVul结构体中
 	var advisory VersionVul
-	err = yaml.Unmarshal(body, &advisory)
+	err := yaml.Unmarshal(body, &advisory)
 	if err != nil {
 		return nil, err
 	}

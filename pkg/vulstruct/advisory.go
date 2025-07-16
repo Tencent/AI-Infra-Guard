@@ -2,9 +2,14 @@
 package vulstruct
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"io"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -14,15 +19,18 @@ type AdvisoryEngine struct {
 }
 
 // NewAdvisoryEngine 创建一个新的漏洞建议引擎
-// dir: 包含漏洞建议yaml文件的目录路径
 // 返回: 漏洞建议引擎实例和可能的错误
-func NewAdvisoryEngine(dir string) (*AdvisoryEngine, error) {
+func NewAdvisoryEngine() *AdvisoryEngine {
+	return &AdvisoryEngine{ads: make([]VersionVul, 0)}
+}
+
+func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 	var files []string
 	var err error
 	if utils.IsDir(dir) {
 		files, err = utils.ScanDir(dir)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	} else {
 		files = []string{dir}
@@ -32,14 +40,65 @@ func NewAdvisoryEngine(dir string) (*AdvisoryEngine, error) {
 		if !strings.HasSuffix(file, ".yaml") {
 			continue
 		}
-		ad, err := ReadVersionVulSingFile(file)
+		body, err := os.ReadFile(file)
+		if err != nil {
+			gologger.WithError(err).Errorln("read directory error", file)
+			continue
+		}
+		ad, err := ReadVersionVul(body)
 		if err != nil {
 			gologger.WithError(err).Errorln("read advisory file error", file)
 			continue
 		}
 		ads = append(ads, *ad)
 	}
-	return &AdvisoryEngine{ads: ads}, nil
+	ae.ads = ads
+	return nil
+}
+
+func LoadRemoteVulStruct(api string) ([]VersionVul, error) {
+	type msg struct {
+		Data struct {
+			Vuls  []json.RawMessage `json:"items"`
+			Total int               `json:"total"`
+		} `json:"data"`
+		Message string `json:"message"`
+	}
+	resp, err := http.Get(api)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var m msg
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	ads := make([]VersionVul, 0)
+	for _, raw := range m.Data.Vuls {
+		ad, err := ReadVersionVul(raw)
+		if err != nil {
+			gologger.WithError(err).Errorln("read advisory file error", raw)
+			continue
+		}
+		ads = append(ads, *ad)
+	}
+	return ads, nil
+}
+
+func (ae *AdvisoryEngine) LoadFromHost(host string) error {
+	ads, err := LoadRemoteVulStruct(fmt.Sprintf("http://%s/api/v1/knowledge/vulnerabilities?page=1&size=9999", host))
+	if err != nil {
+		return err
+	}
+	ae.ads = ads
+	return nil
 }
 
 // GetAdvisories 根据包名和版本获取相关的漏洞建议

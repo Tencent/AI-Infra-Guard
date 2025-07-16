@@ -136,8 +136,8 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 	opts := &options.Options{
 		TimeOut:      reqScan.Timeout,
 		RateLimit:    200,
-		FPTemplates:  "data/fingerprints",
-		AdvTemplates: "data/vuln",
+		FPTemplates:  t.Server,
+		AdvTemplates: t.Server,
 		WebServer:    false,
 		Target:       reqScan.Target,
 	}

@@ -490,3 +490,15 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 	<-done
 	return nil
 }
+
+func IsHostname(hostname string) bool {
+	ips := strings.Split(hostname, ":")
+	if len(ips) != 2 {
+		return false
+	}
+	p := net.ParseIP(strings.TrimSpace(ips[0]))
+	if p == nil {
+		return false
+	}
+	return true
+}
