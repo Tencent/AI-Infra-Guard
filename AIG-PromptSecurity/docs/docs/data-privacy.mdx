@@ -1,0 +1,22 @@
+---
+id: data-privacy
+title: Data Privacy
+sidebar_label: Data Privacy
+---
+
+Except for telemetry data such as the names of the vulnerabilities that were ran, at no point do you send any data to anywhere.
+
+## Your Privacy Using DeepTeam
+
+`deepteam` uses `deepeval` under the hood which uses `Sentry` to track only very basic telemetry data (number of times red teaming was invokved). Personally identifiable information is explicitly excluded. We also provide the option of opting out of the telemetry data collection through an environment variable:
+
+```bash
+export DEEPTEAM_TELEMETRY_OPT_OUT="YES"
+export DEEPEVAL_TELEMETRY_OPT_OUT="YES"
+```
+
+`deepeval` also only tracks errors and exceptions raised within the package **only if you have explicitly opted in**, and **does not collect any user or company data in any way**. To help us catch bugs for future releases, set the `ERROR_REPORTING` environment variable to "YES".
+
+```bash
+export ERROR_REPORTING="YES"
+```

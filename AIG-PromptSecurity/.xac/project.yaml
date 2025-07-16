@@ -1,0 +1,9 @@
+apiVersion: xac.it.woa.com/v1alpha1
+kind: Project
+metadata:
+  annotations:
+    env-api-base: http://devnet.rio.tencent.com/ebus/acmdb_openapi/stage
+spec:
+  enName: AIG-PromptSecurity
+  cnName: AIG-PromptSecurity
+  references: []

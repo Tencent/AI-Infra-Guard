@@ -1,0 +1,13 @@
+aiohttp>=3.11.18
+deepeval>=2.9.7
+ecoji>=0.1.1
+grpcio>=1.67.1
+langchain-openai>=0.3.27
+loguru>=0.7.3
+openai>=1.76.2
+pandas>=2.3.0
+pyahocorasick>=2.2.0
+requests>=2.31.0
+tabulate>=0.9.0
+tqdm>=4.66.1
+zalgolib>=0.2.2

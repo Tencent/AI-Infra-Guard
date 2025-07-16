@@ -1,0 +1,63 @@
+name: CD
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+
+    # The maximum number of minutes to let a workflow run
+    # before GitHub automatically cancels it. Default: 360
+    timeout-minutes: 30
+
+    strategy:
+      # When set to true, GitHub cancels
+      # all in-progress jobs if any matrix job fails.
+      fail-fast: false
+
+      matrix:
+        python:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+
+    concurrency:
+      # Cancel any currently running job or workflow in the same concurrency group.
+      # The group is a unique identifier for the workflow run.
+      #
+      # Explanation:
+      # - github.workflow: The name of the workflow (e.g. Workflow 1).
+      # - github.event.pull_request.number: The number of the pull request (when the trigger event is a PR).
+      # - github.ref: The branch name (when the trigger is not a PR but a push).
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ matrix.python }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv + Python ${{ matrix.python }}
+        id: setup-uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+          activate-environment: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --locked --group build
+
+      - name: Build package distribution
+        run: uv build
+
+      - name: Check package distribution
+        run: uv run --frozen twine check dist/*

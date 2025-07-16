@@ -1,0 +1,50 @@
+.tagsDisplayer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pill {
+  padding: 2px 10px;
+  font-size: 12px;
+  border-radius: 0.5rem;
+}
+
+.llmSimulated {
+  background-color: #fefceb;
+  border: 1px solid #eeda83;
+  color: #4a3900;
+}
+
+.singleTurn {
+  background-color: #fff1fe;
+  border: 1px solid #ffb4ff;
+  color: #96107b;
+}
+
+.encodingBased {
+    background-color: white;
+    border: 1px solid rgb(218, 221, 227);
+    color: black;
+}
+
+.multiTurn {
+  background-color: rgb(163, 255, 240);
+  border: 1px solid rgb(0, 69, 49);
+  color: black;
+}
+
+.custom {
+  background-color: #e9f5fe;
+  border: 1px solid #badbff;
+  color: #002a70;
+}
+
+.custom {
+  background-color: #f8f2ff;
+  border: 1px solid #d597fe;
+  color: #c234ff;
+}
+

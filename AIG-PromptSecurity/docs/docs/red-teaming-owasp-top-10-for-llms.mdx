@@ -1,0 +1,180 @@
+---
+id: red-teaming-owasp-top-10-for-llms
+title: OWASP Top 10 for LLMs
+sidebar_label: OWASP Top 10 for LLMs
+---
+
+The **OWASP Top 10 for Large Language Models (LLMs)** is a comprehensive list of the most critical security risks associated with LLM applications. This resource is designed to help developers, security professionals, and organizations identify, understand, and mitigate vulnerabilities in these systems, ensuring safer and more robust deployments in real-world applications.
+
+:::tip
+You can **detect OWASP risks** by utilizing DeepTeam's 50+ `vulnerability_type` options and 10+ `attack_method` strategies when safety testing your LLM application.
+:::
+
+This top 10 risks in 2025 are:
+
+1. [Prompt Injection](#prompt-injection)
+2. [Sensitive Information Disclosure](#sensitive-information-disclosure)
+3. [Supply Chain](#supply-chain)
+4. [Data and Model Poisoning](#data-and-model-poisoning)
+5. [Improper Output Handling](#improper-output-handling)
+6. [Excessive Agency](#excessive-agency)
+7. [System Prompt Leakage](#system-prompt-leakage)
+8. [Vector and Embedding Weaknesses](#vector-and-embedding-weaknesses)
+9. [Misinformation](#misinformation)
+10. [Unbounded Consumption](#unbounded-consumption)
+
+## Prompt Injection
+
+Sensitive Information Disclosure involves crafting inputs that trick a model into revealing private, confidential, or sensitive data it has been exposed to during training or through operational settings. This may include passwords, API keys, or personal user data, violating privacy and security standards.
+
+In DeepTeam, you can apply prompt injection to any baseline attack for any vulnerability by including `PromptInjection` in your red teaming. Here’s how:
+
+```python
+from deepteam.attacks import PromptInjection
+
+...
+risk_assessment = red_team(..., attacks=[PromptInjection()])
+print(risk_assessment.overview)
+```
+
+:::info
+If you're curious about how baseline attacks are generated in DeepTeam before they are enhanced, [read this section](/docs/red-teaming-introduction#how-does-it-work).
+:::
+
+## Sensitive Information Disclosure
+
+Sensitive Information Disclosure involves crafting inputs that trick a model into revealing **private, confidential, or sensitive data** it has been exposed to during training or through operational settings. This may include passwords, API keys, or personal user data, violating privacy and security standards.
+
+:::note
+Unlike prompt injection, testing for sensitive information disclosure focuses on specifying certain vulnerabilities such as `PromptLeakage`, `PIILeakage`, and `IntellectualProperty`.
+:::
+
+```python
+from deepteam.vulnerabilities import PIILeakage, PromptLeakage, IntellectualProperty
+from deepteam import red_team
+
+# Sensitive information vulnerabilities available in deepteam
+sensitive_information_vulnerabilities = [
+    PIILeakage(types=["database access"]),
+    PromptLeakage(types=["secrets and credentials"]),
+    IntellectualProperty(types=["patent disclosure"])
+]
+```
+
+To use them for red teaming, simply supply the list of vulnerabilities you defined.
+
+```python
+...
+
+risk_assessment = red_team(..., vulnerabilities=sensitive_information_vulnerabilities)
+```
+
+## Supply Chain
+
+**LLM Supply Chains** are susceptible to various vulnerabilities, which can affect the integrity of training data, models, and deployment platforms. These risks can result in biased outputs, security breaches, or system failures.
+
+:::note
+DeepTeam does not directly detect vulnerabilities in specific components of an LLM supply chain, such as outdated packages or licensing issues. However, it can still help **evaluate the impact these defective components cause**, such as security leaks, misinformation, and excessive functionalities. You can read more about these risks in other sections on this page.
+:::
+
+## Data and Model Poisoning
+
+Data and Model Poisoning involves manipulating **pre-training, fine-tuning, or embedding data to introduce vulnerabilities**. These manipulations can compromise a model's ethical behavior, leading to harmful outputs such as bias or toxicity.
+
+To test for training data poisoning, you can use the following vulnerabilities in DeepTeam: `Bias`, `Toxicity`, `IllegalActivity`, `GraphicContent`, and `PersonalSafety`.
+
+```python
+from deepteam.vulnerabilities import (
+    Bias,
+    Misinformation,
+    Toxicity,
+    IllegalActivity,
+    GraphicContent,
+    PersonalSafety,
+)
+
+# data and model poisoning vulnerabilities available in deepteam
+data_and_model_vulnerabilities = [
+    Bias(types=["religion", "politics", "gender", "race"]),
+    Toxicity(types=["profanity", "insults", "threats", "mockery"]),
+    Misinformation(types=["factual errors", "unsupported claims", "expertize misrepresentation"]),
+    IllegalActivity(types=[...]),
+    GraphicContent(types=[...]),
+    PersonalSafety(types=[...]),
+]
+```
+
+## Improper Output Handling
+
+**Improper Output Handling** occurs when the model generates outputs that are not adequately filtered, sanitized, or controlled, leading to harmful, incorrect, or irrelevant results. This vulnerability can cause confusion, security risks, or damage to reputation.
+
+## Excessive Agency
+
+**Excessive Agency** involves granting a model too much autonomy, which can lead to unintended or harmful consequences. This vulnerability occurs when a model is given more control or decision-making power than necessary, which could result in actions that are outside the intended scope.
+
+:::note
+Unlike traditional vulnerabilities, excessive agency focuses on how much decision-making power is granted to the model, including aspects like `Excessive Functionality`, `Excessive Permissions`, and `Excessive Autonomy`.
+:::
+
+```python
+from deepteam.vulnerabilities import ExcessiveAgency
+from deepteam import red_team
+
+# Excessive agency vulnerabilities available in deepteam
+excessive_agency_vulnerabilities = [
+    ExcessiveAgency(types=["functionality", "permissions", "autonomy"])
+]
+
+risk_assessment = red_team(..., vulnerabilities=excessive_agency_vulnerabilities)
+```
+
+## System Prompt Leakage
+
+**System Prompt Leakage** involves an attacker gaining access to internal system prompts that guide the model’s behavior. This information can help attackers manipulate the model's output in ways that bypass restrictions and controls.
+
+:::note
+System prompt leakage focuses on the exposure of internal model prompts, such as `Secrets and Credentials`, `Instructions`, `Guards`, and `Permissions and Roles`, which can be exploited by attackers.
+:::
+
+```python
+from deepteam.vulnerabilities import PromptLeakage
+from deepteam import red_team
+
+# System prompt leakage vulnerabilities available in deepteam
+system_prompt_leakage_vulnerabilities = [
+    PromptLeakage(types=["secrets and credentials", "instructions", "guards", "permissions and roles"])
+]
+
+risk_assessment = red_team(..., vulnerabilities=excessive_agency_vulnerabilities)
+```
+
+## Vector and Embedding Weaknesses
+
+**Vector and Embedding Weaknesses** occur when models use flawed, biased, or incomplete embeddings, which can impact the quality of generated outputs. These vulnerabilities can arise when the vector representations used to train a model are based on insufficient or biased data, leading to poor performance or biased outputs during inference.
+
+## Misinformation
+
+Misinformation occurs when LLMs produce **false or misleading information** that appears credible. This vulnerability can lead to security breaches, reputational damage, and legal liability.
+
+:::note
+Testing for misinformation in LLMs involves identifying types of misinformation, such as `Factual Errors`, `Unsupported Claims`, and `Expertize Misrepresentation`, as well as understanding the competitive context that may lead to misrepresented facts.
+:::
+
+```python
+from deepteam.vulnerabilities import Misinformation, Competition
+from deepteam.vulnerabilities.misinformation import MisinformationType
+from deepteam.vulnerabilities.competition import CompetitionType
+
+# Misinformation vulnerabilities available in deepteam
+misinformation_vulnerabilities = [
+    Misinformation(types=["factual errors", "unsupported claims", "expertize misrepresentation"]),
+    Competition(types=["discreditation"])
+]
+
+
+risk_assessment = red_team(..., vulnerabilities=misinformation_vulnerabilities)
+```
+
+## Unbounded Consumption
+
+**Unbounded Consumption** involves scenarios where the model generates an excessive or infinite number of requests, queries, or outputs without limits. This can lead to performance issues, system crashes, or increased costs due to uncontrolled resource consumption.

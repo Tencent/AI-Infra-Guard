@@ -1,0 +1,59 @@
+---
+id: red-teaming-adversarial-attacks-crescendo-jailbreaking
+title: Crescendo Jailbreaking
+sidebar_label: Crescendo Jailbreaking
+---
+
+import AttackTagsDisplayer from "@site/src/components/AttackTagsDisplayer";
+
+<AttackTagsDisplayer multiTurn={true} llmSimulated={true} />
+
+Crescendo Jailbreaking starts with neutral or benign queries and slowly escalates in intensity as the attack progresses. Each round begins with mild prompts and gradually becomes more forceful and direct, increasing pressure on the model to produce harmful outputs. If the LLM refuses to engage, the system backtracks and adjusts the attack, retrying with slight modifications to get around the refusal. This method is highly iterative, ensuring that with each round, the attack becomes harder to refuse.
+
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <img
+    src="https://confident-bucket.s3.amazonaws.com/attack_enhancements_jailbreaking_crescendo.svg"
+    alt="LangChain"
+    style={{
+      marginTop: "20px",
+      marginBottom: "40px",
+      height: "auto",
+      maxHeight: "800px",
+    }}
+  />
+</div>
+
+The number of rounds and backtracks can be adjusted, with each escalation carefully evaluated for success. Crescendo Jailbreaking is designed to wear down the model’s defenses by slowly increasing the intensity of the prompts, making it more likely for the LLM to eventually provide harmful outputs. The gradual nature of this method makes it harder for the model to detect and resist, as the prompts evolve from harmless to harmful over time.
+
+## Usage
+
+```python
+from deepteam.attacks.multi_turn import CrescendoJailbreaking
+
+crescendo_jailbreaking = CrescendoJailbreaking()
+```
+
+There are **THREE** optional parameters when creating a `CrescendoJailbreaking` attack:
+
+- [Optional] `weight`: an integer that determines this attack method's selection probability, proportional to the total weight sum of all `attacks` during red teaming. Defaulted to `1`.
+- [Optional] `max_rounds`: an integer that specifies the number of rounds to use in attempt to jailbreak your LLM system. Defaulted to `10`.
+- [Optional] `max_backtracks`: an integer that specifies the number of rounds to use in attempt to jailbreak your LLM system. Defaulted to `10`.
+
+To use the `CrescendoJailbreaking` attack method, supply it to the `red_team()` method:
+
+```python
+from deepteam import red_team
+...
+
+red_team(attacks=[crescendo_jailbreaking], model_callback=..., vulnerabilities=...)
+```
+
+## Example
+
+_to be documented..._
