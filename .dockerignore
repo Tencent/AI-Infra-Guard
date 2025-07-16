@@ -1,0 +1,11 @@
+.idea
+.github
+temp_uploads
+.git
+__pycache__
+*.tar.gz
+logs/*
+.git
+.deepeval
+.deepteam
+.xac
