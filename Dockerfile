@@ -21,12 +21,11 @@ WORKDIR /app
 RUN GOOS=linux go build -a -o agent ./cmd/agent
 
 # AIG-PromptSecurity
-
 FROM python:3.12-slim
 
 WORKDIR /app/AIG-PromptSecurity
 
-RUN apt-get update && apt-get install -y --no-install-recommends git curl \
+RUN apt-get update --allow-releaseinfo-change && apt-get install -y --no-install-recommends --allow-unauthenticated git curl \
     && rm -rf /var/lib/apt/lists/* \
     && (command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv)
 

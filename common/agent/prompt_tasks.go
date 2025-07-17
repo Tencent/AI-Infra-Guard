@@ -13,10 +13,8 @@ import (
 )
 
 const (
-	//DIR  = "/Users/python/Downloads/AIG-PromptSecurity"
-	//NAME = "/Users/python/.local/bin/uv"
-	DIR  = "/data/home/pythoncheng/aigproject/AIG-PromptSecurity"
-	NAME = "/data/home/pythoncheng/.local/bin/uv"
+	DIR  = "/app/AIG-PromptSecurity"
+	NAME = "/usr/local/bin/uv"
 )
 
 type ModelRedteamReport struct {
@@ -139,7 +137,7 @@ func (m *ModelJailbreak) Execute(ctx context.Context, request TaskRequest, callb
 		"--base_url", param.Model.BaseUrl,
 		"--api_key", param.Model.Token,
 		"--scenarios", fmt.Sprintf("Custom:prompt=%s", param.Prompt),
-		"--techniques", "ICRTJailbreak", //"Ecoji", "Zalgo", "CrescendoJailbreaking",
+		"--techniques", "ICRTJailbreak", "Ecoji", "Zalgo", "CrescendoJailbreaking",
 		"--choice", "parallel",
 		"--report", tmpFile,
 	}, func(line string) {
