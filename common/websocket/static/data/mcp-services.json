@@ -1,0 +1,54 @@
+[
+  {
+    "id": "AI-Infra-Scan",
+    "name": "AI基础设施扫描",
+    "description": "通过精准的指纹识别，检测AI训练、部署与应用构建中使用的各类AI框架组件（如Ollama、ComfyUI等）Web服务的已知漏洞",
+    "triggerWord": "@AI基础设施扫描",
+    "icon": "Bug",
+    "placeholderPrefix": "评估基础设施是否安全，",
+    "placeholder": [
+      "扫描本地文件，请输入：/Users/xxx/ai-server",
+      "扫描远程URL，请输入：https://xxx.com/ai-server",
+      "点击下方配置按钮，可配置自定义Header（添加Cookie等身份凭证）"
+    ],
+    "attachmentTypes": [".txt"],
+    "model": "no"
+  },
+  {
+    "id": "Mcp-Scan",
+    "name": "MCP安全扫描",
+    "description": "通过AI Agent智能分析MCP Server是否存在工具投毒与代码漏洞等安全威胁，帮助开发者和应用市场在部署和上架前，对MCP服务进行安全认证",
+    "triggerWord": "@MCP安全扫描",
+    "icon": "ShieldCheck",
+    "placeholderPrefix": "普通模式约30分钟，快速模式约15分钟，你可以",
+    "placeholder": [
+      "上传MCP Server代码压缩包",
+      "提供Github项目地址，如：https://github.com/xxx/mcp-server",
+      "提供远程MCP Server URL，如：https://xxx.com/mcp-server/sse?token=xxx"
+    ],
+    "attachmentTypes": [".zip", ".tar.gz", ".tgz", ".whl"],
+    "model": "yes"
+  },
+  {
+    "id": "Model-Redteam-Report",
+    "name": "模型越狱评测",
+    "description": "批量测试大模型API在处理恶意、对抗或诱导性输入时的输出，帮助开发者了解评估不同大模型API的安全性并加固模型的安全护栏",
+    "triggerWord": "@模型越狱评测",
+    "icon": "AlertTriangle",
+    "placeholderPrefix": "支持上传评测数据集（非必须）、选择大模型进行自动化越狱评测",
+    "placeholder": [],
+    "attachmentTypes": [".csv", ".json", ".jsonl", ".txt"],
+    "model": "yes"
+  },
+  {
+    "id": "Model-Jailbreak",
+    "name": "模型一键越狱",
+    "description": "自动尝试绕过模型的安全限制，帮助用户更高效地测试大模型API在特定对话场景下的鲁棒性，模拟真实世界中的“越狱”攻击",
+    "triggerWord": "@模型一键越狱",
+    "icon": "Key",
+    "placeholderPrefix": "输入“恶意”对话内容，自动评测模型是否存在越狱风险，如：制造炸弹",
+    "placeholder": [],
+    "attachmentTypes": [".csv", ".json", ".jsonl", ".txt"],
+    "model": "yes"
+  }
+]
