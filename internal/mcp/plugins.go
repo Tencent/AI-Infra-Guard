@@ -110,6 +110,9 @@ func ParseIssues(input string) []Issue {
 		}
 		if desc := descRegex.FindStringSubmatch(block[1]); len(desc) > 1 {
 			vuln.Description = strings.TrimSpace(desc[1])
+			if vuln.Description == "" {
+				continue
+			}
 		}
 		if level := levelRegex.FindStringSubmatch(block[1]); len(level) > 1 {
 			vuln.Level = Level(strings.TrimSpace(level[1]))
@@ -134,7 +137,7 @@ All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>).
 If no vulnerabilities are found, return <arg></arg>.  
 Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
 **Rules**
-1. You must ensure that the vulnerability truly exists; if no vulnerability is found, return empty.
+1. You must ensure that the vulnerability truly exists. if no vulnerability is found, return empty.
 2. The desc field in the vulnerability description should include a detailed evidence chain for the vulnerability.
 3. Determine the severity 'level'' of the vulnerability based on its title and description: critical, high, medium, low.
 %s
@@ -151,6 +154,8 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 	</result>
 	<!-- Additional <result> entries can be added -->
 </arg>
+
+**请注意,必须是漏洞输出详情，没有漏洞则只输出<arg></arg>**
 `
 	history = append(history, map[string]string{
 		"role":    "user",
@@ -188,4 +193,43 @@ func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig
 	})
 	// 保存模型输出
 	return result, nil
+}
+
+func SummaryReport(ctx context.Context, agent utils.Agent, config *McpPluginConfig) (string, error) {
+	prompt := `
+你已对目标系统执行了完整的漏洞扫描流程，但最终未发现任何可报告的漏洞。现在需要生成一份简要的技术分析报告说明原因,按照以下结构输出即可：
+# 任务角色
+网络安全分析报告撰写专家
+
+# 核心要求
+1. 结构化解释未发现漏洞的技术原因
+2. 涵盖潜在可能性分析
+3. 提出后续行动建议
+4. 使用专业安全术语但避免复杂术语堆砌
+
+# 报告框架（Markdown格式）
+- 重新表述扫描的核心目标
+- 简述扫描过程和覆盖的关键组件（文件/接口/代码范围）
+- 未发现漏洞的原因
+	- 详细说明未发现漏洞的原因
+	- 说明可能的原因
+	- 说明潜在的漏洞发现机会
+
+**Return Format**
+All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). 
+If no vulnerabilities are found, return <arg></arg>.  
+Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
+
+**EXAMPLE**
+<arg>
+	<result>
+	<title>未发现[漏洞类型]</title>
+	<desc>技术分析报告内容,markdown格式</desc>
+	</result>
+</arg>
+
+若无，则返回
+<arg></arg>
+`
+	return SummaryChat(ctx, agent, config, prompt)
 }

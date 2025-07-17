@@ -94,34 +94,6 @@ prompt_template: |
   3. **Configuration Management**: Configuration files and environment variable handling
   4. **Dependency Relationships**: External dependencies and internal module relationships
 
-  ## Security Assessment Framework
-
-  ### Attack Surface Mapping
-  **External Interfaces:**
-  - Network-exposed endpoints and services
-  - File system access points
-  - Environment variable dependencies
-  - Inter-process communication channels
-
-  **Data Flow Analysis:**
-  - Input validation and sanitization
-  - Data transformation and processing
-  - Output encoding and filtering
-  - Storage and transmission security
-
-  ### Privilege Analysis
-  **Required Permissions:**
-  - File system read/write access
-  - Network communication capabilities
-  - System command execution rights
-  - Database access permissions
-
-  **Access Control Mechanisms:**
-  - Authentication requirements
-  - Authorization granularity
-  - Session management
-  - Audit and logging
-
   ## Input Data
   Source code path: {{ .CodePath }}
   Directory structure:
@@ -129,9 +101,8 @@ prompt_template: |
   {{ .DirectoryStructure }}
   ------
 
-
   ## Output Requirements
-  Generate a detailed project information collection report to provide accurate technical background and risk assessment foundation for subsequent security detection. The report should include complete technical architecture analysis, functional module inventory, and security concern identification.
+  Generate a detailed project information collection report to provide accurate technical background. The report should include complete technical architecture analysis, functional module inventory.
 
   ### Expected Report Structure
 
@@ -147,16 +118,8 @@ prompt_template: |
   - Data processing and storage solutions
   - Network communication and interface design
 
-  #### Security Assessment
-  - Permission requirements and access control
-  - Data processing security
-  - Network exposure surface analysis
-  - Potential security concerns
-
   #### Functional Inventory
   - List of MCP tools and resources
   - Detailed description of each function
   - Dependencies between functions
   - Security-sensitive operation identification
-
-  **Analysis Depth**: Provide comprehensive technical details while focusing on security-relevant aspects that will inform subsequent vulnerability detection plugins. 

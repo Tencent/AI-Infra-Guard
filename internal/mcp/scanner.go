@@ -47,6 +47,15 @@ type McpCallbackReadMe struct {
 	Content string `json:"content"`
 }
 
+type McpModuleStart struct {
+	ModuleName string
+}
+
+type McpModuleEnd struct {
+	ModuleName string
+	Result     string
+}
+
 func NewScanner(aiConfig *models.OpenAI, logger *gologger.Logger) *Scanner {
 	if logger == nil {
 		logger = gologger.NewLogger()
@@ -130,7 +139,7 @@ func (s *Scanner) InputCommand(ctx context.Context, command string, argv []strin
 }
 
 func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResult, error) {
-	dirs := []string{"/", "/mcp", "/sse"}
+	dirs := []string{"", "/mcp", "/sse"}
 	url = strings.TrimRight(url, "/")
 	scan := func(ctx context.Context, url string) (*mcp.InitializeResult, error) {
 		r, err := s.InputStreamLink(ctx, url)
@@ -140,7 +149,7 @@ func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResu
 				return nil, err
 			}
 		}
-		return r, err
+		return r, nil
 	}
 	var err error
 	for _, u := range dirs {
@@ -158,8 +167,12 @@ func (s *Scanner) InputSSELink(ctx context.Context, link string) (*mcp.Initializ
 	if err != nil {
 		return nil, err
 	}
+	r, err := utils.InitMcpClient(ctx, mcpClient)
+	if err != nil {
+		return nil, err
+	}
 	s.client = mcpClient
-	return utils.InitMcpClient(ctx, s.client)
+	return r, err
 }
 
 func (s *Scanner) InputStreamLink(ctx context.Context, link string) (*mcp.InitializeResult, error) {
@@ -167,8 +180,12 @@ func (s *Scanner) InputStreamLink(ctx context.Context, link string) (*mcp.Initia
 	if err != nil {
 		return nil, err
 	}
+	r, err := utils.InitMcpClient(ctx, mcpClient)
+	if err != nil {
+		return nil, err
+	}
 	s.client = mcpClient
-	return utils.InitMcpClient(ctx, s.client)
+	return r, nil
 }
 
 func (s *Scanner) InputCodePath(codePath string) error {
@@ -181,17 +198,16 @@ func (s *Scanner) InputCodePath(codePath string) error {
 }
 
 func (s *Scanner) SetLanguage(language string) error {
+	if language == "" {
+		s.language = "zh"
+		return nil
+	}
 	if language == "zh-CN" {
 		s.language = "zh"
 	} else {
 		s.language = language
 	}
 	return nil
-}
-
-type ScannerIssue struct {
-	PluginId string `json:"pluginId,omitempty"`
-	Issue
 }
 
 type McpTemplate struct {
@@ -202,12 +218,21 @@ type McpTemplate struct {
 	McpStructure          string
 }
 
-func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig, staticResults []string) ([]Issue, error) {
+type McpResult struct {
+	Issues []Issue
+	Report []Issue
+}
+
+func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig, staticResults []string) (*McpResult, error) {
 	// 获取目录结构
+	ret := McpResult{
+		Issues: make([]Issue, 0),
+		Report: make([]Issue, 0),
+	}
 	dirPrompt, err := utils.ListDir(config.CodePath, 2, "")
 	if err != nil {
 		config.Logger.WithError(err).Errorln("read directory failed: " + config.CodePath)
-		return nil, err
+		return &ret, err
 	}
 
 	// 构建AI提示词
@@ -233,10 +258,10 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 	_, err = agent.Run(ctx, config.AIModel, config.Logger)
 	if err != nil {
 		config.Logger.WithError(err).Errorln("run ai analysis failed")
-		return nil, err
+		return &ret, err
 	}
 
-	if p.Info.ID == "mcp_info_collection" {
+	if p.Info.ID == "mcp_info_collection" || p.Info.ID == "code_info_collection" {
 		summaryPrompt := `
 根据上下文生成详细的项目信息收集报告，为后续安全检测提供准确的技术背景和风险评估基础。报告应包含完整的技术架构分析、功能模块清单和安全关注点识别
 
@@ -270,20 +295,47 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 `
 		infoCollections, err := SummaryChat(ctx, agent, config, summaryPrompt)
 		if err != nil {
-			return nil, err
+			return &ret, err
 		}
-		return []Issue{
+		ret.Issues = []Issue{
 			{
 				Title:       "信息收集报告",
 				Description: infoCollections,
 			},
-		}, nil
+		}
+		return &ret, nil
+	} else if p.Info.ID == "vuln_review" {
+		issues, err := SummaryResult(ctx, agent, config)
+		if err != nil {
+			return &ret, err
+		}
+		ret.Issues = issues
+		reporterResp, err := SummaryReport(ctx, agent, config)
+		if err != nil {
+			return &ret, err
+		}
+		reporter := ParseIssues(reporterResp)
+		ret.Report = reporter
+		return &ret, nil
 	} else {
-		return SummaryResult(ctx, agent, config)
+		issues, err := SummaryResult(ctx, agent, config)
+		if err != nil {
+			return &ret, err
+		}
+		ret.Issues = issues
+		if len(issues) == 0 {
+			reporterResp, err := SummaryReport(ctx, agent, config)
+			if err != nil {
+				return &ret, err
+			}
+			reporter := ParseIssues(reporterResp)
+			ret.Report = reporter
+		}
+		return &ret, nil
 	}
 }
 
-func runDynamicAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig) ([]Issue, error) {
+func runDynamicAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig) (*McpResult, error) {
 
 	tpl, err := template.New("template").Parse(p.PromptTemplate)
 	var buf bytes.Buffer
@@ -307,6 +359,10 @@ func runDynamicAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginC
 	if err != nil {
 		config.Logger.WithError(err).Errorln("run ai analysis failed")
 		return nil, err
+	}
+	ret := McpResult{
+		Issues: make([]Issue, 0),
+		Report: make([]Issue, 0),
 	}
 
 	if p.Info.ID == "mcp_info_collection" {
@@ -341,18 +397,24 @@ MCP工具与资源列表
 		if err != nil {
 			return nil, err
 		}
-		return []Issue{
+		ret.Issues = []Issue{
 			{
 				Title:       "信息收集报告",
 				Description: infoCollection,
 			},
-		}, nil
+		}
+		return &ret, nil
 	} else {
-		return SummaryResult(ctx, agent, config)
+		issue, err := SummaryResult(ctx, agent, config)
+		if err != nil {
+			return nil, err
+		}
+		ret.Issues = issue
+		return &ret, nil
 	}
 }
 
-func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *McpPluginConfig) ([]Issue, error) {
+func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *McpPluginConfig) (*McpResult, error) {
 	var staticResults []string
 	if len(p.Rules) > 0 {
 		var results []string
@@ -418,22 +480,27 @@ func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *Mcp
 	return runAIAnalysis(ctx, p, config, staticResults)
 }
 
-func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, error) {
-	results := make([]ScannerIssue, 0)
+func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, error) {
 	logger := s.logger
-
 	totalProcessing := len(s.PluginConfigs) + 2 // 信息收集和review插件
 	currentProcessing := 0
 	if s.callback != nil {
 		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
 	}
+	ret := McpResult{
+		Report: []Issue{},
+		Issues: []Issue{},
+	}
 	// 1. 运行信息收集插件
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "信息收集"})
+	}
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
 		logger.Warningf("信息收集插件加载失败: %v", err)
 	} else {
 		logger.Infoln("信息收集中...")
-		issues, err := s.runCheckCode(ctx, infoPlugin, &McpPluginConfig{
+		result, err := s.runCheckCode(ctx, infoPlugin, &McpPluginConfig{
 			Client:   s.client,
 			CodePath: s.codePath,
 			AIModel:  s.aiModel,
@@ -444,8 +511,8 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 			logger.Warningf("信息收集失败: %v", err)
 		}
 		var infoPrompt string
-		if len(issues) == 1 {
-			infoPrompt = issues[0].Description
+		if result != nil && len(result.Issues) == 1 {
+			infoPrompt = result.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 			logger.Infoln("信息收集完成")
 		} else {
@@ -455,6 +522,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			s.callback(McpCallbackReadMe{infoPrompt})
+			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
 		}
 	}
 
@@ -462,7 +530,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 	lock := sync.Mutex{}
 
 	// 2. 运行检测插件
-	runPlugin := func(ctx context.Context, plugin *PluginConfig) ([]ScannerIssue, error) {
+	runPlugin := func(ctx context.Context, plugin *PluginConfig) (*McpResult, error) {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -484,36 +552,36 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 			Language: s.language,
 			Logger:   logger,
 		}
-		issues, err := s.runCheckCode(ctx, plugin, &config)
+		if s.callback != nil {
+			lock.Lock()
+			s.callback(McpModuleStart{ModuleName: plugin.Info.Name})
+			lock.Unlock()
+		}
+		result, err := s.runCheckCode(ctx, plugin, &config)
 		if s.callback != nil {
 			lock.Lock()
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: plugin.Info.Name, Result: ""})
 			lock.Unlock()
 		}
-		if err != nil {
+		if err != nil || result == nil {
 			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
+			return nil, err
 		}
 		logger.Infof("插件 %s 运行成功", plugin.Info.Name)
-		logger.Infof("共发现 %d 个问题", len(issues))
+		logger.Infof("共发现 %d 个问题", len(result.Issues))
 		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		lock.Lock()
 		s.csvResult = append(s.csvResult, []string{"PluginId", plugin.Info.ID, "PluginName", plugin.Info.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
 		lock.Unlock()
 		// 转换插件结果
-		var result []ScannerIssue
-		for _, res := range issues {
-			res2 := res
-			r := ScannerIssue{
-				PluginId: plugin.Info.ID,
-				Issue:    res2,
-			}
+		for _, res := range result.Issues {
 			if s.callback != nil {
 				lock.Lock()
-				s.callback(r)
+				s.callback(res)
 				lock.Unlock()
 			}
-			result = append(result, r)
 		}
 		return result, nil
 	}
@@ -529,7 +597,14 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 					gologger.WithError(err).Errorln("插件运行失败")
 				}
 				lock.Lock()
-				results = append(results, result...)
+				if result != nil {
+					if len(result.Report) > 0 {
+						ret.Report = append(ret.Report, result.Report...)
+					}
+					if len(result.Issues) > 0 {
+						ret.Issues = append(ret.Issues, result.Issues...)
+					}
+				}
 				lock.Unlock()
 			}(plugin)
 		} else {
@@ -538,7 +613,14 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 				gologger.WithError(err).Errorln("插件运行失败")
 			}
 			lock.Lock()
-			results = append(results, result...)
+			if result != nil {
+				if len(result.Report) > 0 {
+					ret.Report = append(ret.Report, result.Report...)
+				}
+				if len(result.Issues) > 0 {
+					ret.Issues = append(ret.Issues, result.Issues...)
+				}
+			}
 			lock.Unlock()
 		}
 	}
@@ -549,10 +631,14 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
 		}
 	}()
-
-	if len(results) > 0 {
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+	}
+	if len(ret.Issues) > 0 {
+		results := ret.Issues
 		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))
 		origin := strings.Builder{}
 		for _, res := range results {
@@ -581,27 +667,31 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) ([]ScannerIssue, 
 			if err != nil {
 				logger.Warningf("插件 %s 运行失败: %v", reviewPlugin.Info.Name, err)
 			} else {
-				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues))
-				results = make([]ScannerIssue, 0) // 清空之前的结果
-				for _, res := range issues {
+				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues.Issues))
+				results = make([]Issue, 0) // 清空之前的结果
+				for _, res := range issues.Issues {
 					res2 := res
 					// 替换绝对路径
 					res2.Description = strings.ReplaceAll(res2.Description, s.codePath, "")
-					r := ScannerIssue{
-						Issue: res2,
-					}
 					if s.callback != nil {
-						s.callback(r)
+						s.callback(res2)
 					}
-					results = append(results, r)
+					results = append(results, res2)
+				}
+				ret.Issues = results
+				if len(ret.Report) > 0 {
+					ret.Report = append(ret.Report, issues.Report...)
 				}
 			}
 		}
 	}
-	return results, nil
+	return &ret, nil
 }
 
-func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, parallel bool) ([]ScannerIssue, error) {
+func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, parallel bool) (*McpResult, error) {
+	if s.client == nil {
+		return nil, fmt.Errorf("client is nil")
+	}
 	tools, err := utils.ListMcpTools(ctx, s.client)
 	if err != nil {
 		return nil, err
@@ -623,6 +713,9 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 	if s.callback != nil {
 		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
 	}
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "信息收集"})
+	}
 
 	if err != nil {
 		s.logger.Warningf("信息收集插件加载失败: %v", err)
@@ -639,8 +732,8 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			s.logger.Warningf("信息收集失败: %v", err)
 		}
 		var infoPrompt string
-		if len(issues) == 1 {
-			infoPrompt = issues[0].Description
+		if issues.Issues != nil && len(issues.Issues) == 1 {
+			infoPrompt = issues.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 			s.logger.Infoln("信息收集完成")
 		} else {
@@ -650,11 +743,13 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			s.callback(McpCallbackReadMe{infoPrompt})
+			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
+
 		}
 	}
 	lock := sync.Mutex{}
 	logger := s.logger
-	runPlugin := func(ctx context.Context, plugin *PluginConfig) ([]ScannerIssue, error) {
+	runPlugin := func(ctx context.Context, plugin *PluginConfig) (*McpResult, error) {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -669,39 +764,46 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			Language:     s.language,
 			Logger:       logger,
 		}
+		if s.callback != nil {
+			lock.Lock()
+			s.callback(McpModuleStart{ModuleName: plugin.Info.Name})
+			lock.Unlock()
+		}
 		issues, err := runDynamicAnalysis(ctx, plugin, &config)
 		if s.callback != nil {
 			lock.Lock()
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: plugin.Info.Name, Result: ""})
+
 			lock.Unlock()
+		}
+		if issues == nil {
+			return nil, fmt.Errorf("插件 %s 运行失败", plugin.Info.Name)
 		}
 		if err != nil {
 			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
 		}
 		logger.Infof("插件 %s 运行成功", plugin.Info.Name)
-		logger.Infof("共发现 %d 个问题", len(issues))
+		logger.Infof("共发现 %d 个问题", len(issues.Issues))
 		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		// 转换插件结果
-		var result []ScannerIssue
-		for _, res := range issues {
+		for _, res := range issues.Issues {
 			res2 := res
-			r := ScannerIssue{
-				PluginId: plugin.Info.ID,
-				Issue:    res2,
-			}
 			if s.callback != nil {
 				lock.Lock()
-				s.callback(r)
+				s.callback(res2)
 				lock.Unlock()
 			}
-			result = append(result, r)
 		}
-		return result, nil
+		return issues, nil
 	}
 
 	wg := sizedwaitgroup.New(5)
-	results := make([]ScannerIssue, 0)
+	results := McpResult{
+		Issues: make([]Issue, 0),
+		Report: make([]Issue, 0),
+	}
 
 	for _, plugin := range s.GetPluginsByCategory("dynamic") {
 		if parallel {
@@ -713,7 +815,8 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 					gologger.WithError(err).Errorln("插件运行失败")
 				}
 				lock.Lock()
-				results = append(results, result...)
+				results.Issues = append(results.Issues, result.Issues...)
+				results.Report = append(results.Report, result.Report...)
 				lock.Unlock()
 			}(plugin)
 		} else {
@@ -722,7 +825,8 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 				gologger.WithError(err).Errorln("插件运行失败")
 			}
 			lock.Lock()
-			results = append(results, result...)
+			results.Issues = append(results.Issues, result.Issues...)
+			results.Report = append(results.Report, result.Report...)
 			lock.Unlock()
 		}
 	}
@@ -733,12 +837,17 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
 		}
 	}()
-	if len(results) > 0 {
-		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))
+	if s.callback != nil {
+		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+	}
+
+	if len(results.Issues) > 0 {
+		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results.Issues))
 		origin := strings.Builder{}
-		for _, res := range results {
+		for _, res := range results.Issues {
 			origin.WriteString("<result>")
 			origin.WriteString("<title>" + res.Title + "</title>")
 			origin.WriteString("<desc>" + res.Description + "</desc>")
@@ -763,21 +872,17 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			if err != nil {
 				logger.Warningf("插件 %s 运行失败: %v", reviewPlugin.Info.Name, err)
 			} else {
-				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues))
-				results = make([]ScannerIssue, 0) // 清空之前的结果
-				for _, res := range issues {
-					r := ScannerIssue{
-						Issue: res,
-					}
+				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues.Issues))
+				for _, res := range issues.Issues {
 					if s.callback != nil {
-						s.callback(r)
+						s.callback(res)
 					}
-					results = append(results, r)
 				}
+				results.Issues = issues.Issues
 			}
 		}
 	}
-	return results, nil
+	return &results, nil
 }
 func (s *Scanner) getPluginByID(id string) (*PluginConfig, error) {
 	for _, plugin := range s.PluginConfigs {

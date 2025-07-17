@@ -2,10 +2,16 @@
 package utils
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bufio"
 	"bytes"
+	"compress/gzip"
+	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"io"
 	"net"
 	"os"
 	"os/exec"
@@ -270,4 +276,229 @@ func GetLocalOpenPorts() ([]PortInfo, error) {
 	}
 
 	return result, nil
+}
+
+// ExtractZipFile 解压ZIP文件
+func ExtractZipFile(zipFile string, destPath string) error {
+	// 打开ZIP文件
+	reader, err := zip.OpenReader(zipFile)
+	if err != nil {
+		return fmt.Errorf("打开ZIP文件失败: %v", err)
+	}
+	defer reader.Close()
+
+	// 确保目标目录存在
+	if err := os.MkdirAll(destPath, 0755); err != nil {
+		return fmt.Errorf("创建目标目录失败: %v", err)
+	}
+
+	// 解压文件
+	for _, file := range reader.File {
+		// 检查文件路径是否安全
+		filePath := filepath.Join(destPath, file.Name)
+		if !strings.HasPrefix(filePath, filepath.Clean(destPath)+string(os.PathSeparator)) {
+			gologger.Errorln(fmt.Sprintf("不安全的路径: %s", file.Name))
+			continue
+		}
+
+		// 创建目录
+		if file.FileInfo().IsDir() {
+			if err := os.MkdirAll(filePath, 0755); err != nil {
+				return fmt.Errorf("创建目录失败: %v", err)
+			}
+			continue
+		}
+
+		// 确保文件的父目录存在
+		if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+			return fmt.Errorf("创建父目录失败: %v", err)
+		}
+
+		// 创建文件
+		outFile, err := os.Create(filePath)
+		if err != nil {
+			return fmt.Errorf("创建文件失败: %v", err)
+		}
+		defer outFile.Close()
+
+		// 打开文件内容
+		rc, err := file.Open()
+		if err != nil {
+			return fmt.Errorf("打开压缩文件内容失败: %v", err)
+		}
+		defer rc.Close()
+
+		// 复制内容
+		if _, err := io.Copy(outFile, rc); err != nil {
+			return fmt.Errorf("复制文件内容失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// ExtractTGZ 文件解压
+func ExtractTGZ(src, dest string) error {
+	// 打开 .tgz 文件
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 创建 gzip Reader
+	gzr, err := gzip.NewReader(file)
+	if err != nil {
+		return err
+	}
+	defer gzr.Close()
+
+	// 创建 tar Reader
+	tr := tar.NewReader(gzr)
+
+	// 遍历 tar 文件中的每个条目
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break // 读取完毕
+		}
+		if err != nil {
+			return err
+		}
+
+		// 安全处理目标路径，防止路径穿越攻击
+		targetPath, err := safePath(dest, header.Name)
+		if err != nil {
+			return err
+		}
+
+		// 根据文件类型处理
+		switch header.Typeflag {
+		case tar.TypeDir: // 目录
+			if err := os.MkdirAll(targetPath, 0755); err != nil {
+				return err
+			}
+		case tar.TypeReg: // 普通文件
+			if err := writeFile(targetPath, tr, header.Mode); err != nil {
+				return err
+			}
+		// 可选：处理符号链接等其他类型
+		default:
+			fmt.Printf("未处理类型: %v in %s\n", header.Typeflag, header.Name)
+		}
+	}
+	return nil
+}
+
+// 安全路径检查，防止路径穿越
+func safePath(dest, name string) (string, error) {
+	targetPath := filepath.Join(dest, name)
+	cleanedPath := filepath.Clean(targetPath)
+	dest = filepath.Clean(dest)
+
+	// 检查目标路径是否在目标目录下
+	if !strings.HasPrefix(cleanedPath, dest+string(os.PathSeparator)) && cleanedPath != dest {
+		return "", fmt.Errorf("非法路径: %s", name)
+	}
+	return targetPath, nil
+}
+
+// 写入文件内容
+func writeFile(path string, r io.Reader, mode int64) error {
+	// 确保目录存在
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+
+	// 创建文件并设置权限
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.FileMode(mode))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 复制内容
+	if _, err := io.Copy(file, r); err != nil {
+		return err
+	}
+	return nil
+}
+
+// GitClone 克隆Git仓库
+func GitClone(repoURL, targetDir string, timeout time.Duration) error {
+	var err error
+	for i := 0; i < 3; i++ {
+		err = func() error {
+			ctx := context.Background()
+			ctx, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, "git", "clone", "--", repoURL, targetDir)
+			done := make(chan error)
+			go func() {
+				_, err := cmd.CombinedOutput()
+				done <- err
+			}()
+
+			select {
+			case <-ctx.Done():
+				_ = cmd.Process.Kill()
+				return fmt.Errorf("操作超时")
+			case err = <-done:
+				return err
+			}
+		}()
+		if err == nil {
+			return nil
+		}
+	}
+	return err
+}
+
+func RunCmd(dir, name string, arg []string, callback func(line string)) error {
+	// 命令行执行,stdio读取
+	cmd := exec.Command(name, arg...)
+	cmd.Dir = dir
+	cmd.Env = os.Environ()
+	// 获取命令行
+	cmdStr := name + " " + strings.Join(arg, " ")
+	gologger.Infof("开始执行命令: %s", cmdStr)
+	// 使用管道获取标准输出
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	cmd.Stderr = cmd.Stdout // 将错误输出合并到标准输出
+	// 启动扫描器goroutine
+	scanner := bufio.NewScanner(stdout)
+	done := make(chan struct{}) // 用于等待读取完成
+	go func() {
+		defer close(done)
+		for scanner.Scan() {
+			line := scanner.Text()
+			callback(line)
+		}
+	}()
+	// 启动命令
+	if err = cmd.Start(); err != nil {
+		return err
+	}
+	// 等待命令执行完成
+	if err = cmd.Wait(); err != nil {
+		return err
+	}
+	// 确保读取完所有输出
+	<-done
+	return nil
+}
+
+func IsHostname(hostname string) bool {
+	ips := strings.Split(hostname, ":")
+	if len(ips) != 2 {
+		return false
+	}
+	p := net.ParseIP(strings.TrimSpace(ips[0]))
+	if p == nil {
+		return false
+	}
+	return true
 }

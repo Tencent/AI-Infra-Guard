@@ -116,8 +116,8 @@ var mcpCmd = &cobra.Command{
 		}
 
 		// 输出结果
-		gologger.Infof("发现 %d 个问题:", len(results))
-		for i, issue := range results {
+		gologger.Infof("发现 %d 个问题:", len(results.Issues))
+		for i, issue := range results.Issues {
 			fmt.Printf("问题 %d:\n", i+1)
 			fmt.Printf("  - 标题: %s\n", issue.Title)
 			fmt.Printf("  - 等级: %s\n", issue.Level)
@@ -151,14 +151,14 @@ var mcpCmd = &cobra.Command{
 				WriterCsv.Flush()
 			}
 			WriterCsv.Write([]string{})
-			lines := []string{"pluginID", "title", "desc", "level", "suggestion"}
+			lines := []string{"title", "desc", "level", "suggestion"}
 			err1 := WriterCsv.Write(lines)
 			if err1 != nil {
 				gologger.WithError(err1).Error("写入csv文件失败")
 			}
 			WriterCsv.Flush()
-			for _, issue := range results {
-				lines = []string{issue.PluginId, issue.Title, issue.Description, string(issue.Level), issue.Suggestion}
+			for _, issue := range results.Issues {
+				lines = []string{issue.Title, issue.Description, string(issue.Level), issue.Suggestion}
 				err1 = WriterCsv.Write(lines)
 				if err1 != nil {
 					gologger.WithError(err1).Error("写入csv文件失败")

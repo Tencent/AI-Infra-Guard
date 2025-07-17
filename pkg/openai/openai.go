@@ -44,11 +44,11 @@ func OpenAI(prompt, key, baseUrl, model string) (string, error) {
 	client := openai.NewClient(option.WithBaseURL(baseUrl), option.WithAPIKey(key))
 	ctx := context.Background()
 	stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
-		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
+		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(prompt),
-		}),
+		},
 		Seed:  openai.Int(24),
-		Model: openai.F(model),
+		Model: model,
 	})
 	s := strings.Builder{}
 	// 循环读取结果

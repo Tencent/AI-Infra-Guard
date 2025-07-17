@@ -3,8 +3,10 @@ package runner
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/pkg/openai"
+	"io"
 	"math"
 	"net/http"
 	"os"
@@ -43,6 +45,11 @@ type Runner struct {
 	advEngine   *vulstruct.AdvisoryEngine // 漏洞建议引擎
 	total       int                       // 总目标数
 	done        chan struct{}             // 用于优雅关闭的通道
+	callback    func(interface{})
+}
+
+type Step01 struct {
+	Text string
 }
 
 // New 初始化一个新的 Runner 实例
@@ -77,49 +84,99 @@ func New(options2 *options.Options) (*Runner, error) {
 	return runner, nil
 }
 
+func LoadRemoteFingerPrints(hostname string) ([]parser.FingerPrint, error) {
+	type msg struct {
+		Data struct {
+			FingerPrints []json.RawMessage `json:"items"`
+			Total        int               `json:"total"`
+		} `json:"data"`
+		Message string `json:"message"`
+	}
+	resp, err := http.Get(fmt.Sprintf("http://%s/api/v1/knowledge/fingerprints?page=1&size=9999", hostname))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var m msg
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	fps := make([]parser.FingerPrint, 0)
+	for _, raw := range m.Data.FingerPrints {
+		fp, err := parser.InitFingerPrintFromData(raw)
+		if err != nil {
+			gologger.WithError(err).Fatalf("无法解析指纹模板:%s", string(raw))
+			continue
+		}
+		fps = append(fps, *fp)
+	}
+	return fps, nil
+}
+
 // initFingerprints initializes the fingerprint detection engine
 func (r *Runner) initFingerprints() error {
 	options2 := r.Options
-	// 初始化指纹
-	if !utils.IsFileExists(options2.FPTemplates) {
-		gologger.Fatalf("没有指定指纹模板文件:%s", options2.FPTemplates)
-	}
 	fps := make([]parser.FingerPrint, 0)
-	if utils.IsDir(options2.FPTemplates) {
-		files, err := utils.ScanDir(options2.FPTemplates)
+	var err error
+	if utils.IsHostname(options2.FPTemplates) {
+		// 从远程加载
+		fps, err = LoadRemoteFingerPrints(options2.FPTemplates)
 		if err != nil {
-			gologger.Fatalf("无法扫描指纹模板目录:%s", options2.FPTemplates)
+			return err
 		}
-		for _, filename := range files {
-			if !strings.HasSuffix(filename, ".yaml") {
-				continue
-			}
-			data, err := os.ReadFile(filename)
+	} else {
+		// 初始化指纹
+		if !utils.IsFileExists(options2.FPTemplates) {
+			gologger.Fatalf("没有指定指纹模板文件:%s", options2.FPTemplates)
+		}
+		if utils.IsDir(options2.FPTemplates) {
+			files, err := utils.ScanDir(options2.FPTemplates)
 			if err != nil {
-				gologger.Fatalf("无法读取指纹模板文件:%s", filename)
+				gologger.Fatalf("无法扫描指纹模板目录:%s", options2.FPTemplates)
+			}
+			for _, filename := range files {
+				if !strings.HasSuffix(filename, ".yaml") {
+					continue
+				}
+				data, err := os.ReadFile(filename)
+				if err != nil {
+					gologger.Fatalf("无法读取指纹模板文件:%s", filename)
+				}
+				fp, err := parser.InitFingerPrintFromData(data)
+				if err != nil {
+					gologger.WithError(err).Fatalf("无法解析指纹模板文件:%s", filename)
+				}
+				fps = append(fps, *fp)
+			}
+		} else {
+			data, err := os.ReadFile(options2.FPTemplates)
+			if err != nil {
+				gologger.Fatalf("无法读取指纹模板文件:%s", options2.FPTemplates)
 			}
 			fp, err := parser.InitFingerPrintFromData(data)
 			if err != nil {
-				gologger.WithError(err).Fatalf("无法解析指纹模板文件:%s", filename)
+				gologger.Fatalf("无法解析指纹模板文件:%s", options2.FPTemplates)
 			}
 			fps = append(fps, *fp)
 		}
-	} else {
-		data, err := os.ReadFile(options2.FPTemplates)
-		if err != nil {
-			gologger.Fatalf("无法读取指纹模板文件:%s", options2.FPTemplates)
-		}
-		fp, err := parser.InitFingerPrintFromData(data)
-		if err != nil {
-			gologger.Fatalf("无法解析指纹模板文件:%s", options2.FPTemplates)
-		}
-		fps = append(fps, *fp)
 	}
 	if len(fps) == 0 {
 		gologger.Fatalf("没有指定指纹模板")
 	}
 	r.fpEngine = preload.New(r.hp, fps)
-	gologger.Infof("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	gologger.Infoln(text)
+	if r.Options.Callback != nil {
+		r.Options.Callback(Step01{Text: text})
+	}
+
 	r.result = make(chan HttpResult)
 	return nil
 }
@@ -489,7 +546,13 @@ func (r *Runner) handleOutput(wg *sizedwaitgroup.SizedWaitGroup) {
 	}
 
 	if r.Options.Callback != nil {
-		score := r.calcSecScore(results)
+		advies := make([]vulstruct.Info, 0)
+		for _, item := range results {
+			for _, ad := range item.Advisories {
+				advies = append(advies, ad.Info)
+			}
+		}
+		score := r.CalcSecScore(advies)
 		r.Options.Callback(score)
 	}
 }
@@ -623,42 +686,45 @@ func (r *Runner) ShowFpAndVulList(vul bool) {
 
 // initVulnerabilityDB initializes the vulnerability advisory engine
 func (r *Runner) initVulnerabilityDB() error {
-	vulDir := strings.TrimRight(r.Options.AdvTemplates, "/")
-	if r.Options.Language == "en" {
-		vulDir = vulDir + "_en"
+	engine := vulstruct.NewAdvisoryEngine()
+	var err error
+	if utils.IsHostname(r.Options.AdvTemplates) {
+		// load from hostname
+		err = engine.LoadFromHost(r.Options.AdvTemplates)
+	} else {
+		// load from directory
+		vulDir := strings.TrimRight(r.Options.AdvTemplates, "/")
+		if r.Options.Language == "en" {
+			vulDir = vulDir + "_en"
+		}
+		err = engine.LoadFromDirectory(vulDir)
 	}
-	engine, err := vulstruct.NewAdvisoryEngine(vulDir)
 	if err != nil {
 		gologger.Fatalf("无法初始化漏洞库:%s", err)
 	}
 	r.advEngine = engine
-	gologger.Infof("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	text := fmt.Sprintf("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	gologger.Infoln(text)
+	if r.Options.Callback != nil {
+		r.Options.Callback(Step01{Text: text})
+	}
 	return nil
 }
 
-// calcSecScore 计算安全分数
-func (r *Runner) calcSecScore(results []HttpResult) CallbackReportInfo {
+// CalcSecScore 计算安全分数
+func (r *Runner) CalcSecScore(advisories []vulstruct.Info) CallbackReportInfo {
 	var total, high, middle, low int = 0, 0, 0, 0
-	for _, result := range results {
-		total += len(result.Advisories)
-		for _, item := range result.Advisories {
-			if item.Info.Severity == "HIGH" || item.Info.Severity == "CRITICAL" {
-				high++
-			} else if item.Info.Severity == "MEDIUM" {
-				middle++
-			} else {
-				low++
-			}
+	total = len(advisories)
+	for _, item := range advisories {
+		if item.Severity == "HIGH" || item.Severity == "CRITICAL" {
+			high++
+		} else if item.Severity == "MEDIUM" {
+			middle++
+		} else {
+			low++
 		}
 	}
-	if len(results) == 0 && total == 0 {
-		return CallbackReportInfo{
-			SecScore:   0,
-			HighRisk:   0,
-			MediumRisk: 0,
-			LowRisk:    0,
-		}
-	} else if total == 0 {
+	if total == 0 {
 		return CallbackReportInfo{
 			SecScore:   100,
 			HighRisk:   0,
