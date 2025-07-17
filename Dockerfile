@@ -4,6 +4,8 @@ FROM golang:1.23.2-alpine AS builder
 # 安装必要的系统依赖
 RUN apk add --no-cache git ca-certificates
 
+# 设置工作目录
+WORKDIR /app
 
 # 复制 go.mod 和 go.sum 文件
 COPY go.mod go.sum /app/
@@ -13,9 +15,6 @@ RUN go mod download
 
 # 复制源代码
 COPY . /app/
-
-# 设置工作目录
-WORKDIR /app
 
 # 构建应用程序
 RUN GOOS=linux go build -a -o agent ./cmd/agent
