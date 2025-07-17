@@ -416,16 +416,8 @@ func HandleCreateVulnerability(options *options.Options) gin.HandlerFunc {
 			return
 		}
 
-		// 3. 临时写入到校验用的临时文件
-		tmpFile, cleanup, err := createTempFileWithContent("vuln-check-*", []byte(req.FileContent))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": err.Error()})
-			return
-		}
-		defer cleanup()
-
 		// 4. 用vulstruct.NewAdvisoryEngine加载临时文件做完整业务校验
-		_, err = vulstruct.ReadVersionVulSingFile(tmpFile)
+		_, err := vulstruct.ReadVersionVul([]byte(req.FileContent))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "漏洞内容校验失败: " + err.Error()})
 			return
@@ -500,17 +492,8 @@ func HandleEditVulnerability(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "指纹分类名称非法"})
 		return
 	}
-
-	// 3. 临时写入到校验用的临时文件
-	tmpFile, cleanup, err := createTempFileWithContent("vuln-check-*", []byte(req.FileContent))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": err.Error()})
-		return
-	}
-	defer cleanup()
-
 	// 4. 用vulstruct.NewAdvisoryEngine加载临时文件做完整业务校验
-	_, err = vulstruct.ReadVersionVulSingFile(tmpFile)
+	_, err := vulstruct.ReadVersionVul([]byte(req.FileContent))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "漏洞内容校验失败: " + err.Error()})
 		return

@@ -15,8 +15,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Tencent/AI-Infra-Guard/pkg/openai"
-
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/preload"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"

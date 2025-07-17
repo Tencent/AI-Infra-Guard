@@ -3,8 +3,6 @@ package vulstruct
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"gopkg.in/yaml.v3"
 	"strings"

@@ -47,7 +47,7 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 		}
 		ad, err := ReadVersionVul(body)
 		if err != nil {
-			return nil, fmt.Errorf("read advisory file error %s: %w", file, err)
+			return fmt.Errorf("read advisory file error %s: %w", file, err)
 		}
 		ads = append(ads, *ad)
 	}
