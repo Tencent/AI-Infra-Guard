@@ -22,6 +22,7 @@ func main() {
 		gologger.Errorln("server is empty")
 		return
 	}
+	gologger.Infoln("connect server:", server)
 
 	serverUrl := fmt.Sprintf("ws://%s/api/v1/agents/ws", server)
 
