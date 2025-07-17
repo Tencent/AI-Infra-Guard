@@ -21,7 +21,7 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o ai-i
 FROM alpine:3.19
 
 # 安装运行时依赖
-RUN apk --no-cache add ca-certificates tzdata sqlite bash
+RUN apk --no-cache add ca-certificates tzdata sqlite bash curl
 
 # 设置工作目录
 WORKDIR /ai-infra-guard
