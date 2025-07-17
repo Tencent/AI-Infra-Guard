@@ -31,6 +31,7 @@ RUN apt-get update --allow-releaseinfo-change && apt-get install -y --no-install
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv pip install --system -r requirements.txt
+RUN uv sync
 
 # 从builder阶段复制agent
 COPY --from=builder /app/agent /app/agent

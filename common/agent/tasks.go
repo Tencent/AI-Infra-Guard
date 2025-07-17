@@ -140,6 +140,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		AdvTemplates: t.Server,
 		WebServer:    false,
 		Target:       reqScan.Target,
+		LoadRemote:   true,
 	}
 
 	// 配置请求头

@@ -125,7 +125,7 @@ func (r *Runner) initFingerprints() error {
 	options2 := r.Options
 	fps := make([]parser.FingerPrint, 0)
 	var err error
-	if utils.IsHostname(options2.FPTemplates) {
+	if r.Options.LoadRemote {
 		// 从远程加载
 		fps, err = LoadRemoteFingerPrints(options2.FPTemplates)
 		if err != nil {
@@ -689,7 +689,7 @@ func (r *Runner) ShowFpAndVulList(vul bool) {
 func (r *Runner) initVulnerabilityDB() error {
 	engine := vulstruct.NewAdvisoryEngine()
 	var err error
-	if utils.IsHostname(r.Options.AdvTemplates) {
+	if r.Options.LoadRemote {
 		// load from hostname
 		err = engine.LoadFromHost(r.Options.AdvTemplates)
 	} else {

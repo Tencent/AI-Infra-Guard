@@ -31,6 +31,7 @@ type Options struct {
 	Headers         multiStringFlag   // HTTP请求头
 	Language        string            // 语言
 	Callback        func(interface{}) `json:"-"` // 回调函数
+	LoadRemote      bool              `json:"-"`
 }
 
 // multiStringFlag 用于支持命令行中多个相同参数的输入
