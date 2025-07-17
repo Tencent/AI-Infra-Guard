@@ -30,7 +30,7 @@ func main() {
 		Info: agent.AgentInfo{
 			ID:       "test_id",
 			HostName: "test_hostname",
-			IP:       "localhost",
+			IP:       "127.0.0.1",
 			Version:  "0.1",
 			Metadata: "",
 		},
