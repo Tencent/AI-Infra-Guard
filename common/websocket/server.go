@@ -119,7 +119,6 @@ func RunWebServer(options *options.Options) {
 		// 3. AI应用安全中心
 		appSecurity := v1.Group("/app")
 		{
-			// 应用IOA中间件
 			appSecurity.Use(setupIdentityMiddleware())
 
 			// 任务管理
