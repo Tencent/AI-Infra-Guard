@@ -47,8 +47,7 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 		}
 		ad, err := ReadVersionVul(body)
 		if err != nil {
-			gologger.WithError(err).Errorln("read advisory file error", file)
-			continue
+			return nil, fmt.Errorf("read advisory file error %s: %w", file, err)
 		}
 		ads = append(ads, *ad)
 	}

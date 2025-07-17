@@ -15,6 +15,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Tencent/AI-Infra-Guard/pkg/openai"
+
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/preload"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
@@ -650,6 +652,7 @@ func (r *Runner) GetFpAndVulList() []FpInfos {
 		fp2 := fp
 		fingerprints = append(fingerprints, fp2)
 	}
+
 	fps := make([]FpInfos, 0)
 	for _, fp := range fingerprints {
 		ads, err := r.advEngine.GetAdvisories(fp.Info.Name, "", false)

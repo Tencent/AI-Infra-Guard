@@ -1,0 +1,13 @@
+plugins:                                          #插件配置
+  log:                                            #日志配置
+    default:                                      #默认日志的配置，可支持多输出
+      - writer: console                           #控制台标准输出 默认
+        level: info                               #控制台输出日志的级别（从error改为info）
+      - writer: file                              #本地文件日志
+        level: debug                              #本地文件滚动日志的级别（从info改为debug）
+        writer_config:
+          filename: ./logs/trpc.log              #本地文件滚动日志存放的路径
+          max_size: 10                              #本地文件滚动日志的大小 单位 MB
+          max_backups: 10                           #最大日志文件数
+          max_age: 7                                #最大日志保留天数
+          compress:  false                          #日志文件是否压缩

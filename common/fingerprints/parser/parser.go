@@ -30,7 +30,7 @@ type HttpRule struct {
 	Path      string    `yaml:"path" json:"path"`
 	Matchers  []string  `yaml:"matchers" json:"matchers"`
 	Data      string    `yaml:"data,omitempty" json:"data,omitempty"`
-	dsl       []*Rule   `yaml:"-"`
+	dsl       []*Rule   `yaml:"-" json:"-"`
 	Extractor Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
 }
 
@@ -43,7 +43,7 @@ func (h *HttpRule) GetDsl() []*Rule {
 type FingerPrint struct {
 	Info    FingerPrintInfo `yaml:"info" json:"info"`
 	Http    []HttpRule      `yaml:"http" json:"http"`
-	Version []HttpRule      `yaml:"version,omitempty" json:"version"`
+	Version []HttpRule      `yaml:"version,omitempty" json:"version,omitempty"`
 }
 
 // FingerPrints 表示多个指纹规则的集合

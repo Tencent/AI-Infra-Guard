@@ -1,3 +1,55 @@
+# Git相关
+.git/
+.gitignore
+
+# 构建产物
+ai-infra-guard
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 测试文件
+*.test
+*.out
+mcp-testcase/
+
+# 日志文件
+*.log
+trpc.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# IDE配置
+.vscode/
+.idea/
+*.sublime-*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 运行时数据目录（通过卷挂载）
+uploads/
+db/
+
+# 文档和图片（不需要在容器中）
+img/
+*.md
+*.txt
+License.txt
+!README.md
+
+# GitHub Actions配置
+.github/
+
+# Go Release配置
+.goreleaser.yml
+
+# 构建脚本
+build_test.sh 
 .idea
 .github
 temp_uploads
