@@ -53,6 +53,7 @@ func ParseOptions() *Options {
 	flag.Var(&options.Target, "target", "Target URLs, can specify multiple targets e.g.: -target xx.com -target aa.com")
 	flag.StringVar(&options.TargetFile, "file", "", "File containing target URLs")
 	flag.StringVar(&options.Output, "o", "", "Output file path")
+	flag.BoolVar(&options.JSON, "json", false, "JSON Output")
 	flag.IntVar(&options.TimeOut, "timeout", 5, "Request timeout in seconds")
 	flag.StringVar(&options.ProxyURL, "proxy-url", "", "Proxy URL")
 	flag.Var(&options.Headers, "header", "HTTP headers, can specify multiple headers e.g.: -header \"key:value\" -header \"key:value\"")

@@ -48,6 +48,20 @@ type Runner struct {
 	callback    func(interface{})
 }
 
+// VulnerabilityResult 表示单个漏洞的结构化数据
+type VulnerabilityResult struct {
+	TargetURL      string   `json:"target_url"`
+	StatusCode     int      `json:"status_code"`
+	Title          string   `json:"title"`
+	Fingerprint    string   `json:"fingerprint"`
+	CVE            string   `json:"cve"`
+	Severity       string   `json:"severity"`
+	Summary        string   `json:"summary"`
+	Details        string   `json:"details"`
+	SecurityAdvise string   `json:"security_advise"`
+	References     []string `json:"references"`
+}
+
 type Step01 struct {
 	Text string
 }
@@ -567,78 +581,123 @@ func (r *Runner) createOutputFile() (*os.File, error) {
 
 // writeResult 写入扫描结果
 func (r *Runner) writeResult(f *os.File, result HttpResult) {
-	fmt.Println(result.s)
-	if f != nil {
-		_, _ = f.WriteString(result.s + "\n")
-	}
-	if r.Options.Callback != nil {
-		vuls := make([]vulstruct.Info, 0)
+	if r.Options.JSON {
+		// 遍历所有漏洞并输出为 JSON 格式
 		for _, item := range result.Advisories {
-			vuls = append(vuls, item.Info)
+			// 构建指纹字符串
+			var fpString string = ""
+			for _, fp := range result.Fingers {
+				fpString += fp.Name
+				if fp.Type != "" {
+					fpString += ":" + fp.Type
+				}
+				if fp.Version != "" {
+					fpString += ":" + fp.Version
+				}
+			}
+
+			// 构建漏洞结果
+			vulnResult := VulnerabilityResult{
+				TargetURL:      result.URL,
+				StatusCode:     result.StatusCode,
+				Title:          result.Title,
+				Fingerprint:    fpString,
+				CVE:            item.Info.CVEName,
+				Severity:       item.Info.Severity,
+				Summary:        item.Info.Summary,
+				Details:        item.Info.Details,
+				SecurityAdvise: item.Info.SecurityAdvise,
+				References:     item.References,
+			}
+
+			// 序列化为 JSON
+			jsonOutput, err := json.Marshal(vulnResult)
+			if err != nil {
+				gologger.Errorf("Failed to marshal vulnerability result to JSON: %v", err)
+				continue
+			}
+
+			// 输出到标准输出或文件
+			fmt.Println(string(jsonOutput))
+			if f != nil {
+				_, _ = f.WriteString(string(jsonOutput) + "\n")
+			}
 		}
-		var fpString string = ""
-		for _, fp := range result.Fingers {
-			fpString += fp.Name
-			if fp.Type != "" {
-				fpString += ":" + fp.Type
-			}
-			if fp.Version != "" {
-				fpString += ":" + fp.Version
-			}
+	} else {
+
+		fmt.Println(result.s)
+		if f != nil {
+			_, _ = f.WriteString(result.s + "\n")
 		}
 		if r.Options.Callback != nil {
-			r.Options.Callback(CallbackScanResult{
-				TargetURL:       result.URL,
-				StatusCode:      result.StatusCode,
-				Title:           result.Title,
-				Fingerprint:     fpString,
-				Vulnerabilities: vuls,
-			})
-		}
-	}
-	if len(result.Advisories) > 0 {
-		fmt.Println("\n存在漏洞:")
-		for _, item := range result.Advisories {
-			builder := strings.Builder{}
-			builderFile := strings.Builder{}
-			serverity := item.Info.Severity
-			name := item.Info.CVEName
-			if serverity == "HIGH" || serverity == "CRITICAL" {
-				builder.WriteString(aurora.Red(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 高危红色
-			} else if serverity == "MEDIUM" {
-				builder.WriteString(aurora.Yellow(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 中危黄色
-			} else {
-				builder.WriteString(aurora.Bold(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 低危加粗
-			}
-			builderFile.WriteString(fmt.Sprintf("%s [%s]\n", name, serverity))
-			builder.WriteString(": " + item.Info.Summary + "\n" + item.Info.Details + "\n")
-			builderFile.WriteString(": " + item.Info.Summary + "\n" + item.Info.Details + "\n")
-			if len(item.Info.SecurityAdvise) > 0 {
-				builder.WriteString("修复建议: " + item.Info.SecurityAdvise + "\n")
-				builderFile.WriteString("修复建议: " + item.Info.SecurityAdvise + "\n")
-			}
-			fmt.Println(builder.String())
-			_, _ = f.WriteString(builderFile.String() + "\n")
-		}
-		if r.Options.AIAnalysis {
-			fmt.Println("AI分析:")
-			prompt := "你是安全漏洞报告解读大师，我会给你扫描器输出的url和存在的cve详情。以编写甲方漏洞报告的形式编写完整报告，参考格式如：\n# 一、风险总览\n(描述测试的url以及基本信息，综合CVE漏洞可能造成的严重漏洞后果)\n# 二、漏洞详情\n(请你利用搜索等功能，依次分析CVE的详情，给出漏洞怎么产生，怎么利用，修复方案的详情(根据漏洞类型给出对应修复方案，执行的命令,而不是简单升级)，然后给出可靠参考来源,相同类型漏洞合并在一起给出)\n漏洞报告如下：\n"
-			prompt += fmt.Sprintf("%s title:%s fingerprint:%v", result.URL, result.Title, result.Fingers) + "\n"
+			vuls := make([]vulstruct.Info, 0)
 			for _, item := range result.Advisories {
-				prompt += fmt.Sprintf("%s[%s]:%s\n", item.Info.CVEName, item.Info.Severity, item.Info.Details)
-				prompt += fmt.Sprintf("reference: %v\n", item.References)
+				vuls = append(vuls, item.Info)
 			}
-			var err error
-			var full string
-			if r.Options.AIDeepSeekToken != "" {
-				full, err = openai.DeepSeekR1API(prompt, r.Options.AIDeepSeekToken)
-			} else {
-				full, err = openai.HunyuanAI(prompt, r.Options.AIHunyuanToken)
+			var fpString string = ""
+			for _, fp := range result.Fingers {
+				fpString += fp.Name
+				if fp.Type != "" {
+					fpString += ":" + fp.Type
+				}
+				if fp.Version != "" {
+					fpString += ":" + fp.Version
+				}
 			}
-			if err != nil {
-				gologger.WithError(err).Errorln("AI分析失败")
+			if r.Options.Callback != nil {
+				r.Options.Callback(CallbackScanResult{
+					TargetURL:       result.URL,
+					StatusCode:      result.StatusCode,
+					Title:           result.Title,
+					Fingerprint:     fpString,
+					Vulnerabilities: vuls,
+				})
 			}
-			_, _ = f.WriteString(full + "\n")
+		}
+		if len(result.Advisories) > 0 {
+			fmt.Println("\n存在漏洞:")
+			for _, item := range result.Advisories {
+				builder := strings.Builder{}
+				builderFile := strings.Builder{}
+				serverity := item.Info.Severity
+				name := item.Info.CVEName
+				if serverity == "HIGH" || serverity == "CRITICAL" {
+					builder.WriteString(aurora.Red(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 高危红色
+				} else if serverity == "MEDIUM" {
+					builder.WriteString(aurora.Yellow(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 中危黄色
+				} else {
+					builder.WriteString(aurora.Bold(fmt.Sprintf("%s [%s]", name, serverity)).String()) // 低危加粗
+				}
+				builderFile.WriteString(fmt.Sprintf("%s [%s]\n", name, serverity))
+				builder.WriteString(": " + item.Info.Summary + "\n" + item.Info.Details + "\n")
+				builderFile.WriteString(": " + item.Info.Summary + "\n" + item.Info.Details + "\n")
+				if len(item.Info.SecurityAdvise) > 0 {
+					builder.WriteString("修复建议: " + item.Info.SecurityAdvise + "\n")
+					builderFile.WriteString("修复建议: " + item.Info.SecurityAdvise + "\n")
+				}
+				fmt.Println(builder.String())
+				_, _ = f.WriteString(builderFile.String() + "\n")
+			}
+			if r.Options.AIAnalysis {
+				fmt.Println("AI分析:")
+				prompt := "你是安全漏洞报告解读大师，我会给你扫描器输出的url和存在的cve详情。以编写甲方漏洞报告的形式编写完整报告，参考格式如：\n# 一、风险总览\n(描述测试的url以及基本信息，综合CVE漏洞可能造成的严重漏洞后果)\n# 二、漏洞详情\n(请你利用搜索等功能，依次分析CVE的详情，给出漏洞怎么产生，怎么利用，修复方案的详情(根据漏洞类型给出对应修复方案，执行的命令,而不是简单升级)，然后给出可靠参考来源,相同类型漏洞合并在一起给出)\n漏洞报告如下：\n"
+				prompt += fmt.Sprintf("%s title:%s fingerprint:%v", result.URL, result.Title, result.Fingers) + "\n"
+				for _, item := range result.Advisories {
+					prompt += fmt.Sprintf("%s[%s]:%s\n", item.Info.CVEName, item.Info.Severity, item.Info.Details)
+					prompt += fmt.Sprintf("reference: %v\n", item.References)
+				}
+				var err error
+				var full string
+				if r.Options.AIDeepSeekToken != "" {
+					full, err = openai.DeepSeekR1API(prompt, r.Options.AIDeepSeekToken)
+				} else {
+					full, err = openai.HunyuanAI(prompt, r.Options.AIHunyuanToken)
+				}
+				if err != nil {
+					gologger.WithError(err).Errorln("AI分析失败")
+				}
+				_, _ = f.WriteString(full + "\n")
+			}
 		}
 	}
 }
