@@ -17,4 +17,4 @@ version:
     extractor:  
       part: body  
       group: 1  
-      regex: 'appVersion["\']:\s*["\'](\d+\.\d+\.\d+)["\']'
+      regex: "appVersion[\"']:\\s*[\"'](\\d+\\.\\d+\\.\\d+)[\"']"
