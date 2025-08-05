@@ -10,7 +10,7 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>JupyterLab</title>"
+      - body="<title>JupyterLab</title>" || icon="-895963602"
 version:  
   - method: GET  
     path: '/lab'  
