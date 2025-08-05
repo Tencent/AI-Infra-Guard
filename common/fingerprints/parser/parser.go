@@ -34,6 +34,14 @@ type HttpRule struct {
 	Extractor Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
 }
 
+// FuzzVersion 定义模糊版本检测规则
+type FuzzVersion struct {
+	Path         string `yaml:"path" json:"path"`
+	Pattern      string `yaml:"pattern,omitempty" json:"pattern,omitempty"`
+	Hash         string `yaml:"hash,omitempty" json:"hash,omitempty"`
+	VersionRange string `yaml:"version_range" json:"version_range"`
+}
+
 // GetDsl 返回解析后的DSL规则列表
 func (h *HttpRule) GetDsl() []*Rule {
 	return h.dsl
@@ -41,9 +49,10 @@ func (h *HttpRule) GetDsl() []*Rule {
 
 // FingerPrint 定义了完整的指纹规则结构
 type FingerPrint struct {
-	Info    FingerPrintInfo `yaml:"info" json:"info"`
-	Http    []HttpRule      `yaml:"http" json:"http"`
-	Version []HttpRule      `yaml:"version,omitempty" json:"version"`
+	Info        FingerPrintInfo `yaml:"info" json:"info"`
+	Http        []HttpRule      `yaml:"http" json:"http"`
+	Version     []HttpRule      `yaml:"version,omitempty" json:"version"`
+	FuzzVersion []FuzzVersion   `yaml:"fuzzversion,omitempty" json:"fuzzversion"`
 }
 
 // FingerPrints 表示多个指纹规则的集合

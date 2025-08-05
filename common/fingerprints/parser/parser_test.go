@@ -9,10 +9,10 @@ import (
 )
 
 func TestSingleRule(t *testing.T) {
-	rule := "body~=\"123123\" && (title == \"title\" || header=\"X-Powered-By: Express\")"
+	rule := "body~=\"123123\" && (header=\"X-Powered-By: Express\")"
 	config := &Config{
 		Body:   "1111231232233",
-		Header: "",
+		Header: "Server: nginx\\nX-Powered-By: Express",
 		Icon:   23333,
 	}
 	tokens, err := ParseTokens(rule)
