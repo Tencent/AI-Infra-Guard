@@ -1,0 +1,19 @@
+info:
+  name: LiteLLM
+  author: 腾讯科恩实验室
+  severity: info
+  metadata:
+    product: LiteLLM
+    vendor: LiteLLM
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="LiteLLM API" || body="Proxy Server to call 100+ LLMs in the OpenAI format" || body="LiteLLM Admin Panel on /ui"
+version:
+  - method: GET
+    path: '/openapi.json'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"([0-9]+\.[0-9]+\.[0-9]+)"'
