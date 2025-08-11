@@ -1,0 +1,20 @@
+info:
+  name: marimo
+  author: 腾讯科恩实验室
+  severity: info
+  metadata:
+    product: marimo
+    vendor: marimo
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>marimo</title>"
+      - icon="-1864630356"
+version:
+  - method: GET
+    path: '/api/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '(\d+\.\d+\.\d+)'
