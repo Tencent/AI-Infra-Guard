@@ -7,7 +7,7 @@ info:
     vendor: LiteLLM
 http:
   - method: GET
-    path: '/openapi.json'
+    path: '/'
     matchers:
       - body="LiteLLM API" || body="Proxy Server to call 100+ LLMs in the OpenAI format" || body="LiteLLM Admin Panel on /ui"
 version:
