@@ -1,0 +1,19 @@
+info:
+  name: langfuse
+  author: 腾讯科恩实验室
+  severity: info
+  metadata:
+    product: langfuse
+    vendor: langfuse
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="alt=\"Langfuse Icon\"" || body="data-sentry-component=\"LangfuseIcon\""
+version:
+  - method: GET
+    path: '/api/trpc/public.checkUpdate'
+    extractor:
+      part: body
+      group: 1
+      regex: '"currentVersion":"v(\d+\.\d+\.\d+)"'
