@@ -2,6 +2,7 @@ info:
   name: marimo
   author: 腾讯科恩实验室
   severity: info
+  desc: 一款响应式的Python笔记本，具有优秀的可复现性，原生支持Git，并可作为脚本或应用程序部署。
   metadata:
     product: marimo
     vendor: marimo

@@ -2,6 +2,7 @@ info:
   name: LiteLLM
   author: 腾讯科恩实验室
   severity: info
+  desc: 一个开源的API代理，支持100多个LLM模型，提供OpenAI兼容格式API。
   metadata:
     product: LiteLLM
     vendor: LiteLLM
