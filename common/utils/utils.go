@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
@@ -61,6 +62,12 @@ func FaviconHash(data []byte) int32 {
 	hasher := murmur3.New32WithSeed(0)
 	hasher.Write([]byte(stdBase64))
 	return int32(hasher.Sum32())
+}
+
+// BodyHash 计算响应内容的 SHA256 哈希值
+func BodyHash(data []byte) string {
+	sum := sha256.Sum256(data)
+	return fmt.Sprintf("%x", sum)
 }
 
 // ScanDir 递归扫描目录，返回所有文件的完整路径

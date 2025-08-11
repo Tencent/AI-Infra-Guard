@@ -3,6 +3,7 @@ package preload
 
 import (
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
+	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
 	"regexp"
@@ -175,13 +176,13 @@ func (r *Runner) GetFps() []parser.FingerPrint {
 // EvalFpVersion 获取指定指纹的版本信息
 // 通过正则表达式从响应中提取版本号
 func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, error) {
+	// 优先使用精确版本提取
 	for _, req := range fp.Version {
 		resp, err := hp.Get(uri+req.Path, nil)
 		if err != nil {
 			gologger.WithError(err).Errorln("请求失败")
 			continue
 		}
-		// 文件指纹
 		fpConfig := &parser.Config{
 			Body:   resp.DataStr,
 			Header: resp.GetHeaderRaw(),
@@ -189,7 +190,6 @@ func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, 
 		}
 		version := ""
 		if req.Extractor.Regex != "" {
-			// 继续测试version
 			compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
 			if err != nil {
 				gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
@@ -211,5 +211,32 @@ func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, 
 		}
 		return version, nil
 	}
+
+	// 模糊版本信息
+	for _, fv := range fp.FuzzVersion {
+		resp, err := hp.Get(uri+fv.Path, nil)
+		if err != nil {
+			gologger.WithError(err).Debugln("请求失败")
+			continue
+		}
+		bodyHash := utils.BodyHash(resp.Data)
+		if fv.Hash != "" && fv.Hash != bodyHash {
+			continue
+		}
+		if fv.Pattern != "" {
+			reg, err := regexp.Compile(fv.Pattern)
+			if err != nil {
+				gologger.WithError(err).Debugln("compile regex error", fv.Pattern)
+				continue
+			}
+			if !reg.MatchString(resp.DataStr) {
+				continue
+			}
+		} else if fv.Hash == "" && resp.StatusCode != 200 {
+			continue
+		}
+		return fv.VersionRange, nil
+	}
+
 	return "", nil
 }
