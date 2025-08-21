@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # Git相关
 .git/
 .gitignore
@@ -52,7 +50,6 @@ License.txt
 
 # 构建脚本
 build_test.sh 
->>>>>>> opensource
 .idea
 .github
 temp_uploads

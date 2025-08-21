@@ -5,10 +5,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-<<<<<<< HEAD
-	"github.com/Tencent/AI-Infra-Guard/pkg/openai"
-=======
->>>>>>> opensource
 	"io"
 	"math"
 	"net/http"
@@ -128,11 +124,7 @@ func (r *Runner) initFingerprints() error {
 	options2 := r.Options
 	fps := make([]parser.FingerPrint, 0)
 	var err error
-<<<<<<< HEAD
-	if utils.IsHostname(options2.FPTemplates) {
-=======
 	if r.Options.LoadRemote {
->>>>>>> opensource
 		// 从远程加载
 		fps, err = LoadRemoteFingerPrints(options2.FPTemplates)
 		if err != nil {
@@ -386,11 +378,7 @@ func (r *Runner) extractContent(fullUrl string, resp *httpx.Response, respTime s
 }
 
 // runHostRequest 尝试使用 HTTP 和 HTTPS 连接到主机
-<<<<<<< HEAD
-func (r *Runner) runHostRequest(domain string) {
-=======
 func (r *Runner) runHostRequest(domain string) error {
->>>>>>> opensource
 	retried := false
 	protocol := httpx.HTTP
 retry:
@@ -407,16 +395,10 @@ retry:
 			retried = true
 			goto retry
 		}
-<<<<<<< HEAD
-		return
-	}
-	r.extractContent(fullUrl, resp, time.Since(timeStart).String())
-=======
 		return err
 	}
 	r.extractContent(fullUrl, resp, time.Since(timeStart).String())
 	return nil
->>>>>>> opensource
 }
 
 // runDomainRequest makes a request to a specific URL and processes the response
@@ -470,9 +452,6 @@ func (r *Runner) RunEnumeration() {
 			go func() {
 				defer wg.Done()
 				r.rateLimiter.Take()
-<<<<<<< HEAD
-				r.runHostRequest(target)
-=======
 				err := r.runHostRequest(target)
 				if err != nil {
 					if r.Options.Callback != nil {
@@ -482,7 +461,6 @@ func (r *Runner) RunEnumeration() {
 						})
 					}
 				}
->>>>>>> opensource
 				atomic.AddUint64(&numTarget, 1)
 				r.callbackProcess(int(atomic.LoadUint64(&numTarget)), r.total)
 			}()
@@ -490,9 +468,6 @@ func (r *Runner) RunEnumeration() {
 			go func() {
 				defer wg.Done()
 				r.rateLimiter.Take()
-<<<<<<< HEAD
-				r.runDomainRequest(target)
-=======
 				err := r.runDomainRequest(target)
 				if err != nil {
 					if r.Options.Callback != nil {
@@ -502,7 +477,6 @@ func (r *Runner) RunEnumeration() {
 						})
 					}
 				}
->>>>>>> opensource
 				atomic.AddUint64(&numTarget, 1)
 				r.callbackProcess(int(atomic.LoadUint64(&numTarget)), r.total)
 			}()
@@ -662,29 +636,6 @@ func (r *Runner) writeResult(f *os.File, result HttpResult) {
 			fmt.Println(builder.String())
 			_, _ = f.WriteString(builderFile.String() + "\n")
 		}
-<<<<<<< HEAD
-		if r.Options.AIAnalysis {
-			fmt.Println("AI分析:")
-			prompt := "你是安全漏洞报告解读大师，我会给你扫描器输出的url和存在的cve详情。以编写甲方漏洞报告的形式编写完整报告，参考格式如：\n# 一、风险总览\n(描述测试的url以及基本信息，综合CVE漏洞可能造成的严重漏洞后果)\n# 二、漏洞详情\n(请你利用搜索等功能，依次分析CVE的详情，给出漏洞怎么产生，怎么利用，修复方案的详情(根据漏洞类型给出对应修复方案，执行的命令,而不是简单升级)，然后给出可靠参考来源,相同类型漏洞合并在一起给出)\n漏洞报告如下：\n"
-			prompt += fmt.Sprintf("%s title:%s fingerprint:%v", result.URL, result.Title, result.Fingers) + "\n"
-			for _, item := range result.Advisories {
-				prompt += fmt.Sprintf("%s[%s]:%s\n", item.Info.CVEName, item.Info.Severity, item.Info.Details)
-				prompt += fmt.Sprintf("reference: %v\n", item.References)
-			}
-			var err error
-			var full string
-			if r.Options.AIDeepSeekToken != "" {
-				full, err = openai.DeepSeekR1API(prompt, r.Options.AIDeepSeekToken)
-			} else {
-				full, err = openai.HunyuanAI(prompt, r.Options.AIHunyuanToken)
-			}
-			if err != nil {
-				gologger.WithError(err).Errorln("AI分析失败")
-			}
-			_, _ = f.WriteString(full + "\n")
-		}
-=======
->>>>>>> opensource
 	}
 }
 
@@ -695,10 +646,6 @@ func (r *Runner) GetFpAndVulList() []FpInfos {
 		fp2 := fp
 		fingerprints = append(fingerprints, fp2)
 	}
-<<<<<<< HEAD
-=======
-
->>>>>>> opensource
 	fps := make([]FpInfos, 0)
 	for _, fp := range fingerprints {
 		ads, err := r.advEngine.GetAdvisories(fp.Info.Name, "", false)
@@ -737,11 +684,7 @@ func (r *Runner) ShowFpAndVulList(vul bool) {
 func (r *Runner) initVulnerabilityDB() error {
 	engine := vulstruct.NewAdvisoryEngine()
 	var err error
-<<<<<<< HEAD
-	if utils.IsHostname(r.Options.AdvTemplates) {
-=======
 	if r.Options.LoadRemote {
->>>>>>> opensource
 		// load from hostname
 		err = engine.LoadFromHost(r.Options.AdvTemplates)
 	} else {

@@ -9,15 +9,21 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
+	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
+	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mark3labs/mcp-go v0.32.0
 	github.com/openai/openai-go v1.8.3
 	github.com/projectdiscovery/fastdialer v0.2.9
+	github.com/projectdiscovery/fdmax v0.0.4
+	github.com/projectdiscovery/hmap v0.0.62
 	github.com/projectdiscovery/rawhttp v0.1.69
 	github.com/projectdiscovery/retryablehttp-go v1.0.82
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
+	go.uber.org/ratelimit v0.3.1
 	golang.org/x/net v0.40.0
 	golang.org/x/text v0.25.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -26,8 +32,6 @@ require (
 )
 
 require (
-	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
-	github.com/projectdiscovery/hmap v0.0.62 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	trpc.group/trpc-go/tnet v1.0.1 // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v1.0.0 // indirect

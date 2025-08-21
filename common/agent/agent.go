@@ -246,14 +246,9 @@ func (a *Agent) processMessage(data []byte) error {
 				// 创建回调函数集合
 				callbacks := TaskCallbacks{
 					ResultCallback: func(result map[string]interface{}) {
-<<<<<<< HEAD
-						a.SendTaskResult(task.SessionId, result)
-						gologger.Debugln("ResultCallback", result)
-=======
 						gologger.Debugln("ResultCallback", result)
 						a.SendTaskResult(task.SessionId, result)
 						gologger.Debugln("ResultCallback end")
->>>>>>> opensource
 					},
 					ToolUseLogCallback: func(actionId, tool, planStepId, actionLog string) {
 						a.SendsToolUsedLog(task.SessionId, actionId, tool, planStepId, actionLog)
@@ -275,10 +270,6 @@ func (a *Agent) processMessage(data []byte) error {
 						a.SendPlanUpdate(task.SessionId, tasks)
 						gologger.Debugln("PlanUpdateCallback", tasks)
 					},
-<<<<<<< HEAD
-				}
-				go taskFunc.Execute(taskCtx, task, callbacks)
-=======
 					ErrorCallback: func(error string) {
 						a.SendError(task.SessionId, error)
 						gologger.Debugln("ErrorCallback", error)
@@ -290,7 +281,6 @@ func (a *Agent) processMessage(data []byte) error {
 						a.SendError(task.SessionId, err.Error())
 					}
 				}()
->>>>>>> opensource
 				break
 			}
 		}
@@ -543,8 +533,6 @@ func CreateSubTask(status statusString, title string, startedAt int64, stepId st
 		StepId:    stepId,
 	}
 }
-<<<<<<< HEAD
-=======
 
 // SendError 发送错误
 func (a *Agent) SendError(sessionId, msg string) error {
@@ -579,4 +567,3 @@ func (a *Agent) SendError(sessionId, msg string) error {
 	return nil
 
 }
->>>>>>> opensource

@@ -10,15 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - body="<title>Jupyter Notebook</title>"
-version:  
-  - method: GET  
-    path: '/tree'  
-    extractor:  
-      part: body  
-      group: 1  
-      regex: '"appVersion":"(\d+\.\d+\.?\d*)"'
-=======
-      - body="<title>Jupyter Notebook</title>"
->>>>>>> opensource

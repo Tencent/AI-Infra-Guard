@@ -10,10 +10,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-<<<<<<< HEAD
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-=======
->>>>>>> opensource
 	"io"
 	"net"
 	"os"
@@ -24,11 +20,8 @@ import (
 	"strings"
 	"time"
 
-<<<<<<< HEAD
-=======
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 
->>>>>>> opensource
 	"github.com/spaolacci/murmur3"
 )
 
@@ -476,11 +469,6 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 		return err
 	}
 	cmd.Stderr = cmd.Stdout // 将错误输出合并到标准输出
-<<<<<<< HEAD
-	// 启动扫描器goroutine
-	scanner := bufio.NewScanner(stdout)
-	done := make(chan struct{}) // 用于等待读取完成
-=======
 
 	// 启动扫描器goroutine
 	scanner := bufio.NewScanner(stdout)
@@ -491,16 +479,12 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 	scanner.Buffer(buf, maxCapacity)
 
 	done := make(chan error) // 改为传递错误信息
->>>>>>> opensource
 	go func() {
 		defer close(done)
 		for scanner.Scan() {
 			line := scanner.Text()
 			callback(line)
 		}
-<<<<<<< HEAD
-	}()
-=======
 		// 检查扫描器是否遇到错误
 		if err := scanner.Err(); err != nil {
 			// 管道关闭是正常的结束条件，不应视为错误
@@ -515,19 +499,10 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 		done <- nil
 	}()
 
->>>>>>> opensource
 	// 启动命令
 	if err = cmd.Start(); err != nil {
 		return err
 	}
-<<<<<<< HEAD
-	// 等待命令执行完成
-	if err = cmd.Wait(); err != nil {
-		return err
-	}
-	// 确保读取完所有输出
-	<-done
-=======
 
 	// 等待命令执行完成
 	cmdErr := cmd.Wait()
@@ -543,7 +518,6 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 		return cmdErr
 	}
 
->>>>>>> opensource
 	return nil
 }
 

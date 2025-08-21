@@ -10,7 +10,6 @@ http:
   - method: GET
     path: '/zuqu3'
     matchers:
-<<<<<<< HEAD
       - "body=\"Unexpected endpoint or method. (GET /zuqu3)\" && header=\"x-powered-by: Express\""
 version:  
   - method: GET  
@@ -19,6 +18,3 @@ version:
       part: body  
       group: 1  
       regex: 'v(\d+\.\d+\.?\d*)'
-=======
-      - "body=\"Unexpected endpoint or method. (GET /zuqu3)\" && header=\"x-powered-by: Express\""
->>>>>>> opensource

@@ -10,7 +10,6 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - body="<title>Jupyter Server</title>"
 version:  
   - method: GET  
@@ -19,6 +18,3 @@ version:
       part: body  
       group: 1  
       regex: '"appVersion":"(\d+\.\d+\.?\d*)"'
-=======
-      - body="<title>Jupyter Server</title>"
->>>>>>> opensource

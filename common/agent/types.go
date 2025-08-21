@@ -13,10 +13,7 @@ const (
 	AgentMsgTypeNewPlanStep  = "newPlanStep"  // 新建执行步骤
 	AgentMsgTypeStatusUpdate = "statusUpdate" // 更新步骤状态
 	AgentMsgTypePlanUpdate   = "planUpdate"   // 更新任务计划
-<<<<<<< HEAD
-=======
 	AgentMsgTypeError        = "error"        // 更新任务计划
->>>>>>> opensource
 
 	// Server -> Agent 消息类型
 	ServerMsgTypeRegisterResp = "register_ack" // 注册响应
@@ -285,8 +282,6 @@ type PlanUpdateContent struct {
 	Type    string           `json:"type"`    // 固定为"planUpdate"
 	Content PlanUpdateUpdate `json:"content"` // 更新任务计划数据
 }
-<<<<<<< HEAD
-=======
 
 // ErrorUpdateContent Agent发送给服务器的错误更新内容
 type ErrorUpdateContent struct {
@@ -308,4 +303,3 @@ type ErrorUpdate struct {
 	Timestamp int64      `json:"timestamp" validate:"required"` // 时间戳 - 必需
 	Event     ErrorEvent `json:"event"`                         // 事件数据 - 必需
 }
->>>>>>> opensource

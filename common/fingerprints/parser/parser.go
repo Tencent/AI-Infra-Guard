@@ -9,14 +9,6 @@ import (
 
 // FingerPrintInfo 定义了指纹的基本信息
 type FingerPrintInfo struct {
-<<<<<<< HEAD
-	Name     string            `yaml:"name" json:"name"`
-	Author   string            `yaml:"author" json:"author"`
-	Example  []string          `yaml:"example,omitempty" json:"example,omitempty"`
-	Desc     string            `yaml:"desc,omitempty" json:"desc,omitempty"`
-	Severity string            `yaml:"severity" json:"severity"`
-	Metadata map[string]string `yaml:"metadata" json:"metadata"`
-=======
 	Name           string            `yaml:"name" json:"name"`
 	Author         string            `yaml:"author" json:"author"`
 	Example        []string          `yaml:"example,omitempty" json:"example,omitempty"`
@@ -24,7 +16,6 @@ type FingerPrintInfo struct {
 	Severity       string            `yaml:"severity" json:"severity"`
 	Metadata       map[string]string `yaml:"metadata" json:"metadata"`
 	Recommendation int               `yaml:"recommendation,omitempty" json:"recommendation,omitempty"`
->>>>>>> opensource
 }
 
 // Extractor 定义了从响应中提取信息的规则
@@ -40,11 +31,7 @@ type HttpRule struct {
 	Path      string    `yaml:"path" json:"path"`
 	Matchers  []string  `yaml:"matchers" json:"matchers"`
 	Data      string    `yaml:"data,omitempty" json:"data,omitempty"`
-<<<<<<< HEAD
-	dsl       []*Rule   `yaml:"-"`
-=======
 	dsl       []*Rule   `yaml:"-" json:"-"`
->>>>>>> opensource
 	Extractor Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
 }
 
@@ -57,11 +44,7 @@ func (h *HttpRule) GetDsl() []*Rule {
 type FingerPrint struct {
 	Info    FingerPrintInfo `yaml:"info" json:"info"`
 	Http    []HttpRule      `yaml:"http" json:"http"`
-<<<<<<< HEAD
-	Version []HttpRule      `yaml:"version,omitempty" json:"version"`
-=======
 	Version []HttpRule      `yaml:"version,omitempty" json:"version,omitempty"`
->>>>>>> opensource
 }
 
 // FingerPrints 表示多个指纹规则的集合

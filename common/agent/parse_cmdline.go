@@ -3,16 +3,10 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
-<<<<<<< HEAD
-	"github.com/google/uuid"
-	"os"
+	"path"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-=======
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/google/uuid"
-	"path"
->>>>>>> opensource
 )
 
 type CmdNewPlanStep struct {
@@ -24,10 +18,7 @@ type CmdStatusUpdate struct {
 	Brief       string `json:"brief"`
 	Description string `json:"description"`
 	StepId      string `json:"stepId"`
-<<<<<<< HEAD
-=======
 	Status      string `json:"status"`
->>>>>>> opensource
 }
 
 type CmdToolUsed struct {
@@ -50,11 +41,6 @@ type CmdContent struct {
 	Content json.RawMessage `json:"content"`
 }
 
-<<<<<<< HEAD
-var statusId string
-
-func ParseStdoutLine(tasks []SubTask, line string, callbacks TaskCallbacks) {
-=======
 type CmdConfig struct {
 	StatusId string
 	Status   string
@@ -78,7 +64,6 @@ type PromptResults struct {
 }
 
 func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callbacks TaskCallbacks, config *CmdConfig) {
->>>>>>> opensource
 	var cmd CmdContent
 	if err := json.Unmarshal([]byte(line), &cmd); err != nil {
 		fmt.Println(line)
@@ -107,10 +92,6 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeStatusUpdate unmarshal command", cmd.Content)
 			return
 		}
-<<<<<<< HEAD
-		statusId = uuid.NewString()
-		callbacks.StepStatusUpdateCallback(content.StepId, statusId, AgentStatusCompleted, content.Brief, content.Description)
-=======
 		if content.Status == AgentStatusRunning {
 			config.StatusId = uuid.NewString()
 			config.Status = "running"
@@ -121,7 +102,6 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 			config.Status = "completed"
 		}
 		callbacks.StepStatusUpdateCallback(content.StepId, config.StatusId, content.Status, content.Brief, content.Description)
->>>>>>> opensource
 	case AgentMsgTypeToolUsed:
 		var content CmdToolUsed
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {
@@ -129,11 +109,7 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 			return
 		}
 		tool := CreateTool(content.ToolId, content.ToolId, statusString(content.Status), content.Brief, content.Brief, "", "")
-<<<<<<< HEAD
-		callbacks.ToolUsedCallback(content.StepId, statusId, content.Brief, []Tool{tool})
-=======
 		callbacks.ToolUsedCallback(content.StepId, config.StatusId, content.Brief, []Tool{tool})
->>>>>>> opensource
 	case AgentMsgTypeActionLog:
 		var content CmdActionLog
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {
@@ -151,18 +127,6 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 			tasks[i].Status = SubTaskStatusDone
 		}
 		callbacks.PlanUpdateCallback(tasks)
-<<<<<<< HEAD
-
-		content["msgType"] = "markdown"
-		filename := content["content"].(string)
-		data, err := os.ReadFile(filename)
-		if err != nil {
-			gologger.WithError(err).Errorln("Failed to read result file", filename)
-			return
-		}
-		content["content"] = string(data)
-		callbacks.ResultCallback(content)
-=======
 		var ret []PromptContent
 		dd, err := json.Marshal(content["content"])
 		if err != nil {
@@ -202,6 +166,5 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 	case AgentMsgTypeError:
 		content := string(cmd.Content)
 		callbacks.ErrorCallback(content)
->>>>>>> opensource
 	}
 }

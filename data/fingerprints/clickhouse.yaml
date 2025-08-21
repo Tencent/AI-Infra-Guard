@@ -10,15 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - header="x-clickhouse-summary"
-version:  
-  - method: GET  
-    path: '/?query=SELECT%20version()'  
-    extractor:  
-      part: body  
-      group: 1  
-      regex: '(\d+\.\d+\.\d+\.\d+)'
-=======
-      - header="x-clickhouse-summary"
->>>>>>> opensource

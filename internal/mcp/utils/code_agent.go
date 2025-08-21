@@ -9,13 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-<<<<<<< HEAD
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
-=======
 	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
->>>>>>> opensource
 )
 
 // AutoGPT is an agent that can automatically execute tasks, similar to AutoGPT functionality

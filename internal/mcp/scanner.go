@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	utils2 "github.com/Tencent/AI-Infra-Guard/common/utils"
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"github.com/mark3labs/mcp-go/mcp"
 	"os"
 	"path/filepath"
@@ -17,7 +18,6 @@ import (
 
 	"strconv"
 
-	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"

@@ -5,15 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-<<<<<<< HEAD
-	"net/http"
-	"os"
-=======
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
->>>>>>> opensource
 )
 
 // DownloadFile 下载文件
@@ -37,14 +32,6 @@ func DownloadFile(server, sessionId, uri, path string) error {
 		dd, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("下载失败，HTTP 状态码：%d content:%s", resp.StatusCode, string(dd))
 	}
-<<<<<<< HEAD
-	contentType := resp.Header.Get("Content-Type")
-
-	if contentType == "application/json" {
-		return fmt.Errorf("下载失败，文件类型错误：%s", contentType)
-	}
-=======
->>>>>>> opensource
 
 	// 创建文件
 	file, err := os.Create(path)
@@ -61,8 +48,6 @@ func DownloadFile(server, sessionId, uri, path string) error {
 
 	return nil
 }
-<<<<<<< HEAD
-=======
 
 // UploadFileResponse 上传文件响应结构
 type UploadFileResponse struct {
@@ -179,4 +164,3 @@ func GetEvaluationsDetail(server, name string) ([]byte, error) {
 	}
 	return msg.Data, nil
 }
->>>>>>> opensource

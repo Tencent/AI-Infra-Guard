@@ -4,11 +4,7 @@ dist
 .DS_Store
 test_prompt.txt
 cmd/internal
-<<<<<<< HEAD
-temp_uploads
-=======
 temp_uploads
 logs
 db
 uploads
->>>>>>> opensource

@@ -3,9 +3,10 @@ package vulstruct
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"gopkg.in/yaml.v3"
-	"strings"
 )
 
 // Info represents vulnerability information structure
@@ -19,10 +20,7 @@ type Info struct {
 	Severity        string   `yaml:"severity" json:"severity"`                         // Severity level
 	SecurityAdvise  string   `yaml:"security_advise,omitempty" json:"security_advise"` // Security advisory
 	References      []string `yaml:"references" json:"references"`
-<<<<<<< HEAD
-=======
 	Author          string   `yaml:"author,omitempty" json:"author,omitempty"`
->>>>>>> opensource
 }
 
 // VersionVul represents a version-based vulnerability

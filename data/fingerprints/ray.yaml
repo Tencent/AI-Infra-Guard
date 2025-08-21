@@ -14,15 +14,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - icon="463802404"
-version:  
-  - method: GET  
-    path: '/api/version'  
-    extractor:  
-      part: body  
-      group: 1  
-      regex: '"ray_version":"([^"]+)"'
-=======
-      - icon="463802404"
->>>>>>> opensource

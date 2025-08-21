@@ -22,22 +22,13 @@ type Options struct {
 	AdvTemplates    string            // 漏洞模板路径
 	ListVulTemplate bool              // 是否列出漏洞模板
 	CheckVulTargets bool              // 检查漏洞模板是否正确
-<<<<<<< HEAD
-	AIAnalysis      bool              // 是否启用AI分析
-	AIHunyuanToken  string            // AI服务的认证令牌
-	AIDeepSeekToken string            // deepseek的认证令牌
-=======
->>>>>>> opensource
 	LocalScan       bool              // 一键检测本地
 	WebServer       bool              // 是否启用WebSocket服务器
 	WebServerAddr   string            // WebSocket服务器地址
 	Headers         multiStringFlag   // HTTP请求头
 	Language        string            // 语言
 	Callback        func(interface{}) `json:"-"` // 回调函数
-<<<<<<< HEAD
-=======
 	LoadRemote      bool              `json:"-"`
->>>>>>> opensource
 }
 
 // multiStringFlag 用于支持命令行中多个相同参数的输入
@@ -71,12 +62,6 @@ func ParseOptions() *Options {
 	flag.BoolVar(&options.LocalScan, "localscan", false, "One-click local scan")
 	flag.BoolVar(&options.WebServer, "ws", false, "Enable WebServer")
 	flag.StringVar(&options.WebServerAddr, "ws-addr", "127.0.0.1:8088", "WebSocket server address")
-<<<<<<< HEAD
-	flag.BoolVar(&options.AIAnalysis, "ai", false, "Enable AI analysis")
-	flag.StringVar(&options.AIHunyuanToken, "hunyuan-token", "", "Hunyuan API token")
-	flag.StringVar(&options.AIDeepSeekToken, "deepseek-token", "", "DeepSeek API token")
-=======
->>>>>>> opensource
 	flag.StringVar(&options.Language, "lang", "zh", "Response language zh/en")
 	flag.Parse()
 	options.configureOutput()

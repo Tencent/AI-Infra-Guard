@@ -10,15 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - body="<title>Login - pyLoad </title>"
-version:  
-  - method: GET  
-    path: '/info'  
-    extractor:  
-      part: body  
-      group: 1  
-      regex: '<td>([^<]+)</td>\s*</tr>\s*<tr>\s*<td>{{_\("Installation Folder:"\)}}</td>'
-=======
-      - body="<title>Login - pyLoad </title>"
->>>>>>> opensource

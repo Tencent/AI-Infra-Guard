@@ -14,15 +14,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-<<<<<<< HEAD
       - body="<title>Application QAnything cannot handle your request</title>"
-version:  
-  - method: GET  
-    path: '/qanything/version.json'  
-    extractor:  
-      part: body  
-      group: 1  
-      regex: '{"version":"(\d+\.\d+\.?\d+?)"'
-=======
-      - body="<title>Application QAnything cannot handle your request</title>"
->>>>>>> opensource
