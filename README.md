@@ -21,7 +21,7 @@
 </h4>
 
 <p align="center">
-    <h3 align="center">🚀 AI Red Teaming Security Platform by Tencent Zhuque Lab</h3>
+    <h3 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h3>
 </p>
 
 **A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and LLM security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
