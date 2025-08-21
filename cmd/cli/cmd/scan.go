@@ -45,9 +45,12 @@ var scanCmd = &cobra.Command{
 			AdvTemplates:    scanAdvTemplates,
 			ListVulTemplate: scanListVulTemplate,
 			CheckVulTargets: scanCheckVulTargets,
+<<<<<<< HEAD
 			AIAnalysis:      scanAIAnalysis,
 			AIHunyuanToken:  scanAIHunyuanToken,
 			AIDeepSeekToken: scanAIDeepSeekToken,
+=======
+>>>>>>> opensource
 			LocalScan:       scanLocalScan,
 			Headers:         scanHeaders,
 			Language:        scanLanguage,

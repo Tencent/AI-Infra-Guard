@@ -3,27 +3,25 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
+	"github.com/mark3labs/mcp-go/client"
 	"os"
 	"regexp"
 	"strings"
-
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
-	"github.com/mark3labs/mcp-go/client"
-	"gopkg.in/yaml.v3"
 )
 
 type PluginConfig struct {
 	Info struct {
-		ID          string   `yaml:"id"`
-		Name        string   `yaml:"name"`
-		Description string   `yaml:"description"`
-		Author      string   `yaml:"author"`
-		Category    []string `yaml:"categories"`
-	} `yaml:"info"`
-	Rules          []Rule `yaml:"rules,omitempty"`
-	PromptTemplate string `yaml:"prompt_template"`
+		ID          string   `yaml:"id" json:"id"`
+		Name        string   `yaml:"name" json:"name"`
+		Description string   `yaml:"description" json:"description"`
+		Author      string   `yaml:"author" json:"author"`
+		Category    []string `yaml:"categories" json:"category"`
+	} `yaml:"info" json:"info"`
+	Rules          []Rule `yaml:"rules,omitempty" json:"rules,omitempty"`
+	PromptTemplate string `yaml:"prompt_template" json:"prompt_template"`
 }
 
 type Rule struct {

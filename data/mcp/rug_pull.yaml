@@ -2,7 +2,7 @@ info:
   id: "rug_pull"
   name: "Rug Pull Attack Detection"
   description: "Detect rug pull attack patterns in MCP code"
-  author: "Zhuque Security Team"
+  author: "腾讯朱雀实验室"
   categories:
     - code
     - dynamic

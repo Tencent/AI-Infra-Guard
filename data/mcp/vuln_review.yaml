@@ -2,7 +2,7 @@ info:
   id: "vuln_review"
   name: "Vulnerability Review Plugin"
   description: "Review and validate existing vulnerability reports"
-  author: "Zhuque Security Team"
+  author: "腾讯朱雀实验室"
   categories:
     - review
 

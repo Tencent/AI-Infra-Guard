@@ -10,6 +10,7 @@ http:
   - method: GET
     path: '/'
     matchers:
+<<<<<<< HEAD
       - body="<title>Kubeflow Central Dashboard</title>"
 version:  
   - method: GET  
@@ -18,3 +19,6 @@ version:
       part: body  
       group: 1  
       regex: '"kubeflowVersion":"([^"]+)"'
+=======
+      - body="<title>Kubeflow Central Dashboard</title>"
+>>>>>>> opensource

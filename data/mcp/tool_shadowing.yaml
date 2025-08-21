@@ -2,7 +2,7 @@ info:
   id: "tool_shadowing"
   name: "Tool Shadowing Attack Detection"
   description: "Detect possible tool shadowing vulnerabilities in MCP code"
-  author: "Zhuque Security Team"
+  author: "腾讯朱雀实验室"
   categories:
     - code
     - dynamic

@@ -10,7 +10,10 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+<<<<<<< HEAD
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+=======
+>>>>>>> opensource
 	"io"
 	"net"
 	"os"
@@ -21,6 +24,11 @@ import (
 	"strings"
 	"time"
 
+<<<<<<< HEAD
+=======
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+
+>>>>>>> opensource
 	"github.com/spaolacci/murmur3"
 )
 
@@ -468,26 +476,74 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 		return err
 	}
 	cmd.Stderr = cmd.Stdout // 将错误输出合并到标准输出
+<<<<<<< HEAD
 	// 启动扫描器goroutine
 	scanner := bufio.NewScanner(stdout)
 	done := make(chan struct{}) // 用于等待读取完成
+=======
+
+	// 启动扫描器goroutine
+	scanner := bufio.NewScanner(stdout)
+	// 设置更大的缓冲区以处理超长文本行
+	// 默认64KB，这里设置为1MB
+	const maxCapacity = 1024 * 1024 * 10 // 1MB
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, maxCapacity)
+
+	done := make(chan error) // 改为传递错误信息
+>>>>>>> opensource
 	go func() {
 		defer close(done)
 		for scanner.Scan() {
 			line := scanner.Text()
 			callback(line)
 		}
+<<<<<<< HEAD
 	}()
+=======
+		// 检查扫描器是否遇到错误
+		if err := scanner.Err(); err != nil {
+			// 管道关闭是正常的结束条件，不应视为错误
+			if strings.Contains(err.Error(), "file already closed") ||
+				strings.Contains(err.Error(), "broken pipe") {
+				done <- nil
+				return
+			}
+			done <- fmt.Errorf("读取输出时发生错误: %v", err)
+			return
+		}
+		done <- nil
+	}()
+
+>>>>>>> opensource
 	// 启动命令
 	if err = cmd.Start(); err != nil {
 		return err
 	}
+<<<<<<< HEAD
 	// 等待命令执行完成
 	if err = cmd.Wait(); err != nil {
 		return err
 	}
 	// 确保读取完所有输出
 	<-done
+=======
+
+	// 等待命令执行完成
+	cmdErr := cmd.Wait()
+
+	// 等待读取完成并检查读取错误
+	readErr := <-done
+
+	// 优先返回读取错误，其次返回命令执行错误
+	if readErr != nil {
+		return readErr
+	}
+	if cmdErr != nil {
+		return cmdErr
+	}
+
+>>>>>>> opensource
 	return nil
 }
 

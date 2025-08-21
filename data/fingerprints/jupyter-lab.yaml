@@ -10,6 +10,7 @@ http:
   - method: GET
     path: '/'
     matchers:
+<<<<<<< HEAD
       - body="<title>JupyterLab</title>" || icon="-895963602"
 version:  
   - method: GET  
@@ -18,3 +19,6 @@ version:
       part: body  
       group: 1  
       regex: "appVersion[\"']:\\s*[\"'](\\d+\\.\\d+\\.\\d+)[\"']"
+=======
+      - body="<title>JupyterLab</title>"
+>>>>>>> opensource

@@ -47,8 +47,12 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 		}
 		ad, err := ReadVersionVul(body)
 		if err != nil {
+<<<<<<< HEAD
 			gologger.WithError(err).Errorln("read advisory file error", file)
 			continue
+=======
+			return fmt.Errorf("read advisory file error %s: %w", file, err)
+>>>>>>> opensource
 		}
 		ads = append(ads, *ad)
 	}
@@ -127,3 +131,12 @@ func (ae *AdvisoryEngine) GetAdvisories(packageName, version string, isInternal 
 func (ae *AdvisoryEngine) GetCount() int {
 	return len(ae.ads)
 }
+<<<<<<< HEAD
+=======
+
+// GetAll 获取所有漏洞建议
+// 返回: 漏洞建议列表和可能的错误
+func (ae *AdvisoryEngine) GetAll() []VersionVul {
+	return ae.ads
+}
+>>>>>>> opensource

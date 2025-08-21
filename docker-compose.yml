@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-infra-guard-webserver
+    ports:
+      - "8088:8088"
+    environment:
+      - APP_ENV=production
+      - UPLOAD_DIR=/ai-infra-guard/uploads
+      - DB_PATH=/ai-infra-guard/db/tasks.db
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/ai-infra-guard/data
+      - ./db:/ai-infra-guard/db
+      - ./logs:/ai-infra-guard/logs
+      - ./uploads:/ai-infra-guard/uploads
+    networks:
+      - ai-infra-guard-network
+    healthcheck:
+      test: [ "CMD", "curl",  "http://localhost:8088/" ]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile_Agent
+    container_name: ai-infra-guard-agent
+    environment:
+      - TZ=Asia/Shanghai
+      - AIG_SERVER=webserver:8088
+    networks:
+      - ai-infra-guard-network
+    depends_on:
+      webserver:
+        condition: service_healthy
+networks:
+  ai-infra-guard-network:
+    driver: bridge
+    name: ai-infra-guard-network

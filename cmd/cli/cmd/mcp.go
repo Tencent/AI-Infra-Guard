@@ -5,9 +5,15 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+<<<<<<< HEAD
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
+=======
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
+>>>>>>> opensource
 	"github.com/spf13/cobra"
 	"io"
 	"log"
@@ -67,6 +73,10 @@ var mcpCmd = &cobra.Command{
 
 		// 创建扫描器
 		scanner := mcp.NewScanner(aiModel, logger)
+<<<<<<< HEAD
+=======
+		scanner.RegisterPlugin(nil)
+>>>>>>> opensource
 
 		// 设置输入
 		ctx := context.Background()

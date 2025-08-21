@@ -1,0 +1,1 @@
+.venv/bin/python cli_run.py --scan-tools all

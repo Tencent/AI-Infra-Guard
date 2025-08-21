@@ -2,7 +2,7 @@ info:
   id: "name_confusion"
   name: "Name Confusion Attack Detection"
   description: "Detect name confusion and typosquatting attacks in MCP tools"
-  author: "Zhuque Security Team"
+  author: "腾讯朱雀实验室"
   categories:
     - dynamic
 

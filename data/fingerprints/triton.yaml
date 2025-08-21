@@ -11,6 +11,7 @@ http:
     path: '/v2/repository/models/simple/load'
     matchers:
       - body="{\"error\":\"explicit model load"
+<<<<<<< HEAD
 version:  
   - method: GET  
     path: '/v2'  
@@ -18,3 +19,5 @@ version:
       part: body  
       group: 1  
       regex: '"version":"(\d+\.\d+\.?\d*)"'
+=======
+>>>>>>> opensource

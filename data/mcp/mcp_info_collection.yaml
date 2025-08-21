@@ -2,7 +2,7 @@ info:
   id: "mcp_info_collection"
   name: "Information Collection Plugin"
   description: "Initialize information collection and attack surface analysis"
-  author: "Zhuque Security Team"
+  author: "腾讯朱雀实验室"
   categories:
     - mcp_info_collection
 

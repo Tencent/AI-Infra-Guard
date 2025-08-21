@@ -20,17 +20,31 @@ COPY . /app/
 RUN GOOS=linux go build -a -o agent ./cmd/agent
 
 # AIG-PromptSecurity
+<<<<<<< HEAD
 FROM python:3.12-slim
+=======
+FROM python:3.12
+>>>>>>> opensource
 
 WORKDIR /app/AIG-PromptSecurity
 
 RUN apt-get update --allow-releaseinfo-change && apt-get install -y --no-install-recommends --allow-unauthenticated git curl \
     && rm -rf /var/lib/apt/lists/* \
     && (command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv)
+<<<<<<< HEAD
 
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv pip install --system -r requirements.txt
+=======
+RUN apt-get update && apt-get install -y nmap
+COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
+WORKDIR /app/AIG-PromptSecurity
+RUN uv sync
+
+ENV DEEPEVAL_TELEMETRY_OPT_OUT=YES
+ENV DEEPTEAM_TELEMETRY_OPT_OUT=YES
+>>>>>>> opensource
 
 # 从builder阶段复制agent
 COPY --from=builder /app/agent /app/agent

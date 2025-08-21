@@ -6,6 +6,10 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"os"
+<<<<<<< HEAD
+=======
+	"time"
+>>>>>>> opensource
 )
 
 func main() {
@@ -22,6 +26,7 @@ func main() {
 		gologger.Errorln("server is empty")
 		return
 	}
+<<<<<<< HEAD
 
 	serverUrl := fmt.Sprintf("ws://%s/api/v1/agents/ws", server)
 
@@ -53,4 +58,42 @@ func main() {
 		gologger.WithError(err).Fatalln("start agent failed")
 	}
 	defer x.Stop()
+=======
+	gologger.Infoln("connect server:", server)
+	serverUrl := fmt.Sprintf("ws://%s/api/v1/agents/ws", server)
+	for {
+		time.Sleep(time.Millisecond * 1200)
+		func() {
+			x := agent.NewAgent(agent.AgentConfig{
+				ServerURL: serverUrl,
+				Info: agent.AgentInfo{
+					ID:       "test_id",
+					HostName: "test_hostname",
+					IP:       "127.0.0.1",
+					Version:  "0.1",
+					Metadata: "",
+				},
+			})
+			agent2 := agent.AIInfraScanAgent{
+				Server: server,
+			}
+			agent3 := agent.McpScanAgent{Server: server}
+			agent4 := agent.ModelJailbreak{Server: server}
+			agent5 := agent.ModelRedteamReport{Server: server}
+
+			x.RegisterTaskFunc(&agent2)
+			x.RegisterTaskFunc(&agent3)
+			x.RegisterTaskFunc(&agent4)
+			x.RegisterTaskFunc(&agent5)
+
+			gologger.Infoln("wait task")
+			err := x.Start()
+			if err != nil {
+				gologger.WithError(err).Errorln("start agent failed")
+			}
+			defer x.Stop()
+		}()
+		gologger.Infoln("reconnect...")
+	}
+>>>>>>> opensource
 }

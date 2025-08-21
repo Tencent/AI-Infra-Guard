@@ -9,6 +9,7 @@ http:
   - method: GET
     path: '/'
     matchers:
+<<<<<<< HEAD
       - body="<meta name=\"application-name\" content=\"Chuanhu Chat\">"
 version:  
   - method: GET  
@@ -17,3 +18,6 @@ version:
       part: body  
       group: 1  
       regex: '<span[^>]*id="current-version"[^>]*>([^<]+)</span>'
+=======
+      - body="<meta name=\"application-name\" content=\"Chuanhu Chat\">"
+>>>>>>> opensource

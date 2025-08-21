@@ -17,8 +17,8 @@ import (
 
 	"strconv"
 
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
 	"github.com/remeh/sizedwaitgroup"
@@ -68,7 +68,6 @@ func NewScanner(aiConfig *models.OpenAI, logger *gologger.Logger) *Scanner {
 		language:      "zh",
 		logger:        logger,
 	}
-	s.registerPlugin()
 	return s
 }
 
@@ -89,7 +88,41 @@ func (s *Scanner) GetPluginsByCategory(category string) []*PluginConfig {
 	return plugins
 }
 
-func (s *Scanner) registerPlugin() error {
+func (s *Scanner) GetAllPluginNames() ([]string, error) {
+	names := make([]string, 0)
+	execPath, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建data/mcp目录路径
+	dataDir := filepath.Join(filepath.Dir(execPath), "data", "mcp")
+
+	// 如果相对路径不存在，尝试从工作目录查找
+	if _, err := os.Stat(dataDir); os.IsNotExist(err) {
+		wd, _ := os.Getwd()
+		dataDir = filepath.Join(wd, "data", "mcp")
+	}
+	files, err := utils2.ScanDir(dataDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, configPath := range files {
+		if !strings.HasSuffix(configPath, ".yaml") {
+			continue
+		}
+		plugin, err := NewYAMLPlugin(configPath)
+		if err != nil {
+			s.logger.Errorf("加载插件配置失败 %s: %v", configPath, err)
+			continue
+		}
+		names = append(names, plugin.Info.ID)
+	}
+	return names, nil
+}
+
+func (s *Scanner) RegisterPlugin(plugins []string) error {
 	// 获取当前执行文件的目录
 	execPath, err := os.Executable()
 	if err != nil {
@@ -113,15 +146,27 @@ func (s *Scanner) registerPlugin() error {
 		if !strings.HasSuffix(configPath, ".yaml") {
 			continue
 		}
-
 		plugin, err := NewYAMLPlugin(configPath)
 		if err != nil {
 			s.logger.Errorf("加载插件配置失败 %s: %v", configPath, err)
 			continue
 		}
-
-		s.logger.Infof("加载插件 %s", plugin.Info.Name)
-		s.PluginConfigs = append(s.PluginConfigs, plugin)
+		id := plugin.Info.ID
+		if len(plugins) > 0 {
+			for _, p := range plugins {
+				if p == id {
+					s.logger.Infof("加载插件 %s", plugin.Info.Name)
+					s.PluginConfigs = append(s.PluginConfigs, plugin)
+					break
+				}
+			}
+		} else {
+			s.logger.Infof("加载插件 %s", plugin.Info.Name)
+			s.PluginConfigs = append(s.PluginConfigs, plugin)
+		}
+	}
+	if len(s.PluginConfigs) == 0 {
+		return fmt.Errorf("未加载任何插件")
 	}
 	return nil
 }
@@ -480,6 +525,42 @@ func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *Mcp
 	return runAIAnalysis(ctx, p, config, staticResults)
 }
 
+type CallbackWriteLog struct {
+	Text       []byte
+	ModuleName string
+}
+
+type tmpWriter struct {
+	Callback   func(data interface{})
+	Mux        sync.Mutex
+	cache      []byte
+	ModuleName string
+}
+
+func (t *tmpWriter) Write(p []byte) (n int, err error) {
+	t.Mux.Lock()
+	defer t.Mux.Unlock()
+	for _, word := range p {
+		t.cache = append(t.cache, word)
+		if word == '\n' {
+			if t.Callback != nil {
+				t.Callback(CallbackWriteLog{t.cache, t.ModuleName})
+			}
+			t.cache = []byte{}
+		}
+	}
+	return len(p), nil
+}
+
+func (t *tmpWriter) Finally() {
+	if len(t.cache) > 0 {
+		if t.Callback != nil {
+			t.Callback(CallbackWriteLog{t.cache, t.ModuleName})
+		}
+		t.cache = []byte{}
+	}
+}
+
 func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, error) {
 	logger := s.logger
 	totalProcessing := len(s.PluginConfigs) + 2 // 信息收集和review插件
@@ -500,13 +581,21 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		logger.Warningf("信息收集插件加载失败: %v", err)
 	} else {
 		logger.Infoln("信息收集中...")
+		newLogger := gologger.NewLogger()
+		tmpW := &tmpWriter{
+			Callback:   s.callback,
+			ModuleName: "信息收集",
+		}
+		newLogger.Logrus().SetOutput(tmpW)
+
 		result, err := s.runCheckCode(ctx, infoPlugin, &McpPluginConfig{
 			Client:   s.client,
 			CodePath: s.codePath,
 			AIModel:  s.aiModel,
 			Language: s.language,
-			Logger:   logger,
+			Logger:   newLogger,
 		})
+		tmpW.Finally()
 		if err != nil {
 			logger.Warningf("信息收集失败: %v", err)
 		}
@@ -543,6 +632,13 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		}
 
 		logger.Infof("运行插件 %s", plugin.Info.Name)
+		newLogger := gologger.NewLogger()
+		tmpW := &tmpWriter{
+			Callback:   s.callback,
+			ModuleName: plugin.Info.Name,
+		}
+		newLogger.Logrus().SetOutput(tmpW)
+
 		s.aiModel.ResetToken()
 		startTime := time.Now()
 		config := McpPluginConfig{
@@ -550,7 +646,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			CodePath: s.codePath,
 			AIModel:  s.aiModel,
 			Language: s.language,
-			Logger:   logger,
+			Logger:   newLogger,
 		}
 		if s.callback != nil {
 			lock.Lock()
@@ -558,6 +654,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			lock.Unlock()
 		}
 		result, err := s.runCheckCode(ctx, plugin, &config)
+		tmpW.Finally()
 		if s.callback != nil {
 			lock.Lock()
 			currentProcessing += 1
@@ -721,11 +818,18 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		s.logger.Warningf("信息收集插件加载失败: %v", err)
 	} else {
 		s.logger.Infoln("信息收集中...")
+		newLogger := gologger.NewLogger()
+		tmpW := &tmpWriter{
+			Callback:   s.callback,
+			ModuleName: "信息收集",
+		}
+		newLogger.Logrus().SetOutput(tmpW)
+
 		issues, err := runDynamicAnalysis(ctx, p, &McpPluginConfig{
 			Client:       s.client,
 			AIModel:      s.aiModel,
 			Language:     s.language,
-			Logger:       s.logger,
+			Logger:       newLogger,
 			McpStructure: mcpStructure,
 		})
 		if err != nil {
@@ -756,13 +860,19 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		default:
 		}
 		logger.Infof("运行插件 %s", plugin.Info.Name)
+		newLogger := gologger.NewLogger()
+		tmpW := &tmpWriter{
+			Callback:   s.callback,
+			ModuleName: "信息收集",
+		}
+		newLogger.Logrus().SetOutput(tmpW)
 		startTime := time.Now()
 		config := McpPluginConfig{
 			Client:       s.client,
 			McpStructure: mcpStructure,
 			AIModel:      s.aiModel,
 			Language:     s.language,
-			Logger:       logger,
+			Logger:       newLogger,
 		}
 		if s.callback != nil {
 			lock.Lock()
