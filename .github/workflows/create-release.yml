@@ -1,0 +1,210 @@
+name: 🚀 Create Release
+
+on:
+  push:
+    tags:
+      - v*
+
+env:
+  RELEASE_NAME: AI-Infra-Guard
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📝 Extract tag message
+        id: tag-message
+        run: |
+          # 获取标签信息
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          
+          # 获取标签消息
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+          
+          # 如果标签消息为空，使用默认消息
+          if [ -z "$TAG_MESSAGE" ]; then
+            TAG_MESSAGE="Release $TAG_NAME"
+          fi
+          
+          # 将消息保存到文件，处理多行内容
+          echo "$TAG_MESSAGE" > tag_message.txt
+          echo "tag_message_file=tag_message.txt" >> $GITHUB_OUTPUT
+
+      - name: 📦 Prepare release package
+        run: |
+          # 创建发布目录
+          mkdir -p release-package
+          
+          # 复制必要的文件
+          cp README.md release-package/
+          cp docker-compose.yml release-package/
+          cp docker-compose.images.yml release-package/
+          
+          # 复制 data 目录
+          cp -r data release-package/
+          
+          # 创建启动脚本
+          cat > release-package/start.sh << 'EOF'
+          #!/bin/bash
+          
+          echo "🚀 Starting AI-Infra-Guard..."
+          echo "📋 System Requirements Check:"
+          echo "   - Docker 20.10 or higher"
+          echo "   - At least 4GB available memory"
+          echo "   - At least 10GB available disk space"
+          echo ""
+          
+          # 检查 Docker 是否安装
+          if ! command -v docker &> /dev/null; then
+              echo "❌ Docker is not installed. Please install Docker first."
+              echo "   Visit: https://docs.docker.com/get-started/get-docker/"
+              exit 1
+          fi
+          
+          # 检查 Docker Compose 是否可用
+          if ! docker compose version &> /dev/null && ! docker-compose --version &> /dev/null; then
+              echo "❌ Docker Compose is not available. Please install Docker Compose."
+              exit 1
+          fi
+          
+          echo "✅ Docker environment check passed!"
+          echo ""
+          echo "🐳 Starting AI-Infra-Guard services..."
+          
+          # 使用预构建镜像启动服务
+          if command -v docker-compose &> /dev/null; then
+              docker-compose -f docker-compose.images.yml up -d
+          else
+              docker compose -f docker-compose.images.yml up -d
+          fi
+          
+          echo ""
+          echo "🎉 AI-Infra-Guard is starting up!"
+          echo "📱 Web interface will be available at: http://localhost:8088"
+          echo "⏳ Please wait a moment for all services to be ready..."
+          echo ""
+          echo "📚 For more information, please read README.md"
+          EOF
+          
+          chmod +x release-package/start.sh
+          
+          # 创建停止脚本
+          cat > release-package/stop.sh << 'EOF'
+          #!/bin/bash
+          
+          echo "🛑 Stopping AI-Infra-Guard services..."
+          
+          if command -v docker-compose &> /dev/null; then
+              docker-compose -f docker-compose.images.yml down
+          else
+              docker compose -f docker-compose.images.yml down
+          fi
+          
+          echo "✅ AI-Infra-Guard services stopped successfully!"
+          EOF
+          
+          chmod +x release-package/stop.sh
+          
+          # 创建使用说明文件
+          cat > release-package/USAGE.md << 'EOF'
+          # AI-Infra-Guard 使用指南
+          
+          ## 🚀 快速开始
+          
+          ### 系统要求
+          - Docker 20.10 或更高版本
+          - 至少 4GB 可用内存
+          - 至少 10GB 可用磁盘空间
+          
+          ### 启动服务
+          
+          **Linux/macOS:**
+          ```bash
+          ./start.sh
+          ```
+          
+          **Windows:**
+          ```cmd
+          docker-compose -f docker-compose.images.yml up -d
+          ```
+          
+          ### 访问服务
+          服务启动后，访问 Web 界面：
+          ```
+          http://localhost:8088
+          ```
+          
+          ### 停止服务
+          
+          **Linux/macOS:**
+          ```bash
+          ./stop.sh
+          ```
+          
+          **Windows:**
+          ```cmd
+          docker-compose -f docker-compose.images.yml down
+          ```
+          
+          ## 📁 目录说明
+          
+          | 目录/文件                    | 说明                      |
+          |----------------------------|---------------------------|
+          | `data/`                    | 知识库数据目录（指纹库、漏洞库） |
+          | `docker-compose.yml`       | 从源码构建的 Docker 配置    |
+          | `docker-compose.images.yml`| 使用预构建镜像的 Docker 配置 |
+          | `start.sh`                 | 启动脚本（Linux/macOS）    |
+          | `stop.sh`                  | 停止脚本（Linux/macOS）    |
+          | `README.md`                | 详细文档                   |
+          | `USAGE.md`                 | 本使用指南                 |
+          
+          ## 🔧 故障排除
+          
+          1. **端口冲突**：如果 8088 端口被占用，请修改 docker-compose.images.yml 中的端口映射
+          2. **权限问题**：确保启动脚本有执行权限：`chmod +x start.sh stop.sh`
+          3. **Docker 问题**：确保 Docker 服务正在运行
+          
+          更多详细信息请参考 README.md 文件。
+          EOF
+
+      - name: 📦 Create release archive
+        run: |
+          # 创建压缩包
+          cd release-package
+          tar -czf ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.tar.gz .
+          cd ..
+          
+          # 创建 ZIP 包（Windows 用户友好）
+          cd release-package
+          zip -r ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.zip .
+          cd ..
+
+      - name: 🏷️ Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.RELEASE_NAME }} ${{ steps.tag-message.outputs.tag_name }}
+          body_path: ${{ steps.tag-message.outputs.tag_message_file }}
+          draft: false
+          prerelease: false
+          files: |
+            AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.tar.gz
+            AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Release Summary
+        run: |
+          echo "🎉 Release created successfully!"
+          echo "📦 Release: ${{ env.RELEASE_NAME }} ${{ steps.tag-message.outputs.tag_name }}"
+          echo "📁 Assets:"
+          echo "   - AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.tar.gz"
+          echo "   - AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.zip"
+          echo "🔗 Release URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.tag-message.outputs.tag_name }}"

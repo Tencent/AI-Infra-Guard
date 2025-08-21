@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   webserver:
-    image: zhuquelab/aig-server:v3
+    image: zhuquelab/aig-server:latest
     container_name: ai-infra-guard-webserver
     ports:
       - "8088:8088"
@@ -24,7 +24,7 @@ services:
       timeout: 3s
       retries: 3
   agent:
-    image: zhuquelab/aig-agent:v3
+    image: zhuquelab/aig-agent:latest
     container_name: ai-infra-guard-agent
     environment:
       - TZ=Asia/Shanghai
