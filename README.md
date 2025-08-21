@@ -24,7 +24,7 @@
     <h3 align="center">🚀 AI Red Teaming Security Platform by Tencent Zhuque Lab</h3>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and large model security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and LLM security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 ## Table of Contents
 - [✨ Core Features](#-core-features)
@@ -48,8 +48,8 @@
       <p>Powered by AI Agent<br />Detects <b>9 major categories</b> of MCP security risks<br/>Supports <b>source code/remote URL</b> scanning</p>
     </td>
     <td>
-      <h3>⚡ Large Model Security Assessment</h3>
-      <p>Rapidly assesses Prompt security risks<br/>Includes multiple curated jailbreak evaluation datasets<br/>Quickly generates large model security assessment reports</p>
+      <h3>⚡ LLM Security Assessment</h3>
+      <p>Rapidly assesses Prompt security risks<br/>Includes multiple curated jailbreak evaluation datasets<br/>Quickly generates LLM security assessment reports</p>
     </td>
   </tr>
 </table>
@@ -66,8 +66,8 @@
 ### MCP Server Security Detection
 ![Intelligently analyze MCP Server security risks](img/mcp-server.png)
 
-### Large Model Security Assessment
-![Comprehensively evaluate large model security](img/model-security.png)
+### LLM Security Assessment
+![Comprehensively evaluate LLM security](img/model-security.png)
 
 ### Plugin Management
 <table>
