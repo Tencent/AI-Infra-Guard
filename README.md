@@ -1,4 +1,3 @@
-
 <p align="center">
     <h1 align="center">🛡️ A.I.G (AI-Infra-Guard)</h1>
 </p>
@@ -15,66 +14,62 @@
 </p>
 <h4 align="center">
     <p>
-        <a href="https://tencent.github.io/AI-Infra-Guard/">帮助文档</a> |
-        <a href="#">中文</a> |
-        <a href="./README_EN.md">英文</a>
+        <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
+        <a href="./README_ZH.md">Chinese</a> |
+        <a href="#">English</a>
     <p>
 </h4>
 
 <p align="center">
-    <h3 align="center">🚀 腾讯朱雀实验室推出的一站式 AI 红队安全测试平台</h3>
+    <h3 align="center">🚀 AI Red Teaming Security Platform by Tencent Zhuque Lab</h3>
 </p>
 
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and large model security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+
+## Table of Contents
+- [✨ Core Features](#-core-features)
+- [🖼️ Features Showcase](#-features-showcase)
+- [🚀 Quick Start](#-quick-start)
+- [🙏 Contribution Guide](#-contribution-guide)
+- [💬 Join the Community](#-join-the-community)
+- [📄 License](#-license)
 
 
-
-**A.I.G (AI-Infra-Guard)** 集成AI基础设施漏洞扫描、MCP Server风险检测与大模型安全体检等能力，旨在为用户提供最全面、智能与易用的AI安全风险自查解决方案。
-
-
-## 目录
-- [✨ 核心功能](#-核心功能)
-- [🖼️ 功能展示](#-功能展示)
-- [🚀 快速开始](#-快速开始)
-- [🙏 贡献指南](#-贡献指南)
-- [💬 加入社区](#-加入社区)
-- [📄 开源协议](#-开源协议)
-
-
-## ✨ 核心功能
+## ✨ Features
 
 <table>
   <tr>
     <td>
-      <h3>🔍 AI 基础设施漏洞扫描</h3>
-      <p>精准识别 <b>30+</b> AI 框架组件<br/>覆盖 <b>近400个</b> 已知 CVE 漏洞<br/>如 Ollama、ComfyUI、vLLM 等</p>
+      <h3>🔍 AI Infrastructure Vulnerability Scanning</h3>
+      <p>Precisely identifies <b>30+</b> AI framework components<br/>Covers <b>nearly 400</b> known CVE vulnerabilities<br/>Including Ollama, ComfyUI, vLLM, etc.</p>
     </td>
     <td>
-      <h3>🤖 MCP Server 安全检测</h3>
-      <p>基于AI Agent驱动<br />检测 <b>9 大类</b>MCP安全风险<br/>支持<b>源代码/远程URL</b>扫描</p>
+      <h3>🤖 MCP Server Security Detection</h3>
+      <p>Powered by AI Agent<br />Detects <b>9 major categories</b> of MCP security risks<br/>Supports <b>source code/remote URL</b> scanning</p>
     </td>
     <td>
-      <h3>⚡ 大模型安全体检</h3>
-      <p>快速评估Prompt安全风险<br/>内置多个精选越狱评测集<br/>快速获取大模型安全体检报告</p>
+      <h3>⚡ Large Model Security Assessment</h3>
+      <p>Rapidly assesses Prompt security risks<br/>Includes multiple curated jailbreak evaluation datasets<br/>Quickly generates large model security assessment reports</p>
     </td>
   </tr>
 </table>
 <br />
 
-## 🖼️ 功能展示
+## 🖼️ Showcase
 
-### A.I.G 主界面
-![AIG首页](img/background.png)
+### A.I.G Main Interface
+![AIG Main Page](img/background.png)
 
-### AI 基础设施漏洞扫描
-![一键扫描发现 AI 组件安全漏洞](img/ai-infra-scan.png)
+### AI Infrastructure Vulnerability Scanning
+![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan.png)
 
-### MCP Server 安全检测
-![智能分析 MCP Server 安全风险](img/mcp-server.png)
+### MCP Server Security Detection
+![Intelligently analyze MCP Server security risks](img/mcp-server.png)
 
-### 大模型安全体检
-![全面评估大模型安全性](img/model-security.png)
+### Large Model Security Assessment
+![Comprehensively evaluate large model security](img/model-security.png)
 
-### 插件管理
+### Plugin Management
 <table>
   <tr>
     <td valign="top"><img align=top src="img/plugin-1.png"/></td>
@@ -84,69 +79,69 @@
 
 <br />
 
-## 🚀 快速开始
-### Docker 一键部署
+## 🚀 Quick Start
+### Deployment with Docker
 
-**系统要求**
+**System Requirements**
 
-- Docker 20.10 或更高版本
-- 至少 4GB 可用内存
-- 至少 10GB 可用磁盘空间
+- Docker 20.10 or higher
+- At least 4GB of available RAM
+- At least 10GB of available disk space
 
-首先，克隆本项目：
+First, clone this project:
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
 ```
 
-然后安装好[Docker相关环境](https://docs.docker.com/get-started/get-docker/)，您可以选择以下任一方式部署A.I.G服务：
+After installing the [Docker environment](https://docs.docker.com/get-started/get-docker/), you can deploy the A.I.G service in either of the following ways:
 
-**1. 使用预构建镜像运行 (推荐)**
+**1. Run with pre-built images (Recommended)**
 ```bash
-# 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
+# This method pulls pre-built images from Docker Hub for a faster start
 docker-compose -f docker-compose.images.yml up -d
 ```
-**2. 从源码构建并运行**
+**2. Build from source and run**
 ```bash
-# 此方法会使用本地代码构建 Docker 镜像并启动服务
+# This method builds a Docker image from local source code and starts the service
 docker-compose up -d
 ```
 
-服务启动后，即可访问A.I.G的 Web 界面：
+Once the service is running, you can access the A.I.G web interface at:
 `http://localhost:8088`
 
-**目录说明**
+**Directory Structure**
 
-| 目录/文件      | 说明               | 挂载路径                      |
-|------------|------------------|---------------------------|
-| `uploads/` | 上传文件存储目录         | `/ai-infra-guard/uploads` |
-| `db/`      | 数据库文件目录          | `/ai-infra-guard/db`      |
-| `data/`    | 知识库数据目录（指纹库、漏洞库） | `/ai-infra-guard/data`    |
-| `logs/`    | 应用日志目录           | `/ai-infra-guard/logs`    |
+| Directory/File      | Description                                                 | Mount Path                      |
+|---------------------|-------------------------------------------------------------|---------------------------------|
+| `uploads/`          | Uploads directory                                           | `/ai-infra-guard/uploads`       |
+| `db/`               | Database file directory                                     | `/ai-infra-guard/db`            |
+| `data/`             | Knowledge base data directory (fingerprints, vulnerabilities) | `/ai-infra-guard/data`          |
+| `logs/`             | Application log directory                                   | `/ai-infra-guard/logs`          |
 
 <br />
 
-## 📝 贡献指南
+## 📝 Contribution Guide
 
-A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。我们欢迎社区贡献高质量的插件和功能。
+One of A.I.G's core strengths is its rich and highly configurable plugin system. We welcome community contributions of high-quality plugins and features.
 
-### 贡献插件规则
-1.  **指纹规则**: 在 `data/fingerprints/` 目录下添加新的 YAML 指纹文件
-2.  **漏洞规则**: 在 `data/vuln/` 目录下添加新的漏洞检测规则
-3.  **MCP 插件**: 在 `data/mcp/` 目录下添加新的 MCP 安全检测规则
-4.  **模型评测集**: 在 `data/eval` 目录下添加新的模型评测集
+### Plugin Contribution Rules
+1.  **Fingerprint Rules**: Add new YAML fingerprint files to the `data/fingerprints/` directory.
+2.  **Vulnerability Rules**: Add new vulnerability detection rules to the `data/vuln/` directory.
+3.  **MCP Plugins**: Add new MCP security detection rules to the `data/mcp/` directory.
+4.  **Model Evaluation Datasets**: Add new model evaluation datasets to the `data/eval` directory.
 
-请参考现有规则格式，创建新文件并通过 Pull Request 提交。
+Please refer to the existing rule formats, create new files, and submit them via a Pull Request.
 
-### 其他贡献方式
-- 🐛 [报告 Bug](https://github.com/Tencent/AI-Infra-Guard/issues)
-- 💡 [提出新功能](https://github.com/Tencent/AI-Infra-Guard/issues)
-- ⭐ [改进文档](https://github.com/Tencent/AI-Infra-Guard/pulls)
+### Other Ways to Contribute
+- 🐛 [Report a Bug](https://github.com/Tencent/AI-Infra-Guard/issues)
+- 💡 [Suggest a New Feature](https://github.com/Tencent/AI-Infra-Guard/issues)
+- ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
   <br />
 
-## 🙏 致谢
+## 🙏 Acknowledgements
 
-感谢以下安全团队的专业共建:
+We thank the following security teams for their professional collaboration:
 <table>
   <tr>
     <td width="33%"><img src="img/keen_lab_logo.svg" alt="Keen Lab"></td>
@@ -157,7 +152,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 
 <br>
 
-感谢为 A.I.G 项目贡献代码的开发者：
+Thanks to all the developers who have contributed code to the A.I.G project:
 
 <a href="https://github.com/Tencent/AI-Infra-Guard/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Tencent/AI-Infra-Guard" />
@@ -165,19 +160,19 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 
 <br>
 
-## 💬 加入社区
+## 💬 Join the Community
 
 <div>
-  <img src="img/wechatgroup.png" alt="微信群" width="200">
-  <p><b>微信扫码加入 A.I.G 交流群</b></p>
+  <img src="img/wechatgroup.png" alt="WeChat Group" width="200">
+  <p><b>Scan the WeChat QR code to join the A.I.G community group</b></p>
 </div>
-如您有合作需求或问题反馈，可以通过以下邮箱联系我们: zhuque(at)tencent.com
+For collaboration inquiries or feedback, please contact us at: zhuque(at)tencent.com
 
 <br><br>
 
-## 📄 开源协议
+## 📄 License
 
-本项目基于 **MIT 许可证** 开源。详细信息请查阅 [License.txt](./License.txt) 文件。
+This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
 
 <div>
 
