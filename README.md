@@ -15,7 +15,7 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="./README_ZH.md">Chinese</a> |
+        <a href="./README_ZH.md">中文</a> |
         <a href="#">English</a>
     <p>
 </h4>
