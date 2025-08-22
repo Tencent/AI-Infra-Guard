@@ -27,12 +27,24 @@ jobs:
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
-          # 获取标签消息
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+          # 获取上一个版本标签
+          PREV_TAG=$(git tag --sort=-version:refname | grep -A1 "^$TAG_NAME$" | grep -v "^$TAG_NAME$" | head -1)
           
-          # 如果标签消息为空，使用默认消息
+          # 如果没有找到上一个版本，使用第一个提交
+          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" = "$TAG_NAME" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          
+          # 获取两个版本之间的提交消息（去重）
+          TAG_MESSAGE=$(git log ${PREV_TAG}..${TAG_NAME} --pretty=format:"%s" | sort | uniq | sed 's/^/- /')
+          
+          # 如果没有提交消息，使用默认消息
           if [ -z "$TAG_MESSAGE" ]; then
             TAG_MESSAGE="Release $TAG_NAME"
+          else
+            TAG_MESSAGE="## 更新内容
+
+$TAG_MESSAGE"
           fi
           
           # 将消息保存到文件，处理多行内容
@@ -46,17 +58,17 @@ jobs:
           # 复制必要文件
           cp docker-compose.images.yml release-package/docker-compose.yml
           cp -r data release-package/data
+          cp README.md release-package/README.md
+          cp README_ZH.md release-package/README_ZH.md
           mkdir -p release-package/db
           mkdir -p release-package/log
           mkdir -p release-package/uploads
           
           # 获取版本号并修改 docker-compose.images.yml
           VERSION="${{ steps.tag-message.outputs.tag_name }}"
-          # 移除版本号前的 'v' 前缀（如果存在）
-          VERSION_NO_V=${VERSION#v}
           
           # 替换 docker-compose.images.yml 中的 latest 标签为当前版本号
-          sed -i "s/:latest/:${VERSION_NO_V}/g" release-package/docker-compose.yml
+          sed -i "s/:latest/:${VERSION}/g" release-package/docker-compose.yml
           
 
       - name: 📦 Create release archive

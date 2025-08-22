@@ -117,9 +117,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
           tags: |
             type=ref,event=branch
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{version}}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
             type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
           flavor: |
@@ -132,9 +130,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_AGENT }}
           tags: |
             type=ref,event=branch
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{version}}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
             type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
           flavor: |
