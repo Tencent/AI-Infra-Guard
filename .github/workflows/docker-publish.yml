@@ -118,7 +118,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
-            type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
+            type=raw,value=${{ env.BUILD_TAG }}
             type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
           flavor: |
             latest=false
@@ -131,7 +131,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
-            type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
+            type=raw,value=${{ env.BUILD_TAG }}
             type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
           flavor: |
             latest=false
