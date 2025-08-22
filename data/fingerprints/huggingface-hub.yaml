@@ -1,0 +1,34 @@
+info:
+  name: huggingface-hub
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: Hugging Face模型分享平台本地部署实例，提供模型存储和分发服务。
+  metadata:
+    product: huggingface-hub
+    vendor: huggingface
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="huggingface" || body="transformers" || title="Hugging Face"
+  - method: GET
+    path: '/api/models'
+    matchers:
+      - body="id" && body="modelId" && body="downloads"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="transformers" && body="datasets"
+version:
+  - method: GET
+    path: '/api/version'
+    extractor:
+      part: body
+      group: 1
+      regex: "version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
+  - method: GET
+    path: '/'
+    extractor:
+      part: headers
+      group: 1
+      regex: X-HuggingFace-Version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)
