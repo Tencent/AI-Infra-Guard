@@ -1,0 +1,127 @@
+info:
+  id: "command_injection_advanced"
+  name: "Advanced Command Injection Detection"
+  description: "Detect sophisticated command injection vulnerabilities in MCP tool implementations"
+  author: "腾讯朱雀实验室"
+  categories:
+    - code
+
+prompt_template: |
+  As a security researcher specializing in command injection attacks, analyze the provided MCP code for advanced command injection vulnerabilities that could allow arbitrary command execution.
+
+  ## Vulnerability Definition
+  Command injection occurs when user-controlled input is passed to system commands without proper validation, allowing attackers to execute arbitrary commands on the host system.
+
+  ## Detection Criteria
+
+  ### 1. Direct Command Execution Vulnerabilities
+  **High-Risk Functions:**
+  - os.system(), subprocess.call(), subprocess.run()
+  - eval(), exec(), compile() with user input
+  - Shell command builders with string concatenation
+  - Dynamic import() with user-controlled paths
+
+  **Code Patterns:**
+  ```python
+  # Direct injection
+  os.system(f"command {user_input}")
+  subprocess.call(f"grep {query} file.txt", shell=True)
+  
+  # Template injection
+  cmd = template.format(user_param=user_input)
+  os.system(cmd)
+  
+  # Eval-based injection
+  eval(f"function({user_data})")
+  ```
+
+  ### 2. MCP Tool Parameter Injection
+  **Vulnerable Scenarios:**
+  - File path parameters with shell metacharacters
+  - Command arguments built from user input
+  - Environment variable manipulation
+  - Process execution with untrusted data
+
+  **Detection Points:**
+  ```python
+  # Tool parameter injection
+  def execute_tool(params):
+      command = f"tool --input {params['file']}"
+      subprocess.run(command, shell=True)
+  
+  # Path traversal + injection
+  file_path = f"/safe/path/{user_input}"
+  os.system(f"cat {file_path}")
+  ```
+
+  ### 3. Template and Format String Injection
+  **Attack Vectors:**
+  - String.format() with user-controlled format strings
+  - f-string injection in Python 3.6+
+  - Template engines with code execution
+  - YAML/JSON deserialization leading to command execution
+
+  ### 4. Indirect Command Injection
+  **Complex Scenarios:**
+  - Configuration file manipulation leading to command execution
+  - Log injection triggering command execution
+  - Environment variable pollution
+  - Process chain exploitation
+
+  ## Advanced Detection Methods
+
+  ### 1. Data Flow Analysis
+  - Trace user input through function calls
+  - Identify unsafe sinks for command execution
+  - Analyze parameter transformation chains
+  - Check for insufficient sanitization
+
+  ### 2. Metacharacter Detection
+  **Dangerous Characters:**
+  - Shell metacharacters: `; | & $ ` \ " ' < > * ? [ ] { } ~ #`
+  - Command separators: `\n \r && || ;`
+  - Path traversal: `../ ..\\ /etc/passwd`
+  - Encoding bypasses: URL encoding, Unicode normalization
+
+  ### 3. Context-Aware Analysis
+  - Operating system specific commands
+  - Shell environment detection
+  - Privilege context analysis
+  - Network accessibility assessment
+
+  ## Exclusion Conditions
+
+  ### Safe Implementations
+  - Parameterized command execution with argument arrays
+  - Proper input validation and whitelisting
+  - Use of safe subprocess methods (shell=False)
+  - Command construction through safe libraries
+
+  ### Development Code
+  - Unit test command injection scenarios
+  - Security testing frameworks
+  - Development debugging tools
+  - Controlled testing environments
+
+  ## Verification Requirements
+  1. **Command Construction**: Show how user input reaches command execution
+  2. **Injection Vector**: Demonstrate specific metacharacter exploitation
+  3. **System Impact**: Define commands that could be executed
+  4. **Mitigation Strategy**: Provide secure implementation alternatives
+
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+
+  ## Output Requirements
+  Report only verified command injection vulnerabilities with:
+  - Exact file locations and vulnerable code sections
+  - Complete data flow from user input to command execution
+  - Proof-of-concept injection payloads
+  - System impact and privilege escalation potential
+  - Specific remediation recommendations with code examples
+
+  **Require concrete evidence of exploitable command injection paths.**
