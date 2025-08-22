@@ -44,20 +44,17 @@ jobs:
             
             echo "手动触发构建，指定标签: $INPUT_TAG"
             
-            # 验证标签格式
-            # 支持语义版本 (v1.0.0) 和测试版本标签 (dev, test, staging等)
-            if [[ "$INPUT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)*(\+[a-zA-Z0-9]+)*$ ]]; then
+            # 简化的标签格式验证
+            # 支持更灵活的标签格式
+            if [[ "$INPUT_TAG" =~ ^v[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9]+)*(\+[a-zA-Z0-9]+)*$ ]]; then
               echo "✅ 检测到语义版本标签: $INPUT_TAG"
               TAG_TYPE="semantic"
-            elif [[ "$INPUT_TAG" =~ ^[a-zA-Z][a-zA-Z0-9_-]*$ ]]; then
-              echo "✅ 检测到测试版本标签: $INPUT_TAG"
-              TAG_TYPE="test"
+            elif [[ "$INPUT_TAG" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]]; then
+              echo "✅ 检测到自定义标签: $INPUT_TAG"
+              TAG_TYPE="custom"
             else
-              echo "❌ 错误: 标签格式不正确"
-              echo "支持的格式:"
-              echo "  - 语义版本: v1.0.0, v1.0.0-alpha, v1.0.0+build"
-              echo "  - 测试版本: dev, test, staging, feature-xxx 等"
-              exit 1
+              echo "⚠️  警告: 标签格式可能不规范，但将继续构建: $INPUT_TAG"
+              TAG_TYPE="custom"
             fi
             
             # 检查标签是否存在并处理
@@ -65,10 +62,10 @@ jobs:
               echo "✅ 标签 $INPUT_TAG 存在于仓库中"
               # 切换到指定标签
               git checkout $INPUT_TAG
-            elif [ "$TAG_TYPE" = "test" ]; then
-              echo "ℹ️  测试版本标签 $INPUT_TAG 不存在于仓库中"
-              echo "将基于当前分支构建测试版本镜像"
-              # 测试版本标签默认允许基于当前代码构建
+            elif [ "$TAG_TYPE" = "custom" ]; then
+              echo "ℹ️  自定义标签 $INPUT_TAG 不存在于仓库中"
+              echo "将基于当前分支构建自定义版本镜像"
+              # 自定义标签默认允许基于当前代码构建
             elif [ "$FORCE_BUILD" = "true" ]; then
               echo "⚠️  警告: 语义版本标签 $INPUT_TAG 不存在，但启用了强制构建"
               echo "将基于当前分支构建，但使用指定的标签名称"
@@ -200,8 +197,8 @@ jobs:
           echo ""
           if [ "${{ env.IS_MANUAL_BUILD }}" = "true" ]; then
             echo "⚠️  注意: 这是手动触发的构建"
-            if [ "${{ env.TAG_TYPE }}" = "test" ]; then
-              echo "🧪 测试版本: 基于当前分支代码构建"
+            if [ "${{ env.TAG_TYPE }}" = "custom" ]; then
+              echo "🔧 自定义版本: 基于当前分支代码构建"
             fi
             if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
               echo "⚠️  警告: 使用了强制构建选项"
