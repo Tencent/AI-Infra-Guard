@@ -118,9 +118,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
-            type=raw,value=latest,enable=${{ env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-') }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
 
       - name: 🏷️ Extract metadata for Agent image
         id: meta-agent
@@ -132,9 +131,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
-            type=raw,value=latest,enable=${{ env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-') }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
 
       - name: 🐳 Build and push Server image
         uses: docker/build-push-action@v5
