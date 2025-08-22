@@ -10,11 +10,31 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<script>window.gradio_config = {" || body="document.getElementsByTagName(\"gradio-app\");"
+      - body="<script>window.gradio_config = {" || body="document.getElementsByTagName(\"gradio-app\");" || body="Gradio" || title="Gradio" || body="gradio/static/"
+  - method: GET
+    path: '/config'
+    matchers:
+      - body="mode" && body="analytics_enabled"
+  - method: GET
+    path: '/static/js/app.js'
+    matchers:
+      - body="gradio"
 version:
   - method: GET
     path: '/'
     extractor:
       part: body
       group: 1
-      regex: window.gradio_config = {"version":"(\d+\.\d+\.?\d+?)"
+      regex: window\.gradio_config\s*=\s*\{[^}]*"version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
+  - method: GET
+    path: '/config'
+    extractor:
+      part: body
+      group: 1
+      regex: "version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
+  - method: GET
+    path: '/static/js/app.js'
+    extractor:
+      part: body
+      group: 1
+      regex: gradio[_-]version["\s:]*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
