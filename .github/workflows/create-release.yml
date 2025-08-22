@@ -43,8 +43,7 @@ jobs:
             TAG_MESSAGE="Release $TAG_NAME"
           else
             TAG_MESSAGE="## 更新内容
-
-$TAG_MESSAGE"
+          $TAG_MESSAGE"
           fi
           
           # 将消息保存到文件，处理多行内容
