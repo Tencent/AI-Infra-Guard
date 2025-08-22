@@ -1,0 +1,38 @@
+info:
+  name: text-generation-webui
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个基于Gradio的大语言模型Web界面，支持多种模型加载和对话功能。
+  metadata:
+    product: text-generation-webui
+    vendor: oobabooga
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Text generation web UI" || title="Text generation web UI" || body="oobabooga"
+  - method: GET
+    path: '/api/v1/model'
+    matchers:
+      - body="result" && body="model_name"
+  - method: GET
+    path: '/api/v1/models'
+    matchers:
+      - body="model_names"
+  - method: GET
+    path: '/static'
+    matchers:
+      - body="text-generation-webui"
+version:
+  - method: GET
+    path: '/api/v1/model'
+    extractor:
+      part: body
+      group: 1
+      regex: "version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
+  - method: GET
+    path: '/'
+    extractor:
+      part: body
+      group: 1
+      regex: webui\s+v?([0-9]+\.[0-9]+(?:\.[0-9]+)?)
