@@ -27,8 +27,8 @@
 **A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and LLM security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 ## Table of Contents
-- [✨ Core Features](#-features)
-- [🖼️ Features Showcase](#-showcase)
+- [✨ Features](#-features)
+- [🖼️ Showcase](#-showcase)
 - [🚀 Quick Start](#-quick-start)
 - [🙏 Contribution Guide](#-contribution-guide)
 - [💬 Join the Community](#-join-the-community)
