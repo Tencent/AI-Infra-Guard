@@ -10,11 +10,29 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="Ollama is running"
+      - body="Ollama is running" || title="Ollama" || body="ollama"
+  - method: GET
+    path: '/api/tags'
+    matchers:
+      - body="models" && (body="name" || body="size")
+  - method: GET
+    path: '/api/version'
+    matchers:
+      - body="version"
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="object" && body="data"
 version:
   - method: GET
     path: '/api/version'
     extractor:
       part: body
       group: 1
-      regex: '{"version":"(\d+\.\d+\.?\d+?)"}'
+      regex: \{"version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"\}
+  - method: GET
+    path: '/v1/models'
+    extractor:
+      part: headers
+      group: 1
+      regex: ollama/([0-9]+\.[0-9]+(?:\.[0-9]+)?)
