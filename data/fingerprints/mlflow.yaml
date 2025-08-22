@@ -1,0 +1,38 @@
+info:
+  name: mlflow
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 开源机器学习生命周期管理平台，用于实验跟踪、模型打包和部署。
+  metadata:
+    product: mlflow
+    vendor: mlflow
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="MLflow" || title="MLflow" || body="mlflow"
+  - method: GET
+    path: '/static'
+    matchers:
+      - body="mlflow-ui"
+  - method: GET
+    path: '/api/2.0/mlflow/experiments/list'
+    matchers:
+      - body="experiments" && body="experiment_id"
+  - method: GET
+    path: '/ajax-api/2.0/mlflow/get-metric-history'
+    matchers:
+      - body="metrics" || body="metric_history"
+version:
+  - method: GET
+    path: '/static/js/app.js'
+    extractor:
+      part: body
+      group: 1
+      regex: mlflow[_-]?version["\s:]*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
+  - method: GET
+    path: '/api/2.0/mlflow/version'
+    extractor:
+      part: body
+      group: 1
+      regex: "version"\s*:\s*"([0-9]+\.[0-9]+(?:\.[0-9]+)?)"
