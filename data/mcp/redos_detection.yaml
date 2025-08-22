@@ -1,0 +1,117 @@
+info:
+  id: "redos_detection"
+  name: "Regular Expression Denial of Service Detection"
+  description: "Detect ReDoS vulnerabilities in regex patterns within MCP code"
+  author: "腾讯朱雀实验室"
+  categories:
+    - code
+
+prompt_template: |
+  As a cybersecurity expert specializing in ReDoS (Regular Expression Denial of Service) vulnerabilities, analyze the provided MCP code for dangerous regex patterns that could cause catastrophic backtracking.
+
+  ## Vulnerability Definition
+  ReDoS occurs when regex patterns with nested quantifiers and alternation groups cause exponential time complexity during pattern matching, leading to CPU exhaustion and denial of service.
+
+  ## Detection Criteria
+
+  ### 1. Catastrophic Backtracking Patterns
+  **High-Risk Patterns:**
+  - Nested quantifiers: `(a+)+`, `(a*)*`, `(a+)*`
+  - Alternation with overlap: `(a|a)*`, `(ab|ab)*`
+  - Complex nested groups: `((a+b+)+c*)*`
+  - Evil regex patterns: `^(a+)+$`, `(a|b)*a(a|b)*a(a|b)*$`
+
+  ### 2. Input Validation Regex
+  **Vulnerable Patterns:**
+  - Email validation: `^([a-zA-Z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$`
+  - URL validation with complex patterns
+  - File path validation with nested quantifiers
+  - JSON/XML parsing regex with overlapping groups
+
+  ### 3. Tool Parameter Validation
+  **Risk Areas:**
+  - User input sanitization regex
+  - Command argument validation patterns
+  - File name/path filtering regex
+  - Data format validation patterns
+
+  ## Code Pattern Recognition
+
+  ### Dangerous Regex Patterns:
+  ```regex
+  # Nested quantifiers
+  (a+)+
+  (a*)*
+  (a+)*b
+  
+  # Alternation with overlap
+  (a|a)*
+  (x+x+)+y
+  
+  # Complex nested patterns
+  ((a+b+)+c*)*
+  ^(([a-z])+.)+[A-Z]([a-z])+$
+  ```
+
+  ### Safe Alternatives:
+  ```regex
+  # Use atomic groups or possessive quantifiers
+  (?>a+)+
+  a++
+  
+  # Simplify alternation
+  a*
+  [ab]*
+  ```
+
+  ## Detection Methods
+
+  ### 1. Static Analysis
+  - Scan for regex patterns with nested quantifiers
+  - Identify overlapping alternation groups
+  - Check for exponential complexity patterns
+  - Analyze regex used in validation functions
+
+  ### 2. Pattern Complexity Analysis
+  - Count nested quantifier levels
+  - Identify alternation overlap potential
+  - Measure regex compilation time
+  - Assess worst-case input scenarios
+
+  ## Exclusion Conditions (Do not report)
+
+  ### Safe Patterns
+  - Simple quantifiers without nesting: `a+`, `b*`
+  - Non-overlapping alternation: `(jpg|png|gif)`
+  - Atomic groups: `(?>pattern)+`
+  - Possessive quantifiers: `a++`, `b*+`
+
+  ### Test/Development Code
+  - Unit test regex patterns
+  - Example/demo validation code
+  - Development debugging patterns
+  - Mock data validation
+
+  ## Verification Requirements
+  1. **Complexity Assessment**: Demonstrate exponential time complexity
+  2. **Attack Vector**: Show how malicious input triggers backtracking
+  3. **Performance Impact**: Quantify CPU/memory consumption
+  4. **Remediation**: Provide optimized regex alternatives
+
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+
+  ## Output Requirements
+  Only report concrete ReDoS vulnerabilities with:
+  - Specific file paths and line numbers
+  - Vulnerable regex patterns with explanation
+  - Attack input examples that trigger backtracking
+  - Performance impact analysis
+  - Optimized regex alternatives
+  - Remediation recommendations
+
+  **Report only when you find definitive evidence of ReDoS vulnerability with demonstrable attack vectors.**
