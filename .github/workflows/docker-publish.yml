@@ -91,7 +91,9 @@ jobs:
             echo "标签推送触发构建: $BUILD_TAG"
             echo "BUILD_TAG=$BUILD_TAG" >> $GITHUB_ENV
             echo "IS_MANUAL_BUILD=false" >> $GITHUB_ENV
+            echo "TAG_TYPE=semantic" >> $GITHUB_ENV
             echo "build_tag=$BUILD_TAG" >> $GITHUB_OUTPUT
+            echo "tag_type=semantic" >> $GITHUB_OUTPUT
           fi
           
           echo "🏗️  准备构建标签: $BUILD_TAG"
@@ -115,11 +117,13 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
           tags: |
             type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' }}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
-            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
+          flavor: |
+            latest=false
 
       - name: 🏷️ Extract metadata for Agent image
         id: meta-agent
@@ -128,11 +132,28 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_AGENT }}
           tags: |
             type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' }}
             type=raw,value=${{ env.BUILD_TAG }},enable=${{ env.IS_MANUAL_BUILD == 'true' }}
-            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
+          flavor: |
+            latest=false
+
+      - name: 🔍 Debug metadata output
+        run: |
+          echo "🏷️ Server image tags:"
+          echo "${{ steps.meta-server.outputs.tags }}"
+          echo ""
+          echo "🏷️ Agent image tags:"
+          echo "${{ steps.meta-agent.outputs.tags }}"
+          echo ""
+          echo "📋 Environment variables:"
+          echo "  BUILD_TAG: ${{ env.BUILD_TAG }}"
+          echo "  IS_MANUAL_BUILD: ${{ env.IS_MANUAL_BUILD }}"
+          echo "  TAG_TYPE: ${{ env.TAG_TYPE }}"
+          echo "  Event name: ${{ github.event_name }}"
+          echo "  Ref: ${{ github.ref }}"
 
       - name: 🐳 Build and push Server image
         uses: docker/build-push-action@v5

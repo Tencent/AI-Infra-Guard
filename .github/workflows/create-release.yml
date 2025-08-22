@@ -47,8 +47,8 @@ jobs:
           cp docker-compose.images.yml release-package/docker-compose.yml
           cp -r data release-package/data
           mkdir -p release-package/db
-          mkdir -r release-package/log
-          mkdir -r release-package/uploads
+          mkdir -p release-package/log
+          mkdir -p release-package/uploads
           
           # 获取版本号并修改 docker-compose.images.yml
           VERSION="${{ steps.tag-message.outputs.tag_name }}"
