@@ -43,16 +43,12 @@ jobs:
         run: |
           # 创建发布目录
           mkdir -p release-package
-          
-          # 复制整个代码包到发布目录，排除不需要的文件
-          rsync -av --progress . release-package/ \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='release-package' \
-            --exclude='node_modules' \
-            --exclude='*.log' \
-            --exclude='.DS_Store' \
-            --exclude='Thumbs.db'
+          # 复制必要文件
+          cp docker-compose.images.yml release-package/docker-compose.yml
+          cp -r data release-package/data
+          mkdir -p release-package/db
+          mkdir -r release-package/log
+          mkdir -r release-package/uploads
           
           # 获取版本号并修改 docker-compose.images.yml
           VERSION="${{ steps.tag-message.outputs.tag_name }}"
@@ -60,19 +56,19 @@ jobs:
           VERSION_NO_V=${VERSION#v}
           
           # 替换 docker-compose.images.yml 中的 latest 标签为当前版本号
-          sed -i "s/:latest/:${VERSION_NO_V}/g" release-package/docker-compose.images.yml
+          sed -i "s/:latest/:${VERSION_NO_V}/g" release-package/docker-compose.yml
           
 
       - name: 📦 Create release archive
         run: |
           # 创建压缩包
           cd release-package
-          tar -czf ../AI-Infra-Guard-SourceCode-${{ steps.tag-message.outputs.tag_name }}.tar.gz .
+          tar -czf ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.tar.gz .
           cd ..
           
           # 创建 ZIP 包（Windows 用户友好）
           cd release-package
-          zip -r ../AI-Infra-Guard-SourceCode-${{ steps.tag-message.outputs.tag_name }}.zip .
+          zip -r ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.zip .
           cd ..
 
       - name: 🏷️ Create Release
