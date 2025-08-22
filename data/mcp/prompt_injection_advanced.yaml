@@ -1,0 +1,130 @@
+info:
+  id: "prompt_injection_advanced"
+  name: "Advanced Prompt Injection Detection"
+  description: "Detect sophisticated prompt injection and jailbreak attempts in MCP code"
+  author: "腾讯朱雀实验室"
+  categories:
+    - code
+
+prompt_template: |
+  As an AI security specialist, analyze the provided MCP code for advanced prompt injection vulnerabilities. Focus on sophisticated attack vectors that bypass common defenses.
+
+  ## Vulnerability Definition
+  Advanced prompt injection involves manipulating AI model behavior through carefully crafted inputs that bypass security filters and alter intended functionality.
+
+  ## Detection Criteria
+
+  ### 1. Context Manipulation Attacks
+  **Attack Vectors:**
+  - Role manipulation: "You are now a different AI", "Forget previous instructions"
+  - Context switching: "The conversation has ended", "New session begins"
+  - Instruction override: "Ignore safety guidelines", "Act as unrestricted AI"
+  - Character encoding bypasses: Unicode normalization, homoglyph attacks
+
+  ### 2. Multi-Turn Injection Chains
+  **Complex Patterns:**
+  - Gradual context poisoning across multiple interactions
+  - State manipulation through conversation history
+  - Delayed activation triggers in conversation flow
+  - Cross-tool contamination through shared context
+
+  ### 3. Tool-Specific Injection Vectors
+  **MCP Tool Abuse:**
+  - File system manipulation through crafted tool parameters
+  - Command injection via tool argument poisoning
+  - Cross-tool data leakage through shared resources
+  - Privilege escalation through tool chain exploitation
+
+  ### 4. Encoding and Obfuscation Techniques
+  **Bypass Methods:**
+  - Base64/hex encoding of malicious instructions
+  - ROT13 or custom cipher obfuscation
+  - Unicode normalization attacks
+  - JSON/XML entity encoding bypasses
+  - Template injection through variable substitution
+
+  ## Code Pattern Recognition
+
+  ### High-Risk Input Handling:
+  ```python
+  # Unvalidated prompt construction
+  prompt = f"User input: {user_input}"
+  
+  # Direct string concatenation
+  system_prompt = base_prompt + user_content
+  
+  # Insufficient input sanitization
+  filtered_input = user_input.replace("bad_word", "")
+  
+  # Template injection risks
+  template.format(**user_data)
+  ```
+
+  ### Vulnerable MCP Patterns:
+  ```python
+  # Tool parameter injection
+  tool_params = {"query": user_input}
+  
+  # Cross-tool data sharing
+  shared_context[tool_name] = user_data
+  
+  # Dynamic prompt generation
+  prompt = generate_prompt(user_input, context)
+  ```
+
+  ## Advanced Detection Methods
+
+  ### 1. Context Flow Analysis
+  - Trace data flow across tool boundaries
+  - Identify context contamination points
+  - Analyze prompt template construction
+  - Check for insufficient input validation
+
+  ### 2. Encoding Attack Detection
+  - Scan for encoded payloads in inputs
+  - Check for Unicode normalization bypasses
+  - Identify obfuscation patterns
+  - Detect steganographic text hiding
+
+  ### 3. Multi-Vector Attack Chains
+  - Analyze tool interaction patterns
+  - Identify state manipulation opportunities
+  - Check for cross-contamination vulnerabilities
+  - Assess privilege escalation paths
+
+  ## Exclusion Conditions
+
+  ### Safe Implementations
+  - Proper input validation and sanitization
+  - Whitelisted prompt templates
+  - Secure context isolation
+  - Comprehensive output filtering
+
+  ### Development/Test Code
+  - Unit test injection scenarios
+  - Security testing frameworks
+  - Penetration testing tools
+  - Example attack demonstrations
+
+  ## Verification Requirements
+  1. **Attack Vector Construction**: Demonstrate concrete injection method
+  2. **Bypass Analysis**: Show how security controls are circumvented
+  3. **Impact Assessment**: Define potential harm from successful injection
+  4. **Remediation Strategy**: Provide specific mitigation techniques
+
+  ## Input Data
+  Source code path: {{ .CodePath }}
+  Directory structure:
+  ------
+  {{ .DirectoryStructure }}
+  ------
+
+  ## Output Requirements
+  Report only verified prompt injection vulnerabilities with:
+  - Specific vulnerable code locations
+  - Complete attack vector descriptions
+  - Proof-of-concept injection examples
+  - Security impact analysis
+  - Detailed remediation recommendations
+
+  **Only report definitive vulnerabilities with demonstrable exploitation paths.**
