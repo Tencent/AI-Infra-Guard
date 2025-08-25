@@ -33,13 +33,7 @@ prompt_template: |
   - Various other AI service tokens
 
   ### Variable Assignment Patterns
-  **High-Risk Assignments:**
-  - api_key = "actual_key_value"
-  - SECRET_TOKEN = "real_token"
-  - password = "hardcoded_password"
-  - auth_header = "Bearer actual_token"
-
-  ## Risk Assessment Criteria
+  High-Risk Assignments: api_key、secret_key、secret_token、password、auth_header
 
   ### Critical Risk Indicators
   - Real API keys with valid format and sufficient entropy
