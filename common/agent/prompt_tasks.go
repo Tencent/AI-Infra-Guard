@@ -73,6 +73,23 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 	if request.Language == "" {
 		request.Language = "zh"
 	}
+
+	// 新增：如果没有模型配置，使用默认模型
+	if len(param.Model) == 0 {
+		defaultModel := getDefaultModel()
+		if defaultModel != nil {
+			// 正确转换为 ModelParams 类型
+			param.Model = []ModelParams{{
+				Model:   defaultModel.Model,
+				Token:   defaultModel.Token,
+				BaseUrl: defaultModel.BaseUrl,
+			}}
+			gologger.Infof("使用默认模型: %s", defaultModel.Model)
+		} else {
+			return fmt.Errorf("没有可用的模型配置，请检查环境变量或任务参数")
+		}
+	}
+
 	var argv []string = make([]string, 0)
 	argv = append(argv, "run", "cli_run.py")
 	argv = append(argv, "--async_mode")
@@ -160,12 +177,14 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		// 英文
 		taskTitles = taskTitlesEn
 	}
+
 	var tasks []SubTask
 	for i, title := range taskTitles {
 		tasks = append(tasks, CreateSubTask(SubTaskStatusTodo, title, 0, strconv.Itoa(i+1)))
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
+
 	err = utils.RunCmd(DIR, NAME, argv, func(line string) {
 		ParseStdoutLine(m.Server, DIR, tasks, line, callbacks, &config)
 	})
@@ -197,6 +216,23 @@ func (m *ModelJailbreak) Execute(ctx context.Context, request TaskRequest, callb
 	if request.Language == "" {
 		request.Language = "zh"
 	}
+
+	// 新增：如果没有模型配置，使用默认模型
+	if len(param.Model) == 0 {
+		defaultModel := getDefaultModel()
+		if defaultModel != nil {
+			// 正确转换为 ModelParams 类型
+			param.Model = []ModelParams{{
+				Model:   defaultModel.Model,
+				Token:   defaultModel.Token,
+				BaseUrl: defaultModel.BaseUrl,
+			}}
+			gologger.Infof("使用默认模型: %s", defaultModel.Model)
+		} else {
+			return fmt.Errorf("没有可用的模型配置，请检查环境变量或任务参数")
+		}
+	}
+
 	var argv []string = make([]string, 0)
 	argv = append(argv, "run", "cli_run.py", "--async_mode")
 

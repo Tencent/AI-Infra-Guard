@@ -335,6 +335,17 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 	quickMode := params.Quick
 	var target string
 
+	// 新增：如果没有模型配置，使用默认模型
+	if params.Model.Model == "" || params.Model.Token == "" || params.Model.BaseUrl == "" {
+		defaultModel := getDefaultModel()
+		if defaultModel != nil {
+			params.Model = *defaultModel
+			gologger.Infof("使用默认模型: %s", defaultModel.Model)
+		} else {
+			return fmt.Errorf("没有可用的模型配置，请检查环境变量或任务参数")
+		}
+	}
+
 	//0. 发送初始任务计划
 	taskTitles := []string{
 		"初始化MCP扫描环境",
@@ -570,5 +581,29 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 	tasks[2].Status = SubTaskStatusDone
 	callbacks.PlanUpdateCallback(tasks)
 	callbacks.ResultCallback(result)
+	return nil
+}
+
+// 新增：获取默认模型信息
+func getDefaultModel() *struct {
+	Model   string `json:"model"`
+	Token   string `json:"token"`
+	BaseUrl string `json:"base_url"`
+} {
+	model := os.Getenv("DEFAULT_MODEL_NAME")
+	token := os.Getenv("DEFAULT_MODEL_TOKEN")
+	baseUrl := os.Getenv("DEFAULT_MODEL_BASE_URL")
+
+	if model != "" && token != "" && baseUrl != "" {
+		return &struct {
+			Model   string `json:"model"`
+			Token   string `json:"token"`
+			BaseUrl string `json:"base_url"`
+		}{
+			Model:   model,
+			Token:   token,
+			BaseUrl: baseUrl,
+		}
+	}
 	return nil
 }
