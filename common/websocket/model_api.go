@@ -2,8 +2,9 @@ package websocket
 
 import (
 	"context"
-	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"net/http"
+
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 
 	"github.com/Tencent/AI-Infra-Guard/pkg/database"
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ type ModelInfo struct {
 	Model   string `json:"model" binding:"required"`
 	Token   string `json:"token" binding:"required"`
 	BaseURL string `json:"base_url" binding:"required"`
+	Limit   int    `json:"limit"`
 	Note    string `json:"note"`
 }
 
@@ -106,6 +108,7 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 				"token":    model.Token, // 用户模型保留token
 				"base_url": model.BaseURL,
 				"note":     model.Note,
+				"limit":    model.Limit,
 			},
 		}
 		result = append(result, item)
@@ -173,6 +176,7 @@ func HandleGetModelDetail(c *gin.Context, mm *ModelManager) {
 			"token":    model.Token,
 			"base_url": model.BaseURL,
 			"note":     model.Note,
+			"limit":    model.Limit,
 		},
 	}
 
@@ -240,6 +244,9 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		})
 		return
 	}
+	if req.Model.Limit == 0 {
+		req.Model.Limit = 1000
+	}
 
 	log.Debugf("用户请求创建模型: trace_id=%s, modelID=%s, modelName=%s, username=%s", traceID, req.ModelID, req.Model.Model, username)
 
@@ -285,6 +292,7 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		Token:     req.Model.Token,
 		BaseURL:   req.Model.BaseURL,
 		Note:      req.Model.Note,
+		Limit:     req.Model.Limit,
 	}
 
 	err = mm.modelStore.CreateModel(model)
@@ -365,6 +373,7 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 		"token":      req.Model.Token,
 		"base_url":   req.Model.BaseURL,
 		"note":       req.Model.Note,
+		"limit":      req.Model.Limit,
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)

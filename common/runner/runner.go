@@ -646,6 +646,7 @@ func (r *Runner) GetFpAndVulList() []FpInfos {
 		fp2 := fp
 		fingerprints = append(fingerprints, fp2)
 	}
+
 	fps := make([]FpInfos, 0)
 	for _, fp := range fingerprints {
 		ads, err := r.advEngine.GetAdvisories(fp.Info.Name, "", false)

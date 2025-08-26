@@ -217,6 +217,7 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 			Model:   model.ModelName,
 			Token:   model.Token,
 			BaseUrl: model.BaseURL,
+			Limit:   model.Limit,
 		}
 		return &p, nil
 	}
