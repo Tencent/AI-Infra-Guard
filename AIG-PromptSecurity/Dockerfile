@@ -11,6 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends git curl \
 
 COPY . .
 
-RUN uv pip install --system -r requirements.txt
+RUN uv sync
 
 CMD ["bash"]

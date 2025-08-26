@@ -8,14 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-13 11:53+0800\n"
-"PO-Revision-Date: 2025-08-13 11:53+0800\n"
+"POT-Creation-Date: 2025-08-21 20:07+0800\n"
+"PO-Revision-Date: 2025-08-22 20:30+0800\n"
 "Last-Translator: /bin/eash <EMAIL@address.com>\n"
 "Language-Team: Chinese (simplified)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: cli_run.py:142
+msgid "Something went wrong. Please try again in a few moments."
+msgstr "系统出现了点小问题，请稍后再试。"
 
 #: cli/red_team_runner.py:35 cli/red_team_runner.py:37
 #: cli/red_team_runner.py:41 cli/red_team_runner.py:48
@@ -51,31 +55,41 @@ msgstr "加载评估场景失败"
 #: cli/red_team_runner.py:62 cli/red_team_runner.py:66
 #, python-brace-format
 msgid "Load evaluate model: {model_name}"
-msgstr "加载评估模型：{model_name}"
+msgstr "加载打分模型：{model_name}"
 
 #: cli/red_team_runner.py:69
 #, python-brace-format
 msgid "Load evaluate model: {model_name} failed"
-msgstr "加载评估模型：{model_name} 失败"
+msgstr "加载打分模型：{model_name} 失败"
 
 #: cli/red_team_runner.py:79 cli/red_team_runner.py:81
 msgid "Load attacks"
 msgstr "加载泛化方法"
 
-#: cli/red_team_runner.py:140 cli/red_team_runner.py:141
-#: cli/red_team_runner.py:164
+#: cli/red_team_runner.py:141
+#, python-brace-format
+msgid ""
+"An error occurred during {model_name} assessment. Please try again later."
+msgstr "评估 {model_name} 过程中出现异常，请稍后再试。"
+
+#: cli/red_team_runner.py:145 cli/red_team_runner.py:146
+#: cli/red_team_runner.py:173
 msgid "Generating report"
 msgstr "生成模型安全报告"
 
-#: cli/red_team_runner.py:141 cli/red_team_runner.py:164
+#: cli/red_team_runner.py:146 cli/red_team_runner.py:173
 msgid "A.I.G is working"
 msgstr "A.I.G正在工作"
 
-#: cli/red_team_runner.py:142
+#: cli/red_team_runner.py:147
 msgid "Report in progress"
 msgstr "生成报告"
 
-#: cli/red_team_runner.py:163
+#: cli/red_team_runner.py:169
+msgid "An error occurred during report generated. Please try again later."
+msgstr "报告生成过程中出现异常，请稍后再试。"
+
+#: cli/red_team_runner.py:172
 msgid "Report generated"
 msgstr "生成报告"
 
