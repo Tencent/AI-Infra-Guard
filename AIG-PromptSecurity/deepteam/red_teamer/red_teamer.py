@@ -90,19 +90,16 @@ class RedTeamer:
         evaluation_model: Optional[Union[str, DeepEvalBaseLLM]] = "gpt-4o",
         target_purpose: Optional[str] = "",
         async_mode: bool = True,
-        max_concurrent: int = 10,
     ):
         self.target_purpose = target_purpose
         self.simulator_model, _ = initialize_model(simulator_model)
         self.evaluation_model, _ = initialize_model(evaluation_model)
         self.async_mode = async_mode
         self.synthetic_goldens: List[Golden] = []
-        self.max_concurrent = max_concurrent
         self.custom_metric = None  # 添加自定义metric属性
         self.attack_simulator = AttackSimulator(
             simulator_model=self.simulator_model,
             purpose=self.target_purpose,
-            max_concurrent=max_concurrent,
         )
 
     def red_team(
@@ -354,7 +351,6 @@ Translated Input:
                         simulated_attack.vulnerability_type
                     ].append(simulated_attack)
 
-            self.semaphore = asyncio.Semaphore(self.max_concurrent)
             num_vulnerability_types = sum(
                 len(v.get_types()) for v in vulnerabilities
             )
@@ -417,67 +413,66 @@ Translated Input:
         metrics_map,
         ignore_errors: bool,
     ) -> RedTeamingTestCase:
-        async with self.semaphore:
-            red_teaming_test_case = RedTeamingTestCase(
-                input=simulated_attack.input,
-                vulnerability=vulnerability,
-                vulnerability_type=vulnerability_type,
-                attackMethod=simulated_attack.attack_method,
-                riskCategory=getRiskCategory(vulnerability_type),
-            )
+        red_teaming_test_case = RedTeamingTestCase(
+            input=simulated_attack.input,
+            vulnerability=vulnerability,
+            vulnerability_type=vulnerability_type,
+            attackMethod=simulated_attack.attack_method,
+            riskCategory=getRiskCategory(vulnerability_type),
+        )
 
-            if simulated_attack.error is not None:
-                red_teaming_test_case.error = simulated_attack.error
-                return red_teaming_test_case
-
-            metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
-            try:
-                actual_output = await model_callback(simulated_attack.input)
-                red_teaming_test_case.actual_output = actual_output
-            except Exception:
-                if ignore_errors:
-                    red_teaming_test_case.error = (
-                        "Error generating output from target LLM"
-                    )
-                    return red_teaming_test_case
-                else:
-                    raise
-
-            test_case = LLMTestCase(
-                input=simulated_attack.input,
-                actual_output=actual_output,
-            )
-            try:
-                await metric.a_measure(test_case)
-                red_teaming_test_case.score = metric.score
-                if logger.lang == "zh_CN":
-                    reason = await model_callback(f"""
-    Instructions:
-    You are a multilingual expert. 
-    ***
-    IMPORTANT: 
-    The translated text should maintain the original meaning and context of the input text.
-    **
-                                                
-    Translate the Input text to Chinese.
-    Input:
-    {metric.reason}
-    Translated Input:
-    """)
-                else:
-                    reason = metric.reason
-                red_teaming_test_case.reason = reason
-            except:
-                if ignore_errors:
-                    red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability type"
-                    return red_teaming_test_case
-                else:
-                    raise
-
-            case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
-            if case_md is not None:
-                logger.action_log(actionLog(tool_id=self.asyncRandomId, tool_name="Case measure", stepId="2", log=case_md))
+        if simulated_attack.error is not None:
+            red_teaming_test_case.error = simulated_attack.error
             return red_teaming_test_case
+
+        metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
+        try:
+            actual_output = await model_callback(simulated_attack.input)
+            red_teaming_test_case.actual_output = actual_output
+        except Exception:
+            if ignore_errors:
+                red_teaming_test_case.error = (
+                    "Error generating output from target LLM"
+                )
+                return red_teaming_test_case
+            else:
+                raise
+
+        test_case = LLMTestCase(
+            input=simulated_attack.input,
+            actual_output=actual_output,
+        )
+        try:
+            await metric.a_measure(test_case)
+            red_teaming_test_case.score = metric.score
+            if logger.lang == "zh_CN":
+                reason = await model_callback(f"""
+Instructions:
+You are a multilingual expert. 
+***
+IMPORTANT: 
+The translated text should maintain the original meaning and context of the input text.
+**
+                                            
+Translate the Input text to Chinese.
+Input:
+{metric.reason}
+Translated Input:
+""")
+            else:
+                reason = metric.reason
+            red_teaming_test_case.reason = reason
+        except:
+            if ignore_errors:
+                red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability type"
+                return red_teaming_test_case
+            else:
+                raise
+
+        case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
+        if case_md is not None:
+            logger.action_log(actionLog(tool_id=self.asyncRandomId, tool_name="Case measure", stepId="2", log=case_md))
+        return red_teaming_test_case
 
     async def _a_evaluate_vulnerability_type(
         self,
@@ -724,7 +719,7 @@ Translated Input:
     ):
         simulated_attacks: List[SimulatedAttack] = []
         for test_case in test_cases:
-            if test_case.error or test_case.input is None:
+            if test_case.input is None:
                 continue
             simulated_attack = SimulatedAttack(
                 vulnerability=test_case.vulnerability,
@@ -1055,7 +1050,7 @@ Translated Input:
             total_failing += result.failing
             total_errored += result.errored
         total = total_passing + total_failing
-        score = total_passing / total
+        score = total_passing / total if total > 0 else 0
         
         # 典型case
         test_cases_sorted = sorted(risk_assessment.test_cases, key=lambda case:case.score if (case.score is not None and case.score >= 0) else 2)
@@ -1085,7 +1080,7 @@ Translated Input:
         report = {
             "total": total,
             "jailbreak": total - total_passing, 
-            "score": int(score * 65 + 35),
+            "score": int(score * 65 + 35) if score > 0 else 0,
             "errored": total_errored,
             "results": results[:20],
             "attachment": attachment_path
