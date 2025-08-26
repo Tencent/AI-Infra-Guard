@@ -26,7 +26,6 @@ class RedTeamRunner:
         scenarios: List[str],
         techniques: List[str],
         async_mode: bool = False,
-        max_concurrent: int = 10,
         choice: str = "random",
         metric: Optional[str] = None,
         report_path: Optional[str] = None,
@@ -61,7 +60,7 @@ class RedTeamRunner:
        
         logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status="running"))
         # 测试连通
-        is_connection, msg = m.test_model_connection()
+        is_connection, msg = evaluate_model.test_model_connection()
         m_status = "completed" if is_connection else "failed"
         logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status=m_status))
         if m_status == "failed":
@@ -89,7 +88,7 @@ class RedTeamRunner:
         attacks = list(attacks)
 
         # 运行红队测试
-        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode, max_concurrent=max_concurrent)
+        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode)
         
         # 如果指定了自定义metric，则对所有vulnerability类型使用该metric
         metric_class_path = parse_metric_class(metric) if metric else None
@@ -122,47 +121,56 @@ class RedTeamRunner:
                 
                 red_teamer.custom_metric = custom_metric  # type: ignore
         
-        all_risk_assessments = []
-        for model in models:
-            model_callback = model.a_generate if async_mode else model.generate
-            red_teamer.red_team(
-                model_callback=model_callback,
-                vulnerabilities=vulnerabilities,
-                attacks=attacks,
-                ignore_errors=True,
-                reuse_simulated_attacks=True,
-                choice=choice,
-                model_name=model.get_model_name()
-            )
-            all_risk_assessments.append((model.get_model_name(), red_teamer.risk_assessment))
+        try:
+            all_risk_assessments = []
+            for model in models:
+                model_callback = model.a_generate if async_mode else model.generate
+                red_teamer.red_team(
+                    model_callback=model_callback,
+                    vulnerabilities=vulnerabilities,
+                    attacks=attacks,
+                    ignore_errors=True,
+                    reuse_simulated_attacks=True,
+                    choice=choice,
+                    model_name=model.get_model_name()
+                )
+                all_risk_assessments.append((model.get_model_name(), red_teamer.risk_assessment))
+        except Exception as e:
+            logger.error(e)
+            logger.critical_issue(content=logger.translated_msg("An error occurred during {model_name} assessment. Please try again later.", model_name=model.get_model_name()))
+            return
 
         tool_id = uuid.uuid4().hex
         logger.new_plan_step(newPlanStep(stepId="3", title=logger.translated_msg("Generating report")))
         logger.status_update(statusUpdate(stepId="3", brief=logger.translated_msg("A.I.G is working"), description=logger.translated_msg("Generating report"), status="running"))
         logger.tool_used(toolUsed(stepId="3", tool_id=tool_id, brief=logger.translated_msg("Report in progress"), status="todo"))
         
+        try:
+            # content, status = red_teamer.get_risk_assessment_markdown()
+            # with open(report_path, "w", encoding="utf-8") as fw:
+            #     fw.write(content)
+            # logger.result_update(resultUpdate(msgType="file", content=report_path, status=status))
+            contents = []
+            final_status = False
+            df_list = []
+            attachment_path = f"logs/attachment_{uuid.uuid4().hex}.csv"
+            for model_name, risk_assessment in all_risk_assessments:
+                content, status = red_teamer.get_risk_assessment_json(risk_assessment, model_name)
+                final_status = True if final_status else status
+                df_list.append(pd.read_csv(content["attachment"]))
+                content["attachment"] = attachment_path
+                contents.append(content)
 
-        # content, status = red_teamer.get_risk_assessment_markdown()
-        # with open(report_path, "w", encoding="utf-8") as fw:
-        #     fw.write(content)
-        # logger.result_update(resultUpdate(msgType="file", content=report_path, status=status))
-        contents = []
-        final_status = False
-        df_list = []
-        attachment_path = f"logs/attachment_{uuid.uuid4().hex}.csv"
-        for model_name, risk_assessment in all_risk_assessments:
-            content, status = red_teamer.get_risk_assessment_json(risk_assessment, model_name)
-            final_status = True if final_status else status
-            df_list.append(pd.read_csv(content["attachment"]))
-            content["attachment"] = attachment_path
-            contents.append(content)
-
-        combined_df = pd.concat(df_list, ignore_index=True)
-        combined_df.to_csv(attachment_path, index=False)
+            combined_df = pd.concat(df_list, ignore_index=True)
+            combined_df.to_csv(attachment_path, index=False)
+        except Exception as e:
+            logger.error(e)
+            logger.critical_issue(content=logger.translated_msg("An error occurred during report generated. Please try again later."))
+            return
 
         logger.tool_used(toolUsed(stepId="3", tool_id=tool_id, tool_name="Report generated", brief=logger.translated_msg("Report generated"), status="done"))
         logger.status_update(statusUpdate(stepId="3", brief=logger.translated_msg("A.I.G is working"), description=logger.translated_msg("Generating report"), status="completed"))
-        save_report_path = red_teamer.save_risk_assessment_report() 
-        logger.info(f'Original {model_name} report save to: {save_report_path}')
+        # save_report_path = red_teamer.save_risk_assessment_report() 
+        # logger.info(f'Original {model_name} report save to: {save_report_path}')
         logger.result_update(resultUpdate(msgType="json", content=contents, status=final_status))
         logger.info(f'Get resultUpdate done!')

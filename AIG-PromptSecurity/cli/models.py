@@ -1,4 +1,5 @@
 import time
+import asyncio
 from langchain_openai import ChatOpenAI
 from deepeval.models.base_model import DeepEvalBaseLLM
 from pydantic import SecretStr
@@ -8,7 +9,9 @@ class OpenaiAlikeModel(DeepEvalBaseLLM):
     """自定义模型，用于支持OpenAI API Alike Model"""
     max_trial = 3
     base_wait_seconds = 0.5
-    def __init__(self, model: ChatOpenAI):
+
+    def __init__(self, model: ChatOpenAI, max_concurrent):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
         self.model = model
     
     def load_model(self):
@@ -42,24 +45,29 @@ class OpenaiAlikeModel(DeepEvalBaseLLM):
                     raise ValueError("The response is not a string")
                 return res
             except Exception as e:
-                wait_time = self.base_wait_seconds * (2 ** (i - 1))
+                wait_time = self.base_wait_seconds * (2 ** i)
                 time.sleep(wait_time)
+        return ""
     
     async def a_generate(self, prompt: str) -> str:
-        for i in range(self.max_trial):
-            try:
-                chat_model = self.load_model()
-                res = await chat_model.ainvoke(prompt)
-                return res.content
-            except Exception as e:
-                wait_time = self.base_wait_seconds * (2 ** (i - 1))
-                time.sleep(wait_time)
+        async with self.semaphore:
+            for i in range(self.max_trial):
+                try:
+                    chat_model = self.load_model()
+                    res = await chat_model.ainvoke(prompt)
+                    if not isinstance(res.content, str):
+                        raise ValueError("The response is not a string")
+                    return res.content
+                except Exception as e:
+                    wait_time = self.base_wait_seconds * (2 ** i)
+                    await asyncio.sleep(wait_time)
+            return ""
     
     def get_model_name(self):
         return self.model.model_name
 
 
-def create_model(model_name: str, base_url: str, api_key: str) -> OpenaiAlikeModel:
+def create_model(model_name: str, base_url: str, api_key: str, max_concurrent: int) -> OpenaiAlikeModel:
     """创建模型实例"""
     openrouter = ChatOpenAI(
         model=model_name,
@@ -68,4 +76,4 @@ def create_model(model_name: str, base_url: str, api_key: str) -> OpenaiAlikeMod
         max_tokens=1024,
         frequency_penalty=1.0
     )
-    return OpenaiAlikeModel(openrouter)
+    return OpenaiAlikeModel(openrouter, max_concurrent)

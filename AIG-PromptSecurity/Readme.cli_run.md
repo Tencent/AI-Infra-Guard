@@ -9,6 +9,9 @@
 - `--api_key`  
   ChatOpenAI 或 OpenRouter 的 API 密钥。例如：`sk-or-xxxxxx`
 
+- `--max_concurrent`
+  ChatOpenAI允许的最大并发量
+
 - `--scenarios`  
   要测试的场景类型，可以指定多个。每个场景可以带参数。
 
@@ -296,6 +299,7 @@ python cli_run.py \
   --model google/gemini-2.0-flash-001 \
   --base_url https://example/api \
   --api_key sk-or-xxxxxx \
+  --max_concurrent 10 \
   --scenarios Bias IllegalActivity \
   --techniques Raw \
   --report logs/my_test_report.txt
@@ -309,6 +313,7 @@ python cli_run.py \
   --model google/gemini-2.0-flash-001 \
   --base_url https://example/api \
   --api_key sk-or-xxxxxx \
+  --max_concurrent 10 \
   --plugins my_custom_attack.py my_custom_metric.py \
   --scenarios "Custom:prompt_file=my_prompts.jsonl" \
   --techniques MyCustomAttack \
@@ -325,6 +330,7 @@ python cli_run.py \
   --model google/gemini-2.0-flash-001 \
   --base_url https://example/api \
   --api_key sk-or-xxxxxx \
+  --max_concurrent 10 \
   --scenarios "MultiDataset:dataset_file=test_data.csv,num_prompts=50" \
   --techniques Raw \
   --choice random \

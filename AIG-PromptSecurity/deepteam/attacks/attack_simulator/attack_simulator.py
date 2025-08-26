@@ -36,7 +36,6 @@ class AttackSimulator:
     def __init__(
         self,
         purpose: str,
-        max_concurrent: int,
         simulator_model: Optional[Union[str, DeepEvalBaseLLM]] = None,
     ):
         # Initialize models and async mode
@@ -47,7 +46,6 @@ class AttackSimulator:
 
         # Define list of attacks and unaligned vulnerabilities
         self.simulated_attacks: List[SimulatedAttack] = []
-        self.max_concurrent = max_concurrent
 
     ##################################################
     ### Generating Attacks ###########################
@@ -188,8 +186,6 @@ class AttackSimulator:
         ignore_errors: bool,
         choice: str = "random",  # 新增参数：random 或 serial
     ) -> List[SimulatedAttack]:
-        # Create a semaphore to control the number of concurrent tasks
-        semaphore = asyncio.Semaphore(self.max_concurrent)
 
         # Simulate unenhanced attacks for each vulnerability
         baseline_attacks: List[SimulatedAttack] = []
@@ -208,15 +204,14 @@ class AttackSimulator:
         ), status="todo"))
         
         async def throttled_simulate_baseline_attack(vulnerability):
-            async with semaphore:  # Throttling applied here
-                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg("Simulating async attacks"), status="doing"))
-                result = await self.a_simulate_baseline_attacks(
-                    attacks_per_vulnerability_type=attacks_per_vulnerability_type,
-                    vulnerability=vulnerability,
-                    ignore_errors=ignore_errors,
-                )
-                pbar.update(1)
-                return result
+            logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg("Simulating async attacks"), status="doing"))
+            result = await self.a_simulate_baseline_attacks(
+                attacks_per_vulnerability_type=attacks_per_vulnerability_type,
+                vulnerability=vulnerability,
+                ignore_errors=ignore_errors,
+            )
+            pbar.update(1)
+            return result
 
         simulate_tasks = [
             asyncio.create_task(
@@ -247,72 +242,71 @@ class AttackSimulator:
             index: int,
             baseline_attack: SimulatedAttack,
         ):
-            async with semaphore:  # Throttling applied here
-                if choice == "serial":
+            if choice == "serial":
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks by {choice}", idx=index+1, num_baseline_attacks=num_baseline_attacks, choice=choice
+                ), status="todo"))
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks with {attacks_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attacks_name=' '.join([attack.get_name() for attack in attacks])
+                ), status="doing"))
+
+                # 串行嵌套攻击：按顺序应用所有攻击方法
+                result = await self.a_enhance_attack_serial(
+                    attacks=attacks,
+                    simulated_attack=baseline_attack,
+                    ignore_errors=ignore_errors,
+                )
+                results = [result]
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Enhance attacks", brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks done", idx=index+1, num_baseline_attacks=num_baseline_attacks
+                ), status="done"))
+
+            elif choice == "parallel":
+                # 随机选择攻击：保持原有逻辑
+                results = []
+                for idx, attack in enumerate(attacks):
                     logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
                         "Enhance {idx} / {num_baseline_attacks} attacks by {choice}", idx=index+1, num_baseline_attacks=num_baseline_attacks, choice=choice
                     ), status="todo"))
                     logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                        "Enhance {idx} / {num_baseline_attacks} attacks with {attacks_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attacks_name=' '.join([attack.get_name() for attack in attacks])
+                        "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=attack.get_name()
                     ), status="doing"))
 
-                    # 串行嵌套攻击：按顺序应用所有攻击方法
-                    result = await self.a_enhance_attack_serial(
-                        attacks=attacks,
-                        simulated_attack=baseline_attack,
-                        ignore_errors=ignore_errors,
-                    )
-                    results = [result]
-                    logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Enhance attacks", brief=logger.translated_msg(
-                        "Enhance {idx} / {num_baseline_attacks} attacks done", idx=index+1, num_baseline_attacks=num_baseline_attacks
-                    ), status="done"))
-
-                elif choice == "parallel":
-                    # 随机选择攻击：保持原有逻辑
-                    results = []
-                    for idx, attack in enumerate(attacks):
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                            "Enhance {idx} / {num_baseline_attacks} attacks by {choice}", idx=index+1, num_baseline_attacks=num_baseline_attacks, choice=choice
-                        ), status="todo"))
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                            "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=attack.get_name()
-                        ), status="doing"))
-
-                        result = await self.a_enhance_attack(
-                            attack=attack,
-                            simulated_attack=baseline_attack,
-                            ignore_errors=ignore_errors,
-                        )
-                        results.append(result)
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Enhance attacks", brief=logger.translated_msg(
-                            "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name} done", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=attack.get_name()
-                        ), status="done"))
-
-                else:
-                    # 随机选择攻击：保持原有逻辑
-                    logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                        "Enhance {idx} / {num_baseline_attacks} attacks by {choice}", idx=index+1, num_baseline_attacks=num_baseline_attacks, choice=choice
-                    ), status="todo"))
-
-                    attack_weights = [attack.weight for attack in attacks]
-                    sampled_attack = random.choices(
-                        attacks, weights=attack_weights, k=1
-                    )[0]
-                    logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                        "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=sampled_attack.get_name()
-                    ), status="doing"))
                     result = await self.a_enhance_attack(
-                        attack=sampled_attack,
+                        attack=attack,
                         simulated_attack=baseline_attack,
                         ignore_errors=ignore_errors,
                     )
-                    results = [result]
+                    results.append(result)
                     logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Enhance attacks", brief=logger.translated_msg(
-                        "Enhance {idx} / {num_baseline_attacks} attacks done", idx=index+1, num_baseline_attacks=num_baseline_attacks
+                        "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name} done", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=attack.get_name()
                     ), status="done"))
 
-                pbar.update(1)
-                return results
+            else:
+                # 随机选择攻击：保持原有逻辑
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks by {choice}", idx=index+1, num_baseline_attacks=num_baseline_attacks, choice=choice
+                ), status="todo"))
+
+                attack_weights = [attack.weight for attack in attacks]
+                sampled_attack = random.choices(
+                    attacks, weights=attack_weights, k=1
+                )[0]
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks with {attack_name}", idx=index+1, num_baseline_attacks=num_baseline_attacks, attack_name=sampled_attack.get_name()
+                ), status="doing"))
+                result = await self.a_enhance_attack(
+                    attack=sampled_attack,
+                    simulated_attack=baseline_attack,
+                    ignore_errors=ignore_errors,
+                )
+                results = [result]
+                logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Enhance attacks", brief=logger.translated_msg(
+                    "Enhance {idx} / {num_baseline_attacks} attacks done", idx=index+1, num_baseline_attacks=num_baseline_attacks
+                ), status="done"))
+
+            pbar.update(1)
+            return results
         
         logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Jailbreaking"), description=logger.translated_msg(
             "Enhance {num_baseline_attacks} attacks", num_baseline_attacks=num_baseline_attacks

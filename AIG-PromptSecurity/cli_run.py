@@ -45,18 +45,20 @@ def main():
     parser.add_argument("--base_url", type=str, action='append', help="Base URL for ChatOpenAI")
     parser.add_argument("--api_key", type=str, action='append', help="API Key for ChatOpenAI")
     parser.add_argument("--model", type=str, action='append', help="Model name for ChatOpenAI")
+    parser.add_argument("--max_concurrent", type=int, action='append', help="Max concurrent")
     parser.add_argument("--sim_base_url", type=str, help="Base URL for a simulator model")
     parser.add_argument("--sim_api_key", type=str, help="API Key for a simulator model")
     parser.add_argument("--simulator_model", type=str, help="Model name for a simulator model")
+    parser.add_argument("--sim_max_concurrent", type=int, default=10, help="Max concurrent")
     parser.add_argument("--eval_base_url", type=str, help="Base URL for a evaluate model")
     parser.add_argument("--eval_api_key", type=str, help="API Key for a evaluate model")
     parser.add_argument("--evaluate_model", type=str, help="Model name for a evaluate model")
+    parser.add_argument("--eval_max_concurrent", type=int, default=10, help="Max concurrent")
 
     parser.add_argument("--scenarios", type=str, nargs='+', help="Scenarios to test")
     parser.add_argument("--techniques", type=str, nargs='+', help="Techniques to test")
     
     parser.add_argument("--async_mode", action='store_true', help="Enable async mode")
-    parser.add_argument("--max_concurrent", type=int, default=10, help="Max concurrent")
     parser.add_argument("--choice", type=str, default="random", choices=["random", "serial", "parallel"], 
                        help="Technique selection strategy: 'random' (default) or 'serial' (nested techniques) or 'parallel'")
     parser.add_argument("--metric", type=str, help="Metric class name (e.g., 'RandomMetric')")
@@ -94,22 +96,22 @@ def main():
 
     # 初始化模型
     models = []
-    lengths = list(map(len, (args.base_url, args.api_key, args.model)))
+    lengths = list(map(len, (args.base_url, args.api_key, args.model, args.max_concurrent)))
     if len(set(lengths)) != 1:
-        raise ValueError("base_url, api_key, model must have same number of parameters")
-    for base_url, api_key, model_name  in zip(args.base_url, args.api_key, args.model):
-        model = create_model(model_name, base_url, api_key)
+        raise ValueError("base_url, api_key, model, max_concurrent must have same number of parameters")
+    for base_url, api_key, model_name, max_concurrent  in zip(args.base_url, args.api_key, args.model, args.max_concurrent):
+        model = create_model(model_name, base_url, api_key, max_concurrent)
         models.append(model)
         
-    if any(param is None for param in (args.evaluate_model, args.eval_base_url, args.eval_api_key)):
+    if any(param is None for param in (args.evaluate_model, args.eval_base_url, args.eval_api_key, args.eval_max_concurrent)):
         evaluate_model = models[0]
     else:
-        evaluate_model = create_model(args.evaluate_model, args.eval_base_url, args.eval_api_key)
+        evaluate_model = create_model(args.evaluate_model, args.eval_base_url, args.eval_api_key, args.eval_max_concurrent)
 
-    if any(param is None for param in (args.simulator_model, args.sim_base_url, args.sim_api_key)):
+    if any(param is None for param in (args.simulator_model, args.sim_base_url, args.sim_api_key, args.sim_max_concurrent)):
         simulator_model = evaluate_model
     else:
-        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key)
+        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key, args.eval_max_concurrent)
 
     # 创建红队运行器
     runner = RedTeamRunner(plugin_manager)
@@ -122,7 +124,6 @@ def main():
         scenarios=args.scenarios,
         techniques=args.techniques,
         async_mode=args.async_mode,
-        max_concurrent=args.max_concurrent,
         choice=args.choice,
         metric=args.metric,
         report_path=args.report,
@@ -130,4 +131,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.error(e)
+        logger.critical_issue(content=logger.translated_msg("Something went wrong. Please try again in a few moments."))
