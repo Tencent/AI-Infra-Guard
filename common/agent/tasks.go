@@ -452,7 +452,7 @@ func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbac
 		target = url
 		r, err := scanner.InputUrl(ctx, url)
 		if err != nil || r == nil {
-			return err
+			return fmt.Errorf("input url failed: %v", err)
 		}
 		results, err := scanner.ScanLink(ctx, r, quickMode)
 		if err != nil {
