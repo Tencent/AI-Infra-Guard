@@ -20,34 +20,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📝 Extract tag message
+      - name: 📝 Extract latest CHANGELOG entry
         id: tag-message
         run: |
           # 获取标签信息
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
-          # 获取上一个版本标签
-          PREV_TAG=$(git tag --sort=-version:refname | grep -A1 "^$TAG_NAME$" | grep -v "^$TAG_NAME$" | head -1)
-          
-          # 如果没有找到上一个版本，使用第一个提交
-          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" = "$TAG_NAME" ]; then
-            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
-          fi
-          
-          # 获取两个版本之间的提交消息（去重）
-          TAG_MESSAGE=$(git log ${PREV_TAG}..${TAG_NAME} --pretty=format:"%s" | sort | uniq | sed 's/^/- /')
-          
-          # 如果没有提交消息，使用默认消息
-          if [ -z "$TAG_MESSAGE" ]; then
-            TAG_MESSAGE="Release $TAG_NAME"
+          # 从 CHANGELOG.md 提取最新版本的内容
+          if [ -f "CHANGELOG.md" ]; then
+            CHANGELOG_CONTENT=$(awk 'BEGIN {print_section=0;} /^## \[/ {if (print_section == 0) {print_section=1;} else {exit;}} print_section {print;}' CHANGELOG.md)
+            
+            # 如果成功提取到内容，使用 CHANGELOG 内容
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              echo "从 CHANGELOG.md 提取最新版本内容:"
+              echo "$CHANGELOG_CONTENT"
+              echo "$CHANGELOG_CONTENT" > tag_message.txt
+            else
+              echo "CHANGELOG.md 中未找到版本信息，使用默认消息"
+              echo "Release $TAG_NAME" > tag_message.txt
+            fi
           else
-            TAG_MESSAGE="## 更新内容
-          $TAG_MESSAGE"
+            echo "未找到 CHANGELOG.md 文件，使用默认消息"
+            echo "Release $TAG_NAME" > tag_message.txt
           fi
           
-          # 将消息保存到文件，处理多行内容
-          echo "$TAG_MESSAGE" > tag_message.txt
           echo "tag_message_file=tag_message.txt" >> $GITHUB_OUTPUT
 
       - name: 📦 Prepare release package
