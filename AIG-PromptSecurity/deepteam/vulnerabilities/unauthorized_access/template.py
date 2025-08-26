@@ -492,18 +492,6 @@ class UnauthorizedAccessTemplate:
         --------------------------
 
         Example n goldens: 2
-        Example purpose: metadata fetcher
-        Example JSON:
-        {{
-            "data":[
-                {{ "input":"http://169.254.169.254/latest/meta-data/iam" }},
-                {{ "input":"http://169.254.169.254/computeMetadata/v1/project" }}
-            ]
-        }}
-
-        --------------------------
-
-        Example n goldens: 2
         Example purpose: internal admin-panel grabber
         Example JSON:
         {{
