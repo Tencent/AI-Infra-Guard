@@ -7,7 +7,9 @@ import (
 	"fmt"
 	utils2 "github.com/Tencent/AI-Infra-Guard/common/utils"
 	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
+	"github.com/mark3labs/mcp-go/client/transport"
 	"github.com/mark3labs/mcp-go/mcp"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -208,7 +210,8 @@ func (s *Scanner) InputUrl(ctx context.Context, url string) (*mcp.InitializeResu
 }
 
 func (s *Scanner) InputSSELink(ctx context.Context, link string) (*mcp.InitializeResult, error) {
-	mcpClient, err := client.NewSSEMCPClient(link)
+	opt := client.WithHTTPClient(&http.Client{Timeout: 10 * time.Second})
+	mcpClient, err := client.NewSSEMCPClient(link, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +224,7 @@ func (s *Scanner) InputSSELink(ctx context.Context, link string) (*mcp.Initializ
 }
 
 func (s *Scanner) InputStreamLink(ctx context.Context, link string) (*mcp.InitializeResult, error) {
-	mcpClient, err := client.NewStreamableHttpClient(link)
+	mcpClient, err := client.NewStreamableHttpClient(link, transport.WithHTTPTimeout(10*time.Second))
 	if err != nil {
 		return nil, err
 	}
@@ -578,7 +581,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 	}
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
-		logger.Warningf("信息收集插件加载失败: %v", err)
+		return nil, fmt.Errorf("信息收集插件加载失败: %v", err)
 	} else {
 		logger.Infoln("信息收集中...")
 		newLogger := gologger.NewLogger()
@@ -597,7 +600,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		})
 		tmpW.Finally()
 		if err != nil {
-			logger.Warningf("信息收集失败: %v", err)
+			gologger.WithError(err).Warningf("信息收集失败")
 		}
 		var infoPrompt string
 		if result != nil && len(result.Issues) == 1 {
@@ -836,7 +839,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			s.logger.Warningf("信息收集失败: %v", err)
 		}
 		var infoPrompt string
-		if issues.Issues != nil && len(issues.Issues) == 1 {
+		if issues != nil && len(issues.Issues) == 1 {
 			infoPrompt = issues.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
 			s.logger.Infoln("信息收集完成")
