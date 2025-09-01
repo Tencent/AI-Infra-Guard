@@ -1,5 +1,5 @@
 <p align="center">
-    <h1 align="center">🛡️ A.I.G (AI-Infra-Guard)</h1>
+    <h1 align="center"> <img vertical-align=“middle” width="100px" src="/img/logo-full.png" alt="A.I.G" style="margini-right:5px" /> (AI-Infra-Guard)</h1>
 </p>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard">
@@ -12,7 +12,7 @@
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
     </a>
     <a href="https://deepwiki.com/Tencent/AI-Infra-Guard">
-        <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
+       
     </a>
 </p>
 <h4 align="center">
