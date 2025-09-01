@@ -12,7 +12,7 @@
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
     </a>
     <a href="https://deepwiki.com/Tencent/AI-Infra-Guard">
-       
+       <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
     </a>
 </p>
 <h4 align="center">
