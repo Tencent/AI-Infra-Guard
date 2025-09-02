@@ -94,7 +94,7 @@
 **1. One-Click Script （Recommended）**
 ```bash
 # This method will automatically install Docker and launch A.I.G with one command  
-curl https://github.com/Tencent/AI-Infra-Guard/blob/main/docker.sh | bash
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
 ```
 
 **2. Run with pre-built images (Recommended)**
