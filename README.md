@@ -99,12 +99,19 @@ cd AI-Infra-Guard
 
 After installing the [Docker environment](https://docs.docker.com/get-started/get-docker/), you can deploy the A.I.G service in either of the following ways:
 
-**1. Run with pre-built images (Recommended)**
+**1. One-Click Script （Recommended）**
+```bash
+# This method will automatically install Docker and launch A.I.G with one command  
+curl https://github.com/Tencent/AI-Infra-Guard/blob/main/docker.sh | bash
+```
+
+**2. Run with pre-built images (Recommended)**
 ```bash
 # This method pulls pre-built images from Docker Hub for a faster start
 docker-compose -f docker-compose.images.yml up -d
 ```
-**2. Build from source and run**
+
+**3. Build from source and run**
 ```bash
 # This method builds a Docker image from local source code and starts the service
 docker-compose up -d
