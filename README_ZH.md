@@ -96,27 +96,23 @@
 - 至少 4GB 可用内存
 - 至少 10GB 可用磁盘空间
 
-首先，克隆本项目：
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-```
-
-然后安装好[Docker相关环境](https://docs.docker.com/get-started/get-docker/)，您可以选择以下任一方式部署A.I.G服务：
-
 **1. 一键脚本 （推荐）**
 ```bash
 # 此方法会自动帮您安装docker并一键启动A.I.G
-curl https://github.com/Tencent/AI-Infra-Guard/blob/main/docker.sh | bash
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
 ```
 
 **2. 使用预构建镜像运行 (推荐)**
 ```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
 # 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
 docker-compose -f docker-compose.images.yml up -d
 ```
 **3. 从源码构建并运行**
 ```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
 # 此方法会使用本地代码构建 Docker 镜像并启动服务
 docker-compose up -d
 ```
