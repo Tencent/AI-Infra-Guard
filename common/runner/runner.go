@@ -377,12 +377,14 @@ func (r *Runner) extractContent(fullUrl string, resp *httpx.Response, respTime s
 	r.result <- result
 }
 
+const tr = "?tr=a2802f09d2ddb7830a6f4b00910ab4f0"
+
 // runHostRequest 尝试使用 HTTP 和 HTTPS 连接到主机
 func (r *Runner) runHostRequest(domain string) error {
 	retried := false
 	protocol := httpx.HTTP
 retry:
-	fullUrl := fmt.Sprintf("%s://%s", protocol, domain)
+	fullUrl := fmt.Sprintf("%s://%s/%s", protocol, domain, tr)
 	timeStart := time.Now()
 	resp, err := r.hp.Get(fullUrl, nil)
 	if err != nil {
@@ -404,11 +406,12 @@ retry:
 // runDomainRequest makes a request to a specific URL and processes the response
 func (r *Runner) runDomainRequest(fullUrl string) error {
 	timeStart := time.Now()
-	resp, err := r.hp.Get(fullUrl, nil)
+	reqUrl := fullUrl + tr
+	resp, err := r.hp.Get(reqUrl, nil)
 	if err != nil {
 		return err
 	}
-	r.extractContent(fullUrl, resp, time.Since(timeStart).String())
+	r.extractContent(reqUrl, resp, time.Since(timeStart).String())
 	return nil
 }
 
