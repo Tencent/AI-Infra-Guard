@@ -1,5 +1,5 @@
 <p align="center">
-    <h1 align="center"><img vertical-align=“middle” width="400px" src="/img/logo-full-new.png" alt="A.I.G"/></h1>
+    <h1 align="center"><img vertical-align=“middle” width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard">
@@ -61,22 +61,22 @@
 ## 🖼️ Showcase
 
 ### A.I.G Main Interface
-![AIG Main Page](img/background.png)
+![AIG Main Page](img/background-en.png)
 
 ### AI Infrastructure Vulnerability Scanning
-![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan.png)
+![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
 
 ### MCP Server Security Detection
-![Intelligently analyze MCP Server security risks](img/mcp-server.png)
+![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
 
 ### LLM Security Assessment
-![Comprehensively evaluate LLM security](img/model-security.png)
+![Comprehensively evaluate LLM security](img/model-security-en.png)
 
 ### Plugin Management
 <table>
   <tr>
-    <td valign="top"><img align=top src="img/plugin-1.png"/></td>
-    <td valign="top"><img align=top src="img/plugin-2.png"/></td>
+    <td valign="top"><img align=top src="img/plugin-1-en.png"/></td>
+    <td valign="top"><img align=top src="img/plugin-2-en.png"/></td>
   </tr>
 </table>
 
@@ -90,6 +90,7 @@
 - Docker 20.10 or higher
 - At least 4GB of available RAM
 - At least 10GB of available disk space
+
 
 **1. One-Click Install Script （Recommended）**
 ```bash
