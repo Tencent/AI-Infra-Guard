@@ -1,6 +1,6 @@
 
 <p align="center">
-    <h1 align="center"><img vertical-align=“middle” width="400px" src="/img/logo-full-new.png" alt="A.I.G"/></h1>
+    <h1 align="center"><img vertical-align=“middle” width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard">
