@@ -1,5 +1,5 @@
 <p align="center">
-    <h1 align="center"><img vertical-align=“middle” width="400px" src="/img/logo-full-new.png" alt="A.I.G"/></h1>
+    <h1 align="center"><img vertical-align=“middle” width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard">
@@ -61,22 +61,22 @@
 ## 🖼️ Showcase
 
 ### A.I.G Main Interface
-![AIG Main Page](img/background.png)
+![AIG Main Page](img/background-en.png)
 
 ### AI Infrastructure Vulnerability Scanning
-![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan.png)
+![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
 
 ### MCP Server Security Detection
-![Intelligently analyze MCP Server security risks](img/mcp-server.png)
+![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
 
 ### LLM Security Assessment
-![Comprehensively evaluate LLM security](img/model-security.png)
+![Comprehensively evaluate LLM security](img/model-security-en.png)
 
 ### Plugin Management
 <table>
   <tr>
-    <td valign="top"><img align=top src="img/plugin-1.png"/></td>
-    <td valign="top"><img align=top src="img/plugin-2.png"/></td>
+    <td valign="top"><img align=top src="img/plugin-1-en.png"/></td>
+    <td valign="top"><img align=top src="img/plugin-2-en.png"/></td>
   </tr>
 </table>
 
@@ -91,21 +91,24 @@
 - At least 4GB of available RAM
 - At least 10GB of available disk space
 
-First, clone this project:
+**1. One-Click Script （Recommended）**
+```bash
+# This method will automatically install Docker and launch A.I.G with one command  
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**2. Run with pre-built images (Recommended)**
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-```
-
-After installing the [Docker environment](https://docs.docker.com/get-started/get-docker/), you can deploy the A.I.G service in either of the following ways:
-
-**1. Run with pre-built images (Recommended)**
-```bash
 # This method pulls pre-built images from Docker Hub for a faster start
 docker-compose -f docker-compose.images.yml up -d
 ```
-**2. Build from source and run**
+
+**3. Build from source and run**
 ```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
 # This method builds a Docker image from local source code and starts the service
 docker-compose up -d
 ```
