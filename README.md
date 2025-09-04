@@ -91,7 +91,7 @@
 - At least 4GB of available RAM
 - At least 10GB of available disk space
 
-**1. One-Click Script （Recommended）**
+**1. One-Click Install Script （Recommended）**
 ```bash
 # This method will automatically install Docker and launch A.I.G with one command  
 curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
