@@ -56,7 +56,7 @@ jobs:
           cp -r data release-package/data
           cp README.md release-package/README.md
           cp README_ZH.md release-package/README_ZH.md
-          cp LICENSE.txt release-package/LICENSE.txt
+          cp License.txt release-package/License.txt
           cp CHANGELOG.md release-package/CHANGELOG.md
           mkdir -p release-package/db
           mkdir -p release-package/log

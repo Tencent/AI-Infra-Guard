@@ -80,30 +80,10 @@ func HandleTaskSSE(c *gin.Context, tm *TaskManager) {
 		return
 	}
 
-	// 验证任务是否存在
-	session, err := tm.taskStore.GetSession(sessionId)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status":  1,
-			"message": "任务不存在",
-			"data":    nil,
-		})
-		return
-	}
-
-	// 验证用户权限（只有任务创建者才能查看）
 	username := c.GetString("username")
-	if session.Username != username {
-		c.JSON(http.StatusForbidden, gin.H{
-			"status":  1,
-			"message": "无权限查看此任务",
-			"data":    nil,
-		})
-		return
-	}
 
 	// 建立SSE连接
-	err = tm.EstablishSSEConnection(c.Writer, sessionId, username, traceID)
+	err := tm.EstablishSSEConnection(c.Writer, sessionId, username, traceID)
 	if err != nil {
 		log.Errorf("建立SSE连接失败: trace_id=%s, sessionId=%s, username=%s, error=%v", traceID, sessionId, username, err)
 		c.JSON(http.StatusInternalServerError, gin.H{

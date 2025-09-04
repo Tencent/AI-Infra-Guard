@@ -99,8 +99,8 @@ func (tm *TaskManager) AddTask(req *TaskCreateRequest, traceID string) error {
 
 	log.Infof("任务预存成功: trace_id=%s, sessionId=%s", traceID, req.SessionID)
 
-	// 3. 等待SSE连接建立（30秒超时）
-	timeout := 10 * time.Second
+	// 3. 等待SSE连接建立
+	timeout := 100 * time.Second
 	start := time.Now()
 	for time.Since(start) < timeout {
 		if tm.sseManager.HasConnection(req.SessionID) {
