@@ -161,7 +161,8 @@ version:
 
 ## Operational Best Practices
 
-1.**Schedule Regular Scans** : Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.
+
+1.**Schedule Regular Scans**: Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.
 
 2.**Prioritize High-Risk Components**: Focus scanning resources on components with high vulnerability densities, such as Gradio, LangChain, and ClickHouse.
 
