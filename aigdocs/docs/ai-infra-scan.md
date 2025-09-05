@@ -159,15 +159,15 @@ version:
 | `||`     | Logical OR                                | `body="gradio" || body="Gradio"`                             |
 | `()`     | Grouping to change precedence             | `(body="gradio" || body="Gradio") && header="X-Gradio-Version"` |
 
-## Operational Best Practices  
+## Operational Best Practices
 
-1. **Schedule Regular Scans** : Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.  
+1.**Schedule Regular Scans** : Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.
 
-2. **Prioritize High-Risk Components**: Focus scanning resources on components with high vulnerability densities, such as Gradio, LangChain, and ClickHouse.
+2.**Prioritize High-Risk Components**: Focus scanning resources on components with high vulnerability densities, such as Gradio, LangChain, and ClickHouse.
 
-3. **Extend with Custom Rules**: Enhance detection capabilities for organization-specific AI components by adding custom fingerprint rules.
+3.**Extend with Custom Rules**: Enhance detection capabilities for organization-specific AI components by adding custom fingerprint rules.
 
-4.**Integrate into CI/CD Pipelines **: Embed security scanning into the continuous integration (CI) process for AI applications to implement shift-left security.
+4.**Integrate into CI/CD Pipelines**: Embed security scanning into the continuous integration (CI) process for AI applications to implement shift-left security.
 
 5.**Track Vulnerability Remediation**: Establish a tracking mechanism for vulnerabilities discovered during scans to ensure timely remediation.
 
