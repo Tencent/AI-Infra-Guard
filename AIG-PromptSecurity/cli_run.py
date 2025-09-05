@@ -6,16 +6,11 @@ from cli.aig_logger import (
     newPlanStep, statusUpdate, toolUsed, actionLog, resultUpdate
 )
 from deepteam.plugin_system import PluginManager
-from cli import (
-    create_model,
-    load_plugins_from_args,
-    list_plugins,
-    show_plugin_template,
-    validate_plugin,
-    auto_discover_plugins,
-    RedTeamRunner,
-    handle_tool_scanning
-)
+from cli.models import create_model
+from cli.plugin_commands import list_plugins, load_plugins_from_args, show_plugin_template, validate_plugin, auto_discover_plugins
+from cli.red_team_runner import RedTeamRunner
+from cli.tool_scanner_cli import handle_tool_scanning
+
 
 # logger config
 logger.add("logs/red_team.log", rotation="00:00", level="DEBUG", enqueue=True, retention="7 days")
@@ -111,7 +106,7 @@ def main():
     if any(param is None for param in (args.simulator_model, args.sim_base_url, args.sim_api_key, args.sim_max_concurrent)):
         simulator_model = evaluate_model
     else:
-        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key, args.eval_max_concurrent)
+        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key, args.sim_max_concurrent)
 
     # 创建红队运行器
     runner = RedTeamRunner(plugin_manager)

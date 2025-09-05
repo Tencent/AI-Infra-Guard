@@ -82,6 +82,7 @@ class RedTeamer:
     risk_assessment: Optional[RiskAssessment] = None
     simulated_attacks: Optional[List[SimulatedAttack]] = None
     asyncRandomId: str = None
+    max_concurrent = 1
     def __init__(
         self,
         simulator_model: Optional[
@@ -101,6 +102,47 @@ class RedTeamer:
             simulator_model=self.simulator_model,
             purpose=self.target_purpose,
         )
+
+    def _get_translation_system_message(self) -> str:
+        """获取翻译的 system 消息"""
+        return f"""You are a professional {logger.lang} native translator who needs to fluently translate text into {logger.lang}.
+
+## Translation Rules
+1. Output only the translated content, without explanations or additional content (such as "Here's the translation:" or "Translation as follows:")
+2. The returned translation must maintain exactly the same number of paragraphs and format as the original text
+3. If the text contains HTML tags, consider where the tags should be placed in the translation while maintaining fluency
+4. For content that should not be translated (such as proper nouns, code, etc.), keep the original text.
+
+## OUTPUT FORMAT:
+- **Single paragraph input** → Output translation directly (no separators, no extra text)
+
+## Examples
+
+### Single paragraph Input:
+Single paragraph content
+
+### Single paragraph Output:
+Direct translation without separators"""
+
+    def _get_translation_user_prompt(self, text: str) -> str:
+        """获取翻译的 user 提示"""
+        return f"Translate to {logger.lang} (output translation only):\n\n{text}"
+
+    def _translate_reason(self, reason: str) -> str:
+        """翻译 reason 文本（同步版本）"""
+        if logger.lang == "zh_CN":
+            system_message = self._get_translation_system_message()
+            user_prompt = self._get_translation_user_prompt(reason)
+            return self.evaluation_model.generate(user_prompt, system_message=system_message)
+        return reason
+
+    async def _a_translate_reason(self, reason: str) -> str:
+        """翻译 reason 文本（异步版本）"""
+        if logger.lang == "zh_CN":
+            system_message = self._get_translation_system_message()
+            user_prompt = self._get_translation_user_prompt(reason)
+            return await self.evaluation_model.a_generate(user_prompt, system_message=system_message)
+        return reason
 
     def red_team(
         self,
@@ -215,6 +257,8 @@ class RedTeamer:
                             target_output = model_callback(
                                 simulated_attack.input
                             )
+                            if target_output == "":
+                                raise ValueError("The response is none")
                             red_teaming_test_case.actual_output = target_output
                         except Exception:
                             if ignore_errors:
@@ -239,22 +283,7 @@ class RedTeamer:
                         try:
                             metric.measure(test_case)
                             red_teaming_test_case.score = metric.score
-                            if logger.lang == "zh_CN":
-                                reason = model_callback(f"""
-Instructions:
-You are a multilingual expert. 
-***
-IMPORTANT: 
-The translated text should maintain the original meaning and context of the input text.
-**
-                                              
-Translate the Input text to Chinese.
-Input:
-{metric.reason}
-Translated Input:
-""")
-                            else:
-                                reason = metric.reason
+                            reason = self._translate_reason(metric.reason)
                             red_teaming_test_case.reason = reason
                         except Exception:
                             if ignore_errors:
@@ -305,6 +334,7 @@ Translated Input:
         choice: str = "random",
         model_name: str = "unknown"
     ):
+        self.semaphore = asyncio.Semaphore(self.max_concurrent)
         self.asyncRandomId = uuid.uuid4().hex
         with capture_red_teamer_run(
             vulnerabilities=[v.get_name() for v in vulnerabilities],
@@ -324,6 +354,7 @@ Translated Input:
                 )
             else:
                 self.attack_simulator.model_callback = model_callback
+                self.attack_simulator.max_concurrent = self.max_concurrent
                 simulated_attacks: List[SimulatedAttack] = (
                     await self.attack_simulator.a_simulate(
                         attacks_per_vulnerability_type=attacks_per_vulnerability_type,
@@ -378,13 +409,8 @@ Translated Input:
 
             # Create a list of tasks for evaluating each vulnerability, with throttling
             logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg("Measure simulated attacks"), status="todo"))
-            tasks = [
-                throttled_evaluate_vulnerability_type(
-                    vulnerability_type, attacks
-                )
-                for vulnerability_type, attacks in vulnerability_type_to_attacks_map.items()
-            ]
-            await asyncio.gather(*tasks)
+            for vulnerability_type, attacks in vulnerability_type_to_attacks_map.items():
+                await throttled_evaluate_vulnerability_type(vulnerability_type, attacks)
             logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, tool_name="Metric measure", brief=logger.translated_msg("Measure simulated attacks done"), status="done"))
 
             logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
@@ -413,66 +439,54 @@ Translated Input:
         metrics_map,
         ignore_errors: bool,
     ) -> RedTeamingTestCase:
-        red_teaming_test_case = RedTeamingTestCase(
-            input=simulated_attack.input,
-            vulnerability=vulnerability,
-            vulnerability_type=vulnerability_type,
-            attackMethod=simulated_attack.attack_method,
-            riskCategory=getRiskCategory(vulnerability_type),
-        )
+        async with self.semaphore:
+            red_teaming_test_case = RedTeamingTestCase(
+                input=simulated_attack.input,
+                vulnerability=vulnerability,
+                vulnerability_type=vulnerability_type,
+                attackMethod=simulated_attack.attack_method,
+                riskCategory=getRiskCategory(vulnerability_type),
+            )
 
-        if simulated_attack.error is not None:
-            red_teaming_test_case.error = simulated_attack.error
+            if simulated_attack.error is not None:
+                red_teaming_test_case.error = simulated_attack.error
+                return red_teaming_test_case
+
+            metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
+            try:
+                actual_output = await model_callback(simulated_attack.input)
+                if actual_output == "":
+                    raise ValueError("The response is none")
+                red_teaming_test_case.actual_output = actual_output
+            except Exception:
+                if ignore_errors:
+                    red_teaming_test_case.error = (
+                        "Error generating output from target LLM"
+                    )
+                    return red_teaming_test_case
+                else:
+                    raise
+
+            test_case = LLMTestCase(
+                input=simulated_attack.input,
+                actual_output=actual_output,
+            )
+            try:
+                await metric.a_measure(test_case)
+                red_teaming_test_case.score = metric.score
+                reason = await self._a_translate_reason(metric.reason)
+                red_teaming_test_case.reason = reason
+            except:
+                if ignore_errors:
+                    red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability type"
+                    return red_teaming_test_case
+                else:
+                    raise
+
+            case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
+            if case_md is not None:
+                logger.action_log(actionLog(tool_id=self.asyncRandomId, tool_name="Case measure", stepId="2", log=case_md))
             return red_teaming_test_case
-
-        metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
-        try:
-            actual_output = await model_callback(simulated_attack.input)
-            red_teaming_test_case.actual_output = actual_output
-        except Exception:
-            if ignore_errors:
-                red_teaming_test_case.error = (
-                    "Error generating output from target LLM"
-                )
-                return red_teaming_test_case
-            else:
-                raise
-
-        test_case = LLMTestCase(
-            input=simulated_attack.input,
-            actual_output=actual_output,
-        )
-        try:
-            await metric.a_measure(test_case)
-            red_teaming_test_case.score = metric.score
-            if logger.lang == "zh_CN":
-                reason = await model_callback(f"""
-Instructions:
-You are a multilingual expert. 
-***
-IMPORTANT: 
-The translated text should maintain the original meaning and context of the input text.
-**
-                                            
-Translate the Input text to Chinese.
-Input:
-{metric.reason}
-Translated Input:
-""")
-            else:
-                reason = metric.reason
-            red_teaming_test_case.reason = reason
-        except:
-            if ignore_errors:
-                red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability type"
-                return red_teaming_test_case
-            else:
-                raise
-
-        case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
-        if case_md is not None:
-            logger.action_log(actionLog(tool_id=self.asyncRandomId, tool_name="Case measure", stepId="2", log=case_md))
-        return red_teaming_test_case
 
     async def _a_evaluate_vulnerability_type(
         self,
@@ -484,44 +498,27 @@ Translated Input:
     ) -> List[RedTeamingTestCase]:
 
         tasks = [
-            asyncio.create_task(
-                self._a_attack(
-                    model_callback=model_callback,
-                    simulated_attack=simulated_attack,
-                    vulnerability=simulated_attack.vulnerability,
-                    vulnerability_type=vulnerability_type,
-                    metrics_map=metrics_map,
-                    ignore_errors=ignore_errors,
-                )
+            self._a_attack(
+                model_callback=model_callback,
+                simulated_attack=simulated_attack,
+                vulnerability=simulated_attack.vulnerability,
+                vulnerability_type=vulnerability_type,
+                metrics_map=metrics_map,
+                ignore_errors=ignore_errors,
             )
             for simulated_attack in simulated_attacks
         ]
 
         total = len(tasks)
-        completed = 0
         red_teaming_test_cases = []
 
-        for coro in asyncio.as_completed(tasks):
-            result = await coro
-            completed += 1
+        for completed, coro in enumerate(asyncio.as_completed(tasks), 1):
             logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg(
                 "Measure {idx} / {num_simulated_attacks} simulated attacks", idx=completed, num_simulated_attacks=total
             ), status="doing"))
+            result = await coro
             red_teaming_test_cases.append(result)
 
-        # red_teaming_test_cases = await asyncio.gather(
-        #     *[
-        #         self._a_attack(
-        #             model_callback=model_callback,
-        #             simulated_attack=simulated_attack,
-        #             vulnerability=simulated_attack.vulnerability,
-        #             vulnerability_type=vulnerability_type,
-        #             metrics_map=metrics_map,
-        #             ignore_errors=ignore_errors,
-        #         )
-        #         for simulated_attack in simulated_attacks
-        #     ]
-        # )
         return red_teaming_test_cases
 
     ##################################################
@@ -1081,7 +1078,7 @@ Translated Input:
             "total": total,
             "jailbreak": total - total_passing, 
             "score": int(score * 65 + 35) if score > 0 else 0,
-            "errored": total_errored,
+            "errored": total_errored, 
             "results": results[:20],
             "attachment": attachment_path
         }
