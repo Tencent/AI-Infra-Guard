@@ -24,31 +24,31 @@ Fill in the Model Name, API Key, and Base URL, then click Save.
 
 ## Frequently Asked Questions
 
-1. **Port Conflict**
+1.**Port Conflict**
    ```bash
    # Modify the webserver port mapping
    ports:
      - "8080:8088"  # Use port 8080
    ```
 
-2. **Permission Issues**
+2.**Permission Issues**
    ```bash
    # Ensure the data directory has read/write permissions
    sudo chown -R $USER:$USER ./data
    ```
 
-3. **Service Startup Failure**
+3.**Service Startup Failure**
    ```bash
    # View detailed logs
    docker-compose logs webserver
    docker-compose logs agent
    ```
 
-4. **Stopping the Service**
+4.**Stopping the Service**
     ```bash
     # Stop the service
     docker-compose down
-    
+
     # Stop the service and remove data volumes (use with caution)
     docker-compose down -v
     ```
