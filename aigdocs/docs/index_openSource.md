@@ -3,11 +3,11 @@ comprehensive security view of your entire AI stack developed by Tencent Zhuque 
 
 ## Core Features
 
--   **AI Infra Scan**:
-Identifies known CVE vulnerabilities in web services of AI frameworks and components (e.g., Ollama,
+
+-**AI Infra Scan**:Identifies known CVE vulnerabilities in web services of AI frameworks and components (e.g., Ollama,
 ComfyUI) used across AI training, deployment, and application development through precise fingerprint matching.
 
--   **MCP Scan**:
+-**MCP Scan**:
 Leverages AI Agents to intelligently detect security threats in MCP Servers — including tool poisoning, code vulnerabilities, and data exfiltration risks — enabling MCP developers and marketplaces to complete security certification prior to release.
 
 -   **Jailbreak Evaluation**:
