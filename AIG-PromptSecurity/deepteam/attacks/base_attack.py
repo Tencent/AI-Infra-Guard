@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class BaseAttack(ABC):
     weight: int = 1
 
@@ -13,6 +12,5 @@ class BaseAttack(ABC):
         """Enhance the given attack asynchronously."""
         return self.enhance(attack, *args, **kwargs)  # Default to sync behavior
 
-    @abstractmethod
     def get_name(self) -> str:
-        raise NotImplementedError
+        return type(self).__name__
