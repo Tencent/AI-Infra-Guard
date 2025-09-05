@@ -1,10 +1,9 @@
-# MCP Security Scan
-
-A.I.G employs an AI Agent-driven solution for MCP Server detection, supporting both source code security audits and remote URL security scanning for MCP Servers.
+# MCP  Scan
+A.I.G leverages AI agents for comprehensive MCP Server security assessment, supporting both source code audits and remote URL scanning. 
 
 <img src="./assets/mcp-scan.png">
 
-AI Infra Guard can detect the following common MCP security risks, with continuous updates:
+A.I.G can detect the following common MCP security risks, with continuous updates:
 
 | Risk Name                       | Description                                                                                                                                                                             |
 |---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -19,28 +18,28 @@ AI Infra Guard can detect the following common MCP security risks, with continuo
 | Plaintext Key Storage           | The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.                                                     |
 
 ## a) MCP Service Source Code Scan
-A.I.G's MCP Server scanning capability is entirely driven by an Agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
 
 ### Add a Model API for MCP Detection
 
-![image-20250717174655353](./assets/mcp1.png)
+![image-20250717174655353](./assets/image-20250814173229996-en.png)
 
-![image-20250717174848903](./assets/mcp2.png)
+![image-20250717174848903](./assets/mcp2-en.png)
 
-![image-mcp3](./assets/mcp3.png)
+![image-mcp3](./assets/mcp3-en.png)
 
 ### Upload MCP Server Source Code Attachment
 
 1. Select "MCP Security Scan"
-2. Add an attachment to upload the MCP code
-![image-mcp4](./assets/mcp4.png)
+2. Upload the MCP source code as an attachment
+![image-mcp4](./assets/mcp4-en.png)
 3. Start Scan
 
 
 ### Scan an MCP Project from GitHub
 1. Select "MCP Security Scan"
-![image-mcp5](./assets/mcp5.png)
-2. Enter the GitHub address in the input box
+![image-mcp5](./assets/mcp5-en.png)
+2. Enter the GitHub repository URL in the input box
 3. Start Scan
 
 ## b) Remote MCP Service Scan
@@ -50,24 +49,22 @@ A.I.G's MCP Server scanning capability is entirely driven by an Agent. The accur
 3. Start Scan
 
 ### View Scan Status and Results
-![image-mcp6](./assets/mcp6.png)![image-mcp7](./assets/mcp7.png)
+![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
-## Recommended Large Model APIs
-1. qwen3 32B
-2. qwen3-coder
-3. deepseek v3
-4. claude-4-sonnet
-5. gpt-4.1
-6. gemini-2.5-pro
-7. hunyuan-turbos
+## Recommended Large Language Model APIs
+GLM4.5
+DeepSeek-V3.1
+Kimi-K2-Instruct
+Qwen3-Coder-480B 
+Hunyuan-Turbos
 
 ## MCP Plugins
 
-MCP scanning is based on an AI Agent that inspects the code. AIG abstracts MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
+MCP scanning is powered by on an AI agent that inspects the code. A.I.G. modularizes MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
 
-![image-20250814105330552](./assets/image-20250814105330552.png)
+![image-20250814105330552](./assets/image-20250814105330552-en.png)
 
-The MCP plugin template is shown below. The key field is `prompt_template`, which uses a prompt to inform the large model about the vulnerability type and how it should be scanned.
+The MCP plugin template is shown below. The key field is `prompt_template`, which defines the prompt to instruct the large language model about the vulnerability type and the scanning method.
 
 ```yaml
 info:

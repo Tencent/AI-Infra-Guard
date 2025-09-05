@@ -1,25 +1,25 @@
 # Getting Started
 
-This chapter will guide you on how to quickly deploy and use A.I.G.
+This section will guide you on how to quickly deploy and use A.I.G.
 
 ## One-Click Installation
 
-### Deploying with Docker
+### Deploy with Docker
 ```bash
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-After the installation is complete, you can access the A.I.G Web UI by visiting `http://localhost:8088` in your browser.
+Once the installation is complete, you can access the A.I.G Web UI by visiting `http://localhost:8088` in your browser.
 
-## Configure Model KEY
+## 🔑 LLM API Requirement
+The `MCP Scan` and `Jailbreak Evaluation` features require an LLM API key.
+**Configure your key in Settings** before using these services.
 
-A.I.G's `MCP Scan` and `Large Model Security Health Check` features require the use of a large model API. If you need to use these two functions, you can first configure the large model API KEY.
+![image-20250814173229996](./assets/image-20250814173229996-en.png)
 
-![image-20250814173229996](./assets/image-20250814173229996.png)
+Fill in the Model Name, API Key, and Base URL, then click Save.
 
-Configure the required Model Name, API Key, and Base URL, then click Save.
-
-![image-20250813113550192](./assets/image-20250813113550192.png)
+![image-20250813113550192](./assets/image-20250813113550192-en.png)
 
 
 ## Frequently Asked Questions
@@ -33,7 +33,7 @@ Configure the required Model Name, API Key, and Base URL, then click Save.
 
 2. **Permission Issues**
    ```bash
-   # Check data directory permissions
+   # Ensure the data directory has read/write permissions
    sudo chown -R $USER:$USER ./data
    ```
 
@@ -53,12 +53,13 @@ Configure the required Model Name, API Key, and Base URL, then click Save.
     docker-compose down -v
     ```
 
+## Updating the Deployment
 
-## Updates and Upgrades
+To upgrade to the latest version and clean up obsolete resources:
 
 ```bash
-# Rebuild and start
+# Rebuild container images and restart services
 docker-compose -f docker-compose.images.yml up -d --build
-# Clean up old images
+# Prune dangling Docker images (optional cleanup)
 docker image prune -f
 ```

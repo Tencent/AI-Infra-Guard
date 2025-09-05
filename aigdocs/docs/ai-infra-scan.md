@@ -1,51 +1,63 @@
-# AI Infrastructure Security Scan
+# AI Infra Scan
 
 ## Feature Overview
-
-The AI Infrastructure Security Scan module of AI Infra Guard is designed to detect known security vulnerabilities in web-based components within AI systems. By leveraging precise fingerprinting technology, this module can quickly identify security weaknesses in the AI infrastructure, helping security teams to promptly discover and remediate potential risks, thereby ensuring the secure and stable operation of AI systems.
+AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
+- **Comprehensive Coverage**: Identifies **36 mainstream AI frameworks**, covering **404 known vulnerabilities** (CVEs).  
 
-- **Comprehensive Coverage**: Supports the identification of 36 mainstream AI component frameworks, covering 404 known vulnerabilities.
-- **Flexible Deployment**: Supports single-target scanning, batch scanning, and one-click detection of local services.
-- **Intelligent Matching**: A fingerprinting system based on YAML rules, ensuring high accuracy.
-- **Extensibility**: Supports custom fingerprint rules and vulnerability templates to adapt to different environmental needs.
+- **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 
-## Quick Start Guide
+- **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 
-### Using the WebUI Interface
+- **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
 
-1. Click the "AI Infrastructure Scan" tab on the main interface.
-2. Enter the URL or IP address to be scanned in the target input area.
-   - Supports single-line or multi-line input (one target per line).
-   - Supports importing target lists from a TXT file.
-   - Entering an IP address will automatically scan all common open ports on that IP.
-3. Click the "Start Scan" button, and the system will automatically perform the security check.
+## Quick Start
 
-![image-20250717185311173](./assets/image-20250717185311173.png)
+### WebUI Interface Workflow
 
-![image-20250717185509861](./assets/image-20250717185509861.png)
+1. **Call Scan Service**
+   Select `AI Infra Scan` from the main page.
 
-## Fingerprint and Vulnerability Database Management
+2. **Configure Scan Targets**
+   In the target input field:
+   - Enter single/multiple URLs or IP addresses (one per line)
+   - Import target lists via `.txt` file upload
+   - ✨ *IP inputs trigger comprehensive port scanning*
+     (Automatically checks common open ports)
 
-### Built-in Fingerprint Database
+3. **Execute Security Assessment**
+   Click `Send Message` button to initiate automated vulnerability detection.
+   Results will populate in real-time upon completion.
 
-AI Infra Guard comes with a rich built-in library of AI component fingerprints, which can be viewed and managed through the "Plugin Management" page:
+![image-20250717185311173](./assets/image-20250717185311173-en.png)
 
-1. Click "Plugin Management" in the bottom-left corner to enter the fingerprint management page.
-2. On the fingerprint management page, you can view all built-in AI component fingerprint rules.
-3. Operations such as searching, adding, and modifying fingerprints are supported.
-By clicking on the plugin management page in the lower-left corner, you can see the built-in fingerprint and vulnerability databases of AIG.
+![image-20250717185509861](./assets/image-20250717185509861-en.png)
 
-![image-20250814173036377](./assets/image-20250814173036377.png)
+## Fingerprint & Vulnerability Database
 
-In plugin management, you can search for fingerprints, corresponding vulnerabilities, add new ones, or modify existing ones. After modification, subsequent scans will use the updated fingerprint and vulnerability databases.
+### Built-in Fingerprint Repository
+A.I.G includes **an extensive library of pre-configured AI component fingerprints**, accessible via the Plugin Management interface:
 
-![image-20250717185223588](./assets/image-20250717185223588.png)
+1. **Access plugin management**  
+   Navigate to `Plugin Management` (bottom-left of the main page)
+   
+2. **Review Built-in Resources**  
+   View all default fingerprint rules with search/filter capabilities
+   
+3. **Manage Fingerprints**  
+   Perform real-time operations:  
+   - 🔍 Search rules by name/description/contributor  
+   - ➕ Add custom fingerprints and associated vulnerabilities 
+   - ✏️ Edit existing fingerprints and associated vulnerabilities   
 
-## Supported AI Components and Vulnerability Coverage
+![image-20250814173036377](./assets/image-20250814173036377-en.png)
+▶️ Changes apply immediately – subsequent scans automatically utilize updated databases
+![image-20250717185223588](./assets/image-20250717185223588-en.png)
 
-AI Infra Guard provides comprehensive security detection for critical components in AI infrastructure. The currently supported components and the number of vulnerabilities are as follows:
+## Supported AI Components & Vulnerability Coverage
+
+A.I.G delivers comprehensive security coverage for critical AI infrastructure components. Current supported components and vulnerability statistics:
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level |
 | -------------------------- | ----------------------- | ------------------- | ---------- |
@@ -147,12 +159,16 @@ version:
 | `||`     | Logical OR                                | `body="gradio" || body="Gradio"`                             |
 | `()`     | Grouping to change precedence             | `(body="gradio" || body="Gradio") && header="X-Gradio-Version"` |
 
-## Best Practices
+## Operational Best Practices  
 
-1.  **Regular Scanning**: It is recommended to perform a full scan of the AI infrastructure weekly to promptly discover new vulnerabilities.
-2.  **Focus on High-Risk Components**: Components with a high number of vulnerabilities, such as gradio, langchain, and clickhouse, should be prioritized.
-3.  **Extend with Custom Rules**: For enterprise-specific AI components, add custom fingerprint rules to enhance detection capabilities.
-4.  **Integrate with CI/CD Pipelines**: Integrate security scanning into the continuous integration process of AI applications to achieve "shift-left" security.
-5.  **Track Vulnerability Remediation**: Establish a tracking mechanism for vulnerabilities found during scans to ensure timely fixes.
+1. **Schedule Regular Scans** : Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.  
 
-By using the AI Infrastructure Security Scan module, you can effectively identify potential security risks in your AI systems, providing a strong guarantee for building a secure and reliable AI infrastructure.
+2. **Prioritize High-Risk Components**: Focus scanning resources on components with high vulnerability densities, such as Gradio, LangChain, and ClickHouse.
+
+3. **Extend with Custom Rules**: Enhance detection capabilities for organization-specific AI components by adding custom fingerprint rules.
+
+4.**Integrate into CI/CD Pipelines **: Embed security scanning into the continuous integration (CI) process for AI applications to implement shift-left security.
+
+5.**Track Vulnerability Remediation**: Establish a tracking mechanism for vulnerabilities discovered during scans to ensure timely remediation.
+
+By leveraging the AI Infra Scan service, you can effectively identify potential security risks within your AI systems, providing robust assurance for building a secure and reliable AI infrastructure.

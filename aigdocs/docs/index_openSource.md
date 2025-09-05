@@ -1,19 +1,25 @@
-**A.I.G (AI-Infra-Guard)** is a comprehensive, intelligent, and user-friendly AI Red Teaming security testing platform developed by Tencent Zhuque Lab.
+**A.I.G (AI-Infra-Guard)** is an open-source AI Red Teaming platform designed to provide a
+comprehensive security view of your entire AI stack developed by Tencent Zhuque Lab.
 
 ## Core Features
 
-- **AI Infrastructure Vulnerability Scanning**: Detects known CVE vulnerabilities in the web services of various frameworks and components (e.g., Ollama, ComfyUI) used in AI training, deployment, and application building, through precise fingerprinting.
-- **MCP Server Security Detection**: Utilizes AI Agents to intelligently detect security threats in MCP Servers, such as tool poisoning and code vulnerabilities, helping MCP developers and app marketplaces complete security certification before release.
-- **Large Model Security Health Check**: Employs high-quality and diverse evaluation datasets to automatically assess the overall security of different large models when faced with malicious, adversarial, or deceptive prompt inputs. It exports bad cases for security alignment and guardrail reinforcement.
+- **AI Infra Scan**:  Identifies known CVE vulnerabilities in web services of AI frameworks and components (e.g., Ollama, ComfyUI) used across AI training, deployment, and application development through precise fingerprint matching.  
 
+- **MCP Scan**:  Leverages AI Agents to intelligently detect security threats in MCP Servers — including tool poisoning, code vulnerabilities, and data exfiltration risks — enabling MCP developers and marketplaces to complete security certification prior to release.  
 
-## Collaboration and Contribution
-We welcome teams both inside and outside the company to join us in building the industry's best AI Red Teaming security testing platform. A.I.G is now open-source on [Github](https://github.com/Tencent/AI-Infra-Guard) and supports rapid configuration of AI component fingerprints, CVE vulnerability fingerprints, jailbreak evaluation sets, and MCP detection plugins through its plugin management system.
+- **Jailbreak Evaluation**:  Uses high-quality, diverse datasets to automatically evaluate LLM resilience against malicious, adversarial, or deceptive prompts, exporting vulnerable cases to support model security alignment and guardrail reinforcement.
 
+## Contributing
+We invite security community and developers worldwide to join us in building the industry's leading AI red teaming security platform  together. 
+A.I.G is now open-source on [Github](https://github.com/Tencent/AI-Infra-Guard) .   Through its plugin system, it enables rapid configuration of:
+
+∙  AI component fingerprints
+∙  CVE vulnerability signatures
+∙  Jailbreak evaluation datasets
+∙  MCP security scanning plugins
 
 ## Contact Us
-
-We welcome feedback on platform bugs and contributions to enhance detection capabilities. Feel free to join the A.I.G communication group for discussions.
+Help us make A.I.G better.  Report bugs, suggest improvements, and contribute to enhancing its detection capabilities.  Join the community discussion group  to share your findings and collaborate with others.
 <p align="center">
     <img alt="A.I.G Logo" width="20%" src="./assets/wechatgroup.png">
 </p>
