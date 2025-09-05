@@ -45,6 +45,7 @@ Fill in the Model Name, API Key, and Base URL, then click Save.
    ```
 
 4.**Stopping the Service**
+
     ```bash
     # Stop the service
     docker-compose down
