@@ -145,10 +145,21 @@ class PromptLoader:
             
             # 处理不同JSON结构
             if isinstance(data, dict):
-                if 'data' in data:  # 类似原始格式
-                    items = data['data']
-                else:  # 整个字典就是数据
-                    items = [data]
+                prob_item = []
+                for k, v in data.items():
+                    if isinstance(v, list):
+                        if k in ['data', 'examples']:
+                            items = v
+                            break
+                        elif len(v) > len(prob_item):
+                            prob_item = v
+                else:
+                    # 如果没有匹配，找最长的列表
+                    if prob_item:
+                        items = prob_item
+                    # 整个字典就是数据
+                    else:  
+                        items = [data]
             elif isinstance(data, list):
                 items = data
             else:
