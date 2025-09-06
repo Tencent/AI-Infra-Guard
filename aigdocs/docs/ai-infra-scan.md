@@ -5,11 +5,8 @@ AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web serv
 
 ## Core Features
 - **Comprehensive Coverage**: Identifies **36 mainstream AI frameworks**, covering **404 known vulnerabilities** (CVEs).  
-
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
-
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
-
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
 
 ## Quick Start
@@ -23,9 +20,9 @@ AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web serv
 
 2.**Configure Scan Targets**
    In the target input field:
-      - Enter single/multiple URLs or IP addresses (one per line)
-    - Import target lists via `.txt` file upload
-    - ✨ *IP inputs trigger comprehensive port scanning*
+   - Enter single/multiple URLs or IP addresses (one per line)
+   - Import target lists via `.txt` file upload
+   - ✨ *IP inputs trigger comprehensive port scanning*
       (Automatically checks common open ports)
 
 3.**Execute Security Assessment**

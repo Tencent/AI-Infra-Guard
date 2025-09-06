@@ -45,13 +45,12 @@ Fill in the Model Name, API Key, and Base URL, then click Save.
    ```
 
 4.**Stopping the Service**
-
-    ```bash
-    # Stop the service
-    docker-compose down
-    # Stop the service and remove data volumes (use with caution)
-    docker-compose down -v
-    ```
+   ```bash
+   # Stop the service
+   docker-compose down
+   # Stop the service and remove data volumes (use with caution)
+   docker-compose down -v
+   ```
 
 ## Updating the Deployment
 
