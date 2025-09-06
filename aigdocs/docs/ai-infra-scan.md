@@ -39,13 +39,11 @@ AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web serv
 A.I.G includes **an extensive library of pre-configured AI component fingerprints**, accessible via the Plugin Management interface:
 
 
-1.**Access plugin management**
+1. **Access plugin management**
    Navigate to `Plugin Management` (bottom-left of the main page)
-
-2.**Review Built-in Resources**
+2. **Review Built-in Resources**
    View all default fingerprint rules with search/filter capabilities
-
-3.**Manage Fingerprints**
+3. **Manage Fingerprints**
    Perform real-time operations:
    - 🔍 Search rules by name/description/contributor
    - ➕ Add custom fingerprints and associated vulnerabilities
