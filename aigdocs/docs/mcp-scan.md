@@ -1,7 +1,7 @@
 # MCP  Scan
 A.I.G leverages AI agents for comprehensive MCP Server security assessment, supporting both source code audits and remote URL scanning. 
 
-<img src="./assets/mcp-scan.png">
+<img src="./assets/mcp-scan-en.png">
 
 A.I.G can detect the following common MCP security risks, with continuous updates:
 
@@ -52,11 +52,11 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
 ## Recommended Large Language Model APIs
-GLM4.5
-DeepSeek-V3.1
-Kimi-K2-Instruct
-Qwen3-Coder-480B 
-Hunyuan-Turbos
+- GLM4.5
+- DeepSeek-V3.1
+- Kimi-K2-Instruct
+- Qwen3-Coder-480B
+- Hunyuan-Turbos
 
 ## MCP Plugins
 
