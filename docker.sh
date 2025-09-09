@@ -57,7 +57,7 @@ install_docker() {
         success "Docker 已安装。版本信息: $(docker --version)"
     else
         info "未检测到 Docker，正在尝试安装..."
-        if ! curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun; then
+        if ! curl -fsSL https://get.docker.com | bash -s docker; then
             error_exit "Docker 安装失败。请检查网络或手动安装。"
         fi
 
@@ -144,6 +144,9 @@ deploy_application() {
     cd "${RELEASE_DIR}"
     info "当前目录: $(pwd)"
     info "正在使用 docker-compose 启动服务 (后台模式)..."
+    if ! docker-compose pull; the
+        error_exit "docker-compose 拉取镜像失败。请检查网络。"
+    fi
     if ! docker-compose up -d; then
         error_exit "docker-compose 启动失败。请使用 'docker-compose logs' 查看错误日志。"
     fi
