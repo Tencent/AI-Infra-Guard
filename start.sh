@@ -11,9 +11,9 @@ mkdir -p /ai-infra-guard/db /ai-infra-guard/uploads /ai-infra-guard/logs
 
 # 设置文件权限
 echo 设置文件权限...
-chmod 755 /ai-infra-guard/db
-chmod 755 /ai-infra-guard/uploads
-chmod 755 /ai-infra-guard/logs
+chmod 755 /ai-infra-guard/db || error_exit "Skip permission change on mounted volume"
+chmod 755 /ai-infra-guard/uploads || error_exit "Skip permission change on mounted volume"
+chmod 755 /ai-infra-guard/logs || error_exit "Skip permission change on mounted volume"
 
 # 创建日志文件
 echo 初始化日志文件...
