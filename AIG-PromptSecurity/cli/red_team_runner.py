@@ -89,7 +89,8 @@ class RedTeamRunner:
 
         # 运行红队测试
         red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode)
-        
+        red_teamer.max_concurrent = max(red_teamer.max_concurrent, simulator_model.max_concurrent, evaluate_model.max_concurrent)
+
         # 如果指定了自定义metric，则对所有vulnerability类型使用该metric
         metric_class_path = parse_metric_class(metric) if metric else None
         if metric_class_path:
@@ -124,6 +125,7 @@ class RedTeamRunner:
         try:
             all_risk_assessments = []
             for model in models:
+                red_teamer.max_concurrent = max(red_teamer.max_concurrent, model.max_concurrent)
                 model_callback = model.a_generate if async_mode else model.generate
                 red_teamer.red_team(
                     model_callback=model_callback,
