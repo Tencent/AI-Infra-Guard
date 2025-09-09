@@ -27,7 +27,7 @@
     <h3 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h3>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infrastructure vulnerability scanning, MCP Server risk detection, and LLM security assessments, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 ## Table of Contents
 - [✨ Features](#-features)
@@ -43,16 +43,16 @@
 <table>
   <tr>
     <td>
-      <h3>🔍 AI Infrastructure Vulnerability Scanning</h3>
+      <h3>🔍 AI Infra Scan</h3>
       <p>Precisely identifies <b>30+</b> AI framework components<br/>Covers <b>nearly 400</b> known CVE vulnerabilities<br/>Including Ollama, ComfyUI, vLLM, etc.</p>
     </td>
     <td>
-      <h3>🤖 MCP Server Security Detection</h3>
+      <h3>🤖 MCP Scan</h3>
       <p>Powered by AI Agent<br />Detects <b>9 major categories</b> of MCP security risks<br/>Supports <b>source code/remote URL</b> scanning</p>
     </td>
     <td>
-      <h3>⚡ LLM Security Assessment</h3>
-      <p>Rapidly assesses Prompt security risks<br/>Includes multiple curated jailbreak evaluation datasets<br/>Quickly generates LLM security assessment reports</p>
+      <h3>⚡ Jailbreak Evaluation</h3>
+      <p>Rapidly assesses Prompt security risks<br/>Includes multiple curated jailbreak evaluation datasets<br/>Quickly generates Jailbreak Evaluation reports</p>
     </td>
   </tr>
 </table>
@@ -63,13 +63,13 @@
 ### A.I.G Main Interface
 ![AIG Main Page](img/background-en.png)
 
-### AI Infrastructure Vulnerability Scanning
+### AI Infra Scan
 ![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
 
-### MCP Server Security Detection
+### MCP Scan
 ![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
 
-### LLM Security Assessment
+### Jailbreak Evaluation
 ![Comprehensively evaluate LLM security](img/model-security-en.png)
 
 ### Plugin Management
@@ -130,13 +130,13 @@ Once the service is running, you can access the A.I.G web interface at:
 
 ## 📝 Contribution Guide
 
-One of A.I.G's core strengths is its rich and highly configurable plugin system. We welcome community contributions of high-quality plugins and features.
+The extensible plugin framework​​ serves as A.I.G's architectural cornerstone, inviting community innovation through Plugin and Feature contributions.​
 
 ### Plugin Contribution Rules
 1.  **Fingerprint Rules**: Add new YAML fingerprint files to the `data/fingerprints/` directory.
-2.  **Vulnerability Rules**: Add new vulnerability detection rules to the `data/vuln/` directory.
-3.  **MCP Plugins**: Add new MCP security detection rules to the `data/mcp/` directory.
-4.  **Model Evaluation Datasets**: Add new model evaluation datasets to the `data/eval` directory.
+2.  **Vulnerability Rules**: Add new vulnerability scan rules to the `data/vuln/` directory.
+3.  **MCP Plugins**: Add new MCP security scan rules to the `data/mcp/` directory.
+4.  **Jailbreak Evaluation Datasets**: Add new Jailbreak evaluation datasets to the `data/eval` directory.
 
 Please refer to the existing rule formats, create new files, and submit them via a Pull Request.
 
@@ -148,7 +148,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 ## 🙏 Acknowledgements
 
-We thank the following security teams for their professional collaboration:
+We extend deep gratitude to these open-source developers:
 <table>
   <tr>
     <td width="33%"><img src="img/keen_lab_logo.svg" alt="Keen Lab"></td>
