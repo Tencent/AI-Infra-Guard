@@ -1,5 +1,13 @@
 # Prompt安全评测-说明文档（for A.I.G）
 
+> **⚠️ 重要声明：本项目是基于 **[deepteam](https://github.com/confident-ai/deepteam)** 的修改和扩展版本。**
+> 原项目由 [Confident AI](http://www.confident-ai.com) 开发，采用 Apache License 2.0 协议，本衍生项目同样遵循该协议。
+>
+> **主要扩展功能：**
+> - A.I.G项目深度适配: 针对 **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** 的生态进行了专项适配与集成，实现了开箱即用的无缝对接。
+> - OpenAPI 模型调用: 增加了基于 OpenAPI 规范的标准化模型调用接口，支持远程推理和模型管理。
+> - 中英双语日志: 重构了日志输出系统，支持根据配置动态切换中英文日志输出。
+
 ## a) 模型API评测
 
 ### 模型接口配置
