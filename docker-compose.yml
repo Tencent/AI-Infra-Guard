@@ -13,6 +13,10 @@ services:
       - UPLOAD_DIR=/ai-infra-guard/uploads
       - DB_PATH=/ai-infra-guard/db/tasks.db
       - TZ=Asia/Shanghai
+      # 新增：默认模型配置
+      - OPENAI_MODEL=gpt-3.5-turbo
+      - OPENAI_API_KEY=your_openai_api_key
+      - OPENAI_BASE_URL=https://api.openai.com/v1
     volumes:
       - ./data:/ai-infra-guard/data
       - ./db:/ai-infra-guard/db
@@ -34,6 +38,10 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - AIG_SERVER=webserver:8088
+      # 新增：Agent 也需要默认模型配置
+      - OPENAI_MODEL=gpt-3.5-turbo
+      - OPENAI_API_KEY=your_openai_api_key
+      - OPENAI_BASE_URL=https://api.openai.com/v1
     networks:
       - ai-infra-guard-network
     depends_on:

@@ -24,6 +24,10 @@ func main() {
 		gologger.Errorln("server is empty")
 		return
 	}
+
+	// 新增：初始化默认模型
+	initDefaultModels()
+
 	gologger.Infoln("connect server:", server)
 	serverUrl := fmt.Sprintf("ws://%s/api/v1/agents/ws", server)
 	for {
@@ -59,5 +63,24 @@ func main() {
 			defer x.Stop()
 		}()
 		gologger.Infoln("reconnect...")
+	}
+}
+
+// 新增：初始化默认模型
+func initDefaultModels() {
+	// 检查环境变量
+	model := os.Getenv("OPENAI_MODEL")
+	token := os.Getenv("OPENAI_API_KEY")
+	baseUrl := os.Getenv("OPENAI_BASE_URL")
+	
+	if model != "" && token != "" && baseUrl != "" {
+		gologger.Infoln("检测到默认模型配置，模型:", model)
+		// 设置全局环境变量，供 Agent 任务执行时使用
+		os.Setenv("DEFAULT_MODEL_NAME", model)
+		os.Setenv("DEFAULT_MODEL_TOKEN", token)
+		os.Setenv("DEFAULT_MODEL_BASE_URL", baseUrl)
+	} else {
+		gologger.Warnln("未检测到默认模型配置，Agent 可能无法正常工作")
+		gologger.Warnln("请设置环境变量：OPENAI_MODEL, OPENAI_API_KEY, OPENAI_BASE_URL")
 	}
 }
