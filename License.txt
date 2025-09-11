@@ -271,6 +271,8 @@ Open Source Software Licensed under the Apache License Version 2.0:
 1. openai-go
 Copyright 2024 OpenAI
 
+2. deepteam
+Copyright 2024 Confident AI Inc.
 
 Terms of the Apache License Version 2.0:
 --------------------------------------------------------------------
