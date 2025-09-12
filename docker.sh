@@ -144,7 +144,7 @@ deploy_application() {
     cd "${RELEASE_DIR}"
     info "当前目录: $(pwd)"
     info "正在使用 docker-compose 启动服务 (后台模式)..."
-    if ! docker-compose pull; the
+    if ! docker-compose pull; then
         error_exit "docker-compose 拉取镜像失败。请检查网络。"
     fi
     if ! docker-compose up -d; then
