@@ -5,25 +5,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	utils2 "github.com/Tencent/AI-Infra-Guard/common/utils"
-	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
-	"github.com/mark3labs/mcp-go/client/transport"
-	"github.com/mark3labs/mcp-go/mcp"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
 	"time"
 
-	"strconv"
+	utils2 "github.com/Tencent/AI-Infra-Guard/common/utils"
+	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
+	"github.com/mark3labs/mcp-go/client/transport"
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/remeh/sizedwaitgroup"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
-	"github.com/remeh/sizedwaitgroup"
 )
 
 type Scanner struct {
@@ -311,35 +311,32 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 
 	if p.Info.ID == "mcp_info_collection" || p.Info.ID == "code_info_collection" {
 		summaryPrompt := `
-根据上下文生成详细的项目信息收集报告，为后续安全检测提供准确的技术背景和风险评估基础。报告应包含完整的技术架构分析、功能模块清单和安全关注点识别
+Generate a detailed project information collection report based on the context, providing an accurate technical background and risk assessment foundation for subsequent security testing. The report should include a comprehensive analysis of the technical architecture, a functional module inventory, and identification of security concerns.
 
-## 输出格式
+# Output Format
 
-### 项目概览
-- 项目基本信息和定位
-- 核心功能和业务价值
-- 技术架构和实现方式
-- 用户群体和使用场景
+# Project Overview
+• Basic project information and positioning  
+• Core functionalities and business value  
+• Technical architecture and implementation methods  
+• User groups and usage scenarios  
+# Technical Analysis
+• Programming languages and technology stack  
+• Framework and dependency analysis  
+• Data processing and storage solutions  
+• Network communication and interface design  
+# Security Assessment
+• Permission requirements and access control  
+• Data processing security  
+• Network exposure analysis  
+• Potential security concerns  
+# Functional Inventory
+• List of MCP tools and resources  
+• Detailed description of each function  
+• Dependencies between functions  
+• Identification of security-sensitive operations  
 
-### 技术分析
-- 编程语言和技术栈
-- 框架和依赖库分析
-- 数据处理和存储方案
-- 网络通信和接口设计
-
-### 安全评估
-- 权限需求和访问控制
-- 数据处理安全性
-- 网络暴露面分析
-- 潜在安全关注点
-
-### 功能清单
-- MCP工具和资源列表
-- 每个功能的详细描述
-- 功能间的依赖关系
-- 安全敏感操作识别
-
-直接回复我markdown格式
+Reply directly in Markdown format.
 `
 		infoCollections, err := SummaryChat(ctx, agent, config, summaryPrompt)
 		if err != nil {
@@ -347,7 +344,7 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 		}
 		ret.Issues = []Issue{
 			{
-				Title:       "信息收集报告",
+				Title:       "Information Collection Report",
 				Description: infoCollections,
 			},
 		}
@@ -386,6 +383,9 @@ func runAIAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig
 func runDynamicAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginConfig) (*McpResult, error) {
 
 	tpl, err := template.New("template").Parse(p.PromptTemplate)
+	if err != nil {
+		return nil, err
+	}
 	var buf bytes.Buffer
 	var originalReports string
 
@@ -415,31 +415,31 @@ func runDynamicAnalysis(ctx context.Context, p *PluginConfig, config *McpPluginC
 
 	if p.Info.ID == "mcp_info_collection" {
 		summaryPrompt := `
-现在根据上下文生成详细的markdown格式项目信息收集报告，为后续安全检测提供精确的技术背景与风险评估基础。
-### 预期报告结构
-markdown格式报告需要包含以下关键信息(如有)：
-#### 项目概览
-基础信息与项目定位
-核心功能与业务价值
-技术架构与实现方案
-用户群体及使用场景
-### 技术分析
-编程语言与技术栈
-框架与依赖库分析
-数据处理存储方案
-网络通信接口设计
-#### 安全评估
-权限需求与访问控制
-数据处理安全性
-网络暴露面分析
-潜在安全隐患
-#### 功能清单
-MCP工具与资源列表
-各功能详细描述
-功能间依赖关系
-敏感操作识别点
+Now generate a detailed markdown-formatted project information collection report based on the context, to provide an accurate technical background and risk assessment foundation for subsequent security testing.  
+# Expected Report Structure
+The markdown report must include the following key information (if applicable):  
+# Project Overview
+• Basic Information and Project Positioning  
+• Core Functionality and Business Value  
+• Technical Architecture and Implementation Plan  
+• User Groups and Usage Scenarios  
+# Technical Analysis
+• Programming Languages and Tech Stack  
+• Framework and Dependency Library Analysis  
+• Data Processing and Storage Solutions  
+• Network Communication Interface Design  
+# Security Assessment
+• Permission Requirements and Access Control  
+• Data Processing Security  
+• Network Exposure Analysis  
+• Potential Security Risks  
+# Functional Inventory
+• MCP Tools and Resource List  
+• Detailed Description of Each Function  
+• Inter-functional Dependencies  
+• Sensitive Operation Identification Points  
 
-直接回复我markdown格式
+Reply directly in markdown format.
 `
 		infoCollection, err := SummaryChat(ctx, agent, config, summaryPrompt)
 		if err != nil {
@@ -447,7 +447,7 @@ MCP工具与资源列表
 		}
 		ret.Issues = []Issue{
 			{
-				Title:       "信息收集报告",
+				Title:       "Information Collection Report",
 				Description: infoCollection,
 			},
 		}
@@ -568,6 +568,68 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 	logger := s.logger
 	totalProcessing := len(s.PluginConfigs) + 2 // 信息收集和review插件
 	currentProcessing := 0
+	if s.language == "" {
+		s.language = "zh"
+	}
+
+	// 定义语言相关的文本
+	var texts struct {
+		// 模块名称
+		infoCollection, vulnReview string
+		// 日志消息
+		infoCollecting, infoCollectionComplete, infoCollectionFailed, infoCollectionEmpty                             string
+		pluginRunning, pluginRunSuccess, pluginRunFailed, issuesFound, pluginRunTime                                  string
+		vulnCount, vulnReviewStart, vulnReviewPluginLoadFailed, vulnReviewPluginRunFailed, vulnReviewPluginRunSuccess string
+		// 错误消息
+		infoCollectionPluginLoadFailed, pluginRunFailedError string
+	}
+
+	if s.language == "en" {
+		// 模块名称
+		texts.infoCollection = "Information Collection"
+		texts.vulnReview = "Vulnerability Review"
+		// 日志消息
+		texts.infoCollecting = "Information collecting..."
+		texts.infoCollectionComplete = "Information collection completed"
+		texts.infoCollectionFailed = "Information collection failed"
+		texts.infoCollectionEmpty = "Information collection failed, result is empty"
+		texts.pluginRunning = "Running plugin %s"
+		texts.pluginRunSuccess = "Plugin %s run successfully"
+		texts.pluginRunFailed = "Plugin %s run failed: %v"
+		texts.issuesFound = "Found %d issues"
+		texts.pluginRunTime = "Plugin %s run time: %v consumed tokens:%d"
+		texts.vulnCount = "Current vulnerability count:%d starting vulnerability review..."
+		texts.vulnReviewStart = "Starting vulnerability review..."
+		texts.vulnReviewPluginLoadFailed = "Vulnerability review plugin load failed: %v"
+		texts.vulnReviewPluginRunFailed = "Plugin %s run failed: %v"
+		texts.vulnReviewPluginRunSuccess = "Plugin %s run successfully, found %d issues"
+		// 错误消息
+		texts.infoCollectionPluginLoadFailed = "Information collection plugin load failed: %v"
+		texts.pluginRunFailedError = "Plugin run failed"
+	} else {
+		// 模块名称
+		texts.infoCollection = "信息收集"
+		texts.vulnReview = "漏洞评审"
+		// 日志消息
+		texts.infoCollecting = "信息收集中..."
+		texts.infoCollectionComplete = "信息收集完成"
+		texts.infoCollectionFailed = "信息收集失败"
+		texts.infoCollectionEmpty = "信息收集失败 结果为空"
+		texts.pluginRunning = "运行插件 %s"
+		texts.pluginRunSuccess = "插件 %s 运行成功"
+		texts.pluginRunFailed = "插件 %s 运行失败: %v"
+		texts.issuesFound = "共发现 %d 个问题"
+		texts.pluginRunTime = "插件 %s 运行时间: %v 消耗token:%d"
+		texts.vulnCount = "当前漏洞数量:%d 开始进行漏洞review..."
+		texts.vulnReviewStart = "开始进行漏洞review..."
+		texts.vulnReviewPluginLoadFailed = "漏洞评审插件加载失败: %v"
+		texts.vulnReviewPluginRunFailed = "插件 %s 运行失败: %v"
+		texts.vulnReviewPluginRunSuccess = "插件 %s 运行成功, 共发现 %d 个问题"
+		// 错误消息
+		texts.infoCollectionPluginLoadFailed = "信息收集插件加载失败: %v"
+		texts.pluginRunFailedError = "插件运行失败"
+	}
+
 	if s.callback != nil {
 		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
 	}
@@ -577,17 +639,17 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 	}
 	// 1. 运行信息收集插件
 	if s.callback != nil {
-		s.callback(McpModuleStart{ModuleName: "信息收集"})
+		s.callback(McpModuleStart{ModuleName: texts.infoCollection})
 	}
 	infoPlugin, err := s.getPluginByID("code_info_collection")
 	if err != nil {
-		return nil, fmt.Errorf("信息收集插件加载失败: %v", err)
+		return nil, fmt.Errorf(texts.infoCollectionPluginLoadFailed, err)
 	} else {
-		logger.Infoln("信息收集中...")
+		logger.Infoln(texts.infoCollecting)
 		newLogger := gologger.NewLogger()
 		tmpW := &tmpWriter{
 			Callback:   s.callback,
-			ModuleName: "信息收集",
+			ModuleName: texts.infoCollection,
 		}
 		newLogger.Logrus().SetOutput(tmpW)
 
@@ -600,21 +662,21 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		})
 		tmpW.Finally()
 		if err != nil {
-			gologger.WithError(err).Warningf("信息收集失败")
+			gologger.WithError(err).Warningf(texts.infoCollectionFailed)
 		}
 		var infoPrompt string
 		if result != nil && len(result.Issues) == 1 {
 			infoPrompt = result.Issues[0].Description
 			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
-			logger.Infoln("信息收集完成")
+			logger.Infoln(texts.infoCollectionComplete)
 		} else {
-			logger.Warningf("信息收集失败 结果为空")
+			logger.Warningf(texts.infoCollectionEmpty)
 		}
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
 			s.callback(McpCallbackReadMe{infoPrompt})
-			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
+			s.callback(McpModuleEnd{ModuleName: texts.infoCollection, Result: infoPrompt})
 		}
 	}
 
@@ -634,7 +696,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			return nil, nil
 		}
 
-		logger.Infof("运行插件 %s", plugin.Info.Name)
+		logger.Infof(texts.pluginRunning, plugin.Info.Name)
 		newLogger := gologger.NewLogger()
 		tmpW := &tmpWriter{
 			Callback:   s.callback,
@@ -666,12 +728,12 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 			lock.Unlock()
 		}
 		if err != nil || result == nil {
-			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
+			logger.Warningf(texts.pluginRunFailed, plugin.Info.Name, err)
 			return nil, err
 		}
-		logger.Infof("插件 %s 运行成功", plugin.Info.Name)
-		logger.Infof("共发现 %d 个问题", len(result.Issues))
-		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
+		logger.Infof(texts.pluginRunSuccess, plugin.Info.Name)
+		logger.Infof(texts.issuesFound, len(result.Issues))
+		logger.Infof(texts.pluginRunTime, plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		lock.Lock()
 		s.csvResult = append(s.csvResult, []string{"PluginId", plugin.Info.ID, "PluginName", plugin.Info.Name, "UseToken", strconv.Itoa(int(s.aiModel.GetTotalToken())), "time", time.Since(startTime).String()})
 		lock.Unlock()
@@ -694,7 +756,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 				defer wg.Done()
 				result, err := runPlugin(ctx, plugin)
 				if err != nil {
-					gologger.WithError(err).Errorln("插件运行失败")
+					gologger.WithError(err).Errorln(texts.pluginRunFailedError)
 				}
 				lock.Lock()
 				if result != nil {
@@ -710,7 +772,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		} else {
 			result, err := runPlugin(ctx, plugin)
 			if err != nil {
-				gologger.WithError(err).Errorln("插件运行失败")
+				gologger.WithError(err).Errorln(texts.pluginRunFailedError)
 			}
 			lock.Lock()
 			if result != nil {
@@ -731,15 +793,15 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
-			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
+			s.callback(McpModuleEnd{ModuleName: texts.vulnReview, Result: ""})
 		}
 	}()
 	if s.callback != nil {
-		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+		s.callback(McpModuleStart{ModuleName: texts.vulnReview})
 	}
 	if len(ret.Issues) > 0 {
 		results := ret.Issues
-		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results))
+		logger.Infof(texts.vulnCount, len(results))
 		origin := strings.Builder{}
 		for _, res := range results {
 			origin.WriteString("<result>")
@@ -754,7 +816,7 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 
 		reviewPlugin, err := s.getPluginByID("vuln_review")
 		if err != nil {
-			logger.Warningf("漏洞评审插件加载失败: %v", err)
+			logger.Warningf(texts.vulnReviewPluginLoadFailed, err)
 		} else {
 			ctx = context.WithValue(ctx, "original_reports", origin.String())
 			issues, err := s.runCheckCode(ctx, reviewPlugin, &McpPluginConfig{
@@ -765,9 +827,9 @@ func (s *Scanner) ScanCode(ctx context.Context, parallel bool) (*McpResult, erro
 				Logger:   logger,
 			})
 			if err != nil {
-				logger.Warningf("插件 %s 运行失败: %v", reviewPlugin.Info.Name, err)
+				logger.Warningf(texts.vulnReviewPluginRunFailed, reviewPlugin.Info.Name, err)
 			} else {
-				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues.Issues))
+				logger.Infof(texts.vulnReviewPluginRunSuccess, reviewPlugin.Info.Name, len(issues.Issues))
 				results = make([]Issue, 0) // 清空之前的结果
 				for _, res := range issues.Issues {
 					res2 := res
@@ -803,6 +865,67 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 	plugins := s.GetPluginsByCategory("dynamic")
 	totalProcessing := len(plugins) + 2
 	currentProcessing := 0
+	if s.language == "" {
+		s.language = "zh"
+	}
+
+	// 定义语言相关的文本
+	var texts struct {
+		// 模块名称
+		infoCollection, vulnReview string
+		// 日志消息
+		infoCollecting, infoCollectionComplete, infoCollectionFailed, infoCollectionEmpty                             string
+		pluginRunning, pluginRunSuccess, pluginRunFailed, issuesFound, pluginRunTime                                  string
+		vulnCount, vulnReviewStart, vulnReviewPluginLoadFailed, vulnReviewPluginRunFailed, vulnReviewPluginRunSuccess string
+		// 错误消息
+		infoCollectionPluginLoadFailed, pluginRunFailedError string
+	}
+
+	if s.language == "en" {
+		// 模块名称
+		texts.infoCollection = "Information Collection"
+		texts.vulnReview = "Vulnerability Review"
+		// 日志消息
+		texts.infoCollecting = "Information collecting..."
+		texts.infoCollectionComplete = "Information collection completed"
+		texts.infoCollectionFailed = "Information collection failed"
+		texts.infoCollectionEmpty = "Information collection failed, result is empty"
+		texts.pluginRunning = "Running plugin %s"
+		texts.pluginRunSuccess = "Plugin %s run successfully"
+		texts.pluginRunFailed = "Plugin %s run failed: %v"
+		texts.issuesFound = "Found %d issues"
+		texts.pluginRunTime = "Plugin %s run time: %v consumed tokens:%d"
+		texts.vulnCount = "Current vulnerability count:%d starting vulnerability review..."
+		texts.vulnReviewStart = "Starting vulnerability review..."
+		texts.vulnReviewPluginLoadFailed = "Vulnerability review plugin load failed: %v"
+		texts.vulnReviewPluginRunFailed = "Plugin %s run failed: %v"
+		texts.vulnReviewPluginRunSuccess = "Plugin %s run successfully, found %d issues"
+		// 错误消息
+		texts.infoCollectionPluginLoadFailed = "Information collection plugin load failed: %v"
+		texts.pluginRunFailedError = "Plugin run failed"
+	} else {
+		// 模块名称
+		texts.infoCollection = "信息收集"
+		texts.vulnReview = "漏洞评审"
+		// 日志消息
+		texts.infoCollecting = "信息收集中..."
+		texts.infoCollectionComplete = "信息收集完成"
+		texts.infoCollectionFailed = "信息收集失败"
+		texts.infoCollectionEmpty = "信息收集失败 结果为空"
+		texts.pluginRunning = "运行插件 %s"
+		texts.pluginRunSuccess = "插件 %s 运行成功"
+		texts.pluginRunFailed = "插件 %s 运行失败: %v"
+		texts.issuesFound = "共发现 %d 个问题"
+		texts.pluginRunTime = "插件 %s 运行时间: %v 消耗token:%d"
+		texts.vulnCount = "当前漏洞数量:%d 开始进行漏洞review..."
+		texts.vulnReviewStart = "开始进行漏洞review..."
+		texts.vulnReviewPluginLoadFailed = "漏洞评审插件加载失败: %v"
+		texts.vulnReviewPluginRunFailed = "插件 %s 运行失败: %v"
+		texts.vulnReviewPluginRunSuccess = "插件 %s 运行成功, 共发现 %d 个问题"
+		// 错误消息
+		texts.infoCollectionPluginLoadFailed = "信息收集插件加载失败: %v"
+		texts.pluginRunFailedError = "插件运行失败"
+	}
 
 	mcpStructure := fmt.Sprintf("%s\nserver info:%s(%s)\nmcp protocol version:%s\n", r.Instructions, r.ServerInfo.Name, r.ServerInfo.Version, r.ProtocolVersion)
 	for _, tool := range tools.Tools {
@@ -814,45 +937,40 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		s.callback(McpCallbackProcessing{Current: 5, Total: 100})
 	}
 	if s.callback != nil {
-		s.callback(McpModuleStart{ModuleName: "信息收集"})
+		s.callback(McpModuleStart{ModuleName: texts.infoCollection})
 	}
+	s.logger.Infoln(texts.infoCollecting)
+	newLogger := gologger.NewLogger()
+	tmpW := &tmpWriter{
+		Callback:   s.callback,
+		ModuleName: texts.infoCollection,
+	}
+	newLogger.Logrus().SetOutput(tmpW)
 
+	issues, err := runDynamicAnalysis(ctx, p, &McpPluginConfig{
+		Client:       s.client,
+		AIModel:      s.aiModel,
+		Language:     s.language,
+		Logger:       newLogger,
+		McpStructure: mcpStructure,
+	})
 	if err != nil {
-		s.logger.Warningf("信息收集插件加载失败: %v", err)
+		s.logger.Warningf(texts.infoCollectionFailed, err)
+	}
+	var infoPrompt string
+	if issues != nil && len(issues.Issues) == 1 {
+		infoPrompt = issues.Issues[0].Description
+		ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
+		s.logger.Infoln(texts.infoCollectionComplete)
 	} else {
-		s.logger.Infoln("信息收集中...")
-		newLogger := gologger.NewLogger()
-		tmpW := &tmpWriter{
-			Callback:   s.callback,
-			ModuleName: "信息收集",
-		}
-		newLogger.Logrus().SetOutput(tmpW)
+		s.logger.Warningf(texts.infoCollectionEmpty)
+	}
+	if s.callback != nil {
+		currentProcessing += 1
+		s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
+		s.callback(McpCallbackReadMe{infoPrompt})
+		s.callback(McpModuleEnd{ModuleName: texts.infoCollection, Result: infoPrompt})
 
-		issues, err := runDynamicAnalysis(ctx, p, &McpPluginConfig{
-			Client:       s.client,
-			AIModel:      s.aiModel,
-			Language:     s.language,
-			Logger:       newLogger,
-			McpStructure: mcpStructure,
-		})
-		if err != nil {
-			s.logger.Warningf("信息收集失败: %v", err)
-		}
-		var infoPrompt string
-		if issues != nil && len(issues.Issues) == 1 {
-			infoPrompt = issues.Issues[0].Description
-			ctx = context.WithValue(ctx, "collection_prompt", infoPrompt)
-			s.logger.Infoln("信息收集完成")
-		} else {
-			s.logger.Warningf("信息收集失败 结果为空")
-		}
-		if s.callback != nil {
-			currentProcessing += 1
-			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
-			s.callback(McpCallbackReadMe{infoPrompt})
-			s.callback(McpModuleEnd{ModuleName: "信息收集", Result: infoPrompt})
-
-		}
 	}
 	lock := sync.Mutex{}
 	logger := s.logger
@@ -862,11 +980,11 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			return nil, ctx.Err()
 		default:
 		}
-		logger.Infof("运行插件 %s", plugin.Info.Name)
+		logger.Infof(texts.pluginRunning, plugin.Info.Name)
 		newLogger := gologger.NewLogger()
 		tmpW := &tmpWriter{
 			Callback:   s.callback,
-			ModuleName: "信息收集",
+			ModuleName: texts.infoCollection,
 		}
 		newLogger.Logrus().SetOutput(tmpW)
 		startTime := time.Now()
@@ -892,14 +1010,14 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 			lock.Unlock()
 		}
 		if issues == nil {
-			return nil, fmt.Errorf("插件 %s 运行失败", plugin.Info.Name)
+			return nil, fmt.Errorf(texts.pluginRunFailed, plugin.Info.Name, "")
 		}
 		if err != nil {
-			logger.Warningf("插件 %s 运行失败: %v", plugin.Info.Name, err)
+			logger.Warningf(texts.pluginRunFailed, plugin.Info.Name, err)
 		}
-		logger.Infof("插件 %s 运行成功", plugin.Info.Name)
-		logger.Infof("共发现 %d 个问题", len(issues.Issues))
-		logger.Infof("插件 %s 运行时间: %v 消耗token:%d", plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
+		logger.Infof(texts.pluginRunSuccess, plugin.Info.Name)
+		logger.Infof(texts.issuesFound, len(issues.Issues))
+		logger.Infof(texts.pluginRunTime, plugin.Info.Name, time.Since(startTime).String(), s.aiModel.GetTotalToken())
 		// 转换插件结果
 		for _, res := range issues.Issues {
 			res2 := res
@@ -925,7 +1043,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 				defer wg.Done()
 				result, err := runPlugin(ctx, plugin)
 				if err != nil {
-					gologger.WithError(err).Errorln("插件运行失败")
+					gologger.WithError(err).Errorln(texts.pluginRunFailedError)
 				}
 				lock.Lock()
 				results.Issues = append(results.Issues, result.Issues...)
@@ -935,7 +1053,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		} else {
 			result, err := runPlugin(ctx, plugin)
 			if err != nil {
-				gologger.WithError(err).Errorln("插件运行失败")
+				gologger.WithError(err).Errorln(texts.pluginRunFailedError)
 			}
 			lock.Lock()
 			results.Issues = append(results.Issues, result.Issues...)
@@ -950,15 +1068,15 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		if s.callback != nil {
 			currentProcessing += 1
 			s.callback(McpCallbackProcessing{Current: currentProcessing, Total: totalProcessing})
-			s.callback(McpModuleEnd{ModuleName: "漏洞评审", Result: ""})
+			s.callback(McpModuleEnd{ModuleName: texts.vulnReview, Result: ""})
 		}
 	}()
 	if s.callback != nil {
-		s.callback(McpModuleStart{ModuleName: "漏洞评审"})
+		s.callback(McpModuleStart{ModuleName: texts.vulnReview})
 	}
 
 	if len(results.Issues) > 0 {
-		logger.Infof("当前漏洞数量:%d 开始进行漏洞review...", len(results.Issues))
+		logger.Infof(texts.vulnCount, len(results.Issues))
 		origin := strings.Builder{}
 		for _, res := range results.Issues {
 			origin.WriteString("<result>")
@@ -973,7 +1091,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 		ctx = context.WithValue(ctx, "original_reports", origin.String())
 		reviewPlugin, err := s.getPluginByID("vuln_review")
 		if err != nil {
-			logger.Warningf("漏洞评审插件加载失败: %v", err)
+			logger.Warningf(texts.vulnReviewPluginLoadFailed, err)
 		} else {
 			issues, err := runDynamicAnalysis(ctx, reviewPlugin, &McpPluginConfig{
 				Client:       s.client,
@@ -983,9 +1101,9 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 				McpStructure: mcpStructure,
 			})
 			if err != nil {
-				logger.Warningf("插件 %s 运行失败: %v", reviewPlugin.Info.Name, err)
+				logger.Warningf(texts.vulnReviewPluginRunFailed, reviewPlugin.Info.Name, err)
 			} else {
-				logger.Infof("插件 %s 运行成功, 共发现 %d 个问题", reviewPlugin.Info.Name, len(issues.Issues))
+				logger.Infof(texts.vulnReviewPluginRunSuccess, reviewPlugin.Info.Name, len(issues.Issues))
 				for _, res := range issues.Issues {
 					if s.callback != nil {
 						s.callback(res)
@@ -997,6 +1115,7 @@ func (s *Scanner) ScanLink(ctx context.Context, r *mcp.InitializeResult, paralle
 	}
 	return &results, nil
 }
+
 func (s *Scanner) getPluginByID(id string) (*PluginConfig, error) {
 	for _, plugin := range s.PluginConfigs {
 		if plugin.Info.ID == id {

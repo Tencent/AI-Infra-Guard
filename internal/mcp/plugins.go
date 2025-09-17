@@ -3,14 +3,15 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp/utils"
 	"github.com/mark3labs/mcp-go/client"
 	"gopkg.in/yaml.v3"
-	"os"
-	"regexp"
-	"strings"
 )
 
 type PluginConfig struct {
@@ -196,38 +197,39 @@ func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig
 
 func SummaryReport(ctx context.Context, agent utils.Agent, config *McpPluginConfig) (string, error) {
 	prompt := `
-你已对目标系统执行了完整的漏洞扫描流程，但最终未发现任何可报告的漏洞。现在需要生成一份简要的技术分析报告说明原因,按照以下结构输出即可：
-# 任务角色
-网络安全分析报告撰写专家
+You have performed a complete vulnerability scanning process on the target system but ultimately found no reportable vulnerabilities. Now, a brief technical analysis report explaining the reasons needs to be generated. Please output according to the following structure:
 
-# 核心要求
-1. 结构化解释未发现漏洞的技术原因
-2. 涵盖潜在可能性分析
-3. 提出后续行动建议
-4. 使用专业安全术语但避免复杂术语堆砌
+# Task Role  
+Cybersecurity Analysis Report Writing Expert  
 
-# 报告框架（Markdown格式）
-- 重新表述扫描的核心目标
-- 简述扫描过程和覆盖的关键组件（文件/接口/代码范围）
-- 未发现漏洞的原因
-	- 详细说明未发现漏洞的原因
-	- 说明可能的原因
-	- 说明潜在的漏洞发现机会
+# Core Requirements  
+1. Provide a structured explanation of the technical reasons why no vulnerabilities were found.  
+2. Include an analysis of potential possibilities.  
+3. Propose follow-up action recommendations.  
+4. Use professional security terminology but avoid excessive jargon.  
 
-**Return Format**
-All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>). 
+# Report Framework (Markdown Format)  
+- Rephrase the core objective of the scan.  
+- Briefly describe the scanning process and the key components covered (files/interfaces/code scope).  
+- Reasons why no vulnerabilities were found:  
+  - Provide a detailed explanation of why no vulnerabilities were detected.  
+  - Explain possible reasons.  
+  - Discuss potential opportunities for vulnerability discovery.  
+
+**Return Format**  
+All valid results must be wrapped in <arg> tags (e.g., <arg>[RESULTS]</arg>).  
 If no vulnerabilities are found, return <arg></arg>.  
-Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.
+Multiple <result> entries are supported, but only vulnerabilities with severity levels critical, high, or medium should be included.  
 
-**EXAMPLE**
-<arg>
-	<result>
-	<title>未发现[漏洞类型]</title>
-	<desc>技术分析报告内容,markdown格式</desc>
-	</result>
-</arg>
+**EXAMPLE**  
+<arg>  
+	<result>  
+	<title>No [Vulnerability Type] Found</title>  
+	<desc>Technical analysis report content in Markdown format</desc>  
+	</result>  
+</arg>  
 
-若无，则返回
+If none, return:  
 <arg></arg>
 `
 	return SummaryChat(ctx, agent, config, prompt)

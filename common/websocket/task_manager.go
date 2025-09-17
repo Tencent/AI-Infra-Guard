@@ -869,6 +869,40 @@ func (tm *TaskManager) SearchUserTasksSimple(username string, searchParams datab
 func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	ret := ""
 	var ModelName = ""
+	language := req.CountryIsoCode
+	if language == "" {
+		language = "zh"
+	}
+
+	// 定义语言相关的文本
+	var texts struct {
+		// 任务类型标题
+		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, otherTask string
+		// 其他文本
+		model, prompt, github, sse string
+	}
+
+	if language == "en" {
+		texts.aiInfraScan = "AI Infra Scan - "
+		texts.mcpScan = "MCP Scan - "
+		texts.modelJailbreak = "LLM Jailbreaking - "
+		texts.modelRedteamReport = "Jailbreak Evaluation - "
+		texts.otherTask = "Other Task - "
+		texts.model = "Model:"
+		texts.prompt = "Prompt:"
+		texts.github = "Github:"
+		texts.sse = "SSE:"
+	} else {
+		texts.aiInfraScan = "AI基础设施扫描 - "
+		texts.mcpScan = "MCP扫描 - "
+		texts.modelJailbreak = "一键越狱任务 - "
+		texts.modelRedteamReport = "大模型安全体检 - "
+		texts.otherTask = "其他任务 - "
+		texts.model = "模型:"
+		texts.prompt = "prompt:"
+		texts.github = "Github:"
+		texts.sse = "SSE:"
+	}
 	if modelID, exists := req.Params["model_id"]; exists {
 		switch v := modelID.(type) {
 		case string:
@@ -897,7 +931,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	// 4. 一键越狱：模型名+prompt
 	switch req.Task {
 	case agent.TaskTypeAIInfraScan:
-		ret = "AI基础设施扫描 - "
+		ret = texts.aiInfraScan
 		if len(req.Attachments) > 0 && req.Attachments[0] != "" {
 			ret += tm.extractFileNameFromURL(req.Attachments[0])
 		}
@@ -905,21 +939,21 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 			ret += req.Content
 		}
 	case agent.TaskTypeMcpScan:
-		ret = "MCP扫描 - "
+		ret = texts.mcpScan
 		if len(req.Attachments) > 0 && req.Attachments[0] != "" {
 			// 直接调用现有的extractFileNameFromURL方法
 			ret += tm.extractFileNameFromURL(req.Attachments[0])
 		} else if strings.Contains(req.Content, "github.com") {
-			ret += "Github:" + tm.extractFileNameFromURL(req.Content)
+			ret += texts.github + tm.extractFileNameFromURL(req.Content)
 		} else {
-			ret += "SSE:" + req.Content
+			ret += texts.sse + req.Content
 		}
 	case agent.TaskTypeModelJailbreak:
-		ret = "一键越狱任务 - " + fmt.Sprintf("模型:%s, prompt:%s", ModelName, req.Content)
+		ret = texts.modelJailbreak + fmt.Sprintf("%s%s, %s%s", texts.model, ModelName, texts.prompt, req.Content)
 	case agent.TaskTypeModelRedteamReport:
-		ret = "大模型安全体检 - " + ModelName
+		ret = texts.modelRedteamReport + ModelName
 	default:
-		ret = "其他任务 - " + req.Content
+		ret = texts.otherTask + req.Content
 	}
 	// 如果content为空，尝试从附件中提取第一个URL的文件名作为title
 	return ret
