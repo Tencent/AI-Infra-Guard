@@ -57,6 +57,8 @@ class OpenaiAlikeModel(DeepEvalBaseLLM):
                 content = response.choices[0].message.content
                 if not isinstance(content, str):
                     raise ValueError("The response is not a string")
+                elif not content:
+                    raise ValueError("The response is empty")
                 return content
             except Exception as e:
                 wait_time = self.base_wait_seconds * (2 ** i)
@@ -82,6 +84,8 @@ class OpenaiAlikeModel(DeepEvalBaseLLM):
                     content = response.choices[0].message.content
                     if not isinstance(content, str):
                         raise ValueError("The response is not a string")
+                    elif not content:
+                        raise ValueError("The response is empty")
                     return content
                 except Exception as e:
                     wait_time = self.base_wait_seconds * (2 ** i)

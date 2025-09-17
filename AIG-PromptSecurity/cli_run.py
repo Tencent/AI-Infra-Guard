@@ -38,15 +38,15 @@ def main():
     
     # 红队测试相关参数
     parser.add_argument("--base_url", type=str, action='append', help="Base URL for ChatOpenAI")
-    parser.add_argument("--api_key", type=str, action='append', help="API Key for ChatOpenAI")
+    parser.add_argument("--api_key", type=str, nargs=1, action='append', help="API Key for ChatOpenAI")
     parser.add_argument("--model", type=str, action='append', help="Model name for ChatOpenAI")
     parser.add_argument("--max_concurrent", type=int, action='append', help="Max concurrent")
     parser.add_argument("--sim_base_url", type=str, help="Base URL for a simulator model")
-    parser.add_argument("--sim_api_key", type=str, help="API Key for a simulator model")
+    parser.add_argument("--sim_api_key", type=str, nargs=1, help="API Key for a simulator model")
     parser.add_argument("--simulator_model", type=str, help="Model name for a simulator model")
     parser.add_argument("--sim_max_concurrent", type=int, default=10, help="Max concurrent")
     parser.add_argument("--eval_base_url", type=str, help="Base URL for a evaluate model")
-    parser.add_argument("--eval_api_key", type=str, help="API Key for a evaluate model")
+    parser.add_argument("--eval_api_key", type=str, nargs=1, help="API Key for a evaluate model")
     parser.add_argument("--evaluate_model", type=str, help="Model name for a evaluate model")
     parser.add_argument("--eval_max_concurrent", type=int, default=10, help="Max concurrent")
 
