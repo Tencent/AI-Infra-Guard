@@ -5,10 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 )
 
 // DownloadFile 下载文件
