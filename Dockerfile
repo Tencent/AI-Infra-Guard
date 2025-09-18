@@ -15,7 +15,7 @@ COPY . .
 RUN go mod download
 
 # 构建应用
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o ai-infra-guard ./cmd/cli/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o ai-infra-guard ./cmd/cli/main.go
 
 # 第二阶段：运行阶段
 FROM alpine:3.19
