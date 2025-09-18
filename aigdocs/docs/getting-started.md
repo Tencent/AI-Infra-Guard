@@ -2,14 +2,46 @@
 
 This section will guide you on how to quickly deploy and use A.I.G.
 
-## One-Click Installation
+**System Requirements**
 
-### Deploy with Docker
+- Docker 20.10 or higher
+- At least 4GB of available RAM
+- At least 10GB of available disk space
+
+
+**1. One-Click Install Script （Recommended）**
 ```bash
+# This method will automatically install Docker and launch A.I.G with one command  
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**2. Run with pre-built images (Recommended)**
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# This method pulls pre-built images from Docker Hub for a faster start
 docker-compose -f docker-compose.images.yml up -d
 ```
 
+**3. Build from source and run**
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# This method builds a Docker image from local source code and starts the service
+docker-compose up -d
+```
+
 Once the installation is complete, you can access the A.I.G Web UI by visiting `http://localhost:8088` in your browser.
+
+**Directory Structure**
+
+| Directory/File      | Description                                                 | Mount Path                      |
+|---------------------|-------------------------------------------------------------|---------------------------------|
+| `uploads/`          | Uploads directory                                           | `/ai-infra-guard/uploads`       |
+| `db/`               | Database file directory                                     | `/ai-infra-guard/db`            |
+| `data/`             | Knowledge base data directory (fingerprints, vulnerabilities) | `/ai-infra-guard/data`          |
+| `logs/`             | Application log directory                                   | `/ai-infra-guard/logs`          |
+
 
 ## 🔑 LLM API Requirement
 The `MCP Scan` and `Jailbreak Evaluation` features require an LLM API key.
