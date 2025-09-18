@@ -70,6 +70,10 @@ func RunWebServer(options *options.Options) {
 	sseManager := NewSSEManager()
 
 	taskManager := NewTaskManager(agentManager, taskStore, modelStore, fileConfig, sseManager)
+	err = taskManager.taskStore.ResetRunningTasks()
+	if err != nil {
+		log.Fatalf("重置运行中的任务失败: %v", err)
+	}
 
 	// 将 TaskManager 注入到 AgentManager
 	agentManager.SetTaskManager(taskManager)

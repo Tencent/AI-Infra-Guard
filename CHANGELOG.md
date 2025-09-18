@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4] - 2025-09-18
+- 优化:Docker相关:支持Apple ARM架构部署，Agent自动重启,WEB重启后重置任务状态
+- 优化:大模型体检部分功能
+- 优化:国际化支持
+- 优化:MCP扫描 分数计算
+
 ## [v3.3] - 2025-09-03
 - 新增docker部署一键脚本 For Linux
 - 修复磁盘读写较慢情况下SSE连接失败问题

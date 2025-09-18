@@ -25,7 +25,7 @@ type Session struct {
 	Content        string         `gorm:"column:content;not null" json:"content"`              // 任务内容
 	Params         datatypes.JSON `gorm:"column:params" json:"params"`                         // 任务参数
 	Attachments    datatypes.JSON `gorm:"column:attachments" json:"attachments"`               // 附件
-	Status         string         `gorm:"column:status;not null;default:'todo'" json:"status"` // todo, doing, done
+	Status         string         `gorm:"column:status;not null;default:'todo'" json:"status"` // todo, doing, done, error
 	AssignedAgent  string         `gorm:"column:assigned_agent" json:"assigned_agent"`         // 分配的Agent
 	CountryIsoCode string         `gorm:"column:contry_iso_code" json:"countryIsoCode"`        // 标识语言
 	StartedAt      *int64         `gorm:"column:started_at" json:"started_at"`                 // 时间戳毫秒级
@@ -73,6 +73,14 @@ func (s *TaskStore) CreateUser(user *User) error {
 	user.CreatedAt = now
 	user.UpdatedAt = now
 	return s.db.Create(user).Error
+}
+
+// ResetRunningTasks 重置运行中的任务为失败
+func (s *TaskStore) ResetRunningTasks() error {
+	return s.db.Model(&Session{}).Where("status = 'doing' or status = 'failed'").Updates(map[string]interface{}{
+		"status":     "error",
+		"updated_at": time.Now().UnixMilli(),
+	}).Error
 }
 
 // GetUser 获取用户信息

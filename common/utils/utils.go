@@ -532,3 +532,13 @@ func IsHostname(hostname string) bool {
 	}
 	return true
 }
+
+// StrInSlice checks if a string is in a slice of strings.
+func StrInSlice(str string, list []string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

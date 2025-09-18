@@ -199,10 +199,10 @@ func (a *Agent) handleReceive() {
 			if err != nil {
 				gologger.WithError(err).Errorln("Failed to read message")
 				a.conn = nil
-				break
+				return
 			}
 			gologger.Debugln("recv", string(message))
-			if err := a.processMessage(message); err != nil {
+			if err = a.processMessage(message); err != nil {
 				gologger.WithError(err).Errorln("Failed to send message")
 			}
 		}

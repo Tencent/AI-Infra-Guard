@@ -170,7 +170,8 @@ func (r *Runner) initFingerprints() error {
 		gologger.Fatalf("没有指定指纹模板")
 	}
 	r.fpEngine = preload.New(r.hp, fps)
-	text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	//text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	text := fmt.Sprintf("Loading fingerprints:%d", len(fps)+len(preload.CollectedFpReqs()))
 	gologger.Infoln(text)
 	if r.Options.Callback != nil {
 		r.Options.Callback(Step01{Text: text})
@@ -703,7 +704,8 @@ func (r *Runner) initVulnerabilityDB() error {
 		gologger.Fatalf("无法初始化漏洞库:%s", err)
 	}
 	r.advEngine = engine
-	text := fmt.Sprintf("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	// Load vulnerability version database
+	text := fmt.Sprintf("Loading vulnerability database, count:%d", r.advEngine.GetCount())
 	gologger.Infoln(text)
 	if r.Options.Callback != nil {
 		r.Options.Callback(Step01{Text: text})
