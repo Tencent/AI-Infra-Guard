@@ -279,7 +279,7 @@ func (a *AutoGPT) Run(ctx context.Context, aiModel *models.OpenAI, logger *golog
 			msg += chunk
 		}
 		if msg == "" {
-			return "", fmt.Errorf("ai empty response")
+			return "", fmt.Errorf("AI output is empty. Please check for model issues or context limit exceeded")
 		}
 		logger.Print("\n")
 		// Add response to history
