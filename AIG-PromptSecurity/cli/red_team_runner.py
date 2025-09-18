@@ -54,7 +54,7 @@ class RedTeamRunner:
                     logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load inputs: {vs_name}", vs_name=vs_name), status="completed"))
                 vulnerabilities.extend(vs)
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
             logger.critical_issue(content=logger.translated_msg("Load scenarios failed"))
             return
        
@@ -138,7 +138,7 @@ class RedTeamRunner:
                 )
                 all_risk_assessments.append((model.get_model_name(), red_teamer.risk_assessment))
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
             logger.critical_issue(content=logger.translated_msg("An error occurred during {model_name} assessment. Please try again later.", model_name=model.get_model_name()))
             return
 
@@ -166,7 +166,7 @@ class RedTeamRunner:
             combined_df = pd.concat(df_list, ignore_index=True)
             combined_df.to_csv(attachment_path, index=False)
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
             logger.critical_issue(content=logger.translated_msg("An error occurred during report generated. Please try again later."))
             return
 
