@@ -179,6 +179,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 - ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
 <br />
+
 ## 🙏 Acknowledgements
 
 Thanks to all the developers who have contributed to the A.I.G project:
