@@ -45,6 +45,8 @@
 
 **A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
+Our project has been featured in [Awesome DeepSeek Integrations](https://github.com/deepseek-ai/awesome-deepseek-integration).
+
 ## Table of Contents
 - [✨ Features](#-features)
 - [🖼️ Showcase](#-showcase)
@@ -94,6 +96,8 @@
 ### 🖥️ Cross-Platform Compatibility
 - **🐧 Linux, 🍎 macOS, and 🪟 Windows support**
 - Docker-based deployment
+
+
 
 <br />
 
