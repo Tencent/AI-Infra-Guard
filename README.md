@@ -73,7 +73,7 @@
 ### ⚡ Jailbreak Evaluation
 - **Rapidly assesses Prompt security risks**
 - Includes multiple curated jailbreak evaluation datasets
-- Quickly generates Jailbreak Evaluation reports
+- Cross-model security performance comparison
 
 ### 📊 Detailed Report Analysis
 - **Comprehensive security assessment reports**
@@ -83,7 +83,7 @@
 - **Completely free to use**
 - Open source with MIT license
 
-### 🌍 Multi-Language Support
+### 🌍 Multi-Language Support 
 - **🇨🇳 Chinese and 🇺🇸 English interface**
 - Localized documentation and help
 
@@ -93,7 +93,7 @@
 
 <br />
 
-## 🖼️ Showcase
+## 🖼️ Showcase（待增加GIF与演示视频外链）
 
 ### A.I.G Main Interface
 ![AIG Main Page](img/background-en.png)
@@ -179,6 +179,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 - ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
 <br />
+
 ## 🙏 Acknowledgements
 
 Thanks to all the developers who have contributed to the A.I.G project:
