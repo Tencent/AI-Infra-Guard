@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 🔄 **模型重试逻辑**：更新模型调用重试机制，提升服务稳定性。
 🤖 **Agent自恢复**：实现Agent进程异常退出后的自动重启功能。
 📚 **多数据集兼容**：增强对多数据集格式的兼容性处理。
-🔌 **OpenAPI接口更新**：更新OpenAPI模型接口，扩展集成能力。
+🔌 **OpenAPI接口更新**：处理thinking模型思考过程过长的问题。
 
 ### 修复问题 (Fixed)
 🛠️ **前端问题修复**：修复前端界面显示问题，包括窄屏适配和特定UI异常（#74）。
