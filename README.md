@@ -49,9 +49,13 @@
 - [✨ Features](#-features)
 - [🖼️ Showcase](#-showcase)
 - [🚀 Quick Start](#-quick-start)
-- [🙏 Contribution Guide](#-contribution-guide)
+- [📖 User Guide](#-user-guide)
+- [📝 Contribution Guide](#-contribution-guide)
+- [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📄 License](#-license)
+- [📖 Citation](#-citation)
+- [📚 Papers](#-papers)
 
 
 ## ✨ Features
