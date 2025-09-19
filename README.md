@@ -244,6 +244,16 @@ This project is licensed under the **MIT License**. See the [License.txt](./Lice
 <br>
 <br>
 
+### 🌟 Thank You to Our Stargazers!
+
+We are deeply grateful to all the developers who have starred our repository!
+
+<div align="center">
+  <img src="img/stargazers.png" alt="Stargazers" width="100%">
+</div>
+
+Thank you to Peking University, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit, and many more amazing users for your stars!
+
 <p align="center">
   <strong>⭐ Every star encourages us to keep improving and innovating! ⭐</strong>
 </p>
