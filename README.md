@@ -200,14 +200,18 @@ If you are using A.I.G, please let us know! Your usage is very important to us (
 
 ### 📱 WeChat Community
 <table>
+  <thead>
   <tr>
     <th>WeChat Group</th>
     <th>Discord</th>
   </tr>
-  <tr style="background-color: transparent !important;">
+  </thead>
+  <tbody>
+  <tr>
     <td><img src="img/wechatgroup.png" alt="WeChat Group" width="200"></td>
     <td><img src="img/discord.png" alt="discord" width="200"></td>
   </tr>
+  </tbody>
 </table>
 
 ### 📧 Contact Us
