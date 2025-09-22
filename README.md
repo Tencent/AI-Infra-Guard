@@ -214,7 +214,6 @@ For collaboration inquiries or feedback, please contact us at: zhuque@tencent.co
 ### 🌟 Thank You to Our Stargazers!
 
 We are deeply grateful to all the developers who have starred our repository!
-
 <div align="center">
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
@@ -235,6 +234,9 @@ Thank you to users from **Peking University, Google, Alibaba, Tsinghua Universit
 </p>
 
 </div>
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
+<br>
 <br>
 
 ## 📖 Citation
@@ -266,8 +268,3 @@ The following papers are academic publications by third-party research teams who
 This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
 
 <div>
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
-<br>
-<br>
-
