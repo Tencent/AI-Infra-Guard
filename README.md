@@ -18,11 +18,6 @@
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="GitHub Stars" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
     </a>
-</p>
-<p align="center">
-    <a href="https://github.com/Tencent/AI-Infra-Guard/commits">
-        <img alt="License" src="https://img.shields.io/github/last-commit/Tencent/AI-Infra-Guard">
-    </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
     </a>
@@ -36,9 +31,9 @@
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" style="width: 273px; height: 55px;" width="273" height="55"/></a>
 </p>
 
-
+<br>
 <p align="center">
-    <h3 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h3>
+    <h2 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h2>
 </p>
 
 **A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
@@ -182,11 +177,8 @@ Your contributions have been instrumental in making A.I.G a more robust and reli
 <br>
 (待确定后改为logo)
 
-- **Tencent Zhuque Lab**
-- **Tencent Keen Lab** 
-- **Tencent WeChat Security** 
-- **Tencent FIT Security** 
-- **DeepSeek** 
+- **Tencent**
+- **DeepSeek**
 
 #### 📊 User Registration
 If you are using A.I.G, please let us know! Your usage is very important to us (new registrations will be prioritized in order, with dedicated support for priority Q&A and Pro Version):
@@ -244,10 +236,11 @@ Thank you to users from **Peking University, Google, Alibaba, Tsinghua Universit
 If you use A.I.G in your research or product, please cite:
 
 ```bibtex
-@misc{tencent2025aig,
-  title={A.I.G},
-  author={tencent},
+@misc{Tencent_AI-Infra-Guard_2025,
+  author={{Tencent Zhuque Lab}},
+  title={{AI-Infra-Guard: A Comprehensive, Intelligent, and Easy-to-Use AI Red Teaming Platform}},
   year={2025},
+  howpublished={GitHub repository},
   url={https://github.com/Tencent/AI-Infra-Guard}
 }
 ```
@@ -255,11 +248,13 @@ If you use A.I.G in your research or product, please cite:
 
 ## 📚 Related Papers
 
-The following papers are academic publications by third-party research teams who used A.I.G in their research:
+We are deeply grateful to the research teams who have used A.I.G in their academic work and contributed to advancing AI security research:
 
 [1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
 [2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
 [3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)
+
+📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>
 <br>
 
