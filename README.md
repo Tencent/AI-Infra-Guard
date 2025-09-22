@@ -1,6 +1,13 @@
 <p align="center">
     <h1 align="center"><img vertical-align=“middle” width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
+<h4 align="center">
+    <p>
+        <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
+        <a href="./README_ZH.md">中文</a> |
+        <a href="#">English</a>
+    <p>
+</h4>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="GitHub Stars" src="https://img.shields.io/github/stars/Tencent/AI-Infra-Guard?color=gold">
@@ -11,33 +18,24 @@
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="GitHub Stars" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
     </a>
-    <a href="https://github.com/Tencent/AI-Infra-Guard/blob/main/License.txt">
-        <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
-    </a>
 </p>
 <p align="center">
     <a href="https://github.com/Tencent/AI-Infra-Guard/commits">
         <img alt="License" src="https://img.shields.io/github/last-commit/Tencent/AI-Infra-Guard">
     </a>
-    <a href="https://github.com/Tencent/AI-Infra-Guard/issues">
-        <img alt="License" src="https://img.shields.io/github/issues-closed/Tencent/AI-Infra-Guard">
-    </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
     </a>
-</p>
-<p align="center">
     <a href="https://deepwiki.com/Tencent/AI-Infra-Guard">
        <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
     </a>
 </p>
-<h4 align="center">
-    <p>
-        <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="./README_ZH.md">中文</a> |
-        <a href="#">English</a>
-    <p>
-</h4>
+<p align="center">
+  <a href="https://trendshift.io/repositories/13637" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+  <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" style="width: 175px; height: 55px;" width="175" height="55"/></a>
+  <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" style="width: 273px; height: 55px;" width="273" height="55"/></a>
+</p>
+
 
 <p align="center">
     <h3 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h3>
@@ -45,7 +43,6 @@
 
 **A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
-Our project has been featured in [🔗Awesome DeepSeek Integrations](https://github.com/deepseek-ai/awesome-deepseek-integration).
 
 ## Table of Contents
 - [✨ Features](#-features)
@@ -55,53 +52,30 @@ Our project has been featured in [🔗Awesome DeepSeek Integrations](https://git
 - [📝 Contribution Guide](#-contribution-guide)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
-- [📄 License](#-license)
 - [📖 Citation](#-citation)
 - [📚 Papers](#-papers)
+- [📄 License](#-license)
 
 
 ## ✨ Features
 
 
-### 🔍 Detect AI Infra Risk
-- **Precisely identifies 30+ AI framework components**
-- Covers **nearly 400** known CVE vulnerabilities
-- Including Ollama, ComfyUI, vLLM, etc.
+1.  **🔍 Detect AI Infra Risk:** Precisely identifies 30+ AI framework components, Covers nearly 400 known CVE vulnerabilities, Including Ollama, ComfyUI, vLLM, etc.
 
+2. **🤖 Detect MCP Server Risk:** Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning.
 
+3. **⚡ Jailbreak Evaluation:** Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison.
 
-### 🤖 Detect MCP Server Risk
-- **Powered by AI Agent**
-- Detects **9 major categories** of MCP security risks
-- Supports **source code/remote URL** scanning
-
-
-### ⚡ Jailbreak Evaluation
-- **Rapidly assesses Prompt security risks**
-- Includes multiple curated jailbreak evaluation datasets
-- Cross-model security performance comparison
-
-### 📊 Detailed Report Analysis
-- **Comprehensive security assessment reports**
-- Shareable analysis with detailed vulnerability insights
-
-### 💰 Free & Open Source with MIT license
-- **Completely free to use**
-- Open source with MIT license
-
-### 🌍 Multi-Language Support 
-- **🇨🇳 Chinese and 🇺🇸 English interface**
-- Localized documentation and help
-
-### 🖥️ Cross-Platform Compatibility
-- **🐧 Linux, 🍎 macOS, and 🪟 Windows support**
-- Docker-based deployment
+4. **📊 Detailed Report Analysis:** Comprehensive security assessment reports, Shareable analysis with detailed vulnerability insights.
+5. **💰 Free & Open Source with MIT license**
+6. **🌍 Multi-Language Support:** 🇨🇳 Chinese and 🇺🇸 English interface, Localized documentation and help.
+7. **🖥️ Cross-Platform Compatibility:** 🐧 Linux, 🍎 macOS, and 🪟 Windows support, Docker-based deployment.
 
 
 
 <br />
 
-## 🖼️ Showcase（待增加GIF与演示视频外链）
+## 🖼️ Showcase
 
 ### A.I.G Main Interface
 ![AIG Main Page](img/background-en.png)
@@ -238,16 +212,6 @@ For collaboration inquiries or feedback, please contact us at: zhuque@tencent.co
 
 <br><br>
 
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
-
-<div>
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
-<br>
-<br>
-
 ### 🌟 Thank You to Our Stargazers!
 
 We are deeply grateful to all the developers who have starred our repository!
@@ -256,7 +220,7 @@ We are deeply grateful to all the developers who have starred our repository!
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
 
-Thank you to Peking University, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit, and many more amazing users for your stars!
+Thank you to users from Peking University, Google, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit, and many more amazing stargazers!
 
 <p align="center">
   <strong>⭐ Every star encourages us to keep improving and innovating! ⭐</strong>
@@ -286,9 +250,25 @@ If you use A.I.G in your research or product, please cite:
   url={https://github.com/Tencent/AI-Infra-Guard}
 }
 ```
+<br>
 
-## 📚 Papers
+## 📚 Related Papers
 
-1. Systematic Analysis of MCP Security - [https://arxiv.org/abs/2508.12538](https://arxiv.org/abs/2508.12538)
-2. A Survey on AgentOps: Categorization, Challenges, and Future Directions - [https://arxiv.org/pdf/2508.02121](https://arxiv.org/pdf/2508.02121)
-3. MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols - [https://arxiv.org/pdf/2508.13220](https://arxiv.org/pdf/2508.13220)
+The following papers are academic publications by third-party research teams who used A.I.G in their research:
+
+[1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
+[2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
+[3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)
+<br>
+<br>
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
+
+<div>
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
+<br>
+<br>
+
