@@ -69,10 +69,13 @@
 
 3. **⚡ Jailbreak Evaluation:** Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison.
 
-4. **📊 Detailed Report Analysis:** Comprehensive security assessment reports, Shareable analysis with detailed vulnerability insights.
-5. **💰 Free & Open Source with MIT license**
-6. **🌍 Multi-Language Support:** 🇨🇳 Chinese and 🇺🇸 English interface, Localized documentation and help.
-7. **🖥️ Cross-Platform Compatibility:** 🐧 Linux, 🍎 macOS, and 🪟 Windows support, Docker-based deployment.
+4. **🖥️ Intuitive Web Interface:** Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports.
+
+5. **🌍 Multi-Language Support:** 🇨🇳 Chinese and 🇺🇸 English interface, Localized documentation and help.
+
+6. **🖵 Cross-Platform Compatibility:** 🐧 Linux, 🍎 macOS, and 🪟 Windows support, Docker-based deployment.
+
+7. **💰 Free & Open Source with MIT license**
 
 
 
