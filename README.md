@@ -137,9 +137,9 @@ Once the service is running, you can access the A.I.G web interface at:
 <br>
 ## 📖 User Guide
 
-Visit our online documentation for detailed documentation: [https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
+Visit our online documentation: [https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
 
-For more detailed FAQs and troubleshooting guides, visit our [documentation](https://tencent.github.io/AI-Infra-Guard/).（常见问题文档补充中）
+For more detailed FAQs and troubleshooting guides, visit our [documentation](https://tencent.github.io/AI-Infra-Guard/).
 <br />
 <br>
 
