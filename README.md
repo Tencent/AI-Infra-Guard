@@ -219,10 +219,10 @@ We are deeply grateful to all the developers who have starred our repository!
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
 
-Thank you to users from Peking University, Google, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit, and many more amazing stargazers!
+Thank you to users from **Peking University, Google, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit**, and many more amazing stargazers!
 
 <p align="center">
-  <strong>⭐ Every star encourages us to keep improving and innovating! ⭐</strong>
+  ⭐ Every star encourages us to keep improving and innovating! ⭐
 </p>
 <p align="center">
     🚀 Help us reach more developers by starring this repository. 🚀
