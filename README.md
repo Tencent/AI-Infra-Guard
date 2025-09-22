@@ -160,7 +160,6 @@ Please refer to the existing rule formats, create new files, and submit them via
 - 💡 [Suggest a New Feature](https://github.com/Tencent/AI-Infra-Guard/issues)
 - ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
-<br />
 
 ## 🙏 Acknowledgements
 
@@ -210,7 +209,7 @@ If you are using A.I.G, please let us know! Your usage is very important to us (
 ### 📧 Contact Us
 For collaboration inquiries or feedback, please contact us at: zhuque@tencent.com
 
-<br><br>
+
 
 ### 🌟 Thank You to Our Stargazers!
 
