@@ -75,7 +75,7 @@
 
 6. **🖵 Cross-Platform Compatibility:** Linux, macOS, and Windows support, Docker-based deployment.
 
-7. ** Free & Open Source with MIT license**
+7. **Free & Open Source with MIT license**
 
 
 
