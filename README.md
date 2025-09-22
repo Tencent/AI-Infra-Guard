@@ -198,7 +198,7 @@ If you are using A.I.G, please let us know! Your usage is very important to us (
 - **GitHub Discussions**: [Join our community discussions](https://github.com/Tencent/AI-Infra-Guard/discussions)
 - **Issues & Bug Reports**: [Report issues or suggest features](https://github.com/Tencent/AI-Infra-Guard/issues)
 
-### 📱 WeChat Community
+### 📱 Discussion Community
 <table>
   <thead>
   <tr>
