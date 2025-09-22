@@ -96,12 +96,7 @@
 ![Comprehensively evaluate LLM security](img/model-security-en.png)
 
 ### Plugin Management
-<table>
-  <tr>
-    <td valign="top"><img align=top src="img/plugin-1-en.png"/></td>
-    <td valign="top"><img align=top src="img/plugin-2-en.png"/></td>
-  </tr>
-</table>
+![Plugin Management](img/plugin-gif.gif)
 
 <br />
 
