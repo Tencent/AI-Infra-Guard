@@ -71,11 +71,11 @@
 
 4. **🖥️ Intuitive Web Interface:** Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports.
 
-5. **🌍 Multi-Language Support:** 🇨🇳 Chinese and 🇺🇸 English interface, Localized documentation and help.
+5. **🌍 Multi-Language Support:** Chinese and English interface, Localized documentation and help.
 
-6. **🖵 Cross-Platform Compatibility:** 🐧 Linux, 🍎 macOS, and 🪟 Windows support, Docker-based deployment.
+6. **🖵 Cross-Platform Compatibility:** Linux, macOS, and Windows support, Docker-based deployment.
 
-7. **💰 Free & Open Source with MIT license**
+7. ** Free & Open Source with MIT license**
 
 
 
@@ -199,10 +199,16 @@ If you are using A.I.G, please let us know! Your usage is very important to us (
 - **Issues & Bug Reports**: [Report issues or suggest features](https://github.com/Tencent/AI-Infra-Guard/issues)
 
 ### 📱 WeChat Community
-<div>
-  <img src="img/wechatgroup.png" alt="WeChat Group" width="200">
-  <p>Scan the WeChat QR code to join the A.I.G community group</p>
-</div>
+<table>
+  <tr>
+    <th>WeChat Group</th>
+    <th>Discord</th>
+  </tr>
+  <tr style="background-color: transparent !important;">
+    <td><img src="img/wechatgroup.png" alt="WeChat Group" width="200"></td>
+    <td><img src="img/discord.png" alt="discord" width="200"></td>
+  </tr>
+</table>
 
 ### 📧 Contact Us
 For collaboration inquiries or feedback, please contact us at: zhuque@tencent.com
