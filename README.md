@@ -159,7 +159,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 <br />
 
 ## 🙏 Acknowledgements
-
+#### 👥 Gratitude to Contributing Developers
 Thanks to all the developers who have contributed to the A.I.G project:
 <br />
 <table style="border: none; border-collapse: inherit;">
@@ -174,6 +174,9 @@ Thanks to all the developers who have contributed to the A.I.G project:
 </a>
 <br>
 <br>
+
+#### 🤝 Appreciation for Our Users
+
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
 Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br>
@@ -183,13 +186,35 @@ Your contributions have been instrumental in making A.I.G a more robust and reli
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
 </div>
 <br>
-<br>
 
-#### 📊 User Registration
+**User Registration:**
 If you are using A.I.G, please let us know! Your usage is very important to us！
 new registrations will be prioritized with dedicated support for Q&A and opportunity to receive Pro version invitation codes):
  💬 [Submit Usage Registration](https://github.com/Tencent/AI-Infra-Guard/issues)
+<br>
+<br>
 
+#### 🌟 Thanks to Our Stargazers!
+
+We are deeply grateful to all the developers who have starred our repository!
+<div align="center">
+  <img src="img/stargazers.png" alt="Stargazers" width="100%">
+</div>
+Thank you to users from **Google, Microsoft, Amazon, ByteDance, Alibaba, Huawei, Meituan, Douban, Peking University, Tsinghua University, HFUT, cuit**, and many more amazing stargazers!
+<br>
+<br>
+<p align="center">
+  ⭐ Every star encourages us to keep improving and innovating! ⭐
+</p>
+<p align="center">
+    🚀 Help us reach more developers by starring this repository. 🚀
+</p>
+
+<p align="center">
+  <a href="https://github.com/Tencent/AI-Infra-Guard">
+      <img src="https://img.shields.io/badge/⭐-Give%20us%20a%20Star-yellow?style=for-the-badge&logo=github" alt="Give us a Star">
+  </a>
+</p>
 <br>
 
 ## 💬 Join the Community
@@ -219,31 +244,7 @@ For collaboration inquiries or feedback, please contact us at: zhuque@tencent.co
 
 
 
-### 🌟 Thank You to Our Stargazers!
 
-We are deeply grateful to all the developers who have starred our repository!
-<div align="center">
-  <img src="img/stargazers.png" alt="Stargazers" width="100%">
-</div>
-
-Thank you to users from **Peking University, Google, Alibaba, Tsinghua University, ByteDance, Microsoft, Amazon, Huawei, Meituan, Douban, HFUT, cuit**, and many more amazing stargazers!
-
-<p align="center">
-  ⭐ Every star encourages us to keep improving and innovating! ⭐
-</p>
-<p align="center">
-    🚀 Help us reach more developers by starring this repository. 🚀
-</p>
-
-<p align="center">
-  <a href="https://github.com/Tencent/AI-Infra-Guard">
-      <img src="https://img.shields.io/badge/⭐-Give%20us%20a%20Star-yellow?style=for-the-badge&logo=github" alt="Give us a Star">
-  </a>
-</p>
-
-</div>
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
 <br>
 <br>
 
@@ -279,3 +280,5 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
 
 <div>
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
