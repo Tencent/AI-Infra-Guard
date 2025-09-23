@@ -157,9 +157,10 @@ Please refer to the existing rule formats, create new files, and submit them via
 - 💡 [Suggest a New Feature](https://github.com/Tencent/AI-Infra-Guard/issues)
 - ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
+<br />
 
 ## 🙏 Acknowledgements
-#### 👥 Gratitude to Contributing Developers
+### 👥 Gratitude to Contributing Developers
 Thanks to all the developers who have contributed to the A.I.G project:
 <br />
 <table style="border: none; border-collapse: inherit;">
@@ -175,7 +176,7 @@ Thanks to all the developers who have contributed to the A.I.G project:
 <br>
 <br>
 
-#### 🤝 Appreciation for Our Users
+### 🤝 Appreciation for Our Users
 
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
 Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
@@ -194,7 +195,7 @@ new registrations will be prioritized with dedicated support for Q&A and opportu
 <br>
 <br>
 
-#### 🌟 Thanks to Our Stargazers!
+### 🌟 Thanks to Our Stargazers!
 
 We are deeply grateful to all the developers who have starred our repository!
 <div align="center">
