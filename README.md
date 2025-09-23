@@ -178,8 +178,10 @@ We are deeply grateful to the following teams and organizations for their trust,
 Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br>
 <br>
-<img src="img/tencent.png" alt="Tencent" height="30px" style="margin-right: 20px;">
-<img src="img/deepseek.png" alt="DeepSeek" height="35px">
+<div align="center">
+<img src="img/tencent.png" alt="Tencent" height="30px">
+<img src="img/deepseek.png" alt="DeepSeek" height="38px">
+</div>
 <br>
 <br>
 
