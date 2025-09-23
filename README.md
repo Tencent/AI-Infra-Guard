@@ -63,19 +63,15 @@
 ## ✨ Features
 
 
-1.  **🔍 Detect AI Infra Risk:** Precisely identifies 30+ AI framework components, Covers nearly 400 known CVE vulnerabilities, Including Ollama, ComfyUI, vLLM, etc.
-
-2. **🤖 Detect MCP Server Risk:** Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning.
-
-3. **⚡ Jailbreak Evaluation:** Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison.
-
-4. **🖥️ Intuitive Web Interface:** Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports.
-
-5. **🌍 Multi-Language Support:** Chinese and English interface, Localized documentation and help.
-
-6. **🖵 Cross-Platform Compatibility:** Linux, macOS, and Windows support, Docker-based deployment.
-
-7. **Free & Open Source with MIT license**
+| Feature | More Info |
+|:--------|:------------|
+| **Detect AI Infra Risk** | Precisely identifies 30+ AI framework components, Covers nearly 400 known CVE vulnerabilities, Including Ollama, ComfyUI, vLLM, etc. |
+| **Detect MCP Server Risk** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
+| **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
+| **Intuitive Web Interface** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
+| **Multi-Language Support** | Chinese and English interface, Localized documentation and help. |
+| **Cross-Platform Compatibility** | Linux, macOS, and Windows support, Docker-based deployment. |
+| **Free & MIT license** | Completely free to use, Open Source with MIT license |
 
 
 
@@ -181,13 +177,15 @@ Thanks to all the developers who have contributed to the A.I.G project:
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
 Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br>
-(待确定后改为logo)
-
-- **Tencent**
-- **DeepSeek**
+<br>
+<img src="img/tencent.png" alt="Tencent" height="30px" style="margin-right: 20px;">
+<img src="img/deepseek.png" alt="DeepSeek" height="35px">
+<br>
+<br>
 
 #### 📊 User Registration
-If you are using A.I.G, please let us know! Your usage is very important to us (new registrations will be prioritized in order, with dedicated support for priority Q&A and Pro Version):
+If you are using A.I.G, please let us know! Your usage is very important to us！
+new registrations will be prioritized with dedicated support for Q&A and opportunity to receive Pro version invitation codes):
  💬 [Submit Usage Registration](https://github.com/Tencent/AI-Infra-Guard/issues)
 
 <br>
@@ -203,7 +201,7 @@ If you are using A.I.G, please let us know! Your usage is very important to us (
   <thead>
   <tr>
     <th>WeChat Group</th>
-    <th>Discord</th>
+    <th>Discord <a href="https://discord.gg/5kRN2ya4">[link]</a></th>
   </tr>
   </thead>
   <tbody>
