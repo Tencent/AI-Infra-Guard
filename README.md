@@ -202,9 +202,6 @@ Thank you to users from <strong>Google, Microsoft, Amazon, ByteDance, Alibaba, H
 <p align="center">
   ⭐ Every star encourages us to keep improving and innovating! ⭐
 </p>
-<p align="center">
-    🚀 Help us reach more developers by starring this repository. 🚀
-</p>
 
 <p align="center">
   <a href="https://github.com/Tencent/AI-Infra-Guard">
