@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.1] - 2025-09-24
+- 新增漏洞指纹 CVE-2025-23316
+- 优化：triton指纹
+
 ## [v3.4] - 2025-09-18
 ### 新增功能 (Added)
 🌐 **国际化支持**：实现了前端界面的国际化(i18n)支持，包括多语言文本和英文截图资源。
