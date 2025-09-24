@@ -101,9 +101,9 @@
 
 **System Requirements**
 
-- Docker 20.10 or higher
-- At least 4GB of available RAM
-- At least 10GB of available disk space
+| Docker | RAM | Disk Space |
+|:-------|:----|:----------|
+| 20.10 or higher | 4GB+ | 10GB+ |
 
 
 **1. One-Click Install Script （Recommended）**
