@@ -65,13 +65,13 @@
 
 | Feature | More Info |
 |:--------|:------------|
-| **Detect AI Infra Risk** | Precisely identifies 30+ AI framework components, Covers nearly 400 known CVE vulnerabilities, Including Ollama, ComfyUI, vLLM, etc. |
-| **Detect MCP Server Risk** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
+| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ nearly 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
+| **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
-| **Intuitive Web Interface** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
+| **Easy-to-use Web Interface​** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
 | **Multi-Language Support** | Chinese and English interface, Localized documentation and help. |
 | **Cross-Platform Compatibility** | Linux, macOS, and Windows support, Docker-based deployment. |
-| **Free & MIT license** | Completely free to use, Open Source with MIT license |
+| **Free & Open Source​** | Offered​ completely free of charge ​under​ the MIT license. |
 
 
 
@@ -85,7 +85,7 @@
 ### AI Infra Scan
 ![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
 
-### MCP Scan
+### MCP Server Scan
 ![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
 
 ### Jailbreak Evaluation
