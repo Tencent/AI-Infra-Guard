@@ -10,4 +10,4 @@ http:
   - method: POST
     path: '/v2/repository/models/simple/load'
     matchers:
-      - body="{\"error\":\"explicit model load"
+      - body="{\"error\":\""
