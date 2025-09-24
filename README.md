@@ -186,12 +186,7 @@ Your contributions have been instrumental in making A.I.G a more robust and reli
 <img src="img/tencent.png" alt="Tencent" height="30px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
 </div>
-<br>
 
-**User Registration:**
-If you are using A.I.G, please let us know! Your usage is very important to us！
-new registrations will be prioritized with dedicated support for Q&A and opportunity to receive Pro version invitation codes):
- 💬 [Submit Usage Registration](https://github.com/Tencent/AI-Infra-Guard/issues)
 <br>
 <br>
 
@@ -201,7 +196,7 @@ We are deeply grateful to all the developers who have starred our repository!
 <div align="center">
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
-Thank you to users from **Google, Microsoft, Amazon, ByteDance, Alibaba, Huawei, Meituan, Douban, Peking University, Tsinghua University, HFUT, cuit**, and many more amazing stargazers!
+Thank you to users from <strong>Google, Microsoft, Amazon, ByteDance, Alibaba, Huawei, Meituan, Douban, Peking University, Tsinghua University, HFUT, cuit</strong>, and many more amazing stargazers!
 <br>
 <br>
 <p align="center">
