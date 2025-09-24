@@ -5,10 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 )
 
 // DownloadFile 下载文件
@@ -163,4 +167,39 @@ func GetEvaluationsDetail(server, name string) ([]byte, error) {
 		return nil, fmt.Errorf("解析响应 JSON 失败: %v", err)
 	}
 	return msg.Data, nil
+}
+
+// CalcMcpScore 计算安全分数
+func CalcMcpScore(issues []mcp.Issue) int {
+	var total, high, middle, low int = 0, 0, 0, 0
+	total = len(issues)
+	for _, item := range issues {
+		item.RiskType = strings.ToLower(item.RiskType)
+		if item.RiskType == "high" || item.RiskType == "critical" || item.RiskType == "高危" || item.RiskType == "严重" {
+			high++
+		} else if item.RiskType == "medium" || item.RiskType == "中危" {
+			middle++
+		} else {
+			low++
+		}
+	}
+	if total == 0 {
+		return 100
+	}
+	// 计算加权风险比例
+	weightedRisk := (float64(high)/float64(total))*0.7 +
+		(float64(middle)/float64(total))*0.5 +
+		(float64(low)/float64(total))*0.3
+
+	// 计算安全评分（百分制）
+	safetyScore := 100 - weightedRisk*100
+
+	// 确保评分在0-100范围内
+	if safetyScore < 0 {
+		safetyScore = 0
+	}
+	if safetyScore >= 100 {
+		safetyScore = 100
+	}
+	return int(math.Round(safetyScore))
 }

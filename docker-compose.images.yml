@@ -4,7 +4,6 @@ services:
   webserver:
     image: zhuquelab/aig-server:latest
     container_name: ai-infra-guard-webserver
-    platform: linux/amd64
     ports:
       - "8088:8088"
     environment:
@@ -19,6 +18,7 @@ services:
       - ./uploads:/ai-infra-guard/uploads
     networks:
       - ai-infra-guard-network
+    restart: always
     healthcheck:
       test: [ "CMD", "curl",  "http://localhost:8088/" ]
       interval: 30s
@@ -27,12 +27,12 @@ services:
   agent:
     image: zhuquelab/aig-agent:latest
     container_name: ai-infra-guard-agent
-    platform: linux/amd64
     environment:
       - TZ=Asia/Shanghai
       - AIG_SERVER=webserver:8088  # agent需要与webserver通信
     networks:
       - ai-infra-guard-network
+    restart: always
     depends_on:
       webserver:
         condition: service_healthy

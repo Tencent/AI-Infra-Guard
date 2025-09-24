@@ -95,18 +95,18 @@ def main():
     if len(set(lengths)) != 1:
         raise ValueError("base_url, api_key, model, max_concurrent must have same number of parameters")
     for base_url, api_key, model_name, max_concurrent  in zip(args.base_url, args.api_key, args.model, args.max_concurrent):
-        model = create_model(model_name, base_url, api_key, max_concurrent)
+        model = create_model(model_name, base_url, api_key[0], max_concurrent)
         models.append(model)
         
     if any(param is None for param in (args.evaluate_model, args.eval_base_url, args.eval_api_key, args.eval_max_concurrent)):
         evaluate_model = models[0]
     else:
-        evaluate_model = create_model(args.evaluate_model, args.eval_base_url, args.eval_api_key, args.eval_max_concurrent)
+        evaluate_model = create_model(args.evaluate_model, args.eval_base_url, args.eval_api_key[0], args.eval_max_concurrent)
 
     if any(param is None for param in (args.simulator_model, args.sim_base_url, args.sim_api_key, args.sim_max_concurrent)):
         simulator_model = evaluate_model
     else:
-        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key, args.sim_max_concurrent)
+        simulator_model = create_model(args.simulator_model, args.sim_base_url, args.sim_api_key[0], args.sim_max_concurrent)
 
     # 创建红队运行器
     runner = RedTeamRunner(plugin_manager)

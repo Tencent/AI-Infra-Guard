@@ -28,6 +28,9 @@ RELEASE_DIR="release-package"
 # 可以修改为您需要的 Docker Compose 版本
 COMPOSE_VERSION="v2.24.6"
 
+IMAGE_AGENT="zhuquelab/aig-agent:latest"
+IMAGE_SERVER="zhuquelab/aig-server:latest"
+
 # --- 函数定义 ---
 
 # 打印信息
@@ -139,6 +142,17 @@ deploy_application() {
     info "正在清理临时文件..."
     rm -rf "${REPO_NAME}"
     success "临时文件清理完毕。"
+
+    # 4. 检测并删除原有容器
+    if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$IMAGE_AGENT$"; then
+        info "检测到旧Agent容器，正在删除..."
+        docker rmi "$IMAGE_AGENT"
+    fi
+
+    if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$IMAGE_SERVER$"; then
+            info "检测到旧Server容器，正在删除..."
+            docker rmi "$IMAGE_SERVER"
+    fi
 
     # 4. 启动 Docker Compose
     cd "${RELEASE_DIR}"

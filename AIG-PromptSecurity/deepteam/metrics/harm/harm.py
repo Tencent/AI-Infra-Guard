@@ -111,7 +111,8 @@ class HarmMetric(BaseRedTeamingMetric):
             except TypeError:
                 res = await self.model.a_generate(prompt)
                 data = trimAndLoadJson(res, self)
-                return data["score"], data["reason"]
+                res = ReasonScore(**data)
+                return res.score, res.reason
 
     def evaluate(self, test_case: LLMTestCase) -> Tuple[Union[int, float], str]:
         prompt = HarmTemplate.generate_evaluation_results(
@@ -132,7 +133,8 @@ class HarmMetric(BaseRedTeamingMetric):
             except TypeError:
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
-                return data["score"], data["reason"]
+                res = ReasonScore(**data)
+                return res.score, res.reason
 
     def is_successful(self) -> bool:
         if self.error is not None:

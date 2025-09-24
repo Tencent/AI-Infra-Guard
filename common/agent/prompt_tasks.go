@@ -104,7 +104,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 	argv = append(argv, "--scenarios")
 
 	if len(request.Attachments) > 0 {
-		tempDir := "temp_uploads"
+		tempDir := "uploads"
 		if err := os.MkdirAll(tempDir, 0755); err != nil {
 			gologger.Errorf("创建临时目录失败: %v", err)
 			return err

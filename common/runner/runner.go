@@ -170,7 +170,8 @@ func (r *Runner) initFingerprints() error {
 		gologger.Fatalf("没有指定指纹模板")
 	}
 	r.fpEngine = preload.New(r.hp, fps)
-	text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	//text := fmt.Sprintf("加载指纹库,数量:%d", len(fps)+len(preload.CollectedFpReqs()))
+	text := fmt.Sprintf("Loading fingerprints:%d", len(fps)+len(preload.CollectedFpReqs()))
 	gologger.Infoln(text)
 	if r.Options.Callback != nil {
 		r.Options.Callback(Step01{Text: text})
@@ -377,16 +378,17 @@ func (r *Runner) extractContent(fullUrl string, resp *httpx.Response, respTime s
 	r.result <- result
 }
 
-const tr = "?tr=a2802f09d2ddb7830a6f4b00910ab4f0"
-
 // runHostRequest 尝试使用 HTTP 和 HTTPS 连接到主机
 func (r *Runner) runHostRequest(domain string) error {
 	retried := false
 	protocol := httpx.HTTP
 retry:
-	fullUrl := fmt.Sprintf("%s://%s/%s", protocol, domain, tr)
+	fullUrl := fmt.Sprintf("%s://%s", protocol, domain)
 	timeStart := time.Now()
-	resp, err := r.hp.Get(fullUrl, nil)
+	headers := map[string]string{
+		"tr": "a2802f09d2ddb7830a6f4b00910ab4f0",
+	}
+	resp, err := r.hp.Get(fullUrl, headers)
 	if err != nil {
 		if !retried {
 			if protocol == httpx.HTTP {
@@ -406,8 +408,11 @@ retry:
 // runDomainRequest makes a request to a specific URL and processes the response
 func (r *Runner) runDomainRequest(fullUrl string) error {
 	timeStart := time.Now()
-	reqUrl := fullUrl + tr
-	resp, err := r.hp.Get(reqUrl, nil)
+	reqUrl := fullUrl
+	headers := map[string]string{
+		"tr": "a2802f09d2ddb7830a6f4b00910ab4f0",
+	}
+	resp, err := r.hp.Get(reqUrl, headers)
 	if err != nil {
 		return err
 	}
@@ -703,7 +708,8 @@ func (r *Runner) initVulnerabilityDB() error {
 		gologger.Fatalf("无法初始化漏洞库:%s", err)
 	}
 	r.advEngine = engine
-	text := fmt.Sprintf("加载漏洞版本库,数量:%d", r.advEngine.GetCount())
+	// Load vulnerability version database
+	text := fmt.Sprintf("Loading vulnerability database, count:%d", r.advEngine.GetCount())
 	gologger.Infoln(text)
 	if r.Options.Callback != nil {
 		r.Options.Callback(Step01{Text: text})
