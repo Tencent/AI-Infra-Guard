@@ -197,7 +197,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <div align="center">
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
-感谢来自<strong>Google、Microsoft、Amazon、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的支持者！
+感谢来自<strong>谷歌、微软、亚马逊、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的支持者！
 <br>
 <br>
 <p align="center">
