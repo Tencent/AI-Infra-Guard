@@ -13,10 +13,10 @@
         <img alt="GitHub Stars" src="https://img.shields.io/github/stars/Tencent/AI-Infra-Guard?color=gold">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
-        <img alt="GitHub Stars" src="https://img.shields.io/github/downloads/Tencent/AI-Infra-Guard/total">
+        <img alt="GitHub downloads" src="https://img.shields.io/github/downloads/Tencent/AI-Infra-Guard/total">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
-        <img alt="GitHub Stars" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
+        <img alt="docker pulls" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
@@ -160,8 +160,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <br />
 
 ## 🙏 致谢
-### 👥 致敬为A.I.G贡献的团队与开发者
-这些贡献为A.I.G打造成更强大、更可靠的AI红队平台起到了重要作用。
+### 👥 感谢以下团队与开发者的专业共建与代码贡献
 <br />
 <table style="border: none; border-collapse: inherit;">
   <tr>
@@ -176,11 +175,8 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <br>
 <br>
 
-### 🤝 致敬使用A.I.G的企业与团队用户
+### 🤝 感谢以下使用A.I.G的企业与团队用户
 
-各位的信任和宝贵反馈，帮助我们不断完善产品功能，提升用户体验。您们的支持是我们持续创新的动力源泉。
-
-<br>
 <br>
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
@@ -190,21 +186,17 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <br>
 <br>
 
-### 🌟 致敬A.I.G的社区支持者
+### 🌟 感谢A.I.G项目所有的支持者
 
 <div align="center">
   <img src="img/stargazers.png" alt="Stargazers" width="100%">
 </div>
-感谢来自<strong>谷歌、微软、亚马逊、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的支持者为A.I.G点亮Star！
+感谢来自<strong>微软、谷歌、亚马逊、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的用户的Star！
 <br>
 <br>
 <p align="center">
   ⭐ 每一个Star都激励我们持续改进和创新！ ⭐
 </p>
-<p align="center">
-    🚀 为A.I.G点亮Star帮助我们触达更多开发者。 🚀
-</p>
-
 <p align="center">
   <a href="https://github.com/Tencent/AI-Infra-Guard">
       <img src="https://img.shields.io/badge/⭐-点亮Star-yellow?style=for-the-badge&amp;logo=github" alt="点亮Star">

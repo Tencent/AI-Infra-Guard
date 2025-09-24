@@ -13,10 +13,10 @@
         <img alt="GitHub Stars" src="https://img.shields.io/github/stars/Tencent/AI-Infra-Guard?color=gold">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
-        <img alt="GitHub Stars" src="https://img.shields.io/github/downloads/Tencent/AI-Infra-Guard/total">
+        <img alt="GitHub downloads" src="https://img.shields.io/github/downloads/Tencent/AI-Infra-Guard/total">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
-        <img alt="GitHub Stars" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
+        <img alt="docker pulls" src="https://img.shields.io/docker/pulls/zhuquelab/aig-server.svg?color=gold">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
@@ -161,7 +161,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 ## 🙏 Acknowledgements
 ### 👥 Gratitude to Contributing Developers
-Thanks to all the developers who have contributed to the A.I.G project:
+Thanks to all the developers who have contributed to the A.I.G project, Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br />
 <table style="border: none; border-collapse: inherit;">
   <tr>
@@ -179,7 +179,7 @@ Thanks to all the developers who have contributed to the A.I.G project:
 ### 🤝 Appreciation for Our Users
 
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
-Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
+
 <br>
 <br>
 <div align="center">
