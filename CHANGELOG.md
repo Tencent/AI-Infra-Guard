@@ -5,12 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.2] - 2025-09-25
+
+- 优化前端
+- 新增漏洞指纹:
+    - clickhouse
+    - comfyui
+    - dask
+    - gradio
+    - langchain
+    - langflow
+    - langfuse
+    - LiteLLM
+    - ollama
+    - open-webui
+    - pyload-ng
+    - ragflow
+    - ray
+    - triton-inference-server
+    - vllm
+
 ## [v3.4.1] - 2025-09-24
+
 - 新增漏洞指纹 CVE-2025-23316
 - 优化：triton指纹
 
 ## [v3.4] - 2025-09-18
+
 ### 新增功能 (Added)
+
 🌐 **国际化支持**：实现了前端界面的国际化(i18n)支持，包括多语言文本和英文截图资源。
 🐳 **Docker增强**：更新了一键部署脚本，增加Docker拉取错误信息提示，并支持Apple ARM架构部署。
 ⚡ **任务并发控制**：新增任务并发限制功能，优化系统资源管理。
@@ -20,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 🔌 **OpenAPI接口更新**：处理thinking模型思考过程过长的问题。
 
 ### 修复问题 (Fixed)
+
 🛠️ **前端问题修复**：修复前端界面显示问题，包括窄屏适配和特定UI异常（#74）。
 🔧 **MCP问题修复**：修复MCP协议中的已知Bug，包括模型输出处理和连接稳定性。
 ⚙️ **参数解析错误**：修复参数解析过程中的异常问题。
@@ -30,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 📝 **许可证更新**：更新项目许可证文件。
 
 ## [v3.3] - 2025-09-03
+
 - 新增docker部署一键脚本 For Linux
 - 修复磁盘读写较慢情况下SSE连接失败问题
 - 优化AI基础设施扫描探针
