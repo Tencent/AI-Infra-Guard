@@ -1,0 +1,10 @@
+info:  
+  name: ray  
+  cve: Ray Deployment Security Advisory  
+  summary: Unauthorized external exposure of Ray may lead to external vulnerability exploitation  
+  details: Unauthorized external exposure of Ray may lead to external vulnerability exploitation  
+  cvss:  
+  severity: HIGH  
+  security_advise: It is recommended to only expose Ray locally  
+rule: is_internal=="true"  
+references:

@@ -1,0 +1,18 @@
+info:
+  name: open-webui
+  cve: CVE-2024-53981
+  summary: Open WebUI 未认证多部分边界拒绝服务（DoS）漏洞
+  details: |
+    open-webui/open-webui 版本 0.3.21 存在拒绝服务（DoS）漏洞。该漏洞影响多个端点，包括 `/ollama/models/upload`、`/audio/api/v1/transcriptions` 和 `/rag/api/v1/doc`。应用程序在未经认证的情况下处理多部分边界，导致资源耗尽。通过在多部分边界添加额外字符，攻击者可导致服务器解析边界的每个字节，最终导致服务不可用。此漏洞可被远程利用，导致高 CPU 和内存使用率，并使合法用户无法访问服务。
+  cvss: CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: |
+    1. 升级至 open-webui >= 0.3.22
+    2. 为多部分边界处理实施认证
+    3. 监控服务器资源以发现异常活动
+rule: version < "0.3.22"
+references:
+  - https://github.com/Kludex/python-multipart/security/advisories/GHSA-59g5-xgcq-4qw3
+  - https://nvd.nist.gov/vuln/detail/CVE-2024-53981
+  - https://github.com/open-webui/open-webui
+  - https://huntr.com/bounties/9178f09e-4d4f-4a5b-bc32-cada7445b03c
