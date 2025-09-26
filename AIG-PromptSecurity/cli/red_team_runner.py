@@ -164,7 +164,7 @@ class RedTeamRunner:
                 contents.append(content)
 
             combined_df = pd.concat(df_list, ignore_index=True)
-            combined_df.to_csv(attachment_path, index=False)
+            combined_df.to_csv(attachment_path, encoding="utf-8-sig", index=False)
         except Exception as e:
             logger.exception(e)
             logger.critical_issue(content=logger.translated_msg("An error occurred during report generated. Please try again later."))
