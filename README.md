@@ -56,7 +56,7 @@
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
-- [📚 Papers](#-papers)
+- [📚 Papers](#-related-papers)
 - [📄 License](#-license)
 
 
