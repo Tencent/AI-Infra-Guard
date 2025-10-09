@@ -215,7 +215,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
   <thead>
   <tr>
     <th>微信群</th>
-    <th>Discord <a href="https://discord.gg/5kRN2ya4">[链接]</a></th>
+    <th>Discord <a href="https://discord.gg/U9dnPnyadZ">[链接]</a></th>
   </tr>
   </thead>
   <tbody>

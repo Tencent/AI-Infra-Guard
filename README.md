@@ -224,7 +224,7 @@ Thank you to users from <strong>Google, Microsoft, Amazon, ByteDance, Alibaba, H
   <thead>
   <tr>
     <th>WeChat Group</th>
-    <th>Discord <a href="https://discord.gg/5kRN2ya4">[link]</a></th>
+    <th>Discord <a href="https://discord.gg/U9dnPnyadZ">[link]</a></th>
   </tr>
   </thead>
   <tbody>
