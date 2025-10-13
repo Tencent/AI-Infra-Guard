@@ -1,0 +1,61 @@
+你是一个资深技术文档工程师，请根据以下Git提交记录生成版本更新报告。要求：
+
+1. 按新增功能 (Added)/修复问题 (Fixed) 两个大类进行分类
+2. 每项变更用简洁的技术语言描述
+3. 每条内容用合适的图标
+4. 输出Markdown格式
+
+示例输出格式:
+## 新增功能 (Added)
+📊 MCP扫描报告优化：增加了更多维度的检测数据展示，提升了用户体验。
+📱 窄屏安全报告适配：优化了大模型安全体检报告在窄屏下的展示问题。
+⚙️ 新增模型并发限制：引入了新的模型并发限制功能。
+## 修复问题 (Fixed)
+🔌 修复MCP SSE超时问题：解决了MCP（模型控制协议）中服务器发送事件（SSE）的超时问题。
+❓ 修复MCP模型输出为空退出问题：解决了当MCP模型输出为空时系统会退出的问题 (#61)。
+📋 更新MCP硬编码模板：更新了MCP的硬编码（hardcoded）模板。
+🛡️ 修复AIG提示词IP检查风险：修复了与AIG提示词中IP检查相关的安全风险。
+
+git log --pretty=format:"%h | %an | %ad | %s" --date=short v3.3..v3.4 > 1.txt
+
+Git提交记录如下，根据以下内容进行总结：
+fc000dd | zhuque | 2025-09-18 | 更新docker一键脚本
+0e7046b | boyhack | 2025-09-18 | Merge pull request #82 from Tencent/dev
+0726a45 | zhuque | 2025-09-18 | update v3.4-dev
+2c61520 | boyhack | 2025-09-18 | Merge pull request #83 from YiZoey/main
+4fc7571 | zhuque | 2025-09-18 | update frontend fixed https://github.com/Tencent/AI-Infra-Guard/issues/74
+779dfa5 | Truman | 2025-09-17 | fix evaluation anomalies
+13e435d | Truman | 2025-09-17 | fix a known issue
+e29d92e | zhuque | 2025-09-17 | update import lib
+7e4cf18 | zhuque | 2025-09-17 | 1. 国际化支持 fixed https://github.com/Tencent/AI-Infra-Guard/issues/72 2. MCP Bugfix 3. 重置运行中的任务失败
+f0419c7 | Zonazzzz | 2025-09-17 | Merge pull request #81 from YiZoey/main
+d9d08f1 | Truman | 2025-09-17 | Fix a known issue
+2c46c79 | zhuque | 2025-09-17 | agent挂掉自动重启
+279a020 | Zonazzzz | 2025-09-17 | Merge pull request #80 from YiZoey/main
+5ac8536 | Truman | 2025-09-17 | Update readme
+e22e9ff | Truman | 2025-09-17 | Update model retry logic
+ca2bc03 | Truman | 2025-09-17 | Fix parameter parsing error
+0575631 | boyhack | 2025-09-12 | fixed https://github.com/Tencent/AI-Infra-Guard/issues/78
+86eacbb | Zonazzzz | 2025-09-11 | Merge pull request #77 from YiZoey/main
+d63a336 | zoeyizhou | 2025-09-11 | update license
+05b9dda | zhuque | 2025-09-09 | add docker pull error info
+6c36a3b | zhuque | 2025-09-09 | fixed https://github.com/Tencent/AI-Infra-Guard/issues/71
+d599b4d | Zonazzzz | 2025-09-09 | Merge pull request #69 from YiZoey/main
+2895af9 | Zonazzzz | 2025-09-09 | Update README.md
+a9e58f4 | Truman | 2025-09-06 | Update openapi model interface
+0029485 | Truman | 2025-09-05 | Fix possible circular import
+61610bc | Truman | 2025-09-05 | add task concurrency limit
+f9d9c4f | Truman | 2025-09-05 | update multi dataset format compatibility
+0df2438 | zhuque | 2025-09-05 | Support Apple ARM architecture
+d253e82 | zonashi | 2025-09-04 | feature:更新英文截图
+936b858 | zonashi | 2025-09-04 | feature:更新英文截图
+3e3d283 | zonashi | 2025-09-04 | feature:更新英文截图
+1ebc22c | zonashi | 2025-09-04 | feature:更新英文版截图
+e6c959d | boyhack | 2025-09-04 | Merge pull request #66 from zonashi/main
+f843018 | boyhack | 2025-09-04 | Merge branch 'main' into main
+851a97f | zonashi | 2025-09-04 | feature:添加图片
+4b609fb | Zonazzzz | 2025-09-04 | Delete img/ai-infra-scan-en.png
+e7ae6b6 | Zonazzzz | 2025-09-04 | Update README.md
+cb3a868 | Zonazzzz | 2025-09-04 | Add files via upload
+7a27096 | zonashi | 2025-09-04 | feature:更新英文版
+597e632 | Nicky | 2025-09-04 | Update README.md
