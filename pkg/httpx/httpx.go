@@ -198,11 +198,11 @@ func (h *HTTPX) setCustomHeaders(r *retryablehttp.Request, headers map[string]st
 // Get on get request
 func (h *HTTPX) Get(targetUrl string, headers map[string]string) (*Response, error) {
 	req, err := h.newRequest("GET", targetUrl, nil)
-	if headers != nil {
-		h.setCustomHeaders(req, headers)
-	}
 	if err != nil {
 		return nil, err
+	}
+	if headers != nil {
+		h.setCustomHeaders(req, headers)
 	}
 	return h.do(req)
 }
