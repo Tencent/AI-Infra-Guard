@@ -134,6 +134,78 @@ func (tm *TaskManager) AddTask(req *TaskCreateRequest, traceID string) error {
 	return nil
 }
 
+// 一键添加任务并执行
+func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
+	// 1. 先检查数据库中是否已存在相同的sessionId
+	existingSession, err := tm.taskStore.GetSession(req.SessionID)
+	if err == nil && existingSession != nil {
+		return fmt.Errorf("任务已存在，sessionId: %s", req.SessionID)
+	}
+
+	// 2. 预存任务到数据库（状态为todo，assigned_agent为空）
+	session := &database.Session{
+		ID:             req.SessionID,
+		Username:       req.Username,
+		Title:          tm.generateTaskTitle(req),
+		TaskType:       req.Task,
+		Content:        req.Content,
+		Params:         mustMarshalJSON(req.Params),
+		Attachments:    mustMarshalJSON(req.Attachments),
+		Status:         TaskStatusTodo,
+		AssignedAgent:  "", // 预存时为空
+		CountryIsoCode: req.CountryIsoCode,
+		Share:          true,
+	}
+	err = tm.taskStore.CreateSession(session)
+	if err != nil {
+		return fmt.Errorf("预存任务失败: %v", err)
+	}
+
+	// 获取可用 Agent（简化：不做额外健康检查）
+	availableAgents := tm.agentManager.GetAvailableAgents()
+	if len(availableAgents) == 0 {
+		return fmt.Errorf("没有可用的Agent")
+	}
+
+	// 3. 选择 Agent（简单策略：选择第一个，相信GetAvailableAgents的过滤结果）
+	selectedAgent := availableAgents[0]
+
+	// 4. 更新session的assigned_agent和开始时间
+	err = tm.taskStore.UpdateSessionAssignedAgent(req.SessionID, selectedAgent.agentID)
+	if err != nil {
+		return fmt.Errorf("无法更新session的assigned_agent")
+	}
+
+	// 6. 构造任务分配消息
+	taskMsg := WSMessage{
+		Type: WSMsgTypeTaskAssign,
+		Content: TaskContent{
+			SessionID:      req.SessionID,
+			TaskType:       req.Task,
+			Content:        req.Content,
+			Params:         req.Params,
+			Attachments:    req.Attachments,
+			Timeout:        3600,
+			CountryIsoCode: req.CountryIsoCode,
+		},
+	}
+
+	// 7. 直接发送给 Agent（简化：无重试，无额外健康检查）
+	selectedAgent.stateMu.RLock()
+	agentID := selectedAgent.agentID
+	selectedAgent.stateMu.RUnlock()
+
+	// 设置写超时并直接发送
+	selectedAgent.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err = selectedAgent.conn.WriteJSON(taskMsg)
+	if err != nil {
+		return fmt.Errorf("下发任务给 %s 失败: %v", agentID, err)
+	}
+
+	log.Infof("任务分发成功:  sessionId=%s, agentId=%s", req.SessionID, agentID)
+	return nil
+}
+
 // cleanupFailedTask 清理失败的任务（内存和数据库）
 func (tm *TaskManager) cleanupFailedTask(sessionId string, traceID string) {
 	log.Infof("开始清理失败任务: trace_id=%s, sessionId=%s", traceID, sessionId)

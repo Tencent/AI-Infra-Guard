@@ -208,6 +208,22 @@ func RunWebServer(options *options.Options) {
 			// 只需要WebSocket入口
 			agents.GET("/ws", agentManager.HandleAgentWebSocket())
 		}
+		// 提供给第三方的api
+		taskApi := appSecurity.Group("/taskapi")
+		{
+			// 创建任务
+			taskApi.POST("/tasks", func(c *gin.Context) {
+				SubmitTask(c, taskManager)
+			})
+			// 获取任务状态
+			taskApi.GET("/status/:id", func(c *gin.Context) {
+				GetTaskStatus(c, taskManager)
+			})
+			// 获取任务结果
+			taskApi.GET("/result/:id", func(c *gin.Context) {
+				GetTaskResult(c, taskManager)
+			})
+		}
 	}
 
 	// 静态文件处理
