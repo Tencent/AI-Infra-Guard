@@ -1,3 +1,15 @@
+// Package websocket provides API endpoints for AI Infrastructure Guard task management
+//
+// This package implements RESTful APIs for:
+// - Task submission and management
+// - Task status monitoring
+// - Task result retrieval
+// - Support for multiple task types: MCP scan, AI infra scan, and model redteam testing
+//
+// API Endpoints:
+// - POST /api/v1/app/taskapi/tasks - Create new tasks
+// - GET /api/v1/app/taskapi/status/{id} - Get task status and logs
+// - GET /api/v1/app/taskapi/result/{id} - Get task results
 package websocket
 
 import (
@@ -12,45 +24,198 @@ import (
 	"trpc.group/trpc-go/trpc-go/log"
 )
 
+// ModelParams 模型参数配置
 type ModelParams struct {
-	BaseUrl string `json:"base_url"`
-	Token   string `json:"token"`
-	Model   string `json:"model"`
-	Limit   int    `json:"limit"`
+	BaseUrl string `json:"base_url" example:"https://api.openai.com/v1"` // 模型API基础URL
+	Token   string `json:"token" example:"sk-xxx"`                       // API访问令牌
+	Model   string `json:"model" example:"gpt-4"`                        // 模型名称
+	Limit   int    `json:"limit" example:"1000"`                         // 请求限制
 }
 
 // MCPTaskRequest MCP任务请求结构体
+// @Description MCP (Model Context Protocol) 安全扫描任务请求参数
 type MCPTaskRequest struct {
-	Content string `json:"content,omitempty"` // 任务内容 - 必需
+	Content string `json:"content,omitempty" example:"扫描目标MCP服务器"` // 任务内容描述
 	Model   struct {
-		Model   string `json:"model" binding:"required"` // 模型名称 - 必需
-		Token   string `json:"token" binding:"required"` // API密钥 - 必需
-		BaseUrl string `json:"base_url,omitempty"`       // 基础URL - 可选
+		Model   string `json:"model" binding:"required" example:"gpt-4"`               // 模型名称 - 必需
+		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API密钥 - 必需
+		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
 	} `json:"model" binding:"required"` // 模型配置 - 必需
-	Thread      int    `json:"thread,omitempty"`
-	Language    string `json:"language,omitempty"` // 语言代码 - 可选
-	Attachments string `json:"attachments,omitempty"`
-}
-type AIInfraScanTaskRequest struct {
-	Target  []string          `json:"-"`
-	Headers map[string]string `json:"headers"`
-	Timeout int               `json:"timeout"`
-}
-type PromptSecurityTaskRequest struct {
-	Model     []ModelParams `json:"model"`
-	EvalModel ModelParams   `json:"eval_model"`
-	Datasets  struct {
-		DataFile   []string `json:"dataFile"`
-		NumPrompts int      `json:"numPrompts"`
-		RandomSeed int      `json:"randomSeed"`
-	} `json:"dataset"`
+	Thread      int    `json:"thread,omitempty" example:"4"`              // 并发线程数
+	Language    string `json:"language,omitempty" example:"zh"`           // 语言代码 - 可选
+	Attachments string `json:"attachments,omitempty" example:"file1.zip"` // 附件文件路径
 }
 
+// AIInfraScanTaskRequest AI基础设施扫描任务请求结构体
+// @Description AI基础设施安全扫描任务请求参数
+type AIInfraScanTaskRequest struct {
+	Target  []string          `json:"target" example:"https://example.com"`                   // 扫描目标URL列表
+	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // 自定义请求头
+	Timeout int               `json:"timeout" example:"30"`                                   // 请求超时时间(秒)
+}
+
+// PromptSecurityTaskRequest 提示词安全测试任务请求结构体
+// @Description 提示词安全测试任务请求参数
+type PromptSecurityTaskRequest struct {
+	Model     []ModelParams `json:"model"`      // 测试模型列表
+	EvalModel ModelParams   `json:"eval_model"` // 评估模型配置
+	Datasets  struct {
+		DataFile   []string `json:"dataFile" example:"[\"dataset1.json\",\"dataset2.json\"]"` // 数据集文件列表
+		NumPrompts int      `json:"numPrompts" example:"100"`                                 // 提示词数量
+		RandomSeed int      `json:"randomSeed" example:"42"`                                  // 随机种子
+	} `json:"dataset"` // 数据集配置
+}
+
+// APIResponse 通用API响应结构
+type APIResponse struct {
+	Status  int         `json:"status" example:"0"`     // 状态码: 0=成功, 1=失败
+	Message string      `json:"message" example:"操作成功"` // 响应消息
+	Data    interface{} `json:"data"`                   // 响应数据
+}
+
+// TaskStatusResponse 任务状态响应结构
+type TaskStatusResponse struct {
+	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
+	Status    string `json:"status" example:"running"`                                  // 任务状态: pending, running, completed, failed
+	Title     string `json:"title" example:"MCP安全扫描任务"`                                 // 任务标题
+	CreatedAt int64  `json:"created_at" example:"1640995200000"`                        // 创建时间戳(毫秒)
+	UpdatedAt int64  `json:"updated_at" example:"1640995200000"`                        // 更新时间戳(毫秒)
+	Log       string `json:"log" example:"任务执行日志..."`                                   // 任务执行日志
+}
+
+// TaskCreateResponse 任务创建响应结构
+type TaskCreateResponse struct {
+	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
+}
+
+// Task Types and Parameters Documentation:
+//
+// 1. MCP Scan Task (type: "mcp_scan")
+//    - Purpose: Model Context Protocol security scanning
+//    - Request structure:
+//      {
+//        "type": "mcp_scan",
+//        "content": {
+//          "content": "任务描述",              // 可选: 任务内容描述
+//          "model": {
+//            "model": "gpt-4",               // 必需: 模型名称
+//            "token": "sk-xxx",             // 必需: API密钥
+//            "base_url": "https://api.openai.com/v1"  // 可选: 基础URL
+//          },
+//          "thread": 4,                     // 可选: 并发线程数
+//          "language": "zh",             // 可选: 语言代码
+//          "attachments": "file.zip"       // 可选: 附件文件路径
+//        }
+//      }
+//
+// 2. AI Infra Scan Task (type: "ai_infra_scan")
+//    - Purpose: AI infrastructure security scanning
+//    - Request structure:
+//      {
+//        "type": "ai_infra_scan",
+//        "content": {
+//          "target": ["https://example.com"],  // 必需: 扫描目标URL列表
+//          "headers": {                        // 可选: 自定义请求头
+//            "Authorization": "Bearer token"
+//          },
+//          "timeout": 30                       // 可选: 请求超时时间(秒)
+//        }
+//      }
+//
+// 3. Model Redteam Task (type: "model_redteam_report")
+//    - Purpose: AI model red team testing and security assessment
+//    - Request structure:
+//      {
+//        "type": "model_redteam_report",
+//        "content": {
+//          "model": [                        // 必需: 测试模型列表
+//            {
+//              "model": "gpt-4",
+//              "token": "sk-xxx",
+//              "base_url": "https://api.openai.com/v1"
+//            }
+//          ],
+//          "eval_model": {                   // 必需: 评估模型配置
+//            "model": "gpt-4",
+//            "token": "sk-xxx"
+//          },
+//          "dataset": {                      // 必需: 数据集配置
+//            "dataFile": ["dataset.json"],   // 数据集文件列表
+//            "numPrompts": 100,              // 提示词数量
+//            "randomSeed": 42                // 随机种子
+//          }
+//        }
+//      }
+
 // SubmitTask 创建任务接口
+// @Summary Create a new task
+// @Description Submit a new task for processing. Supports three types of tasks:
+// @Description 1. MCP Scan (mcp_scan): Model Context Protocol security scanning
+// @Description 2. AI Infra Scan (ai_infra_scan): AI infrastructure security scanning
+// @Description 3. Model Redteam Report (model_redteam_report): AI model red team testing
+// @Description
+// @Description Request Body Examples:
+// @Description
+// @Description MCP Scan Task:
+// @Description {
+// @Description   "type": "mcp_scan",
+// @Description   "content": {
+// @Description     "content": "扫描MCP服务器",
+// @Description     "model": {
+// @Description       "model": "gpt-4",
+// @Description       "token": "sk-xxx",
+// @Description       "base_url": "https://api.openai.com/v1"
+// @Description     },
+// @Description     "thread": 4,
+// @Description     "language": "zh",
+// @Description     "attachments": "file.zip"
+// @Description   }
+// @Description }
+// @Description
+// @Description AI Infra Scan Task:
+// @Description {
+// @Description   "type": "ai_infra_scan",
+// @Description   "content": {
+// @Description     "target": ["https://example.com"],
+// @Description     "headers": {
+// @Description       "Authorization": "Bearer token"
+// @Description     },
+// @Description     "timeout": 30
+// @Description   }
+// @Description }
+// @Description
+// @Description Model Redteam Task:
+// @Description {
+// @Description   "type": "model_redteam_report",
+// @Description   "content": {
+// @Description     "model": [{
+// @Description       "model": "gpt-4",
+// @Description       "token": "sk-xxx",
+// @Description       "base_url": "https://api.openai.com/v1"
+// @Description     }],
+// @Description     "eval_model": {
+// @Description       "model": "gpt-4",
+// @Description       "token": "sk-xxx"
+// @Description     },
+// @Description     "dataset": {
+// @Description       "dataFile": ["dataset.json"],
+// @Description       "numPrompts": 100,
+// @Description       "randomSeed": 42
+// @Description     }
+// @Description   }
+// @Description }
+// @Tags taskapi
+// @Accept json
+// @Produce json
+// @Param request body object{content=object,type=string} true "Task request body. Content should be JSON object containing task-specific parameters based on type"
+// @Success 200 {object} APIResponse{data=TaskCreateResponse} "Task created successfully"
+// @Failure 400 {object} APIResponse "Invalid request parameters"
+// @Failure 500 {object} APIResponse "Internal server error"
+// @Router /api/v1/app/taskapi/tasks [post]
 func SubmitTask(c *gin.Context, tm *TaskManager) {
 	var content struct {
-		Content string `json:"content"`
-		Type    string `json:"type"`
+		Content json.RawMessage `json:"content"`
+		Type    string          `json:"type"`
 	}
 	if err := c.ShouldBindJSON(&content); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -70,10 +235,12 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 	username := c.GetString("api_user")
 
 	var taskReq TaskCreateRequest
+	// content interface to byte
+
 	switch content.Type {
-	case agent.TaskTypeMcpScan:
+	case "mcp_scan":
 		var req MCPTaskRequest
-		err := json.Unmarshal([]byte(content.Content), &req)
+		err := json.Unmarshal(content.Content, &req)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
@@ -110,9 +277,9 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Params:      params,
 			Attachments: attachments,
 		}
-	case agent.TaskTypeAIInfraScan:
+	case "ai_infra_scan":
 		var req AIInfraScanTaskRequest
-		err := json.Unmarshal([]byte(content.Content), &req)
+		err := json.Unmarshal(content.Content, &req)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
@@ -136,9 +303,9 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Content:     strings.Join(req.Target, "\n"),
 			Attachments: []string{},
 		}
-	case agent.TaskTypeModelRedteamReport:
-		var req map[string]interface{}
-		err := json.Unmarshal([]byte(content.Content), &req)
+	case "model_redteam_report":
+		var req PromptSecurityTaskRequest
+		err := json.Unmarshal(content.Content, &req)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
@@ -146,6 +313,11 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 				"data":    nil,
 			})
 			return
+		}
+		params := map[string]interface{}{
+			"model":      req.Model,
+			"eval_model": req.EvalModel,
+			"dataset":    req.Datasets,
 		}
 		taskReq = TaskCreateRequest{
 			ID:          messageId,
@@ -155,31 +327,46 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Timestamp:   time.Now().UnixMilli(),
 			Content:     "",
 			Attachments: []string{},
-			Params:      req,
+			Params:      params,
 		}
+	default:
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的任务类型",
+			"data":    nil,
+		})
+		return
 	}
-
-	// 调用TaskManager异步创建任务
-	go func() {
-		err := tm.AddTaskApi(&taskReq)
-		if err != nil {
-			log.Errorf("异步任务创建失败: sessionId=%s, error=%v", sessionId, err)
-		} else {
-			log.Infof("异步任务创建成功: sessionId=%s", sessionId)
-		}
-	}()
-
+	err := tm.AddTaskApi(&taskReq)
+	if err != nil {
+		log.Errorf("任务创建失败: sessionId=%s, error=%v", sessionId, err)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "任务创建失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
 		"message": "任务创建成功，正在后台处理",
 		"data": gin.H{
 			"session_id": sessionId,
-			"task_type":  agent.TaskTypeMcpScan,
 		},
 	})
 }
 
 // GetTaskStatus 获取任务状态接口（开发者API）
+// @Summary Get task status
+// @Description Retrieve the current status and logs of a task by session ID. Returns task metadata and execution logs.
+// @Tags taskapi
+// @Produce json
+// @Param id path string true "Task Session ID" example:"550e8400-e29b-41d4-a716-446655440000"
+// @Success 200 {object} APIResponse{data=TaskStatusResponse} "Task status retrieved successfully"
+// @Failure 400 {object} APIResponse "Invalid session ID format"
+// @Failure 404 {object} APIResponse "Task not found"
+// @Failure 500 {object} APIResponse "Internal server error"
+// @Router /api/v1/app/taskapi/status/{id} [get]
 func GetTaskStatus(c *gin.Context, tm *TaskManager) {
 	sessionId := c.Param("id")
 
@@ -255,6 +442,16 @@ func GetTaskStatus(c *gin.Context, tm *TaskManager) {
 }
 
 // GetTaskResult 获取任务结果接口（开发者API）
+// @Summary Get task result
+// @Description Retrieve the final result of a completed task. Returns detailed scan results, vulnerabilities found, and security assessment data.
+// @Tags taskapi
+// @Produce json
+// @Param id path string true "Task Session ID" example:"550e8400-e29b-41d4-a716-446655440000"
+// @Success 200 {object} APIResponse "Task result retrieved successfully. Data contains scan results, vulnerabilities, and security findings"
+// @Failure 400 {object} APIResponse "Invalid session ID format"
+// @Failure 404 {object} APIResponse "Task not found or not completed"
+// @Failure 500 {object} APIResponse "Internal server error"
+// @Router /api/v1/app/taskapi/result/{id} [get]
 func GetTaskResult(c *gin.Context, tm *TaskManager) {
 	traceID := getTraceID(c)
 	sessionId := c.Param("id")

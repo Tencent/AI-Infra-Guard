@@ -462,7 +462,18 @@ func HandleDeleteTask(c *gin.Context, tm *TaskManager) {
 	})
 }
 
-// 文件上传接口
+// HandleUploadFile 文件上传接口
+// @Summary Upload file
+// @Description Upload a file for task processing. Supports various file formats including zip, json, txt, etc.
+// @Description The uploaded file will be stored securely and can be referenced in task creation.
+// @Tags taskapi
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "File to upload" example:"example.zip"
+// @Success 200 {object} object{status=int,message=string,data=object{file_url=string,filename=string,size=int}} "File uploaded successfully"
+// @Failure 400 {object} object{status=int,message=string,data=object} "Invalid file or upload parameters"
+// @Failure 500 {object} object{status=int,message=string,data=object} "Internal server error"
+// @Router /api/v1/app/taskapi/upload [post]
 func HandleUploadFile(c *gin.Context, tm *TaskManager) {
 	traceID := getTraceID(c)
 	// 获取上传的文件
