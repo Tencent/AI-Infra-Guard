@@ -40,7 +40,7 @@ class RedTeamRunner:
             logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load model: {model_name}", model_name=m.get_model_name()), status=m_status))
             if m_status == "failed":
                 logger.error(msg)
-                logger.critical_issue(content=logger.translated_msg("Load model: {model_name} failed", model_name=m.get_model_name()))
+                logger.critical_issue(content=logger.translated_msg("Load model: {model_name} failed: {message}", model_name=m.get_model_name(), message=msg))
                 return
 
         # 解析漏洞
@@ -65,7 +65,7 @@ class RedTeamRunner:
         logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status=m_status))
         if m_status == "failed":
             logger.error(msg)
-            logger.critical_issue(content=logger.translated_msg("Load evaluate model: {model_name} failed", model_name=evaluate_model.get_model_name()))
+            logger.critical_issue(content=logger.translated_msg("Load evaluate model: {model_name} failed: {message}", model_name=evaluate_model.get_model_name(), message=msg))
             return
 
         # logger.debug(f"Total vulnerabilities created: {len(vulnerabilities)}")
