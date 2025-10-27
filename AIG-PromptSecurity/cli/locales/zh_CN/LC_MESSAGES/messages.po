@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-23 16:37+0800\n"
-"PO-Revision-Date: 2025-10-23 16:38+0800\n"
+"POT-Creation-Date: 2025-10-27 11:28+0800\n"
+"PO-Revision-Date: 2025-10-27 11:29+0800\n"
 "Last-Translator: /bin/eash <EMAIL@address.com>\n"
 "Language-Team: Chinese (simplified)\n"
 "Language: zh_CN\n"
@@ -21,75 +21,80 @@ msgstr ""
 msgid "Something went wrong. Please try again in a few moments."
 msgstr "系统出现了点小问题，请稍后再试。"
 
-#: cli/red_team_runner.py:34 cli/red_team_runner.py:36
-#: cli/red_team_runner.py:40 cli/red_team_runner.py:47
-#: cli/red_team_runner.py:54 cli/red_team_runner.py:61
-#: cli/red_team_runner.py:65 cli/red_team_runner.py:78
-#: cli/red_team_runner.py:80
+#: cli/red_team_runner.py:35 cli/red_team_runner.py:37
+#: cli/red_team_runner.py:41 cli/red_team_runner.py:48
+#: cli/red_team_runner.py:55 cli/red_team_runner.py:105
+#: cli/red_team_runner.py:107 cli/red_team_runner.py:111
+#: cli/red_team_runner.py:124 cli/red_team_runner.py:126
 msgid "Pre-Jailbreak Parameter Parsing"
 msgstr "初始化越狱环境"
 
-#: cli/red_team_runner.py:36 cli/red_team_runner.py:40
+#: cli/red_team_runner.py:37 cli/red_team_runner.py:41
 #, python-brace-format
 msgid "Load model: {model_name}"
 msgstr "加载模型：{model_name}"
 
-#: cli/red_team_runner.py:43
+#: cli/red_team_runner.py:44
 #, python-brace-format
 msgid "Load model: {model_name} failed: {message}"
 msgstr "加载模型：{model_name} 失败: {message}"
 
-#: cli/red_team_runner.py:47
+#: cli/red_team_runner.py:48
 msgid "Load scenarios"
 msgstr "加载评估场景"
 
-#: cli/red_team_runner.py:54
+#: cli/red_team_runner.py:55
 #, python-brace-format
 msgid "Load inputs: {vs_name}"
 msgstr "加载输入：{vs_name}"
 
-#: cli/red_team_runner.py:58
+#: cli/red_team_runner.py:59
 msgid "Load scenarios failed"
 msgstr "加载评估场景失败"
 
-#: cli/red_team_runner.py:61 cli/red_team_runner.py:65
+#: cli/red_team_runner.py:105
+#, python-brace-format
+msgid "Load metric: {metric_name}"
+msgstr "加载评估方法：{metric_name}"
+
+#: cli/red_team_runner.py:107 cli/red_team_runner.py:111
 #, python-brace-format
 msgid "Load evaluate model: {model_name}"
 msgstr "加载打分模型：{model_name}"
 
-#: cli/red_team_runner.py:68
+#: cli/red_team_runner.py:114
 #, python-brace-format
 msgid "Load evaluate model: {model_name} failed: {message}"
 msgstr "加载打分模型：{model_name} 失败: {message}"
 
-#: cli/red_team_runner.py:78 cli/red_team_runner.py:80
+#: cli/red_team_runner.py:124 cli/red_team_runner.py:126
 msgid "Load attacks"
 msgstr "加载泛化方法"
 
-#: cli/red_team_runner.py:142
+#: cli/red_team_runner.py:149
 #, python-brace-format
 msgid ""
 "An error occurred during {model_name} assessment. Please try again later."
 msgstr "评估 {model_name} 过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:146 cli/red_team_runner.py:147
-#: cli/red_team_runner.py:174
+#: cli/red_team_runner.py:153 cli/red_team_runner.py:154
+#: cli/red_team_runner.py:181
 msgid "Generating report"
 msgstr "生成模型安全报告"
 
-#: cli/red_team_runner.py:147 cli/red_team_runner.py:174
+#: cli/red_team_runner.py:154 cli/red_team_runner.py:181
 msgid "A.I.G is working"
 msgstr "A.I.G正在工作"
 
-#: cli/red_team_runner.py:148
+#: cli/red_team_runner.py:155
 msgid "Report in progress"
 msgstr "生成报告"
 
-#: cli/red_team_runner.py:170
+#: cli/red_team_runner.py:177
 msgid "An error occurred during report generated. Please try again later."
 msgstr "报告生成过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:173
+#: cli/red_team_runner.py:180
 msgid "Report generated"
 msgstr "生成报告"
 

@@ -56,11 +56,17 @@ def parse_kwargs(param_str: str) -> dict:
     return kwargs
 
 
-def parse_metric_class(arg: str) -> str | None:
+def parse_metric_class(arg: str) -> Tuple[str | None, str | None]:
     """解析指标类名"""
     if not arg:
         return None
-    return METRIC_CLASS_MAP.get(arg, arg)
+    if ":" in arg:
+        class_name, param_str = arg.split(":", 1)
+        kwargs = parse_kwargs(param_str)
+    else:
+        class_name = arg
+        kwargs = None
+    return METRIC_CLASS_MAP.get(class_name, class_name), kwargs
 
 
 def parse_attack(arg: str, plugin_manager: PluginManager) -> Any:

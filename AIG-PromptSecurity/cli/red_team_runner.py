@@ -5,6 +5,7 @@ from cli.aig_logger import (
     newPlanStep, statusUpdate, toolUsed, actionLog, resultUpdate
 )
 import uuid
+import inspect
 from typing import List, Any, Optional
 from deepteam.red_teamer import RedTeamer
 from deepteam.plugin_system import PluginManager
@@ -57,16 +58,61 @@ class RedTeamRunner:
             logger.exception(e)
             logger.critical_issue(content=logger.translated_msg("Load scenarios failed"))
             return
-       
-        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status="running"))
-        # 测试连通
-        is_connection, msg = evaluate_model.test_model_connection()
-        m_status = "completed" if is_connection else "failed"
-        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status=m_status))
-        if m_status == "failed":
-            logger.error(msg)
-            logger.critical_issue(content=logger.translated_msg("Load evaluate model: {model_name} failed: {message}", model_name=evaluate_model.get_model_name(), message=msg))
-            return
+
+        # 运行红队测试
+        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode)
+        red_teamer.max_concurrent = max(red_teamer.max_concurrent, simulator_model.max_concurrent, evaluate_model.max_concurrent)
+
+        # 如果指定了自定义metric，则对所有vulnerability类型使用该metric
+        if metric:
+            metric_class_path, metric_kwarg = parse_metric_class(metric)
+        else:
+            metric_class_path, metric_kwarg = None, None
+        
+        need_evaluation_model = True
+        if metric_class_path:
+            logger.debug(f"Using metric: {metric_class_path}")
+            
+            # 首先检查是否是自定义插件
+            custom_metric = self.plugin_manager.create_metric_instance(metric_class_path, model=evaluate_model, async_mode=async_mode)
+            if custom_metric:
+                red_teamer.custom_metric = custom_metric  # type: ignore
+            else:
+                # 如果不是自定义插件，使用内置映射
+                custom_metric_class = dynamic_import(metric_class_path)
+
+                init_signature = inspect.signature(custom_metric_class.__init__)
+                possible_params = {
+                    "model": evaluate_model,
+                    "async_mode": async_mode,
+                    **metric_kwarg  # 合并额外参数
+                }
+                
+                # 筛选出 __init__ 支持的参数
+                supported_params = {
+                    param: possible_params[param]
+                    for param in possible_params
+                    if param in init_signature.parameters
+                }
+                
+                red_teamer.custom_metric = custom_metric_class(**supported_params)
+
+                # 如果评估方法需要评估模型
+                if "model" not in supported_params:
+                    need_evaluation_model = False
+
+        metric_name = red_teamer.custom_metric.__name__ if red_teamer.custom_metric else "Default"
+        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load metric: {metric_name}", metric_name=metric_name), status="completed"))
+        if need_evaluation_model:
+            logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status="running"))
+            # 测试连通
+            is_connection, msg = evaluate_model.test_model_connection()
+            m_status = "completed" if is_connection else "failed"
+            logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load evaluate model: {model_name}", model_name=evaluate_model.get_model_name()), status=m_status))
+            if m_status == "failed":
+                logger.error(msg)
+                logger.critical_issue(content=logger.translated_msg("Load evaluate model: {model_name} failed: {message}", model_name=evaluate_model.get_model_name(), message=msg))
+                return
 
         # logger.debug(f"Total vulnerabilities created: {len(vulnerabilities)}")
         for i, v in enumerate(vulnerabilities):
@@ -82,45 +128,6 @@ class RedTeamRunner:
 
         # 获取攻击策略
         logger.debug(f"Attack selection strategy: {choice}")
-
-        # 类型转换
-        vulnerabilities = list(vulnerabilities)
-        attacks = list(attacks)
-
-        # 运行红队测试
-        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode)
-        red_teamer.max_concurrent = max(red_teamer.max_concurrent, simulator_model.max_concurrent, evaluate_model.max_concurrent)
-
-        # 如果指定了自定义metric，则对所有vulnerability类型使用该metric
-        metric_class_path = parse_metric_class(metric) if metric else None
-        if metric_class_path:
-            logger.debug(f"Using metric: {metric_class_path}")
-            
-            # 首先检查是否是自定义插件
-            custom_metric = self.plugin_manager.create_metric_instance(metric_class_path, model=evaluate_model, async_mode=async_mode)
-            if custom_metric:
-                red_teamer.custom_metric = custom_metric  # type: ignore
-            else:
-                # 如果不是自定义插件，使用内置映射
-                custom_metric_class = dynamic_import(metric_class_path)
-                
-                # 尝试不同的初始化方式
-                try:
-                    # 首先尝试使用model和async_mode参数
-                    custom_metric = custom_metric_class(model=evaluate_model, async_mode=async_mode)
-                except TypeError:
-                    try:
-                        # 如果失败，尝试只使用model参数
-                        custom_metric = custom_metric_class(model=evaluate_model)
-                    except TypeError:
-                        try:
-                            # 如果还是失败，尝试使用async_mode参数
-                            custom_metric = custom_metric_class(async_mode=async_mode)
-                        except TypeError:
-                            # 最后尝试无参数初始化
-                            custom_metric = custom_metric_class()
-                
-                red_teamer.custom_metric = custom_metric  # type: ignore
         
         try:
             all_risk_assessments = []
