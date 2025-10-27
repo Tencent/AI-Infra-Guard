@@ -121,11 +121,7 @@ class CustomPrompt(CustomVulnerability):
     def _parse_prompt(self, prompt: Union[str, List[str]]) -> List[str]:
         """解析prompt参数"""
         if isinstance(prompt, str):
-            # 如果是逗号分隔的字符串，分割成列表
-            if ',' in prompt:
-                return [p.strip() for p in prompt.split(',') if p.strip()]
-            else:
-                return [prompt.strip()]
+            return [prompt.strip()]
         elif isinstance(prompt, list):
             return [str(p).strip() for p in prompt if str(p).strip()]
         else:
