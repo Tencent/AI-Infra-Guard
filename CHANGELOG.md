@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.3] - 2025-10-27
+### 新增功能 (Added)
+🔧 **API文档支持**：更新并增强了API文档支持，提供更完整的接口文档和Swagger规范。
+🤖 **模型调用基础类**：新增模型调用的基础类方法，提升代码复用性和维护性。
+📊 **评估数据集扩展**：新增网络攻击(Cyberattack)和CBRN武器相关的测试数据集。
+
+### 修复问题 (Fixed)
+🛠️ **CSV编码问题**：修复CSV文件中文乱码问题，改善数据导出体验。
+
+## [v3.4.2] - 2025-09-25
+- 优化前端
+- 新增漏洞指纹:
+clickhouse
+comfyui
+dask
+gradio
+langchain
+langflow
+langfuse
+LiteLLM
+ollama
+open-webui
+pyload-ng
+ragflow
+ray
+triton-inference-server
+vllm
+
+
 ## [v3.4.1] - 2025-09-24
 - 新增漏洞指纹 CVE-2025-23316
 - 优化：triton指纹
