@@ -1,0 +1,337 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for managing AI security scanning tasks",
+        "title": "AI-Infra-Guard 任务API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1/app/taskapi/result/{id}": {
+            "get": {
+                "description": "Retrieve the final result of a completed task. Returns detailed scan results, vulnerabilities found, and security assessment data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "taskapi"
+                ],
+                "summary": "Get task result",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task Session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task result retrieved successfully. Data contains scan results, vulnerabilities, and security findings",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid session ID format",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Task not found or not completed",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app/taskapi/status/{id}": {
+            "get": {
+                "description": "Retrieve the current status and logs of a task by session ID. Returns task metadata and execution logs.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "taskapi"
+                ],
+                "summary": "Get task status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task Session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task status retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/websocket.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/websocket.TaskStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid session ID format",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app/taskapi/tasks": {
+            "post": {
+                "description": "Submit a new task for processing. Supports three types of tasks:\n1. MCP Scan (mcp_scan): Model Context Protocol security scanning\n2. AI Infra Scan (ai_infra_scan): AI infrastructure security scanning\n3. Model Redteam Report (model_redteam_report): AI model red team testing\n\nRequest Body Examples:\n\nMCP Scan Task:\n{\n\"type\": \"mcp_scan\",\n\"content\": {\n\"content\": \"扫描MCP服务器\",\n\"model\": {\n\"model\": \"gpt-4\",\n\"token\": \"sk-xxx\",\n\"base_url\": \"https://api.openai.com/v1\"\n},\n\"thread\": 4,\n\"language\": \"zh\",\n\"attachments\": \"file.zip\"\n}\n}\n\nAI Infra Scan Task:\n{\n\"type\": \"ai_infra_scan\",\n\"content\": {\n\"target\": [\"https://example.com\"],\n\"headers\": {\n\"Authorization\": \"Bearer token\"\n},\n\"timeout\": 30\n}\n}\n\nModel Redteam Task:\n{\n\"type\": \"model_redteam_report\",\n\"content\": {\n\"model\": [{\n\"model\": \"gpt-4\",\n\"token\": \"sk-xxx\",\n\"base_url\": \"https://api.openai.com/v1\"\n}],\n\"eval_model\": {\n\"model\": \"gpt-4\",\n\"token\": \"sk-xxx\"\n},\n\"dataset\": {\n\"dataFile\": [\"JailBench-Tiny\", \"JailbreakPrompts-Tiny\"],\n\"numPrompts\": 100,\n\"randomSeed\": 42\n}\n}\n}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "taskapi"
+                ],
+                "summary": "Create a new task",
+                "parameters": [
+                    {
+                        "description": "Task request body. Content should be JSON object containing task-specific parameters based on type",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "content": {
+                                    "type": "object"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/websocket.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/websocket.TaskCreateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/websocket.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app/taskapi/upload": {
+            "post": {
+                "description": "Upload a file for task processing. Supports various file formats including zip, json, txt, etc.\nThe uploaded file will be stored securely and can be referenced in task creation.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "taskapi"
+                ],
+                "summary": "Upload file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File uploaded successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fileUrl": {
+                                            "type": "string"
+                                        },
+                                        "filename": {
+                                            "type": "string"
+                                        },
+                                        "size": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file or upload parameters",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "websocket.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "响应数据"
+                },
+                "message": {
+                    "description": "响应消息",
+                    "type": "string",
+                    "example": "操作成功"
+                },
+                "status": {
+                    "description": "状态码: 0=成功, 1=失败",
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "websocket.TaskCreateResponse": {
+            "type": "object",
+            "properties": {
+                "session_id": {
+                    "description": "任务会话ID",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "websocket.TaskStatusResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间戳(毫秒)",
+                    "type": "integer",
+                    "example": 1640995200000
+                },
+                "log": {
+                    "description": "任务执行日志",
+                    "type": "string",
+                    "example": "任务执行日志..."
+                },
+                "session_id": {
+                    "description": "任务会话ID",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "status": {
+                    "description": "任务状态: pending, running, completed, failed",
+                    "type": "string",
+                    "example": "running"
+                },
+                "title": {
+                    "description": "任务标题",
+                    "type": "string",
+                    "example": "MCP安全扫描任务"
+                },
+                "updated_at": {
+                    "description": "更新时间戳(毫秒)",
+                    "type": "integer",
+                    "example": 1640995200000
+                }
+            }
+        }
+    }
+}

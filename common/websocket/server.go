@@ -1,3 +1,7 @@
+// @title AI-Infra-Guard 任务API
+// @version 1.0
+// @description API for managing AI security scanning tasks
+// @BasePath /
 package websocket
 
 import (
@@ -7,9 +11,12 @@ import (
 
 	"github.com/Tencent/AI-Infra-Guard/common/middleware"
 	"github.com/Tencent/AI-Infra-Guard/common/trpc"
+	_ "github.com/Tencent/AI-Infra-Guard/docs"
 	"github.com/Tencent/AI-Infra-Guard/internal/options"
 	"github.com/Tencent/AI-Infra-Guard/pkg/database"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"trpc.group/trpc-go/trpc-go/log"
 )
 
@@ -208,7 +215,35 @@ func RunWebServer(options *options.Options) {
 			// 只需要WebSocket入口
 			agents.GET("/ws", agentManager.HandleAgentWebSocket())
 		}
+		// 提供给第三方的api
+		taskApi := appSecurity.Group("/taskapi")
+		{
+			// 创建任务
+			taskApi.POST("/tasks", func(c *gin.Context) {
+				SubmitTask(c, taskManager)
+			})
+			// 获取任务状态
+			taskApi.GET("/status/:id", func(c *gin.Context) {
+				GetTaskStatus(c, taskManager)
+			})
+			// 获取任务结果
+			taskApi.GET("/result/:id", func(c *gin.Context) {
+				GetTaskResult(c, taskManager)
+			})
+			taskApi.POST("/upload", func(c *gin.Context) {
+				HandleUploadFile(c, taskManager)
+			})
+		}
 	}
+
+	// Swagger UI - 必须在 NoRoute 之前注册
+	r.GET("/docs/*any", func(c *gin.Context) {
+		if c.Request.URL.Path == "/docs/" {
+			c.Redirect(302, "/docs/index.html")
+		} else {
+			ginSwagger.WrapHandler(swaggerFiles.Handler)(c)
+		}
+	})
 
 	// 静态文件处理
 	r.NoRoute(func(c *gin.Context) {
