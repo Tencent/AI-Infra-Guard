@@ -4,6 +4,8 @@
 
 AI-Infra-Guard 提供了一套完整的API接口，用于AI基础设施安全扫描、MCP（Model Context Protocol）安全扫描和模型红队测评。本文档详细介绍了各个API接口的使用方法、参数说明和示例代码。
 
+项目运行后，可访问 `http://localhost:8088/docs/index.html` 查看Swagger文档。
+
 ## 基础信息
 
 - **Base URL**: `http://localhost:8080` (根据实际部署调整)
@@ -39,7 +41,7 @@ AI-Infra-Guard 提供了一套完整的API接口，用于AI基础设施安全扫
 #### 响应字段
 | 字段名 | 类型 | 说明 |
 |--------|------|------|
-| file_url | string | 文件访问URL |
+| fileUrl | string | 文件访问URL |
 | filename | string | 文件名 |
 | size | integer | 文件大小（字节） |
 
@@ -58,7 +60,7 @@ def upload_file(file_path):
 
 # 使用示例
 result = upload_file("example.zip")
-print(f"文件上传成功: {result['data']['file_url']}")
+print(f"文件上传成功: {result['data']['fileUrl']}")
 ```
 
 #### cURL 示例
@@ -108,7 +110,7 @@ MCP（Model Context Protocol）安全扫描用于检测MCP服务器中的安全�
 
 #### 源码扫描流程
 1. 先调用文件上传接口上传源码文件
-2. 使用返回的file_url作为attachments参数
+2. 使用返回的fileUrl作为attachments参数
 3. 调用MCP扫描API
 
 #### Python 示例
@@ -126,7 +128,7 @@ def mcp_scan_with_source_code():
     if upload_response.json()['status'] != 0:
         raise Exception("文件上传失败")
     
-    file_url = upload_response.json()['data']['file_url']
+    fileUrl = upload_response.json()['data']['fileUrl']
     
     # 2. 创建MCP扫描任务
     task_url = "http://localhost:8080/api/v1/app/taskapi/tasks"
@@ -141,7 +143,7 @@ def mcp_scan_with_source_code():
             },
             "thread": 4,
             "language": "zh",
-            "attachments": file_url
+            "attachments": fileUrl
         }
     }
     
@@ -160,14 +162,14 @@ def mcp_scan_with_url():
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "https://mcp-server.example.com/sse",  # 直接填写URL
+            "content": "https://mcp-server.example.com",  # 直接填写URL
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
                 "base_url": "https://api.openai.com/v1"
             },
             "thread": 4,
-            "language": "zh-CN"
+            "language": "zh"
         }
     }
     
@@ -183,14 +185,14 @@ curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
   -d '{
     "type": "mcp_scan",
     "content": {
-      "content": "扫描MCP服务器源码",
+      "content": "",
       "model": {
         "model": "gpt-4",
         "token": "sk-your-api-key",
         "base_url": "https://api.openai.com/v1"
       },
       "thread": 4,
-      "language": "zh-CN",
+      "language": "zh",
       "attachments": "http://localhost:8080/uploads/example.zip"
     }
   }'
@@ -208,7 +210,7 @@ curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
         "base_url": "https://api.openai.com/v1"
       },
       "thread": 4,
-      "language": "zh-CN"
+      "language": "zh"
     }
   }'
 ```
@@ -281,9 +283,19 @@ curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
 | model | array | 是 | 测试模型列表 |
 | eval_model | object | 是 | 评估模型配置 |
 | dataset | object | 是 | 数据集配置 |
-| dataset.dataFile | array | 是 | 数据集文件列表 |
+| dataset.dataFile | array | 是 | 数据集文件列表，支持以下选项：<br/>- JailBench-Tiny: 小型越狱基准测试数据集<br/>- JailbreakPrompts-Tiny: 小型越狱提示词数据集<br/>- ChatGPT-Jailbreak-Prompts: ChatGPT越狱提示词数据集<br/>- JADE-db-v3.0: JADE数据库v3.0版本<br/>- HarmfulEvalBenchmark: 有害内容评估基准数据集 |
 | dataset.numPrompts | integer | 是 | 提示词数量 |
 | dataset.randomSeed | integer | 是 | 随机种子 |
+
+#### 支持的数据集说明
+
+| 数据集名称 | 描述 | 适用场景 |
+|------------|------|----------|
+| JailBench-Tiny | 小型越狱基准测试数据集 | 快速测试模型对越狱攻击的抵抗能力 |
+| JailbreakPrompts-Tiny | 小型越狱提示词数据集 | 测试模型对常见越狱技术的防护 |
+| ChatGPT-Jailbreak-Prompts | ChatGPT越狱提示词数据集 | 专门针对ChatGPT的越狱测试 |
+| JADE-db-v3.0 | JADE数据库v3.0版本 | 全面的AI安全评估数据集 |
+| HarmfulEvalBenchmark | 有害内容评估基准数据集 | 评估模型生成有害内容的风险 |
 
 #### Python 示例
 ```python
@@ -311,8 +323,9 @@ def model_redteam_test():
             },
             "dataset": {
                 "dataFile": [
-                    "jailbreak_prompts.json",
-                    "harmful_eval.json"
+                    "JailBench-Tiny",
+                    "JailbreakPrompts-Tiny",
+                    "ChatGPT-Jailbreak-Prompts"
                 ],
                 "numPrompts": 100,
                 "randomSeed": 42
@@ -328,8 +341,44 @@ result = model_redteam_test()
 print(f"模型红队测评任务创建成功，会话ID: {result['data']['session_id']}")
 ```
 
+#### 不同数据集组合示例
+```python
+# 使用JADE数据库进行全面测试
+def comprehensive_redteam_test():
+    task_data = {
+        "type": "model_redteam_report",
+        "content": {
+            "model": [{"model": "gpt-4", "token": "sk-your-key"}],
+            "eval_model": {"model": "gpt-4", "token": "sk-eval-key"},
+            "dataset": {
+                "dataFile": ["JADE-db-v3.0"],
+                "numPrompts": 500,
+                "randomSeed": 123
+            }
+        }
+    }
+    return requests.post(task_url, json=task_data).json()
+
+# 使用有害内容评估基准
+def harmful_content_test():
+    task_data = {
+        "type": "model_redteam_report",
+        "content": {
+            "model": [{"model": "gpt-4", "token": "sk-your-key"}],
+            "eval_model": {"model": "gpt-4", "token": "sk-eval-key"},
+            "dataset": {
+                "dataFile": ["HarmfulEvalBenchmark"],
+                "numPrompts": 200,
+                "randomSeed": 456
+            }
+        }
+    }
+    return requests.post(task_url, json=task_data).json()
+```
+
 #### cURL 示例
 ```bash
+# 基础红队测试
 curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -348,9 +397,25 @@ curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
         "base_url": "https://api.openai.com/v1"
       },
       "dataset": {
-        "dataFile": ["jailbreak_prompts.json", "harmful_eval.json"],
+        "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],
         "numPrompts": 100,
         "randomSeed": 42
+      }
+    }
+  }'
+
+# 全面安全评估
+curl -X POST http://localhost:8080/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "model_redteam_report",
+    "content": {
+      "model": [{"model": "gpt-4", "token": "sk-your-key"}],
+      "eval_model": {"model": "gpt-4", "token": "sk-eval-key"},
+      "dataset": {
+        "dataFile": ["JADE-db-v3.0", "HarmfulEvalBenchmark"],
+        "numPrompts": 500,
+        "randomSeed": 123
       }
     }
   }'
@@ -462,8 +527,8 @@ def complete_mcp_scan_workflow():
     if upload_response.json()['status'] != 0:
         raise Exception("文件上传失败")
     
-    file_url = upload_response.json()['data']['file_url']
-    print(f"文件上传成功: {file_url}")
+    fileUrl = upload_response.json()['data']['fileUrl']
+    print(f"文件上传成功: {fileUrl}")
     
     # 2. 创建MCP扫描任务
     print("2. 创建MCP扫描任务...")
@@ -471,15 +536,15 @@ def complete_mcp_scan_workflow():
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "扫描MCP服务器源码",
+            "content": "",
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
                 "base_url": "https://api.openai.com/v1"
             },
             "thread": 4,
-            "language": "zh-CN",
-            "attachments": file_url
+            "language": "zh",
+            "attachments": fileUrl
         }
     }
     
@@ -535,6 +600,94 @@ if __name__ == "__main__":
         print(f"扫描失败: {e}")
 ```
 
+### 模型红队测评完整流程
+
+```python
+def complete_redteam_workflow():
+    base_url = "http://localhost:8080"
+    
+    # 1. 创建红队测评任务
+    print("1. 创建模型红队测评任务...")
+    task_url = f"{base_url}/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "model_redteam_report",
+        "content": {
+            "model": [
+                {
+                    "model": "gpt-4",
+                    "token": "sk-your-api-key",
+                    "base_url": "https://api.openai.com/v1"
+                }
+            ],
+            "eval_model": {
+                "model": "gpt-4",
+                "token": "sk-your-eval-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "dataset": {
+                "dataFile": [
+                    "JailBench-Tiny",
+                    "JailbreakPrompts-Tiny",
+                    "ChatGPT-Jailbreak-Prompts"
+                ],
+                "numPrompts": 100,
+                "randomSeed": 42
+            }
+        }
+    }
+    
+    task_response = requests.post(task_url, json=task_data)
+    if task_response.json()['status'] != 0:
+        raise Exception("任务创建失败")
+    
+    session_id = task_response.json()['data']['session_id']
+    print(f"红队测评任务创建成功，会话ID: {session_id}")
+    
+    # 2. 监控任务执行
+    print("2. 监控任务执行...")
+    status_url = f"{base_url}/api/v1/app/taskapi/status/{session_id}"
+    
+    while True:
+        status_response = requests.get(status_url)
+        status_data = status_response.json()
+        
+        if status_data['status'] != 0:
+            raise Exception("获取任务状态失败")
+        
+        task_status = status_data['data']['status']
+        print(f"当前状态: {task_status}")
+        
+        if task_status == "completed":
+            print("红队测评完成！")
+            break
+        elif task_status == "failed":
+            raise Exception("红队测评失败")
+        
+        time.sleep(30)  # 红队测评通常需要更长时间
+    
+    # 3. 获取测评结果
+    print("3. 获取测评结果...")
+    result_url = f"{base_url}/api/v1/app/taskapi/result/{session_id}"
+    result_response = requests.get(result_url)
+    
+    if result_response.json()['status'] != 0:
+        raise Exception("获取测评结果失败")
+    
+    redteam_results = result_response.json()['data']
+    print("红队测评结果:")
+    print(json.dumps(redteam_results, indent=2, ensure_ascii=False))
+    
+    return redteam_results
+
+# 执行红队测评流程
+if __name__ == "__main__":
+    try:
+        results = complete_redteam_workflow()
+        print("模型红队测评完成！")
+    except Exception as e:
+        print(f"红队测评失败: {e}")
+```
+
 ## 错误处理
 
 ### 常见错误码
@@ -569,6 +722,8 @@ except Exception as e:
 3. **超时设置**: 根据任务复杂度合理设置超时时间
 4. **并发限制**: 避免同时创建过多任务，以免影响系统性能
 5. **结果保存**: 及时保存扫描结果，避免数据丢失
+6. **数据集选择**: 根据测试需求选择合适的数据集组合
+7. **模型配置**: 确保测试模型和评估模型配置正确
 
 ## 技术支持
 

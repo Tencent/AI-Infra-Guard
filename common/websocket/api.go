@@ -56,13 +56,19 @@ type AIInfraScanTaskRequest struct {
 
 // PromptSecurityTaskRequest 提示词安全测试任务请求结构体
 // @Description 提示词安全测试任务请求参数
+// @Description 支持的数据集:
+// @Description - JailBench-Tiny: 小型越狱基准测试数据集
+// @Description - JailbreakPrompts-Tiny: 小型越狱提示词数据集
+// @Description - ChatGPT-Jailbreak-Prompts: ChatGPT越狱提示词数据集
+// @Description - JADE-db-v3.0: JADE数据库v3.0版本
+// @Description - HarmfulEvalBenchmark: 有害内容评估基准数据集
 type PromptSecurityTaskRequest struct {
 	Model     []ModelParams `json:"model"`      // 测试模型列表
 	EvalModel ModelParams   `json:"eval_model"` // 评估模型配置
 	Datasets  struct {
-		DataFile   []string `json:"dataFile" example:"[\"dataset1.json\",\"dataset2.json\"]"` // 数据集文件列表
-		NumPrompts int      `json:"numPrompts" example:"100"`                                 // 提示词数量
-		RandomSeed int      `json:"randomSeed" example:"42"`                                  // 随机种子
+		DataFile   []string `json:"dataFile" example:"[\"JailBench-Tiny\",\"JailbreakPrompts-Tiny\"]"` // 数据集文件列表，可选: JailBench-Tiny, JailbreakPrompts-Tiny, ChatGPT-Jailbreak-Prompts, JADE-db-v3.0, HarmfulEvalBenchmark
+		NumPrompts int      `json:"numPrompts" example:"100"`                                          // 提示词数量
+		RandomSeed int      `json:"randomSeed" example:"42"`                                           // 随机种子
 	} `json:"dataset"` // 数据集配置
 }
 
@@ -140,7 +146,7 @@ type TaskCreateResponse struct {
 //            "token": "sk-xxx"
 //          },
 //          "dataset": {                      // 必需: 数据集配置
-//            "dataFile": ["dataset.json"],   // 数据集文件列表
+//            "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],   // 数据集文件列表，可选: JailBench-Tiny, JailbreakPrompts-Tiny, ChatGPT-Jailbreak-Prompts, JADE-db-v3.0, HarmfulEvalBenchmark
 //            "numPrompts": 100,              // 提示词数量
 //            "randomSeed": 42                // 随机种子
 //          }
@@ -198,7 +204,7 @@ type TaskCreateResponse struct {
 // @Description       "token": "sk-xxx"
 // @Description     },
 // @Description     "dataset": {
-// @Description       "dataFile": ["dataset.json"],
+// @Description       "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],
 // @Description       "numPrompts": 100,
 // @Description       "randomSeed": 42
 // @Description     }

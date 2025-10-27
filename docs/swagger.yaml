@@ -146,7 +146,7 @@ paths:
         "base_url": "https://api.openai.com/v1"
         },
         "thread": 4,
-        "language": "zh-CN",
+        "language": "zh",
         "attachments": "file.zip"
         }
         }
@@ -177,7 +177,7 @@ paths:
         "token": "sk-xxx"
         },
         "dataset": {
-        "dataFile": ["dataset.json"],
+        "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],
         "numPrompts": 100,
         "randomSeed": 42
         }
@@ -241,7 +241,7 @@ paths:
             properties:
               data:
                 properties:
-                  file_url:
+                  fileUrl:
                     type: string
                   filename:
                     type: string

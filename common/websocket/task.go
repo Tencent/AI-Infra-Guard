@@ -470,7 +470,7 @@ func HandleDeleteTask(c *gin.Context, tm *TaskManager) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "File to upload" example:"example.zip"
-// @Success 200 {object} object{status=int,message=string,data=object{file_url=string,filename=string,size=int}} "File uploaded successfully"
+// @Success 200 {object} object{status=int,message=string,data=object{fileUrl=string,filename=string,size=int}} "File uploaded successfully"
 // @Failure 400 {object} object{status=int,message=string,data=object} "Invalid file or upload parameters"
 // @Failure 500 {object} object{status=int,message=string,data=object} "Internal server error"
 // @Router /api/v1/app/taskapi/upload [post]
