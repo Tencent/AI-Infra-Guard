@@ -28,8 +28,10 @@ class OpenaiAlikeModel(BaseLLM):
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                messages=[{"role": "user", "content": "Hi"}],
-                max_completion_tokens=10
+                messages=[{"role": "user", "content": "only return 1"}],
+                reasoning_effort="low",
+                max_completion_tokens=2048,
+                frequency_penalty=1.0
             )
             return True, response.choices[0].message.content
         except Exception as e:
