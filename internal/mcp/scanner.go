@@ -463,10 +463,8 @@ Reply directly in markdown format.
 }
 
 func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *McpPluginConfig) (*McpResult, error) {
-	var staticResults []string
+	var results []string
 	if len(p.Rules) > 0 {
-		var results []string
-
 		// 编译所有正则表达式
 		var compiledRules []struct {
 			rule    Rule
@@ -525,7 +523,7 @@ func (s *Scanner) runCheckCode(ctx context.Context, p *PluginConfig, config *Mcp
 			s.logger.WithError(err).Errorln("scan file failed")
 		}
 	}
-	return runAIAnalysis(ctx, p, config, staticResults)
+	return runAIAnalysis(ctx, p, config, results)
 }
 
 type CallbackWriteLog struct {
