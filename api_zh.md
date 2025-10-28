@@ -1,51 +1,51 @@
-# A.I.G API Documentation
+# A.I.G API 文档
 
-## Overview
+## 概述
 
-A.I.G(AI-Infra-Guard) provides a comprehensive set of API interfaces for AI Infra Scan, MCP Server Scan, and Jailbreak Evaluation. This documentation details the usage methods, parameter descriptions, and example code for each API interface.
+A.I.G(AI-Infra-Guard) 提供了一套完整的API接口，用于AI基础设施扫描、MCP安全扫描和大模型安全体检。本文档详细介绍了各个API接口的使用方法、参数说明和示例代码。
 
-After the project is running, you can access `http://localhost:8088/docs/index.html` to view the Swagger documentation.
+项目运行后，可访问 `http://localhost:8088/docs/index.html` 查看Swagger文档。
 
-## Basic Information
+## 基础信息
 
-- **Base URL**: `http://localhost:8088` (adjust according to actual deployment)
+- **Base URL**: `http://localhost:8088` (根据实际部署调整)
 - **Content-Type**: `application/json`
-- **Authentication**: Pass authentication information through request headers
+- **认证方式**: 通过请求头传递认证信息
 
-## Common Response Format
+## 通用响应格式
 
-All API interfaces follow a unified response format:
+所有API接口都遵循统一的响应格式：
 
 ```json
 {
-  "status": 0,           // Status code: 0=success, 1=failure
-  "message": "Operation successful",  // Response message
-  "data": {}             // Response data
+  "status": 0,           // 状态码: 0=成功, 1=失败
+  "message": "操作成功",  // 响应消息
+  "data": {}             // 响应数据
 }
 ```
 
-## API Interface List
+## API 接口列表
 
-### 1. File Upload Interface
+### 1. 文件上传接口
 
-#### Interface Information
+#### 接口信息
 - **URL**: `/api/v1/app/taskapi/upload`
-- **Method**: `POST`
+- **方法**: `POST`
 - **Content-Type**: `multipart/form-data`
 
-#### Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| file | file | Yes | File to upload, supports zip, json, txt and other formats |
+#### 参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| file | file | 是 | 要上传的文件，支持zip、json、txt等格式 |
 
-#### Response Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| fileUrl | string | File access URL |
-| filename | string | File name |
-| size | integer | File size (bytes) |
+#### 响应字段
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| fileUrl | string | 文件访问URL |
+| filename | string | 文件名 |
+| size | integer | 文件大小（字节） |
 
-#### Python Example
+#### Python 示例
 ```python
 import requests
 
@@ -58,79 +58,79 @@ def upload_file(file_path):
     
     return response.json()
 
-# Usage example
+# 使用示例
 result = upload_file("example.zip")
-print(f"File uploaded successfully: {result['data']['fileUrl']}")
+print(f"文件上传成功: {result['data']['fileUrl']}")
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
 curl -X POST \
   http://localhost:8088/api/v1/app/taskapi/upload \
   -F "file=@example.zip"
 ```
 
-### 2. Task Creation Interface
+### 2. 任务创建接口
 
-#### Interface Information
+#### 接口信息
 - **URL**: `/api/v1/app/taskapi/tasks`
-- **Method**: `POST`
+- **方法**: `POST`
 - **Content-Type**: `application/json`
 
-#### Request Parameters
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| type | string | Yes | Task type: mcp_scan, ai_infra_scan, model_redteam_report |
-| content | object | Yes | Task content, varies according to task type |
+#### 请求参数
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| type | string | 是 | 任务类型：mcp_scan、ai_infra_scan、model_redteam_report |
+| content | object | 是 | 任务内容，根据任务类型不同而不同 |
 
-#### Response Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| session_id | string | Task session ID |
+#### 响应字段
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| session_id | string | 任务会话ID |
 
 ---
 
-## Detailed Task Type Descriptions
+## 任务类型详细说明
 
-### 1. MCP Server Scan API
+### 1. MCP 安全扫描 API
 
-MCP Server Scan is used to detect security vulnerabilities in MCP servers.
+MCP（Model Context Protocol）安全扫描用于检测MCP服务中的安全漏洞。
 
-#### Request Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| content | string | No | Task content description |
-| model | object | Yes | Model configuration |
-| model.model | string | Yes | Model name, e.g., "gpt-4" |
-| model.token | string | Yes | API key |
-| model.base_url | string | No | Base URL, defaults to OpenAI API |
-| thread | integer | No | Concurrent thread count, default 4 |
-| language | string | No | Language code, e.g., "zh" |
-| attachments | string | No | Attachment file path (file must be uploaded first) |
+#### 请求参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| content | string | 否 | 任务内容描述 |
+| model | object | 是 | 模型配置 |
+| model.model | string | 是 | 模型名称，如"gpt-4" |
+| model.token | string | 是 | API密钥 |
+| model.base_url | string | 否 | 基础URL，默认为OpenAI API |
+| thread | integer | 否 | 并发线程数，默认4 |
+| language | string | 否 | 语言代码，如"zh" |
+| attachments | string | 否 | 附件文件路径（需要先上传文件） |
 
-#### Source Code Scanning Process
-1. First call the file upload interface to upload source code files
-2. Use the returned fileUrl as the attachments parameter
-3. Call the MCP Server Scan API
+#### 源码扫描流程
+1. 先调用文件上传接口上传源码文件
+2. 使用返回的fileUrl作为attachments参数
+3. 调用MCP扫描API
 
-#### Python Example
+#### Python 示例
 ```python
 import requests
 import json
 
 def mcp_scan_with_source_code():
-    # 1. Upload source code file
+    # 1. 上传源码文件
     upload_url = "http://localhost:8088/api/v1/app/taskapi/upload"
     with open("source_code.zip", 'rb') as f:
         files = {'file': f}
         upload_response = requests.post(upload_url, files=files)
     
     if upload_response.json()['status'] != 0:
-        raise Exception("File upload failed")
+        raise Exception("文件上传失败")
     
     fileUrl = upload_response.json()['data']['fileUrl']
     
-    # 2. Create MCP Server Scan task
+    # 2. 创建MCP扫描任务
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
     task_data = {
         "type": "mcp_scan",
@@ -150,19 +150,19 @@ def mcp_scan_with_source_code():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-# Usage example
+# 使用示例
 result = mcp_scan_with_source_code()
-print(f"Task created successfully, session ID: {result['data']['session_id']}")
+print(f"任务创建成功，会话ID: {result['data']['session_id']}")
 ```
 
-#### Dynamic URL Scanning Example
+#### 动态URL扫描示例
 ```python
 def mcp_scan_with_url():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "https://mcp-server.example.com",  # Direct URL input
+            "content": "https://mcp-server.example.com",  # 直接填写URL
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -177,9 +177,9 @@ def mcp_scan_with_url():
     return response.json()
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
-# Source code scanning
+# 源码扫描
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -197,7 +197,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
     }
   }'
 
-# URL scanning
+# URL扫描
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -215,18 +215,18 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   }'
 ```
 
-### 2. AI Infra Scan API
+### 2. AI 基础设施扫描 API
 
-Used to scan AI infra for security vulnerabilities and configuration issues.
+用于扫描AI基础设施的安全漏洞和配置问题。
 
-#### Request Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| target | array | Yes | List of target URLs to scan |
-| headers | object | No | Custom request headers |
-| timeout | integer | No | Request timeout (seconds), default 30 |
+#### 请求参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| target | array | 是 | 扫描目标URL列表 |
+| headers | object | 否 | 自定义请求头 |
+| timeout | integer | 否 | 请求超时时间（秒），默认30 |
 
-#### Python Example
+#### Python 示例
 ```python
 def ai_infra_scan():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
@@ -248,12 +248,12 @@ def ai_infra_scan():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-# Usage example
+# 使用示例
 result = ai_infra_scan()
-print(f"AI infra scan task created successfully, session ID: {result['data']['session_id']}")
+print(f"AI基础设施扫描任务创建成功，会话ID: {result['data']['session_id']}")
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
@@ -273,31 +273,31 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   }'
 ```
 
-### 3. Jailbreak Evaluation API
+### 3. 大模型安全体检 API
 
-Used to perform Jailbreak Evaluation testing on LLM to assess their security and robustness.
+用于对AI模型进行红队测试，评估模型的安全性和鲁棒性。
 
-#### Request Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| model | array | Yes | List of models to test |
-| eval_model | object | Yes | Evaluation model configuration |
-| dataset | object | Yes | Dataset configuration |
-| dataset.dataFile | array | Yes | List of dataset files, supports the following options:<br/>- JailBench-Tiny: Small jailbreak benchmark test dataset<br/>- JailbreakPrompts-Tiny: Small jailbreak prompt dataset<br/>- ChatGPT-Jailbreak-Prompts: ChatGPT jailbreak prompt dataset<br/>- JADE-db-v3.0: JADE database v3.0 version<br/>- HarmfulEvalBenchmark: Harmful content evaluation benchmark dataset |
-| dataset.numPrompts | integer | Yes | Number of prompts |
-| dataset.randomSeed | integer | Yes | Random seed |
+#### 请求参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| model | array | 是 | 测试模型列表 |
+| eval_model | object | 是 | 评估模型配置 |
+| dataset | object | 是 | 数据集配置 |
+| dataset.dataFile | array | 是 | 数据集文件列表，支持以下选项：<br/>- JailBench-Tiny: 小型越狱基准测试数据集<br/>- JailbreakPrompts-Tiny: 小型越狱提示词数据集<br/>- ChatGPT-Jailbreak-Prompts: ChatGPT越狱提示词数据集<br/>- JADE-db-v3.0: JADE数据库v3.0版本<br/>- HarmfulEvalBenchmark: 有害内容评估基准数据集 |
+| dataset.numPrompts | integer | 是 | 提示词数量 |
+| dataset.randomSeed | integer | 是 | 随机种子 |
 
-#### Supported Dataset Descriptions
+#### 支持的数据集说明
 
-| Dataset Name | Description | Use Case |
-|--------------|-------------|----------|
-| JailBench-Tiny | Small jailbreak benchmark test dataset | Quick testing of model resistance to jailbreak attacks |
-| JailbreakPrompts-Tiny | Small jailbreak prompt dataset | Testing model protection against common jailbreak techniques |
-| ChatGPT-Jailbreak-Prompts | ChatGPT jailbreak prompt dataset | Jailbreak testing specifically targeting ChatGPT |
-| JADE-db-v3.0 | JADE database v3.0 version | Comprehensive AI security evaluation dataset |
-| HarmfulEvalBenchmark | Harmful content evaluation benchmark dataset | Assessing risks of model-generated harmful content |
+| 数据集名称 | 描述 | 适用场景 |
+|------------|------|----------|
+| JailBench-Tiny | 小型越狱基准测试数据集 | 快速测试模型对越狱攻击的抵抗能力 |
+| JailbreakPrompts-Tiny | 小型越狱提示词数据集 | 测试模型对常见越狱技术的防护 |
+| ChatGPT-Jailbreak-Prompts | ChatGPT越狱提示词数据集 | 专门针对ChatGPT的越狱测试 |
+| JADE-db-v3.0 | JADE数据库v3.0版本 | 全面的AI安全评估数据集 |
+| HarmfulEvalBenchmark | 有害内容评估基准数据集 | 评估模型生成有害内容的风险 |
 
-#### Python Example
+#### Python 示例
 ```python
 def model_redteam_test():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
@@ -336,14 +336,14 @@ def model_redteam_test():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-# Usage example
+# 使用示例
 result = model_redteam_test()
-print(f"Jailbreak Evaluation task created successfully, session ID: {result['data']['session_id']}")
+print(f"大模型安全体检任务创建成功，会话ID: {result['data']['session_id']}")
 ```
 
-#### Different Dataset Combination Examples
+#### 不同数据集组合示例
 ```python
-# Using JADE database for comprehensive testing
+# 使用JADE数据库进行全面测试
 def comprehensive_redteam_test():
     task_data = {
         "type": "model_redteam_report",
@@ -359,7 +359,7 @@ def comprehensive_redteam_test():
     }
     return requests.post(task_url, json=task_data).json()
 
-# Using harmful content evaluation benchmark
+# 使用有害内容评估基准
 def harmful_content_test():
     task_data = {
         "type": "model_redteam_report",
@@ -376,9 +376,9 @@ def harmful_content_test():
     return requests.post(task_url, json=task_data).json()
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
-# Basic red team testing
+# 基础大模型安全体检
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -404,7 +404,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
     }
   }'
 
-# Comprehensive security evaluation
+# 全面安全评估
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -423,91 +423,91 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
-## Task Status Query
+## 任务状态查询
 
-### Get Task Status
+### 获取任务状态
 
-#### Interface Information
+#### 接口信息
 - **URL**: `/api/v1/app/taskapi/status/{id}`
-- **Method**: `GET`
+- **方法**: `GET`
 
-#### Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Task session ID |
+#### 参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| id | string | 是 | 任务会话ID |
 
-#### Response Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| session_id | string | Task session ID |
-| status | string | Task status: pending, running, completed, failed |
-| title | string | Task title |
-| created_at | integer | Creation timestamp (milliseconds) |
-| updated_at | integer | Update timestamp (milliseconds) |
-| log | string | Task execution log |
+#### 响应字段
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| session_id | string | 任务会话ID |
+| status | string | 任务状态：pending、running、completed、failed |
+| title | string | 任务标题 |
+| created_at | integer | 创建时间戳（毫秒） |
+| updated_at | integer | 更新时间戳（毫秒） |
+| log | string | 任务执行日志 |
 
-#### Python Example
+#### Python 示例
 ```python
 def get_task_status(session_id):
     url = f"http://localhost:8088/api/v1/app/taskapi/status/{session_id}"
     response = requests.get(url)
     return response.json()
 
-# Usage example
+# 使用示例
 status = get_task_status("550e8400-e29b-41d4-a716-446655440000")
-print(f"Task status: {status['data']['status']}")
-print(f"Execution log: {status['data']['log']}")
+print(f"任务状态: {status['data']['status']}")
+print(f"执行日志: {status['data']['log']}")
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
 curl -X GET http://localhost:8088/api/v1/app/taskapi/status/550e8400-e29b-41d4-a716-446655440000
 ```
 
-### Get Task Results
+### 获取任务结果
 
-#### Interface Information
+#### 接口信息
 - **URL**: `/api/v1/app/taskapi/result/{id}`
-- **Method**: `GET`
+- **方法**: `GET`
 
-#### Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Task session ID |
+#### 参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| id | string | 是 | 任务会话ID |
 
-#### Response Description
-Returns detailed scan results, including:
-- List of discovered vulnerabilities
-- Security assessment report
-- Remediation recommendations
-- Risk level assessment
+#### 响应说明
+返回详细的扫描结果，包括：
+- 发现的漏洞列表
+- 安全评估报告
+- 修复建议
+- 风险等级评估
 
-#### Python Example
+#### Python 示例
 ```python
 def get_task_result(session_id):
     url = f"http://localhost:8088/api/v1/app/taskapi/result/{session_id}"
     response = requests.get(url)
     return response.json()
 
-# Usage example
+# 使用示例
 result = get_task_result("550e8400-e29b-41d4-a716-446655440000")
 if result['status'] == 0:
-    print("Scan results:")
+    print("扫描结果:")
     print(json.dumps(result['data'], indent=2, ensure_ascii=False))
 else:
-    print(f"Failed to get results: {result['message']}")
+    print(f"获取结果失败: {result['message']}")
 ```
 
-#### cURL Example
+#### cURL 示例
 ```bash
 curl -X GET http://localhost:8088/api/v1/app/taskapi/result/550e8400-e29b-41d4-a716-446655440000
 ```
 
 ---
 
-## Complete Workflow Examples
+## 完整工作流程示例
 
-### Complete MCP Source Code Scanning Workflow
+### MCP 源码扫描完整流程
 
 ```python
 import requests
@@ -517,21 +517,21 @@ import json
 def complete_mcp_scan_workflow():
     base_url = "http://localhost:8088"
     
-    # 1. Upload source code file
-    print("1. Uploading source code file...")
+    # 1. 上传源码文件
+    print("1. 上传源码文件...")
     upload_url = f"{base_url}/api/v1/app/taskapi/upload"
     with open("mcp_source.zip", 'rb') as f:
         files = {'file': f}
         upload_response = requests.post(upload_url, files=files)
     
     if upload_response.json()['status'] != 0:
-        raise Exception("File upload failed")
+        raise Exception("文件上传失败")
     
     fileUrl = upload_response.json()['data']['fileUrl']
-    print(f"File uploaded successfully: {fileUrl}")
+    print(f"文件上传成功: {fileUrl}")
     
-    # 2. Create MCP scan task
-    print("2. Creating MCP scan task...")
+    # 2. 创建MCP扫描任务
+    print("2. 创建MCP扫描任务...")
     task_url = f"{base_url}/api/v1/app/taskapi/tasks"
     task_data = {
         "type": "mcp_scan",
@@ -550,13 +550,13 @@ def complete_mcp_scan_workflow():
     
     task_response = requests.post(task_url, json=task_data)
     if task_response.json()['status'] != 0:
-        raise Exception("Task creation failed")
+        raise Exception("任务创建失败")
     
     session_id = task_response.json()['data']['session_id']
-    print(f"Task created successfully, session ID: {session_id}")
+    print(f"任务创建成功，会话ID: {session_id}")
     
-    # 3. Poll task status
-    print("3. Monitoring task execution...")
+    # 3. 轮询任务状态
+    print("3. 监控任务执行...")
     status_url = f"{base_url}/api/v1/app/taskapi/status/{session_id}"
     
     while True:
@@ -564,50 +564,50 @@ def complete_mcp_scan_workflow():
         status_data = status_response.json()
         
         if status_data['status'] != 0:
-            raise Exception("Failed to get task status")
+            raise Exception("获取任务状态失败")
         
         task_status = status_data['data']['status']
-        print(f"Current status: {task_status}")
+        print(f"当前状态: {task_status}")
         
         if task_status == "completed":
-            print("Task execution completed!")
+            print("任务执行完成！")
             break
         elif task_status == "failed":
-            raise Exception("Task execution failed")
+            raise Exception("任务执行失败")
         
-        time.sleep(10)  # Wait 10 seconds before checking again
+        time.sleep(10)  # 等待10秒后再次检查
     
-    # 4. Get scan results
-    print("4. Getting scan results...")
+    # 4. 获取扫描结果
+    print("4. 获取扫描结果...")
     result_url = f"{base_url}/api/v1/app/taskapi/result/{session_id}"
     result_response = requests.get(result_url)
     
     if result_response.json()['status'] != 0:
-        raise Exception("Failed to get scan results")
+        raise Exception("获取扫描结果失败")
     
     scan_results = result_response.json()['data']
-    print("Scan results:")
+    print("扫描结果:")
     print(json.dumps(scan_results, indent=2, ensure_ascii=False))
     
     return scan_results
 
-# Execute complete workflow
+# 执行完整流程
 if __name__ == "__main__":
     try:
         results = complete_mcp_scan_workflow()
-        print("MCP Server Scan completed!")
+        print("MCP扫描完成！")
     except Exception as e:
-        print(f"Scan failed: {e}")
+        print(f"扫描失败: {e}")
 ```
 
-### Complete Jailbreak Evaluation Workflow
+### 模型红队测评完整流程
 
 ```python
 def complete_redteam_workflow():
     base_url = "http://localhost:8088"
     
-    # 1. Create Jailbreak Evaluation task
-    print("1. Creating Jailbreak Evaluation task...")
+    # 1. 创建大模型安全体检
+    print("1. 创建大模型安全体检任务...")
     task_url = f"{base_url}/api/v1/app/taskapi/tasks"
     task_data = {
         "type": "model_redteam_report",
@@ -638,13 +638,13 @@ def complete_redteam_workflow():
     
     task_response = requests.post(task_url, json=task_data)
     if task_response.json()['status'] != 0:
-        raise Exception("Task creation failed")
+        raise Exception("任务创建失败")
     
     session_id = task_response.json()['data']['session_id']
-    print(f"Jailbreak Evaluation task created successfully, session ID: {session_id}")
+    print(f"大模型安全体检任务创建成功，会话ID: {session_id}")
     
-    # 2. Monitor task execution
-    print("2. Monitoring task execution...")
+    # 2. 监控任务执行
+    print("2. 监控任务执行...")
     status_url = f"{base_url}/api/v1/app/taskapi/status/{session_id}"
     
     while True:
@@ -652,79 +652,79 @@ def complete_redteam_workflow():
         status_data = status_response.json()
         
         if status_data['status'] != 0:
-            raise Exception("Failed to get task status")
+            raise Exception("获取任务状态失败")
         
         task_status = status_data['data']['status']
-        print(f"Current status: {task_status}")
+        print(f"当前状态: {task_status}")
         
         if task_status == "completed":
-            print("Jailbreak Evaluation completed!")
+            print("红队测评完成！")
             break
         elif task_status == "failed":
-            raise Exception("Jailbreak Evaluation failed")
+            raise Exception("大模型安全体检失败")
         
-        time.sleep(30)  # Red team evaluation usually takes longer
+        time.sleep(30)  # 大模型安全体检通常需要更长时间
     
-    # 3. Get evaluation results
-    print("3. Getting evaluation results...")
+    # 3. 获取测评结果
+    print("3. 获取测评结果...")
     result_url = f"{base_url}/api/v1/app/taskapi/result/{session_id}"
     result_response = requests.get(result_url)
     
     if result_response.json()['status'] != 0:
-        raise Exception("Failed to get evaluation results")
+        raise Exception("获取测评结果失败")
     
     redteam_results = result_response.json()['data']
-    print("Jailbreak Evaluation results:")
+    print("大模型安全体检结果:")
     print(json.dumps(redteam_results, indent=2, ensure_ascii=False))
     
     return redteam_results
 
-# Execute Jailbreak Evaluation workflow
+# 执行红队测评流程
 if __name__ == "__main__":
     try:
         results = complete_redteam_workflow()
-        print("Jailbreak Evaluation completed!")
+        print("大模型安全体检完成！")
     except Exception as e:
-        print(f"Jailbreak Evaluation failed: {e}")
+        print(f"大模型安全体检失败: {e}")
 ```
 
-## Error Handling
+## 错误处理
 
-### Common Error Codes
-| Status Code | Description | Solution |
-|-------------|-------------|----------|
-| 0 | Success | - |
-| 1 | Failure | Check the message field for detailed error information |
+### 常见错误码
+| 状态码 | 说明 | 解决方案 |
+|--------|------|----------|
+| 0 | 成功 | - |
+| 1 | 失败 | 查看message字段获取详细错误信息 |
 
-### Error Handling Example
+### 错误处理示例
 ```python
 def handle_api_response(response):
-    """Common function for handling API responses"""
+    """处理API响应的通用函数"""
     data = response.json()
     
     if data['status'] == 0:
         return data['data']
     else:
-        raise Exception(f"API call failed: {data['message']}")
+        raise Exception(f"API调用失败: {data['message']}")
 
-# Usage example
+# 使用示例
 try:
     result = handle_api_response(response)
-    print("Operation successful:", result)
+    print("操作成功:", result)
 except Exception as e:
-    print("Operation failed:", str(e))
+    print("操作失败:", str(e))
 ```
 
-## Important Notes
+## 注意事项
 
-1. **Authentication**: Ensure correct authentication information is included in request headers
-2. **File Size**: File upload size limits please refer to server configuration
-3. **Timeout Settings**: Set reasonable timeout times based on task complexity
-4. **Concurrency Limits**: Avoid creating too many tasks simultaneously to prevent affecting system performance
-5. **Result Saving**: Save scan results promptly to avoid data loss
-6. **Dataset Selection**: Choose appropriate dataset combinations based on testing requirements
-7. **Model Configuration**: Ensure test model and evaluation model configurations are correct
+1. **认证**: 确保在请求头中包含正确的认证信息
+2. **文件大小**: 上传文件大小限制请参考服务器配置
+3. **超时设置**: 根据任务复杂度合理设置超时时间
+4. **并发限制**: 避免同时创建过多任务，以免影响系统性能
+5. **结果保存**: 及时保存扫描结果，避免数据丢失
+6. **数据集选择**: 根据测试需求选择合适的数据集组合
+7. **模型配置**: 确保测试模型和评估模型配置正确
 
-## Technical Support
+## 技术支持
 
-For any issues, please contact the technical support team or refer to the project documentation.
+如有问题，请联系技术支持团队或查看项目文档。
