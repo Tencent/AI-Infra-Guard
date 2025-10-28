@@ -52,6 +52,7 @@
 - [🖼️ Showcase](#-showcase)
 - [🚀 Quick Start](#-quick-start)
 - [📖 User Guide](#-user-guide)
+- [🔧 API Documentation](#-api-documentation)
 - [📝 Contribution Guide](#-contribution-guide)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
@@ -69,6 +70,7 @@
 | **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
 | **Easy-to-use Web Interface​** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
+| **Convenient API** | Provides complete interface documentation and Swagger specifications for easier integration |
 | **Multi-Language Support** | Chinese and English interface, Localized documentation and help. |
 | **Cross-Platform Compatibility** | Linux, macOS, and Windows support, Docker-based deployment. |
 | **Free & Open Source​** | Offered​ completely free of charge ​under​ the MIT license. |
@@ -140,6 +142,16 @@ Note: The AI-Infra-Guard project is positioned as an AI security risk platform f
 Visit our online documentation: [https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
 
 For more detailed FAQs and troubleshooting guides, visit our [documentation](https://tencent.github.io/AI-Infra-Guard/?menu=faq).
+<br />
+<br>
+
+## 🔧 API Documentation
+
+A.I.G provides a comprehensive set of task creation APIs that support AI infra scan, MCP Server Scan, and Jailbreak Evaluation capabilities.
+
+After the project is running, visit `http://localhost:8088/docs/index.html` to view the complete API documentation.
+
+For detailed API usage instructions, parameter descriptions, and complete example code, please refer to the [Complete API Documentation](./api.md).
 <br />
 <br>
 
@@ -269,7 +281,8 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 [1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
 [2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
 [3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
-[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)
+[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
+[5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)
 
 📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>

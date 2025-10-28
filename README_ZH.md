@@ -52,6 +52,7 @@
 - [🖼️ 功能展示](#-功能展示)
 - [🚀 快速开始](#-快速开始)
 - [📖 用户指南](#-用户指南)
+- [🔧 API文档](#-api文档)
 - [📝 贡献指南](#-贡献指南)
 - [🙏 致谢](#-致谢)
 - [💬 加入社区](#-加入社区)
@@ -69,6 +70,7 @@
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
 | **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
 | **直观的Web界面** | 现代化、用户友好的Web UI，一键扫描实时进度跟踪，全面的结果分析报告 |
+| **便捷的API** | 提供完整的接口文档和Swagger规范，更方便集成 |
 | **多语言支持** | 拥有中英文界面，本地化帮助文档 |
 | **跨平台兼容** | 支持Linux、macOS和Windows，基于Docker部署 |
 | **免费且MIT开源** | 完全免费使用，MIT开源协议 |
@@ -129,7 +131,7 @@ docker-compose up -d
 ```
 
 服务启动后，您可以通过以下地址访问A.I.G的Web界面：
-`http://0.0.0.0:8088`
+`http://localhost:8088`
 <br><br>
 
 注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
@@ -139,6 +141,16 @@ docker-compose up -d
 访问我们的在线文档：[https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
 
 更多详细的常见问题解答和故障排除指南，请访问我们的[文档](https://tencent.github.io/AI-Infra-Guard/?menu=faq)。
+<br />
+<br>
+
+## 🔧 API文档
+
+A.I.G 提供了一套创建任务相关的API接口，支持AI基础设施扫描、MCP安全扫描和大模型安全体检功能。
+
+项目运行后访问 `http://localhost:8088/docs/index.html` 可查看完整的API文档
+
+详细的API使用说明、参数说明和完整示例代码，请查看 [完整API文档](./api_zh.md)。
 <br />
 <br>
 
@@ -259,7 +271,8 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 [1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
 [2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
 [3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
-[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)
+[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
+[5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)
 
 📧 如果您在研究中使用了A.I.G，请联系我们，让更多人看到您的研究！
 <br>
