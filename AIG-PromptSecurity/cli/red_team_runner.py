@@ -128,7 +128,17 @@ class RedTeamRunner:
 
         # 获取攻击策略
         logger.debug(f"Attack selection strategy: {choice}")
-        
+
+        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load simulator model: {model_name}", model_name=simulator_model.get_model_name()), status="running"))
+        # 测试连通
+        is_connection, msg = simulator_model.test_model_connection()
+        m_status = "completed" if is_connection else "failed"
+        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load simulator model: {model_name}", model_name=simulator_model.get_model_name()), status=m_status))
+        if m_status == "failed":
+            logger.error(msg)
+            logger.critical_issue(content=logger.translated_msg("Load simulator model: {model_name} failed: {message}", model_name=simulator_model.get_model_name(), message=msg))
+            return
+
         try:
             all_risk_assessments = []
             for model in models:
