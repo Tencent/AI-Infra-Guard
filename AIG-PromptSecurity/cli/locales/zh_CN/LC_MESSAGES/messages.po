@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-27 11:28+0800\n"
-"PO-Revision-Date: 2025-10-27 11:29+0800\n"
+"POT-Creation-Date: 2025-10-29 10:57+0800\n"
+"PO-Revision-Date: 2025-10-29 10:58+0800\n"
 "Last-Translator: /bin/eash <EMAIL@address.com>\n"
 "Language-Team: Chinese (simplified)\n"
 "Language: zh_CN\n"
@@ -26,6 +26,7 @@ msgstr "系统出现了点小问题，请稍后再试。"
 #: cli/red_team_runner.py:55 cli/red_team_runner.py:105
 #: cli/red_team_runner.py:107 cli/red_team_runner.py:111
 #: cli/red_team_runner.py:124 cli/red_team_runner.py:126
+#: cli/red_team_runner.py:132 cli/red_team_runner.py:136
 msgid "Pre-Jailbreak Parameter Parsing"
 msgstr "初始化越狱环境"
 
@@ -71,30 +72,40 @@ msgstr "加载打分模型：{model_name} 失败: {message}"
 msgid "Load attacks"
 msgstr "加载泛化方法"
 
-#: cli/red_team_runner.py:149
+#: cli/red_team_runner.py:132 cli/red_team_runner.py:136
+#, python-brace-format
+msgid "Load simulator model: {model_name}"
+msgstr "加载泛化模型：{model_name}"
+
+#: cli/red_team_runner.py:139
+#, python-brace-format
+msgid "Load simulator model: {model_name} failed: {message}"
+msgstr "加载泛化模型：{model_name} 失败: {message}"
+
+#: cli/red_team_runner.py:159
 #, python-brace-format
 msgid ""
 "An error occurred during {model_name} assessment. Please try again later."
 msgstr "评估 {model_name} 过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:153 cli/red_team_runner.py:154
-#: cli/red_team_runner.py:181
+#: cli/red_team_runner.py:163 cli/red_team_runner.py:164
+#: cli/red_team_runner.py:191
 msgid "Generating report"
 msgstr "生成模型安全报告"
 
-#: cli/red_team_runner.py:154 cli/red_team_runner.py:181
+#: cli/red_team_runner.py:164 cli/red_team_runner.py:191
 msgid "A.I.G is working"
 msgstr "A.I.G正在工作"
 
-#: cli/red_team_runner.py:155
+#: cli/red_team_runner.py:165
 msgid "Report in progress"
 msgstr "生成报告"
 
-#: cli/red_team_runner.py:177
+#: cli/red_team_runner.py:187
 msgid "An error occurred during report generated. Please try again later."
 msgstr "报告生成过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:180
+#: cli/red_team_runner.py:190
 msgid "Report generated"
 msgstr "生成报告"
 

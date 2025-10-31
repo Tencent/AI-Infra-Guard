@@ -15,6 +15,11 @@ class OpenaiAlikeModel(BaseLLM):
     def load_model(self):
         self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
         self.async_client = AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
+        self.default_params = {
+            "reasoning_effort": "low",
+            "frequency_penalty": 1.0,
+            "max_completion_tokens": 2048
+        }
         return self.client
     
     def test_model_connection(self):
@@ -25,17 +30,28 @@ class OpenaiAlikeModel(BaseLLM):
             bool: True 表示连通，False 表示连接失败
             str: 返回的响应内容或错误信息
         """
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[{"role": "user", "content": "only return 1"}],
-                reasoning_effort="low",
-                max_completion_tokens=2048,
-                frequency_penalty=1.0
-            )
-            return True, response.choices[0].message.content
-        except Exception as e:
-            return False, str(e)
+        current_params = self.default_params.copy()
+        param_keys = list(current_params.keys())
+        for i in range(len(param_keys) + 1):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[{"role": "user", "content": "only return 1"}],
+                    **current_params
+                )
+                # 如果成功，返回成功的信息和使用的参数
+                self.default_params = current_params.copy()
+                return True, response.choices[0].message.content
+            except Exception as e:
+                last_error = str(e)
+                # 如果还有参数可以移除，移除下一个参数
+                if i < len(param_keys):
+                    param_to_remove = param_keys[i]
+                    current_params.pop(param_to_remove, None)
+                # 否则继续循环（最后一次尝试无参数）
+
+        # 所有尝试都失败
+        return False, last_error
 
     def generate(self, prompt: str = None, messages: list = None) -> str:
         for i in range(self.max_trial):
@@ -50,9 +66,7 @@ class OpenaiAlikeModel(BaseLLM):
                 response = self.client.chat.completions.create(
                     model=self.model_name,
                     messages=_messages,
-                    reasoning_effort="low",
-                    max_completion_tokens=2048,
-                    frequency_penalty=1.0
+                    **self.default_params
                 )
                 content = response.choices[0].message.content
                 if not isinstance(content, str):
@@ -79,9 +93,7 @@ class OpenaiAlikeModel(BaseLLM):
                     response = await self.async_client.chat.completions.create(
                         model=self.model_name,
                         messages=_messages,
-                        reasoning_effort="low",
-                        max_completion_tokens=2048,
-                        frequency_penalty=1.0
+                        **self.default_params
                     )
                     content = response.choices[0].message.content
                     if not isinstance(content, str):
