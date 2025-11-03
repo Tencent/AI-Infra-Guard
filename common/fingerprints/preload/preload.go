@@ -2,14 +2,16 @@
 package preload
 
 import (
-	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
+	"crypto/sha256"
+	"encoding/hex"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 
+	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
 	"github.com/remeh/sizedwaitgroup"
 )
 
@@ -90,27 +92,42 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 					Header: resp.GetHeaderRaw(),
 					Icon:   faviconHash,
 				}
-				for _, dsl := range req.GetDsl() {
-					if parser.Eval(&fpConfig, dsl) {
-						name := fp.Info.Name
-						version := ""
-						version, err := EvalFpVersion(uri, r.hp, fp)
-						if err != nil {
-							gologger.WithError(err).Errorln("获取版本失败")
-						}
-						mux.Lock()
-						type_, ok := fp.Info.Metadata["type"]
-						if !ok {
-							type_ = ""
-						}
-						ret = append(ret, FpResult{
-							Name:    name,
-							Version: version,
-							Type:    type_,
-						})
-						mux.Unlock()
-						break
+
+				matched := false
+				if hash := strings.TrimSpace(req.Hash); hash != "" {
+					sum := sha256.Sum256(resp.Data)
+					if strings.EqualFold(hex.EncodeToString(sum[:]), hash) {
+						matched = true
 					}
+				} else if len(req.GetDsl()) == 0 {
+					matched = true
+				} else {
+					for _, dsl := range req.GetDsl() {
+						if parser.Eval(&fpConfig, dsl) {
+							matched = true
+							break
+						}
+					}
+				}
+
+				if matched {
+					name := fp.Info.Name
+					version := ""
+					version, err := EvalFpVersion(uri, r.hp, fp)
+					if err != nil {
+						gologger.WithError(err).Errorln("获取版本失败")
+					}
+					mux.Lock()
+					type_, ok := fp.Info.Metadata["type"]
+					if !ok {
+						type_ = ""
+					}
+					ret = append(ret, FpResult{
+						Name:    name,
+						Version: version,
+						Type:    type_,
+					})
+					mux.Unlock()
 				}
 			}
 		}(fp)
@@ -203,11 +220,20 @@ func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, 
 			Icon:   0,
 		}
 
-		matched := len(req.GetDsl()) == 0
-		for _, dsl := range req.GetDsl() {
-			if parser.Eval(fpConfig, dsl) {
+		matched := false
+		if hash := strings.TrimSpace(req.Hash); hash != "" {
+			sum := sha256.Sum256(resp.Data)
+			if strings.EqualFold(hex.EncodeToString(sum[:]), hash) {
 				matched = true
-				break
+			}
+		} else if len(req.GetDsl()) == 0 {
+			matched = true
+		} else {
+			for _, dsl := range req.GetDsl() {
+				if parser.Eval(fpConfig, dsl) {
+					matched = true
+					break
+				}
 			}
 		}
 		if !matched {
