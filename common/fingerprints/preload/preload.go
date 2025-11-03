@@ -175,41 +175,89 @@ func (r *Runner) GetFps() []parser.FingerPrint {
 // EvalFpVersion 获取指定指纹的版本信息
 // 通过正则表达式从响应中提取版本号
 func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, error) {
+	fuzzyRanges := make([]versionRange, 0)
+
 	for _, req := range fp.Version {
-		resp, err := hp.Get(uri+req.Path, nil)
+		var (
+			resp *httpx.Response
+			err  error
+		)
+
+		switch strings.ToUpper(req.Method) {
+		case "POST":
+			resp, err = hp.POST(uri+req.Path, req.Data, nil)
+		default:
+			resp, err = hp.Get(uri+req.Path, nil)
+		}
 		if err != nil {
 			gologger.WithError(err).Errorln("请求失败")
 			continue
 		}
-		// 文件指纹
+		if resp == nil {
+			continue
+		}
+
 		fpConfig := &parser.Config{
 			Body:   resp.DataStr,
 			Header: resp.GetHeaderRaw(),
 			Icon:   0,
 		}
-		version := ""
-		if req.Extractor.Regex != "" {
-			// 继续测试version
-			compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
-			if err != nil {
-				gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
-			} else {
-				index, err := strconv.Atoi(req.Extractor.Group)
+
+		matched := len(req.GetDsl()) == 0
+		for _, dsl := range req.GetDsl() {
+			if parser.Eval(fpConfig, dsl) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
+
+		if strings.TrimSpace(req.VersionRange) == "" {
+			version := ""
+			if req.Extractor.Regex != "" {
+				compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
 				if err != nil {
-					gologger.WithError(err).Errorln("parse part error", req.Extractor.Part)
+					gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
 				} else {
-					body := fpConfig.Body
-					if req.Extractor.Part == "header" {
-						body = fpConfig.Header
-					}
-					submatches := compileRegex.FindStringSubmatch(body)
-					if submatches != nil {
-						version = submatches[index]
+					index, err := strconv.Atoi(req.Extractor.Group)
+					if err != nil {
+						gologger.WithError(err).Errorln("parse part error", req.Extractor.Part)
+					} else {
+						body := fpConfig.Body
+						if req.Extractor.Part == "header" {
+							body = fpConfig.Header
+						}
+						submatches := compileRegex.FindStringSubmatch(body)
+						if len(submatches) > 0 {
+							if index < 0 || index >= len(submatches) {
+								index = len(submatches) - 1
+							}
+							version = submatches[index]
+						}
 					}
 				}
 			}
+			if version != "" {
+				return version, nil
+			}
+			continue
 		}
-		return version, nil
+
+		vr, err := parseVersionRange(req.VersionRange)
+		if err != nil {
+			gologger.WithError(err).Errorln("parse version range error", req.VersionRange)
+			continue
+		}
+		fuzzyRanges = append(fuzzyRanges, vr)
 	}
+
+	if len(fuzzyRanges) > 0 {
+		if vr, ok := intersectVersionRanges(fuzzyRanges); ok {
+			return vr.String(), nil
+		}
+	}
+
 	return "", nil
 }

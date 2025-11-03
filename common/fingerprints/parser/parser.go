@@ -27,12 +27,13 @@ type Extractor struct {
 
 // HttpRule 定义了HTTP请求匹配规则
 type HttpRule struct {
-	Method    string    `yaml:"method" json:"method"`
-	Path      string    `yaml:"path" json:"path"`
-	Matchers  []string  `yaml:"matchers" json:"matchers"`
-	Data      string    `yaml:"data,omitempty" json:"data,omitempty"`
-	dsl       []*Rule   `yaml:"-" json:"-"`
-	Extractor Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
+	Method       string    `yaml:"method" json:"method"`
+	Path         string    `yaml:"path" json:"path"`
+	Matchers     []string  `yaml:"matchers" json:"matchers"`
+	Data         string    `yaml:"data,omitempty" json:"data,omitempty"`
+	dsl          []*Rule   `yaml:"-" json:"-"`
+	VersionRange string    `yaml:"versionrange,omitempty" json:"versionrange,omitempty"`
+	Extractor    Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
 }
 
 // GetDsl 返回解析后的DSL规则列表
@@ -94,18 +95,29 @@ func InitFingerPrintFromData(reader []byte) (*FingerPrint, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i, rule := range fp.Http {
-		dsls := make([]*Rule, 0)
-		for _, matcher := range rule.Matchers {
+	if err := compileMatchers(fp.Http); err != nil {
+		return nil, err
+	}
+	if err := compileMatchers(fp.Version); err != nil {
+		return nil, err
+	}
+	return &fp, err
+}
+
+// compileMatchers compiles textual matchers into executable DSL rules.
+func compileMatchers(rules []HttpRule) error {
+	for i := range rules {
+		dsls := make([]*Rule, 0, len(rules[i].Matchers))
+		for _, matcher := range rules[i].Matchers {
 			dsl, err := transfromRule(matcher)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			dsls = append(dsls, dsl)
 		}
-		fp.Http[i].dsl = dsls
+		rules[i].dsl = dsls
 	}
-	return &fp, err
+	return nil
 }
 
 // FpResult 指纹结构体
