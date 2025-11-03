@@ -4,6 +4,9 @@
 package parser
 
 import (
+	"fmt"
+	"strings"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -30,6 +33,7 @@ type HttpRule struct {
 	Method       string    `yaml:"method" json:"method"`
 	Path         string    `yaml:"path" json:"path"`
 	Matchers     []string  `yaml:"matchers" json:"matchers"`
+	Hash         string    `yaml:"hash,omitempty" json:"hash,omitempty"`
 	Data         string    `yaml:"data,omitempty" json:"data,omitempty"`
 	dsl          []*Rule   `yaml:"-" json:"-"`
 	VersionRange string    `yaml:"versionrange,omitempty" json:"versionrange,omitempty"`
@@ -107,6 +111,9 @@ func InitFingerPrintFromData(reader []byte) (*FingerPrint, error) {
 // compileMatchers compiles textual matchers into executable DSL rules.
 func compileMatchers(rules []HttpRule) error {
 	for i := range rules {
+		if len(rules[i].Matchers) > 0 && strings.TrimSpace(rules[i].Hash) != "" {
+			return fmt.Errorf("only one of matchers or hash can be specified")
+		}
 		dsls := make([]*Rule, 0, len(rules[i].Matchers))
 		for _, matcher := range rules[i].Matchers {
 			dsl, err := transfromRule(matcher)
