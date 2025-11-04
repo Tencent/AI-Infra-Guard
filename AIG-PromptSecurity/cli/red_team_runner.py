@@ -9,8 +9,8 @@ import inspect
 from typing import List, Any, Optional
 from deepteam.red_teamer import RedTeamer
 from deepteam.plugin_system import PluginManager
-from .models import OpenaiAlikeModel
-from .parsers import parse_attack, parse_vulnerability, parse_metric_class, dynamic_import
+from cli.model_utils import BaseLLM
+from cli.parsers import parse_attack, parse_vulnerability, parse_metric_class, dynamic_import
 
 
 class RedTeamRunner:
@@ -21,9 +21,9 @@ class RedTeamRunner:
     
     def run_red_team(
         self,
-        models: List[OpenaiAlikeModel],
-        simulator_model: OpenaiAlikeModel,
-        evaluate_model: OpenaiAlikeModel,
+        models: List[BaseLLM],
+        simulator_model: BaseLLM,
+        evaluate_model: BaseLLM,
         scenarios: List[str],
         techniques: List[str],
         async_mode: bool = False,
@@ -123,7 +123,9 @@ class RedTeamRunner:
         # 解析攻击手法
         logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load attacks"), status="running"))
         attacks = [parse_attack(a, self.plugin_manager) for a in techniques]
-        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg("Load attacks"), status="completed"))
+        logger.status_update(statusUpdate(stepId="1", brief=logger.translated_msg("Pre-Jailbreak Parameter Parsing"), description=logger.translated_msg(
+            "Load attacks: {attacks}", attacks=", ".join([attack.get_name() for attack in attacks])
+        ), status="completed"))
         # logger.debug(f"Total attacks created: {len(attacks)}")
 
         # 获取攻击策略
@@ -176,11 +178,17 @@ class RedTeamRunner:
             for model_name, risk_assessment in all_risk_assessments:
                 content, status = red_teamer.get_risk_assessment_json(risk_assessment, model_name)
                 final_status = True if final_status else status
-                df_list.append(pd.read_csv(content["attachment"]))
+                try:
+                    df_list.append(pd.read_csv(content["attachment"]))
+                except Exception as e:
+                    logger.exception(e)
                 content["attachment"] = attachment_path
                 contents.append(content)
 
-            combined_df = pd.concat(df_list, ignore_index=True)
+            if df_list:
+                combined_df = pd.concat(df_list, ignore_index=True)
+            else:
+                combined_df = pd.DataFrame([])
             combined_df.to_csv(attachment_path, encoding="utf-8-sig", index=False)
         except Exception as e:
             logger.exception(e)
