@@ -13,6 +13,7 @@ class RedTeamingTestCase(BaseModel):
     vulnerability_type: VulnerabilityType
     risk_category: str = Field(alias="riskCategory")
     attack_method: Optional[str] = Field(None, alias="attackMethod")
+    original_input: Optional[str] = None
     input: Optional[str] = None
     actual_output: Optional[str] = Field(
         None, serialization_alias="actualOutput"
@@ -20,6 +21,7 @@ class RedTeamingTestCase(BaseModel):
     score: Optional[float] = None
     reason: Optional[str] = None
     error: Optional[str] = None
+    useless: bool = False
 
 
 class TestCasesList(list):
@@ -56,20 +58,21 @@ class VulnerabilityTypeResult(BaseModel):
     passing: int
     failing: int
     errored: int
+    unused: int
 
 
 class AttackMethodResult(BaseModel):
+    attack_method: Optional[str] = None
     pass_rate: float
     passing: int
     failing: int
     errored: int
-    attack_method: Optional[str] = None
+    unused: int
 
 
 class RedTeamingOverview(BaseModel):
     vulnerability_type_results: List[VulnerabilityTypeResult]
     attack_method_results: List[AttackMethodResult]
-    errored: int
 
     def to_df(self):
         import pandas as pd
@@ -138,23 +141,14 @@ def construct_risk_assessment_overview(
     red_teaming_test_cases: List[RedTeamingTestCase],
 ) -> RedTeamingOverview:
     # Group test cases by vulnerability type
-    vulnerability_type_to_cases: Dict[
-        VulnerabilityType, List[RedTeamingTestCase]
-    ] = {}
+    vulnerability_to_cases: Dict[str, List[RedTeamingTestCase]] = {}
     attack_method_to_cases: Dict[str, List[RedTeamingTestCase]] = {}
 
-    errored = 0
     for test_case in red_teaming_test_cases:
-        if not test_case.attack_method or test_case.error:
-            errored += 1
-            continue
-
         # Group by vulnerability type
-        if test_case.vulnerability_type not in vulnerability_type_to_cases:
-            vulnerability_type_to_cases[test_case.vulnerability_type] = []
-        vulnerability_type_to_cases[test_case.vulnerability_type].append(
-            test_case
-        )
+        if test_case.vulnerability not in vulnerability_to_cases:
+            vulnerability_to_cases[test_case.vulnerability] = []
+        vulnerability_to_cases[test_case.vulnerability].append(test_case)
 
         # Group by attack method
         if test_case.attack_method not in attack_method_to_cases:
@@ -165,23 +159,25 @@ def construct_risk_assessment_overview(
     attack_method_results = []
 
     # Stats per vulnerability type
-    for vuln_type, test_cases in vulnerability_type_to_cases.items():
+    for vuln, test_cases in vulnerability_to_cases.items():
         passing = sum(
             1 for tc in test_cases if tc.score is not None and tc.score > 0
         )
         errored = sum(1 for tc in test_cases if tc.error is not None)
-        failing = len(test_cases) - passing - errored
-        valid_cases = len(test_cases) - errored
+        unused = sum(1 for tc in test_cases if (tc.useless and tc.error is None))
+        failing = len(test_cases) - passing - errored - unused
+        valid_cases = passing + failing
         pass_rate = (passing / valid_cases) if valid_cases > 0 else 0.0
 
         vulnerability_type_results.append(
             VulnerabilityTypeResult(
-                vulnerability=test_cases[-1].vulnerability if test_cases else "",
-                vulnerability_type=vuln_type,
+                vulnerability=vuln,
+                vulnerability_type=test_cases[-1].vulnerability_type if test_cases else "",
                 pass_rate=pass_rate,
                 passing=passing,
                 failing=failing,
                 errored=errored,
+                unused=unused,
             )
         )
 
@@ -191,8 +187,9 @@ def construct_risk_assessment_overview(
             1 for tc in test_cases if tc.score is not None and tc.score > 0
         )
         errored = sum(1 for tc in test_cases if tc.error is not None)
-        failing = len(test_cases) - passing - errored
-        valid_cases = len(test_cases) - errored
+        unused = sum(1 for tc in test_cases if (tc.useless and tc.error is None))
+        failing = len(test_cases) - passing - errored - unused
+        valid_cases = passing + failing
         pass_rate = (passing / valid_cases) if valid_cases > 0 else 0.0
 
         attack_method_results.append(
@@ -202,11 +199,11 @@ def construct_risk_assessment_overview(
                 passing=passing,
                 failing=failing,
                 errored=errored,
+                unused=unused,
             )
         )
 
     return RedTeamingOverview(
         vulnerability_type_results=vulnerability_type_results,
         attack_method_results=attack_method_results,
-        errored=errored,
     )

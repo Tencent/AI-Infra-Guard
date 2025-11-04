@@ -76,6 +76,7 @@ from deepteam.red_teamer.risk_assessment import (
     RiskAssessment,
 )
 from deepteam.risks import getRiskCategory
+from deepteam.utils import judge_language
 
 
 class RedTeamer:
@@ -130,18 +131,30 @@ Direct translation without separators"""
 
     def _translate_reason(self, reason: str) -> str:
         """翻译 reason 文本（同步版本）"""
-        if logger.lang == "zh_CN":
+        if not isinstance(reason, str) or not reason.strip():
+            return reason
+        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
             system_message = self._get_translation_system_message()
             user_prompt = self._get_translation_user_prompt(reason)
-            return self.evaluation_model.generate(user_prompt, system_message=system_message)
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_prompt}
+            ]
+            return self.evaluation_model.generate(messages=messages)
         return reason
 
     async def _a_translate_reason(self, reason: str) -> str:
         """翻译 reason 文本（异步版本）"""
-        if logger.lang == "zh_CN":
+        if not isinstance(reason, str) or not reason.strip():
+            return reason
+        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
             system_message = self._get_translation_system_message()
             user_prompt = self._get_translation_user_prompt(reason)
-            return await self.evaluation_model.a_generate(user_prompt, system_message=system_message)
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_prompt}
+            ]
+            return await self.evaluation_model.a_generate(messages=messages)
         return reason
 
     def red_team(
@@ -239,15 +252,21 @@ Direct translation without separators"""
                             vulnerability_type=vulnerability_type.value,
                             attackMethod=simulated_attack.attack_method,
                             riskCategory=getRiskCategory(vulnerability_type),
+                            original_input=simulated_attack.original_input,
                             input=simulated_attack.input,
                         )
 
                         # this will only go through if ignore_errors == True
                         if simulated_attack.error:
                             red_teaming_test_case.error = simulated_attack.error
+                            red_teaming_test_case.reason = logger.translated_msg("The attack simulation phase failed, possibly due to rate limiting or security blocking by the generalization model.")
                             red_teaming_test_cases.append(red_teaming_test_case)
                             continue
-
+                        elif simulated_attack.useless and simulated_attack.attack_method != "RedTeam":
+                            red_teaming_test_case.useless = simulated_attack.useless
+                            red_teaming_test_case.reason = logger.translated_msg("The simulation attack remained unchanged, which may be because it was not applicable to the current input.")
+                            red_teaming_test_cases.append(red_teaming_test_case)
+                            continue
 
                         logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
                             "Generating {idx} / {num_simulated_attacks} output from simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
@@ -260,11 +279,13 @@ Direct translation without separators"""
                             if target_output == "":
                                 raise ValueError("The response is none")
                             red_teaming_test_case.actual_output = target_output
-                        except Exception:
+                        except Exception as e:
+                            logger.exception(e)
                             if ignore_errors:
                                 red_teaming_test_case.error = (
                                     "Error generating output from target LLM"
                                 )
+                                red_teaming_test_case.reason = logger.translated_msg("The model has no output, which could be due to rate limiting or API security blocking.")
                                 red_teaming_test_cases.append(
                                     red_teaming_test_case
                                 )
@@ -281,13 +302,16 @@ Direct translation without separators"""
                         ), status="doing"))
 
                         try:
+                            metric.language = logger.lang
                             metric.measure(test_case)
                             red_teaming_test_case.score = metric.score
                             reason = self._translate_reason(metric.reason)
                             red_teaming_test_case.reason = reason
-                        except Exception:
+                        except Exception as e:
+                            logger.exception(e)
                             if ignore_errors:
                                 red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability"
+                                red_teaming_test_case.reason = logger.translated_msg("An anomaly occurred during the evaluation, which could be due to rate limiting or API security blocking.")
                                 red_teaming_test_cases.append(
                                     red_teaming_test_case
                                 )
@@ -317,9 +341,10 @@ Direct translation without separators"""
                     test_cases=red_teaming_test_cases,
                 )
 
-                self.save_test_cases_as_simulated_attacks(
-                    test_cases=red_teaming_test_cases
-                )
+                if reuse_simulated_attacks:
+                    self.save_test_cases_as_simulated_attacks(
+                        test_cases=red_teaming_test_cases
+                    )
                 # self._print_risk_assessment()
                 return self.risk_assessment
 
@@ -424,9 +449,10 @@ Direct translation without separators"""
                 ),
                 test_cases=red_teaming_test_cases,
             )
-            self.save_test_cases_as_simulated_attacks(
-                test_cases=red_teaming_test_cases
-            )
+            if reuse_simulated_attacks:
+                self.save_test_cases_as_simulated_attacks(
+                    test_cases=red_teaming_test_cases
+                )
             # self._print_risk_assessment()
             return self.risk_assessment
 
@@ -441,6 +467,7 @@ Direct translation without separators"""
     ) -> RedTeamingTestCase:
         async with self.semaphore:
             red_teaming_test_case = RedTeamingTestCase(
+                original_input=simulated_attack.original_input,
                 input=simulated_attack.input,
                 vulnerability=vulnerability,
                 vulnerability_type=vulnerability_type,
@@ -448,8 +475,13 @@ Direct translation without separators"""
                 riskCategory=getRiskCategory(vulnerability_type),
             )
 
-            if simulated_attack.error is not None:
+            if simulated_attack.error:
                 red_teaming_test_case.error = simulated_attack.error
+                red_teaming_test_case.reason = logger.translated_msg("The attack simulation phase failed, possibly due to rate limiting or security blocking by the generalization model.")
+                return red_teaming_test_case
+            elif simulated_attack.useless and simulated_attack.attack_method != "RedTeam":
+                red_teaming_test_case.useless = simulated_attack.useless
+                red_teaming_test_case.reason = logger.translated_msg("The simulation attack remained unchanged, which may be because it was not applicable to the current input.")
                 return red_teaming_test_case
 
             metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
@@ -458,11 +490,13 @@ Direct translation without separators"""
                 if actual_output == "":
                     raise ValueError("The response is none")
                 red_teaming_test_case.actual_output = actual_output
-            except Exception:
+            except Exception as e:
+                logger.exception(e)
                 if ignore_errors:
                     red_teaming_test_case.error = (
                         "Error generating output from target LLM"
                     )
+                    red_teaming_test_case.reason = logger.translated_msg("The model has no output, which could be due to rate limiting or API security blocking.")
                     return red_teaming_test_case
                 else:
                     raise
@@ -472,13 +506,16 @@ Direct translation without separators"""
                 actual_output=actual_output,
             )
             try:
+                metric.language = logger.lang
                 await metric.a_measure(test_case)
                 red_teaming_test_case.score = metric.score
                 reason = await self._a_translate_reason(metric.reason)
                 red_teaming_test_case.reason = reason
-            except:
+            except Exception as e:
+                logger.exception(e)
                 if ignore_errors:
                     red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability type"
+                    red_teaming_test_case.reason = logger.translated_msg("An anomaly occurred during the evaluation, which could be due to rate limiting or API security blocking.")
                     return red_teaming_test_case
                 else:
                     raise
@@ -721,8 +758,10 @@ Direct translation without separators"""
             simulated_attack = SimulatedAttack(
                 vulnerability=test_case.vulnerability,
                 vulnerability_type=test_case.vulnerability_type,
+                original_input=test_case.original_input,
                 input=test_case.input,
                 attack_method=test_case.attack_method,
+                useless=test_case.useless
             )
             simulated_attacks.append(simulated_attack)
 
@@ -1041,11 +1080,12 @@ Direct translation without separators"""
         if risk_assessment is None:
             risk_assessment = self.risk_assessment
         # 安全概览
-        total_passing, total_failing, total_errored = 0, 0, 0
+        total_passing, total_failing, total_errored, total_unused = 0, 0, 0, 0
         for result in risk_assessment.overview.attack_method_results:
             total_passing += result.passing
             total_failing += result.failing
             total_errored += result.errored
+            total_unused += result.unused
         total = total_passing + total_failing
         score = total_passing / total if total > 0 else 0
         
@@ -1057,7 +1097,9 @@ Direct translation without separators"""
             if case.score and case.score > 0:
                 status = "Safe"
             elif case.error:
-                status = "Warning"
+                status = "Exception"
+            elif case.useless:
+                status = "SimulationFailed"
             else:
                 status = "Jailbreak"
                 rep_status = True
@@ -1066,21 +1108,50 @@ Direct translation without separators"""
                 "modelName": model_name, 
                 "vulnerability": case.vulnerability,
                 "attackMethod": case.attack_method,
+                "originalInput": case.original_input if case.attack_method != "RedTeam" else None,
                 "input": case.input,
                 "output": case.actual_output,
                 "reason": case.reason,
+                "error": case.error
             }
             results.append(result)
         df = pd.DataFrame(results)
         attachment_path = f"logs/attachment_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}_{uuid.uuid4().hex[:8]}.csv"
         df.to_csv(attachment_path, encoding="utf-8-sig", index=False)
         report = {
+            "modelName": model_name,
+            "baseTotal": total + total_errored + total_unused,
             "total": total,
             "jailbreak": total - total_passing, 
-            "score": int(score * 65 + 35) if score > 0 else 0,
+            "score": int(score * 100) if score > 0 else 0,
             "errored": total_errored, 
+            "useless": total_unused,
             "results": results[:20],
-            "attachment": attachment_path
+            "attachment": attachment_path,
+            "extraBody": {
+                "vulnerabilityResults": [
+                    {
+                        "vulnerability": result.vulnerability,
+                        "total": result.passing + result.failing,
+                        "jailbreak": result.failing,
+                        "score": int(result.pass_rate * 100),
+                        "asr": 1 - result.pass_rate if (result.passing + result.failing) > 0 else 0,
+                        "errored": result.errored,
+                    } 
+                    for result in risk_assessment.overview.vulnerability_type_results
+                ],
+                "attackMethodResults": [
+                    {
+                        "attackMethod": result.attack_method,
+                        "total": result.passing + result.failing,
+                        "jailbreak": result.failing,
+                        "score": int(result.pass_rate * 100),
+                        "asr": 1 - result.pass_rate if (result.passing + result.failing) > 0 else 0,
+                        "errored": result.errored,
+                    } 
+                    for result in risk_assessment.overview.attack_method_results
+                ],
+            },
         }
         return report, rep_status
 
@@ -1096,6 +1167,9 @@ Direct translation without separators"""
 ## 攻击方法
 {case.attack_method}
 
+## 原始提示词
+{case.original_input}
+
 ## 越狱输入
 {case.input}
 
@@ -1109,6 +1183,9 @@ Direct translation without separators"""
                 return f"""# Jailbreak Case
 ## Attack Method
 {case.attack_method}
+
+## Original Prompt
+{case.original_input}
 
 ## Input Prompt
 {case.input}

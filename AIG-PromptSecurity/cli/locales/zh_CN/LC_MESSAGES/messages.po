@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-29 10:57+0800\n"
-"PO-Revision-Date: 2025-10-29 10:58+0800\n"
+"POT-Creation-Date: 2025-11-04 16:28+0800\n"
+"PO-Revision-Date: 2025-11-04 16:29+0800\n"
 "Last-Translator: /bin/eash <EMAIL@address.com>\n"
 "Language-Team: Chinese (simplified)\n"
 "Language: zh_CN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cli_run.py:133
+#: cli_run.py:141
 msgid "Something went wrong. Please try again in a few moments."
 msgstr "系统出现了点小问题，请稍后再试。"
 
@@ -26,7 +26,7 @@ msgstr "系统出现了点小问题，请稍后再试。"
 #: cli/red_team_runner.py:55 cli/red_team_runner.py:105
 #: cli/red_team_runner.py:107 cli/red_team_runner.py:111
 #: cli/red_team_runner.py:124 cli/red_team_runner.py:126
-#: cli/red_team_runner.py:132 cli/red_team_runner.py:136
+#: cli/red_team_runner.py:134 cli/red_team_runner.py:138
 msgid "Pre-Jailbreak Parameter Parsing"
 msgstr "初始化越狱环境"
 
@@ -68,155 +68,184 @@ msgstr "加载打分模型：{model_name}"
 msgid "Load evaluate model: {model_name} failed: {message}"
 msgstr "加载打分模型：{model_name} 失败: {message}"
 
-#: cli/red_team_runner.py:124 cli/red_team_runner.py:126
+#: cli/red_team_runner.py:124
 msgid "Load attacks"
 msgstr "加载泛化方法"
 
-#: cli/red_team_runner.py:132 cli/red_team_runner.py:136
+#: cli/red_team_runner.py:127
+#, python-brace-format
+msgid "Load attacks: {attacks}"
+msgstr "加载泛化方法: {attacks}"
+
+#: cli/red_team_runner.py:134 cli/red_team_runner.py:138
 #, python-brace-format
 msgid "Load simulator model: {model_name}"
 msgstr "加载泛化模型：{model_name}"
 
-#: cli/red_team_runner.py:139
+#: cli/red_team_runner.py:141
 #, python-brace-format
 msgid "Load simulator model: {model_name} failed: {message}"
 msgstr "加载泛化模型：{model_name} 失败: {message}"
 
-#: cli/red_team_runner.py:159
+#: cli/red_team_runner.py:161
 #, python-brace-format
 msgid ""
 "An error occurred during {model_name} assessment. Please try again later."
 msgstr "评估 {model_name} 过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:163 cli/red_team_runner.py:164
-#: cli/red_team_runner.py:191
+#: cli/red_team_runner.py:165 cli/red_team_runner.py:166
+#: cli/red_team_runner.py:199
 msgid "Generating report"
 msgstr "生成模型安全报告"
 
-#: cli/red_team_runner.py:164 cli/red_team_runner.py:191
+#: cli/red_team_runner.py:166 cli/red_team_runner.py:199
 msgid "A.I.G is working"
 msgstr "A.I.G正在工作"
 
-#: cli/red_team_runner.py:165
+#: cli/red_team_runner.py:167
 msgid "Report in progress"
 msgstr "生成报告"
 
-#: cli/red_team_runner.py:187
+#: cli/red_team_runner.py:195
 msgid "An error occurred during report generated. Please try again later."
 msgstr "报告生成过程中出现异常，请稍后再试。"
 
-#: cli/red_team_runner.py:190
+#: cli/red_team_runner.py:198
 msgid "Report generated"
 msgstr "生成报告"
 
-#: deepteam/red_teamer/red_teamer.py:158
-#: deepteam/attacks/attack_simulator/attack_simulator.py:73
-#: deepteam/attacks/attack_simulator/attack_simulator.py:96
-#: deepteam/attacks/attack_simulator/attack_simulator.py:113
-#: deepteam/attacks/attack_simulator/attack_simulator.py:150
-#: deepteam/attacks/attack_simulator/attack_simulator.py:179
-#: deepteam/attacks/attack_simulator/attack_simulator.py:207
-#: deepteam/attacks/attack_simulator/attack_simulator.py:246
-#: deepteam/attacks/attack_simulator/attack_simulator.py:270
+#: deepteam/red_teamer/red_teamer.py:171
+#: deepteam/attacks/attack_simulator/attack_simulator.py:75
+#: deepteam/attacks/attack_simulator/attack_simulator.py:98
+#: deepteam/attacks/attack_simulator/attack_simulator.py:115
+#: deepteam/attacks/attack_simulator/attack_simulator.py:156
+#: deepteam/attacks/attack_simulator/attack_simulator.py:185
+#: deepteam/attacks/attack_simulator/attack_simulator.py:213
+#: deepteam/attacks/attack_simulator/attack_simulator.py:255
+#: deepteam/attacks/attack_simulator/attack_simulator.py:279
 msgid "Jailbreaking"
 msgstr "执行模型安全评估"
 
-#: deepteam/red_teamer/red_teamer.py:218 deepteam/red_teamer/red_teamer.py:308
-#: deepteam/red_teamer/red_teamer.py:393 deepteam/red_teamer/red_teamer.py:416
+#: deepteam/red_teamer/red_teamer.py:231 deepteam/red_teamer/red_teamer.py:332
+#: deepteam/red_teamer/red_teamer.py:418 deepteam/red_teamer/red_teamer.py:441
 msgid "Risk Assessment"
 msgstr "越狱攻击"
 
-#: deepteam/red_teamer/red_teamer.py:219 deepteam/red_teamer/red_teamer.py:309
-#: deepteam/red_teamer/red_teamer.py:394 deepteam/red_teamer/red_teamer.py:417
+#: deepteam/red_teamer/red_teamer.py:232 deepteam/red_teamer/red_teamer.py:333
+#: deepteam/red_teamer/red_teamer.py:419 deepteam/red_teamer/red_teamer.py:442
 #, python-brace-format
 msgid "Measure model: {model_name}"
 msgstr "评估目标模型：{model_name}"
 
-#: deepteam/red_teamer/red_teamer.py:230
+#: deepteam/red_teamer/red_teamer.py:243
 #, python-brace-format
 msgid "Measure {num_simulated_attacks} simulated attacks"
 msgstr "评估 {num_simulated_attacks} 个越狱攻击"
 
-#: deepteam/red_teamer/red_teamer.py:235 deepteam/red_teamer/red_teamer.py:517
+#: deepteam/red_teamer/red_teamer.py:248 deepteam/red_teamer/red_teamer.py:554
 #, python-brace-format
 msgid "Measure {idx} / {num_simulated_attacks} simulated attacks"
 msgstr "评估第 {idx} / {num_simulated_attacks} 个越狱攻击"
 
-#: deepteam/red_teamer/red_teamer.py:253
+#: deepteam/red_teamer/red_teamer.py:262 deepteam/red_teamer/red_teamer.py:480
+msgid ""
+"The attack simulation phase failed, possibly due to rate limiting or "
+"security blocking by the generalization model."
+msgstr "攻击泛化阶段失败，可能是泛化模型限流或安全拦截"
+
+#: deepteam/red_teamer/red_teamer.py:267 deepteam/red_teamer/red_teamer.py:484
+msgid ""
+"The simulation attack remained unchanged, which may be because it was not "
+"applicable to the current input."
+msgstr "攻击泛化前后无变化，可能是不适用于当前输入"
+
+#: deepteam/red_teamer/red_teamer.py:272
 #, python-brace-format
 msgid ""
 "Generating {idx} / {num_simulated_attacks} output from simulated attacks"
 msgstr "生成第 {idx} / {num_simulated_attacks} 个越狱模型响应"
 
-#: deepteam/red_teamer/red_teamer.py:280
+#: deepteam/red_teamer/red_teamer.py:288 deepteam/red_teamer/red_teamer.py:499
+msgid ""
+"The model has no output, which could be due to rate limiting or API security "
+"blocking."
+msgstr "模型无输出，可能是限流或API安全拦截"
+
+#: deepteam/red_teamer/red_teamer.py:301
 #, python-brace-format
 msgid "Evaluating {idx} / {num_simulated_attacks} target LLM output"
 msgstr "评估第 {idx} / {num_simulated_attacks} 个目标模型输出"
 
-#: deepteam/red_teamer/red_teamer.py:305
+#: deepteam/red_teamer/red_teamer.py:314 deepteam/red_teamer/red_teamer.py:518
+msgid ""
+"An anomaly occurred during the evaluation, which could be due to rate "
+"limiting or API security blocking."
+msgstr "评估异常，可能是限流或API安全拦截"
+
+#: deepteam/red_teamer/red_teamer.py:329
 #, python-brace-format
 msgid "Measure {num_simulated_attacks} simulated attacks done"
 msgstr "评估 {num_simulated_attacks} 个越狱攻击完成"
 
-#: deepteam/red_teamer/red_teamer.py:411
+#: deepteam/red_teamer/red_teamer.py:436
 msgid "Measure simulated attacks"
 msgstr "评估越狱攻击"
 
-#: deepteam/red_teamer/red_teamer.py:414
+#: deepteam/red_teamer/red_teamer.py:439
 msgid "Measure simulated attacks done"
 msgstr "评估越狱攻击完成"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:73
-#: deepteam/attacks/attack_simulator/attack_simulator.py:96
-#: deepteam/attacks/attack_simulator/attack_simulator.py:179
-#: deepteam/attacks/attack_simulator/attack_simulator.py:207
+#: deepteam/attacks/attack_simulator/attack_simulator.py:75
+#: deepteam/attacks/attack_simulator/attack_simulator.py:98
+#: deepteam/attacks/attack_simulator/attack_simulator.py:185
+#: deepteam/attacks/attack_simulator/attack_simulator.py:213
 msgid "Generating attacks"
 msgstr "生成恶意内容"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:77
-#: deepteam/attacks/attack_simulator/attack_simulator.py:181
+#: deepteam/attacks/attack_simulator/attack_simulator.py:79
+#: deepteam/attacks/attack_simulator/attack_simulator.py:187
 #, python-brace-format
 msgid "Simulating {num_vulnerabilities} attacks"
 msgstr "生成 {num_vulnerabilities} 个攻击"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:82
-#: deepteam/attacks/attack_simulator/attack_simulator.py:200
+#: deepteam/attacks/attack_simulator/attack_simulator.py:84
+#: deepteam/attacks/attack_simulator/attack_simulator.py:206
 #, python-brace-format
 msgid "Simulating {idx} / {num_vulnerabilities} attacks"
 msgstr "生成第 {idx} / {num_vulnerabilities} 个攻击"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:93
+#: deepteam/attacks/attack_simulator/attack_simulator.py:95
 #, python-brace-format
 msgid "Simulating {length} attacks done"
 msgstr "生成 {length} 个攻击完成"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:114
-#: deepteam/attacks/attack_simulator/attack_simulator.py:119
-#: deepteam/attacks/attack_simulator/attack_simulator.py:151
-#: deepteam/attacks/attack_simulator/attack_simulator.py:247
-#: deepteam/attacks/attack_simulator/attack_simulator.py:255
-#: deepteam/attacks/attack_simulator/attack_simulator.py:271
+#: deepteam/attacks/attack_simulator/attack_simulator.py:116
+#: deepteam/attacks/attack_simulator/attack_simulator.py:121
+#: deepteam/attacks/attack_simulator/attack_simulator.py:157
+#: deepteam/attacks/attack_simulator/attack_simulator.py:256
+#: deepteam/attacks/attack_simulator/attack_simulator.py:264
+#: deepteam/attacks/attack_simulator/attack_simulator.py:280
 #, python-brace-format
 msgid "Enhance {num_baseline_attacks} attacks"
 msgstr "泛化 {num_baseline_attacks} 个攻击"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:128
+#: deepteam/attacks/attack_simulator/attack_simulator.py:130
 #, python-brace-format
 msgid "Simulating {idx} / {num_baseline_attacks} attacks"
 msgstr "泛化第 {idx} / {num_baseline_attacks} 个攻击"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:147
-#: deepteam/attacks/attack_simulator/attack_simulator.py:267
+#: deepteam/attacks/attack_simulator/attack_simulator.py:153
+#: deepteam/attacks/attack_simulator/attack_simulator.py:276
 #, python-brace-format
 msgid "Enhance {num_baseline_attacks} attacks done"
 msgstr "泛化 {num_baseline_attacks} 个攻击完成"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:205
+#: deepteam/attacks/attack_simulator/attack_simulator.py:211
 #, python-brace-format
 msgid "Simulating {num_vulnerabilities} attacks done"
 msgstr "生成 {num_vulnerabilities} 个攻击完成"
 
-#: deepteam/attacks/attack_simulator/attack_simulator.py:260
+#: deepteam/attacks/attack_simulator/attack_simulator.py:269
 #, python-brace-format
 msgid "Enhance {idx} / {num_baseline_attacks} attacks"
 msgstr "泛化第 {idx} / {num_baseline_attacks} 个攻击"
