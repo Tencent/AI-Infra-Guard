@@ -7,7 +7,7 @@ info:
     product: triton-inference-server
     vendor: NVIDIA
 http:
-  - method: POST
+  - method: GET
     path: '/v2/repository/models/simple/load'
     matchers:
-      - body="{\"error\":\""
+      - body="{\"error\":\"Method Not Allowed\"}"
