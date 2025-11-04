@@ -17,6 +17,7 @@
   - [4.1 Recommended Choices for MCP Scan](#41-recommended-choices-for-mcp-scan)
   - [4.2 Recommended Choices for Jailbreak Evaluation Models](#42-recommended-choices-for-jailbreak-evaluation-models)
 - [5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets](#5-inaccurate-jailbreak-detection-with-custom-evaluation-datasets)
+- [6. Adding Model Failed](#6-adding-model-failed)
 
 ---
 
@@ -155,3 +156,7 @@ When working with a custom dataset, selecting an appropriate safety evaluation m
 ## 5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets
 
 You can adjust the evaluation criteria based on the characteristics of your dataset. To modify the evaluation standards, please refer to the template file at: [https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py](https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py)
+
+## 6. Adding Model Failed
+
+A.I.G supports model interfaces in standard OpenAI format. If your model is not in OpenAI format, you can use a model API gateway to perform format conversion, such as [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm).
