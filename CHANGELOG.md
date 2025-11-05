@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.4] - 2024-11-05
+
+### 修复问题 (Fixed)
+1. 修复prompt可能被错误分割的问题
+2. 增加泛化模型加载日志
+3. 增加模型加载参数组合尝试
+4. 修复模型调用参数兼容问题
+5. 优化日志显示
+6. fixed https://github.com/Tencent/AI-Infra-Guard/issues/110
+
 ## [v3.4.3] - 2025-10-27
 ### 新增功能 (Added)
 🔧 **API文档支持**：更新并增强了API文档支持，提供更完整的接口文档和Swagger规范。
