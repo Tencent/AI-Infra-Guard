@@ -25,9 +25,11 @@ from deepteam.attacks.attack_simulator.schema import SyntheticDataList
 class SimulatedAttack(BaseModel):
     vulnerability: str
     vulnerability_type: VulnerabilityType
+    original_input: Optional[str] = None
     input: Optional[str] = None
     attack_method: Optional[str] = None
     error: Optional[str] = None
+    useless: bool = False
 
 
 class AttackSimulator:
@@ -140,6 +142,10 @@ class AttackSimulator:
                     simulated_attack=baseline_attack,
                     ignore_errors=ignore_errors,
                 )
+
+            # 泛化前后无变化
+            if baseline_attack.input == enhanced_attack.input:
+                enhanced_attack.useless = True
             enhanced_attacks.append(enhanced_attack)
             pbar.update(1)
 
@@ -229,19 +235,22 @@ class AttackSimulator:
             async with self.semaphore:
                 if choice == "serial":
                     # 串行嵌套攻击：按顺序应用所有攻击方法
-                    result = await self.a_enhance_attack_serial(
+                    enhanced_attack = await self.a_enhance_attack_serial(
                         attacks=unpack_attack,
                         simulated_attack=baseline_attack,
                         ignore_errors=ignore_errors,
                     )
                 else:
-                    result = await self.a_enhance_attack(
+                    enhanced_attack = await self.a_enhance_attack(
                         attack=unpack_attack,
                         simulated_attack=baseline_attack,
                         ignore_errors=ignore_errors,
                     )
 
-                return result
+                # 泛化前后无变化
+                if baseline_attack.input == enhanced_attack.input:
+                    enhanced_attack.useless = True
+                return enhanced_attack
         
         logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Jailbreaking"), description=logger.translated_msg(
             "Enhance {num_baseline_attacks} attacks", num_baseline_attacks=num_baseline_attacks
@@ -309,6 +318,7 @@ class AttackSimulator:
                         SimulatedAttack(
                             vulnerability=vulnerability.get_name(),
                             vulnerability_type=vulnerability_type,
+                            original_input=local_attack,
                             input=local_attack,
                         )
                         for local_attack in local_attacks
@@ -356,6 +366,7 @@ class AttackSimulator:
                         SimulatedAttack(
                             vulnerability=vulnerability.get_name(),
                             vulnerability_type=vulnerability_type,
+                            original_input=local_attack, 
                             input=local_attack,
                         )
                         for local_attack in local_attacks

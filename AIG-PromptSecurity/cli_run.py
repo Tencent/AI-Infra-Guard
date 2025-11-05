@@ -1,4 +1,5 @@
-import sys
+import time
+from pathlib import Path
 import argparse
 
 from cli.aig_logger import logger
@@ -13,11 +14,16 @@ from cli.tool_scanner_cli import handle_tool_scanning
 
 
 # logger config
-logger.add("logs/red_team.log", rotation="00:00", level="DEBUG", enqueue=True, retention="7 days")
+logger.add(f"logs/red_team_{{time:YYYY-MM-DD_HH-mm-ss}}.log", level="DEBUG", enqueue=True, retention="7 days")
 
 # 全局插件管理器
 plugin_manager = PluginManager()
 
+def cleanup_expired_files(log_path: str = "logs", max_age_seconds: int = 86400*30, pattern: str = "attachment_*.csv"):
+    now = time.time()
+    for file in Path(log_path).glob(pattern):
+        if (now - file.stat().st_mtime) > max_age_seconds:
+            file.unlink()
 
 def main():
     """主函数"""
@@ -128,6 +134,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+        # 清理过期文件
+        cleanup_expired_files()
     except Exception as e:
         logger.error(e)
         logger.critical_issue(content=logger.translated_msg("Something went wrong. Please try again in a few moments."))
