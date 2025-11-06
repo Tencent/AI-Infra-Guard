@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v3.4.4] - 2024-11-05
+## [v3.4.4] - 2025-11-05
 
 ### 修复问题 (Fixed)
 1. 修复prompt可能被错误分割的问题
