@@ -46,8 +46,8 @@ func RunWebServer(options *options.Options) {
 	modelStore := database.NewModelStore(db)
 	if err := modelStore.Init(); err != nil {
 		log.Errorf("初始化models表失败: trace_id=system_startup, error=%v", err)
-
 	}
+
 	// 自动添加模型
 	modelStore.AutoAddModels()
 
@@ -199,6 +199,10 @@ func RunWebServer(options *options.Options) {
 				// 删除模型接口（支持单个和批量）
 				models.DELETE("", func(c *gin.Context) {
 					HandleDeleteModel(c, modelManager)
+				})
+				// 测试模型接口（新增）
+				models.POST("/:modelId/test", func(c *gin.Context) {
+					HandleTestModel(c, modelManager)
 				})
 			}
 		}

@@ -28,6 +28,14 @@ type ModelParams struct {
 	Token   string `json:"token"`
 	Model   string `json:"model"`
 	Limit   int    `json:"limit"`
+
+	// HTTP端点相关字段
+	ModelType             string `json:"model_type,omitempty"`              // 模型类型：openai 或 http_endpoint
+	HTTPMethod            string `json:"http_method,omitempty"`             // HTTP方法
+	HTTPHeaders           string `json:"http_headers,omitempty"`            // HTTP请求头（JSON格式）
+	HTTPRequestBody       string `json:"http_request_body,omitempty"`       // HTTP请求体模板
+	HTTPResponseTransform string `json:"http_response_transform,omitempty"` // HTTP响应转换逻辑
+	RequestInterval       int    `json:"request_interval,omitempty"`        // 请求频率间隔（毫秒）
 }
 
 func getDefaultEvalModel() (*ModelParams, error) {
@@ -81,10 +89,41 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		if model.Limit == 0 {
 			model.Limit = 1000
 		}
-		argv = append(argv, "--model", model.Model)
-		argv = append(argv, "--base_url", model.BaseUrl)
-		argv = append(argv, "--api_key", model.Token)
-		argv = append(argv, "--max_concurrent", fmt.Sprintf("%d", model.Limit))
+
+		// 根据模型类型设置不同的参数
+		if model.ModelType == "http_endpoint" {
+			// HTTP端点模型参数
+			argv = append(argv, "--model", model.Model)
+			argv = append(argv, "--base_url", model.BaseUrl) // 对于HTTP端点，这是endpoint URL
+			argv = append(argv, "--api_key", "dummy")        // HTTP端点不需要API key，但脚本需要这个参数
+			argv = append(argv, "--max_concurrent", fmt.Sprintf("%d", model.Limit))
+			argv = append(argv, "--model_type", "http_endpoint")
+
+			// 添加HTTP端点特有的参数
+			if model.HTTPMethod != "" {
+				argv = append(argv, "--http_method", model.HTTPMethod)
+			}
+			if model.HTTPHeaders != "" {
+				argv = append(argv, "--http_headers", model.HTTPHeaders)
+			}
+			if model.HTTPRequestBody != "" {
+				argv = append(argv, "--http_request_body", model.HTTPRequestBody)
+			}
+			if model.HTTPResponseTransform != "" {
+				argv = append(argv, "--http_response_transform", model.HTTPResponseTransform)
+			}
+		} else {
+			// OpenAI兼容模型参数
+			argv = append(argv, "--model", model.Model)
+			argv = append(argv, "--base_url", model.BaseUrl)
+			argv = append(argv, "--api_key", model.Token)
+			argv = append(argv, "--max_concurrent", fmt.Sprintf("%d", model.Limit))
+		}
+
+		// 添加请求间隔参数（对所有模型类型都适用）
+		if model.RequestInterval > 0 {
+			argv = append(argv, "--request_interval", fmt.Sprintf("%d", model.RequestInterval))
+		}
 	}
 
 	evalParams, err := getDefaultEvalModel()

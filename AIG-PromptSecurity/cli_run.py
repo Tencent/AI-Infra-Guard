@@ -41,6 +41,16 @@ def main():
     parser.add_argument("--api_key", type=str, nargs=1, action='append', help="API Key for ChatOpenAI")
     parser.add_argument("--model", type=str, action='append', help="Model name for ChatOpenAI")
     parser.add_argument("--max_concurrent", type=int, action='append', help="Max concurrent")
+    
+    # HTTP端点模型相关参数
+    parser.add_argument("--model_type", type=str, action='append', choices=["openai", "http_endpoint"], 
+                       help="Model type: openai or http_endpoint")
+    parser.add_argument("--http_method", type=str, action='append', help="HTTP method for HTTP endpoint models")
+    parser.add_argument("--http_headers", type=str, action='append', help="HTTP headers for HTTP endpoint models (JSON format)")
+    parser.add_argument("--http_request_body", type=str, action='append', help="HTTP request body template for HTTP endpoint models")
+    parser.add_argument("--http_response_transform", type=str, action='append', help="HTTP response transform for HTTP endpoint models")
+    parser.add_argument("--request_interval", type=int, action='append', help="Request interval in milliseconds for rate limiting")
+    
     parser.add_argument("--sim_base_url", type=str, help="Base URL for a simulator model")
     parser.add_argument("--sim_api_key", type=str, nargs=1, help="API Key for a simulator model")
     parser.add_argument("--simulator_model", type=str, help="Model name for a simulator model")
@@ -91,11 +101,58 @@ def main():
 
     # 初始化模型
     models = []
-    lengths = list(map(len, (args.base_url, args.api_key, args.model, args.max_concurrent)))
+    
+    # 准备HTTP端点参数列表，如果未提供则用None填充
+    model_types = args.model_type or [None] * len(args.model)
+    http_methods = args.http_method or [None] * len(args.model)
+    http_headers = args.http_headers or [None] * len(args.model)
+    http_request_bodies = args.http_request_body or [None] * len(args.model)
+    http_response_transforms = args.http_response_transform or [None] * len(args.model)
+    request_intervals = args.request_interval or [0] * len(args.model)
+    
+    # 检查所有模型相关参数的长度一致性
+    param_lists = [args.base_url, args.api_key, args.model, args.max_concurrent, 
+                   model_types, http_methods, http_headers, http_request_bodies, http_response_transforms, request_intervals]
+    lengths = [len(param_list) for param_list in param_lists if param_list is not None]
     if len(set(lengths)) != 1:
-        raise ValueError("base_url, api_key, model, max_concurrent must have same number of parameters")
-    for base_url, api_key, model_name, max_concurrent  in zip(args.base_url, args.api_key, args.model, args.max_concurrent):
-        model = create_model(model_name, base_url, api_key[0], max_concurrent)
+        raise ValueError("All model parameters must have the same number of values")
+    
+    # 创建模型实例
+    for i, (base_url, api_key, model_name, max_concurrent) in enumerate(zip(args.base_url, args.api_key, args.model, args.max_concurrent)):
+        model_type = model_types[i] if i < len(model_types) and model_types[i] else "openai"
+        
+        if model_type == "http_endpoint":
+            # 解析HTTP headers
+            headers = {}
+            if i < len(http_headers) and http_headers[i]:
+                try:
+                    import json
+                    headers = json.loads(http_headers[i])
+                except json.JSONDecodeError:
+                    print(f"Warning: Invalid JSON in http_headers for model {i}: {http_headers[i]}")
+            
+            model = create_model(
+                model_name=model_name,
+                base_url=base_url,  # 这里是HTTP端点URL
+                api_key=api_key[0],  # HTTP端点可能不需要，但保持兼容性
+                max_concurrent=max_concurrent,
+                model_type="http_endpoint",
+                http_method=http_methods[i] if i < len(http_methods) and http_methods[i] else "POST",
+                http_headers=headers,
+                http_request_body=http_request_bodies[i] if i < len(http_request_bodies) and http_request_bodies[i] else None,
+                http_response_transform=http_response_transforms[i] if i < len(http_response_transforms) and http_response_transforms[i] else None,
+                request_interval=request_intervals[i] if i < len(request_intervals) and request_intervals[i] else 0
+            )
+        else:
+            # OpenAI兼容模型
+            model = create_model(
+                model_name, 
+                base_url, 
+                api_key[0], 
+                max_concurrent,
+                request_interval=request_intervals[i] if i < len(request_intervals) and request_intervals[i] else 0
+            )
+        
         models.append(model)
         
     if any(param is None for param in (args.evaluate_model, args.eval_base_url, args.eval_api_key, args.eval_max_concurrent)):

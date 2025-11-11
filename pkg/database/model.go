@@ -12,19 +12,34 @@ type ModelParams struct {
 	Token   string `json:"token"`
 	Model   string `json:"model"`
 	Limit   int    `json:"limit"`
+
+	// HTTP端点相关字段
+	ModelType             string `json:"model_type,omitempty"`              // 模型类型：openai 或 http_endpoint
+	HTTPMethod            string `json:"http_method,omitempty"`             // HTTP方法
+	HTTPHeaders           string `json:"http_headers,omitempty"`            // HTTP请求头（JSON格式）
+	HTTPRequestBody       string `json:"http_request_body,omitempty"`       // HTTP请求体模板
+	HTTPResponseTransform string `json:"http_response_transform,omitempty"` // HTTP响应转换逻辑
+	RequestInterval       int    `json:"request_interval,omitempty"`        // 请求频率间隔（毫秒）
 }
 
 // Model 模型表
 type Model struct {
-	ModelID   string `gorm:"primaryKey;column:model_id" json:"model_id"`   // 模型ID
-	Username  string `gorm:"column:username;not null" json:"username"`     // 创建者用户名
-	ModelName string `gorm:"column:model_name;not null" json:"model_name"` // 模型名称
-	Token     string `gorm:"column:token;not null" json:"token"`           // API Token
-	BaseURL   string `gorm:"column:base_url;not null" json:"base_url"`     // 基础URL
-	Note      string `gorm:"column:note" json:"note"`                      // 备注信息
-	Limit     int    `gorm:"column:limit" json:"limit"`
-	CreatedAt int64  `gorm:"column:created_at;not null" json:"created_at"` // 时间戳毫秒级
-	UpdatedAt int64  `gorm:"column:updated_at;not null" json:"updated_at"` // 时间戳毫秒级
+	ModelID               string `gorm:"primaryKey;column:model_id" json:"model_id"`                              // 模型ID
+	Username              string `gorm:"column:username;not null" json:"username"`                                // 创建者用户名
+	ModelName             string `gorm:"column:model_name;not null" json:"model_name"`                            // 模型名称
+	Token                 string `gorm:"column:token" json:"token"`                                               // API Token（可选）
+	BaseURL               string `gorm:"column:base_url" json:"base_url"`                                         // 基础URL（可选）
+	Note                  string `gorm:"column:note" json:"note"`                                                 // 备注信息
+	Limit                 int    `gorm:"column:limit" json:"limit"`                                               // 并发限制
+	ModelType             string `gorm:"column:model_type;default:'openai'" json:"model_type"`                    // 模型类型：openai 或 http_endpoint
+	HTTPMethod            string `gorm:"column:http_method" json:"http_method"`                                   // HTTP方法
+	HTTPEndpoint          string `gorm:"column:http_endpoint" json:"http_endpoint"`                               // HTTP端点URL
+	HTTPHeaders           string `gorm:"column:http_headers;type:text" json:"http_headers"`                       // HTTP请求头（JSON格式）
+	HTTPRequestBody       string `gorm:"column:http_request_body;type:text" json:"http_request_body"`             // HTTP请求体模板
+	HTTPResponseTransform string `gorm:"column:http_response_transform;type:text" json:"http_response_transform"` // HTTP响应转换逻辑
+	RequestInterval       int    `gorm:"column:request_interval;default:0" json:"request_interval"`               // 请求频率间隔（毫秒）
+	CreatedAt             int64  `gorm:"column:created_at;not null" json:"created_at"`                            // 时间戳毫秒级
+	UpdatedAt             int64  `gorm:"column:updated_at;not null" json:"updated_at"`                            // 时间戳毫秒级
 
 	// 关联关系
 	User User `gorm:"foreignKey:Username" json:"user"`

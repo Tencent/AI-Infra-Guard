@@ -213,13 +213,47 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		//	log.Errorf("模型无效: trace_id=%s, sessionId=%s, modelID=%s, error=%v", traceID, sessionId, modelId, err)
 		//	return nil, fmt.Errorf("模型无效: %v", err)
 		//}
-		p := database.ModelParams{
-			Model:   model.ModelName,
-			Token:   model.Token,
-			BaseUrl: model.BaseURL,
-			Limit:   model.Limit,
+
+		var p *database.ModelParams
+
+		if model.ModelType == "http_endpoint" {
+			// 对于HTTP端点模型，验证必需字段
+			if model.HTTPEndpoint == "" {
+				log.Errorf("HTTP端点模型缺少端点URL: trace_id=%s, sessionId=%s, modelID=%s", traceID, sessionId, modelId)
+				return nil, fmt.Errorf("HTTP端点模型 '%s' 缺少端点URL配置", modelId)
+			}
+
+			// 创建HTTP端点模型参数
+			p = &database.ModelParams{
+				Model:   model.ModelName,
+				Token:   "",                 // HTTP端点模型不需要token
+				BaseUrl: model.HTTPEndpoint, // 使用HTTP端点作为base_url
+				Limit:   model.Limit,
+				// 添加HTTP端点特有的字段作为扩展信息
+				ModelType:             model.ModelType,
+				HTTPMethod:            model.HTTPMethod,
+				HTTPHeaders:           model.HTTPHeaders,
+				HTTPRequestBody:       model.HTTPRequestBody,
+				HTTPResponseTransform: model.HTTPResponseTransform,
+				RequestInterval:       model.RequestInterval, // 添加请求间隔字段
+			}
+		} else {
+			// 对于OpenAI类型的模型，验证必需字段
+			if model.Token == "" || model.BaseURL == "" {
+				log.Errorf("OpenAI模型缺少必需字段: trace_id=%s, sessionId=%s, modelID=%s", traceID, sessionId, modelId)
+				return nil, fmt.Errorf("OpenAI模型 '%s' 缺少Token或BaseURL配置", modelId)
+			}
+
+			p = &database.ModelParams{
+				Model:           model.ModelName,
+				Token:           model.Token,
+				BaseUrl:         model.BaseURL,
+				Limit:           model.Limit,
+				ModelType:       model.ModelType,
+				RequestInterval: model.RequestInterval, // 添加请求间隔字段
+			}
 		}
-		return &p, nil
+		return p, nil
 	}
 	if task.Params != nil {
 		if modelID, exists := task.Params["model_id"]; exists {

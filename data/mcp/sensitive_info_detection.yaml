@@ -1,0 +1,305 @@
+info:
+  id: "sensitive_info_detection"
+  name: "Sensitive Information Detection"
+  description: "Detect sensitive information leakage vulnerabilities in MCP code"
+  author: "腾讯朱雀实验室"
+  categories:
+    - code
+prompt_template: |
+  As a professional cybersecurity analyst, you need to precisely detect sensitive information leakage vulnerabilities in MCP code. This detection requires extremely high accuracy - only report when you find concrete evidence of sensitive information exposure risks.
+
+
+  ## Vulnerability Definition
+
+  Sensitive information leakage refers to situations where confidential data,
+  credentials, personal information, or other sensitive details are
+  inappropriately exposed, stored, or transmitted in ways that could lead to
+  security breaches.
+
+
+  ## Detection Criteria (Must meet at least one concrete evidence)
+
+
+  ### 1. Personal Identifiable Information (PII) Exposure
+
+  **Required Conditions:**
+
+  - Hardcoded or logged personal data without proper protection
+
+  - Unencrypted transmission of sensitive personal information
+
+  - Exposure of user credentials, emails, phone numbers, addresses
+
+  - Medical, financial, or legal sensitive data in plaintext
+
+
+  **Code Patterns:**
+
+  - Hardcoded user emails, phone numbers, SSNs
+
+  - Logging sensitive user data in plaintext
+
+  - Storing biometric data without encryption
+
+  - Exposing personal information in error messages
+
+
+  ### 2. Business Critical Information Leakage
+
+  **Required Conditions:**
+
+  - Internal API endpoints or system architecture details exposed
+
+  - Business logic secrets or proprietary algorithms revealed
+
+  - Internal system configuration or infrastructure details
+
+  - Financial data, pricing, or business metrics exposure
+
+
+  **Detection Points:**
+
+  - Database schema or connection details in code
+
+  - Internal service URLs or API endpoints
+
+  - Business rule implementations exposed
+
+  - Financial calculations or pricing algorithms
+
+
+  ### 3. System Configuration and Environment Secrets
+
+  **Required Conditions:**
+
+  - System paths, internal hostnames, or network topology
+
+  - Debug information revealing system internals
+
+  - Environment-specific configuration details
+
+  - Development or staging environment secrets in production
+
+
+  **Code Patterns:**
+
+  - Hardcoded file paths: /home/user/secret/, C:\internal\config\
+
+  - Internal hostnames: internal.company.com, dev-server-01
+
+  - Debug outputs revealing system state
+
+  - Development database credentials
+
+
+  ### 4. Third-Party Service Information
+
+  **Required Conditions:**
+
+  - External service integration details exposed
+
+  - Partner or vendor-specific information revealed
+
+  - Third-party API usage patterns that reveal business relationships
+
+  - Vendor contract or pricing information
+
+
+  ### 5. Cryptographic Secrets and Keys
+
+  **Required Conditions:**
+
+  - Private keys, certificates, or encryption keys in code
+
+  - Cryptographic salts, seeds, or initialization vectors
+
+  - Hash values that could reveal sensitive data
+
+  - Security tokens or session identifiers
+
+
+  **High-Risk Patterns:**
+
+  - RSA/SSH private keys: -----BEGIN PRIVATE KEY-----
+
+  - JWT secrets or signing keys
+
+  - Encryption keys or passphrases
+
+  - SSL/TLS certificates with private keys
+
+
+  ## Technical Detection Methods
+
+
+  ### Pattern Recognition
+
+  **High-Risk Patterns:**
+
+  - Email addresses: [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+
+  - Phone numbers: Various international formats
+
+  - Social Security Numbers: XXX-XX-XXXX patterns
+
+  - Credit card numbers: 16-digit patterns
+
+  - IP addresses and internal network ranges
+
+  - File system paths revealing system structure
+
+
+  ### Context Analysis
+
+  **Sensitive Contexts:**
+
+  - User registration or profile management
+
+  - Payment processing modules
+
+  - Authentication and session management
+
+  - Logging and error handling
+
+  - Configuration files and environment setup
+
+
+  ### Data Flow Analysis
+
+  - Trace sensitive data from input to output
+
+  - Identify unencrypted storage or transmission
+
+  - Check for proper data sanitization
+
+  - Verify access control on sensitive operations
+
+
+  ## Exclusion Conditions (Do not report the following)
+
+
+  ### Normal Development Scenarios
+
+  - Test data with obviously fake information
+
+  - Example code with placeholder values
+
+  - Documentation examples with sample data
+
+  - Template files with substitution variables
+
+
+  ### Security Practices
+
+  - Properly encrypted sensitive data
+
+  - Environment variable references for secrets
+
+  - Masked or redacted information in logs
+
+  - Appropriate use of data anonymization
+
+
+  ### Configuration Management
+
+  - Secrets managed through secure key stores
+
+  - Proper configuration file permissions
+
+  - Environment-specific configuration separation
+
+  - Secure credential rotation mechanisms
+
+
+  ## Verification Requirements
+
+  1. **Information Sensitivity**: Assess the actual sensitivity level of exposed
+  information
+
+  2. **Exposure Risk**: Evaluate the likelihood and impact of information
+  exposure
+
+  3. **Context Relevance**: Consider the operational context where information
+  appears
+
+  4. **Remediation Feasibility**: Provide actionable security improvement
+  suggestions
+
+
+  ## Strict Judgment Standards
+
+  - **Test Data**: Do not report obviously fake or test data
+
+  - **Public Information**: Do not report publicly available information
+
+  - **Properly Protected**: Do not report data with appropriate security
+  controls
+
+  - **Development Environment**: Carefully assess development vs. production
+  exposure
+
+  - **False Positives**: Filter out common false positive patterns
+
+
+  ## Input Data
+
+  Source code path: {{ .CodePath }}
+
+  Directory structure:
+
+  ------
+
+  {{ .DirectoryStructure }}
+
+  ------
+
+
+  ## Output Requirements
+
+  Only output when finding concrete sensitive information leakage
+  vulnerabilities:
+
+  - **Vulnerability Found**: Yes/No
+
+  - **Type**: [Specific information type: PII/Business/System/Cryptographic]
+
+  - **Location**: [File paths and line numbers]
+
+  - **Sensitive Data**: [Type of sensitive information found]
+
+  - **Exposure Method**: [How the information is exposed]
+
+  - **Risk Level**: High/Medium/Low
+
+  - **Impact Assessment**: [Potential consequences of the exposure]
+
+  - **Recommendation**: [Specific steps to remediate the vulnerability]
+
+
+  **Example Output Format:**
+
+  ```
+
+  Vulnerability Found: Yes
+
+  Type: PII Exposure
+
+  Location: src/config/database.js:15-17
+
+  Sensitive Data: Email addresses and user IDs in plaintext logs
+
+  Exposure Method: Debug logging statements exposing user data
+
+  Risk Level: High
+
+  Impact Assessment: User privacy violation, potential GDPR compliance issues
+
+  Recommendation: Remove sensitive data from logs, implement data masking for
+  debug output
+
+  ```
+
+
+  **Strict Requirement: Must provide concrete evidence of sensitive information
+  exposure with clear impact analysis. Remain silent when no actual sensitivity
+  risks exist.**

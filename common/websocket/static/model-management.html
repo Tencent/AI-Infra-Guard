@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型配置管理 - AI-Infra-Guard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1890ff;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 16px 24px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: white;
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #1890ff;
+            color: white;
+        }
+
+        .nav-tab:hover {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .nav-tab.active:hover {
+            background: #1890ff;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .model-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .model-item {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .model-item:hover {
+            border-color: #1890ff;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+        }
+
+        .model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .model-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .model-type {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .model-type.openai {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .model-type.http_endpoint {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .model-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-secondary:hover {
+            background: #e6f7ff;
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-info {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #40a9ff;
+        }
+
+        .edit-form {
+            margin-top: 16px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .edit-form.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .message.error {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .add-model-form {
+            max-width: 800px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .code-example {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .code-example pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        /* HTTP响应转换字段特殊样式 */
+        textarea[name="http_response_transform"] {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            min-height: 120px;
+        }
+
+        textarea[name="http_response_transform"]:focus {
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* 使用JavaScript动态添加样式类 */
+        .transform-label {
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .transform-field-group {
+            background: #f0f8ff;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #d6e7ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #1890ff;
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .test-section {
+            margin-bottom: 20px;
+        }
+
+        .test-section h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .test-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .test-result {
+            background: #f5f5f5;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .test-result.success {
+            background: #f6ffed;
+            border-color: #b7eb8f;
+            color: #52c41a;
+        }
+
+        .test-result.error {
+            background: #fff2f0;
+            border-color: #ffccc7;
+            color: #ff4d4f;
+        }
+
+        .test-loading {
+            text-align: center;
+            color: #1890ff;
+            font-style: italic;
+        }
+
+        .form-help {
+            margin-top: 4px;
+        }
+
+        .form-help small {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>模型配置管理</h1>
+            <p>管理您的AI模型配置，支持OpenAI类型和HTTP REST API端点</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('list')">模型列表</button>
+            <button class="nav-tab" onclick="switchTab('add')">添加模型</button>
+        </div>
+
+        <div class="content">
+            <!-- 模型列表标签页 -->
+            <div id="list-tab" class="tab-content">
+                <div id="model-list" class="model-list">
+                    <div class="loading">正在加载模型列表...</div>
+                </div>
+            </div>
+
+            <!-- 添加模型标签页 -->
+            <div id="add-tab" class="tab-content hidden">
+                <form id="add-model-form" class="add-model-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">模型ID *</label>
+                            <input type="text" name="model_id" class="form-input" placeholder="请输入唯一的模型ID" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">模型名称 *</label>
+                            <input type="text" name="model_name" class="form-input" placeholder="请输入模型名称" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">模型类型 *</label>
+                        <select name="model_type" class="form-select" onchange="toggleModelFields(this.value)" required>
+                            <option value="openai">OpenAI兼容</option>
+                            <option value="http_endpoint">HTTP REST端点</option>
+                        </select>
+                    </div>
+
+                    <!-- OpenAI特定字段 -->
+                    <div id="openai-fields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">API Token *</label>
+                                <input type="password" name="token" class="form-input" placeholder="请输入API密钥">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Base URL *</label>
+                                <input type="url" name="base_url" class="form-input" placeholder="https://api.openai.com/v1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HTTP端点特定字段 -->
+                    <div id="http-fields" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">HTTP方法</label>
+                            <select name="http_method" class="form-select">
+                                <option value="POST">POST</option>
+                                <option value="GET">GET</option>
+                                <option value="PUT">PUT</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">HTTP端点URL *</label>
+                            <input type="url" name="http_endpoint" class="form-input" placeholder="https://api.example.com/v1/chat">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">HTTP请求体模板</label>
+                            <textarea name="http_request_body" class="form-textarea" placeholder='{"messages": [{"role": "user", "content": "{{.Prompt}}"}], "model": "gpt-3.5-turbo"}'></textarea>
+                            <div class="code-example">
+                                <small>支持的变量：{{.Prompt}}, {{prompt}}, {{user_message}}</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">HTTP请求头</label>
+                            <textarea name="http_headers" class="form-textarea" placeholder='{"Content-Type": "application/json", "Authorization": "Bearer your-token"}'></textarea>
+                            <div class="form-help">
+                                <small>JSON格式，如：{"Content-Type": "application/json"}</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">HTTP响应转换逻辑 ⭐</label>
+                            <textarea name="http_response_transform" class="form-textarea" placeholder="请输入响应转换逻辑" rows="8"></textarea>
+                            <div class="code-example">
+                                <pre>// JavaScript函数格式
+(body) => {
+  if (body?.success && body.resultCode === 'SUCCESS') {
+    const messageList = body.data?.messageList;
+    // 查找自然语言回复
+    for (const msg of messageList) {
+      if (msg.ioType === 'OUTPUT' && msg.content?.[0]?.text) {
+        return { output: msg.content[0].text };
+      }
+    }
+  }
+  return 'Error: ' + (body?.resultMsg || 'Unknown error');
+}
+
+// 简单JSON路径
+data.choices[0].message.content</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">并发限制</label>
+                            <input type="number" name="limit" class="form-input" placeholder="1000" min="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">请求间隔 (毫秒) ⚡</label>
+                            <input type="number" name="request_interval" class="form-input" placeholder="0" min="0" max="60000" step="100">
+                            <div class="form-help">
+                                <small>控制向大模型发送请求的频率间隔，0表示无限制（推荐：1000-5000ms）</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <input type="text" name="note" class="form-input" placeholder="可选的备注信息">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">创建模型</button>
+                        <button type="reset" class="btn btn-secondary">重置表单</button>
+                    </div>
+
+                    <div id="add-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试API模态框 -->
+    <div id="test-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">测试API</h3>
+                <button class="close" onclick="closeTestModal()">&times;</button>
+            </div>
+
+            <div id="test-model-info" class="test-section">
+                <!-- 模型信息将在这里显示 -->
+            </div>
+
+            <div class="test-section">
+                <h4>测试输入</h4>
+                <textarea id="test-input" class="test-input" placeholder="请输入要发送给API的测试内容...">Hello, this is a test message.</textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="executeTest()">发送测试</button>
+                <button class="btn btn-secondary" onclick="closeTestModal()">关闭</button>
+            </div>
+
+            <div class="test-section">
+                <h4>测试结果</h4>
+                <div id="test-result" class="test-result">点击"发送测试"开始测试...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let models = [];
+        let currentTab = 'list';
+
+        // 页面加载时获取模型列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadModels();
+        });
+
+        // 切换标签页
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 更新标签页状态
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // 显示/隐藏内容
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(`${tab}-tab`).classList.remove('hidden');
+            
+            if (tab === 'list') {
+                loadModels();
+            }
+        }
+
+        // 加载模型列表
+        async function loadModels() {
+            try {
+                const response = await fetch('/api/v1/app/models');
+                const data = await response.json();
+                
+                if (data.status === 0) {
+                    models = data.data || [];
+                    renderModels();
+                } else {
+                    document.getElementById('model-list').innerHTML = 
+                        `<div class="empty-state"><h3>加载失败</h3><p>${data.message}</p></div>`;
+                }
+            } catch (error) {
+                console.error('加载模型列表失败:', error);
+                document.getElementById('model-list').innerHTML = 
+                    '<div class="empty-state"><h3>加载失败</h3><p>网络错误，请稍后重试</p></div>';
+            }
+        }
+
+        // 渲染模型列表
+        function renderModels() {
+            const container = document.getElementById('model-list');
+            
+            if (models.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>暂无模型</h3><p>点击"添加模型"创建您的第一个模型配置</p></div>';
+                return;
+            }
+
+            container.innerHTML = models.map(modelData => {
+                const model = modelData.model;
+                const modelType = model.model_type || 'openai';
+                const isHttpEndpoint = modelType === 'http_endpoint';
+                
+                return `
+                <div class="model-item">
+                    <div class="model-header">
+                        <div>
+                            <div class="model-title">${escapeHtml(model.model)} (${escapeHtml(modelData.model_id)})</div>
+                        </div>
+                        <span class="model-type ${modelType}">${modelType}</span>
+                    </div>
+                    
+                    <div class="model-info">
+                        ${isHttpEndpoint ? `
+                            <div class="info-group">
+                                <div class="info-label">HTTP端点</div>
+                                <div class="info-value">${escapeHtml(model.http_endpoint || '-')}</div>
+                            </div>
+                            <div class="info-group">
+                                <div class="info-label">HTTP方法</div>
+                                <div class="info-value">${escapeHtml(model.http_method || 'POST')}</div>
+                            </div>
+                        ` : `
+                            <div class="info-group">
+                                <div class="info-label">Base URL</div>
+                                <div class="info-value">${escapeHtml(model.base_url || '-')}</div>
+                            </div>
+                            <div class="info-group">
+                                <div class="info-label">Token</div>
+                                <div class="info-value">${model.token ? '***已配置***' : '-'}</div>
+                            </div>
+                        `}
+                        <div class="info-group">
+                            <div class="info-label">并发限制</div>
+                            <div class="info-value">${model.limit || '-'}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">请求间隔</div>
+                            <div class="info-value">${model.request_interval ? model.request_interval + 'ms' : '无限制'}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">备注</div>
+                            <div class="info-value">${escapeHtml(model.note || '-')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        ${isHttpEndpoint ? `<button class="btn btn-info" onclick="testModel('${modelData.model_id}')">测试API</button>` : ''}
+                        <button class="btn btn-secondary" onclick="editModel('${modelData.model_id}')">编辑配置</button>
+                        <button class="btn btn-danger" onclick="deleteModel('${modelData.model_id}')">删除</button>
+                    </div>
+
+                    <div id="edit-form-${modelData.model_id}" class="edit-form">
+                        <form onsubmit="updateModel('${modelData.model_id}', event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">模型名称</label>
+                                    <input type="text" name="model_name" class="form-input" value="${escapeHtml(model.model)}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">模型类型</label>
+                                    <select name="model_type" class="form-select" onchange="toggleEditFieldsDisplay('${modelData.model_id}', this.value)">
+                                        <option value="openai" ${modelType === 'openai' ? 'selected' : ''}>OpenAI兼容</option>
+                                        <option value="http_endpoint" ${modelType === 'http_endpoint' ? 'selected' : ''}>HTTP REST端点</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- HTTP端点特定字段 -->
+                            <div class="http-endpoint-fields" style="display: ${modelType === 'http_endpoint' ? 'block' : 'none'};">
+                                <div class="form-group">
+                                    <label class="form-label">HTTP方法</label>
+                                    <select name="http_method" class="form-select">
+                                        <option value="POST" ${(model.http_method || 'POST') === 'POST' ? 'selected' : ''}>POST</option>
+                                        <option value="GET" ${model.http_method === 'GET' ? 'selected' : ''}>GET</option>
+                                        <option value="PUT" ${model.http_method === 'PUT' ? 'selected' : ''}>PUT</option>
+                                        <option value="PATCH" ${model.http_method === 'PATCH' ? 'selected' : ''}>PATCH</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">HTTP端点URL</label>
+                                    <input type="url" name="http_endpoint" class="form-input" value="${escapeHtml(model.http_endpoint || '')}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">HTTP请求体模板</label>
+                                    <textarea name="http_request_body" class="form-textarea">${escapeHtml(model.http_request_body || '')}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">HTTP请求头</label>
+                                    <textarea name="http_headers" class="form-textarea">${escapeHtml(model.http_headers || '')}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">HTTP响应转换逻辑</label>
+                                    <textarea name="http_response_transform" class="form-textarea" rows="6"></textarea>
+                                    <div class="code-example">
+                                        <pre>// JavaScript函数格式
+(body) => {
+  if (body?.success && body.resultCode === 'SUCCESS') {
+    const messageList = body.data?.messageList;
+    // 查找自然语言回复
+    for (const msg of messageList) {
+      if (msg.ioType === 'OUTPUT' && msg.content?.[0]?.text) {
+        return { output: msg.content[0].text };
+      }
+    }
+  }
+  return 'Error: ' + (body?.resultMsg || 'Unknown error');
+}
+
+// 简单JSON路径
+data.choices[0].message.content</pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- OpenAI特定字段 -->
+                            <div class="openai-fields" style="display: ${model.model_type === 'openai' ? 'block' : 'none'};">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">API Token</label>
+                                        <input type="password" name="token" class="form-input" value="${escapeHtml(model.token || '')}" placeholder="留空保持不变">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Base URL</label>
+                                        <input type="url" name="base_url" class="form-input" value="${escapeHtml(model.base_url || '')}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">并发限制</label>
+                                    <input type="number" name="limit" class="form-input" value="${model.limit || ''}" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">请求间隔 (毫秒)</label>
+                                    <input type="number" name="request_interval" class="form-input" value="${model.request_interval || '0'}" min="0" max="60000" step="100">
+                                    <div class="form-help">
+                                        <small>控制向大模型发送请求的频率间隔</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">备注</label>
+                                    <input type="text" name="note" class="form-input" value="${escapeHtml(model.note || '')}">
+                                </div>
+                            </div>
+
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-success">保存更改</button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelEdit('${modelData.model_id}')">取消</button>
+                            </div>
+                        </form>
+
+                        <div id="update-message-${modelData.model_id}"></div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            // 为每个编辑表单设置HTTP响应转换字段的值
+            models.forEach(modelData => {
+                const model = modelData.model;
+                const form = document.getElementById(`edit-form-${modelData.model_id}`);
+                if (form) {
+                    const transformTextarea = form.querySelector('textarea[name="http_response_transform"]');
+                    if (transformTextarea) {
+                        transformTextarea.value = model.http_response_transform || '';
+                    }
+                }
+            });
+        }
+
+        // 切换编辑字段显示
+        function toggleEditFieldsDisplay(modelId, modelType) {
+            const form = document.getElementById(`edit-form-${modelId}`);
+            if (!form) return;
+            
+            const httpFields = form.querySelector('.http-endpoint-fields');
+            const openaiFields = form.querySelector('.openai-fields');
+            
+            if (modelType === 'http_endpoint') {
+                if (httpFields) httpFields.style.display = 'block';
+                if (openaiFields) openaiFields.style.display = 'none';
+            } else {
+                if (httpFields) httpFields.style.display = 'none';
+                if (openaiFields) openaiFields.style.display = 'block';
+            }
+        }
+
+        // 编辑模型
+        function editModel(modelId) {
+            
+            const form = document.getElementById(`edit-form-${modelId}`);
+            if (!form) {
+                console.error('未找到编辑表单:', modelId);
+                return;
+            }
+            
+            form.classList.add('show');
+        }
+
+        // 取消编辑
+        function cancelEdit(modelId) {
+            const form = document.getElementById(`edit-form-${modelId}`);
+            form.classList.remove('show');
+        }
+
+        // 更新模型
+        async function updateModel(modelId, event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const messageDiv = document.getElementById(`update-message-${modelId}`);
+
+            try {
+                const requestData = {
+                    model: {
+                        model: formData.get('model_name'),
+                        model_type: formData.get('model_type'),
+                        token: formData.get('token'),
+                        base_url: formData.get('base_url'),
+                        http_method: formData.get('http_method'),
+                        http_endpoint: formData.get('http_endpoint'),
+                        http_headers: formData.get('http_headers'),
+                        http_request_body: formData.get('http_request_body'),
+                        http_response_transform: formData.get('http_response_transform'),
+                        limit: parseInt(formData.get('limit')) || 1000,
+                        request_interval: parseInt(formData.get('request_interval')) || 0,
+                        note: formData.get('note')
+                    }
+                };
+
+                const response = await fetch(`/api/v1/app/models/${modelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 0) {
+                    showMessage(`update-message-${modelId}`, '模型更新成功', 'success');
+                    setTimeout(() => {
+                        cancelEdit(modelId);
+                        loadModels();
+                    }, 1500);
+                } else {
+                    showMessage(`update-message-${modelId}`, data.message, 'error');
+                }
+            } catch (error) {
+                console.error('更新模型失败:', error);
+                showMessage(`update-message-${modelId}`, '网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 删除模型
+        async function deleteModel(modelId) {
+            if (!confirm('确定要删除这个模型吗？此操作不可撤销。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/app/models', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model_ids: [modelId] })
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 0) {
+                    loadModels();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('删除模型失败:', error);
+                alert('网络错误，请稍后重试');
+            }
+        }
+
+        // 切换模型字段显示
+        function toggleModelFields(modelType) {
+            const openaiFields = document.getElementById('openai-fields');
+            const httpFields = document.getElementById('http-fields');
+            
+            if (modelType === 'http_endpoint') {
+                openaiFields.style.display = 'none';
+                httpFields.style.display = 'block';
+                // 移除OpenAI字段的required属性
+                document.querySelector('input[name="token"]').removeAttribute('required');
+                document.querySelector('input[name="base_url"]').removeAttribute('required');
+                // 添加HTTP端点字段的required属性
+                document.querySelector('input[name="http_endpoint"]').setAttribute('required', '');
+            } else {
+                openaiFields.style.display = 'block';
+                httpFields.style.display = 'none';
+                // 添加OpenAI字段的required属性
+                document.querySelector('input[name="token"]').setAttribute('required', '');
+                document.querySelector('input[name="base_url"]').setAttribute('required', '');
+                // 移除HTTP端点字段的required属性
+                document.querySelector('input[name="http_endpoint"]').removeAttribute('required');
+            }
+        }
+
+        // 添加模型表单提交
+        document.getElementById('add-model-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const messageDiv = document.getElementById('add-message');
+
+            try {
+                const requestData = {
+                    model_id: formData.get('model_id'),
+                    model: {
+                        model: formData.get('model_name'),
+                        model_type: formData.get('model_type'),
+                        token: formData.get('token'),
+                        base_url: formData.get('base_url'),
+                        http_method: formData.get('http_method'),
+                        http_endpoint: formData.get('http_endpoint'),
+                        http_headers: formData.get('http_headers'),
+                        http_request_body: formData.get('http_request_body'),
+                        http_response_transform: formData.get('http_response_transform'),
+                        limit: parseInt(formData.get('limit')) || 1000,
+                        request_interval: parseInt(formData.get('request_interval')) || 0,
+                        note: formData.get('note')
+                    }
+                };
+
+                const response = await fetch('/api/v1/app/models', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 0) {
+                    showMessage('add-message', '模型创建成功', 'success');
+                    event.target.reset();
+                    setTimeout(() => {
+                        switchTab('list');
+                    }, 1500);
+                } else {
+                    showMessage('add-message', data.message, 'error');
+                }
+            } catch (error) {
+                console.error('创建模型失败:', error);
+                showMessage('add-message', '网络错误，请稍后重试', 'error');
+            }
+        });
+
+        // 显示消息
+        function showMessage(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = `<div class="message ${type}">${escapeHtml(message)}</div>`;
+            
+            // 3秒后清除消息
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return text;
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // 测试模型API
+        let currentTestModel = null;
+
+        function testModel(modelId) {
+            const model = models.find(m => m.model_id === modelId);
+            if (!model) {
+                alert('未找到模型信息');
+                return;
+            }
+
+            if (model.model.model_type !== 'http_endpoint') {
+                alert('只支持HTTP endpoint类型的模型测试');
+                return;
+            }
+
+            currentTestModel = model;
+            
+            // 显示模型信息
+            const modelInfo = `
+                <h4>模型信息</h4>
+                <div class="model-info">
+                    <div class="info-group">
+                        <div class="info-label">模型名称</div>
+                        <div class="info-value">${escapeHtml(model.model.model)}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">HTTP端点</div>
+                        <div class="info-value">${escapeHtml(model.model.http_endpoint)}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">HTTP方法</div>
+                        <div class="info-value">${escapeHtml(model.model.http_method || 'POST')}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('test-model-info').innerHTML = modelInfo;
+            
+            // 重置测试结果
+            document.getElementById('test-result').innerHTML = '点击"发送测试"开始测试...';
+            document.getElementById('test-result').className = 'test-result';
+            
+            // 显示模态框
+            document.getElementById('test-modal').classList.add('show');
+        }
+
+        function closeTestModal() {
+            document.getElementById('test-modal').classList.remove('show');
+            currentTestModel = null;
+        }
+
+        async function executeTest() {
+            if (!currentTestModel) {
+                alert('没有选择测试模型');
+                return;
+            }
+
+            const testInput = document.getElementById('test-input').value.trim();
+            if (!testInput) {
+                alert('请输入测试内容');
+                return;
+            }
+
+            const resultDiv = document.getElementById('test-result');
+            
+            // 显示加载状态
+            resultDiv.innerHTML = '<div class="test-loading">正在测试...</div>';
+            resultDiv.className = 'test-result';
+
+            try {
+                const response = await fetch(`/api/v1/app/models/${currentTestModel.model_id}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test_input: testInput })
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 0) {
+                    const testResult = data.data;
+                    let resultText = `状态码: ${testResult.status_code}\n\n`;
+                    
+                    if (testResult.error) {
+                        resultText += `错误: ${testResult.error}`;
+                        resultDiv.className = 'test-result error';
+                    } else {
+                        resultText += `原始响应:\n${JSON.stringify(testResult.raw_response, null, 2)}`;
+                        
+                        if (testResult.transform_text) {
+                            resultText += `\n\n转换后文本:\n${testResult.transform_text}`;
+                        }
+                        
+                        resultDiv.className = 'test-result success';
+                    }
+                    
+                    resultDiv.textContent = resultText;
+                } else {
+                    resultDiv.textContent = `测试失败: ${data.message}`;
+                    resultDiv.className = 'test-result error';
+                }
+            } catch (error) {
+                console.error('测试失败:', error);
+                resultDiv.textContent = `网络错误: ${error.message}`;
+                resultDiv.className = 'test-result error';
+            }
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('test-modal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTestModal();
+            }
+        });
+    </script>
+</body>
+</html>
