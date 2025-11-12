@@ -7,26 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.4.4] - 2025-11-05
 
-### 修复问题 (Fixed)
-1. 修复prompt可能被错误分割的问题
-2. 增加泛化模型加载日志
-3. 增加模型加载参数组合尝试
-4. 修复模型调用参数兼容问题
-5. 优化日志显示
-6. fixed https://github.com/Tencent/AI-Infra-Guard/issues/110
+### Fixed
+1. Fixed issue where prompts could be incorrectly split
+2. Added generalized model loading logs
+3. Added model loading parameter combination attempts
+4. Fixed model invocation parameter compatibility issue
+5. Optimized log display
+6. Fixed https://github.com/Tencent/AI-Infra-Guard/issues/110
 
 ## [v3.4.3] - 2025-10-27
-### 新增功能 (Added)
-🔧 **API文档支持**：更新并增强了API文档支持，提供更完整的接口文档和Swagger规范。
-🤖 **模型调用基础类**：新增模型调用的基础类方法，提升代码复用性和维护性。
-📊 **评估数据集扩展**：新增网络攻击(Cyberattack)和CBRN武器相关的测试数据集。
+### Added
+🔧 **API Documentation Support**: Updated and enhanced API documentation support, providing more complete interface documentation and Swagger specifications.
+🤖 **Model Invocation Base Class**: Added base class methods for model invocation, improving code reusability and maintainability.
+📊 **Evaluation Dataset Expansion**: Added test datasets related to Cyberattack and CBRN weapons.
 
-### 修复问题 (Fixed)
-🛠️ **CSV编码问题**：修复CSV文件中文乱码问题，改善数据导出体验。
+### Fixed
+🛠️ **CSV Encoding Issue**: Fixed Chinese garbled text issue in CSV files, improving data export experience.
 
 ## [v3.4.2] - 2025-09-25
-- 优化前端
-- 新增漏洞指纹:
+- Optimized frontend
+- Added new vulnerability fingerprints:
 clickhouse
 comfyui
 dask
@@ -45,45 +45,45 @@ vllm
 
 
 ## [v3.4.1] - 2025-09-24
-- 新增漏洞指纹 CVE-2025-23316
-- 优化：triton指纹
+- Added vulnerability fingerprint CVE-2025-23316
+- Optimized: triton fingerprint
 
 ## [v3.4] - 2025-09-18
-### 新增功能 (Added)
-🌐 **国际化支持**：实现了前端界面的国际化(i18n)支持，包括多语言文本和英文截图资源。
-🐳 **Docker增强**：更新了一键部署脚本，增加Docker拉取错误信息提示，并支持Apple ARM架构部署。
-⚡ **任务并发控制**：新增任务并发限制功能，优化系统资源管理。
-🔄 **模型重试逻辑**：更新模型调用重试机制，提升服务稳定性。
-🤖 **Agent自恢复**：实现Agent进程异常退出后的自动重启功能。
-📚 **多数据集兼容**：增强对多数据集格式的兼容性处理。
-🔌 **OpenAPI接口更新**：处理thinking模型思考过程过长的问题。
+### Added
+🌐 **Internationalization Support**: Implemented frontend interface internationalization (i18n) support, including multi-language text and English screenshot resources.
+🐳 **Docker Enhancement**: Updated one-click deployment script, added Docker pull error information prompt, and supported Apple ARM architecture deployment.
+⚡ **Task Concurrency Control**: Added task concurrency limit feature, optimized system resource management.
+🔄 **Model Retry Logic**: Updated model invocation retry mechanism, improving service stability.
+🤖 **Agent Auto-Recovery**: Implemented automatic restart function after Agent process abnormal exit.
+📚 **Multi-Dataset Compatibility**: Enhanced compatibility handling for multiple dataset formats.
+🔌 **OpenAPI Interface Update**: Handled the issue of thinking model thinking process being too long.
 
-### 修复问题 (Fixed)
-🛠️ **前端问题修复**：修复前端界面显示问题，包括窄屏适配和特定UI异常（#74）。
-🔧 **MCP问题修复**：修复MCP协议中的已知Bug，包括模型输出处理和连接稳定性。
-⚙️ **参数解析错误**：修复参数解析过程中的异常问题。
-📊 **评估异常修复**：修复评估模块中的异常行为。
-🔄 **任务重置失败**：修复运行中任务重置操作失败的问题。
-🛡️ **安全风险修复**：修复IP检查相关的安全风险问题（#78）。
-🔗 **循环导入问题**：修复代码中可能的循环导入错误。
-📝 **许可证更新**：更新项目许可证文件。
+### Fixed
+🛠️ **Frontend Issue Fix**: Fixed frontend interface display issues, including narrow screen adaptation and specific UI anomalies (#74).
+🔧 **MCP Issue Fix**: Fixed known bugs in MCP protocol, including model output processing and connection stability.
+⚙️ **Parameter Parsing Error**: Fixed exception issues in parameter parsing process.
+📊 **Evaluation Exception Fix**: Fixed abnormal behavior in evaluation module.
+🔄 **Task Reset Failure**: Fixed the issue of task reset operation failure while running.
+🛡️ **Security Risk Fix**: Fixed security risk issues related to IP checking (#78).
+🔗 **Circular Import Issue**: Fixed possible circular import errors in code.
+📝 **License Update**: Updated project license files.
 
 ## [v3.3] - 2025-09-03
-- 新增docker部署一键脚本 For Linux
-- 修复磁盘读写较慢情况下SSE连接失败问题
-- 优化AI基础设施扫描探针
+- Added one-click Docker deployment script for Linux
+- Fixed SSE connection failure issue when disk read/write is slow
+- Optimized AI infrastructure scanning probe
 
 ## [v3.2] - 2025-08-26
 
-### 新增功能 (Added)
+### Added
 
-- 📊 **MCP扫描报告优化**：增加了更多维度的检测数据展示，提升了用户体验。
-- 📱 **窄屏安全报告适配**：优化了大模型安全体检报告在窄屏下的展示问题。
-- ⚙️ **新增模型并发限制**：引入了新的模型并发限制功能。
+- 📊 **MCP Scan Report Optimization**: Added more dimensions of detection data display, improving user experience.
+- 📱 **Narrow Screen Security Report Adaptation**: Optimized the display of large model security check reports on narrow screens.
+- ⚙️ **New Model Concurrency Limit**: Introduced new model concurrency limit feature.
 
-### 修复问题 (Fixed)
+### Fixed
 
-- 🔌 **修复MCP SSE超时问题**：解决了MCP（模型控制协议）中服务器发送事件（SSE）的超时问题。
-- ❓ **修复MCP模型输出为空退出问题**：解决了当MCP模型输出为空时系统会退出的问题 (#61)。
-- 📋 **更新MCP硬编码模板**：更新了MCP的硬编码（hardcoded）模板。
-- 🛡️ **修复AIG提示词IP检查风险**：修复了与AIG提示词中IP检查相关的安全风险。
+- 🔌 **Fixed MCP SSE Timeout Issue**: Resolved the timeout issue of Server-Sent Events (SSE) in MCP (Model Control Protocol).
+- ❓ **Fixed MCP Model Empty Output Exit Issue**: Resolved the issue where the system would exit when MCP model output is empty (#61).
+- 📋 **Updated MCP Hardcoded Template**: Updated the hardcoded template for MCP.
+- 🛡️ **Fixed AIG Prompt IP Check Risk**: Fixed security risks related to IP checking in AIG prompts.

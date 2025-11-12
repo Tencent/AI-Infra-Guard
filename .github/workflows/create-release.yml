@@ -23,25 +23,25 @@ jobs:
       - name: 📝 Extract latest CHANGELOG entry
         id: tag-message
         run: |
-          # 获取标签信息
+          # Get tag information
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
-          # 从 CHANGELOG.md 提取最新版本的内容
+          # Extract latest version content from CHANGELOG.md
           if [ -f "CHANGELOG.md" ]; then
             CHANGELOG_CONTENT=$(awk 'BEGIN {print_section=0;} /^## \[/ {if (print_section == 0) {print_section=1;} else {exit;}} print_section {print;}' CHANGELOG.md)
             
-            # 如果成功提取到内容，使用 CHANGELOG 内容
+            # If content is successfully extracted, use CHANGELOG content
             if [ -n "$CHANGELOG_CONTENT" ]; then
-              echo "从 CHANGELOG.md 提取最新版本内容:"
+              echo "Extracting latest version content from CHANGELOG.md:"
               echo "$CHANGELOG_CONTENT"
               echo "$CHANGELOG_CONTENT" > tag_message.txt
             else
-              echo "CHANGELOG.md 中未找到版本信息，使用默认消息"
+              echo "Version information not found in CHANGELOG.md, using default message"
               echo "Release $TAG_NAME" > tag_message.txt
             fi
           else
-            echo "未找到 CHANGELOG.md 文件，使用默认消息"
+            echo "CHANGELOG.md file not found, using default message"
             echo "Release $TAG_NAME" > tag_message.txt
           fi
           
@@ -49,9 +49,9 @@ jobs:
 
       - name: 📦 Prepare release package
         run: |
-          # 创建发布目录
+          # Create release directory
           mkdir -p release-package
-          # 复制必要文件
+          # Copy necessary files
           cp docker-compose.images.yml release-package/docker-compose.yml
           cp -r data release-package/data
           cp README.md release-package/README.md
@@ -62,21 +62,21 @@ jobs:
           mkdir -p release-package/log
           mkdir -p release-package/uploads
           
-          # 获取版本号并修改 docker-compose.images.yml
+          # Get version number and modify docker-compose.images.yml
           VERSION="${{ steps.tag-message.outputs.tag_name }}"
           
-          # 替换 docker-compose.images.yml 中的 latest 标签为当前版本号
+          # Replace latest tag in docker-compose.images.yml with current version
           sed -i "s/:latest/:${VERSION}/g" release-package/docker-compose.yml
           
 
       - name: 📦 Create release archive
         run: |
-          # 创建压缩包
+          # Create compressed package
           cd release-package
           tar -czf ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.tar.gz .
           cd ..
           
-          # 创建 ZIP 包（Windows 用户友好）
+          # Create ZIP package (Windows-friendly)
           cd release-package
           zip -r ../AI-Infra-Guard-${{ steps.tag-message.outputs.tag_name }}.zip .
           cd ..
