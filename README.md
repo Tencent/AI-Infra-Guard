@@ -9,8 +9,8 @@
     <p>
 </h4>
 <p align="center">
-    <a href="https://github.com/Tencent/AI-Infra-Guard">
-        <img alt="GitHub Stars" src="https://img.shields.io/github/stars/Tencent/AI-Infra-Guard?color=gold">
+    <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
+      <img src="https://img.shields.io/github/stars/tencent/AI-Infra-Guard.svg" alt="GitHub stars">
     </a>
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="GitHub downloads" src="https://img.shields.io/github/downloads/Tencent/AI-Infra-Guard/total">
