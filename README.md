@@ -32,6 +32,7 @@
 </p>
 
 <br>
+
 <p align="center">
     <h2 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h2>
 </p>

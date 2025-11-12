@@ -2,6 +2,7 @@ module github.com/Tencent/AI-Infra-Guard
 
 go 1.23.2
 
+
 require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/gin-gonic/gin v1.10.0

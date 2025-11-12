@@ -1,10 +1,10 @@
-# 第一阶段：构建阶段
+# Stage 1: Build stage
 FROM golang:1.23.2-alpine AS builder
 
-# 安装必要的系统依赖
+# Install necessary system dependencies
 RUN apk add --no-cache git ca-certificates
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
 # 复制 go.mod 和 go.sum 文件

@@ -9,6 +9,7 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
+
 func main() {
 	var server string
 	flag.StringVar(&server, "server", "", "server")

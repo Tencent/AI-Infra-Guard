@@ -24,15 +24,15 @@ import (
 	"trpc.group/trpc-go/trpc-go/log"
 )
 
-// ModelParams 模型参数配置
+// ModelParams represents model configuration parameters
 type ModelParams struct {
-	BaseUrl string `json:"base_url" example:"https://api.openai.com/v1"` // 模型API基础URL
-	Token   string `json:"token" example:"sk-xxx"`                       // API访问令牌
-	Model   string `json:"model" example:"gpt-4"`                        // 模型名称
-	Limit   int    `json:"limit" example:"1000"`                         // 请求限制
+	BaseUrl string `json:"base_url" example:"https://api.openai.com/v1"` // Model API base URL
+	Token   string `json:"token" example:"sk-xxx"`                       // API access token
+	Model   string `json:"model" example:"gpt-4"`                        // Model name
+	Limit   int    `json:"limit" example:"1000"`                         // Request limit
 }
 
-// MCPTaskRequest MCP任务请求结构体
+// MCPTaskRequest represents MCP task request structure
 // @Description MCP (Model Context Protocol) 安全扫描任务请求参数
 type MCPTaskRequest struct {
 	Content string `json:"content,omitempty" example:"扫描目标MCP服务器"` // 任务内容描述

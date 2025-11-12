@@ -1,6 +1,6 @@
-plugins:                                          #插件配置
-  log:                                            #日志配置
-    default:                                      #默认日志的配置，可支持多输出
+plugins:                                          # Plugin configuration
+  log:                                            # Log configuration
+    default:                                      # Default log configuration, supports multiple outputs
       - writer: console                           #控制台标准输出 默认
         level: info                               #控制台输出日志的级别（从error改为info）
       - writer: file                              #本地文件日志
