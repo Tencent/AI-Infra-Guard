@@ -1,4 +1,4 @@
-// Package httpx http请求主体
+// Package httpx provides HTTP client functionality
 package httpx
 
 import (

@@ -1,8 +1,8 @@
-# Git相关
+# Git related files
 .git/
 .gitignore
 
-# 构建产物
+# Build artifacts
 ai-infra-guard
 *.exe
 *.dll

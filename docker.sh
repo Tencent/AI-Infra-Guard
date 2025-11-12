@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # -----------------------------------------------------------------------------
-# 一键部署脚本
+# One-click Deployment Script
 #
-# 功能:
-# 1. 检查并安装 Docker 和 Docker Compose。
-# 2. 从 Git 仓库下载应用。
-# 3. 创建独立的发布包目录。
-# 4. 使用 Docker Compose 启动应用。
+# Features:
+# 1. Check and install Docker and Docker Compose
+# 2. Download application from Git repository
+# 3. Create independent release package directory
+# 4. Start application using Docker Compose
 # -----------------------------------------------------------------------------
 
-# 设置颜色变量以便输出
+# Set color variables for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
