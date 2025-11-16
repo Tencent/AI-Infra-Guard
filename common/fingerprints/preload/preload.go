@@ -86,20 +86,17 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 				if resp == nil {
 					continue
 				}
-				// 文件指纹
+				sum := sha256.Sum256(resp.Data)
+				respHash := hex.EncodeToString(sum[:])
 				fpConfig := parser.Config{
 					Body:   resp.DataStr,
 					Header: resp.GetHeaderRaw(),
 					Icon:   faviconHash,
+					Hash:   respHash,
 				}
 
 				matched := false
-				if hash := strings.TrimSpace(req.Hash); hash != "" {
-					sum := sha256.Sum256(resp.Data)
-					if strings.EqualFold(hex.EncodeToString(sum[:]), hash) {
-						matched = true
-					}
-				} else if len(req.GetDsl()) == 0 {
+				if len(req.GetDsl()) == 0 {
 					matched = true
 				} else {
 					for _, dsl := range req.GetDsl() {
@@ -214,19 +211,17 @@ func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, 
 			continue
 		}
 
+		sum := sha256.Sum256(resp.Data)
+		respHash := hex.EncodeToString(sum[:])
 		fpConfig := &parser.Config{
 			Body:   resp.DataStr,
 			Header: resp.GetHeaderRaw(),
 			Icon:   0,
+			Hash:   respHash,
 		}
 
 		matched := false
-		if hash := strings.TrimSpace(req.Hash); hash != "" {
-			sum := sha256.Sum256(resp.Data)
-			if strings.EqualFold(hex.EncodeToString(sum[:]), hash) {
-				matched = true
-			}
-		} else if len(req.GetDsl()) == 0 {
+		if len(req.GetDsl()) == 0 {
 			matched = true
 		} else {
 			for _, dsl := range req.GetDsl() {

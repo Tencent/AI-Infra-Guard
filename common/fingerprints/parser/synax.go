@@ -109,7 +109,7 @@ func parsePrimaryExpr(stream *tokenStream) (Exp, error) {
 	}
 
 	switch tmpToken.name {
-	case tokenBody, tokenHeader, tokenIcon, tokenVersion, tokenIsInternal:
+	case tokenBody, tokenHeader, tokenIcon, tokenHash, tokenVersion, tokenIsInternal:
 		p2, err := stream.next()
 		if err != nil {
 			return nil, err
@@ -213,6 +213,8 @@ func (r *Rule) Eval(config *Config) bool {
 				s1 = config.Header
 			case tokenIcon:
 				s1 = strconv.Itoa(int(config.Icon))
+			case tokenHash:
+				s1 = config.Hash
 			default:
 				panic("unknown left token")
 			}
@@ -359,4 +361,36 @@ func (r *Rule) AdvisoryEval(config *AdvisoryConfig) bool {
 		return false
 	}
 	return evalExpr(r.root, config)
+}
+
+// hashUsage returns whether a Rule references the hash keyword and whether it is hash-only.
+func (r *Rule) hashUsage() (usesHash bool, hashOnly bool) {
+	if r == nil || r.root == nil {
+		return false, false
+	}
+	hashOnly = true
+	var visit func(expr Exp)
+	visit = func(expr Exp) {
+		if expr == nil {
+			return
+		}
+		switch next := expr.(type) {
+		case *dslExp:
+			if next.left == tokenHash {
+				usesHash = true
+			} else {
+				hashOnly = false
+			}
+		case *logicExp:
+			visit(next.left)
+			visit(next.right)
+		case *bracketExp:
+			visit(next.inner)
+		}
+	}
+	visit(r.root)
+	if !usesHash {
+		hashOnly = false
+	}
+	return
 }
