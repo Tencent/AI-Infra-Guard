@@ -117,23 +117,23 @@ func TestEvalFpVersionFuzzyHashIntersection(t *testing.T) {
 	defer server.Close()
 
 	data := `info:
-    name: test
-    author: test
-    severity: info
-    metadata:
-      product: test
-      vendor: test
-  version:
-    - method: GET
-      path: '/fuzzy1'
-      matchers:
-        - hash=="012c14d354f49d6e682efaa1e8d3f1433ff7da7093b2b5964aac1302303f52b4"
-      versionrange: '>=1.0.0,<2.0.0'
-    - method: GET
-      path: '/fuzzy2'
-      matchers:
-        - hash=="1773f6ec9285e9d638a94a19375353fa9c8c891c732d80a996724ed8017fe196"
-      versionrange: '>=1.5.0,<3.0.0'
+  name: test
+  author: test
+  severity: info
+  metadata:
+    product: test
+    vendor: test
+version:
+  - method: GET
+    path: '/fuzzy1'
+    matchers:
+      - hash=="012c14d354f49d6e682efaa1e8d3f1433ff7da7093b2b5964aac1302303f52b4"
+    versionrange: '>=1.0.0,<2.0.0'
+  - method: GET
+    path: '/fuzzy2'
+    matchers:
+      - hash=="1773f6ec9285e9d638a94a19375353fa9c8c891c732d80a996724ed8017fe196"
+    versionrange: '>=1.5.0,<3.0.0'
 `
 	fp, err := parser.InitFingerPrintFromData([]byte(data))
 	assert.NoError(t, err)
