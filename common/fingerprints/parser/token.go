@@ -19,6 +19,7 @@ const (
 	tokenBody   = "body"   // matches body content
 	tokenHeader = "header" // matches HTTP headers
 	tokenIcon   = "icon"   // matches icon content
+	tokenHash   = "hash"   // matches response hash
 	tokenText   = "text"   // matches text content
 
 	// Comparison operators
@@ -49,7 +50,7 @@ const (
 // ParseTokens converts input string to token sequence, supporting text content(quoted),
 // comparison ops(=,==,!=,~=), logical ops(&&,||), parentheses and keywords(body,header,icon)
 func ParseTokens(s1 string) ([]Token, error) {
-	return parseTokensWithOptions(s1, []string{tokenBody, tokenHeader, tokenIcon})
+	return parseTokensWithOptions(s1, []string{tokenBody, tokenHeader, tokenIcon, tokenHash})
 }
 
 // ParseAdvisorTokens parses advisor expressions, similar to ParseTokens but supports version keyword

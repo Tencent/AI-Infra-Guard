@@ -2,14 +2,16 @@
 package preload
 
 import (
-	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
-	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
+	"crypto/sha256"
+	"encoding/hex"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 
+	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
+	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
 	"github.com/remeh/sizedwaitgroup"
 )
 
@@ -84,33 +86,45 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 				if resp == nil {
 					continue
 				}
-				// 文件指纹
+				sum := sha256.Sum256(resp.Data)
+				respHash := hex.EncodeToString(sum[:])
 				fpConfig := parser.Config{
 					Body:   resp.DataStr,
 					Header: resp.GetHeaderRaw(),
 					Icon:   faviconHash,
+					Hash:   respHash,
 				}
-				for _, dsl := range req.GetDsl() {
-					if parser.Eval(&fpConfig, dsl) {
-						name := fp.Info.Name
-						version := ""
-						version, err := EvalFpVersion(uri, r.hp, fp)
-						if err != nil {
-							gologger.WithError(err).Errorln("获取版本失败")
+
+				matched := false
+				if len(req.GetDsl()) == 0 {
+					matched = true
+				} else {
+					for _, dsl := range req.GetDsl() {
+						if parser.Eval(&fpConfig, dsl) {
+							matched = true
+							break
 						}
-						mux.Lock()
-						type_, ok := fp.Info.Metadata["type"]
-						if !ok {
-							type_ = ""
-						}
-						ret = append(ret, FpResult{
-							Name:    name,
-							Version: version,
-							Type:    type_,
-						})
-						mux.Unlock()
-						break
 					}
+				}
+
+				if matched {
+					name := fp.Info.Name
+					version := ""
+					version, err := EvalFpVersion(uri, r.hp, fp)
+					if err != nil {
+						gologger.WithError(err).Errorln("获取版本失败")
+					}
+					mux.Lock()
+					type_, ok := fp.Info.Metadata["type"]
+					if !ok {
+						type_ = ""
+					}
+					ret = append(ret, FpResult{
+						Name:    name,
+						Version: version,
+						Type:    type_,
+					})
+					mux.Unlock()
 				}
 			}
 		}(fp)
@@ -175,41 +189,96 @@ func (r *Runner) GetFps() []parser.FingerPrint {
 // EvalFpVersion 获取指定指纹的版本信息
 // 通过正则表达式从响应中提取版本号
 func EvalFpVersion(uri string, hp *httpx.HTTPX, fp parser.FingerPrint) (string, error) {
+	fuzzyRanges := make([]versionRange, 0)
+
 	for _, req := range fp.Version {
-		resp, err := hp.Get(uri+req.Path, nil)
+		var (
+			resp *httpx.Response
+			err  error
+		)
+
+		switch strings.ToUpper(req.Method) {
+		case "POST":
+			resp, err = hp.POST(uri+req.Path, req.Data, nil)
+		default:
+			resp, err = hp.Get(uri+req.Path, nil)
+		}
 		if err != nil {
 			gologger.WithError(err).Errorln("请求失败")
 			continue
 		}
-		// 文件指纹
+		if resp == nil {
+			continue
+		}
+
+		sum := sha256.Sum256(resp.Data)
+		respHash := hex.EncodeToString(sum[:])
 		fpConfig := &parser.Config{
 			Body:   resp.DataStr,
 			Header: resp.GetHeaderRaw(),
 			Icon:   0,
+			Hash:   respHash,
 		}
-		version := ""
-		if req.Extractor.Regex != "" {
-			// 继续测试version
-			compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
-			if err != nil {
-				gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
-			} else {
-				index, err := strconv.Atoi(req.Extractor.Group)
-				if err != nil {
-					gologger.WithError(err).Errorln("parse part error", req.Extractor.Part)
-				} else {
-					body := fpConfig.Body
-					if req.Extractor.Part == "header" {
-						body = fpConfig.Header
-					}
-					submatches := compileRegex.FindStringSubmatch(body)
-					if submatches != nil {
-						version = submatches[index]
-					}
+
+		matched := false
+		if len(req.GetDsl()) == 0 {
+			matched = true
+		} else {
+			for _, dsl := range req.GetDsl() {
+				if parser.Eval(fpConfig, dsl) {
+					matched = true
+					break
 				}
 			}
 		}
-		return version, nil
+		if !matched {
+			continue
+		}
+
+		if strings.TrimSpace(req.VersionRange) == "" {
+			version := ""
+			if req.Extractor.Regex != "" {
+				compileRegex, err := regexp.Compile("(?i)" + req.Extractor.Regex)
+				if err != nil {
+					gologger.WithError(err).Errorln("compile regex error", req.Extractor.Regex)
+				} else {
+					index, err := strconv.Atoi(req.Extractor.Group)
+					if err != nil {
+						gologger.WithError(err).Errorln("parse part error", req.Extractor.Part)
+					} else {
+						body := fpConfig.Body
+						if req.Extractor.Part == "header" {
+							body = fpConfig.Header
+						}
+						submatches := compileRegex.FindStringSubmatch(body)
+						if len(submatches) > 0 {
+							if index < 0 || index >= len(submatches) {
+								index = len(submatches) - 1
+							}
+							version = submatches[index]
+						}
+					}
+				}
+			}
+			if version != "" {
+				return version, nil
+			}
+			continue
+		}
+
+		vr, err := parseVersionRange(req.VersionRange)
+		if err != nil {
+			gologger.WithError(err).Errorln("parse version range error", req.VersionRange)
+			continue
+		}
+		fuzzyRanges = append(fuzzyRanges, vr)
 	}
+
+	if len(fuzzyRanges) > 0 {
+		if vr, ok := intersectVersionRanges(fuzzyRanges); ok {
+			return vr.String(), nil
+		}
+	}
+
 	return "", nil
 }

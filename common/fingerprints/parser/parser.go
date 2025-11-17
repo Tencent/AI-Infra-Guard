@@ -4,6 +4,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -27,12 +29,13 @@ type Extractor struct {
 
 // HttpRule 定义了HTTP请求匹配规则
 type HttpRule struct {
-	Method    string    `yaml:"method" json:"method"`
-	Path      string    `yaml:"path" json:"path"`
-	Matchers  []string  `yaml:"matchers" json:"matchers"`
-	Data      string    `yaml:"data,omitempty" json:"data,omitempty"`
-	dsl       []*Rule   `yaml:"-" json:"-"`
-	Extractor Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
+	Method       string    `yaml:"method" json:"method"`
+	Path         string    `yaml:"path" json:"path"`
+	Matchers     []string  `yaml:"matchers" json:"matchers"`
+	Data         string    `yaml:"data,omitempty" json:"data,omitempty"`
+	dsl          []*Rule   `yaml:"-" json:"-"`
+	VersionRange string    `yaml:"versionrange,omitempty" json:"versionrange,omitempty"`
+	Extractor    Extractor `yaml:"extractor,omitempty" json:"extractor,omitempty"`
 }
 
 // GetDsl 返回解析后的DSL规则列表
@@ -55,6 +58,7 @@ type Config struct {
 	Body   string
 	Header string
 	Icon   int32
+	Hash   string
 }
 
 // AdvisoryConfig 提供漏洞配置信息
@@ -94,18 +98,43 @@ func InitFingerPrintFromData(reader []byte) (*FingerPrint, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i, rule := range fp.Http {
-		dsls := make([]*Rule, 0)
-		for _, matcher := range rule.Matchers {
+	if err := compileMatchers(fp.Http); err != nil {
+		return nil, err
+	}
+	if err := compileMatchers(fp.Version); err != nil {
+		return nil, err
+	}
+	return &fp, err
+}
+
+// compileMatchers compiles textual matchers into executable DSL rules.
+func compileMatchers(rules []HttpRule) error {
+	for i := range rules {
+		dsls := make([]*Rule, 0, len(rules[i].Matchers))
+		hasHashMatcher := false
+		hasNonHashMatcher := false
+		for _, matcher := range rules[i].Matchers {
 			dsl, err := transfromRule(matcher)
 			if err != nil {
-				return nil, err
+				return err
+			}
+			usesHash, hashOnly := dsl.hashUsage()
+			if usesHash {
+				if !hashOnly {
+					return fmt.Errorf("hash matcher cannot be combined with other fields: %s %s -> %s", rules[i].Method, rules[i].Path, matcher)
+				}
+				hasHashMatcher = true
+			} else {
+				hasNonHashMatcher = true
 			}
 			dsls = append(dsls, dsl)
 		}
-		fp.Http[i].dsl = dsls
+		if hasHashMatcher && hasNonHashMatcher {
+			return fmt.Errorf("hash matcher cannot coexist with other matcher types: %s %s", rules[i].Method, rules[i].Path)
+		}
+		rules[i].dsl = dsls
 	}
-	return &fp, err
+	return nil
 }
 
 // FpResult 指纹结构体

@@ -9,10 +9,10 @@ import (
 )
 
 func TestSingleRule(t *testing.T) {
-	rule := "body~=\"123123\" && (title == \"title\" || header=\"X-Powered-By: Express\")"
+	rule := "body~=\"123123\" && (body == \"title\" || header=\"X-Powered-By: Express\")"
 	config := &Config{
 		Body:   "1111231232233",
-		Header: "",
+		Header: "Server: nginx\r\nX-Powered-By: Express\r\n",
 		Icon:   23333,
 	}
 	tokens, err := ParseTokens(rule)
@@ -26,7 +26,7 @@ func TestSingleRule(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, dsl.Eval(config), true)
+	assert.True(t, dsl.Eval(config))
 }
 
 func TestSingleRuleForParse(t *testing.T) {
