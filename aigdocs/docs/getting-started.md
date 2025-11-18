@@ -9,13 +9,13 @@ This section will guide you on how to quickly deploy and use A.I.G.
 - At least 10GB of available disk space
 
 
-**1. One-Click Install Script （Recommended）**
+**Method 1: One-Click Install Script （Recommended）**
 ```bash
 # This method will automatically install Docker and launch A.I.G with one command  
 curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
 ```
 
-**2. Run with pre-built images (Recommended)**
+**Method 2: Run with pre-built images (Recommended)**
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
@@ -23,7 +23,7 @@ cd AI-Infra-Guard
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-**3. Build from source and run**
+**Method 3: Build from source and run**
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
