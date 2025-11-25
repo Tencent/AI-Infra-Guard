@@ -158,8 +158,12 @@ deploy_application() {
     cd "${RELEASE_DIR}"
     info "当前目录: $(pwd)"
     info "正在使用 docker-compose 启动服务 (后台模式)..."
+    # 在拉取镜像前先检查 Docker 守护进程是否可用，避免用户已经安装 Docker 但服务未启动的情况
+    if ! docker info >/dev/null 2>&1; then
+        error_exit "无法连接到 Docker 守护进程。请确认 Docker 服务已启动（例如使用 'systemctl status docker' 或 'service docker start'），然后重新运行本脚本。"
+    fi
     if ! docker-compose pull; then
-        error_exit "docker-compose 拉取镜像失败。请检查网络。"
+        error_exit "docker-compose 拉取镜像失败。请先查看上方 docker-compose 输出的详细错误信息。常见原因包括：无法访问镜像仓库（网络或代理问题）、镜像仓库被防火墙拦截、或仓库地址配置错误。"
     fi
     if ! docker-compose up -d; then
         error_exit "docker-compose 启动失败。请使用 'docker-compose logs' 查看错误日志。"
