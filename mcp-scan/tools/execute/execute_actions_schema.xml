@@ -1,0 +1,328 @@
+<tools>
+  <tool name="generate_python">
+    <description>Generate Python code from natural language requirements using specialized coding LLM.
+This tool generates high-quality, production-ready Python code based on your requirements.
+Use this when you need to create Python code for any purpose - scripts, functions, classes, utilities, etc.</description>
+    <details>This tool uses a specialized coding LLM to generate Python code from natural language descriptions.
+
+**Key Features:**
+- Uses dedicated coding model (e.g., Claude Sonnet, GPT-4) for high-quality code generation
+- Generates complete, runnable Python code with proper structure
+- Includes comments and docstrings
+- Follows Python best practices and coding standards
+- Considers error handling and edge cases
+- Context-aware: can reference previous conversations
+
+**What it generates:**
+- Functions and classes
+- Complete scripts
+- Data processing pipelines
+- API clients
+- Utility modules
+- Test code
+- Any Python code you need
+
+**Output:**
+- Returns the generated code as a string
+- Code is ready to use, save to file, or execute separately
+- No markdown formatting - pure Python code
+
+**Best for:**
+- Creating new functionality from scratch
+- Implementing algorithms
+- Building utilities and helpers
+- Prototyping ideas quickly
+- Learning Python patterns
+
+**Note:** This tool only generates code, it does not execute it. If you need to run the generated code, save it to a file and execute separately.
+
+**Iterative Improvement:**
+If the generated code has errors, you can call this tool again with error information in the task parameter. The tool is context-aware and will see previous conversations, allowing it to fix the code based on error feedback.
+
+Example workflow:
+1. Generate code with initial requirement
+2. Try to execute the code
+3. If errors occur, call generate_python again with: "Fix the previous code, it has this error: [error message]"
+4. Tool generates corrected code based on error context</details>
+    <parameters>
+      <parameter name="task" type="string" required="true">
+        <description>Natural language description of what code you want to generate.
+
+**Examples:**
+  - "创建一个函数读取CSV文件并返回DataFrame"
+  - "Create an async HTTP client with retry logic"
+  - "Generate code to parse JSON and extract user names"
+  - "实现一个带缓存的装饰器"
+  - "Write a function to validate email addresses using regex"
+  - "Build a class for managing database connections with connection pooling"
+  - "Create a decorator for measuring function execution time"
+
+Be as specific as possible about:
+  - What the code should do
+  - Input/output requirements
+  - Any special handling needed
+  - Libraries or patterns to use</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether code generation succeeded
+- generated_code: The generated Python code (as string)
+- original_requirement: The original task description
+- message: Status message
+- error: Error details (only present on failure)</description>
+    </returns>
+    <examples>
+# Basic code generation
+<function=generate_python>
+<parameter=task>创建一个函数，读取CSV文件并返回去重后的数据</parameter>
+</function>
+# Returns:
+# {
+#   "success": True,
+#   "generated_code": "import pandas as pd\n\ndef read_csv_unique(file_path: str) -> pd.DataFrame:\n    \"\"\"读取CSV文件并返回去重后的数据\"\"\"\n    df = pd.read_csv(file_path)\n    return df.drop_duplicates()",
+#   "original_requirement": "创建一个函数，读取CSV文件并返回去重后的数据",
+#   "message": "Code generated successfully"
+# }
+
+# Generate async HTTP client
+<function=generate_python>
+<parameter=task>Create an async HTTP client with retry logic for failed requests</parameter>
+</function>
+# Returns complete async HTTP client code with aiohttp
+
+# Generate utility function
+<function=generate_python>
+<parameter=task>Write a function to validate email addresses using regex</parameter>
+</function>
+# Returns email validation function with proper regex pattern
+
+# Generate class with methods
+<function=generate_python>
+<parameter=task>Build a class for managing database connections with connection pooling</parameter>
+</function>
+# Returns complete class implementation
+
+# Iterative improvement - fixing errors
+# Step 1: Generate initial code
+<function=generate_python>
+<parameter=task>创建一个函数读取JSON文件并解析</parameter>
+</function>
+# Returns code, but after execution, you find it has an error
+
+# Step 2: Fix based on error (context-aware)
+<function=generate_python>
+<parameter=task>修复之前的代码，执行时报错：FileNotFoundError: [Errno 2] No such file or directory
+请添加文件存在性检查和错误处理</parameter>
+</function>
+# Returns improved code with proper error handling
+# The tool can see the previous code and error in conversation history
+
+# Step 3: Further refinement
+<function=generate_python>
+<parameter=task>在刚才的代码基础上，添加对空JSON文件的处理</parameter>
+</function>
+# Returns code with additional edge case handling
+
+    </examples>
+  </tool>
+
+  <tool name="execute_shell">
+    <description>Execute a shell command in a subprocess and return the output.
+Use this tool when you need to run system commands, manage files, interact with command-line tools, or perform system operations.</description>
+    <details>This tool executes shell commands using subprocess with configurable timeout.
+Important notes:
+- Commands run through the system shell (/bin/sh or cmd.exe)
+- Captures both stdout and stderr
+- Default timeout is 30 seconds
+- Returns stdout, stderr, and return code
+- Supports piping, redirection, and other shell features
+
+Security considerations:
+- Commands execute with the same permissions as the agent process
+- Be extremely careful with destructive operations (rm, del, etc.)
+- Avoid executing untrusted commands
+- Commands will affect the actual system (not sandboxed)
+- Use absolute paths when possible for clarity</details>
+    <parameters>
+      <parameter name="command" type="string" required="true">
+        <description>The shell command to execute. Can include pipes, redirections, and other shell syntax.</description>
+      </parameter>
+      <parameter name="timeout" type="integer" required="false">
+        <description>Maximum execution time in seconds. Default is 300 seconds. Use higher values for long-running commands.</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether the command executed successfully (return code 0)
+- message: Status message
+- Dictionary with stdout, stderr, and return_code</description>
+    </returns>
+    <examples>
+# List files
+<function=execute_shell>
+<parameter=command>ls -la</parameter>
+</function>
+
+# Check disk space
+<function=execute_shell>
+<parameter=command>df -h</parameter>
+</function>
+
+# Using pipes
+<function=execute_shell>
+<parameter=command>cat /etc/hosts | grep localhost</parameter>
+</function>
+
+# With custom timeout
+<function=execute_shell>
+<parameter=command>sleep 5 && echo "Done waiting"</parameter>
+<parameter=timeout>10</parameter>
+</function>
+
+# Create directory structure
+<function=execute_shell>
+<parameter=command>mkdir -p project/{src,tests,docs} && ls -R project</parameter>
+</function>
+
+# Git operations
+<function=execute_shell>
+<parameter=command>git status</parameter>
+</function>
+    </examples>
+  </tool>
+
+  <tool name="execute_shell_background">
+    <description>Execute a shell command in the background (for long-running processes like servers).
+Use this tool when you need to start a server or daemon that runs indefinitely.</description>
+    <details>This tool starts a process in the background without blocking.
+Important notes:
+- Process runs in a new session and continues even after parent exits
+- stdout and stderr are redirected to a log file
+- Returns immediately with PID and log file location
+- Suitable for servers, daemons, and long-running services
+- Use check_process_logs to verify startup success
+- Use kill_process to terminate the process when done
+
+Typical workflow:
+1. Start process with execute_shell_background
+2. Monitor logs with check_process_logs
+3. Terminate with kill_process when finished</details>
+    <parameters>
+      <parameter name="command" type="string" required="true">
+        <description>The shell command to execute in the background.</description>
+      </parameter>
+      <parameter name="log_file" type="string" required="false">
+        <description>Path to log file for stdout/stderr. Default is /tmp/mcp_server.log</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether the process started successfully
+- message: Status message
+- pid: Process ID of the background process
+- log_file: Path to the log file</description>
+    </returns>
+    <examples>
+# Start a Python server
+<function=execute_shell_background>
+<parameter=command>python3 /path/to/server.py --host 127.0.0.1 --port 8080</parameter>
+<parameter=log_file>/tmp/server.log</parameter>
+</function>
+
+# Start MCP server
+<function=execute_shell_background>
+<parameter=command>cd /repo && python3 main.py</parameter>
+<parameter=log_file>/tmp/mcp_server.log</parameter>
+</function>
+    </examples>
+  </tool>
+
+  <tool name="check_process_logs">
+    <description>Monitor process logs to determine if startup was successful.
+Use this tool after execute_shell_background to verify the process started correctly.</description>
+    <details>This tool monitors a log file for success or error patterns.
+Important notes:
+- Waits up to timeout seconds for success/error patterns
+- Returns immediately when a pattern is matched
+- Provides default patterns but custom patterns can be specified
+- Returns full log content for analysis
+
+Default success patterns (case-insensitive):
+- "started", "running", "listening", "ready"
+- "server is up", "application startup complete"
+
+Default error patterns (case-insensitive):
+- "error", "failed", "exception", "traceback"
+- "address already in use", "cannot bind"</details>
+    <parameters>
+      <parameter name="log_file" type="string" required="true">
+        <description>Path to the log file to monitor.</description>
+      </parameter>
+      <parameter name="success_patterns" type="list[string]" required="false">
+        <description>List of strings indicating successful startup. Any match triggers success.</description>
+      </parameter>
+      <parameter name="error_patterns" type="list[string]" required="false">
+        <description>List of strings indicating errors. Any match triggers failure.</description>
+      </parameter>
+      <parameter name="timeout" type="integer" required="false">
+        <description>Maximum wait time in seconds. Default is 60.</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether startup was successful
+- status: "running", "error", or "timeout"
+- message: Description of the result
+- log_content: Full content of the log file
+- matched_pattern: The pattern that was matched (if any)</description>
+    </returns>
+    <examples>
+# Check with default patterns
+<function=check_process_logs>
+<parameter=log_file>/tmp/server.log</parameter>
+</function>
+
+# Check with custom patterns and timeout
+<function=check_process_logs>
+<parameter=log_file>/tmp/mcp_server.log</parameter>
+<parameter=success_patterns>["Uvicorn running", "Application startup complete", "listening on"]</parameter>
+<parameter=error_patterns>["ModuleNotFoundError", "Address already in use"]</parameter>
+<parameter=timeout>30</parameter>
+</function>
+    </examples>
+  </tool>
+
+  <tool name="kill_process">
+    <description>Terminate a process by its PID.
+Use this tool to stop background processes started with execute_shell_background.</description>
+    <details>This tool terminates a process using SIGTERM, then SIGKILL if necessary.
+Important notes:
+- First attempts graceful termination with SIGTERM
+- If process doesn't exit, uses SIGKILL
+- Waits 1 second between attempts
+- Returns success if process is terminated or not found
+- May fail if insufficient permissions
+
+Safety notes:
+- Double-check PID before terminating
+- Be careful not to terminate critical system processes</details>
+    <parameters>
+      <parameter name="pid" type="integer" required="true">
+        <description>Process ID to terminate.</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether the process was terminated
+- message: Description of the result
+- pid: The process ID that was targeted</description>
+    </returns>
+    <examples>
+# Terminate a process
+<function=kill_process>
+<parameter=pid>12345</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>
