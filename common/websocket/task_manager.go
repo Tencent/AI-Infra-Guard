@@ -481,7 +481,7 @@ func generateSecureFileName(originalName string) string {
 	uuid := generateUUID()
 
 	// 组合：UUID_原始文件名.扩展名
-	return fmt.Sprintf("%s_%s%s", uuid, baseName, ext)
+	return fmt.Sprintf("%s_%s%s", baseName, uuid, ext)
 }
 
 // generateUUID 生成简单的UUID

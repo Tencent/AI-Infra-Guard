@@ -2,7 +2,10 @@ package models
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/openai/openai-go/option"
@@ -101,10 +104,91 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 	return resp
 }
 
+func (ai *OpenAI) ChatResponse(ctx context.Context, prompt string) (string, error) {
+	history := []map[string]string{
+		{"role": "user", "content": prompt},
+	}
+	var ret string
+	for resp := range ai.ChatStream(ctx, history) {
+		ret += resp
+	}
+	return ret, nil
+}
+
+func (ai *OpenAI) ChatWithImage(ctx context.Context, prompt string, imagePath string) (string, error) {
+	msgs := []openai.ChatCompletionContentPartUnionParam{
+		openai.TextContentPart(prompt),
+	}
+	if len(imagePath) > 0 {
+		file, err := os.Open(imagePath)
+		if err != nil {
+			return "", err
+		}
+		defer file.Close()
+		data, err := io.ReadAll(file)
+		if err != nil {
+			return "", err
+		}
+		imageBase64 := base64.StdEncoding.EncodeToString(data)
+		msgs = append(msgs, openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
+			URL: "data:image/jpeg;base64," + imageBase64,
+		}))
+	}
+	params := openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.UserMessage(msgs),
+		},
+		Model: ai.Model,
+	}
+
+	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+
+	completion, err := client.Chat.Completions.New(ctx, params)
+	if err != nil {
+		return "", err
+	}
+	return completion.Choices[0].Message.Content, nil
+}
+
+func (ai *OpenAI) ChatWithImageByte(ctx context.Context, prompt string, imageData []byte) (string, error) {
+	msg := []openai.ChatCompletionContentPartUnionParam{
+		openai.TextContentPart(prompt),
+	}
+	if len(imageData) > 0 {
+		imageBase64 := base64.StdEncoding.EncodeToString(imageData)
+		msg = append(msg, openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
+			URL: "data:image/jpeg;base64," + imageBase64,
+		}))
+	}
+	params := openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.UserMessage(msg),
+		},
+		Model: ai.Model,
+	}
+
+	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+
+	completion, err := client.Chat.Completions.New(ctx, params)
+	if err != nil {
+		return "", err
+	}
+	return completion.Choices[0].Message.Content, nil
+}
+
 func (ai *OpenAI) GetTotalToken() int64 {
 	return ai.UseToken
 }
 
 func (ai *OpenAI) ResetToken() {
 	ai.UseToken = 0
+}
+
+func GetJsonString(data string) string {
+	startIndex := strings.Index(data, "```json")
+	endIndex := strings.LastIndex(data, "```")
+	if startIndex >= 0 && endIndex > 0 {
+		return data[startIndex+7 : endIndex]
+	}
+	return ""
 }

@@ -3,6 +3,7 @@ package runner
 
 import (
 	"encoding/json"
+
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/preload"
 	"github.com/Tencent/AI-Infra-Guard/pkg/vulstruct"
 )
@@ -24,7 +25,8 @@ type HttpResult struct {
 	ResponseTime  string                 `json:"response-time"`  // Request response time
 	Fingers       []preload.FpResult     `json:"fingerprints"`   // Fingerprint detection results
 	Advisories    []vulstruct.VersionVul `json:"advisories"`     // Vulnerability advisory information
-	s             string                 // Internal string representation
+	Resp          string
+	s             string // Internal string representation
 }
 
 // JSON converts HttpResult to JSON string

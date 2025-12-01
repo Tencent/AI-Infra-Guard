@@ -24,16 +24,34 @@ FROM python:3.12
 
 WORKDIR /app/AIG-PromptSecurity
 
-RUN apt-get update --allow-releaseinfo-change && apt-get install -y --no-install-recommends --allow-unauthenticated git curl \
+# 安装系统依赖（包括中文字体）
+RUN apt-get update --allow-releaseinfo-change && \
+    apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    nmap \
+    chromium \
+    fonts-wqy-microhei \
+    fonts-wqy-zenhei \
+    fontconfig \
+    tzdata \
     && rm -rf /var/lib/apt/lists/* \
-    && (command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv)
-RUN apt-get update && apt-get install -y nmap
+    && apt-get clean
+
+# 安装中文字体缓存
+RUN fc-cache -fv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv sync
 
 ENV DEEPEVAL_TELEMETRY_OPT_OUT=YES
 ENV DEEPTEAM_TELEMETRY_OPT_OUT=YES
+
+
+# 安装MCP-SCAN
+COPY ./mcp-scan /app/mcp-scan/
+WORKDIR /app/mcp-scan
+RUN pip install -r requirements.txt
 
 # 从builder阶段复制agent
 COPY --from=builder /app/agent /app/agent

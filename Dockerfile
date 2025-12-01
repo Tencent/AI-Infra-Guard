@@ -41,7 +41,10 @@ RUN chmod +x /ai-infra-guard/start.sh && chown root:root /ai-infra-guard/start.s
 RUN mkdir -p /ai-infra-guard/uploads \
     /ai-infra-guard/db && \
     chown -R root:root /ai-infra-guard && \
-    chmod -R 755 /ai-infra-guard
+    chmod -R 755 /ai-infra-guard && \
+    mkdir -p /ai-infra-guard/AIG-PromptSecurity/utils \
+
+COPY ./AIG-PromptSecurity/utils/strategy_map.json /app/AIG-PromptSecurity/utils/strategy_map.json
 
 # 设置环境变量
 ENV APP_ENV=production

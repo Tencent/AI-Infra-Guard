@@ -374,6 +374,7 @@ func (r *Runner) extractContent(fullUrl string, resp *httpx.Response, respTime s
 		Fingers:       fpResults,
 		s:             builder.String(),
 		Advisories:    ads,
+		Resp:          resp.DataStr,
 	}
 	r.result <- result
 }
@@ -617,6 +618,7 @@ func (r *Runner) writeResult(f *os.File, result HttpResult) {
 				Title:           result.Title,
 				Fingerprint:     fpString,
 				Vulnerabilities: vuls,
+				Resp:            result.Resp,
 			})
 		}
 	}

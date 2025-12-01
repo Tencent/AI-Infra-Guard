@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
-	"github.com/gin-gonic/gin"
-	"gopkg.in/yaml.v3"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Tencent/AI-Infra-Guard/common/agent"
+	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
+	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v3"
 )
 
 func HandleList(root string, loadFile func(filePath string) (interface{}, error)) gin.HandlerFunc {
@@ -287,4 +289,29 @@ func promptCollectionDeleteFunc(id string) error {
 	}
 
 	return os.Remove(filePath)
+}
+func GetJailBreak(c *gin.Context) {
+	dataPath := filepath.Join(agent.DIR, "utils", "strategy_map.json")
+	data, err := os.ReadFile(dataPath)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "error" + err.Error(),
+		})
+		return
+	}
+	var data1 interface{}
+	err = json.Unmarshal(data, &data1)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "error" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "success",
+		"data":    data1,
+	})
 }

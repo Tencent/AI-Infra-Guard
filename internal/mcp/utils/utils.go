@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -211,42 +210,6 @@ func ListMcpTools(ctx context.Context, client *client.Client) (*mcp.ListToolsRes
 	}
 	client.CallTool(ctx, mcp.CallToolRequest{})
 	return result, nil
-}
-
-func SaveHistory(history []map[string]string) error {
-	// 转换为json再追加写入
-	jsonBytes, err := json.Marshal(history)
-	if err != nil {
-		return err
-	}
-	// 追加写入文件
-	filename := "history.jsonl"
-	jsonBytes = append(jsonBytes, '\n')
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		// 创建文件
-		file, err := os.Create(filename)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		// 写入文件
-		_, err = file.Write(jsonBytes)
-		if err != nil {
-			return err
-		}
-	} else {
-		// 追加写入文件
-		file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0600)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		_, err = file.Write(jsonBytes)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func LanguagePrompt(language string) string {

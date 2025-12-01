@@ -3,9 +3,9 @@ package agent
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -17,7 +17,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 
 	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 
 	"github.com/Tencent/AI-Infra-Guard/common/runner"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
@@ -66,6 +65,11 @@ type ScanRequest struct {
 	Target  []string          `json:"-"`
 	Headers map[string]string `json:"headers"`
 	Timeout int               `json:"timeout"`
+	Model   struct {
+		Model   string `json:"model"`
+		Token   string `json:"token"`
+		BaseUrl string `json:"base_url"`
+	} `json:"model"`
 }
 
 type AIInfraScanAgent struct {
@@ -149,11 +153,11 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		texts.targetSystem = "Target system"
 		texts.generateReport = "Generate report"
 	} else {
-		texts.initEnv = "初始化扫描环境"
-		texts.execScan = "执行AI基础设施扫描"
-		texts.genReport = "生成扫描报告"
-		texts.aigWorking = "A.I.G正在工作"
-		texts.aigCompleted = "A.I.G完成工作"
+		texts.initEnv = "准备扫描环境"
+		texts.execScan = "执行深度扫描"
+		texts.genReport = "智能分析与报告生成"
+		texts.aigWorking = "Agent正在工作"
+		texts.aigCompleted = "Agent完成工作"
 		texts.initConfig = "初始化配置完成"
 		texts.portDetection = "正在自动识别端口"
 		texts.targetConfig = "目标配置完成"
@@ -170,7 +174,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		texts.noVuln = "扫描完成,未发现漏洞"
 		texts.execError = "执行错误"
 		texts.config = "配置"
-		texts.scanResult = "扫描结果"
+		texts.scanResult = "Agent发现"
 		// 动态描述文本模板
 		texts.initDescTemplate = "开始初始化AI基础设施扫描环境"
 		texts.portDetectDescTemplate = "正在自动识别IP: %s"
@@ -180,11 +184,11 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		texts.vulnFoundTemplate = "URL:%s %s发现漏洞:%d\n"
 		texts.noVulnTemplate = "URL:%s %s扫描完成,未发现漏洞\n"
 		texts.errorTemplate = "执行错误: host:%s %s\n"
-		texts.scanningDesc = "正在扫描..."
+		texts.scanningDesc = "开始对目标系统进行多维度扫描"
 		texts.execScanDesc = "正在执行AI基础设施扫描"
 		texts.scanCompleteDesc = "完成扫描"
 		texts.taskCompleteDesc = "AI基础设施扫描任务完成"
-		texts.reportGenDesc = "生成扫描报告"
+		texts.reportGenDesc = "我需要提供更有价值的洞察..."
 		texts.reportGenToolDesc = "正在生成扫描报告"
 		texts.scanResultTemplate = "扫描结果: %d 条"
 		// 工具和操作相关文本
@@ -197,12 +201,12 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		texts.reportGeneratorTool = "report_generator"
 		texts.scanOperation = "扫描"
 		texts.targetSystem = "目标系统"
-		texts.generateReport = "生成报告"
+		texts.generateReport = "生成结构化扫描报告"
 	}
 	targets := strings.Split(strings.TrimSpace(request.Content), "\n")
 	if len(request.Attachments) > 0 {
 		// 创建临时目录用于存储上传的文件
-		tempDir := "uploads"
+		tempDir := "temp_uploads"
 		if err := os.MkdirAll(tempDir, 0755); err != nil {
 			gologger.Errorf("%s: %v", texts.createTempDir, err)
 			return err
@@ -229,13 +233,19 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 	if reqScan.Timeout == 0 {
 		reqScan.Timeout = 30
 	}
-
+	// AI分析部分
+	type Item struct {
+		Title string `json:"title"`
+		Desc  string `json:"desc"`
+	}
+	model := models.NewOpenAI(reqScan.Model.Token, reqScan.Model.Model, reqScan.Model.BaseUrl)
 	//0. 发送初始任务计划
 	taskTitles := []string{
 		texts.initEnv,
 		texts.execScan,
 		texts.genReport,
 	}
+
 	var tasks []SubTask
 	for _, title := range taskTitles {
 		tasks = append(tasks, CreateSubTask(SubTaskStatusTodo, title, 0, uuid.NewString()))
@@ -248,7 +258,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 
 	//2. 发送步骤运行状态
 	statusId01 := uuid.New().String()
-	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusRunning, texts.aigWorking, texts.initDescTemplate)
+	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusRunning, "Thinking", "")
 	// 深拷贝options
 	opts := &options.Options{
 		TimeOut:      reqScan.Timeout,
@@ -266,7 +276,6 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		headers = append(headers, k+":"+v)
 	}
 	opts.Headers = headers
-	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, texts.initConfig, "")
 	// 2. 判断需要扫描端口的target
 	targets = []string{}
 	var hosts []string
@@ -305,22 +314,40 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			callbacks.StepStatusUpdateCallback(step01, statusNmap, AgentStatusCompleted, fmt.Sprintf(texts.portCompleteTemplate, host), "")
 		}
 	}
-	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, texts.targetConfig, fmt.Sprintf(texts.targetCountTemplate, len(targets)))
+	//callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, texts.targetConfig, fmt.Sprintf(texts.targetCountTemplate, len(targets)))
 	opts.Target = targets
 	// 结果收集
 	scanResults := make([]runner.CallbackScanResult, 0)
 	mu := sync.Mutex{}
 	step02 := tasks[1].StepId
-	statusId02 := uuid.New().String()
 	statustool := uuid.New().String()
 	toolId02 := uuid.New().String()
+
+	prompt2 := `
+你在执行AI基础设施扫描任务，你正在完成todo:{todo}
+然后将以下文本转换为进度任务中的todo,加入你自己的思考，而不是简单罗列:
+target count:{target-count}
+	 {config}
+## 返回格式 example
+` + "```json\n" + `
+[
+{"title":"思考","desc":"在开始扫描前，需要确保所有必要的工具和数据库都已就绪。这就像医生手术前检查器械一样重要。"},
+{"title":"执行1","desc":"✓ 目标锁定成功 - 识别到1个待扫描目标 ✓ 指纹库加载完成 - 已装载36种识别模式 ✓ 漏洞数据库就绪 - 涵盖394个已知漏洞特征"},
+{"title":"Agent反思","desc":"环境配置符合预期，所有组件状态良好。我现在已经具备了执行任务所需的全部能力。"},
+]
+` + "\n```\n"
+	if language == "en" {
+		prompt2 += "## Return in English"
+	}
+	prompt2 = strings.ReplaceAll(prompt2, "{todo}", texts.initEnv)
+	prompt2 = strings.ReplaceAll(prompt2, "{target-count}", fmt.Sprintf(texts.targetCountTemplate, len(targets)))
+	var config string
 
 	processFunc := func(data interface{}) {
 		mu.Lock()
 		defer mu.Unlock()
 		switch v := data.(type) {
 		case runner.CallbackScanResult:
-			scanResults = append(scanResults, v)
 			var log string = ""
 			var appFinger string
 			if v.Fingerprint != "" {
@@ -331,8 +358,55 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			} else {
 				log = fmt.Sprintf(texts.noVulnTemplate, v.TargetURL, appFinger)
 			}
+			status := uuid.NewString()
+			callbacks.StepStatusUpdateCallback(step02, status, AgentStatusRunning, texts.scanResult, "AI analysis")
 			callbacks.ToolUseLogCallback(toolId02, texts.aiScannerTool, step02, log)
-			callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.scanResult, log)
+			prompt := fmt.Sprintf("这是AI基础设施扫描的扫描结果，请你根据以下文本进行总结和归纳，你最后要补充一句(后面将调用未授权检测工具继续扫描,不需要一模一样的文字，大致意思是这样就可以):'我将进行截图分析,继续探索网页上可能的漏洞点'，扫描结果如下:\n%s\n", log)
+			if language == "en" {
+				prompt += "## 返回使用全英文"
+			}
+			response2, _ := model.ChatResponse(context.Background(), prompt)
+			callbacks.StepStatusUpdateCallback(step02, status, AgentStatusCompleted, texts.scanResult, response2)
+			// AI分析
+			newUuid := uuid.New().String()
+			func() {
+				callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusRunning, "A.I.G is Thinking", "")
+				defer func() {
+					callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusCompleted, "A.I.G Finished", "")
+				}()
+				screenshotData, vulInfo, summary, err := runner.Analysis(v.TargetURL, v.Resp, language, model)
+				if err != nil {
+					gologger.WithError(err).Errorf("写入回调结果失败: %v", err)
+					return
+				}
+				v.Reason = summary
+				if len(screenshotData) > 0 {
+					tmpPath := path.Join(os.TempDir(), fmt.Sprintf("%d.jpg", time.Now().UnixMicro()))
+					err := os.WriteFile(tmpPath, screenshotData, 0644)
+					if err != nil {
+						gologger.WithError(err).Errorf("write file failed: %v", err)
+						return
+					}
+					info, err := UploadFile(t.Server, tmpPath)
+					if err != nil {
+						gologger.WithError(err).Errorf("upload file failed: %v", err)
+						return
+					}
+					v.ScreenShot = "/api/v1/images/" + info.Data.FileUrl
+					if vulInfo.Severity == "high" || vulInfo.Severity == "medium" {
+						v.Vulnerabilities = append(v.Vulnerabilities, *vulInfo)
+					}
+				}
+				// summary
+				vData, _ := json.Marshal(v.Vulnerabilities)
+				summaryPrompt := "根据以下我提供的漏洞信息，请总结一下发现x个漏洞，会导致xx业务风险，建议xx修复，几句简短的话概括，若未提供漏洞信息，就说目前暂时无漏洞发现。漏洞信息如下:\n" + string(vData)
+				if language == "en" {
+					summaryPrompt += "## 返回使用全英文"
+				}
+				summary2, _ := model.ChatResponse(context.Background(), summaryPrompt)
+				v.Summary = summary2
+			}()
+			scanResults = append(scanResults, v)
 		//if len(v.Vulnerabilities) > 0 {
 		//	for _, vuln := range v.Vulnerabilities {
 		//		callbacks.StepStatusUpdateCallback(step02, statusId, AgentStatusCompleted, "发现漏洞", fmt.Sprintf("CVE:%s\n描述:%s\n详情:%s", vuln.CVEName, vuln.Summary, vuln.Details))
@@ -343,7 +417,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		case runner.CallbackProcessInfo:
 		case runner.CallbackReportInfo:
 		case runner.Step01:
-			callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.config, v.Text)
+			config += v.Text + "\n"
 		default:
 			gologger.Errorf("processFunc unknown type: %T\n", v)
 		}
@@ -351,12 +425,26 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 	opts.SetCallback(processFunc)
 	r, err := runner.New(opts) // 创建runner
 	if err != nil {
-		return err
+		return fmt.Errorf("new runner failed: %v", err)
 	}
 	defer r.Close() // 关闭runner
 
+	prompt2 = strings.ReplaceAll(prompt2, "{config}", config)
+	response2, err := model.ChatResponse(context.Background(), prompt2)
+	if err != nil {
+		return fmt.Errorf("chat response failed: %v", err)
+	}
+	var items2 []Item
+	data2 := models.GetJsonString(response2)
+	_ = json.Unmarshal([]byte(data2), &items2)
 	//4. 完成初始化
-	callbacks.StepStatusUpdateCallback(step01, uuid.New().String(), AgentStatusCompleted, texts.aigCompleted, texts.initDescTemplate)
+	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, items2[0].Title, items2[0].Desc)
+	for _, item := range items2[1 : len(items2)-1] {
+		s1 := uuid.NewString()
+		callbacks.StepStatusUpdateCallback(step01, s1, AgentStatusRunning, "思考中", "AI思考中")
+		time.Sleep(time.Millisecond * 600)
+		callbacks.StepStatusUpdateCallback(step01, s1, AgentStatusCompleted, item.Title, item.Desc)
+	}
 
 	// 更新任务计划
 	tasks[0].Status = SubTaskStatusDone
@@ -366,6 +454,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 
 	//5. 创建runner并执行扫描
 	callbacks.NewPlanStepCallback(step02, texts.execScan)
+	statusId02 := uuid.NewString()
 	callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusCompleted, texts.aigWorking, texts.scanningDesc)
 
 	//statusId03 := uuid.NewString()
@@ -401,7 +490,7 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 
 	toolId03 := uuid.New().String()
 	callbacks.ToolUsedCallback(step03, statustool, texts.generateReportTool,
-		[]Tool{CreateTool(toolId03, texts.reportGeneratorTool, ToolStatusDoing, texts.reportGenToolDesc, texts.generateReport, "", fmt.Sprintf("%d", len(scanResults)))})
+		[]Tool{CreateTool(toolId03, texts.reportGeneratorTool, ToolStatusDone, texts.reportGenToolDesc, texts.generateReport, "", fmt.Sprintf("%d", len(scanResults)))})
 
 	//8. 发送任务最终结果
 	result := map[string]interface{}{
@@ -409,444 +498,6 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		"score":   score.SecScore,
 		"results": scanResults,
 	}
-	// 最终更新任务计划
-	tasks[2].Status = SubTaskStatusDone
-	callbacks.PlanUpdateCallback(tasks)
-	callbacks.ResultCallback(result)
-	return nil
-}
-
-type ScanMcpRequest struct {
-	Content string `json:"-"`
-	Model   struct {
-		Model   string `json:"model"`
-		Token   string `json:"token"`
-		BaseUrl string `json:"base_url"`
-	} `json:"model"`
-	Quick   bool     `json:"quick"`
-	Plugins []string `json:"plugins,omitempty"`
-}
-
-type McpScanAgent struct {
-	Server string
-}
-
-func (m *McpScanAgent) GetName() string {
-	return TaskTypeMcpScan
-}
-
-func (m *McpScanAgent) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
-	var params ScanMcpRequest
-	if err := json.Unmarshal(request.Params, &params); err != nil {
-		return err
-	}
-	params.Content = request.Content
-	files := request.Attachments
-	transport := "code" // code or url
-	if len(files) > 0 || strings.Contains(request.Content, "github.com") {
-		transport = "code"
-	} else {
-		transport = "url"
-	}
-	quickMode := params.Quick
-	var target string
-	language := request.Language
-	if language == "" {
-		language = "zh"
-	}
-
-	// 定义语言相关的文本
-	var texts struct {
-		// 任务标题
-		initMcpEnv, execMcpScan, genMcpReport string
-		// 状态消息
-		aigWorking, aigCompleted, aigStartScan string
-		// 初始化相关
-		initMcpDesc, configAiModel, configLanguage, mcpInitComplete string
-		// 扫描相关
-		execMcpScanDesc, mcpScanComplete, mcpScanTaskComplete string
-		// 报告生成
-		genMcpReportDesc, mcpReportGenStart, mcpReportGenComplete string
-		// 工具和操作
-		mcpSecurityPluginScan, startMcpScan, mcpInfoCollection, vulnDiscovery string
-		startScan, scanComplete, infoCollection, vulnFound, reportGenComplete string
-		// 扫描类型
-		urlScan, codeScan string
-		// 文件操作
-		createTempDir, downloadFile, downloadSuccess, unsupportedFileType, extractFile, extractFailed string
-		cloneRepo, cloneFailed, codePathNotExist, downloadFileFailed                                  string
-		// 错误消息
-		urlEmpty, urlInvalid, inputUrlFailed string
-		// 其他
-		moduleName, wordCount string
-		// 扫描描述
-		startScanUrl, startCodeScan string
-		// 漏洞详情格式
-		issueFormat string
-		// 工具操作
-		generate, scanLog string
-	}
-
-	if language == "en" {
-		// 任务标题
-		texts.initMcpEnv = "Initialize MCP scan environment"
-		texts.execMcpScan = "Execute MCP security scan"
-		texts.genMcpReport = "Generate scan report"
-		// 状态消息
-		texts.aigWorking = "A.I.G is working"
-		texts.aigCompleted = "A.I.G completed work"
-		texts.aigStartScan = "A.I.G start scanning"
-		// 初始化相关
-		texts.initMcpDesc = "Starting to initialize MCP security scan environment"
-		texts.configAiModel = "Configure AI model"
-		texts.configLanguage = "Configure language"
-		texts.mcpInitComplete = "MCP scan environment initialization completed"
-		// 扫描相关
-		texts.execMcpScanDesc = "Starting to execute MCP security scan"
-		texts.mcpScanComplete = "MCP security scan task completed"
-		texts.mcpScanTaskComplete = "MCP security scan task completed"
-		// 报告生成
-		texts.genMcpReportDesc = "Generating MCP scan report"
-		texts.mcpReportGenStart = "Starting to generate MCP scan report"
-		texts.mcpReportGenComplete = "MCP scan report generation completed"
-		// 工具和操作
-		texts.mcpSecurityPluginScan = "MCP security plugin scan"
-		texts.startMcpScan = "Start MCP security scan"
-		texts.mcpInfoCollection = "MCP information collection"
-		texts.vulnDiscovery = "Vulnerability discovery"
-		texts.startScan = "Start scan"
-		texts.scanComplete = "Scan completed"
-		texts.infoCollection = "Information collection"
-		texts.vulnFound = "Vulnerability found"
-		texts.reportGenComplete = "Report generation completed"
-		// 扫描类型
-		texts.urlScan = "URL scan"
-		texts.codeScan = "Code scan"
-		// 文件操作
-		texts.createTempDir = "Failed to create temporary directory"
-		texts.downloadFile = "Starting to download file: %s"
-		texts.downloadSuccess = "File downloaded successfully: %s"
-		texts.unsupportedFileType = "Unsupported file type, only supports: "
-		texts.extractFile = "Unsupported file type"
-		texts.extractFailed = "Failed to extract file: %v"
-		texts.cloneRepo = "Clone code repository failed: %v"
-		texts.cloneFailed = "Clone code repository failed: %v"
-		texts.codePathNotExist = "Code path does not exist or is not a directory: %s"
-		texts.downloadFileFailed = "Download file failed: %v"
-		// 错误消息
-		texts.urlEmpty = "url is empty"
-		texts.urlInvalid = "url must start with http"
-		texts.inputUrlFailed = "input url failed: %v"
-		// 其他
-		texts.moduleName = "Module name:"
-		texts.wordCount = "words"
-		// 扫描描述
-		texts.startScanUrl = "Starting to scan URL: %s"
-		texts.startCodeScan = "Starting code scan"
-		// 漏洞详情格式
-		texts.issueFormat = "Title:%s\nDescription:%s\nSeverity Level:%s\nSuggestion:%s\nRisk Type:%s\n"
-		// 工具操作
-		texts.generate = "Generate"
-		texts.scanLog = "Scan log"
-	} else {
-		// 任务标题
-		texts.initMcpEnv = "初始化MCP扫描环境"
-		texts.execMcpScan = "执行MCP安全扫描"
-		texts.genMcpReport = "生成扫描报告"
-		// 状态消息
-		texts.aigWorking = "A.I.G正在工作"
-		texts.aigCompleted = "A.I.G完成工作"
-		texts.aigStartScan = "A.I.G开始扫描"
-		// 初始化相关
-		texts.initMcpDesc = "开始初始化MCP安全扫描环境"
-		texts.configAiModel = "配置AI模型"
-		texts.configLanguage = "配置语言"
-		texts.mcpInitComplete = "MCP扫描环境初始化完成"
-		// 扫描相关
-		texts.execMcpScanDesc = "开始执行MCP安全扫描"
-		texts.mcpScanComplete = "MCP安全扫描任务完成"
-		texts.mcpScanTaskComplete = "MCP安全扫描任务完成"
-		// 报告生成
-		texts.genMcpReportDesc = "生成MCP扫描报告"
-		texts.mcpReportGenStart = "开始生成MCP扫描报告"
-		texts.mcpReportGenComplete = "MCP扫描报告生成完成"
-		// 工具和操作
-		texts.mcpSecurityPluginScan = "MCP安全插件扫描"
-		texts.startMcpScan = "开始扫描MCP安全扫描"
-		texts.mcpInfoCollection = "MCP信息收集"
-		texts.vulnDiscovery = "漏洞发现"
-		texts.startScan = "开始扫描"
-		texts.scanComplete = "扫描完成"
-		texts.infoCollection = "信息收集"
-		texts.vulnFound = "漏洞发现"
-		texts.reportGenComplete = "报告生成完成"
-		// 扫描类型
-		texts.urlScan = "URL扫描"
-		texts.codeScan = "代码扫描"
-		// 文件操作
-		texts.createTempDir = "创建临时目录失败"
-		texts.downloadFile = "开始下载文件: %s"
-		texts.downloadSuccess = "文件下载成功: %s"
-		texts.unsupportedFileType = "不支持的文件类型，仅支持: "
-		texts.extractFile = "不支持的文件类型"
-		texts.extractFailed = "解压文件失败: %v"
-		texts.cloneRepo = "克隆代码仓库失败: %v"
-		texts.cloneFailed = "克隆代码仓库失败: %v"
-		texts.codePathNotExist = "代码路径不存在或不是目录: %s"
-		texts.downloadFileFailed = "下载文件失败: %v"
-		// 错误消息
-		texts.urlEmpty = "url is empty"
-		texts.urlInvalid = "url must start with http"
-		texts.inputUrlFailed = "input url failed: %v"
-		// 其他
-		texts.moduleName = "模块名称:"
-		texts.wordCount = "字"
-		// 扫描描述
-		texts.startScanUrl = "开始扫描URL: %s"
-		texts.startCodeScan = "开始代码扫描"
-		// 漏洞详情格式
-		texts.issueFormat = "标题:%s\n描述:%s\n严重级别:%s\n建议:%s\n风险类型:%s\n"
-		// 工具操作
-		texts.generate = "生成"
-		texts.scanLog = "扫描日志"
-	}
-
-	//0. 发送初始任务计划
-	taskTitles := []string{
-		texts.initMcpEnv,
-		texts.execMcpScan,
-		texts.genMcpReport,
-	}
-	var tasks []SubTask
-	for _, title := range taskTitles {
-		tasks = append(tasks, CreateSubTask(SubTaskStatusTodo, title, 0, uuid.NewString()))
-	}
-	callbacks.PlanUpdateCallback(tasks)
-	step01 := tasks[0].StepId
-	step02 := tasks[1].StepId
-	//1. 创建新的执行步骤 - 初始化
-	callbacks.NewPlanStepCallback(step01, texts.initMcpEnv)
-
-	//2. 发送步骤运行状态
-	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.aigWorking, texts.initMcpDesc)
-	mu := sync.Mutex{}
-
-	// 结果收集
-	readMe := ""
-
-	var moduleStatusIdMap map[string]string = map[string]string{}
-	var moduleToolIdMap map[string]string = map[string]string{}
-	//var toolName string
-
-	processFunc := func(data interface{}) {
-		mu.Lock()
-		defer mu.Unlock()
-		switch v := data.(type) {
-		case mcp.CallbackWriteLog:
-			moduleName := v.ModuleName
-			moduleToolId := moduleToolIdMap[v.ModuleName]
-			callbacks.ToolUseLogCallback(moduleToolId, moduleName, step02, string(v.Text))
-		case mcp.McpModuleStart:
-			moduleStatusId := uuid.New().String()
-			moduleToolId := uuid.New().String()
-			moduleStatusIdMap[v.ModuleName] = moduleStatusId
-			moduleToolIdMap[v.ModuleName] = moduleToolId
-			callbacks.StepStatusUpdateCallback(step02, moduleStatusId, AgentStatusRunning, texts.mcpSecurityPluginScan, texts.startMcpScan+","+texts.moduleName+v.ModuleName)
-			callbacks.ToolUsedCallback(step02, moduleStatusId, texts.startMcpScan,
-				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDoing, texts.startMcpScan, texts.startScan, v.ModuleName, "")})
-			//toolName = v.ModuleName
-		case mcp.McpModuleEnd:
-			moduleStatusId := moduleStatusIdMap[v.ModuleName]
-			moduleToolId := moduleToolIdMap[v.ModuleName]
-			callbacks.StepStatusUpdateCallback(step02, moduleStatusId, AgentStatusCompleted, texts.mcpSecurityPluginScan, texts.scanComplete+","+texts.moduleName+v.ModuleName)
-			callbacks.ToolUsedCallback(step02, moduleStatusId, texts.scanComplete,
-				[]Tool{CreateTool(moduleToolId, v.ModuleName, ToolStatusDone, texts.scanComplete, texts.scanComplete, v.ModuleName, "")})
-			//writer1.Finally()
-		case mcp.McpCallbackProcessing:
-		case mcp.McpCallbackReadMe:
-			readMe = v.Content
-			toolId := uuid.NewString()
-			statusId := uuid.NewString()
-			callbacks.StepStatusUpdateCallback(step02, statusId, AgentStatusCompleted, texts.mcpInfoCollection, texts.mcpInfoCollection)
-			callbacks.ToolUsedCallback(step02, statusId, texts.mcpInfoCollection,
-				[]Tool{CreateTool(toolId, "info_collection", ToolStatusDone, texts.mcpInfoCollection, texts.infoCollection, texts.mcpInfoCollection, fmt.Sprintf("%d%s", len(readMe), texts.wordCount))})
-			callbacks.ToolUseLogCallback(toolId, "info_collection", step02, readMe)
-		case mcp.Issue:
-			toolId := uuid.NewString()
-			moduleStatusId := uuid.NewString()
-			callbacks.ToolUsedCallback(step02, moduleStatusId, texts.vulnDiscovery,
-				[]Tool{CreateTool(toolId, toolId, ToolStatusDone, texts.vulnDiscovery, texts.vulnFound, texts.moduleName+v.Title, "")})
-			issue := fmt.Sprintf(texts.issueFormat, v.Title, v.Description, string(v.Level), v.Suggestion, v.RiskType)
-			callbacks.ToolUseLogCallback(toolId, toolId, step02, issue)
-		default:
-			gologger.Errorf("processFunc unknown type: %T\n", v)
-		}
-	}
-	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.configAiModel, fmt.Sprintf("%s: %s", texts.configAiModel, params.Model.Model))
-	logger := gologger.NewLogger()
-	startTime := time.Now().Unix()
-	modelConfig := models.NewOpenAI(params.Model.Token, params.Model.Model, params.Model.BaseUrl)
-	scanner := mcp.NewScanner(modelConfig, logger)
-	scanner.SetLanguage(language)
-	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.configLanguage, language)
-
-	plugins := params.Plugins
-	defaultPlugins := []string{"vuln_review", "code_info_collection", "mcp_info_collection"}
-	for _, plugin := range defaultPlugins {
-		if !utils.StrInSlice(plugin, plugins) {
-			plugins = append(plugins, plugin)
-		}
-	}
-	err := scanner.RegisterPlugin(plugins)
-	if err != nil {
-		return err
-	}
-	scanner.SetCallback(processFunc)
-
-	//4. 完成初始化
-	callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.aigCompleted, texts.mcpInitComplete)
-
-	// 更新任务计划
-	tasks[0].Status = SubTaskStatusDone
-	tasks[1].Status = SubTaskStatusDoing
-	tasks[1].StartedAt = time.Now().Unix()
-	callbacks.PlanUpdateCallback(tasks)
-
-	//5. 开始MCP扫描
-	callbacks.NewPlanStepCallback(step02, texts.execMcpScan)
-	callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.aigWorking, texts.execMcpScanDesc)
-
-	var scanResults *mcp.McpResult
-	var scanType string
-	var CodeLanguage string
-
-	if transport == "url" {
-		scanType = texts.urlScan
-		url := params.Content
-		if url == "" {
-			return fmt.Errorf(texts.urlEmpty)
-		}
-		if !strings.HasPrefix(url, "http") {
-			return fmt.Errorf(texts.urlInvalid)
-		}
-		callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.aigStartScan, fmt.Sprintf(texts.startScanUrl, url))
-		target = url
-		r, err := scanner.InputUrl(ctx, url)
-		if err != nil || r == nil {
-			return fmt.Errorf(texts.inputUrlFailed, err)
-		}
-		results, err := scanner.ScanLink(ctx, r, quickMode)
-		if err != nil {
-			return err
-		}
-		scanResults = results
-	} else if transport == "code" {
-		scanType = texts.codeScan
-		// 创建临时目录用于存储上传的文件
-		tempDir := "uploads"
-		if err := os.MkdirAll(tempDir, 0755); err != nil {
-			gologger.Errorf("%s: %v", texts.createTempDir, err)
-			return err
-		}
-		callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.aigStartScan, texts.startCodeScan)
-		var folder string
-		if len(files) > 0 {
-			// 远程下载
-			for _, file := range files {
-				// 下载文件
-				gologger.Infof(texts.downloadFile, file)
-				target = file
-				ext := ""
-				supports := []string{".zip", ".tar.gz", ".tgz", ".whl"}
-				for _, support := range supports {
-					if strings.HasSuffix(file, support) {
-						ext = support
-						break
-					}
-				}
-				if ext == "" {
-					gologger.Errorln(texts.unsupportedFileType, strings.Join(supports, ","))
-					continue
-				}
-
-				fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), ext))
-				err := DownloadFile(m.Server, request.SessionId, file, fileName)
-				if err != nil {
-					return fmt.Errorf(texts.downloadFileFailed, err)
-				}
-				gologger.Infof(texts.downloadSuccess, file)
-				extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
-				switch ext {
-				case ".zip", ".whl":
-					err = utils.ExtractZipFile(fileName, extractPath)
-				case ".tgz", ".tar.gz":
-					err = utils.ExtractTGZ(fileName, extractPath)
-				default:
-					return errors.New(texts.extractFile)
-				}
-				if err != nil {
-					return errors.New(fmt.Sprintf(texts.extractFailed, err))
-				}
-				folder = extractPath
-			}
-		} else {
-			target = params.Content
-			extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
-			err := utils.GitClone(params.Content, extractPath, 10*time.Minute)
-			if err != nil {
-				return fmt.Errorf(texts.cloneFailed, err)
-			}
-			folder = extractPath
-		}
-
-		// 判断文件夹是否存在
-		if info, err := os.Stat(folder); os.IsNotExist(err) || !info.IsDir() {
-			return fmt.Errorf(texts.codePathNotExist, folder)
-		}
-		scanner.InputCodePath(folder)
-		results, err := scanner.ScanCode(ctx, quickMode)
-		if err != nil {
-			return err
-		}
-		scanResults = results
-		// 脚本语言GetTop
-		CodeLanguage = utils.GetTopLanguage(utils.AnalyzeLanguage(folder))
-	}
-	callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.aigCompleted, texts.mcpScanTaskComplete)
-
-	// 更新任务计划
-	tasks[1].Status = SubTaskStatusDone
-	tasks[2].Status = SubTaskStatusDoing
-	tasks[2].StartedAt = time.Now().Unix()
-	callbacks.PlanUpdateCallback(tasks)
-
-	//6. 生成最终报告
-	step03 := tasks[2].StepId
-	callbacks.NewPlanStepCallback(step03, texts.genMcpReport)
-
-	statusId03 := uuid.New().String()
-	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusCompleted, texts.aigWorking, texts.mcpReportGenStart)
-	toolId03 := uuid.New().String()
-
-	// 完成报告生成
-	completedTool03 := CreateTool(toolId03, "mcp_report_generator", ToolStatusDone, texts.mcpReportGenComplete, texts.generate, texts.scanLog, "")
-	callbacks.ToolUsedCallback(step03, statusId03, texts.reportGenComplete, []Tool{completedTool03})
-	callbacks.StepStatusUpdateCallback(step03, statusId03, AgentStatusCompleted, texts.aigCompleted, texts.mcpReportGenComplete)
-	endTime := time.Now().Unix()
-	//7. 发送任务最终结果
-	result := map[string]interface{}{
-		"readme":     readMe,
-		"score":      CalcMcpScore(scanResults.Issues),
-		"language":   CodeLanguage,
-		"target":     target,
-		"plugins":    params.Plugins,
-		"start_time": startTime,
-		"end_time":   endTime,
-		"scanType":   scanType,
-		"results":    scanResults.Issues,
-		"report":     scanResults.Report,
-	}
-
 	// 最终更新任务计划
 	tasks[2].Status = SubTaskStatusDone
 	callbacks.PlanUpdateCallback(tasks)

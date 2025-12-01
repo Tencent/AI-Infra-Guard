@@ -94,6 +94,7 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 				"token":    "", // 系统模型token置空
 				"base_url": model.BaseURL,
 				"note":     model.Note,
+				"limit":    model.Limit,
 			},
 		}
 		result = append(result, item)

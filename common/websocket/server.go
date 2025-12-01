@@ -8,8 +8,8 @@ import (
 	"embed"
 	"mime"
 	"path/filepath"
+	"strings"
 
-	"github.com/Tencent/AI-Infra-Guard/common/middleware"
 	"github.com/Tencent/AI-Infra-Guard/common/trpc"
 	_ "github.com/Tencent/AI-Infra-Guard/docs"
 	"github.com/Tencent/AI-Infra-Guard/internal/options"
@@ -32,8 +32,8 @@ func RunWebServer(options *options.Options) {
 
 	r := gin.Default()
 	// 2. 添加中间件
-	r.Use(middleware.TrpcMiddleware())
-	r.Use(middleware.RequestLoggerMiddleware()) // 添加请求参数日志中间件
+	//r.Use(middleware.TrpcMiddleware())
+	//r.Use(middleware.RequestLoggerMiddleware()) // 添加请求参数日志中间件
 	// r.Use(middleware.MetricsMiddleware()) // 移除HTTP监控中间件，依赖TRPC自动监控
 
 	// 3. 初始化数据库和Agentmanager
@@ -88,6 +88,14 @@ func RunWebServer(options *options.Options) {
 	// API 版本分组
 	v1 := r.Group("/api/v1")
 	{
+		v1.GET("/images/:path", func(context *gin.Context) {
+			path := context.Param("path")
+			if strings.Contains(path, "..") {
+				context.String(403, "Forbidden")
+				return
+			}
+			context.File(filepath.Join("uploads", path))
+		})
 		// 1. 知识库模块
 		knowledge := v1.Group("/knowledge")
 		{
@@ -136,6 +144,8 @@ func RunWebServer(options *options.Options) {
 				collections.PUT("/:id", HandleEdit(promptCollectionUpdateFunc))
 				collections.DELETE("", HandleDelete(promptCollectionDeleteFunc))
 			}
+			// 算子列表
+			knowledge.GET("/jailbreak", GetJailBreak)
 		}
 		appSecurity := v1.Group("/app")
 		{

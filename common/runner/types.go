@@ -9,6 +9,10 @@ type CallbackScanResult struct {
 	Title           string           `json:"title"`
 	Fingerprint     string           `json:"fingerprint"`
 	Vulnerabilities []vulstruct.Info `json:"vulnerabilities,omitempty"`
+	Resp            string           `json:"-"`
+	ScreenShot      string           `json:"screenshot,omitempty"`
+	Reason          string           `json:"reason,omitempty"`
+	Summary         string           `json:"summary,omitempty"` // 漏洞总览
 }
 
 // CallbackProcessInfo 进度信息结构
