@@ -208,6 +208,15 @@ python cli_run.py \
 - **原项目许可**: 请参考其仓库下的 `LICENSE` 文件。
 - **说明**: 我们由衷感谢 Confident AI 团队提供的出色基础框架。为了使其更好地兼容并服务于我们自身的业务架构和特定需求，我们对其进行了大量的修改、扩展和重构，以实现`针对 **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** 的生态进行了专项适配与集成，实现开箱即用的无缝对接。
 
+### 攻击算子贡献
+我们向为本项目使用的各种攻击技术和算子的开发做出贡献的研究团队和社区表示诚挚的感谢：
+
+| 算子名称 | 来源团队 | 链接 |
+|---------|--------|------|
+| 部分算子 | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| Strata-Sword | Alibaba AAIG | [Paper](https://arxiv.org/abs/2509.01444) |
+| StegoRedTeam | SZU P&P Team | [Github](https://github.com/lhppppp/StegoRedTeam) |
+
 ### 数据集贡献
 我们向为本项目使用的各种数据集做出贡献的研究团队和社区表示诚挚的感谢：
 | 数据集名称 | 来源团队 | 链接 |

@@ -67,7 +67,13 @@ class PromptSecurityLogger:
     
     def exception(self, *args, **kwargs):
         self._base_logger.opt(depth=1).exception(*args, **kwargs)
+
+    def disable(self):
+        self._base_logger.disable("")
     
+    def enable(self):
+        self._base_logger.enable("")
+
     def _setup_i18n(self):
         localedir = os.path.join(os.path.dirname(__file__), 'locales')
         try:
