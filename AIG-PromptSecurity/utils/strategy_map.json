@@ -1,0 +1,44 @@
+{
+    "metadata": {
+        "version": "0.0.3",
+        "createdAt": "2025-09-12"
+    },
+    "globalParameters": {
+        "defaultStrategies": ["Zalgo"]
+    },
+    "configSchema": {
+        "strategies": [
+            {
+                "id": "Encoding",
+                "type": "encoding",
+                "typeCn": "编码攻击",
+                "description": "Encoding attack strategies encrypt risk prompts through various encoding and obfuscation methods to bypass security barriers.",
+                "descriptionCn": "编码类攻击策略，通过多种编码和混淆方式加密风险prompt，以绕过护栏。",
+                "methods": [
+                    {"id": "A1Z26", "type": "A1Z26", "typeCn": "A1Z26编码"},
+                    {"id": "AffineCipher", "type": "Affine Cipher", "typeCn": "仿射密码"},
+                    {"id": "AsciiSmuggling", "type": "Ascii Smuggling", "typeCn": "ASCII隐藏嵌入"},
+                    {"id": "Aurebesh", "type": "Aurebesh", "typeCn": "奥雷贝什文"},
+                    {"id": "CaesarCipher", "type": "Caesar Cipher", "typeCn": "凯撒密码"},
+                    {"id": "Leetspeak", "type": "Leetspeak", "typeCn": "Leetspeak编码"},
+                    {"id": "MirrorText", "type": "Mirror Text", "typeCn": "镜像文字"},
+                    {"id": "Ogham", "type": "Ogham", "typeCn": "欧甘文"},
+                    {"id": "Vaporwave", "type": "Vaporwave", "typeCn": "蒸汽波风格"},
+                    {"id": "Zalgo", "type": "Zalgo", "typeCn": "扎尔戈文字"}
+                ]
+            },
+            {
+                "id": "BehavioralControl",
+                "type": "behavioral control",
+                "typeCn": "行为控制攻击",
+                "description": "Behavior control attack strategies control model behavior through context guidance, redirection, or deception.",
+                "descriptionCn": "行为控制类攻击策略，通过上下文引导、重定向或欺骗等方式控制模型行为。",
+                "methods": [
+                    {"id": "AcrosticPoem", "type": "Acrostic Poem", "typeCn": "藏头诗"},
+                    {"id": "DRAttack", "type": "DR Attack", "typeCn": "DR攻击"},
+                    {"id": "Stego", "type": "Stego", "typeCn": "隐写术"}
+                ]
+            }
+        ]
+    }
+}

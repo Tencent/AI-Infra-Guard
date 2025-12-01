@@ -208,6 +208,15 @@ This project is built and deeply customized based on the **[DeepTeam](https://gi
 - **Original license**: Please refer to the `LICENSE` file in their repository.
 - **Note**: We sincerely thank the Confident AI team for providing an excellent base framework. To make it better compatible with and serve our own business architecture and specific needs, we have made extensive modifications, expansions, and refactoring to achieve seamless out-of-the-box integration with the **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** ecosystem.
 
+### Attack Operator Contributions
+We extend our sincere gratitude to the research teams and communities that have contributed to the development of various attack techniques and operators used in this project:
+
+| Operator Name | Source Team | Link |
+|---------|--------|------|
+| Partial methods | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| Strata-Sword | Alibaba AAIG | [Paper](https://arxiv.org/abs/2509.01444) |
+| StegoRedTeam | SZU P&P Team | [Github](https://github.com/lhppppp/StegoRedTeam) |
+
 ### Dataset Contributions
 We would like to express our sincere gratitude to the research teams and communities that have contributed to various datasets used in this project:
 
