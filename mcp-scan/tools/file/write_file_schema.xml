@@ -1,0 +1,68 @@
+<tools>
+  <tool name="write_file">
+    <description>Write content to a file, creating it if it doesn't exist or overwriting it if it does.
+Use this tool when you need to create new files, update configuration files, or store any text-based content.</description>
+    <details>This tool writes the provided content to a file, completely replacing any existing content.
+Important notes:
+- If the file exists, it will be completely overwritten
+- Parent directories will be created automatically if they don't exist
+- Content should be a string
+- Use UTF-8 encoding for text files
+- Be careful with overwriting important files</details>
+    <parameters>
+      <parameter name="file_path" type="string" required="true">
+        <description>Path to the file to write. Can be relative to current working directory or absolute path.</description>
+      </parameter>
+      <parameter name="content" type="string" required="true">
+        <description>The content to write to the file. This will completely replace any existing file content.</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- success: Whether the file was written successfully
+- message: Status message with file size info or error details
+- data: None</description>
+    </returns>
+    <examples>
+# Create a new Python script
+<function=write_file>
+<parameter=file_path>scripts/hello.py</parameter>
+<parameter=content>#!/usr/bin/env python3
+
+def main():
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    main()
+</parameter>
+</function>
+
+# Write JSON configuration
+<function=write_file>
+<parameter=file_path>config.json</parameter>
+<parameter=content>{
+  "api_key": "your-key-here",
+  "timeout": 30,
+  "debug": false
+}</parameter>
+</function>
+
+# Create a README file
+<function=write_file>
+<parameter=file_path>README.md</parameter>
+<parameter=content># My Project
+
+This is a sample project.
+
+## Installation
+
+pip install -r requirements.txt
+</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>
+
+
+
+

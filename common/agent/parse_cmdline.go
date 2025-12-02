@@ -27,6 +27,7 @@ type CmdToolUsed struct {
 	Brief    string `json:"brief"`
 	Status   string `json:"status"`
 	StepId   string `json:"stepId"`
+	Params   string `json:"params,omitempty"`
 }
 
 type CmdActionLog struct {
@@ -63,10 +64,19 @@ type PromptResults struct {
 	Reason        string `json:"reason"`
 }
 
-func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callbacks TaskCallbacks, config *CmdConfig) {
+func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callbacks TaskCallbacks, config *CmdConfig, upload bool) {
 	var cmd CmdContent
-	if err := json.Unmarshal([]byte(line), &cmd); err != nil {
-		fmt.Println(line)
+	if len(line) > 1 {
+		if line[0] == '{' {
+			if err := json.Unmarshal([]byte(line), &cmd); err != nil {
+				fmt.Println(line)
+				return
+			}
+		} else {
+			fmt.Println(line)
+			return
+		}
+	} else {
 		return
 	}
 	switch cmd.Type {
@@ -78,11 +88,18 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 		}
 		callbacks.NewPlanStepCallback(content.StepId, content.Title)
 		// 更新任务状态
-		for i, _ := range tasks {
-			if tasks[i].StepId < content.StepId {
-				tasks[i].Status = SubTaskStatusDone
-			} else if tasks[i].StepId == content.StepId {
-				tasks[i].Status = SubTaskStatusDoing
+		for i, v := range tasks {
+			if v.Status == SubTaskStatusDone {
+				continue
+			} else {
+				if v.StepId == content.StepId {
+					tasks[i].Status = SubTaskStatusDoing
+					if i > 0 {
+						for j := 0; j < i; j++ {
+							tasks[j].Status = SubTaskStatusDone
+						}
+					}
+				}
 			}
 		}
 		callbacks.PlanUpdateCallback(tasks)
@@ -108,7 +125,7 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeToolUsed unmarshal command", cmd.Content)
 			return
 		}
-		tool := CreateTool(content.ToolId, content.ToolId, statusString(content.Status), content.Brief, content.Brief, "", "")
+		tool := CreateTool(content.ToolId, content.ToolId, statusString(content.Status), content.Brief, content.Brief, "", content.Params)
 		callbacks.ToolUsedCallback(content.StepId, config.StatusId, content.Brief, []Tool{tool})
 	case AgentMsgTypeActionLog:
 		var content CmdActionLog
@@ -118,50 +135,53 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 		}
 		callbacks.ToolUseLogCallback(content.ToolId, content.ToolName, content.StepId, content.Log)
 	case AgentMsgTypeResultUpdate:
+		for i, _ := range tasks {
+			tasks[i].Status = SubTaskStatusDone
+		}
+		callbacks.PlanUpdateCallback(tasks)
 		var content map[string]interface{}
 		if err := json.Unmarshal(cmd.Content, &content); err != nil {
 			gologger.WithError(err).Errorln("Failed to AgentMsgTypeResultUpdate unmarshal command", cmd.Content)
 			return
 		}
-		for i, _ := range tasks {
-			tasks[i].Status = SubTaskStatusDone
-		}
-		callbacks.PlanUpdateCallback(tasks)
-		var ret []PromptContent
-		dd, err := json.Marshal(content["content"])
-		if err != nil {
-			gologger.WithError(err).Errorln("Failed to parse result file json")
-			return
-		}
-		if err := json.Unmarshal(dd, &ret); err != nil {
-			gologger.WithError(err).Errorln("Failed to parse result file")
-			return
-		}
-		gologger.Infoln("开始上传文件")
-		for i, v := range ret {
-			if v.Attachment == "" {
-				continue
-			}
-			info, err := UploadFile(server, path.Join(rootDir, v.Attachment))
+		if upload {
+			var ret []map[string]interface{}
+			dd, err := json.Marshal(content["content"])
 			if err != nil {
-				gologger.WithError(err).Errorln("Failed to upload file")
+				gologger.WithError(err).Errorln("Failed to parse result file json")
 				return
 			}
-			gologger.Infoln("上传文件成功")
-			v.Attachment = info.Data.FileUrl
-			ret[i] = v
+			if err := json.Unmarshal(dd, &ret); err != nil {
+				gologger.WithError(err).Errorln("Failed to parse result file")
+				return
+			}
+			gologger.Infoln("开始上传文件")
+			for i, v := range ret {
+				attachment, ok := v["attachment"]
+				if !ok || attachment == "" {
+					continue
+				}
+				info, err := UploadFile(server, path.Join(rootDir, attachment.(string)))
+				if err != nil {
+					gologger.WithError(err).Errorln("Failed to upload file")
+					return
+				}
+				gologger.Infoln("上传文件成功")
+				v["attachment"] = info.Data.FileUrl
+				ret[i] = v
+			}
+			dd, err = json.Marshal(ret)
+			if err != nil {
+				gologger.WithError(err).Errorln("Failed to parse result file json")
+				return
+			}
+			var content2 []map[string]interface{}
+			if err := json.Unmarshal(dd, &content2); err != nil {
+				gologger.WithError(err).Errorln("Failed to parse result file json")
+				return
+			}
+			content["content"] = content2
 		}
-		dd, err = json.Marshal(ret)
-		if err != nil {
-			gologger.WithError(err).Errorln("Failed to parse result file json")
-			return
-		}
-		var content2 []map[string]interface{}
-		if err := json.Unmarshal(dd, &content2); err != nil {
-			gologger.WithError(err).Errorln("Failed to parse result file json")
-			return
-		}
-		content["content"] = content2
 		callbacks.ResultCallback(content)
 	case AgentMsgTypeError:
 		content := string(cmd.Content)

@@ -9,7 +9,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
-
 func main() {
 	var server string
 	flag.StringVar(&server, "server", "", "server")
@@ -39,14 +38,12 @@ func main() {
 	agent2 := agent.AIInfraScanAgent{
 		Server: server,
 	}
-	agent3 := agent.McpScanAgent{Server: server}
-	agent4 := agent.ModelJailbreak{Server: server}
-	agent5 := agent.ModelRedteamReport{Server: server}
+	agent3 := agent.McpTask{Server: server}
+	agent4 := agent.ModelRedteamReport{Server: server}
 
 	x.RegisterTaskFunc(&agent2)
 	x.RegisterTaskFunc(&agent3)
 	x.RegisterTaskFunc(&agent4)
-	x.RegisterTaskFunc(&agent5)
 
 	gologger.Infoln("wait task")
 	err := x.Start()

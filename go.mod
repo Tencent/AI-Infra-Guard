@@ -2,7 +2,6 @@ module github.com/Tencent/AI-Infra-Guard
 
 go 1.23.2
 
-
 require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/gin-gonic/gin v1.10.0
@@ -41,6 +40,7 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-rod/rod v0.116.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -48,6 +48,11 @@ require (
 	github.com/swaggo/gin-swagger v1.5.1 // indirect
 	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
+	github.com/ysmood/fetchup v0.2.3 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/got v0.40.0 // indirect
+	github.com/ysmood/gson v0.7.3 // indirect
+	github.com/ysmood/leakless v0.9.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 	trpc.group/trpc-go/tnet v1.0.1 // indirect

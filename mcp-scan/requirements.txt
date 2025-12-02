@@ -1,0 +1,9 @@
+lmnr==0.7.23
+loguru==0.7.3
+mcp==1.21.2
+openai==2.8.1
+pydantic==2.12.4
+python-dotenv==1.0.0
+starlette==0.50.0
+strix==0.7.3
+uvicorn==0.38.0

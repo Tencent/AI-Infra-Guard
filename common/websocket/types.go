@@ -1,6 +1,12 @@
 // Package websocket 实现WebSocket服务器功能
 package websocket
 
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
 const (
 	// WSMsgTypeLog 日志消息类型
 	WSMsgTypeLog = "log"
@@ -59,4 +65,16 @@ type ScanRet struct {
 type Log struct {
 	Message string `json:"message"`
 	Level   string `json:"level"`
+}
+
+func SuccessResponse(c *gin.Context, message interface{}) {
+	c.JSON(http.StatusOK, gin.H{"status": 0, "message": message})
+}
+
+func ErrorResponse(c *gin.Context, message interface{}) {
+	c.JSON(http.StatusOK, gin.H{"status": 1, "message": message})
+}
+
+func ErrorResponseWithStatus(c *gin.Context, message interface{}, status int) {
+	c.JSON(http.StatusOK, gin.H{"status": status, "message": message})
 }
