@@ -42,8 +42,7 @@ RUN mkdir -p /app/uploads \
     /app/db && \
     chown -R root:root /app && \
     chmod -R 755 /app && \
-    mkdir -p /app/AIG-PromptSecurity/utils \
-
+    mkdir -p /app/AIG-PromptSecurity/utils
 COPY ./AIG-PromptSecurity/utils/strategy_map.json /app/AIG-PromptSecurity/utils/strategy_map.json
 
 # 设置环境变量
