@@ -44,7 +44,7 @@ RUN mkdir -p /ai-infra-guard/uploads \
     chmod -R 755 /ai-infra-guard && \
     mkdir -p /ai-infra-guard/AIG-PromptSecurity/utils \
 
-COPY ./AIG-PromptSecurity/utils/strategy_map.json /app/AIG-PromptSecurity/utils/strategy_map.json
+COPY ./AIG-PromptSecurity/utils/strategy_map.json /ai-infra-guard/AIG-PromptSecurity/utils/strategy_map.json
 
 # 设置环境变量
 ENV APP_ENV=production
