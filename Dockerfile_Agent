@@ -40,6 +40,7 @@ RUN apt-get update --allow-releaseinfo-change && \
 
 # 安装中文字体缓存
 RUN fc-cache -fv
+RUN pip install --no-cache-dir uv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv sync
