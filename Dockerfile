@@ -27,7 +27,7 @@ RUN apk --no-cache add ca-certificates tzdata sqlite bash curl
 WORKDIR /app
 
 # 从构建阶段复制二进制文件和配置文件
-COPY --from=builder /app/app .
+COPY --from=builder /app/ai-infra-guard .
 COPY --from=builder /app/trpc_go.yaml .
 
 # 复制数据文件到容器中
