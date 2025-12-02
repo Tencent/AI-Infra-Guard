@@ -48,6 +48,7 @@ func NewWebScreenShotWithOptions() (*WebScreenShot, error) {
 		Set("mute-audio", "true").
 		Set("no-sandbox", "true").
 		Delete("use-mock-keychain").
+		NoSandbox(false).
 		Headless(true)
 
 	chromeLauncher.Bin(chromePath)

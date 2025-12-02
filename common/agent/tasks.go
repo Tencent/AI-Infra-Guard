@@ -238,6 +238,9 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 		Title string `json:"title"`
 		Desc  string `json:"desc"`
 	}
+	if reqScan.Model.BaseUrl == "" && reqScan.Model.Model == "" {
+		return fmt.Errorf("model or base_url is empty")
+	}
 	model := models.NewOpenAI(reqScan.Model.Token, reqScan.Model.Model, reqScan.Model.BaseUrl)
 	//0. 发送初始任务计划
 	taskTitles := []string{
