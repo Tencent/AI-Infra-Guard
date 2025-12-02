@@ -15,7 +15,7 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
-const McpDir = "/ai-infra-guard/mcp-scan"
+const McpDir = "/app/mcp-scan"
 
 type McpTask struct {
 	Server string

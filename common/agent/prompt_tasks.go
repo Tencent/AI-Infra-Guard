@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	DIR  = "/ai-infra-guard/AIG-PromptSecurity"
+	DIR  = "/app/AIG-PromptSecurity"
 	NAME = "/usr/local/bin/uv"
 )
 
