@@ -190,5 +190,5 @@ func GetJsonString(data string) string {
 	if startIndex >= 0 && endIndex > 0 {
 		return data[startIndex+7 : endIndex]
 	}
-	return ""
+	return data
 }

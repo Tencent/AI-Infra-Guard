@@ -380,7 +380,7 @@ func (t *AIInfraScanAgent) executeScan(ctx context.Context, request TaskRequest,
 然后将以下文本转换为进度任务中的todo,加入你自己的思考，而不是简单罗列:
 target count:%s
 %s
-## 返回格式 example
+## 返回格式(只返回json格式)
 `+"```json\n"+`
 [
 {"title":"思考","desc":"在开始扫描前，需要确保所有必要的工具和数据库都已就绪。这就像医生手术前检查器械一样重要。"},
@@ -394,6 +394,7 @@ target count:%s
 		}
 
 		response, err := model.ChatResponse(ctx, prompt)
+		gologger.Infof("AI分析初始化配置结果: %s", response)
 		if err == nil {
 			type Item struct {
 				Title string `json:"title"`
@@ -401,15 +402,18 @@ target count:%s
 			}
 			var items []Item
 			data := models.GetJsonString(response)
-			_ = json.Unmarshal([]byte(data), &items)
-
+			err = json.Unmarshal([]byte(data), &items)
+			if err != nil {
+				callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, texts.initConfig, "")
+				callbacks.StepStatusUpdateCallback(step01, uuid.NewString(), AgentStatusCompleted, texts.targetConfig, fmt.Sprintf(texts.targetCountTemplate, len(targets)))
+			}
 			if len(items) > 0 {
 				callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusCompleted, items[0].Title, items[0].Desc)
 				if len(items) >= 2 {
 					for _, item := range items[1 : len(items)-1] {
 						s1 := uuid.NewString()
-						callbacks.StepStatusUpdateCallback(step01, s1, AgentStatusRunning, "思考中", "AI思考中")
-						time.Sleep(time.Millisecond * 600)
+						//callbacks.StepStatusUpdateCallback(step01, s1, AgentStatusRunning, "思考中", "AI思考中")
+						//time.Sleep(time.Millisecond * 600)
 						callbacks.StepStatusUpdateCallback(step01, s1, AgentStatusCompleted, item.Title, item.Desc)
 					}
 				}
