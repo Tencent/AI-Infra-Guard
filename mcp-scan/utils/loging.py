@@ -2,8 +2,14 @@ from typing import IO
 
 from loguru import logger
 
-# logger.remove()
-
+logger.remove()
+logger.add(
+    "./logs/mcp-scan.log",
+    rotation="10 MB",
+    retention="10 days",
+    level="DEBUG",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+)
 
 if __name__ == '__main__':
     # 设置日志级别

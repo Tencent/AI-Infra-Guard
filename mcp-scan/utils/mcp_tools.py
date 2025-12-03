@@ -1,91 +1,306 @@
-import requests
-from typing import Optional
+import weakref
+from datetime import timedelta
+from typing import Any, Literal, Optional
+import asyncio
 
+from agno.tools import Toolkit
+from agno.tools.function import Function
+from agno.utils.log import log_debug, log_error, log_info
+from agno.utils.mcp import get_entrypoint_for_tool
 
-class MCPToolsManager:
-    """Helper to fetch and format MCP server tools descriptions.
+try:
+    from mcp import ClientSession
+    from mcp.client.sse import sse_client
+    from mcp.client.streamable_http import streamablehttp_client
+except (ImportError, ModuleNotFoundError):
+    raise ImportError("`mcp` not installed. Please install using `pip install mcp`")
 
-    This class centralizes logic that was previously embedded in
-    `agent/dynamic_base_agent.py`. It provides a stable API for
-    other modules to obtain a human-readable (or machine-friendly)
-    description of tools exposed by a remote MCP server.
+class MCPTools(Toolkit):
+    """
+    A toolkit for integrating Model Context Protocol (MCP) servers.
+    This allows agents to access tools, resources, and prompts exposed by MCP servers.
 
-    Usage:
-        desc = MCPToolsManager().describe_mcp_tools(server_url)
+    Can be used in two ways:
+    1. Direct initialization with a ClientSession
+    2. As an async context manager with SSE or Streamable HTTP client parameters
     """
 
-    def fetch_tools(self, server_url: str, timeout: float = 3.0) -> Optional[object]:
-        """Try to fetch tools info from common MCP discovery endpoints.
-
-        Returns parsed JSON when available, or None on failure.
+    def __init__(
+        self,
+        url: Optional[str] = None,
+        transport: Literal["sse", "streamable-http"] = "sse",
+        session: Optional[ClientSession] = None,
+        timeout_seconds: int = 10,
+        client=None,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        refresh_connection: bool = False,
+        tool_name_prefix: Optional[str] = None,
+        **kwargs,
+    ):
         """
-        if not server_url:
-            return None
-        urls = [
-            server_url.rstrip('/') + '/.well-known/mcp/tools',
-            server_url.rstrip('/') + '/tools',
-        ]
-        for url in urls:
-            try:
-                r = requests.get(url, timeout=timeout)
-                if r.status_code == 200:
-                    try:
-                        return r.json()
-                    except Exception:
-                        # Not JSON - return raw text wrapped
-                        return r.text
-            except Exception:
-                # try next URL
-                continue
-        return None
+        Initialize the MCP toolkit.
 
-    def describe_mcp_tools(self, server_url: str) -> str:
-        """Return a formatted description derived from the MCP server.
-
-        Falls back to a helpful snippet when fetch fails.
+        Args:
+            session: An initialized MCP ClientSession connected to an MCP server
+            server_params: Parameters for creating a new session
+            url: The URL endpoint for SSE or Streamable HTTP connection when transport is "sse" or "streamable-http".
+            client: The underlying MCP client (optional, used to prevent garbage collection)
+            timeout_seconds: Read timeout in seconds for the MCP client
+            include_tools: Optional list of tool names to include (if None, includes all)
+            exclude_tools: Optional list of tool names to exclude (if None, excludes none)
+            transport: The transport protocol to use, either "sse" or "streamable-http"
+            refresh_connection: If True, the connection and tools will be refreshed on each run
         """
+        super().__init__(name="MCPTools", **kwargs)
+
+        if transport == "sse":
+            log_info("SSE as a standalone transport is deprecated. Please use Streamable HTTP instead.")
+
+        # Set these after `__init__` to bypass the `_check_tools_filters`
+        # because tools are not available until `initialize()` is called.
+        self.include_tools = include_tools
+        self.exclude_tools = exclude_tools
+        self.refresh_connection = refresh_connection
+        self.tool_name_prefix = tool_name_prefix
+
+        self.timeout_seconds = timeout_seconds
+        self.session: Optional[ClientSession] = session
+        self.transport = transport
+        self.url = url
+
+        self._client = client
+
+        self._initialized = False
+        self._connection_task = None
+        self._active_contexts: list[Any] = []
+        self._context = None
+        self._session_context = None
+
+        def cleanup():
+            """Cancel active connections"""
+            if self._connection_task and not self._connection_task.done():
+                self._connection_task.cancel()
+
+        # Setup cleanup logic before the instance is garbage collected
+        self._cleanup_finalizer = weakref.finalize(self, cleanup)
+
+    @property
+    def initialized(self) -> bool:
+        return self._initialized
+
+    async def is_alive(self) -> bool:
+        if self.session is None:
+            return False
         try:
-            data = self.fetch_tools(server_url)
+            await self.session.send_ping()
+            return True
+        except (RuntimeError, BaseException):
+            return False
+
+    async def connect(self, force: bool = False):
+        """Initialize a MCPTools instance and connect to the contextual MCP server"""
+
+        if force:
+            # Clean up the session and context so we force a new connection
+            self.session = None
+            self._context = None
+            self._session_context = None
+            self._initialized = False
+            self._connection_task = None
+            self._active_contexts = []
+
+        if self._initialized:
+            return
+
+        try:
+            await self._connect()
+        except (RuntimeError, BaseException) as e:
+            log_error(f"Failed to connect to {str(self)}: {e}")
+
+    async def _connect(self) -> None:
+        """Connects to the MCP server and initializes the tools"""
+
+        if self._initialized:
+            return
+
+        if self.session is not None:
+            await self.initialize()
+            return
+
+        # Create a new studio session
+        if self.transport == "sse":
+            sse_params = {}  # type: ignore
+            sse_params["url"] = self.url
+            self._context = sse_client(**sse_params)  # type: ignore
+            client_timeout = min(self.timeout_seconds, sse_params.get("timeout", self.timeout_seconds))
+
+        # Create a new streamable HTTP session
+        elif self.transport == "streamable-http":
+            streamable_http_params = {}  # type: ignore
+            streamable_http_params["url"] = self.url
+            self._context = streamablehttp_client(**streamable_http_params)  # type: ignore
+            params_timeout = streamable_http_params.get("timeout", self.timeout_seconds)
+            if isinstance(params_timeout, timedelta):
+                params_timeout = int(params_timeout.total_seconds())
+            client_timeout = min(self.timeout_seconds, params_timeout)
+
+        else:
+            raise ValueError(f"Unsupported transport protocol: {self.transport}")
+
+        session_params = await self._context.__aenter__()  # type: ignore
+        self._active_contexts.append(self._context)
+        read, write = session_params[0:2]
+
+        self._session_context = ClientSession(read, write, read_timeout_seconds=timedelta(seconds=client_timeout))  # type: ignore
+        self.session = await self._session_context.__aenter__()  # type: ignore
+        self._active_contexts.append(self._session_context)
+
+        # Initialize with the new session
+        await self.initialize()
+
+    async def close(self) -> None:
+        """Close the MCP connection and clean up resources"""
+        if not self._initialized:
+            return
+
+        try:
+            if self._session_context is not None:
+                await self._session_context.__aexit__(None, None, None)
+                self.session = None
+                self._session_context = None
+
+            if self._context is not None:
+                await self._context.__aexit__(None, None, None)
+                self._context = None
+        except (RuntimeError, BaseException) as e:
+            log_error(f"Failed to close MCP connection: {e}")
+
+        self._initialized = False
+
+    async def __aenter__(self) -> "MCPTools":
+        await self._connect()
+        return self
+
+    async def __aexit__(self, _exc_type, _exc_val, _exc_tb):
+        """Exit the async context manager."""
+        if self._session_context is not None:
+            await self._session_context.__aexit__(_exc_type, _exc_val, _exc_tb)
+            self.session = None
+            self._session_context = None
+
+        if self._context is not None:
+            await self._context.__aexit__(_exc_type, _exc_val, _exc_tb)
+            self._context = None
+
+        self._initialized = False
+
+    async def build_tools(self) -> None:
+        """Build the tools for the MCP toolkit"""
+        if self.session is None:
+            raise ValueError("Session is not initialized")
+
+        try:
+            # Get the list of tools from the MCP server
+            available_tools = await self.session.list_tools()  # type: ignore
+
+            self._check_tools_filters(
+                available_tools=[tool.name for tool in available_tools.tools],
+                include_tools=self.include_tools,
+                exclude_tools=self.exclude_tools,
+            )
+
+            # Filter tools based on include/exclude lists
+            filtered_tools = []
+            for tool in available_tools.tools:
+                if self.exclude_tools and tool.name in self.exclude_tools:
+                    continue
+                if self.include_tools is None or tool.name in self.include_tools:
+                    filtered_tools.append(tool)
+
+            # Get tool name prefix if available
+            tool_name_prefix = ""
+            if self.tool_name_prefix is not None:
+                tool_name_prefix = self.tool_name_prefix + "_"
+
+            # Register the tools with the toolkit
+            for tool in filtered_tools:
+                try:
+                    # Get an entrypoint for the tool
+                    entrypoint = get_entrypoint_for_tool(tool, self.session)  # type: ignore
+                    # Create a Function for the tool
+                    f = Function(
+                        name=tool_name_prefix + tool.name,
+                        description=tool.description,
+                        parameters=tool.inputSchema,
+                        entrypoint=entrypoint,
+                        # Set skip_entrypoint_processing to True to avoid processing the entrypoint
+                        skip_entrypoint_processing=True,
+                    )
+
+                    # Register the Function with the toolkit
+                    self.functions[f.name] = f
+                    log_debug(f"Function: {f.name} registered with {self.name}")
+                except Exception as e:
+                    log_error(f"Failed to register tool {tool.name}: {e}")
+
+        except (RuntimeError, BaseException) as e:
+            log_error(f"Failed to get tools for {str(self)}: {e}")
+            raise
+
+    async def initialize(self) -> None:
+        """Initialize the MCP toolkit by getting available tools from the MCP server"""
+        if self._initialized:
+            return
+
+        try:
+            if self.session is None:
+                raise ValueError("Session is not initialized")
+
+            # Initialize the session if not already initialized
+            await self.session.initialize()
+
+            await self.build_tools()
+
+            self._initialized = True
+
+        except (RuntimeError, BaseException) as e:
+            log_error(f"Failed to initialize MCP toolkit: {e}")
+
+
+    async def describe_mcp_tools(self) -> str:
+        try:
+            await self.connect()
+        except Exception as e:
+            raise Exception("Failed to connect to MCP server.")
+
+        try:
+            # Get the list of tools from the MCP server
+            data = await self.session.list_tools()
             if data is None:
                 raise RuntimeError("no data")
+            desc_lines = [f"# MCP server tools from {self.url}"]
 
-            desc_lines = [f"# MCP server tools from {server_url}"]
-            if isinstance(data, dict):
-                tools = data.get('tools') or data.get('items') or data
-            else:
-                # Could be list or raw text
-                tools = data
+            for t in data.tools:
+                name = t.name
+                detail = t.description or ""
+                desc_lines.append(f"- {name}: {detail}")
 
-            if isinstance(tools, list):
-                for t in tools:
-                    if isinstance(t, dict):
-                        name = t.get('name') or t.get('id') or '[unknown]'
-                        detail = t.get('description') or t.get('desc') or ''
-                        desc_lines.append(f"- {name}: {detail}")
-                    else:
-                        desc_lines.append(f"- {t}")
-            elif isinstance(tools, dict):
-                for k, v in tools.items():
-                    desc_lines.append(f"- {k}: {v}")
-            else:
-                # raw text
-                desc_lines.append(str(tools)[:1000])
-
-            # Produce an XML-like snippet string suitable to be embedded
-            # into prompts. This mirrors the meeting note asking for an
-            # XML-like format (a string, not necessarily a file).
             xml_lines = ["<mcp_tools>"]
             for line in desc_lines[1:]:
                 xml_lines.append(f"  <tool>{line}</tool>")
             xml_lines.append("</mcp_tools>")
 
-            return "\n".join(desc_lines) + "\n\n" + "\n".join(xml_lines)
         except Exception:
-            # Fallback snippet when requests is not available or any error
-            snippet = (
-                f"# MCP server connection snippet for manual inspection:\n"
-                f"# 请使用 MCP 客户端列出工具并填充此节: {server_url}\n"
-                f"# Example client usage:\n"
-                f"# from fastmcp import Client\n# client = Client('{server_url}')\n"
-            )
-            return snippet
+            raise Exception("Failed to fetch MCP tools description from server.")
+        finally:
+            await self.close()
+            return "\n".join(xml_lines)
+
+if __name__ == "__main__":
+    async def main():
+        mcp_tools_manager = MCPTools(url="http://localhost:9005/sse", transport="sse")
+        description = await mcp_tools_manager.describe_mcp_tools()
+        print(description)
+
+    asyncio.run(main())

@@ -13,7 +13,7 @@ from utils.project_analyzer import analyze_language, get_top_language, calc_mcp_
 
 class Agent:
 
-    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False, server_url: str = None):
+    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False, server_url: str = None, server_transport: str = "http"):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.prompt_summary = os.path.join(base_dir, "prompt", "agents", "project_summary.md")
@@ -25,6 +25,7 @@ class Agent:
         self.debug = debug
         self.dynamic = dynamic
         self.server_url = server_url
+        self.server_transport = server_transport
 
     def scan(self, repo_dir: str, prompt: str):
         result = {
@@ -103,6 +104,7 @@ class Agent:
             self,
             repo_dir: str,
             server_url: str,
+            server_transport,
             tasks: list,
         ):
         logger.info("=== 阶段4: 动态分析 ===")
@@ -112,6 +114,7 @@ class Agent:
         if server_url:
             import os as _os
             _os.environ.setdefault("MCP_SERVER_URL", server_url)
+            _os.environ.setdefault("MCP_TRANSPORT_PROTOCOL", server_transport)
         else:
             raise ValueError("MCP server URL is required for dynamic analysis.")
         

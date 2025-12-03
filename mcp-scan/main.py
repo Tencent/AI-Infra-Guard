@@ -86,6 +86,11 @@ def parse_args():
         default=None
     )
 
+    parser.add_argument(
+        "--server_transport",
+        help=f"remote MCP server transport protocol",
+        default="http"
+    )
     return parser.parse_args()
 
 def task_validation(input_tasks: list) -> bool:
@@ -141,7 +146,7 @@ def main():
 
     # 创建 Agent 实例，传入专用模型
     agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug,
-                   dynamic=args.dynamic, server_url=args.server_url)
+                   dynamic=args.dynamic, server_url=args.server_url, server_transport=args.server_transport)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
@@ -153,8 +158,11 @@ def main():
         if args.dynamic:
             logger.info(f"Dynamic analysis enabled with server URL: {args.server_url}")
             if not task_validation(args.tasks):
-                sys.exit(1)
-            dynamic_results = agent.dynamic_analysis(args.repo, args.server_url, args.tasks)
+                raise ValueError("Invalid tasks provided for dynamic analysis.")
+            if args.server_transport not in ["http", "sse"]:
+                logger.error(f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'http' or 'sse'.")
+                raise ValueError("Invalid server transport protocol provided for dynamic analysis.")
+            dynamic_results = agent.dynamic_analysis(args.repo, args.server_url, args.server_transport, args.tasks)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")

@@ -59,10 +59,11 @@ class DynamicBaseAgent:
         tools_prompt = get_tools_prompt()
         # 为了支持远程 MCP server 的 tools，尝试获取远端工具描述并拼接
         mcp_server = get_env("MCP_SERVER_URL")
+        mcp_transport = get_env("MCP_TRANSPORT_PROTOCOL", "http")
         mcp_tools_section = ""
         if mcp_server and self.connect_mcp:
             try:
-                mcp_tools_section = MCPToolsManager().describe_mcp_tools(mcp_server)
+                mcp_tools_section = MCPToolsManager(mcp_server,mcp_transport).describe_mcp_tools()
                 logger.info(f"Fetched MCP tools description from server: {mcp_server}")
             except Exception:
                 logger.error(Exception.__traceback__)
@@ -73,9 +74,7 @@ class DynamicBaseAgent:
 
         system_prompt = system_prompt.replace("{name}", name)
         system_prompt = system_prompt.replace("{instruction}", instruction)
-        # TODO: 修改system prompt，instruction要读取当前任务的需求
-        # TODO: 添加对于MCP待测工具的描述，并且需要集成MCP server连接逻辑
-        #       保证格式和xml的一样（不必生成文件）
+        # TODO: instruction 的内容需要动态传入，占位符还没改
         # 替换时间
         nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
