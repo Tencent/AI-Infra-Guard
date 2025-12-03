@@ -58,4 +58,11 @@ RUN pip install -r requirements.txt
 COPY --from=builder /app/agent /app/agent
 COPY --from=builder /app/data /app/data
 
+# Create a non-root user
+RUN useradd -m -u 1000 agent && \
+    chown -R agent:agent /app
+
+# Switch to non-root user
+USER agent
+
 ENTRYPOINT ["/app/agent"]
