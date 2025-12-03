@@ -46,7 +46,6 @@ func NewWebScreenShotWithOptions() (*WebScreenShot, error) {
 		Set("hide-scrollbars", "true").
 		Set("window-size", fmt.Sprintf("%d,%d", MaxWidth, MinHeight)).
 		Set("mute-audio", "true").
-		Set("no-sandbox", "true").
 		Delete("use-mock-keychain").
 		NoSandbox(false).
 		Headless(true)
