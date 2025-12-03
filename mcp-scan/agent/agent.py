@@ -2,6 +2,8 @@ import os
 import time
 
 from agent.base_agent import BaseAgent
+from agent.dynamic_base_agent import DynamicBaseAgent
+from utils.dynamic_tasks import get_targets_for_tasks
 from utils.extract_vuln import VulnerabilityExtractor
 from utils.loging import logger
 from utils.config import base_dir
@@ -11,16 +13,18 @@ from utils.project_analyzer import analyze_language, get_top_language, calc_mcp_
 
 class Agent:
 
-    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False):
+    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False, server_url: str = None):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.prompt_summary = os.path.join(base_dir, "prompt", "agents", "project_summary.md")
         self.prompt_code_audit = os.path.join(base_dir, "prompt", "agents", "code_audit.md")
         self.prompt_mcp_opera = os.path.join(base_dir, "prompt", "agents", "mcp_opera.md")
         self.prompt_vuln_review = os.path.join(base_dir, "prompt", "agents", "vuln_review.md")
-        self.prompt_build_preview = os.path.join(base_dir, "prompt", "agents", "build_preview.md")
-        self.prompt_dynamic_verification = os.path.join(base_dir, "prompt", "agents", "dynamic_verification.md")
+        # self.prompt_build_preview = os.path.join(base_dir, "prompt", "agents", "build_preview.md")
+        # self.prompt_dynamic_verification = os.path.join(base_dir, "prompt", "agents", "dynamic_verification.md")
         self.debug = debug
+        self.dynamic = dynamic
+        self.server_url = server_url
 
     def scan(self, repo_dir: str, prompt: str):
         result = {
@@ -85,49 +89,90 @@ class Agent:
         result["results"] = vuln_results
         mcpLogger.result_update(result)
 
-        # 构建预览
-        # logger.info("=== 阶段4: 构建预览 ===")
-        # with open(self.prompt_build_preview) as f:
-        #     agent = BaseAgent("构建预览Agent", f.read(), self.llm, self.specialized_llms)
-        #     agent.add_user_message(f"请进行构建预览，文件夹在 {repo_dir}\n{prompt}\n信息收集报告:\n{info_collection}")
-        #     build_preview = agent.run()
-        #     logger.info("构建预览完成")
-        #     print(f"\n构建预览结果:\n{build_preview}\n")
-
-        # 动态验证
-        # logger.info("=== 阶段5: 动态验证 ===")
-        # with open(self.prompt_dynamic_verification) as f:
-        #     agent = BaseAgent("动态验证Agent", f.read(), self.llm, self.specialized_llms)
-        #     # 构造验证任务消息
-        #     verification_message = f"""请进行漏洞动态验证。
-        # ## 目标仓库
-        # {repo_dir}
-        #
-        # ## 漏洞数据
-        # 发现 {len(vuln_results)} 个漏洞需要验证：
-        # {vuln_review}
-        #
-        # ## 服务器部署信息
-        # {build_preview}
-        #
-        # ## 代码审计详情
-        # {code_audit}
-        #
-        # ## 任务要求
-        # {prompt}
-        #
-        # 请按照提示词要求，逐个验证漏洞的可利用性，生成exploit代码并执行验证。
-        # """
-        #             agent.add_user_message(verification_message)
-        #             verification_result = agent.run()
-        #             logger.info("动态验证完成")
-        #             print(f"\n动态验证结果:\n{verification_result}\n")
-        #
-        # 返回完整结果
+        # 保存阶段性结果，供 dynamic_analysis 使用（如果后续以单独命令调用）
+        self._info_collection = info_collection
+        self._code_audit = code_audit
+        self._vuln_review = vuln_review
         return {
             "info_collection": info_collection,
             "vuln_review": vuln_review,
             "vuln_count": len(vuln_results),
-            # "build_preview": build_preview,
-            # "verification_result": verification_result
         }
+
+    def dynamic_analysis(
+            self,
+            repo_dir: str,
+            server_url: str,
+            tasks: list,
+        ):
+        logger.info("=== 阶段4: 动态分析 ===")
+        mcpLogger.new_plan_step(stepId="4", stepName="动态分析")
+
+        # 1. 把 server_url 暴露到环境，供 DynamicBaseAgent 读取
+        if server_url:
+            import os as _os
+            _os.environ.setdefault("MCP_SERVER_URL", server_url)
+        else:
+            raise ValueError("MCP server URL is required for dynamic analysis.")
+        
+        # 2. 根据传入的任务名，从配置中按顺序获取 targets
+        try:
+            targets_list = get_targets_for_tasks(tasks or [])
+        except Exception as e:
+            logger.error(f"动态任务加载失败: {e}")
+            raise
+
+        def load_prompt(path):
+            with open(path) as f:
+                return f.read()
+
+        results = []
+
+        # 3. 依次执行每个 target 的测试和分析
+        for idx, (name, config) in enumerate(targets_list):
+            target_prompt = load_prompt(config["prompt"]) if config.get("prompt") else ""
+            target_type = config.get("type", "malicious")
+
+            logger.info(f"[Dynamic] Start target {name} ({target_type})")
+
+            if target_type == "malicious":
+                instruction_prompt_path = os.path.join(base_dir, "prompt", "agents","dynamic", "malicious_behaviour_testing.md")
+            else:
+                instruction_prompt_path = os.path.join(base_dir, "prompt", "agents", "dynamic", "vulnerability_testing.md")
+            analysis_prompt_path = os.path.join(base_dir, "prompt", "agents","dynamic", "general_analyzing_prompt_template.md")
+            instruction_prompt=load_prompt(instruction_prompt_path)
+            analysis_prompt=load_prompt(analysis_prompt_path)
+
+            # a. 测试
+            testing_agent = DynamicBaseAgent(
+                "TestingAgent", instruction_prompt,
+                self.llm, self.specialized_llms,
+                f"4.{idx+1}.1", self.debug, connect_mcp=True
+            )
+            testing_agent.set_repo_dir(repo_dir)
+            testing_agent.add_user_message(
+                f"请进行测试用例生成和执行，测试目标: {name}\n类别: {target_type}\n"
+            )
+            test_execution = testing_agent.run()
+
+            # b. 分析
+            analyzing_agent = DynamicBaseAgent(
+                "AnalyzingAgent", analysis_prompt,
+                self.llm, self.specialized_llms,
+                f"4.{idx+1}.2", self.debug, connect_mcp=False
+            )
+            analyzing_agent.set_repo_dir(repo_dir)
+            analyzing_agent.add_user_message(
+                f"请进行测试用例结果分析，文件夹在 {repo_dir}\n"
+            )
+            execution_review = analyzing_agent.run()
+
+            results.append({
+                "target": name,
+                "type": target_type,
+                "test_execution": test_execution,
+                "execution_review": execution_review,
+            })
+
+        return results
+
