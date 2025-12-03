@@ -19,41 +19,63 @@ COPY . /app/
 # 构建应用程序
 RUN GOOS=linux go build -a -o agent ./cmd/agent
 
-# AIG-PromptSecurity
-FROM python:3.12
+#
+# AIG-PromptSecurity + MCP-SCAN runtime
+# 说明：
+# - 使用 python:3.12-slim 替代完整 python:3.12，减少基础层体积
+# - 保留 chromium、中文字体、MCP-SCAN 等依赖，不裁剪业务功能
+# - 仅在构建期安装编译依赖，完成依赖安装后清理
+#
+FROM python:3.12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    DEEPEVAL_TELEMETRY_OPT_OUT=YES \
+    DEEPTEAM_TELEMETRY_OPT_OUT=YES
 
 WORKDIR /app/AIG-PromptSecurity
 
-# 安装系统依赖（包括中文字体和chromium-sandbox）
-RUN apt-get update --allow-releaseinfo-change && \
+# 安装系统依赖（包括中文字体和 chromium-sandbox）以及构建期编译依赖
+RUN set -eux; \
+    apt-get update --allow-releaseinfo-change; \
     apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    nmap \
-    chromium \
-    chromium-sandbox \
-    fonts-wqy-microhei \
-    fonts-wqy-zenhei \
-    fontconfig \
-    tzdata \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+        git \
+        curl \
+        nmap \
+        chromium \
+        chromium-sandbox \
+        fonts-wqy-microhei \
+        fonts-wqy-zenhei \
+        fontconfig \
+        tzdata \
+        build-essential \
+        gcc \
+        python3-dev; \
+    rm -rf /var/lib/apt/lists/*
 
 # 安装中文字体缓存
 RUN fc-cache -fv
+
+# 安装 uv 并同步 AIG-PromptSecurity 运行依赖
 RUN pip install --no-cache-dir uv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv sync
 
-ENV DEEPEVAL_TELEMETRY_OPT_OUT=YES
-ENV DEEPTEAM_TELEMETRY_OPT_OUT=YES
 
 
-# 安装MCP-SCAN
+# 安装 MCP-SCAN 依赖
 COPY ./mcp-scan /app/mcp-scan/
 WORKDIR /app/mcp-scan
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 构建完成后，移除不再需要的编译依赖和缓存，避免过度占用空间
+RUN set -eux; \
+    apt-get purge -y --auto-remove \
+        build-essential \
+        gcc \
+        python3-dev || true; \
+    rm -rf /var/lib/apt/lists/* /root/.cache
 
 # 从builder阶段复制agent
 COPY --from=builder /app/agent /app/agent
