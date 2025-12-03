@@ -9,6 +9,7 @@ logger.add(
     retention="10 days",
     level="DEBUG",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    mode="w",   # 每次运行时覆盖旧日志
 )
 
 if __name__ == '__main__':

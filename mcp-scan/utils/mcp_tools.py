@@ -29,14 +29,6 @@ class MCPTools(Toolkit):
         self,
         url: Optional[str] = None,
         transport: Literal["sse", "streamable-http"] = "sse",
-        session: Optional[ClientSession] = None,
-        timeout_seconds: int = 10,
-        client=None,
-        include_tools: Optional[list[str]] = None,
-        exclude_tools: Optional[list[str]] = None,
-        refresh_connection: bool = False,
-        tool_name_prefix: Optional[str] = None,
-        **kwargs,
     ):
         """
         Initialize the MCP toolkit.
@@ -52,24 +44,22 @@ class MCPTools(Toolkit):
             transport: The transport protocol to use, either "sse" or "streamable-http"
             refresh_connection: If True, the connection and tools will be refreshed on each run
         """
-        super().__init__(name="MCPTools", **kwargs)
+        super().__init__(name="MCPTools")
 
         if transport == "sse":
             log_info("SSE as a standalone transport is deprecated. Please use Streamable HTTP instead.")
 
         # Set these after `__init__` to bypass the `_check_tools_filters`
         # because tools are not available until `initialize()` is called.
-        self.include_tools = include_tools
-        self.exclude_tools = exclude_tools
-        self.refresh_connection = refresh_connection
-        self.tool_name_prefix = tool_name_prefix
+        self.refresh_connection = False
+        self.tool_name_prefix = None
 
-        self.timeout_seconds = timeout_seconds
-        self.session: Optional[ClientSession] = session
+        self.timeout_seconds = 10
+        self.session: Optional[ClientSession] = None
         self.transport = transport
         self.url = url
 
-        self._client = client
+        self._client = None
 
         self._initialized = False
         self._connection_task = None
@@ -296,11 +286,38 @@ class MCPTools(Toolkit):
         finally:
             await self.close()
             return "\n".join(xml_lines)
+        
+    async def call_remote_tool(self, call: dict) -> str:
+        """
+        调用远程 MCP server 上的工具并返回结果。
+        参数:
+            call: {"toolName": name, "args": {...}}
+        """
+        try:
+            await self.connect()
+        except Exception as e:
+            raise Exception("Failed to connect to MCP server.")
+
+        try:
+            # Get the list of tools from the MCP server
+            result = await self.session.call_tool(call["toolName"], call.get("args", {}))
+
+        except Exception:
+            raise Exception("Failed to fetch MCP tools description from server.")
+        finally:
+            await self.close()
+
+        return str(result)
+
 
 if __name__ == "__main__":
     async def main():
         mcp_tools_manager = MCPTools(url="http://localhost:9005/sse", transport="sse")
         description = await mcp_tools_manager.describe_mcp_tools()
         print(description)
-
+        result = await mcp_tools_manager.call_remote_tool({
+            "toolName": "get_user_role",
+            "args": {"username": "alice"}
+        })
+        print(f"Tool call result: {result}")
     asyncio.run(main())

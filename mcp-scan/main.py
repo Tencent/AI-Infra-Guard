@@ -110,7 +110,7 @@ def task_validation(input_tasks: list) -> bool:
     return True
 
 
-def main():
+async def main():
     """主函数"""
     # 解析命令行参数
     args = parse_args()
@@ -162,7 +162,7 @@ def main():
             if args.server_transport not in ["http", "sse"]:
                 logger.error(f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'http' or 'sse'.")
                 raise ValueError("Invalid server transport protocol provided for dynamic analysis.")
-            dynamic_results = agent.dynamic_analysis(args.repo, args.server_url, args.server_transport, args.tasks)
+            dynamic_results = await agent.dynamic_analysis(args.repo, args.server_url, args.server_transport, args.tasks)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
@@ -192,4 +192,5 @@ if __name__ == "__main__":
             logger.warning(f"Failed to initialize Laminar: {e}")
     else:
         console_handler.setLevel(logging.INFO)
-    main()
+    import asyncio
+    asyncio.run(main())

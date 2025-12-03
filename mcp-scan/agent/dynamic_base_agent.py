@@ -11,7 +11,7 @@ from utils.loging import logger
 from utils.parse import parse_tool_invocations, clean_content
 from utils.tool_context import ToolContext
 from utils.aig_logger import mcpLogger
-from utils.mcp_tools import MCPToolsManager
+from utils.mcp_tools import MCPTools
 
 class DynamicBaseAgent:
     # 默认类属性，确保即使 __init__ 未被正确调用时也可访问
@@ -21,9 +21,7 @@ class DynamicBaseAgent:
         self.llm = llm
         self.name = name
         self.specialized_llms = specialized_llms or {}
-        self.history = [
-            {"role": "system", "content": self.generate_system_prompt(name, instruction)}
-        ]
+        self.history = []
         self.max_iter = 200
         self.iter = 0
         self.is_finished = False
@@ -31,6 +29,8 @@ class DynamicBaseAgent:
         self.debug = debug
         self.repo_dir = ""
         self.connect_mcp = connect_mcp
+        self.instruction = instruction
+        self.mcp_tools_manager = None
 
     def add_user_message(self, message: str):
         self.history.append({"role": "user", "content": message})
@@ -51,7 +51,11 @@ class DynamicBaseAgent:
         user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
-    def generate_system_prompt(self, name, instruction):
+    async def generate_system_prompt(self):
+        await self._generate_system_prompt(self.name, self.instruction)
+
+    async def _generate_system_prompt(self, name, instruction):
+        
         with open(os.path.join(base_dir, "prompt", "dynamic_prompt.md"), "r") as f:
             system_prompt = f.read()
 
@@ -63,12 +67,12 @@ class DynamicBaseAgent:
         mcp_tools_section = ""
         if mcp_server and self.connect_mcp:
             try:
-                mcp_tools_section = MCPToolsManager(mcp_server,mcp_transport).describe_mcp_tools()
+                self.mcp_tools_manager = MCPTools(mcp_server,mcp_transport)
+                mcp_tools_section = await self.mcp_tools_manager.describe_mcp_tools()
                 logger.info(f"Fetched MCP tools description from server: {mcp_server}")
             except Exception:
                 logger.error(Exception.__traceback__)
                 raise Exception("Failed to fetch MCP tools description from server.")
-        # TODO: 我们实际上只用到 finish 和 thinking，不用全部注册
         system_prompt = system_prompt.replace("{generate_tools}", tools_prompt)
         system_prompt = system_prompt.replace("{mcp_tools}", mcp_tools_section)
 
@@ -79,8 +83,7 @@ class DynamicBaseAgent:
         nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
         logger.debug(f"Generated system prompt: {system_prompt}")
-        # exit(0)
-        return system_prompt
+        self.history.append({"role": "system", "content": system_prompt})
 
 
 
@@ -112,6 +115,17 @@ class DynamicBaseAgent:
             return ret
         return str(result)
 
+    async def call_remote_tool(self, tool_call: dict) -> str:
+        if self.mcp_tools_manager is None:
+            raise Exception("MCP Tools Manager is not initialized.")
+
+        try:
+            result = await self.mcp_tools_manager.call_remote_tool(tool_call)
+            return result
+        except Exception as e:
+            logger.error(f"Error calling remote tool: {e}")
+            raise Exception(f"Failed to call remote tool: {str(e)}")
+        
     def run(self):
         if self.debug:
             with Laminar.start_as_current_span(
@@ -202,4 +216,6 @@ class DynamicBaseAgent:
             self.compact_history()
 
         logger.info("Agent execution completed")
-        return result
+        # 返回全部历史记录的拼接
+        return "\n".join([f"{msg['role'].upper()}:\n{msg['content']}" for msg in self.history])
+    
