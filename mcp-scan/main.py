@@ -109,7 +109,7 @@ def main():
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
     # 创建 Agent 实例，传入专用模型
-    agent = Agent(llm=llm, specialized_llms=specialized_llms,language=, debug=args.debug)
+    agent = Agent(llm=llm, specialized_llms=specialized_llms, language=args.language, debug=args.debug)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
