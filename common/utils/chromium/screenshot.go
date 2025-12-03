@@ -133,7 +133,7 @@ func (w *WebScreenShot) ScreenWithContext(ctx context.Context, domain string) ([
 	waitChan := make(chan error, 1)
 	go func() {
 		// 等待页面稳定，使用较短的等待时间避免卡死
-		err := page.WaitDOMStable(StableWait, 0.2)
+		err := page.WaitStable(5 * time.Second)
 		waitChan <- err
 	}()
 
