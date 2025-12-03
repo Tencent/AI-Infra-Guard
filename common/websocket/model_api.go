@@ -108,13 +108,13 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 
 	// 1. 首先添加系统模型（public_user的模型），永远排在前面
 	for _, model := range publicModels {
-		// 系统模型对外不暴露真实 token，但应返回真实的并发配置 limit，
-		// 方便前端在编辑弹窗中展示和复用当前的并发设置。
+		// 系统模型同样对外不暴露真实 token，但如果存在 token，
+		// 通过掩码串告知“已配置密钥”，方便前端交互。
 		item := map[string]interface{}{
 			"model_id": model.ModelID,
 			"model": map[string]interface{}{
 				"model":    model.ModelName,
-				"token":    "", // 系统模型token置空
+				"token":    maskToken(model.Token),
 				"base_url": model.BaseURL,
 				"note":     model.Note,
 				"limit":    model.Limit,
