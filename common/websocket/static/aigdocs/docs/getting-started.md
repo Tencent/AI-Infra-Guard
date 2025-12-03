@@ -1,4 +1,4 @@
-# 2. 快速开始
+# 快速开始
 
 本章节将指导您如何快速部署和使用A.I.G。
 
@@ -24,34 +24,31 @@ A.I.G 的`MCP扫描`、`大模型安全体检`功能需要使用到大模型API�
 
 ## 常见问题
 
-1. **端口冲突**
+1.**端口冲突**
    ```bash
    # 修改webserver端口映射
    ports:
      - "8080:8088"  # 使用8080端口
    ```
-
-2. **权限问题**
+2.**权限问题**
    ```bash
    # 检查数据目录权限
    sudo chown -R $USER:$USER ./data
    ```
-
-3. **服务启动失败**
+3.**服务启动失败**
    ```bash
    # 查看详细日志
    docker-compose logs webserver
    docker-compose logs agent
    ```
-
-4. **停止服务**
-    ```bash
+4.**停止服务**
+   ```bash
     # 停止服务
     docker-compose down
     
     # 停止服务并删除数据卷（谨慎使用）
     docker-compose down -v
-    ```
+   ```
 
 
 ## 更新升级

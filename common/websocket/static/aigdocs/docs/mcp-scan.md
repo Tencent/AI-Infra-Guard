@@ -1,4 +1,4 @@
-# 4. MCP安全扫描
+# MCP安全扫描
 
 A.I.G使用了基于AI Agent驱动的MCP Server检测方案，支持MCP Server源代码安全审计与远程MCP Server URL安全扫描。
 
@@ -54,13 +54,11 @@ A.I.G的MCP Server扫描能力完全由Agent驱动，检测准确性与时长取
 ![image-mcp7](./assets/mcp7.png)
 
 ## 推荐使用的大模型API
-1. qwen3 32B
-2. qwen3-coder
-3. deepseek v3
-4. claude-4-sonnet
-5. gpt-4.1
-6. gemini-2.5-pro
-7. hunyuan-turbos
+- GLM4.5
+- DeepSeek-V3.1
+- Kimi-K2-Instruct
+- Qwen3-Coder-480B
+- Hunyuan-Turbos
 
 ## MCP 插件
 
