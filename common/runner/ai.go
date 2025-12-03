@@ -87,20 +87,29 @@ func LoadWebPageScreenShotSummary(language string) string {
 	return prompt
 }
 
-func Analysis(url string, resp string, language string, model *models.OpenAI) ([]byte, *vulstruct.Info, string, error) {
-	var shotData []byte
+func ScreenShot(url string) ([]byte, error) {
 	instance, err := chromium.NewWebScreenShotWithOptions()
 	if err != nil {
 		gologger.WithError(err).Errorf("new screenshot instance error: %s", err)
-		return shotData, nil, "", err
+		return nil, err
 	}
-	shotData, err = instance.Screen(url)
+	shotData, err := instance.Screen(url)
 	if err != nil {
 		gologger.WithError(err).Errorf("get screenshot error: %s", err)
-		return shotData, nil, "", err
+		return nil, err
 	}
 	if len(shotData) == 0 {
-		return shotData, nil, "", errors.New("截图失败")
+		return nil, errors.New("截图失败")
+	}
+	return shotData, nil
+}
+
+func Analysis(url string, resp string, language string, model *models.OpenAI) ([]byte, *vulstruct.Info, string, error) {
+	var shotData []byte
+	shotData, err := ScreenShot(url)
+	if err != nil {
+		gologger.WithError(err).Errorf("screenshot error: %s", err)
+		return nil, nil, "", err
 	}
 	summary, err := model.ChatWithImageByte(context.Background(), LoadWebPageScreenShotSummary(language), shotData)
 	if err != nil {
