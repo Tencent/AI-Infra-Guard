@@ -33,9 +33,6 @@ type WebScreenShot struct {
 }
 
 func NewWebScreenShotWithOptions() (*WebScreenShot, error) {
-	if runtime.GOOS != "windows" && os.Geteuid() == 0 {
-		return nil, errors.New("running as root is not supported when sandbox is enabled, please use a non-root user")
-	}
 	chromePath := FindExecPath()
 	if chromePath == "" {
 		return nil, errors.New("未找到Chrome/Chromium浏览器")

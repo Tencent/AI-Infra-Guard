@@ -24,13 +24,14 @@ FROM python:3.12
 
 WORKDIR /app/AIG-PromptSecurity
 
-# 安装系统依赖（包括中文字体）
+# 安装系统依赖（包括中文字体和chromium-sandbox）
 RUN apt-get update --allow-releaseinfo-change && \
     apt-get install -y --no-install-recommends \
     git \
     curl \
     nmap \
     chromium \
+    chromium-sandbox \
     fonts-wqy-microhei \
     fonts-wqy-zenhei \
     fontconfig \
@@ -61,6 +62,12 @@ COPY --from=builder /app/data /app/data
 # Create a non-root user
 RUN useradd -m -u 1000 agent && \
     chown -R agent:agent /app
+
+# 确保chromium-sandbox有正确的权限
+RUN chmod 4755 /usr/lib/chromium/chrome-sandbox || \
+    chmod 4755 /usr/lib/chromium/chromium-sandbox || \
+    chmod 4755 /usr/lib/chromium-browser/chrome-sandbox || \
+    true
 
 # Switch to non-root user
 USER agent
