@@ -11,7 +11,7 @@ from utils.project_analyzer import analyze_language, get_top_language, calc_mcp_
 
 class Agent:
 
-    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False):
+    def __init__(self, llm, specialized_llms: dict = None, language: str = 'zh', debug: bool = False):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.prompt_summary = os.path.join(base_dir, "prompt", "agents", "project_summary.md")
@@ -20,6 +20,7 @@ class Agent:
         self.prompt_vuln_review = os.path.join(base_dir, "prompt", "agents", "vuln_review.md")
         self.prompt_build_preview = os.path.join(base_dir, "prompt", "agents", "build_preview.md")
         self.prompt_dynamic_verification = os.path.join(base_dir, "prompt", "agents", "dynamic_verification.md")
+        self.language = language
         self.debug = debug
 
     def scan(self, repo_dir: str, prompt: str):
@@ -31,32 +32,41 @@ class Agent:
             "end_time": 0,
             "results": [],
         }
+        stepNames = ["信息收集", "代码审计", "漏洞整理"]
+        stepNamesEn = ["Info Collection", "Code Audit", "Vulnerability Review"]
+        if self.language == 'en':
+            stepNames = stepNamesEn
         # 信息收集
         start_time = time.time()
         logger.info("=== 阶段1: 信息收集 ===")
-        mcpLogger.new_plan_step(stepId="1", stepName="信息收集")
-
+        mcpLogger.new_plan_step(stepId="1", stepName=stepNames[0])
+        startDescript = "我已收到任务"
+        if self.language == 'en':
+            startDescript = "I have received the task"
+        mcpLogger.status_update("1", startDescript, "", "completed")
         with open(self.prompt_summary) as f:
-            mcpLogger.status_update("1", "我已收到任务", "", "completed")
-            agent = BaseAgent("信息收集Agent", f.read(), self.llm, self.specialized_llms, "1", self.debug)
+            agent = BaseAgent("信息收集Agent", f.read(), self.llm, self.specialized_llms, "1", self.language,
+                              self.debug)
             agent.set_repo_dir(repo_dir)
             agent.add_user_message(f"请进行信息收集，文件夹在 {repo_dir}\n{prompt}")
             info_collection = agent.run()
 
         # 代码审计
         logger.info("=== 阶段2: 代码审计 ===")
-        mcpLogger.new_plan_step(stepId="2", stepName="代码审计")
+        mcpLogger.new_plan_step(stepId="2", stepName=stepNames[1])
         with open(self.prompt_code_audit) as f:
-            agent = BaseAgent("代码审计Agent", f.read(), self.llm, self.specialized_llms, "2", self.debug)
+            agent = BaseAgent("代码审计Agent", f.read(), self.llm, self.specialized_llms, "2", self.language,
+                              self.debug)
             agent.set_repo_dir(repo_dir)
             agent.add_user_message(f"请进行代码审计，文件夹在 {repo_dir}\n{prompt}\n信息收集报告:\n{info_collection}")
             code_audit = agent.run()
 
         # 漏洞整理
         logger.info("=== 阶段3: 漏洞整理 ===")
-        mcpLogger.new_plan_step(stepId="3", stepName="漏洞整理")
+        mcpLogger.new_plan_step(stepId="3", stepName=stepNames[2])
         with open(self.prompt_vuln_review) as f:
-            agent = BaseAgent("漏洞整理Agent", f.read(), self.llm, self.specialized_llms, "3", self.debug)
+            agent = BaseAgent("漏洞整理Agent", f.read(), self.llm, self.specialized_llms, "3", self.language,
+                              self.debug)
             agent.set_repo_dir(repo_dir)
             agent.add_user_message(f"请进行漏洞整理，文件夹在 {repo_dir}\n{prompt}\n代码审计报告:\n{code_audit}")
             vuln_review = agent.run()

@@ -137,29 +137,34 @@
 **核心原则：宁可错过，不可误报 - 仅100%确认的安全威胁可通过审核**
 
 ### 标准输出格式
-
+例子以中文示范,如果要求输出英文，则输出内容更改为英文.
 ```xml
 <vuln>
-  <title>title</title>
+  <title>Vulnerability Title (Briefly summarize the vulnerability essence)</title>
   <desc>
-  <!-- Markdown格式漏洞描述 -->
-  ## 漏洞详情
-  **文件位置**: 
-  **漏洞类型**: 
-  **风险等级**: 
+  <!-- Markdown format vulnerability description -->
+  ## Vulnerability Details
+  **File Location**: [Specific file path or component]
+  **Vulnerability Type**: [e.g., SQL Injection, XSS, Misconfiguration]
+  **Risk Level**: [e.g., High, Medium, Low]
   
-  ### 技术分析
-  
-  ### 攻击路径
-  
-  ### 影响评估  
+  ### Technical Analysis
+  [In-depth analysis of vulnerability principles, including code snippets, misconfiguration details, vulnerability trigger conditions, etc. Emphasize root cause and cite specific evidence such as code line numbers, function names, or system logs.]
+
+  ### Attack Path
+  [Step-by-step description of how attackers can exploit the vulnerability, including example requests, operation steps, or exploitation tools. Provide actual scenario simulations to demonstrate exploitability.]
+
+  ### Impact Assessment
+  [Evaluate the vulnerability's impact on the system, such as data breach scope, service availability, business risks, etc. Support with data or case studies, quantifying potential damages.]
   </desc>
-  <risk_type>RiskType</risk_type>
-  <level>Level</level>
+  <risk_type>[Standardized risk type, e.g., CWE-ID or OWASP classification]</risk_type>
+  <level>[Standardized level, e.g., CVSS score or High/Medium/Low]</level>
   <suggestion>
-  ## 修复建议
+  ## Remediation Suggestions
+  [Provide specific, actionable remediation steps, including code modifications, configuration adjustments, or patch links. Emphasize priority and best practices.]
   </suggestion>
 </vuln>
+
 ```
 
 ### 质量保证检查清单

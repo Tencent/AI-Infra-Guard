@@ -15,10 +15,12 @@ from utils.aig_logger import mcpLogger
 
 class BaseAgent:
 
-    def __init__(self, name, instruction, llm: LLM, specialized_llms: dict = None, log_step_id=None, debug=False):
+    def __init__(self, name, instruction, llm: LLM, specialized_llms: dict = None, log_step_id=None, output_language="",
+                 debug=False):
         self.llm = llm
         self.name = name
         self.specialized_llms = specialized_llms or {}
+        self.output_language = output_language
         self.history = [
             {"role": "system", "content": self.generate_system_prompt(name, instruction)}
         ]
@@ -46,6 +48,8 @@ class BaseAgent:
 
         system_prompt = self.history[0]
         user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        if self.output_language == "en":
+            user_messages += "\n\nPlease respond in English"
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     def generate_system_prompt(self, name, instruction):
@@ -63,12 +67,18 @@ class BaseAgent:
         nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
 
+        if self.output_language == "en":
+            system_prompt += "\n\nPlease respond in English"
+
         return system_prompt
 
     def next_prompt(self):
         with open(os.path.join(base_dir, "prompt", "next_prompt.md"), "r") as f:
             next_prompt = f.read()
-        return next_prompt.replace("{round}", str(self.iter))
+        next_prompt = next_prompt.replace("{round}", str(self.iter))
+        if self.output_language == "en":
+            next_prompt += "\n\nPlease respond in English"
+        return next_prompt
 
     def execute_tool(self, tool_name: str, args: dict) -> str:
         """执行工具并返回结果，自动注入context（如果工具需要）"""
@@ -127,6 +137,8 @@ class BaseAgent:
                 description = clean_content(response)
                 if description == "":
                     description = "我将继续执行"
+                    if self.output_language == "en":
+                        description = "I will continue"
                 mcpLogger.status_update(self.step_id, description, "", "running")
                 if tool_invocations:
                     # 只处理第一个工具调用（按照规则单个响应只能调用一个工具）
@@ -145,7 +157,10 @@ class BaseAgent:
                         logger.info(f"Finish tool called, returning:{result}")
                         mcpLogger.status_update(self.step_id, description, "", "completed")
                         mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
-                        mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name)
+                        summary_result = "报告整合"
+                        if self.output_language == "en":
+                            summary_result = "Report Integration"
+                        mcpLogger.tool_used(self.step_id, tool_id, summary_result, "done", tool_name)
                         continue
 
                     # 执行工具
@@ -169,6 +184,16 @@ class BaseAgent:
                     message = '''
 错误原因:No tool invocation found in response.
 你的工具输出格式是否有误,请改正
+### tool format
+<function=tool_name>
+<parameter=param_name>value</parameter>
+<parameter=param_name2>value2</parameter>
+</function>
+'''
+                    if self.output_language == "en":
+                        message = '''
+Error reason:No tool invocation found in response.
+Is your tool output format correct? Please correct it.
 ### tool format
 <function=tool_name>
 <parameter=param_name>value</parameter>
