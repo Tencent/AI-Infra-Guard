@@ -39,3 +39,7 @@ def get_targets_for_tasks(task_names: List[str]) -> List[Tuple[str, dict]]:
             raise ValueError(f"Invalid dynamic task: {name}")
         result.append((name, tasks[name]))
     return result
+
+
+if __name__ == "__main__":
+    print("Allowed dynamic tasks:", get_allowed_dynamic_tasks())

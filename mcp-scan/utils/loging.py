@@ -1,10 +1,10 @@
-from typing import IO
+import time
 
 from loguru import logger
 
 logger.remove()
 logger.add(
-    "./logs/mcp-scan.log",
+    f"./logs/mcp-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log",
     rotation="10 MB",
     retention="10 days",
     level="DEBUG",

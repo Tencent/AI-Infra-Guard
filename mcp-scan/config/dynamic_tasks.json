@@ -7,6 +7,14 @@
         "malicious_code_execution": {
             "type": "vulnerability",
             "prompt": "prompt/tasks/vulnerability/malicious_code_execution_detection.yaml"
+        },
+        "tool_output_prompt_injection": {
+            "type": "vulnerability",
+            "prompt": "prompt/tasks/vulnerability/tool_output_prompt_injection.yaml"
+        },
+        "credential_leakage": {
+            "type": "vulnerability",
+            "prompt": "prompt/tasks/vulnerability/credential_leakage.yaml"
         }
     }
 }

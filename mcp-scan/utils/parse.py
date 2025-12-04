@@ -37,6 +37,10 @@ def parse_mcp_invocations(content: str) -> list | None:
     fn_matches = re.finditer(fn_regex_pattern, content, re.DOTALL)
 
     for fn_match in fn_matches:
+        # 如果是 mcp_function = tool_name，则跳过，因为这是few-shot example
+        if fn_match.group(1) == "tool_name":
+            continue
+
         fn_name = fn_match.group(1)
         fn_body = fn_match.group(2)
 

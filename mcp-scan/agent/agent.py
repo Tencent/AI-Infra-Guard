@@ -149,16 +149,16 @@ class Agent:
 
             # a. 测试
             testing_agent = DynamicBaseAgent(
-                "TestingAgent", instruction_prompt,
+                "TestingAgent", instruction_prompt, target_prompt,
                 self.llm, self.specialized_llms,
-                f"4.{idx+1}.1", self.debug, connect_mcp=True
+                f"4.{idx+1}.1", self.debug, "test"
             )
             await testing_agent.generate_system_prompt()
             testing_agent.set_repo_dir(repo_dir)
             testing_agent.add_user_message(
                 f"请进行测试用例生成，测试目标: {name}\n类别: {target_type}\n"
             )
-            # TODO: 对于每个target，应该会生成若干测试用例。
+            # 对每个target会生成若干测试用例；
             # 对测试用例的List进行提取后，逐个执行，并收集结果。
             
             remote_tool_call_response = testing_agent.run()
@@ -180,21 +180,21 @@ class Agent:
 
             # b. 分析
             analyzing_agent = DynamicBaseAgent(
-                "AnalyzingAgent", analysis_prompt,
+                "AnalyzingAgent", analysis_prompt, target_prompt,
                 self.llm, self.specialized_llms,
-                f"4.{idx+1}.2", self.debug, connect_mcp=False
+                f"4.{idx+1}.2", self.debug, "analyze"
             )
             await analyzing_agent.generate_system_prompt()
             analyzing_agent.set_repo_dir(repo_dir)
             analyzing_agent.add_user_message(
-                f"请进行测试用例结果分析，测试历史在{test_history}\n"
+                f"请进行测试用例结果分析，测试历史为{test_history}\n"
             )
             execution_review = analyzing_agent.run()
 
             results.append({
                 "target": name,
                 "type": target_type,
-                "test_execution": test_execution,
+                "test_execution": test_history,
                 "execution_review": execution_review,
             })
 

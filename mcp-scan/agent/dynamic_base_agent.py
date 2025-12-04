@@ -14,10 +14,8 @@ from utils.aig_logger import mcpLogger
 from utils.mcp_tools import MCPTools
 
 class DynamicBaseAgent:
-    # 默认类属性，确保即使 __init__ 未被正确调用时也可访问
-    connect_mcp: bool = False
 
-    def __init__(self, name, instruction, llm: LLM, specialized_llms: dict = None, log_step_id=None, debug=False, connect_mcp: bool = False):
+    def __init__(self, name, instruction,target_prompt, llm: LLM, specialized_llms: dict = None, log_step_id=None, debug=False, agent_type:str = "test"):
         self.llm = llm
         self.name = name
         self.specialized_llms = specialized_llms or {}
@@ -28,9 +26,12 @@ class DynamicBaseAgent:
         self.step_id = log_step_id
         self.debug = debug
         self.repo_dir = ""
-        self.connect_mcp = connect_mcp
+        self.agent_type = agent_type
         self.instruction = instruction
+        self.target_prompt = target_prompt
         self.mcp_tools_manager = None
+        if agent_type not in ["test","analyze"]:
+            raise ValueError(f"Invalid agent_type: {agent_type}. Must be 'test' or 'analyze'.")
 
     def add_user_message(self, message: str):
         self.history.append({"role": "user", "content": message})
@@ -52,20 +53,19 @@ class DynamicBaseAgent:
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     async def generate_system_prompt(self):
-        await self._generate_system_prompt(self.name, self.instruction)
+        await self._generate_system_prompt(self.name, self.instruction, self.target_prompt)
 
-    async def _generate_system_prompt(self, name, instruction):
+    async def _generate_system_prompt(self, name, instruction, target_prompt):
         
         with open(os.path.join(base_dir, "prompt", "dynamic_prompt.md"), "r") as f:
             system_prompt = f.read()
-
-        # 集成工具 prompt
-        tools_prompt = get_tools_prompt()
+        # 集成工具 prompt，这里只需要使用 think 和 finish
+        tools_prompt = get_tools_prompt(["think", "finish"])
         # 为了支持远程 MCP server 的 tools，尝试获取远端工具描述并拼接
         mcp_server = get_env("MCP_SERVER_URL")
         mcp_transport = get_env("MCP_TRANSPORT_PROTOCOL", "http")
         mcp_tools_section = ""
-        if mcp_server and self.connect_mcp:
+        if mcp_server and self.agent_type == "test":
             try:
                 self.mcp_tools_manager = MCPTools(mcp_server,mcp_transport)
                 mcp_tools_section = await self.mcp_tools_manager.describe_mcp_tools()
@@ -78,13 +78,13 @@ class DynamicBaseAgent:
 
         system_prompt = system_prompt.replace("{name}", name)
         system_prompt = system_prompt.replace("{instruction}", instruction)
-        # TODO: instruction 的内容需要动态传入，占位符还没改
+        system_prompt = system_prompt.replace("{target_prompt}", target_prompt)
         # 替换时间
         nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
-        logger.debug(f"Generated system prompt: {system_prompt}")
+        logger.debug(f"Generated system prompt:\n {system_prompt}")
         self.history.append({"role": "system", "content": system_prompt})
-
+        logger.info(system_prompt)
 
 
     def next_prompt(self):
@@ -217,5 +217,8 @@ class DynamicBaseAgent:
 
         logger.info("Agent execution completed")
         # 返回全部历史记录的拼接
-        return "\n".join([f"{msg['role'].upper()}:\n{msg['content']}" for msg in self.history])
+        if self.agent_type == "test":
+            return "\n".join([f"{msg['role'].upper()}:\n{msg['content']}" for msg in self.history])
+        else:
+            return result
     
