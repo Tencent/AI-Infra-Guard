@@ -33,6 +33,8 @@ services:
       - AIG_SERVER=webserver:8088  # agent需要与webserver通信
     networks:
       - ai-infra-guard-network
+    security_opt:
+      - seccomp:unconfined
     restart: always
     depends_on:
       webserver:
