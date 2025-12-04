@@ -171,7 +171,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 We extend our sincere appreciation to our academic partners for their exceptional research contributions and technical support.
 
-#### <img src="img/pku-ceni-logo.png" height="30" style="vertical-align: middle;"/>&nbsp;&nbsp;<span style="vertical-align: middle;">PKU Lab of CENI</span>
+#### <img src="img/pku-ceni-logo.png" height="30" align="middle"/>&nbsp;&nbsp;PKU Lab of CENI
 
 <table>
   <tr>
@@ -181,7 +181,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="#">
-        <sub><b>Prof. Li hui</b></sub>
+        <sub><b>Prof.&nbsp;Li&nbsp;hui</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -190,7 +190,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:1546697086@qq.com">
-        <sub><b>Bin Wang</b></sub>
+        <sub><b>Bin&nbsp;Wang</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -199,7 +199,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:kpghat@gmail.com">
-        <sub><b>Zexin Liu</b></sub>
+        <sub><b>Zexin&nbsp;Liu</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -208,7 +208,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:g.diorld@gmail.com">
-        <sub><b>Hao Yu</b></sub>
+        <sub><b>Hao&nbsp;Yu</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -217,7 +217,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:719001405@qq.com">
-        <sub><b>Ao Yang</b></sub>
+        <sub><b>Ao&nbsp;Yang</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -226,7 +226,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:linzhengxi7@126.com">
-        <sub><b>Zhengxi Lin</b></sub>
+        <sub><b>Zhengxi&nbsp;Lin</b></sub>
       </a>
     </td>
   </tr>
@@ -242,7 +242,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:yangzhemin@fudan.edu.cn">
-        <sub><b>Prof. Zhemin Yang</b></sub>
+        <sub><b>Prof.&nbsp;Zhemin&nbsp;Yang</b></sub>
       </a>
     </td>
     <td align="center" width="100">
@@ -251,7 +251,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:kwzhong23@m.fudan.edu.cn">
-        <sub><b>Kangwei Zhong</b></sub>
+        <sub><b>Kangwei&nbsp;Zhong</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -260,7 +260,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:linjp23@m.fudan.edu.cn">
-        <sub><b>Jiapeng Lin</b></sub>
+        <sub><b>Jiapeng&nbsp;Lin</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -269,7 +269,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="mailto:csheng25@m.fudan.edu.cn">
-        <sub><b>Cheng Sheng</b></sub>
+        <sub><b>Cheng&nbsp;Sheng</b></sub>
       </a>
     </td>
   </tr>
