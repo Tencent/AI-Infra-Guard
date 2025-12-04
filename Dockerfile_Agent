@@ -7,24 +7,16 @@ RUN apk add --no-cache git ca-certificates
 # Set working directory
 WORKDIR /app
 
-# 复制 go.mod 和 go.sum 文件
 COPY go.mod go.sum /app/
 
-# 下载依赖
 RUN go mod download
 
-# 复制源代码
 COPY . /app/
 
-# 构建应用程序
 RUN GOOS=linux go build -a -o agent ./cmd/agent
 
 #
 # AIG-PromptSecurity + MCP-SCAN runtime
-# 说明：
-# - 使用 python:3.12-slim 替代完整 python:3.12，减少基础层体积
-# - 保留 chromium、中文字体、MCP-SCAN 等依赖，不裁剪业务功能
-# - 仅在构建期安装编译依赖，完成依赖安装后清理
 #
 FROM python:3.12-slim
 
@@ -35,7 +27,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app/AIG-PromptSecurity
 
-# 安装系统依赖（包括中文字体和 chromium-sandbox）以及构建期编译依赖
 RUN set -eux; \
     apt-get update --allow-releaseinfo-change; \
     apt-get install -y --no-install-recommends \
@@ -53,10 +44,8 @@ RUN set -eux; \
         python3-dev; \
     rm -rf /var/lib/apt/lists/*
 
-# 安装中文字体缓存
 RUN fc-cache -fv
 
-# 安装 uv 并同步 AIG-PromptSecurity 运行依赖
 RUN pip install --no-cache-dir uv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
@@ -64,12 +53,10 @@ RUN uv sync
 
 
 
-# 安装 MCP-SCAN 依赖
 COPY ./mcp-scan /app/mcp-scan/
 WORKDIR /app/mcp-scan
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 构建完成后，移除不再需要的编译依赖和缓存，避免过度占用空间
 RUN set -eux; \
     apt-get purge -y --auto-remove \
         build-essential \
@@ -77,7 +64,6 @@ RUN set -eux; \
         python3-dev || true; \
     rm -rf /var/lib/apt/lists/* /root/.cache
 
-# 从builder阶段复制agent
 COPY --from=builder /app/agent /app/agent
 COPY --from=builder /app/data /app/data
 
@@ -85,7 +71,6 @@ COPY --from=builder /app/data /app/data
 RUN useradd -m -u 1000 agent && \
     chown -R agent:agent /app
 
-# 确保chromium-sandbox有正确的权限
 RUN chmod 4755 /usr/lib/chromium/chrome-sandbox || \
     chmod 4755 /usr/lib/chromium/chromium-sandbox || \
     chmod 4755 /usr/lib/chromium-browser/chrome-sandbox || \
