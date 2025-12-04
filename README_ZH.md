@@ -161,6 +161,115 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <br />
 
 ## 🙏 致谢
+
+### 🎓 学术合作
+
+我们诚挚感谢学术合作伙伴提供的卓越研究协作。
+
+#### <img src="img/pku-ceni-logo-zh.png" height="30" align="middle"/>
+<table>
+  <tr>
+    <td align="center" width="90">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/0?v=4" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="#">
+        <sub><b>李挥教授</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/TheBinKing">
+        <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:1546697086@qq.com">
+        <sub><b>王滨</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/KPGhat">
+        <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kpghat@gmail.com">
+        <sub><b>刘泽心</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/GioldDiorld">
+        <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:g.diorld@gmail.com">
+        <sub><b>余昊</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Jarvisni">
+        <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:719001405@qq.com">
+        <sub><b>杨傲</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Zhengxi7">
+        <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linzhengxi7@126.com">
+        <sub><b>林郑熹</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+#### <img src="img/fudan-logo-zh.jpg" height="32" align="middle" style="vertical-align: middle;"/>
+
+<table>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://yangzhemin.github.io/">
+        <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:yangzhemin@fudan.edu.cn">
+        <sub><b>杨哲慜教授</b></sub>
+      </a>
+    </td>
+    <td align="center" width="100">
+      <a href="https://github.com/kangwei-zhong">
+        <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kwzhong23@m.fudan.edu.cn">
+        <sub><b>钟康维</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/MoonBirdLin">
+        <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linjp23@m.fudan.edu.cn">
+        <sub><b>林佳鹏</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://vanilla-tiramisu.github.io/">
+        <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:csheng25@m.fudan.edu.cn">
+        <sub><b>盛铖</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+<br>
+
 ### 👥 感谢以下团队与开发者的专业共建与代码贡献
 <br />
 <table style="border: none; border-collapse: inherit;">
@@ -185,24 +294,6 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 </div>
 
 <br>
-<br>
-
-### 🌟 感谢A.I.G项目所有的支持者
-
-<div align="center">
-  <img src="img/stargazers.png" alt="Stargazers" width="100%">
-</div>
-感谢来自<strong>微软、谷歌、亚马逊、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的用户的Star！
-<br>
-<br>
-<p align="center">
-  ⭐ 每一个Star都激励我们持续改进和创新！ ⭐
-</p>
-<p align="center">
-  <a href="https://github.com/Tencent/AI-Infra-Guard">
-      <img src="https://img.shields.io/badge/⭐-点亮Star-yellow?style=for-the-badge&amp;logo=github" alt="点亮Star">
-  </a>
-</p>
 <br>
 
 ## 💬 加入社区

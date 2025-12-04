@@ -171,8 +171,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 We extend our sincere appreciation to our academic partners for their exceptional research contributions and technical support.
 
-#### <img src="img/pku-ceni-logo.png" height="30" align="middle"/>&nbsp;&nbsp;PKU Lab of CENI
-
+#### <img src="img/pku-ceni-logo.png" height="30" align="middle"/>
 <table>
   <tr>
     <td align="center" width="90">
@@ -181,7 +180,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
       </a>
       <br />
       <a href="#">
-        <sub><b>Prof.&nbsp;Li&nbsp;hui</b></sub>
+        <sub><b>Prof.&nbsp;hui&nbsp;Li</b></sub>
       </a>
     </td>
     <td align="center" width="90">
@@ -232,7 +231,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
   </tr>
 </table>
 
-#### <img src="img/fudan-logo.png" height="30" align="middle" style="vertical-align: middle;"/>&nbsp;&nbsp;<a href="https://security.fudan.edu.cn/">Fudan University System Software and Security Laboratory</a>
+#### <img src="img/fudan-logo.jpg" height="35" align="middle" style="vertical-align: middle;"/>
 
 <table>
   <tr>
