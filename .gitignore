@@ -9,3 +9,7 @@ temp_uploads
 logs
 db
 uploads
+.venv
+__pycache__
+venv
+tests

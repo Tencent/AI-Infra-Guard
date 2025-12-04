@@ -1,0 +1,127 @@
+info:
+  id: "cors_misconfig"
+  name: "[example] CORS Misconfiguration Detection"
+  description: "Detect misconfigured Cross-Origin Resource Sharing (CORS) policies in MCP code that could lead to security vulnerabilities"
+  author: "腾讯朱雀实验室"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional cybersecurity analyst, you need to precisely detect CORS misconfiguration vulnerabilities in MCP code. This detection requires extremely high accuracy - only report when you find concrete evidence of CORS-related security risks.
+
+  ## Vulnerability Definition
+  CORS misconfiguration refers to security flaws in Cross-Origin Resource Sharing policies that could allow unauthorized cross-domain access, potentially leading to data theft, CSRF attacks, or other security breaches.
+
+  ## Detection Criteria (Must meet at least one concrete evidence)
+
+  ### 1. Overly Permissive Origin Settings
+  **Required Conditions:**
+  - Access-Control-Allow-Origin set to wildcard (*) when credentials are enabled
+  - Dynamic origin validation that effectively allows all domains
+  - Missing or incomplete origin validation logic
+  - Reflection-based origin policies without proper validation
+
+  **Code Patterns:**
+  - Access-Control-Allow-Origin: "*"
+  - Origin: req.headers.origin (without validation)
+  - Arrays containing "*" or undefined origins
+  - Regular expressions that are too permissive
+
+  ### 2. Credential Handling Flaws
+  **Required Conditions:**
+  - Access-Control-Allow-Credentials: true with wildcard origins
+  - Missing or incorrect credential configuration
+  - Inconsistent credential handling across endpoints
+  - Exposure of sensitive cookies or authentication tokens
+
+  **Detection Points:**
+  - Access-Control-Allow-Credentials: true with Access-Control-Allow-Origin: "*"
+  - Missing withCredentials flag consistency checks
+  - Improper cookie domain settings
+  - Token exposure through CORS headers
+
+  ### 3. Missing Security Headers
+  **Required Conditions:**
+  - Absence of essential CORS headers
+  - Incomplete CORS header configurations
+  - Missing preflight request handling
+  - Incorrect HTTP method allowances
+
+  ### 4. Preflight Request Vulnerabilities
+  **Required Conditions:**
+  - Missing or overly permissive Access-Control-Allow-Methods
+  - Inadequate Access-Control-Allow-Headers validation
+  - Missing Access-Control-Max-Age or excessively long values
+  - Preflight cache poisoning possibilities
+
+  ### 5. Implementation Logic Errors
+  **Required Conditions:**
+  - Conditional bypass in CORS validation logic
+  - Framework-specific misconfigurations
+  - Environment-dependent CORS policies
+  - Missing CORS middleware on sensitive endpoints
+
+  ## Technical Detection Methods
+
+  ### Code Pattern Recognition
+  **High-Risk Patterns:**
+  - app.use(cors({ origin: "*" }))
+  - res.setHeader('Access-Control-Allow-Origin', '*')
+  - if (origin.includes('example.com')) { allow } // Incomplete validation
+  - @CrossOrigin(origins = "*") // Framework annotations
+
+  ### Configuration File Analysis
+  - Check CORS configuration in framework settings
+  - Verify environment-specific CORS policies
+  - Analyze CORS middleware initialization
+  - Review CORS-related environment variables
+
+  ### API Endpoint Security
+  - Identify endpoints missing CORS protection
+  - Check consistency of CORS implementation across routes
+  - Verify CORS headers in response analysis
+  - Analyze preflight request handling
+
+  ## Exclusion Conditions (Do not report the following)
+
+  ### Normal Development Scenarios
+  - CORS configurations clearly marked for development
+  - Localhost or 127.0.0.1 origins in development code
+  - Testing configurations with proper isolation
+  - Example code with educational purposes
+
+  ### Security Practices
+  - Properly restricted origin lists with validation
+  - Correct credential handling with specific origins
+  - Appropriate preflight request configurations
+  - Framework-recommended CORS implementations
+
+  ### Configuration Management
+  - Environment-specific CORS configurations
+  - Properly scoped CORS policies for different environments
+  - Security-reviewed CORS implementations
+  - Configurations following security best practices
+
+  ## Verification Requirements
+  1. **Vulnerability Exploitability**: Must demonstrate actual cross-domain attack vectors
+  2. **Impact Assessment**: Clearly define data exposure or attack possibilities
+  3. **Technical Details**: Provide specific misconfiguration analysis
+  4. **Remediation Suggestions**: Provide clear security hardening solutions
+
+  ## Strict Judgment Standards
+  - **Development Configuration**: Do not report configurations clearly for development/debugging
+  - **Local Environments**: Do not report localhost/127.0.0.1 configurations
+  - **Test Identifiers**: Do not report configurations containing test, dev, example keywords
+  - **Correct Implementation**: Do not report properly implemented CORS policies
+  - **Scope Assessment**: If CORS misconfiguration exists but only affects non-sensitive data or internal endpoints, assess impact before reporting
+
+  ## Output Requirements
+  Only output when finding concrete CORS misconfiguration vulnerabilities:
+  - Specific file paths and line numbers
+  - Complete vulnerability code snippets
+  - Technical analysis: misconfiguration principles and exploitation methods
+  - Impact assessment: potential data exposure or attack vectors
+  - Attack paths: specific exploitation steps demonstrating cross-domain attacks
+  - Remediation suggestions: detailed CORS security hardening solutions
+
+  **Strict Requirement: Must provide complete vulnerability exploitation paths and impact analysis. Remain silent when no concrete evidence exists.**

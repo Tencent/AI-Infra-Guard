@@ -1,4 +1,3 @@
-lmnr==0.7.23
 loguru==0.7.3
 mcp==1.21.2
 openai==2.8.1

@@ -5,9 +5,12 @@ import signal
 from typing import Any, Optional
 from tools.registry import register_tool
 from utils.loging import logger
+from utils.tool_context import ToolContext
+
 
 @register_tool
-def execute_shell(command: str, timeout: int = 300, background: bool = False) -> dict[str, Any]:
+def execute_shell(command: str, timeout: int = 36000, background: bool = False, context: ToolContext = None) -> dict[
+    str, Any]:
     """
     Executes a shell command.
     Supports both synchronous execution with timeout and background execution.
@@ -32,7 +35,8 @@ def execute_shell(command: str, timeout: int = 300, background: bool = False) ->
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                start_new_session=True
+                start_new_session=True,
+                cwd=context.repo_dir,
             )
 
             # Give it a moment to potentially fail immediately
@@ -63,7 +67,8 @@ def execute_shell(command: str, timeout: int = 300, background: bool = False) ->
                 shell=True,
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                timeout=timeout,
+                cwd=context.repo_dir
             )
             duration = time.time() - start_time
 

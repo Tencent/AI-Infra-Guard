@@ -14,7 +14,8 @@ class ToolContext:
             history: List[Dict[str, str]],
             agent_name: str = "Agent",
             iteration: int = 0,
-            specialized_llms: Optional[Dict[str, LLM]] = None
+            specialized_llms: Optional[Dict[str, LLM]] = None,
+            repo_dir: str = ""
     ):
         """
         初始化工具上下文
@@ -31,6 +32,7 @@ class ToolContext:
         self.agent_name = agent_name
         self.iteration = iteration
         self.specialized_llms = specialized_llms or {}
+        self.repo_dir = repo_dir
 
     def get_llm(self, purpose: str = "default") -> LLM:
         """

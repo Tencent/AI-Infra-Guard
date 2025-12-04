@@ -3,13 +3,15 @@ import re
 from typing import Any
 
 
-def parse_tool_invocations(content: str) -> dict[str, Any] | None:
-    tool_invocations: dict[str, Any] = {}
+def parse_tool_invocations(content: str):
+    tool_invocations = []
 
     fn_regex_pattern = r"<function=([^>]+)>\n?(.*?)</function.*?>"
     fn_param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
 
     fn_matches = re.finditer(fn_regex_pattern, content, re.DOTALL)
+    if not fn_matches:
+        return None
 
     for fn_match in fn_matches:
         fn_name = fn_match.group(1)
@@ -25,7 +27,8 @@ def parse_tool_invocations(content: str) -> dict[str, Any] | None:
             param_value = html.unescape(param_value)
             args[param_name] = param_value
 
-        tool_invocations = {"toolName": fn_name, "args": args}
+        tool_invocation = {"toolName": fn_name, "args": args}
+        tool_invocations.append(tool_invocation)
     return tool_invocations if tool_invocations else None
 
 

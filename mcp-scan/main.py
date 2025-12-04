@@ -14,7 +14,6 @@ from agent.agent import Agent
 from utils.llm import LLM
 from utils.loging import logger
 from utils import config
-from lmnr import Laminar
 
 # 重要：导入 tools 包以触发工具注册
 import tools
@@ -134,15 +133,6 @@ if __name__ == "__main__":
     console_handler = logging.StreamHandler()
     if args.debug:
         console_handler.setLevel(logging.DEBUG)
-        try:
-            laminar_key = config.LAMINAR_API_KEY
-            if laminar_key:
-                Laminar.initialize(project_api_key=laminar_key)
-                logger.info("Debug mode enabled - Laminar tracking active")
-            else:
-                logger.warning("Debug mode enabled but LAMINAR_API_KEY not set")
-        except Exception as e:
-            logger.warning(f"Failed to initialize Laminar: {e}")
     else:
         console_handler.setLevel(logging.INFO)
     main()

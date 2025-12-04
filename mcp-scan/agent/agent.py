@@ -43,11 +43,10 @@ class Agent:
         startDescript = "我已收到任务"
         if self.language == 'en':
             startDescript = "I have received the task"
-        mcpLogger.status_update("1", startDescript, "", "completed")
         with open(self.prompt_summary) as f:
+            mcpLogger.status_update("1", startDescript, "", "completed")
             agent = BaseAgent("信息收集Agent", f.read(), self.llm, self.specialized_llms, "1", self.language,
-                              self.debug)
-            agent.set_repo_dir(repo_dir)
+                              self.debug, repo_dir)
             agent.add_user_message(f"请进行信息收集，文件夹在 {repo_dir}\n{prompt}")
             info_collection = agent.run()
 
@@ -56,8 +55,7 @@ class Agent:
         mcpLogger.new_plan_step(stepId="2", stepName=stepNames[1])
         with open(self.prompt_code_audit) as f:
             agent = BaseAgent("代码审计Agent", f.read(), self.llm, self.specialized_llms, "2", self.language,
-                              self.debug)
-            agent.set_repo_dir(repo_dir)
+                              self.debug, repo_dir)
             agent.add_user_message(f"请进行代码审计，文件夹在 {repo_dir}\n{prompt}\n信息收集报告:\n{info_collection}")
             code_audit = agent.run()
 
@@ -66,8 +64,7 @@ class Agent:
         mcpLogger.new_plan_step(stepId="3", stepName=stepNames[2])
         with open(self.prompt_vuln_review) as f:
             agent = BaseAgent("漏洞整理Agent", f.read(), self.llm, self.specialized_llms, "3", self.language,
-                              self.debug)
-            agent.set_repo_dir(repo_dir)
+                              self.debug, repo_dir)
             agent.add_user_message(f"请进行漏洞整理，文件夹在 {repo_dir}\n{prompt}\n代码审计报告:\n{code_audit}")
             vuln_review = agent.run()
             extractor = VulnerabilityExtractor()
