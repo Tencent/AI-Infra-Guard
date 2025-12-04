@@ -7,55 +7,63 @@ RUN apk add --no-cache git ca-certificates
 # Set working directory
 WORKDIR /app
 
-# 复制 go.mod 和 go.sum 文件
 COPY go.mod go.sum /app/
 
-# 下载依赖
 RUN go mod download
 
-# 复制源代码
 COPY . /app/
 
-# 构建应用程序
 RUN GOOS=linux go build -a -o agent ./cmd/agent
 
-# AIG-PromptSecurity
-FROM python:3.12
+#
+# AIG-PromptSecurity + MCP-SCAN runtime
+#
+FROM python:3.12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    DEEPEVAL_TELEMETRY_OPT_OUT=YES \
+    DEEPTEAM_TELEMETRY_OPT_OUT=YES
 
 WORKDIR /app/AIG-PromptSecurity
 
-# 安装系统依赖（包括中文字体和chromium-sandbox）
-RUN apt-get update --allow-releaseinfo-change && \
+RUN set -eux; \
+    apt-get update --allow-releaseinfo-change; \
     apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    nmap \
-    chromium \
-    chromium-sandbox \
-    fonts-wqy-microhei \
-    fonts-wqy-zenhei \
-    fontconfig \
-    tzdata \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+        git \
+        curl \
+        nmap \
+        chromium \
+        chromium-sandbox \
+        fonts-wqy-microhei \
+        fonts-wqy-zenhei \
+        fontconfig \
+        tzdata \
+        build-essential \
+        gcc \
+        python3-dev; \
+    rm -rf /var/lib/apt/lists/*
 
-# 安装中文字体缓存
 RUN fc-cache -fv
+
 RUN pip install --no-cache-dir uv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
 RUN uv sync
 
-ENV DEEPEVAL_TELEMETRY_OPT_OUT=YES
-ENV DEEPTEAM_TELEMETRY_OPT_OUT=YES
 
 
-# 安装MCP-SCAN
 COPY ./mcp-scan /app/mcp-scan/
 WORKDIR /app/mcp-scan
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 从builder阶段复制agent
+RUN set -eux; \
+    apt-get purge -y --auto-remove \
+        build-essential \
+        gcc \
+        python3-dev || true; \
+    rm -rf /var/lib/apt/lists/* /root/.cache
+
 COPY --from=builder /app/agent /app/agent
 COPY --from=builder /app/data /app/data
 
@@ -63,7 +71,6 @@ COPY --from=builder /app/data /app/data
 RUN useradd -m -u 1000 agent && \
     chown -R agent:agent /app
 
-# 确保chromium-sandbox有正确的权限
 RUN chmod 4755 /usr/lib/chromium/chrome-sandbox || \
     chmod 4755 /usr/lib/chromium/chromium-sandbox || \
     chmod 4755 /usr/lib/chromium-browser/chrome-sandbox || \
