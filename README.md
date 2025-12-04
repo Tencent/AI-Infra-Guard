@@ -171,96 +171,109 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 We extend our sincere appreciation to our academic partners for their exceptional research contributions and technical support.
 
-#### <img src="img/pku-ceni-logo.png" height="30" align="middle" style="vertical-align: middle;"/>&nbsp;&nbsp;PKU Lab of CENI
+#### <img src="img/pku-ceni-logo.png" height="30" style="vertical-align: middle;"/>&nbsp;&nbsp;<span style="vertical-align: middle;">PKU Lab of CENI</span>
 
-<div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/TheBinKing">
-      <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:1546697086@qq.com">
-      <sub><b>Bin Wang</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/KPGhat">
-      <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:kpghat@gmail.com">
-      <sub><b>Zexin Liu</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/GioldDiorld">
-      <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:g.diorld@gmail.com">
-      <sub><b>Hao Yu</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/Jarvisni">
-      <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:719001405@qq.com">
-      <sub><b>Ao Yang</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/Zhengxi7">
-      <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:linzhengxi7@126.com">
-      <sub><b>Zhengxi Lin</b></sub>
-    </a>
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center" width="90">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/0?v=4" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="#">
+        <sub><b>Prof. Li hui</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/TheBinKing">
+        <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:1546697086@qq.com">
+        <sub><b>Bin Wang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/KPGhat">
+        <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kpghat@gmail.com">
+        <sub><b>Zexin Liu</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/GioldDiorld">
+        <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:g.diorld@gmail.com">
+        <sub><b>Hao Yu</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Jarvisni">
+        <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:719001405@qq.com">
+        <sub><b>Ao Yang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Zhengxi7">
+        <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linzhengxi7@126.com">
+        <sub><b>Zhengxi Lin</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 #### <img src="img/fudan-logo.png" height="30" align="middle" style="vertical-align: middle;"/>&nbsp;&nbsp;<a href="https://security.fudan.edu.cn/">Fudan University System Software and Security Laboratory</a>
 
-<div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 120px;">
-    <a href="https://yangzhemin.github.io/">
-      <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:yangzhemin@fudan.edu.cn">
-      <sub><b>Prof. Zhemin Yang</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 100px;">
-    <a href="https://github.com/kangwei-zhong">
-      <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:kwzhong23@m.fudan.edu.cn">
-      <sub><b>Kangwei Zhong</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://github.com/MoonBirdLin">
-      <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:linjp23@m.fudan.edu.cn">
-      <sub><b>Jiapeng Lin</b></sub>
-    </a>
-  </div>
-  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
-    <a href="https://vanilla-tiramisu.github.io/">
-      <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
-    </a>
-    <br />
-    <a href="mailto:csheng25@m.fudan.edu.cn">
-      <sub><b>Cheng Sheng</b></sub>
-    </a>
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://yangzhemin.github.io/">
+        <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:yangzhemin@fudan.edu.cn">
+        <sub><b>Prof. Zhemin Yang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="100">
+      <a href="https://github.com/kangwei-zhong">
+        <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kwzhong23@m.fudan.edu.cn">
+        <sub><b>Kangwei Zhong</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/MoonBirdLin">
+        <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linjp23@m.fudan.edu.cn">
+        <sub><b>Jiapeng Lin</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://vanilla-tiramisu.github.io/">
+        <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:csheng25@m.fudan.edu.cn">
+        <sub><b>Cheng Sheng</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 <br>
 
 ### 👥 Gratitude to Contributing Developers
