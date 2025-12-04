@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.5-preview] - 2025-12-04
+
+### Added
+- 🔍 **MCP-Scan Framework**: AI-powered security scanning framework for Model Context Protocol with autonomous agent-based code audit and vulnerability review (@zhuque)
+- 🎯 **Advanced Attack Methods**: Added 12+ new encoding/obfuscation attack methods (A1Z26, AffineCipher, AsciiSmuggling, Aurebesh, Caesar, Leetspeak, MirrorText, Ogham, Vaporwave, Zalgo, Stego, StrataSword suite) (@Truman)
+- 📸 **Screenshot Capabilities**: Chromium-based headless screenshot functionality for web scanning (@zhuque)
+- 🔐 **Model API Security**: Token masking, API key preservation, and public model access controls (@n-WN)
+- 📊 **Hash-Based Fingerprinting**: Hash matcher and version range support for component identification (@KEXNA, @Cursor Agent)
+- 🌐 **Documentation**: Comprehensive English docs, FAQ, MCP-Scan guides, and research paper references (@zonashi, @zhuque)
+- 🐳 **Docker Optimization**: Reduced agent image size from ~2.9GB to ~2.3GB, improved deployment scripts (@n-WN, @zhuque)
+
+### Changed
+- ♻️ **Backend Refactoring**: Optimized AI infrastructure scan architecture, reduced agent task code by ~65% (@zhuque)
+- 🔄 **MCP Plugin**: Streamlined plugin architecture, removed redundant templates (@zhuque)
+- 🚀 **Model Compatibility**: Enhanced parameter compatibility and retry logic across providers (@Truman)
+- 🎨 **Code Quality**: Translated comments to English, improved formatting and documentation (@zhuque)
+
+### Fixed
+- 🐛 Fixed AI Infra Guard path resolution and Chromium sandbox issues (@zhuque)
+- 🔧 Fixed Docker deployment errors (issue #105) and build optimizations (@n-WN, @zhuque)
+- ⚙️ Fixed fingerprint parser syntax and version detection logic (@Cursor Agent, @KEXNA)
+- 📊 Updated UI badges, screenshots, and license file naming (@zonashi, @Zonazzzz)
+
+### Contributors
+Special thanks to @zhuque, @Truman, @n-WN, @KEXNA, @zonashi, @Cursor Agent, @copilot-swe-agent[bot], @boy-hack, @Zonazzzz, @robertzyang, @Coursen
+
+---
+
 ## [v3.4.4] - 2025-11-05
 
 ### Fixed
