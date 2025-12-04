@@ -111,16 +111,7 @@ Experience the Pro version with advanced features and improved performance. The 
 ## 🖼️ Showcase
 
 ### A.I.G Main Interface
-![AIG Main Page](img/background-en.png)
-
-### AI Infra Scan
-![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
-
-### MCP Server Scan
-![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
-
-### Jailbreak Evaluation
-![Comprehensively evaluate LLM security](img/model-security-en.png)
+![AIG Main Page](img/aig.gif)
 
 ### Plugin Management
 ![Plugin Management](img/plugin-gif.gif)
@@ -361,6 +352,7 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 [4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
+[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
 
 📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>

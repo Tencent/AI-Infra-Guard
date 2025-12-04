@@ -106,16 +106,7 @@ docker-compose -f docker-compose.images.yml up -d
 ## 🖼️ 功能展示
 
 ### A.I.G 主界面
-![AIG主界面](img/background.png)
-
-### AI基础设施漏洞扫描
-![一键扫描发现 AI 组件安全漏洞](img/ai-infra-scan.png)
-
-### MCP Server风险检测
-![智能分析MCP Server安全风险](img/mcp-server.png)
-
-### 大模型安全体检
-![全面评估LLM安全性](img/model-security.png)
+![AIG主界面](img/aig-zh.gif)
 
 ### 插件管理
 ![插件管理](img/plugin-zh.gif)
@@ -352,6 +343,8 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 [4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
+[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
+
 
 📧 如果您在研究中使用了A.I.G，请联系我们，让更多人看到您的研究！
 <br>
