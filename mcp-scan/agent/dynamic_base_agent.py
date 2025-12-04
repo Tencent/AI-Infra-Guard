@@ -8,7 +8,7 @@ from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
 from utils.config import base_dir, get_env
 from utils.llm import LLM
 from utils.loging import logger
-from utils.parse import parse_tool_invocations, clean_content
+from utils.parse import parse_tool_invocations, clean_content, parse_mcp_invocations
 from utils.tool_context import ToolContext
 from utils.aig_logger import mcpLogger
 from utils.mcp_tools import MCPTools
@@ -192,19 +192,29 @@ class DynamicBaseAgent:
                         mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
                     mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
                 else:
-                    # 没有工具调用，添加继续提示
-                    mcpLogger.status_update(self.step_id, "Warning: No tool invocation found", "", "completed")
-                    next_prompt = self.next_prompt()
-                    message = '''
-                    错误原因:No tool invocation found in response.
-                    你的工具输出格式是否有误,请改正
-                    ### tool format
-                    <function=tool_name>
-                    <parameter=param_name>value</parameter>
-                    <parameter=param_name2>value2</parameter>
-                    </function>
-                    '''
-                    self.history.append({"role": "user", "content": f"{next_prompt}\n{message}"})
+                    mcp_tool_calls = parse_mcp_invocations(response)
+                    if mcp_tool_calls:
+                        # 没有工具调用，添加继续提示
+                        mcpLogger.status_update(self.step_id, "Warning: No tool invocation found But MCP Tool Invocation Found", "", "completed")
+                        next_prompt = self.next_prompt()
+                        message = '''
+                        Current Status: the MCP tool invocation found in response.Continue your next step.\n\n我将继续执行
+                        '''
+                        self.history.append({"role": "user", "content": f"{next_prompt}\n{message}"})
+                    else:
+                        # 没有工具调用，添加继续提示
+                        mcpLogger.status_update(self.step_id, "Warning: No tool invocation found", "", "completed")
+                        next_prompt = self.next_prompt()
+                        message = '''
+                        错误原因:No tool invocation found in response.
+                        你的工具输出格式是否有误,请改正
+                        ### tool format
+                        <function=tool_name>
+                        <parameter=param_name>value</parameter>
+                        <parameter=param_name2>value2</parameter>
+                        </function>
+                        '''
+                        self.history.append({"role": "user", "content": f"{next_prompt}\n{message}"})
 
             except Exception as e:
                 logger.error(f"Error in iteration {self.iter}: {e}")

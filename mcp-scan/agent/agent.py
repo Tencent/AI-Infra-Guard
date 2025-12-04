@@ -187,7 +187,7 @@ class Agent:
             await analyzing_agent.generate_system_prompt()
             analyzing_agent.set_repo_dir(repo_dir)
             analyzing_agent.add_user_message(
-                f"请进行测试用例结果分析，测试历史为{test_history}\n"
+                f"请进行测试用例结果分析，测试历史为{test_history}\n使用中文输出最终的分析报告。"
             )
             execution_review = analyzing_agent.run()
 
