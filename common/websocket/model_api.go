@@ -11,7 +11,7 @@ import (
 	"trpc.group/trpc-go/trpc-go/log"
 )
 
-// ModelInfo 模型信息
+// ModelInfo 模型信息（用于创建）
 type ModelInfo struct {
 	Model   string `json:"model" binding:"required"`
 	Token   string `json:"token" binding:"required"`
@@ -26,9 +26,19 @@ type CreateModelRequest struct {
 	Model   ModelInfo `json:"model" binding:"required"`
 }
 
+// UpdateModelInfo 模型信息（用于更新）
+// 这里不对 Token/BaseURL 使用 binding:"required"，以支持“只改名称等字段”的场景。
+type UpdateModelInfo struct {
+	Model   string `json:"model"`
+	Token   string `json:"token"`
+	BaseURL string `json:"base_url"`
+	Limit   int    `json:"limit"`
+	Note    string `json:"note"`
+}
+
 // UpdateModelRequest 更新模型请求
 type UpdateModelRequest struct {
-	Model ModelInfo `json:"model" binding:"required"`
+	Model UpdateModelInfo `json:"model" binding:"required"`
 }
 
 // DeleteModelRequest 删除模型请求
@@ -39,6 +49,17 @@ type DeleteModelRequest struct {
 // ModelManager 模型管理器
 type ModelManager struct {
 	modelStore *database.ModelStore
+}
+
+const maskedToken = "********"
+
+// maskToken 用于在对外返回模型信息时隐藏真实的 Token。
+// 仅用于 JSON 返回，不影响数据库中实际存储的 Token。
+func maskToken(token string) string {
+	if token == "" {
+		return ""
+	}
+	return maskedToken
 }
 
 // NewModelManager 创建新的ModelManager实例
@@ -87,13 +108,13 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 
 	// 1. 首先添加系统模型（public_user的模型），永远排在前面
 	for _, model := range publicModels {
-		// 系统模型对外不暴露真实 token，但应返回真实的并发配置 limit，
-		// 方便前端在编辑弹窗中展示和复用当前的并发设置。
+		// 系统模型同样对外不暴露真实 token，但如果存在 token，
+		// 通过掩码串告知“已配置密钥”，方便前端交互。
 		item := map[string]interface{}{
 			"model_id": model.ModelID,
 			"model": map[string]interface{}{
 				"model":    model.ModelName,
-				"token":    "", // 系统模型token置空
+				"token":    maskToken(model.Token),
 				"base_url": model.BaseURL,
 				"note":     model.Note,
 				"limit":    model.Limit,
@@ -107,8 +128,9 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 		item := map[string]interface{}{
 			"model_id": model.ModelID,
 			"model": map[string]interface{}{
-				"model":    model.ModelName,
-				"token":    model.Token, // 用户模型保留token
+				"model": model.ModelName,
+				// 对外返回时也对用户模型的 token 进行掩码处理
+				"token":    maskToken(model.Token),
 				"base_url": model.BaseURL,
 				"note":     model.Note,
 				"limit":    model.Limit,
@@ -175,8 +197,9 @@ func HandleGetModelDetail(c *gin.Context, mm *ModelManager) {
 	result := map[string]interface{}{
 		"model_id": model.ModelID,
 		"model": map[string]interface{}{
-			"model":    model.ModelName,
-			"token":    model.Token,
+			"model": model.ModelName,
+			// 对外隐藏真实 token，前端如需修改，只能输入新 token
+			"token":    maskToken(model.Token),
 			"base_url": model.BaseURL,
 			"note":     model.Note,
 			"limit":    model.Limit,
@@ -370,13 +393,20 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 		return
 	}
 
-	// 3. 更新模型
+	// 3. 构造更新字段
+	// 支持“只改模型名称/备注，不改 key/base_url”的场景：
+	// - 前端在编辑时如果不填写 token/base_url，则保持数据库中的原值不变；
+	// - 只有在显式传入新 token/base_url 且不等于掩码串时才会更新。
 	updates := map[string]interface{}{
 		"model_name": req.Model.Model,
-		"token":      req.Model.Token,
-		"base_url":   req.Model.BaseURL,
 		"note":       req.Model.Note,
 		"limit":      req.Model.Limit,
+	}
+	if req.Model.Token != "" && req.Model.Token != maskedToken {
+		updates["token"] = req.Model.Token
+	}
+	if req.Model.BaseURL != "" {
+		updates["base_url"] = req.Model.BaseURL
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)
