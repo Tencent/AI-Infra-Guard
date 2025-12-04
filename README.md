@@ -48,9 +48,9 @@
 </p>
 
 ## Table of Contents
+- [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
 - [🖼️ Showcase](#-showcase)
-- [🚀 Quick Start](#-quick-start)
 - [📖 User Guide](#-user-guide)
 - [🔧 API Documentation](#-api-documentation)
 - [📝 Contribution Guide](#-contribution-guide)
@@ -59,21 +59,50 @@
 - [📖 Citation](#-citation)
 - [📚 Related Papers](#-related-papers)
 - [📄 License](#-license)
+<br><br>
+## 🚀 Quick Start
+### Deployment with Docker
 
+System Requirements
+
+| Docker | RAM | Disk Space |
+|:-------|:----|:----------|
+| 20.10 or higher | 4GB+ | 10GB+ |
+
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# This method pulls pre-built images from Docker Hub for a faster start
+docker-compose -f docker-compose.images.yml up -d
+```
+
+Once the service is running, you can access the A.I.G web interface at:
+`http://0.0.0.0:8088`
+<br>
+
+For more installation options, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+
+Note: The AI-Infra-Guard project is positioned as an AI security risk platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
+
+### Try the Online Pro Version
+Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/)
+
+<br>
 
 ## ✨ Features
-
 
 | Feature | More Info |
 |:--------|:------------|
 | **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ nearly 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
 | **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
-| **Easy-to-use Web Interface​** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
-| **Convenient API** | Provides complete interface documentation and Swagger specifications for easier integration |
-| **Multi-Language Support** | Chinese and English interface, Localized documentation and help. |
-| **Cross-Platform Compatibility** | Linux, macOS, and Windows support, Docker-based deployment. |
-| **Free & Open Source​** | Offered​ completely free of charge ​under​ the MIT license. |
+
+**Additional Benefits:**
+- 🖥️ **Modern Web Interface**: User-friendly UI with one-click scanning and real-time progress tracking
+- 🔌 **Complete API**: Full interface documentation and Swagger specifications for easy integration
+- 🌐 **Multi-Language**: Chinese and English interfaces with localized documentation
+- 🐳 **Cross-Platform**: Linux, macOS, and Windows support with Docker-based deployment
+- 🆓 **Free & Open Source**: Completely free under the MIT license
 
 
 
@@ -97,44 +126,6 @@
 ![Plugin Management](img/plugin-gif.gif)
 
 <br />
-
-## 🚀 Quick Start
-### Deployment with Docker
-
-**System Requirements**
-
-| Docker | RAM | Disk Space |
-|:-------|:----|:----------|
-| 20.10 or higher | 4GB+ | 10GB+ |
-
-
-**1. One-Click Install Script （Recommended）**
-```bash
-# This method will automatically install Docker and launch A.I.G with one command  
-curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
-```
-
-**2. Run with pre-built images (Recommended)**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# This method pulls pre-built images from Docker Hub for a faster start
-docker-compose -f docker-compose.images.yml up -d
-```
-
-**3. Build from source and run**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# This method builds a Docker image from local source code and starts the service
-docker-compose up -d
-```
-
-Once the service is running, you can access the A.I.G web interface at:
-`http://0.0.0.0:8088`
-<br><br>
-
-Note: The AI-Infra-Guard project is positioned as an AI security risk platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
 
 
 ## 📖 User Guide
@@ -182,108 +173,104 @@ We extend our sincere appreciation to our academic partners for their exceptiona
 
 #### <img src="img/pku-ceni-logo.png" height="30" align="middle" style="vertical-align: middle;"/>&nbsp;&nbsp;PKU Lab of CENI
 
-<table style="border: none; border-collapse: collapse;">
-  <tr style="border: none;">
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/TheBinKing">
-        <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:1546697086@qq.com">
-        <sub><b>Bin Wang</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/KPGhat">
-        <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:kpghat@gmail.com">
-        <sub><b>Zexin Liu</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/GioldDiorld">
-        <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:g.diorld@gmail.com">
-        <sub><b>Hao Yu</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/Jarvisni">
-        <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:719001405@qq.com">
-        <sub><b>Ao Yang</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/Zhengxi7">
-        <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:linzhengxi7@126.com">
-        <sub><b>Zhengxi Lin</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+<div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/TheBinKing">
+      <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:1546697086@qq.com">
+      <sub><b>Bin Wang</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/KPGhat">
+      <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:kpghat@gmail.com">
+      <sub><b>Zexin Liu</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/GioldDiorld">
+      <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:g.diorld@gmail.com">
+      <sub><b>Hao Yu</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/Jarvisni">
+      <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:719001405@qq.com">
+      <sub><b>Ao Yang</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/Zhengxi7">
+      <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:linzhengxi7@126.com">
+      <sub><b>Zhengxi Lin</b></sub>
+    </a>
+  </div>
+</div>
 
 #### <img src="img/fudan-logo.png" height="30" align="middle" style="vertical-align: middle;"/>&nbsp;&nbsp;<a href="https://security.fudan.edu.cn/">Fudan University System Software and Security Laboratory</a>
 
-<table style="border: none; border-collapse: collapse;">
-  <tr style="border: none;">
-    <td align="center" width="120px" style="border: none;">
-      <a href="https://yangzhemin.github.io/">
-        <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:yangzhemin@fudan.edu.cn">
-        <sub><b>Prof. Zhemin Yang</b></sub>
-      </a>
-    </td>
-    <td align="center" width="100px" style="border: none;">
-      <a href="https://github.com/kangwei-zhong">
-        <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:kwzhong23@m.fudan.edu.cn">
-        <sub><b>Kangwei Zhong</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://github.com/MoonBirdLin">
-        <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:linjp23@m.fudan.edu.cn">
-        <sub><b>Jiapeng Lin</b></sub>
-      </a>
-    </td>
-    <td align="center" width="90px" style="border: none;">
-      <a href="https://vanilla-tiramisu.github.io/">
-        <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
-      </a>
-      <br />
-      <a href="mailto:csheng25@m.fudan.edu.cn">
-        <sub><b>Cheng Sheng</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+<div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 120px;">
+    <a href="https://yangzhemin.github.io/">
+      <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:yangzhemin@fudan.edu.cn">
+      <sub><b>Prof. Zhemin Yang</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 100px;">
+    <a href="https://github.com/kangwei-zhong">
+      <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:kwzhong23@m.fudan.edu.cn">
+      <sub><b>Kangwei Zhong</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://github.com/MoonBirdLin">
+      <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:linjp23@m.fudan.edu.cn">
+      <sub><b>Jiapeng Lin</b></sub>
+    </a>
+  </div>
+  <div style="display: inline-block; margin: 10px; text-align: center; width: 90px;">
+    <a href="https://vanilla-tiramisu.github.io/">
+      <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
+    </a>
+    <br />
+    <a href="mailto:csheng25@m.fudan.edu.cn">
+      <sub><b>Cheng Sheng</b></sub>
+    </a>
+  </div>
+</div>
 <br>
 
 ### 👥 Gratitude to Contributing Developers
 Thanks to all the developers who have contributed to the A.I.G project, Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br />
-<table style="border: none; border-collapse: inherit;">
+<table border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="33%" style="border: none;"><img src="img/keen_lab_logo.svg" alt="Keen Lab" height="85%"></td>
-    <td width="33%" style="border: none;"><img src="img/wechat_security.png" alt="WeChat Security" height="85%"></td>
-    <td width="33%" style="border: none;"><img src="img/fit_sec_logo.png" alt="Fit Security" height="85%"></td>
+    <td width="33%"><img src="img/keen_lab_logo.svg" alt="Keen Lab" height="85%"></td>
+    <td width="33%"><img src="img/wechat_security.png" alt="WeChat Security" height="85%"></td>
+    <td width="33%"><img src="img/fit_sec_logo.png" alt="Fit Security" height="85%"></td>
   </tr>
 </table>
 <a href="https://github.com/Tencent/AI-Infra-Guard/graphs/contributors">
@@ -304,29 +291,6 @@ We are deeply grateful to the following teams and organizations for their trust,
 </div>
 
 <br>
-<br>
-
-### 🌟 Thanks to Our Stargazers!
-
-We are deeply grateful to all the developers who have starred our repository!
-<div align="center">
-  <img src="img/stargazers.png" alt="Stargazers" width="100%">
-</div>
-Thank you to users from <strong>Google, Microsoft, Amazon, ByteDance, Alibaba, Huawei, Meituan, Douban, Peking University, Tsinghua University, HFUT, cuit</strong>, and many more amazing stargazers!
-<br>
-<br>
-<p align="center">
-  ⭐ Every star encourages us to keep improving and innovating! ⭐
-</p>
-<p align="center">
-    🚀 Help us reach more developers by starring this repository. 🚀
-</p>
-
-<p align="center">
-  <a href="https://github.com/Tencent/AI-Infra-Guard">
-      <img src="https://img.shields.io/badge/⭐-Give%20us%20a%20Star-yellow?style=for-the-badge&logo=github" alt="Give us a Star">
-  </a>
-</p>
 <br>
 
 ## 💬 Join the Community

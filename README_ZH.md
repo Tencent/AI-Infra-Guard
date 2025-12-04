@@ -48,9 +48,9 @@
 </p>
 
 ## 目录
+- [🚀 快速开始](#-快速开始)
 - [✨ 功能特性](#-功能特性)
 - [🖼️ 功能展示](#-功能展示)
-- [🚀 快速开始](#-快速开始)
 - [📖 用户指南](#-用户指南)
 - [🔧 API文档](#-api文档)
 - [📝 贡献指南](#-贡献指南)
@@ -60,6 +60,28 @@
 - [📚 相关论文](#-相关论文)
 - [📄 开源协议](#-开源协议)
 
+## 🚀 快速开始
+### Docker 一键部署
+
+系统要求
+| Docker | 内存 | 磁盘空间 |
+|--------|------|----------|
+| 20.10 或更高 | 4GB+ | 10GB+ |
+
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
+docker-compose -f docker-compose.images.yml up -d
+```
+服务启动后，您可以通过以下地址访问A.I.G的Web界面：
+`http://localhost:8088`。更多安装方法，请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+
+注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
+### 体验在线专业版
+体验具有内测及高级功能的专业版。专业版需要邀请码，优先提供给提交过Issues、Pull requests或Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
+
+<br/>
 
 ## ✨ 功能特性
 
@@ -69,11 +91,13 @@
 | **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖近400个已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
 | **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
-| **直观的Web界面** | 现代化、用户友好的Web UI，一键扫描实时进度跟踪，全面的结果分析报告 |
-| **便捷的API** | 提供完整的接口文档和Swagger规范，更方便集成 |
-| **多语言支持** | 拥有中英文界面，本地化帮助文档 |
-| **跨平台兼容** | 支持Linux、macOS和Windows，基于Docker部署 |
-| **免费且MIT开源** | 完全免费使用，MIT开源协议 |
+
+**其他优势：**
+- 🖥️ **现代化Web界面**：用户友好的UI，一键扫描和实时进度跟踪
+- 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
+- 🌐 **多语言支持**：中英文界面，本地化文档
+- 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
+- 🆓 **免费且开源**：完全免费，MIT开源协议
 
 
 
@@ -98,43 +122,6 @@
 
 <br />
 
-## 🚀 快速开始
-### Docker 一键部署
-
-**系统要求**
-
-| Docker | 内存 | 磁盘空间 |
-|--------|------|----------|
-| 20.10 或更高 | 4GB+ | 10GB+ |
-
-
-**1. 一键安装脚本（推荐）**
-```bash
-# 此方法会自动帮您安装docker并一键启动A.I.G
-curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
-```
-
-**2. 使用预构建镜像运行 (推荐)**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
-docker-compose -f docker-compose.images.yml up -d
-```
-
-**3. 从源码构建并运行**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# 此方法会使用本地代码构建 Docker 镜像并启动服务
-docker-compose up -d
-```
-
-服务启动后，您可以通过以下地址访问A.I.G的Web界面：
-`http://localhost:8088`
-<br><br>
-
-注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
 
 ## 📖 用户指南
 
