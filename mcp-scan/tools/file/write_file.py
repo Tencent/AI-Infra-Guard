@@ -1,46 +1,73 @@
 import os
+import difflib
 from typing import Any
-
 from tools.registry import register_tool
 from utils.loging import logger
+from utils.tool_context import ToolContext
 
+@register_tool
+def write_file(file_path: str, content: str, context: ToolContext = None) -> dict[str, Any]:
+    """
+    Writes content to a file.
+    Supports automatic creation of directories.
+    Returns a diff of the changes.
 
-# @register_tool
-def write_file(file_path: str, content: str) -> dict[str, Any]:
-    """写入文件内容（会覆盖已有文件）
-    
     Args:
-        file_path: 文件路径
-        content: 要写入的内容
-        
+        file_path: The path to the file to write.
+        content: The content to write.
+        context: Optional tool context.
+
     Returns:
-        包含成功状态和消息的字典
+        A dictionary indicating success and showing the diff.
     """
     try:
-        # 创建目录（如果不存在）
+        # Create directory if it doesn't exist
         directory = os.path.dirname(file_path)
         if directory and not os.path.exists(directory):
             os.makedirs(directory, exist_ok=True)
-            logger.info(f"Created directory: {directory}")
 
-        with open(file_path, "w", encoding="utf-8") as f:
+        # Read original content for diff
+        original_content = ""
+        file_exists = False
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    original_content = f.read()
+                file_exists = True
+            except UnicodeDecodeError:
+                return {
+                    "error": "Cannot write to binary file",
+                    "success": False
+                }
+
+        # Write new content
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
 
-        logger.info(f"Wrote file: {file_path} ({len(content)} chars)")
+        # Generate Diff
+        diff = difflib.unified_diff(
+            original_content.splitlines(keepends=True),
+            content.splitlines(keepends=True),
+            fromfile=f"a/{file_path}" if file_exists else "/dev/null",
+            tofile=f"b/{file_path}",
+            lineterm=""
+        )
+        diff_text = "".join(diff)
+
+        status_msg = f"Successfully wrote to {file_path}"
+        if not file_exists:
+            status_msg = f"Created new file {file_path}"
 
         return {
             "success": True,
-            "message": f"Successfully wrote {len(content)} characters to {file_path}",
+            "message": status_msg,
+            "diff": diff_text,
+            "file_path": file_path
         }
 
-    except PermissionError:
-        return {
-            "success": False,
-            "message": f"Permission denied: {file_path}",
-        }
     except Exception as e:
         logger.error(f"Error writing file {file_path}: {e}")
         return {
-            "success": False,
-            "message": f"Error writing file: {str(e)}",
+            "error": str(e),
+            "success": False
         }

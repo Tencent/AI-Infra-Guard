@@ -1,18 +1,18 @@
 <tools>
-  <tool name="finish">
-    <description>Complete the main task and generate final report.
-Use this tool when:
-- You have completed all testing phases
-- You are ready to conclude the entire assessment
-Put ALL details in the content - methodology, tools used, vulnerability counts, key findings, recommendations,
-compliance notes, risk assessments, next steps, etc. Be comprehensive and include everything relevant.</description>
-    <parameters>
-      <parameter name="content" type="string" required="true">
-        <description>Complete scan report including executive summary, methodology, findings, vulnerability details, recommendations, compliance notes, risk assessment, and conclusions. Include everything relevant to the assessment.</description>
-      </parameter>
-    </parameters>
-    <returns type="Dict[str, Any]">
-      <description>Response containing success status and completion message. If agents are still running, returns details about active agents and suggested actions.</description>
-    </returns>
-  </tool>
+    <tool name="finish">
+        <description>Complete the main task and generate final report.
+            Use this tool when:
+            - You have completed all testing phases
+            - You are ready to conclude the entire assessment
+            Put ALL details in the content - methodology, tools used, vulnerability counts, key findings, recommendations,
+            compliance notes, risk assessments, next steps, etc. Be comprehensive and include everything relevant.</description>
+        <parameters>
+            <parameter name="content" type="string" required="true">
+                <description>Complete scan report including executive summary, methodology, findings, vulnerability details, recommendations, compliance notes, risk assessment, and conclusions. Include everything relevant to the assessment.</description>
+            </parameter>
+        </parameters>
+        <returns type="Dict[str, Any]">
+            <description>Response containing success status and completion message. If agents are still running, returns details about active agents and suggested actions.</description>
+        </returns>
+    </tool>
 </tools>

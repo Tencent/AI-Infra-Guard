@@ -1,6 +1,6 @@
-from tools.execute.execute_actions import generate_python, execute_shell
+from tools.execute.execute_actions import execute_shell
 
-__all__ = ['generate_python', 'execute_shell']
+__all__ = ['execute_shell']
 
 
 
