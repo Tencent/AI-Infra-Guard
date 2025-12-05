@@ -1,0 +1,24 @@
+info:
+  name: dask
+  cve: CVE-2021-42343
+  summary: Workers for local Dask clusters mistakenly listened on public interfaces.
+  details: |
+    Versions of `distributed` earlier than `2021.10.0` had a potential security vulnerability relating to single-machine Dask clusters.
+    Clusters started with `dask.distributed.LocalCluster` or `dask.distributed.Client()` would mistakenly configure their respective Dask workers to listen on external interfaces rather than only on `localhost`. A Dask cluster created using this method AND running on a machine that has these ports exposed could be used by a sophisticated attacker to enable remote code execution.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: |
+    1. Upgrade `distributed` to version `2021.10.0` or later.
+    2. Ensure standard firewalls are in place to restrict access to Dask worker ports.
+    3. If using `LocalCluster`, verify that workers are bound to `localhost` only.
+rule: version > "0" && version < "2021.10.0"
+references:
+  - https://github.com/dask/distributed/security/advisories/GHSA-hwqr-f3v9-hwxr
+  - https://github.com/dask/distributed/pull/5427
+  - https://github.com/dask/distributed/commit/afce4be8e05fb180e50a9d9e38465f1a82295e1b
+  - https://docs.dask.org/en/latest/changelog.html
+  - https://github.com/advisories/GHSA-j8fq-86c5-5v2r
+  - https://github.com/dask/dask/tags
+  - https://github.com/dask/distributed
+  - https://github.com/pypa/advisory-database/tree/main/vulns/distributed/PYSEC-2021-871.yaml
+  - https://github.com/pypa/advisory-database/tree/main/vulns/distributed/PYSEC-2021-872.yaml

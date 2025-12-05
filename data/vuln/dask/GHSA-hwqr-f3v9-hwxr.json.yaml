@@ -1,0 +1,24 @@
+info:
+  name: dask
+  cve: CVE-2021-42343
+  summary: 本地 Dask 集群的工作进程错误地监听了公共接口。
+  details: |
+    `distributed` 的 `2021.10.0` 之前的版本存在一个与单机 Dask 集群相关的潜在安全漏洞。
+    使用 `dask.distributed.LocalCluster` 或 `dask.distributed.Client()` 启动的集群会错误地将其各自的 Dask worker 配置为监听外部接口，而不是仅监听 `localhost`。通过这种方法创建的 Dask 集群，如果运行在暴露了这些端口的机器上，可能会被高明的攻击者利用，从而实现远程代码执行。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: |
+    1. 将 `distributed` 升级到 `2021.10.0` 或更高版本。
+    2. 确保已设置标准防火墙以限制对 Dask worker 端口的访问。
+    3. 如果使用 `LocalCluster`，请验证 worker 是否仅绑定到 `localhost`。
+rule: version > "0" && version < "2021.10.0"
+references:
+  - https://github.com/dask/distributed/security/advisories/GHSA-hwqr-f3v9-hwxr
+  - https://github.com/dask/distributed/pull/5427
+  - https://github.com/dask/distributed/commit/afce4be8e05fb180e50a9d9e38465f1a82295e1b
+  - https://docs.dask.org/en/latest/changelog.html
+  - https://github.com/advisories/GHSA-j8fq-86c5-5v2r
+  - https://github.com/dask/dask/tags
+  - https://github.com/dask/distributed
+  - https://github.com/pypa/advisory-database/tree/main/vulns/distributed/PYSEC-2021-871.yaml
+  - https://github.com/pypa/advisory-database/tree/main/vulns/distributed/PYSEC-2021-872.yaml
