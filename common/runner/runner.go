@@ -278,7 +278,7 @@ func (r *Runner) initComponents() error {
 	httpOptions := &httpx.HTTPOptions{
 		Timeout:          time.Duration(r.Options.TimeOut) * time.Second,
 		RetryMax:         1,
-		FollowRedirects:  false,
+		FollowRedirects:  true,
 		HTTPProxy:        r.Options.ProxyURL,
 		Unsafe:           false,
 		DefaultUserAgent: httpx.GetRandomUserAgent(),

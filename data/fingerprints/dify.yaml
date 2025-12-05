@@ -10,6 +10,7 @@ http:
     path: '/'
     matchers:
       - body="<title>Dify</title>" || icon="97378986"
+      - body="content=\"Dify"
 version:
   - method: GET
     path: '/console/api/version'
