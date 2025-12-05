@@ -122,7 +122,7 @@ deploy_application() {
 
     # 2. 创建发布目录并复制文件
     info "正在创建发布目录: ${RELEASE_DIR}"
-    mkdir -p "${RELEASE_DIR}"/{db,log,uploads}
+    mkdir -p "${RELEASE_DIR}"/{db,logs,uploads}
 
     info "正在复制必要文件到 ${RELEASE_DIR}..."
     # 进入源仓库目录以简化复制路径
