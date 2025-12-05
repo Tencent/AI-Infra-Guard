@@ -1,0 +1,12 @@
+info:
+  name: anythingllm
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: vercel
+    vendor: ai-chatbot
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Next.js Chatbot Template</title>"
