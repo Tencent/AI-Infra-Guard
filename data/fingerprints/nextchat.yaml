@@ -1,0 +1,12 @@
+info:
+  name: nextchat
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: nextchat
+    vendor: nextchat
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>NextChat</title>"
