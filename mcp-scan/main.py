@@ -172,7 +172,7 @@ async def main():
         logger.error(f"Error during execution: {e}", exc_info=True)
     
 
-# python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse
+# Example for dynamic testing & analyzing: `python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse`
 if __name__ == "__main__":
     # 先解析参数以检查是否为 debug 模式
     args = parse_args()
