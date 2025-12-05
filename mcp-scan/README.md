@@ -81,7 +81,7 @@ python main.py <项目路径> [选项]
 | `--base_url` | `-u` | API 基础 URL | `https://openrouter.ai/api/v1` |
 | `--debug` | - | 启用 debug 模式（包括 Laminar 跟踪） | `False` |
 | `--dynamic` | - | 启用动态分析模式 | `False` |
-| `--tasks` | `-t` | 启用动态分析**必须**项, 测试类型(tool_poisoning, malicious_code_execution, tool_output_prompt_injection, credential_leakage) | - |
+| `--tasks` | `-t` | 启用动态分析**必须**项, 测试类型(tool_poisoning, malicious_code_execution, tool_output_prompt_injection, credential_leakage, rug_pull) | - |
 | `--server_url` | - | 启用动态分析**必须**项, 动态分析服务器 URL | - |
 | `--server_transport` | - | 动态分析服务器传输协议 | `http` |
 

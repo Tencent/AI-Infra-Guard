@@ -70,8 +70,8 @@ class DynamicBaseAgent:
                 self.mcp_tools_manager = MCPTools(mcp_server,mcp_transport)
                 mcp_tools_section = await self.mcp_tools_manager.describe_mcp_tools()
                 logger.info(f"Fetched MCP tools description from server: {mcp_server}")
-            except Exception:
-                logger.error(Exception.__traceback__)
+            except Exception as e:
+                # logger.error(Exception.__traceback__)
                 raise Exception("Failed to fetch MCP tools description from server.")
         system_prompt = system_prompt.replace("{generate_tools}", tools_prompt)
         system_prompt = system_prompt.replace("{mcp_tools}", mcp_tools_section)
@@ -120,8 +120,8 @@ class DynamicBaseAgent:
             raise Exception("MCP Tools Manager is not initialized.")
 
         try:
-            result = await self.mcp_tools_manager.call_remote_tool(tool_call)
-            return result
+            tool_info, result = await self.mcp_tools_manager.call_remote_tool(tool_call)
+            return tool_info, result
         except Exception as e:
             logger.error(f"Error calling remote tool: {e}")
             raise Exception(f"Failed to call remote tool: {str(e)}")

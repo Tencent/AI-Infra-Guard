@@ -4,6 +4,10 @@
             "type": "malicious",
             "prompt": "prompt/tasks/malicious/tool_poisoning_detection.yaml"
         },
+        "rug_pull": {
+            "type": "malicious",
+            "prompt": "prompt/tasks/malicious/rug_pull_detection.yaml"
+        },
         "malicious_code_execution": {
             "type": "vulnerability",
             "prompt": "prompt/tasks/vulnerability/malicious_code_execution_detection.yaml"

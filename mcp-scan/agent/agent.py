@@ -171,11 +171,14 @@ class Agent:
             for call in remote_tool_calls:
                 logger.info(f"[Dynamic] Executing tool call: {call}")
                 # call_remote_tool is async; await it
-                test_execution = await testing_agent.call_remote_tool(call)
-                test_history.append({
+                tool_info, test_execution = await testing_agent.call_remote_tool(call)
+                tool_call_item = {
+                    "tool_info": tool_info,
                     "tool_call": call,
                     "execution_result": test_execution,
-                })
+                }
+                logger.info(f"[Dynamic] Tool call executed, result: {tool_call_item}")
+                test_history.append(tool_call_item)
         
 
             # b. 分析

@@ -259,9 +259,11 @@ class MCPTools(Toolkit):
 
 
     async def describe_mcp_tools(self) -> str:
+        xml_lines = ["<mcp_tools>"]
         try:
             await self.connect()
         except Exception as e:
+            log_error(f"Failed to connect to MCP server: {e}")
             raise Exception("Failed to connect to MCP server.")
 
         try:
@@ -276,12 +278,12 @@ class MCPTools(Toolkit):
                 detail = t.description or ""
                 desc_lines.append(f"- {name}: {detail}")
 
-            xml_lines = ["<mcp_tools>"]
             for line in desc_lines[1:]:
                 xml_lines.append(f"  <tool>{line}</tool>")
             xml_lines.append("</mcp_tools>")
 
-        except Exception:
+        except Exception as e:
+            log_error(e)
             raise Exception("Failed to fetch MCP tools description from server.")
         finally:
             await self.close()
@@ -296,23 +298,30 @@ class MCPTools(Toolkit):
         try:
             await self.connect()
         except Exception as e:
+            log_error(e)
             raise Exception("Failed to connect to MCP server.")
 
         try:
             # Get the list of tools from the MCP server
+            tool_info_list = await self.session.list_tools()
+            tool_info = {}
+            for t in tool_info_list.tools:
+                if t.name == call["toolName"]:
+                    tool_info["description"] = t.description
+                    tool_info["inputSchema"] = t.inputSchema
+                    tool_info["outputSchema"] = t.outputSchema
+                    break
             result = await self.session.call_tool(call["toolName"], call.get("args", {}))
-
         except Exception:
             raise Exception("Failed to fetch MCP tools description from server.")
         finally:
             await self.close()
-
-        return str(result)
+        return tool_info, result
 
 
 if __name__ == "__main__":
     async def main():
-        mcp_tools_manager = MCPTools(url="http://localhost:9005/sse", transport="sse")
+        mcp_tools_manager = MCPTools(url="http://localhost:9008/sse", transport="sse")
         description = await mcp_tools_manager.describe_mcp_tools()
         print(description)
         result = await mcp_tools_manager.call_remote_tool({
