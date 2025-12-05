@@ -20,7 +20,7 @@ class DynamicBaseAgent:
         self.name = name
         self.specialized_llms = specialized_llms or {}
         self.history = []
-        self.max_iter = 200
+        self.max_iter = 20
         self.iter = 0
         self.is_finished = False
         self.step_id = log_step_id
@@ -78,7 +78,7 @@ class DynamicBaseAgent:
 
         system_prompt = system_prompt.replace("{name}", name)
         system_prompt = system_prompt.replace("{instruction}", instruction)
-        system_prompt = system_prompt.replace("{target_prompt}", target_prompt)
+        system_prompt = system_prompt.replace("{target_prompt}", "```yaml\n" + target_prompt+"\n```")
         # 替换时间
         nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
@@ -218,7 +218,7 @@ class DynamicBaseAgent:
 
             except Exception as e:
                 logger.error(f"Error in iteration {self.iter}: {e}")
-                error_message = f"Error occurred: {str(e)}. Please continue or adjust your approach."
+                error_message = f"Error occurred: {str(e)}. Please continue or adjust your approach. Please be careful not to confuse the invoking of <function> and <mcp_function>."
                 self.history.append({"role": "user", "content": error_message})
 
         if self.iter >= self.max_iter:
