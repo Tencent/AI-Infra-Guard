@@ -2,9 +2,10 @@ package database
 
 import (
 	"fmt"
-	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"os"
 	"path/filepath"
+
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -53,8 +54,8 @@ func InitDB(config *Config) (*gorm.DB, error) {
 	}
 
 	// 设置连接池参数
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxIdleConns(1000)
+	sqlDB.SetMaxOpenConns(1000)
 
 	return db, nil
 }
