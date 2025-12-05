@@ -1,9 +1,16 @@
-from typing import IO
+import time
 
 from loguru import logger
 
-# logger.remove()
-
+logger.remove()
+logger.add(
+    f"./logs/mcp-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log",
+    rotation="10 MB",
+    retention="10 days",
+    level="DEBUG",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    mode="w",   # 每次运行时覆盖旧日志
+)
 
 if __name__ == '__main__':
     # 设置日志级别
