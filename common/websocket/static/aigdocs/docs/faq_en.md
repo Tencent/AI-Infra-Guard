@@ -128,8 +128,8 @@ docker-compose -f docker-compose.images.yml up -d
 
 ## 4. Recommended Models
 ### 4.1 Recommended Choices for MCP Scan
-- GLM4.5
-- DeepSeek-V3.1
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos

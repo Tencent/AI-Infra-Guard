@@ -13,20 +13,17 @@ AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web serv
 
 ### WebUI Interface Workflow
 
+1.Select `AI Infra Scan` from the main page.
 
-
-1.**Call Scan Service**
-   Select `AI Infra Scan` from the main page.
-
-2.**Configure Scan Targets**
-   In the target input field:
+2.Configure Scan Targets
    - Enter single/multiple URLs or IP addresses (one per line)
    - Import target lists via `.txt` file upload
    - ✨ *IP inputs trigger comprehensive port scanning*
       (Automatically checks common open ports)
 
-3.**Execute Security Assessment**
-   Click `Send Message` button to initiate automated vulnerability detection.
+3.Select a MLLM to detect unauthenticated vulnerabilities, recommended GPT5/Gemini Pro/Sonnet4.5.
+
+4.Click `Send Message` button to initiate automated vulnerability detection.
    Results will populate in real-time upon completion.
 
 ![image-20250717185311173](./assets/image-20250717185311173-en.png)

@@ -18,7 +18,6 @@ AI Infra Guard 可检测以下常见的MCP安全风险，并持续更新：
 | 包名混淆与抢注攻击   | 恶意MCP Server使用与可信服务相似的名称、工具名或描述，诱导AI Agent错误调用；或第三方抢注官方MCP Server名称，植入后门。                                                                                       |
 | 明文存储密钥         | MCP Server在代码或配置文件中硬编码或明文存储敏感密钥，易导致泄露风险。                                                                                                                                 |
 
-## a) MCP服务源代码扫描
 A.I.G的MCP Server扫描能力完全由Agent驱动，检测准确性与时长取决于用户选择的大模型API。
 
 ### 添加用检测MCP的模型API
@@ -29,6 +28,7 @@ A.I.G的MCP Server扫描能力完全由Agent驱动，检测准确性与时长取
 
 ![image-mcp3](./assets/mcp3.png)
 
+## 方式一：MCP服务源代码扫描
 ### 上传MCP Server源代码附件
 
 1. 选择“MCP安全扫描”
@@ -36,33 +36,33 @@ A.I.G的MCP Server扫描能力完全由Agent驱动，检测准确性与时长取
 ![image-mcp4](./assets/mcp4.png)
 3. 开始扫描
 
-
-### 输入MCP项目Github扫描
-1. 选择“MCP安全扫描”
-![image-mcp5](./assets/mcp5.png)
-2. 输入框输入GitHub地址
-3. 开始扫描
-
-## b) 远程MCP服务扫描
+## 方式二：代码仓库扫描
 
 1. 选择“MCP安全扫描”
-2. 输入框输入MCP服务地址 (SSE或Streamable HTTP协议)，如：https://mcp.deepwiki.com/mcp
+2. 输入框输入代码仓库地址，如：https://github.com/xxx/mcp-server
 3. 开始扫描
+![image-mcp4](./assets/mcp5.png)
+## 方式三：远程MCP服务扫描
 
-### 查看扫描状态和结果
+1. 选择“MCP安全扫描”
+2. 输入框输入MCP服务地址 (SSE或Streamable HTTP协议)，如：http://127.0.0.1:9000/sse
+3. 开始扫描
+![image-mcp8](./assets/mcp8.png)
+
+## 查看扫描状态和结果
 ![image-mcp6](./assets/mcp6.png)
 ![image-mcp7](./assets/mcp7.png)
 
 ## 推荐使用的大模型API
-- GLM4.5
-- DeepSeek-V3.1
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
 ## MCP 插件
 
-MCP扫描基于AI Agent对代码进行检测，AIG将MCP漏洞抽象为了插件，可以在前端查看或编辑。
+MCP扫描基于AI Agent对代码进行检测，A.I.G将MCP漏洞抽象为了插件，可以在前端查看。
 
 ![image-20250814105330552](./assets/image-20250814105330552.png)
 

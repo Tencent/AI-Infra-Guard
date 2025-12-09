@@ -17,7 +17,6 @@ A.I.G can detect the following common MCP security risks, with continuous update
 | Package Name Squatting/Typosquatting | A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official MCP Server name to plant a backdoor. |
 | Plaintext Key Storage           | The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.                                                     |
 
-## a) MCP Service Source Code Scan
 A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
 
 ### Add a Model API for MCP Detection
@@ -28,7 +27,7 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 
 ![image-mcp3](./assets/mcp3-en.png)
 
-### Upload MCP Server Source Code Attachment
+## Method 1: MCP Service Source Code Scan
 
 1. Select "MCP Security Scan"
 2. Upload the MCP source code as an attachment
@@ -36,19 +35,20 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 3. Start Scan
 
 
-### Scan an MCP Project from GitHub
+## Method 2: Scan an MCP Project from GitHub
 1. Select "MCP Security Scan"
 ![image-mcp5](./assets/mcp5-en.png)
 2. Enter the GitHub repository URL in the input box
 3. Start Scan
 
-## b) Remote MCP Service Scan
+## Method 3: Remote MCP Service Scan
 
 1. Select "MCP Security Scan"
-2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `https://mcp.deepwiki.com/mcp`
+2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `http://127.0.0.1:9000/sse`
 3. Start Scan
+![image-mcp8](./assets/mcp8-en.png)
 
-### View Scan Status and Results
+## View Scan Status and Results
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
 ## Recommended Large Language Model APIs

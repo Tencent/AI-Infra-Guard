@@ -8,7 +8,7 @@
 
 
 ## 合作共建
-我们欢迎公司内外团队与我们携手共建行业最佳AI红队安全测试平台，A.I.G目前已在[Github](https://github.com/Tencent/AI-Infra-Guard)开源，并支持通过插件管理快速配置AI组件指纹、CVE漏洞指纹、越狱评测集、MCP检测插件。
+我们诚邀广大团队及个人开发者携手共建行业最佳 AI 红队安全测试平台。A.I.G 现已在 [Github](https://github.com/Tencent/AI-Infra-Guard) 开源，支持通过插件管理快速配置 AI 组件指纹、CVE 漏洞指纹、越狱评测集及 MCP 检测插件。
 
 
 ## 联系我们

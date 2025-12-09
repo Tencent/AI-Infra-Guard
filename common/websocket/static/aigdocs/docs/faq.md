@@ -128,8 +128,8 @@ docker-compose -f docker-compose.images.yml up -d
 
 ## 4. 推荐模型
 ### 4.1 MCP扫描推荐
-- GLM4.5
-- DeepSeek-V3.1
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos

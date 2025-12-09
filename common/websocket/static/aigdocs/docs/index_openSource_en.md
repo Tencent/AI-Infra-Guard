@@ -8,7 +8,7 @@
 
 
 ## Collaboration and Contribution
-We welcome teams both inside and outside the company to join us in building the leading AI Red Teaming security testing platform in the industry. A.I.G is now open-source on [Github](https://github.com/Tencent/AI-Infra-Guard) and supports rapid configuration of AI component fingerprints, CVE vulnerability fingerprints, jailbreak evaluation sets, and MCP security detection plugins through its plugin management system.
+We invite teams and individual developers to join us in building the leading AI Red Teaming security testing platform in the industry. A.I.G is now open-source on [Github](https://github.com/Tencent/AI-Infra-Guard) and supports rapid configuration of AI component fingerprints, CVE vulnerability fingerprints, jailbreak evaluation sets, and MCP security detection plugins through its plugin management system.
 
 
 ## Contact Us
