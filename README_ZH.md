@@ -4,7 +4,6 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="#">中文</a> |
         <a href="./README.md">English</a>
     <p>
 </h4>
@@ -75,7 +74,7 @@ cd AI-Infra-Guard
 docker-compose -f docker-compose.images.yml up -d
 ```
 服务启动后，您可以通过以下地址访问A.I.G的Web界面：
-`http://localhost:8088`。更多安装方法，请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+`http://localhost:8088`。一键脚本安装及源码运行方法，请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
 注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
 ### 体验在线专业版
@@ -88,7 +87,7 @@ docker-compose -f docker-compose.images.yml up -d
 
 | 特性 | 详细信息 |
 |:--------|:------------|
-| **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖近400个已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
+| **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖400+已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
 | **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
 
@@ -99,7 +98,7 @@ docker-compose -f docker-compose.images.yml up -d
 - 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
 - 🆓 **免费且开源**：完全免费，MIT开源协议
 
-
+[查看更新日志](./CHANGELOG.md)
 
 <br />
 
@@ -108,7 +107,6 @@ docker-compose -f docker-compose.images.yml up -d
 ### A.I.G 主界面
 ![AIG主界面](img/aig-zh.gif)
 
-### 插件管理
 ![插件管理](img/plugin-zh.gif)
 
 <br />
@@ -157,7 +155,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 
 我们诚挚感谢学术合作伙伴提供的卓越研究协作。
 
-#### <img src="img/pku-ceni-logo-zh.png" height="30" align="middle"/>
+#### <img src="img/北大未来网络重点实验室1.png" height="30" align="middle"/>
 <table>
   <tr>
     <td align="center" width="90">
@@ -217,7 +215,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
   </tr>
 </table>
 
-#### <img src="img/fudan-logo-zh.jpg" height="32" align="middle" style="vertical-align: middle;"/>
+#### <img src="img/复旦大学1.png" height="30" align="middle" style="vertical-align: middle;"/>
 
 <table>
   <tr>
@@ -344,7 +342,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
 [7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
-
+[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
 
 📧 如果您在研究中使用了A.I.G，请联系我们，让更多人看到您的研究！
 <br>

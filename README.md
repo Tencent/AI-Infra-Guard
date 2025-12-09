@@ -4,8 +4,7 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="./README_ZH.md">中文</a> |
-        <a href="#">English</a>
+        <a href="./README_ZH.md">中文</a>
     <p>
 </h4>
 <p align="center">
@@ -77,7 +76,7 @@ docker-compose -f docker-compose.images.yml up -d
 ```
 
 Once the service is running, you can access the A.I.G web interface at:
-`http://0.0.0.0:8088`
+`http://localhost:8088`
 <br>
 
 For more installation options, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
@@ -93,7 +92,7 @@ Experience the Pro version with advanced features and improved performance. The 
 
 | Feature | More Info |
 |:--------|:------------|
-| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ nearly 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
+| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
 | **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
 
@@ -162,7 +161,7 @@ Please refer to the existing rule formats, create new files, and submit them via
 
 We extend our sincere appreciation to our academic partners for their exceptional research contributions and technical support.
 
-#### <img src="img/pku-ceni-logo.png" height="30" align="middle"/>
+#### <img src="img/北大未来网络重点实验室2.png" height="30" align="middle"/>
 <table>
   <tr>
     <td align="center" width="90">
@@ -222,7 +221,7 @@ We extend our sincere appreciation to our academic partners for their exceptiona
   </tr>
 </table>
 
-#### <img src="img/fudan-logo.jpg" height="35" align="middle" style="vertical-align: middle;"/>
+#### <img src="img/复旦大学2.png" height="30" align="middle" style="vertical-align: middle;"/>
 
 <table>
   <tr>
@@ -353,6 +352,7 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
 [7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
+[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
 
 📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>
