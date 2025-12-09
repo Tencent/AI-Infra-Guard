@@ -46,6 +46,8 @@
   </a>
 </p>
 
+> 📢 **News**：v3.5-preview-2 新增 100+ AI 组件 CVE，支持检测最新的 React2Shell 漏洞 (CVE-2025-55182)。增加了新人指引。[查看完整更新日志](./CHANGELOG.md)
+
 ## 目录
 - [🚀 快速开始](#-快速开始)
 - [✨ 功能特性](#-功能特性)
@@ -91,14 +93,15 @@ docker-compose -f docker-compose.images.yml up -d
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
 | **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
 
-**其他优势：**
+<details>
+<summary><strong>其他优势</strong></summary>
+
 - 🖥️ **现代化Web界面**：用户友好的UI，一键扫描和实时进度跟踪
 - 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
 - 🌐 **多语言支持**：中英文界面，本地化文档
 - 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
 - 🆓 **免费且开源**：完全免费，MIT开源协议
-
-[查看更新日志](./CHANGELOG.md)
+</details>
 
 <br />
 

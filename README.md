@@ -46,6 +46,11 @@
   </a>
 </p>
 
+<br>
+
+> 📢 **News**：v3.5-preview-2 added 100+ AI component CVEs, with support for detecting the latest React2Shell vulnerability (CVE-2025-55182). Improved the onboarding guide for newcomers.[View all changelog.](./CHANGELOG.md)
+
+
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
@@ -96,16 +101,18 @@ Experience the Pro version with advanced features and improved performance. The 
 | **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
 
-**Additional Benefits:**
+<details>
+<summary><strong>Additional Benefits</strong></summary>
+
 - 🖥️ **Modern Web Interface**: User-friendly UI with one-click scanning and real-time progress tracking
 - 🔌 **Complete API**: Full interface documentation and Swagger specifications for easy integration
 - 🌐 **Multi-Language**: Chinese and English interfaces with localized documentation
 - 🐳 **Cross-Platform**: Linux, macOS, and Windows support with Docker-based deployment
 - 🆓 **Free & Open Source**: Completely free under the MIT license
-
-
+</details>
 
 <br />
+
 
 ## 🖼️ Showcase
 
