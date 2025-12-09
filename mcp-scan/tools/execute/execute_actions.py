@@ -36,7 +36,7 @@ def execute_shell(command: str, timeout: int = 36000, background: bool = False, 
                 stderr=subprocess.PIPE,
                 text=True,
                 start_new_session=True,
-                cwd=context.repo_dir,
+                # cwd=context.repo_dir,
             )
 
             # Give it a moment to potentially fail immediately
@@ -68,7 +68,7 @@ def execute_shell(command: str, timeout: int = 36000, background: bool = False, 
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=context.repo_dir
+                # cwd=context.repo_dir
             )
             duration = time.time() - start_time
 
