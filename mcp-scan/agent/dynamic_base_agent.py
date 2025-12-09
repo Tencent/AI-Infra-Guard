@@ -63,7 +63,7 @@ class DynamicBaseAgent:
         tools_prompt = get_tools_prompt(["think", "finish"])
         # 为了支持远程 MCP server 的 tools，尝试获取远端工具描述并拼接
         mcp_server = get_env("MCP_SERVER_URL")
-        mcp_transport = get_env("MCP_TRANSPORT_PROTOCOL", "http")
+        mcp_transport = get_env("MCP_TRANSPORT_PROTOCOL", "streamable-http")
         mcp_tools_section = ""
         if mcp_server and self.agent_type == "test":
             try:

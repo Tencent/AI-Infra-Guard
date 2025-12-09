@@ -14,7 +14,7 @@ from utils.parse import parse_mcp_invocations
 
 class Agent:
 
-    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False, server_url: str = None, server_transport: str = "http"):
+    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False, server_url: str = None):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.prompt_summary = os.path.join(base_dir, "prompt", "agents", "project_summary.md")
@@ -26,7 +26,6 @@ class Agent:
         self.debug = debug
         self.dynamic = dynamic
         self.server_url = server_url
-        self.server_transport = server_transport
 
     def scan(self, repo_dir: str, prompt: str):
         result = {
