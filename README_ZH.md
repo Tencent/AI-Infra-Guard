@@ -64,7 +64,6 @@
 ## 🚀 快速开始
 ### Docker 一键部署
 
-系统要求
 | Docker | 内存 | 磁盘空间 |
 |--------|------|----------|
 | 20.10 或更高 | 4GB+ | 10GB+ |
@@ -72,15 +71,42 @@
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
+# 此方法会从 Docker Hub 拉取预构建的镜像
 docker-compose -f docker-compose.images.yml up -d
 ```
-服务启动后，您可以通过以下地址访问A.I.G的Web界面：
-`http://localhost:8088`。一键脚本安装及源码运行方法，请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
-注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
-### 体验在线专业版
-体验具有内测及高级功能的专业版。专业版需要邀请码，优先提供给提交过Issues、Pull requests或Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
+服务启动后，您可以通过以下地址访问 A.I.G 的 Web 界面：
+`http://localhost:8088`
+<br>
+
+<details>
+<summary><strong>📦 更多安装方式及在线Pro版</strong></summary>
+
+### 其他安装方式
+
+**方式 2：一键安装脚本（推荐）**
+```bash
+# 此方法将自动安装 Docker 并启动 A.I.G
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**方式 3：源码编译运行**
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# 此方法从本地源代码构建 Docker 镜像并启动服务
+docker-compose up -d
+```
+
+注意：AI-Infra-Guard 项目定位为企业或个人内部使用的 AI 红队测试平台，目前暂无鉴权认证机制，请勿在公网环境中部署使用。
+
+更多信息请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+
+### 体验在线Pro版
+体验具有内测及高级功能的Pro版，需要邀请码，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
+
+</details>
+<br>
 
 <br/>
 

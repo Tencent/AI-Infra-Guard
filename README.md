@@ -67,8 +67,6 @@
 ## 🚀 Quick Start
 ### Deployment with Docker
 
-System Requirements
-
 | Docker | RAM | Disk Space |
 |:-------|:----|:----------|
 | 20.10 or higher | 4GB+ | 10GB+ |
@@ -84,13 +82,33 @@ Once the service is running, you can access the A.I.G web interface at:
 `http://localhost:8088`
 <br>
 
-For more installation options, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+<details>
+<summary><strong>📦 More installation options and online pro version</strong></summary>
 
-Note: The AI-Infra-Guard project is positioned as an AI security risk platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
+### Other Installation Methods
+
+**Method 2: One-Click Install Script （Recommended）**
+```bash
+# This method will automatically install Docker and launch A.I.G with one command  
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**Method 3: Build and run from source**
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# This method builds a Docker image from local source code and starts the service
+docker-compose up -d
+```
+
+Note: The AI-Infra-Guard project is positioned as an AI red teaming platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
+
+For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
 ### Try the Online Pro Version
 Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/)
 
+</details>
 <br>
 
 ## ✨ Features
@@ -102,7 +120,7 @@ Experience the Pro version with advanced features and improved performance. The 
 | **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
 
 <details>
-<summary><strong>Additional Benefits</strong></summary>
+<summary><strong>💎 Additional Benefits</strong></summary>
 
 - 🖥️ **Modern Web Interface**: User-friendly UI with one-click scanning and real-time progress tracking
 - 🔌 **Complete API**: Full interface documentation and Swagger specifications for easy integration
@@ -292,7 +310,6 @@ Thanks to all the developers who have contributed to the A.I.G project, Your con
 
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
 
-<br>
 <br>
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
