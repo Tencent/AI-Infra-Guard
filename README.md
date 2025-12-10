@@ -49,7 +49,11 @@
 
 <br>
 
-> 📢 **News**：v3.5-preview-2 added 100+ AI component CVEs, with support for detecting the latest React2Shell vulnerability (CVE-2025-55182). Improved the onboarding guide for newcomers.[View all changelog.](./CHANGELOG.md)
+> 📢 **News**: 
+
+> *   🎉 **[New]** A.I.G was featured at **Black Hat Arsenal Europe 2025**! Check out our [presentation slides.](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+> * A.I.G v3.5-preview-2 added 100+ AI component CVEs, with support for detecting the latest React2Shell vulnerability (CVE-2025-55182). Improved the onboarding guide for newcomers.[View all changelog.](./CHANGELOG.md)
 
 
 ## Table of Contents
