@@ -4,8 +4,7 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="./README_ZH.md">中文</a> |
-        <a href="#">English</a>
+        <a href="./README_ZH.md">中文</a>
     <p>
 </h4>
 <p align="center">
@@ -48,10 +47,15 @@
   </a>
 </p>
 
+<br>
+
+> 📢 **News**：v3.5-preview-2 added 100+ AI component CVEs, with support for detecting the latest React2Shell vulnerability (CVE-2025-55182). Improved the onboarding guide for newcomers.[View all changelog.](./CHANGELOG.md)
+
+
 ## Table of Contents
+- [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
 - [🖼️ Showcase](#-showcase)
-- [🚀 Quick Start](#-quick-start)
 - [📖 User Guide](#-user-guide)
 - [🔧 API Documentation](#-api-documentation)
 - [📝 Contribution Guide](#-contribution-guide)
@@ -60,62 +64,14 @@
 - [📖 Citation](#-citation)
 - [📚 Related Papers](#-related-papers)
 - [📄 License](#-license)
-
-
-## ✨ Features
-
-
-| Feature | More Info |
-|:--------|:------------|
-| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ nearly 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
-| **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
-| **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
-| **Easy-to-use Web Interface​** | Modern, user-friendly web UI for seamless operation, One-click scanning with real-time progress tracking, Comprehensive Analysis Reports. |
-| **Convenient API** | Provides complete interface documentation and Swagger specifications for easier integration |
-| **Multi-Language Support** | Chinese and English interface, Localized documentation and help. |
-| **Cross-Platform Compatibility** | Linux, macOS, and Windows support, Docker-based deployment. |
-| **Free & Open Source​** | Offered​ completely free of charge ​under​ the MIT license. |
-
-
-
-<br />
-
-## 🖼️ Showcase
-
-### A.I.G Main Interface
-![AIG Main Page](img/background-en.png)
-
-### AI Infra Scan
-![One-click scan to discover AI component security vulnerabilities](img/ai-infra-scan-en.png)
-
-### MCP Server Scan
-![Intelligently analyze MCP Server security risks](img/mcp-server-en.png)
-
-### Jailbreak Evaluation
-![Comprehensively evaluate LLM security](img/model-security-en.png)
-
-### Plugin Management
-![Plugin Management](img/plugin-gif.gif)
-
-<br />
-
+<br><br>
 ## 🚀 Quick Start
 ### Deployment with Docker
-
-**System Requirements**
 
 | Docker | RAM | Disk Space |
 |:-------|:----|:----------|
 | 20.10 or higher | 4GB+ | 10GB+ |
 
-
-**1. One-Click Install Script （Recommended）**
-```bash
-# This method will automatically install Docker and launch A.I.G with one command  
-curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
-```
-
-**2. Run with pre-built images (Recommended)**
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
@@ -123,7 +79,22 @@ cd AI-Infra-Guard
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-**3. Build from source and run**
+Once the service is running, you can access the A.I.G web interface at:
+`http://localhost:8088`
+<br>
+
+<details>
+<summary><strong>📦 More installation options and online pro version</strong></summary>
+
+### Other Installation Methods
+
+**Method 2: One-Click Install Script （Recommended）**
+```bash
+# This method will automatically install Docker and launch A.I.G with one command  
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**Method 3: Build and run from source**
 ```bash
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
@@ -131,11 +102,46 @@ cd AI-Infra-Guard
 docker-compose up -d
 ```
 
-Once the service is running, you can access the A.I.G web interface at:
-`http://0.0.0.0:8088`
-<br><br>
+Note: The AI-Infra-Guard project is positioned as an AI red teaming platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
 
-Note: The AI-Infra-Guard project is positioned as an AI security risk platform for internal use by enterprises or individuals. It currently lacks an authentication mechanism and should not be deployed on public networks.
+For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+
+### Try the Online Pro Version
+Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/)
+
+</details>
+<br>
+
+## ✨ Features
+
+| Feature | More Info |
+|:--------|:------------|
+| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
+| **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
+| **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
+
+<details>
+<summary><strong>💎 Additional Benefits</strong></summary>
+
+- 🖥️ **Modern Web Interface**: User-friendly UI with one-click scanning and real-time progress tracking
+- 🔌 **Complete API**: Full interface documentation and Swagger specifications for easy integration
+- 🌐 **Multi-Language**: Chinese and English interfaces with localized documentation
+- 🐳 **Cross-Platform**: Linux, macOS, and Windows support with Docker-based deployment
+- 🆓 **Free & Open Source**: Completely free under the MIT license
+</details>
+
+<br />
+
+
+## 🖼️ Showcase
+
+### A.I.G Main Interface
+![AIG Main Page](img/aig.gif)
+
+### Plugin Management
+![Plugin Management](img/plugin-gif.gif)
+
+<br />
 
 
 ## 📖 User Guide
@@ -176,14 +182,123 @@ Please refer to the existing rule formats, create new files, and submit them via
 <br />
 
 ## 🙏 Acknowledgements
+
+### 🎓 Academic Collaborations
+
+We extend our sincere appreciation to our academic partners for their exceptional research contributions and technical support.
+
+#### <img src="img/北大未来网络重点实验室2.png" height="30" align="middle"/>
+<table>
+  <tr>
+    <td align="center" width="90">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/0?v=4" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="#">
+        <sub><b>Prof.&nbsp;hui&nbsp;Li</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/TheBinKing">
+        <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:1546697086@qq.com">
+        <sub><b>Bin&nbsp;Wang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/KPGhat">
+        <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kpghat@gmail.com">
+        <sub><b>Zexin&nbsp;Liu</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/GioldDiorld">
+        <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:g.diorld@gmail.com">
+        <sub><b>Hao&nbsp;Yu</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Jarvisni">
+        <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:719001405@qq.com">
+        <sub><b>Ao&nbsp;Yang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Zhengxi7">
+        <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linzhengxi7@126.com">
+        <sub><b>Zhengxi&nbsp;Lin</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+#### <img src="img/复旦大学2.png" height="30" align="middle" style="vertical-align: middle;"/>
+
+<table>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://yangzhemin.github.io/">
+        <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:yangzhemin@fudan.edu.cn">
+        <sub><b>Prof.&nbsp;Zhemin&nbsp;Yang</b></sub>
+      </a>
+    </td>
+    <td align="center" width="100">
+      <a href="https://github.com/kangwei-zhong">
+        <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kwzhong23@m.fudan.edu.cn">
+        <sub><b>Kangwei&nbsp;Zhong</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/MoonBirdLin">
+        <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linjp23@m.fudan.edu.cn">
+        <sub><b>Jiapeng&nbsp;Lin</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://vanilla-tiramisu.github.io/">
+        <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:csheng25@m.fudan.edu.cn">
+        <sub><b>Cheng&nbsp;Sheng</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+<br>
+
 ### 👥 Gratitude to Contributing Developers
 Thanks to all the developers who have contributed to the A.I.G project, Your contributions have been instrumental in making A.I.G a more robust and reliable AI Red Team platform.
 <br />
-<table style="border: none; border-collapse: inherit;">
+<table border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="33%" style="border: none;"><img src="img/keen_lab_logo.svg" alt="Keen Lab" height="85%"></td>
-    <td width="33%" style="border: none;"><img src="img/wechat_security.png" alt="WeChat Security" height="85%"></td>
-    <td width="33%" style="border: none;"><img src="img/fit_sec_logo.png" alt="Fit Security" height="85%"></td>
+    <td width="33%"><img src="img/keen_lab_logo.svg" alt="Keen Lab" height="85%"></td>
+    <td width="33%"><img src="img/wechat_security.png" alt="WeChat Security" height="85%"></td>
+    <td width="33%"><img src="img/fit_sec_logo.png" alt="Fit Security" height="85%"></td>
   </tr>
 </table>
 <a href="https://github.com/Tencent/AI-Infra-Guard/graphs/contributors">
@@ -197,36 +312,12 @@ Thanks to all the developers who have contributed to the A.I.G project, Your con
 We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
 
 <br>
-<br>
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
 </div>
 
 <br>
-<br>
-
-### 🌟 Thanks to Our Stargazers!
-
-We are deeply grateful to all the developers who have starred our repository!
-<div align="center">
-  <img src="img/stargazers.png" alt="Stargazers" width="100%">
-</div>
-Thank you to users from <strong>Google, Microsoft, Amazon, ByteDance, Alibaba, Huawei, Meituan, Douban, Peking University, Tsinghua University, HFUT, cuit</strong>, and many more amazing stargazers!
-<br>
-<br>
-<p align="center">
-  ⭐ Every star encourages us to keep improving and innovating! ⭐
-</p>
-<p align="center">
-    🚀 Help us reach more developers by starring this repository. 🚀
-</p>
-
-<p align="center">
-  <a href="https://github.com/Tencent/AI-Infra-Guard">
-      <img src="https://img.shields.io/badge/⭐-Give%20us%20a%20Star-yellow?style=for-the-badge&logo=github" alt="Give us a Star">
-  </a>
-</p>
 <br>
 
 ## 💬 Join the Community
@@ -285,6 +376,8 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 [4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
+[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
+[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
 
 📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>

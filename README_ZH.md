@@ -4,7 +4,6 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="#">中文</a> |
         <a href="./README.md">English</a>
     <p>
 </h4>
@@ -48,10 +47,12 @@
   </a>
 </p>
 
+> 📢 **News**：v3.5-preview-2 新增 100+ AI 组件 CVE，支持检测最新的 React2Shell 漏洞 (CVE-2025-55182)。增加了新人指引。[查看完整更新日志](./CHANGELOG.md)
+
 ## 目录
+- [🚀 快速开始](#-快速开始)
 - [✨ 功能特性](#-功能特性)
 - [🖼️ 功能展示](#-功能展示)
-- [🚀 快速开始](#-快速开始)
 - [📖 用户指南](#-用户指南)
 - [🔧 API文档](#-api文档)
 - [📝 贡献指南](#-贡献指南)
@@ -61,81 +62,85 @@
 - [📚 相关论文](#-相关论文)
 - [📄 开源协议](#-开源协议)
 
+## 🚀 快速开始
+### Docker 一键部署
+
+| Docker | 内存 | 磁盘空间 |
+|--------|------|----------|
+| 20.10 或更高 | 4GB+ | 10GB+ |
+
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# 此方法会从 Docker Hub 拉取预构建的镜像
+docker-compose -f docker-compose.images.yml up -d
+```
+
+服务启动后，您可以通过以下地址访问 A.I.G 的 Web 界面：
+`http://localhost:8088`
+<br>
+
+<details>
+<summary><strong>📦 更多安装方式及在线Pro版</strong></summary>
+
+### 其他安装方式
+
+**方式 2：一键安装脚本（推荐）**
+```bash
+# 此方法将自动安装 Docker 并启动 A.I.G
+curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
+```
+
+**方式 3：源码编译运行**
+```bash
+git clone https://github.com/Tencent/AI-Infra-Guard.git
+cd AI-Infra-Guard
+# 此方法从本地源代码构建 Docker 镜像并启动服务
+docker-compose up -d
+```
+
+注意：AI-Infra-Guard 项目定位为企业或个人内部使用的 AI 红队测试平台，目前暂无鉴权认证机制，请勿在公网环境中部署使用。
+
+更多信息请参阅：[https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
+
+### 体验在线Pro版
+体验具有内测及高级功能的Pro版，需要邀请码，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
+
+</details>
+<br>
+
+<br/>
 
 ## ✨ 功能特性
 
 
 | 特性 | 详细信息 |
 |:--------|:------------|
-| **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖近400个已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
+| **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖400+已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
 | **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
-| **直观的Web界面** | 现代化、用户友好的Web UI，一键扫描实时进度跟踪，全面的结果分析报告 |
-| **便捷的API** | 提供完整的接口文档和Swagger规范，更方便集成 |
-| **多语言支持** | 拥有中英文界面，本地化帮助文档 |
-| **跨平台兼容** | 支持Linux、macOS和Windows，基于Docker部署 |
-| **免费且MIT开源** | 完全免费使用，MIT开源协议 |
 
+<details>
+<summary><strong>其他优势</strong></summary>
 
+- 🖥️ **现代化Web界面**：用户友好的UI，一键扫描和实时进度跟踪
+- 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
+- 🌐 **多语言支持**：中英文界面，本地化文档
+- 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
+- 🆓 **免费且开源**：完全免费，MIT开源协议
+</details>
 
 <br />
 
 ## 🖼️ 功能展示
 
 ### A.I.G 主界面
-![AIG主界面](img/background.png)
+![AIG主界面](img/aig-zh.gif)
 
-### AI基础设施漏洞扫描
-![一键扫描发现 AI 组件安全漏洞](img/ai-infra-scan.png)
-
-### MCP Server风险检测
-![智能分析MCP Server安全风险](img/mcp-server.png)
-
-### 大模型安全体检
-![全面评估LLM安全性](img/model-security.png)
-
-### 插件管理
 ![插件管理](img/plugin-zh.gif)
 
 <br />
 
-## 🚀 快速开始
-### Docker 一键部署
-
-**系统要求**
-
-| Docker | 内存 | 磁盘空间 |
-|--------|------|----------|
-| 20.10 或更高 | 4GB+ | 10GB+ |
-
-
-**1. 一键安装脚本（推荐）**
-```bash
-# 此方法会自动帮您安装docker并一键启动A.I.G
-curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
-```
-
-**2. 使用预构建镜像运行 (推荐)**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# 此方法会从 Docker Hub 拉取预构建的镜像，启动速度更快
-docker-compose -f docker-compose.images.yml up -d
-```
-
-**3. 从源码构建并运行**
-```bash
-git clone https://github.com/Tencent/AI-Infra-Guard.git
-cd AI-Infra-Guard
-# 此方法会使用本地代码构建 Docker 镜像并启动服务
-docker-compose up -d
-```
-
-服务启动后，您可以通过以下地址访问A.I.G的Web界面：
-`http://localhost:8088`
-<br><br>
-
-注意: AI-Infra-Guard项目定位于企业或个人在内部使用的AI安全风险平台，暂无鉴权认证机制,请勿在公网中部署使用。
 
 ## 📖 用户指南
 
@@ -175,6 +180,115 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <br />
 
 ## 🙏 致谢
+
+### 🎓 学术合作
+
+我们诚挚感谢学术合作伙伴提供的卓越研究协作。
+
+#### <img src="img/北大未来网络重点实验室1.png" height="30" align="middle"/>
+<table>
+  <tr>
+    <td align="center" width="90">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/0?v=4" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="#">
+        <sub><b>李挥教授</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/TheBinKing">
+        <img src="https://avatars.githubusercontent.com/TheBinKing" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:1546697086@qq.com">
+        <sub><b>王滨</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/KPGhat">
+        <img src="https://avatars.githubusercontent.com/KPGhat" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kpghat@gmail.com">
+        <sub><b>刘泽心</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/GioldDiorld">
+        <img src="https://avatars.githubusercontent.com/GioldDiorld" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:g.diorld@gmail.com">
+        <sub><b>余昊</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Jarvisni">
+        <img src="https://avatars.githubusercontent.com/Jarvisni" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:719001405@qq.com">
+        <sub><b>杨傲</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/Zhengxi7">
+        <img src="https://avatars.githubusercontent.com/Zhengxi7" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linzhengxi7@126.com">
+        <sub><b>林郑熹</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+#### <img src="img/复旦大学1.png" height="30" align="middle" style="vertical-align: middle;"/>
+
+<table>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://yangzhemin.github.io/">
+        <img src="https://avatars.githubusercontent.com/yangzhemin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:yangzhemin@fudan.edu.cn">
+        <sub><b>杨哲慜教授</b></sub>
+      </a>
+    </td>
+    <td align="center" width="100">
+      <a href="https://github.com/kangwei-zhong">
+        <img src="https://avatars.githubusercontent.com/kangwei-zhong" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:kwzhong23@m.fudan.edu.cn">
+        <sub><b>钟康维</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://github.com/MoonBirdLin">
+        <img src="https://avatars.githubusercontent.com/MoonBirdLin" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:linjp23@m.fudan.edu.cn">
+        <sub><b>林佳鹏</b></sub>
+      </a>
+    </td>
+    <td align="center" width="90">
+      <a href="https://vanilla-tiramisu.github.io/">
+        <img src="https://avatars.githubusercontent.com/vanilla-tiramisu" width="70px;" style="border-radius: 50%;" alt=""/>
+      </a>
+      <br />
+      <a href="mailto:csheng25@m.fudan.edu.cn">
+        <sub><b>盛铖</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+<br>
+
 ### 👥 感谢以下团队与开发者的专业共建与代码贡献
 <br />
 <table style="border: none; border-collapse: inherit;">
@@ -199,24 +313,6 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 </div>
 
 <br>
-<br>
-
-### 🌟 感谢A.I.G项目所有的支持者
-
-<div align="center">
-  <img src="img/stargazers.png" alt="Stargazers" width="100%">
-</div>
-感谢来自<strong>微软、谷歌、亚马逊、字节跳动、阿里巴巴、华为、美团、豆瓣、北京大学、清华大学、合肥工业大学、成都信息工程大学</strong>等公司与学校的用户的Star！
-<br>
-<br>
-<p align="center">
-  ⭐ 每一个Star都激励我们持续改进和创新！ ⭐
-</p>
-<p align="center">
-  <a href="https://github.com/Tencent/AI-Infra-Guard">
-      <img src="https://img.shields.io/badge/⭐-点亮Star-yellow?style=for-the-badge&amp;logo=github" alt="点亮Star">
-  </a>
-</p>
 <br>
 
 ## 💬 加入社区
@@ -275,6 +371,8 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 [4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
 [5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
+[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
+[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
 
 📧 如果您在研究中使用了A.I.G，请联系我们，让更多人看到您的研究！
 <br>
