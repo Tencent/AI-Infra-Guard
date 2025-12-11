@@ -18,7 +18,7 @@ You have access to the following tools:
 {tools_prompt}
 
 # Tool Usage Format
-Tools调用格式如下，基于xml格式，你每次可以调用多个工具
+Tools调用格式如下，基于xml格式，你每次只能调用一次工具
 <function=tool_name>
 <parameter=param_name>value</parameter>
 </function>
@@ -49,12 +49,3 @@ Tools调用格式如下，基于xml格式，你每次可以调用多个工具
 # 最终输出格式:
 1. 简要说明你将做的事情
 2. 然后根据[Tool Usage Format]调用相关工具
-
-# Operational Guidelines
-- **When to Use 'think' Tool**: 
-    - If you encounter an error you don't understand.
-    - If a plan fails.
-    - If the task is complex and requires multi-step planning.
-    - **DO NOT** guess. If you are unsure, call <function=think><parameter=thought>I need to analyze X...</parameter></function> first.
-- **Verify**: After making changes, always verify they work as intended.
-- **Error Handling**: If a tool fails, analyze the error message and try a different approach.

@@ -101,7 +101,7 @@ class BaseAgent:
         if isinstance(result, dict):
             ret = ""
             for k, v in result.items():
-                ret += f"<{k}>{v}</{k}>\n"
+                ret += f"{k}:{v}\n"
             return ret
         elif isinstance(result, bool):
             return True
@@ -165,7 +165,7 @@ class BaseAgent:
                             if self.output_language == "en":
                                 summary_result = "Report Integration"
                             mcpLogger.tool_used(self.step_id, tool_id, summary_result, "done", tool_name)
-                            return result
+                            return response
 
                         # 执行工具
                         tool_result = self.execute_tool(tool_name, tool_args)
@@ -178,30 +178,30 @@ class BaseAgent:
                         if tool_name != "read_file" or tool_name != "think":
                             mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{next_prompt}\n```")
                         mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
-                    else:
-                        # 没有工具调用，添加继续提示
-                        mcpLogger.status_update(self.step_id, "Warning: No tool invocation found", "", "completed")
-                        next_prompt = self.next_prompt()
+                if len(tool_invocations) == 0:
+                    # 没有工具调用，添加继续提示
+                    mcpLogger.status_update(self.step_id, "Warning: No tool invocation found", "", "completed")
+                    next_prompt = self.next_prompt()
+                    message = '''
+错误原因:No tool invocation found in response.
+你的工具输出格式是否有误,请改正
+### tool format
+<function=tool_name>
+<parameter=param_name>value</parameter>
+<parameter=param_name2>value2</parameter>
+</function>
+'''
+                    if self.output_language == "en":
                         message = '''
-    错误原因:No tool invocation found in response.
-    你的工具输出格式是否有误,请改正
-    ### tool format
-    <function=tool_name>
-    <parameter=param_name>value</parameter>
-    <parameter=param_name2>value2</parameter>
-    </function>
-    '''
-                        if self.output_language == "en":
-                            message = '''
-    Error reason:No tool invocation found in response.
-    Is your tool output format correct? Please correct it.
-    ### tool format
-    <function=tool_name>
-    <parameter=param_name>value</parameter>
-    <parameter=param_name2>value2</parameter>
-    </function>
-    '''
-                        next_prompt += f"\n\n{message}"
+Error reason:No tool invocation found in response.
+Is your tool output format correct? Please correct it.
+### tool format
+<function=tool_name>
+<parameter=param_name>value</parameter>
+<parameter=param_name2>value2</parameter>
+</function>
+'''
+                    next_prompt += f"\n\n{message}"
                 self.history.append({"role": "user", "content": next_prompt})
 
             except Exception as e:
