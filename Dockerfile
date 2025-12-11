@@ -6,7 +6,7 @@ FROM golang:1.23.2-alpine AS builder
 WORKDIR /app
 
 # 安装必要的构建工具
-RUN apk add --no-cache git ca-certificates tzdata gcc musl-dev
+RUN apk add --no-cache git ca-certificates tzdata
 
 # 复制源代码（包含go.mod和go.sum）
 COPY . .
@@ -15,13 +15,13 @@ COPY . .
 RUN go mod download
 
 # 构建应用
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o ai-infra-guard ./cmd/cli/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -buildvcs=false -o ai-infra-guard ./cmd/cli/main.go
 
 # 第二阶段：运行阶段
 FROM alpine:3.19
 
 # 安装运行时依赖
-RUN apk --no-cache add ca-certificates tzdata sqlite bash curl
+RUN apk add --no-cache ca-certificates tzdata bash curl
 
 # 设置工作目录
 WORKDIR /app
