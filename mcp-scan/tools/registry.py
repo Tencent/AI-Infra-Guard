@@ -173,9 +173,15 @@ def should_execute_in_sandbox(tool_name: str) -> bool:
     return True
 
 
-def get_tools_prompt() -> str:
+def get_tools_prompt(tool_list: list = []) -> str:
+    if len(tool_list)!=0:
+        selected_tools = [tool for tool in tools if tool["name"] in tool_list]
+    else:
+        selected_tools = tools
+
     tools_by_module: dict[str, list[dict[str, Any]]] = {}
-    for tool in tools:
+
+    for tool in selected_tools:
         module = tool.get("module", "unknown")
         if module not in tools_by_module:
             tools_by_module[module] = []

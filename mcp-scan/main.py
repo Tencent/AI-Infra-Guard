@@ -11,6 +11,7 @@ import sys
 import argparse
 from agent.base_agent import BaseAgent
 from agent.agent import Agent
+from utils.dynamic_tasks import get_allowed_dynamic_tasks
 from utils.llm import LLM
 from utils.loging import logger
 from utils import config
@@ -65,10 +66,51 @@ def parse_args():
         default=False,
     )
 
+    parser.add_argument(
+        "--dynamic",
+        action="store_true",
+        help="启用动态分析模式（需要指定 MCP 服务器 URL）",
+        default=False,
+    )
+
+    parser.add_argument(
+        "-t", "--tasks",
+        nargs="+",
+        help="动态分析要执行的任务列表（空格分隔），例如: -t test analyze",
+        default=None
+    )
+
+    parser.add_argument(
+        "--server_url",
+        help=f"remote MCP server URL",
+        default=None
+    )
+
+    parser.add_argument(
+        "--server_transport",
+        help=f"remote MCP server transport protocol",
+        default="streamable-http"
+    )
     return parser.parse_args()
 
+def task_validation(input_tasks: list) -> bool:
+    """验证任务列表是否合法"""
+    if not input_tasks or len(input_tasks) == 0:
+        logger.error("动态模式需要通过 --tasks 指定至少一个任务")
+        return False
+    try:
+        allowed_tasks = get_allowed_dynamic_tasks()
+    except Exception:
+        logger.error("无法获取允许的动态任务列表，请检查配置文件是否正确")
+        return False
+    invalid_tasks = [t for t in input_tasks if t not in allowed_tasks]
+    if invalid_tasks:
+        logger.error(f"无效的任务: {invalid_tasks}。允许的任务: {allowed_tasks}")
+        return False
+    return True
 
-def main():
+
+async def main():
     """主函数"""
     # 解析命令行参数
     args = parse_args()
@@ -103,23 +145,35 @@ def main():
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
     # 创建 Agent 实例，传入专用模型
-    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug)
+    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug,
+                   dynamic=args.dynamic, server_url=args.server_url)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
-        logger.info(f"Custom prompt: {args.prompt}")
-
+        logger.info(f"Custom prompt: {args.prompt}")    
     try:
-        result = agent.scan(args.repo, args.prompt)
-        logger.info(f"Agent completed successfully:\n\n {result}")
+        # result = agent.scan(args.repo, args.prompt)
+        # logger.info(f"Scan completed successfully:\n\n {result}")
+
+        if args.dynamic:
+            logger.info(f"Dynamic analysis enabled with server URL: {args.server_url}")
+            if not task_validation(args.tasks):
+                raise ValueError("Invalid tasks provided for dynamic analysis.")
+            if args.server_transport not in ["streamable-http", "sse"]:
+                logger.error(f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'streamable-http' or 'sse'.")
+                raise ValueError("Invalid server transport protocol provided for dynamic analysis.")
+            dynamic_results = await agent.dynamic_analysis(args.repo, args.server_url, args.server_transport, args.tasks)
+            logger.info(f"Dynamic analysis results:\n{dynamic_results}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
         logger.warning("Task interrupted by user")
     except Exception as e:
         print(f"\n\nError during execution: {e}")
         logger.error(f"Error during execution: {e}", exc_info=True)
+        raise Exception(f"Execution failed: {e}")
+    
 
-
+# Example for dynamic testing & analyzing: `python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse`
 if __name__ == "__main__":
     # 先解析参数以检查是否为 debug 模式
     args = parse_args()
@@ -139,4 +193,5 @@ if __name__ == "__main__":
             logger.warning(f"Failed to initialize Laminar: {e}")
     else:
         console_handler.setLevel(logging.INFO)
-    main()
+    import asyncio
+    asyncio.run(main())

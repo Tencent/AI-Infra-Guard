@@ -9,3 +9,4 @@ temp_uploads
 logs
 db
 uploads
+mcp-scan/.env

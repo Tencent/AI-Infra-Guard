@@ -7,3 +7,4 @@ python-dotenv==1.0.0
 starlette==0.50.0
 strix==0.7.3
 uvicorn==0.38.0
+agno==2.2.1
