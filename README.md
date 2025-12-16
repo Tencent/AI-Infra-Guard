@@ -342,7 +342,10 @@ We are deeply grateful to the following teams and organizations for their trust,
 </table>
 
 ### 📧 Contact Us
-For collaboration inquiries or feedback, please contact us at: zhuque@tencent.com
+For collaboration inquiries or feedback, please contact us at: [zhuque@tencent.com](mailto:zhuque@tencent.com)
+
+### 🔗 Recommended Security Tools
+If you are interested in code security, check out [A.S.E (AICGSecEval)](https://github.com/Tencent/AICGSecEval), the industry's first repository-level AI-generated code security evaluation framework open-sourced by the Tencent Wukong Code Security Team.
 
 
 
@@ -352,7 +355,7 @@ For collaboration inquiries or feedback, please contact us at: zhuque@tencent.co
 
 ## 📖 Citation
 
-If you use A.I.G in your research or product, please cite:
+If you use A.I.G in your research, please cite:
 
 ```bibtex
 @misc{Tencent_AI-Infra-Guard_2025,
@@ -378,7 +381,7 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 [7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
 [8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
 
-📧 If you have used A.I.G in your research, we would love to hear from you! [Contact us here](#-join-the-community).
+📧 If you have used A.I.G in your research, or if we have inadvertently missed your publication, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>
 <br>
 
