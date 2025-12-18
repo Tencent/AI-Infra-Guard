@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.11.18",
-    "deepeval>=2.9.7",
+    "deepeval>=2.9.7,<3.7.6",
     "ecoji>=0.1.1",
     "grpcio>=1.67.1",
     "jieba>=0.42.1",
