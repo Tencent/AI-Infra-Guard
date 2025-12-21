@@ -16,13 +16,27 @@ import (
 
 // AdvisoryEngine 漏洞建议引擎结构体，用于管理版本漏洞信息
 type AdvisoryEngine struct {
-	ads []VersionVul
+	ads      []VersionVul
+	adsIndex map[string][]int // packageName -> slice indices for O(1) lookup
 }
 
 // NewAdvisoryEngine 创建一个新的漏洞建议引擎
 // 返回: 漏洞建议引擎实例和可能的错误
 func NewAdvisoryEngine() *AdvisoryEngine {
-	return &AdvisoryEngine{ads: make([]VersionVul, 0)}
+	return &AdvisoryEngine{
+		ads:      make([]VersionVul, 0),
+		adsIndex: make(map[string][]int),
+	}
+}
+
+// buildIndex 构建包名索引以优化查找性能
+// 将 O(n) 查找优化为 O(1)
+func (ae *AdvisoryEngine) buildIndex() {
+	ae.adsIndex = make(map[string][]int, len(ae.ads))
+	for i, ad := range ae.ads {
+		pkgName := ad.Info.FingerPrintName
+		ae.adsIndex[pkgName] = append(ae.adsIndex[pkgName], i)
+	}
 }
 
 func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
@@ -53,6 +67,7 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 		ads = append(ads, *ad)
 	}
 	ae.ads = ads
+	ae.buildIndex() // Build index for O(1) lookups
 	return nil
 }
 
@@ -98,6 +113,7 @@ func (ae *AdvisoryEngine) LoadFromHost(host string) error {
 		return err
 	}
 	ae.ads = ads
+	ae.buildIndex() // Build index for O(1) lookups
 	return nil
 }
 
@@ -105,12 +121,17 @@ func (ae *AdvisoryEngine) LoadFromHost(host string) error {
 // PackageName: 需要检查的包名
 // version: 需要检查的版本号
 // 返回: 匹配的漏洞建议列表和可能的错误
+// 优化: 使用索引实现 O(1) 包名查找，替代原来的 O(n) 线性扫描
 func (ae *AdvisoryEngine) GetAdvisories(packageName, version string, isInternal bool) ([]VersionVul, error) {
-	ret := make([]VersionVul, 0)
-	for _, ad := range ae.ads {
-		if ad.Info.FingerPrintName != packageName {
-			continue
-		}
+	// Use index for O(1) lookup instead of O(n) linear scan
+	indices, exists := ae.adsIndex[packageName]
+	if !exists {
+		return nil, nil
+	}
+
+	ret := make([]VersionVul, 0, len(indices))
+	for _, idx := range indices {
+		ad := ae.ads[idx]
 		if version != "" && ad.Rule != "" {
 			if ad.RuleCompile.AdvisoryEval(&parser.AdvisoryConfig{Version: version, IsInternal: isInternal}) {
 				ret = append(ret, ad)

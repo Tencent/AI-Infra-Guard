@@ -13,6 +13,12 @@ import (
 	vv "github.com/hashicorp/go-version"
 )
 
+// Pre-compiled regexes for version checking - avoids repeated compilation overhead
+var (
+	letterRegex    = regexp.MustCompile(`[A-Za-z]+`)
+	dotLetterRegex = regexp.MustCompile(`\.[A-Za-z]+`)
+)
+
 // Exp 定义了表达式接口
 // 所有表达式类型都需要实现 Name() 方法
 type Exp interface {
@@ -267,17 +273,16 @@ func (r *Rule) Eval(config *Config) bool {
 // versionCheck 版本号格式标准化处理
 // 输入版本号字符串，返回处理后的版本号字符串
 // 去除版本号中的字母并进行格式统一化
+// 优化: 使用预编译的正则表达式，避免重复编译开销
 func versionCheck(version string) string {
 	version = strings.TrimPrefix(version, "v")
 	if version == "latest" {
 		return "999"
 	}
-	// 正则替换所有单词
-	compile := regexp.MustCompile(`[A-Za-z]+`)
-	if compile.MatchString(version) {
-		newVersion := regexp.MustCompile(`\.[A-Za-z]+`).ReplaceAllString(version, ".0")
-		newVersion = compile.ReplaceAllString(newVersion, "")
-		//gologger.Debugf("version:%s=>%s", version, newVersion)
+	// 使用预编译的正则替换所有单词
+	if letterRegex.MatchString(version) {
+		newVersion := dotLetterRegex.ReplaceAllString(version, ".0")
+		newVersion = letterRegex.ReplaceAllString(newVersion, "")
 		version = newVersion
 	}
 	if version == "" {

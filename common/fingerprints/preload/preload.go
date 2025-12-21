@@ -156,26 +156,26 @@ func (r *Runner) RunFpReqs(uri string, concurrent int, faviconHash int32) []FpRe
 
 // Deduplication 对指纹识别结果进行去重
 // 如果存在相同名称的指纹，保留版本号不为空的结果
+// 优化: 使用 hashmap 实现 O(n) 复杂度，替代原来的 O(n²) 嵌套循环
 func (r *Runner) Deduplication(results []FpResult) []FpResult {
-	var ret []FpResult
-	var dup = make(map[string]string)
+	if len(results) == 0 {
+		return results
+	}
+
+	// Use map to track: name -> index in result slice
+	seen := make(map[string]int, len(results))
+	ret := make([]FpResult, 0, len(results))
+
 	for _, result := range results {
-		_, ok := dup[result.Name]
-		if !ok {
-			dup[result.Name] = result.Version
-			ret = append(ret, result)
-		} else {
-			if result.Version != "" && dup[result.Name] != result.Version {
-				dup[result.Name] = result.Version
-				// 删除原来
-				for i, v := range ret {
-					if v.Name == result.Name {
-						ret = append(ret[:i], ret[i+1:]...)
-						break
-					}
-				}
-				ret = append(ret, result)
+		if existingIdx, exists := seen[result.Name]; exists {
+			// If new result has a version and it's different, update in place
+			if result.Version != "" && ret[existingIdx].Version != result.Version {
+				ret[existingIdx] = result
 			}
+		} else {
+			// New entry - add to result and track index
+			seen[result.Name] = len(ret)
+			ret = append(ret, result)
 		}
 	}
 	return ret

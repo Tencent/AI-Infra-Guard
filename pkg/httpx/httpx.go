@@ -15,6 +15,9 @@ import (
 	"golang.org/x/net/http2"
 )
 
+// Pre-compiled regex for charset detection - avoids compilation on every request
+var gbkCharsetRegex = regexp.MustCompile(`(?i)<meta.*charset=['"]?(gb2312|gbk)`)
+
 // HTTPX represent an instance of the library client
 type HTTPX struct {
 	client        *retryablehttp.Client
@@ -127,8 +130,8 @@ func (h *HTTPX) do(req *retryablehttp.Request) (*Response, error) {
 			}
 		}
 
-		regx := regexp.MustCompile("(?i)<meta.*charset=['\"]?(gb2312|gbk)")
-		if regx.MatchString(respbodystr) {
+		// Use pre-compiled regex for better performance
+		if gbkCharsetRegex.MatchString(respbodystr) {
 			titleUtf8, err := Decodegbk([]byte(respbodystr))
 			if err == nil {
 				respbodystr = string(titleUtf8)
