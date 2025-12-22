@@ -1,4 +1,4 @@
-mcp==1.21.2
+mcp>=1.23.0
 openai==2.8.1
 pydantic==2.12.4
 python-dotenv==1.0.0
