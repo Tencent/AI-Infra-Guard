@@ -47,7 +47,9 @@
   </a>
 </p>
 
-> 📢 **News**：v3.5-preview-2 新增 100+ AI 组件 CVE，支持检测最新的 React2Shell 漏洞 (CVE-2025-55182)。增加了新人指引。[查看完整更新日志](./CHANGELOG.md)
+> 📢 **News**: 
+> *   🎉 **[New]** A.I.G 入选 **Black Hat Arsenal Europe 2025**! 查看我们的[PPT](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)。
+> * v3.5-preview-2 新增 100+ AI 组件 CVE，支持检测最新的 React2Shell 漏洞 (CVE-2025-55182)。增加了新人指引。[查看完整更新日志](./CHANGELOG.md)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
@@ -73,6 +75,7 @@
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
 # 此方法会从 Docker Hub 拉取预构建的镜像
+# (Docker Compose V2+ 请将 'docker-compose' 替换为 'docker compose')
 docker-compose -f docker-compose.images.yml up -d
 ```
 
@@ -96,6 +99,7 @@ curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/do
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
 # 此方法从本地源代码构建 Docker 镜像并启动服务
+# (Docker Compose V2+ 请将 'docker-compose' 替换为 'docker compose')
 docker-compose up -d
 ```
 
