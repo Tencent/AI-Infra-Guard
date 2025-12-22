@@ -80,6 +80,7 @@
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
 # This method pulls pre-built images from Docker Hub for a faster start
+# (For Docker Compose V2+, replace 'docker-compose' with 'docker compose')
 docker-compose -f docker-compose.images.yml up -d
 ```
 
@@ -103,6 +104,7 @@ curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/do
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
 # This method builds a Docker image from local source code and starts the service
+# (For Docker Compose V2+, replace 'docker-compose' with 'docker compose')
 docker-compose up -d
 ```
 
