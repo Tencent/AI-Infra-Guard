@@ -72,10 +72,10 @@
 | 20.10 或更高 | 4GB+ | 10GB+ |
 
 ```bash
+# 此方法会从 Docker Hub 拉取预构建的镜像
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# 此方法会从 Docker Hub 拉取预构建的镜像
-# (Docker Compose V2+ 请将 'docker-compose' 替换为 'docker compose')
+# Docker Compose V2+ 请将 'docker-compose' 替换为 'docker compose'
 docker-compose -f docker-compose.images.yml up -d
 ```
 

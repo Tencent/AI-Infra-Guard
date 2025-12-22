@@ -77,10 +77,10 @@
 | 20.10 or higher | 4GB+ | 10GB+ |
 
 ```bash
+# This method pulls pre-built images from Docker Hub for a faster start
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# This method pulls pre-built images from Docker Hub for a faster start
-# (For Docker Compose V2+, replace 'docker-compose' with 'docker compose')
+# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
 docker-compose -f docker-compose.images.yml up -d
 ```
 
