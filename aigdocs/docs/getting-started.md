@@ -17,17 +17,19 @@ curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/do
 
 **Method 2: Run with pre-built images (Recommended)**
 ```bash
+# This method pulls pre-built images from Docker Hub for a faster start
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# This method pulls pre-built images from Docker Hub for a faster start
+# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-**Method 3: Build from source and run**
+**Method 3: Build and run from source**
 ```bash
+# This method builds a Docker image from local source code and starts the service
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# This method builds a Docker image from local source code and starts the service
+# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
 docker-compose up -d
 ```
 
@@ -72,6 +74,7 @@ Fill in the Model Name, API Key, and Base URL, then click Save.
 3.**Service Startup Failure**
    ```bash
    # View detailed logs
+   # For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
    docker-compose logs webserver
    docker-compose logs agent
    ```
@@ -79,6 +82,7 @@ Fill in the Model Name, API Key, and Base URL, then click Save.
 4.**Stopping the Service**
    ```bash
    # Stop the service
+   # For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
    docker-compose down
    # Stop the service and remove data volumes (use with caution)
    docker-compose down -v
@@ -90,6 +94,7 @@ To upgrade to the latest version and clean up obsolete resources:
 
 ```bash
 # Rebuild container images and restart services
+# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
 docker-compose -f docker-compose.images.yml up -d --build
 # Prune dangling Docker images (optional cleanup)
 docker image prune -f
