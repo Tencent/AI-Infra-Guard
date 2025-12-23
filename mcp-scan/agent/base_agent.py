@@ -1,33 +1,57 @@
 import os.path
+import time
 import uuid
 from datetime import datetime
+from typing import List, Optional
 
 from lmnr import observe, Laminar
 
-from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
+from tools.dispatcher import ToolDispatcher
 from utils.config import base_dir
 from utils.llm import LLM
 from utils.loging import logger
-from utils.parse import parse_tool_invocations, clean_content
+from utils.parse import parse_tool_invocations, clean_content, parse_mcp_invocations
 from utils.tool_context import ToolContext
 from utils.aig_logger import mcpLogger
+from utils.prompt_manager import prompt_manager
 
 
 class BaseAgent:
 
-    def __init__(self, name, instruction, llm: LLM, specialized_llms: dict = None, log_step_id=None, debug=False):
+    def __init__(
+            self,
+            name: str,
+            instruction: str,
+            llm: LLM,
+            dispatcher: ToolDispatcher,
+            specialized_llms: dict = None,
+            log_step_id: str = None,
+            debug: bool = False,
+            capabilities: List[str] = None,
+            output_format: Optional[str] = None,
+            output_check_fn: callable = None
+    ):
         self.llm = llm
         self.name = name
+        self.dispatcher = dispatcher
         self.specialized_llms = specialized_llms or {}
-        self.history = [
-            {"role": "system", "content": self.generate_system_prompt(name, instruction)}
-        ]
-        self.max_iter = 200
+        self.instruction = instruction
+        self.capabilities = capabilities or ["standard"]
+        self.output_format = output_format
+        self.history = []
+        self.max_iter = 80
         self.iter = 0
         self.is_finished = False
         self.step_id = log_step_id
         self.debug = debug
         self.repo_dir = ""
+        self.output_check_fn = output_check_fn
+
+    async def initialize(self):
+        """异步初始化系统提示词"""
+        if not self.history:
+            system_prompt = await self.generate_system_prompt()
+            self.history.append({"role": "system", "content": system_prompt})
 
     def add_user_message(self, message: str):
         self.history.append({"role": "user", "content": message})
@@ -38,153 +62,152 @@ class BaseAgent:
     def compact_history(self):
         if len(self.history) < 3:
             return
-        with open(os.path.join(base_dir, "prompt", "compact.md"), "r") as f:
-            prompt = f.read()
-        history = self.history[1:]
-        history.append({"role": "user", "content": prompt})
-        response = self.llm.chat(history)
 
-        system_prompt = self.history[0]
-        user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
-        self.history = [system_prompt, {"role": "user", "content": user_messages}]
+        # prompt = prompt_manager.load_template("compact")
+        # history = self.history[1:]
+        # history.append({"role": "user", "content": prompt})
+        # response = self.llm.chat(history)
+        #
+        # system_prompt = self.history[0]
+        # user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        # self.history = [system_prompt, {"role": "user", "content": user_messages}]
+        # todo
 
-    def generate_system_prompt(self, name, instruction):
-        with open(os.path.join(base_dir, "prompt", "system_prompt.md"), "r") as f:
-            system_prompt = f.read()
+    async def generate_system_prompt(self):
+        # 通过 Dispatcher 获取所有工具描述
+        tools_prompt = await self.dispatcher.get_all_tools_prompt()
 
-        # 集成工具 prompt
-        tools_prompt = get_tools_prompt()
-        system_prompt = system_prompt.replace("{generate_tools}", tools_prompt)
+        template_name = "system_prompt"
+        format_kwargs = {
+            "generate_tools": tools_prompt,
+            "name": self.name,
+            "instruction": self.instruction
+        }
 
-        system_prompt = system_prompt.replace("{name}", name)
-        system_prompt = system_prompt.replace("{instruction}", instruction)
+        # 如果有 MCP 能力，可能需要不同的模板或额外的变量
+        if "mcp" in self.capabilities:
+            template_name = "dynamic_prompt"
+            # dynamic_prompt.md 还需要 {target_prompt} 和 {mcp_tools}
+            # 这里为了保持 BaseAgent 通用，我们可以在构造时传入特定的 instruction 或在子类/配置中处理
+            # 暂时假设 dynamic_prompt 逻辑可以由外部传入的 instruction 涵盖或通过更灵活的模板变量
+            pass
 
-        # 替换时间
-        nowtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        system_prompt = system_prompt.replace("${NOWTIME}", nowtime)
-
-        return system_prompt
+        return prompt_manager.format_prompt(template_name, **format_kwargs)
 
     def next_prompt(self):
-        with open(os.path.join(base_dir, "prompt", "next_prompt.md"), "r") as f:
-            next_prompt = f.read()
-        return next_prompt.replace("{round}", str(self.iter))
+        return prompt_manager.format_prompt("next_prompt", round=self.iter)
 
-    def execute_tool(self, tool_name: str, args: dict) -> str:
-        """执行工具并返回结果，自动注入context（如果工具需要）"""
-        tool_func = get_tool_by_name(tool_name)
-        if tool_func is None:
-            return f"Error: Tool '{tool_name}' not found"
+    async def run(self):
+        await self.initialize()
+        return await self._run()
 
-        # 检查工具是否需要context参数
-        if needs_context(tool_name):
-            # 创建工具上下文
-            context = ToolContext(
-                llm=self.llm,
-                history=self.history,
-                agent_name=self.name,
-                iteration=self.iter,
-                specialized_llms=self.specialized_llms
-            )
-            args["context"] = context
-
-        result = tool_func(**args)
-        # 返回结果字符串
-        if isinstance(result, dict):
-            ret = ""
-            for k, v in result.items():
-                ret += f"<{k}>{v}</{k}>\n"
-            return ret
-        return str(result)
-
-    def run(self):
-        if self.debug:
-            with Laminar.start_as_current_span(
-                    name=self.name,  # name of the span
-            ) as span:
-                return self._run()
-        else:
-            return self._run()
-
-    def _run(self):
-
+    async def _run(self):
         logger.info(f"Agent {self.name} started with max_iter={self.max_iter}")
         result = ""
         while not self.is_finished and self.iter < self.max_iter:
             self.iter += 1
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
-
-            # 获取 LLM 响应
-            try:
-                response = self.llm.chat(self.history)
-                logger.debug(f"LLM Response: {response}")
-
-                # 添加到历史
-                self.history.append({"role": "assistant", "content": response})
-
-                # 解析工具调用
-                tool_invocations = parse_tool_invocations(response)
-                description = clean_content(response)
-                if description == "":
-                    description = "我将继续执行"
-                mcpLogger.status_update(self.step_id, description, "", "running")
-                if tool_invocations:
-                    # 只处理第一个工具调用（按照规则单个响应只能调用一个工具）
-                    tool_call = tool_invocations
-                    tool_name = tool_call["toolName"]
-                    tool_args = tool_call["args"]
-                    tool_id = uuid.uuid4().__str__()
-
-                    params = tool_args[list(tool_args.keys())[0]]
-                    params = params.replace(self.repo_dir, "")
-
-                    mcpLogger.tool_used(self.step_id, tool_id, tool_name, "doing", tool_name, f"{params}")
-                    if tool_name == "finish":
-                        self.is_finished = True
-                        result = tool_args["content"]
-                        logger.info(f"Finish tool called, returning:{result}")
-                        mcpLogger.status_update(self.step_id, description, "", "completed")
-                        mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
-                        mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name)
-                        continue
-
-                    # 执行工具
-                    tool_result = self.execute_tool(tool_name, tool_args)
-                    # 格式化工具结果并添加到历史
-                    result_message = f"<tool_name>{tool_name}</tool_name><tool_result>{tool_result}</tool_result>"
-
-                    # 添加下一轮提示
-                    next_prompt = self.next_prompt()
-                    full_message = f"{next_prompt}\n\n{result_message}"
-
-                    self.history.append({"role": "user", "content": full_message})
-                    mcpLogger.status_update(self.step_id, description, "", "completed")
-                    if tool_name != "read_file":
-                        mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
-                    mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
-                else:
-                    # 没有工具调用，添加继续提示
-                    mcpLogger.status_update(self.step_id, "Warning: No tool invocation found", "", "completed")
-                    next_prompt = self.next_prompt()
-                    message = '''
-错误原因:No tool invocation found in response.
-你的工具输出格式是否有误,请改正
-### tool format
-<function=tool_name>
-<parameter=param_name>value</parameter>
-<parameter=param_name2>value2</parameter>
-</function>
-'''
-                    self.history.append({"role": "user", "content": f"{next_prompt}\n{message}"})
-
-            except Exception as e:
-                logger.error(f"Error in iteration {self.iter}: {e}")
-                error_message = f"Error occurred: {str(e)}. Please continue or adjust your approach."
-                self.history.append({"role": "user", "content": error_message})
-
-        if self.iter >= self.max_iter:
-            logger.warning(f"Max iterations ({self.max_iter}) reached")
-            self.compact_history()
-
-        logger.info("Agent execution completed")
+            response = self.llm.chat(self.history, self.debug)
+            logger.debug(f"LLM Response: {response}")
+            self.history.append({"role": "assistant", "content": response})
+            res = await self.handle_response(response)
+            if res is not None:
+                result = res
+            if self.iter >= self.max_iter:
+                logger.warning(f"Max iterations ({self.max_iter}) reached")
+                self.compact_history()
         return result
+
+    async def handle_response(self, response: str):
+        tool_invocations = parse_tool_invocations(response)
+        description = clean_content(response)
+        if description == "":
+            description = "我将继续执行"
+
+        mcpLogger.status_update(self.step_id, description, "", "running")
+
+        if tool_invocations:
+            return await self.process_tool_call(tool_invocations, description)
+        else:
+            return await self.handle_no_tool(description)
+
+    async def process_tool_call(self, tool_call: dict, description: str):
+        tool_name = tool_call["toolName"]
+        tool_args = tool_call["args"]
+        tool_id = uuid.uuid4().__str__()
+
+        params = tool_args[list(tool_args.keys())[0]] if tool_args else ""
+        if isinstance(params, str):
+            params = params.replace(self.repo_dir, "")
+
+        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "doing", tool_name, f"{params}")
+
+        if tool_name == "finish":
+            self.is_finished = True
+            brief_content = tool_args.get("content", "")
+
+            # 如果定义了输出格式，则进行二次格式化
+            result = await self._format_final_output()
+            logger.info(f"Finish tool called, final result formatted.")
+            mcpLogger.status_update(self.step_id, description, "", "completed")
+            mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
+            mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
+            return result
+
+        # 构造上下文
+        context = ToolContext(
+            llm=self.llm,
+            history=self.history,
+            agent_name=self.name,
+            iteration=self.iter,
+            specialized_llms=self.specialized_llms,
+            folder=self.repo_dir
+        )
+
+        # 通过 Dispatcher 调用工具
+        tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+
+        # 格式化工具结果并添加到历史
+        result_message = f"{tool_result}"
+
+        # 添加下一轮提示
+        next_p = self.next_prompt()
+        full_message = f"{next_p}\n\n{result_message}"
+
+        self.history.append({"role": "user", "content": full_message})
+        mcpLogger.status_update(self.step_id, description, "", "completed")
+
+        if tool_name != "read_file":
+            mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
+
+        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+        return None
+
+    async def handle_no_tool(self, description: str):
+        # todo
+        return None
+
+    async def _format_final_output(self) -> str:
+        """使用 LLM 根据历史记录和预设格式生成最终输出"""
+        # 取最近的对话历史作为参考
+        recent_history = self.history[1:]
+        formatting_prompt = prompt_manager.format_prompt(
+            "format_report",
+            output_format=self.output_format
+        )
+        recent_history.append({"role": "user", "content": formatting_prompt})
+        final_output = ""
+        while True:
+            final_output = self.llm.chat(recent_history)
+            if self.output_check_fn:
+                ret = self.output_check_fn(final_output)
+                if isinstance(ret, bool) and ret:
+                    final_output = ret
+                    break
+                else:
+                    error_message = f"Output does not match the required format. Please try again.{ret}"
+                    recent_history.append({"role": "user", "content": error_message})
+            else:
+                break
+        logger.info(f"Final Output: {final_output}")
+        return final_output

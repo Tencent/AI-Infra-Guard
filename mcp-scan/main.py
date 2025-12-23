@@ -5,7 +5,7 @@ Agent Framework - 主入口文件
 这是一个模仿 Claude Code / Gemini CLI 的 Agent 框架。
 Agent 可以自动调用工具完成任务。
 """
-import logging
+import asyncio
 import os
 import sys
 import argparse
@@ -152,8 +152,8 @@ async def main():
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")    
     try:
-        # result = agent.scan(args.repo, args.prompt)
-        # logger.info(f"Scan completed successfully:\n\n {result}")
+        result = await agent.scan(args.repo, args.prompt)
+        logger.info(f"Scan completed successfully:\n\n {result}")
 
         if args.dynamic:
             logger.info(f"Dynamic analysis enabled with server URL: {args.server_url}")
@@ -171,6 +171,10 @@ async def main():
         print(f"\n\nError during execution: {e}")
         logger.error(f"Error during execution: {e}", exc_info=True)
         raise Exception(f"Execution failed: {e}")
+    finally:
+        # 确保关闭资源
+        if hasattr(agent, 'dispatcher'):
+            await agent.dispatcher.close()
     
 
 # Example for dynamic testing & analyzing: `python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse`
@@ -180,18 +184,5 @@ if __name__ == "__main__":
 
     # 如果是 debug 模式，初始化 Laminar
     console_handler = logging.StreamHandler()
-    if args.debug:
-        console_handler.setLevel(logging.DEBUG)
-        try:
-            laminar_key = config.LAMINAR_API_KEY
-            if laminar_key:
-                Laminar.initialize(project_api_key=laminar_key)
-                logger.info("Debug mode enabled - Laminar tracking active")
-            else:
-                logger.warning("Debug mode enabled but LAMINAR_API_KEY not set")
-        except Exception as e:
-            logger.warning(f"Failed to initialize Laminar: {e}")
-    else:
-        console_handler.setLevel(logging.INFO)
-    import asyncio
+    console_handler.setLevel(logging.INFO)
     asyncio.run(main())

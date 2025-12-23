@@ -53,10 +53,6 @@
 <parameter=param_name2>value2</parameter>
 </function>
 
-### 工具结果提供
-我将根据你的调用格式给你提供如下返回格式
-<tool_name>tool_name</tool_name><tool_result>final result str</tool_result>
-
 # 工作环境
 ## 操作系统
 操作环境不在沙箱中。你执行的任何操作，尤其是变更操作，都会立即影响用户的系统。因此你必须极其谨慎。除非得到明确指示，否则绝不应访问（读/写/执行）工作目录之外的文件。

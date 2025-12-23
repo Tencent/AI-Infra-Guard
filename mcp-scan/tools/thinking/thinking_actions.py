@@ -24,9 +24,10 @@ def think(thought: str, context: ToolContext = None) -> dict[str, Any]:
         system_prompt = """你是一个专业的思考助手，擅长深度分析和逻辑推理。
 你的任务是对用户提出的问题进行深入思考，提供：
 1. 问题分析
-2. 可能的解决方案
-3. 潜在风险和注意事项
-4. 推荐的行动步骤
+2. 当前信息和背景整合
+3. 可能的解决方案
+4. 潜在风险和注意事项
+5. 推荐的行动步骤
 
 请用简洁、结构化的方式回答。"""
 
@@ -35,11 +36,10 @@ def think(thought: str, context: ToolContext = None) -> dict[str, Any]:
             prompt=f"请对以下内容进行深度思考和分析：\n\n{thought}",
             purpose="thinking",
             system_prompt=system_prompt,
-            use_history=True  # 思考时不需要历史记录，保持独立
+            use_history=True  # 思考时需要历史记录
         )
 
         return {
-            "success": True,
             "thought_input": thought,
             "thinking_result": thinking_result,
         }

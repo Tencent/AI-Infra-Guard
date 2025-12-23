@@ -260,11 +260,7 @@ class MCPTools(Toolkit):
 
     async def describe_mcp_tools(self) -> str:
         xml_lines = ["<mcp_tools>"]
-        try:
-            await self.connect()
-        except Exception as e:
-            log_error(f"Failed to connect to MCP server: {e}")
-            raise Exception("Failed to connect to MCP server.")
+        await self.connect()
 
         try:
             # Get the list of tools from the MCP server
@@ -285,21 +281,15 @@ class MCPTools(Toolkit):
         except Exception as e:
             log_error(e)
             raise Exception("Failed to fetch MCP tools description from server.")
-        finally:
-            await self.close()
-            return "\n".join(xml_lines)
+        return "\n".join(xml_lines)
         
-    async def call_remote_tool(self, call: dict) -> str:
+    async def call_remote_tool(self, call: dict) -> tuple:
         """
         调用远程 MCP server 上的工具并返回结果。
         参数:
             call: {"toolName": name, "args": {...}}
         """
-        try:
-            await self.connect()
-        except Exception as e:
-            log_error(e)
-            raise Exception("Failed to connect to MCP server.")
+        await self.connect()
 
         try:
             # Get the list of tools from the MCP server
@@ -312,11 +302,10 @@ class MCPTools(Toolkit):
                     tool_info["outputSchema"] = t.outputSchema
                     break
             result = await self.session.call_tool(call["toolName"], call.get("args", {}))
-        except Exception:
-            raise Exception("Failed to fetch MCP tools description from server.")
-        finally:
-            await self.close()
-        return tool_info, result
+            return tool_info, result
+        except Exception as e:
+            log_error(e)
+            raise Exception(f"Failed to call remote tool {call.get('toolName')}: {str(e)}")
 
 
 if __name__ == "__main__":

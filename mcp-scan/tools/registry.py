@@ -1,5 +1,6 @@
 import inspect
 import os
+import re
 from collections.abc import Callable
 from functools import wraps
 from inspect import signature
@@ -11,73 +12,21 @@ tools: list[dict[str, Any]] = []
 _tools_by_name: dict[str, Callable[..., Any]] = {}
 
 
-class ImplementedInClientSideOnlyError(Exception):
-    def __init__(
-            self,
-            message: str = "This tool is implemented in the client side only",
-    ) -> None:
-        self.message = message
-        super().__init__(self.message)
-
-
-def _process_dynamic_content(content: str) -> str:
-    if "{{DYNAMIC_MODULES_DESCRIPTION}}" in content:
-        try:
-            from strix.prompts import generate_modules_description
-
-            modules_description = generate_modules_description()
-            content = content.replace("{{DYNAMIC_MODULES_DESCRIPTION}}", modules_description)
-        except ImportError:
-            logger.warning("Could not import prompts utilities for dynamic schema generation")
-            content = content.replace(
-                "{{DYNAMIC_MODULES_DESCRIPTION}}",
-                "List of prompt modules to load for this agent (max 5). Module discovery failed.",
-            )
-
-    return content
-
-
-def _load_xml_schema(path: Path) -> Any:
+def _load_xml_schema(path: Path) -> dict[str, str]:
     if not path.exists():
-        return None
+        return {}
     try:
         content = path.read_text()
-
-        content = _process_dynamic_content(content)
-
-        start_tag = '<tool name="'
-        end_tag = "</tool>"
+        # Simplified parsing using regex
         tools_dict = {}
-
-        pos = 0
-        while True:
-            start_pos = content.find(start_tag, pos)
-            if start_pos == -1:
-                break
-
-            name_start = start_pos + len(start_tag)
-            name_end = content.find('"', name_start)
-            if name_end == -1:
-                break
-            tool_name = content[name_start:name_end]
-
-            end_pos = content.find(end_tag, name_end)
-            if end_pos == -1:
-                break
-            end_pos += len(end_tag)
-
-            tool_element = content[start_pos:end_pos]
-            tools_dict[tool_name] = tool_element
-
-            pos = end_pos
-
-            if pos >= len(content):
-                break
-    except (IndexError, ValueError, UnicodeError) as e:
-        logger.warning(f"Error loading schema file {path}: {e}")
-        return None
-    else:
+        tool_pattern = r'<tool name="([^"]+)">.*?</tool>'
+        matches = re.finditer(tool_pattern, content, re.DOTALL)
+        for match in matches:
+            tools_dict[match.group(1)] = match.group(0)
         return tools_dict
+    except Exception as e:
+        logger.warning(f"Error loading schema file {path}: {e}")
+        return {}
 
 
 def _get_module_name(func: Callable[..., Any]) -> str:

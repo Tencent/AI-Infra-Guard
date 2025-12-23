@@ -3,60 +3,38 @@ import re
 from typing import Any
 
 
-def parse_tool_invocations(content: str) -> dict[str, Any] | None:
-    tool_invocations: dict[str, Any] = {}
+def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
+    results = []
+    regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
 
-    fn_regex_pattern = r"<function=([^>]+)>\n?(.*?)</function.*?>"
-    fn_param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
-
-    fn_matches = re.finditer(fn_regex_pattern, content, re.DOTALL)
-
-    for fn_match in fn_matches:
-        fn_name = fn_match.group(1)
-        fn_body = fn_match.group(2)
-
-        param_matches = re.finditer(fn_param_regex_pattern, fn_body, re.DOTALL)
-
-        args = {}
-        for param_match in param_matches:
-            param_name = param_match.group(1)
-            param_value = param_match.group(2).strip()
-
-            param_value = html.unescape(param_value)
-            args[param_name] = param_value
-
-        tool_invocations = {"toolName": fn_name, "args": args}
-    return tool_invocations if tool_invocations else None
-
-def parse_mcp_invocations(content: str) -> list | None:
-    tool_invocations: list = []
-
-    fn_regex_pattern = r"<mcp_function=([^>]+)>\n?(.*?)</mcp_function.*?>"
-    fn_param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
-
-    fn_matches = re.finditer(fn_regex_pattern, content, re.DOTALL)
-
-    for fn_match in fn_matches:
-        # 如果是 mcp_function = tool_name，则跳过，因为这是few-shot example
-        if fn_match.group(1) == "tool_name":
+    matches = re.finditer(regex_pattern, content, re.DOTALL)
+    for match in matches:
+        fn_name = match.group(1)
+        if fn_name == "tool_name":  # Skip few-shot examples
             continue
 
-        fn_name = fn_match.group(1)
-        fn_body = fn_match.group(2)
-
-        param_matches = re.finditer(fn_param_regex_pattern, fn_body, re.DOTALL)
+        body = match.group(2)
+        param_matches = re.finditer(param_regex_pattern, body, re.DOTALL)
 
         args = {}
         for param_match in param_matches:
-            param_name = param_match.group(1)
-            param_value = param_match.group(2).strip()
+            p_name = param_match.group(1)
+            p_value = html.unescape(param_match.group(2).strip())
+            args[p_name] = p_value
 
-            param_value = html.unescape(param_value)
-            args[param_name] = param_value
+        results.append({"toolName": fn_name, "args": args})
+    return results
 
-        tool_invocations.append({"toolName": fn_name, "args": args})
-    return tool_invocations if tool_invocations else None
 
+def parse_tool_invocations(content: str) -> dict[str, Any] | None:
+    invocations = _parse_tags(content, "function")
+    return invocations[0] if invocations else None
+
+
+def parse_mcp_invocations(content: str) -> list[dict[str, Any]] | None:
+    invocations = _parse_tags(content, "mcp_function")
+    return invocations if invocations else None
 
 
 def clean_content(content: str) -> str:

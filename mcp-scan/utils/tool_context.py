@@ -14,7 +14,8 @@ class ToolContext:
             history: List[Dict[str, str]],
             agent_name: str = "Agent",
             iteration: int = 0,
-            specialized_llms: Optional[Dict[str, LLM]] = None
+            specialized_llms: Optional[Dict[str, LLM]] = None,
+            folder: Optional[str] = None,
     ):
         """
         初始化工具上下文
@@ -25,12 +26,14 @@ class ToolContext:
             agent_name: Agent名称
             iteration: 当前迭代次数
             specialized_llms: 专用LLM字典，key为用途(如"thinking", "coding")
+            folder: 代码仓库路径
         """
         self.llm = llm
         self.history = history
         self.agent_name = agent_name
         self.iteration = iteration
         self.specialized_llms = specialized_llms or {}
+        self.folder = folder
 
     def get_llm(self, purpose: str = "default") -> LLM:
         """
