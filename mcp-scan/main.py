@@ -93,6 +93,7 @@ def parse_args():
     )
     return parser.parse_args()
 
+
 def task_validation(input_tasks: list) -> bool:
     """验证任务列表是否合法"""
     if not input_tasks or len(input_tasks) == 0:
@@ -146,11 +147,11 @@ async def main():
 
     # 创建 Agent 实例，传入专用模型
     agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug,
-                   dynamic=args.dynamic, server_url=args.server_url)
+                  dynamic=args.dynamic, server_url=args.server_url)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
-        logger.info(f"Custom prompt: {args.prompt}")    
+        logger.info(f"Custom prompt: {args.prompt}")
     try:
         result = await agent.scan(args.repo, args.prompt)
         logger.info(f"Scan completed successfully:\n\n {result}")
@@ -160,9 +161,11 @@ async def main():
             if not task_validation(args.tasks):
                 raise ValueError("Invalid tasks provided for dynamic analysis.")
             if args.server_transport not in ["streamable-http", "sse"]:
-                logger.error(f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'streamable-http' or 'sse'.")
+                logger.error(
+                    f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'streamable-http' or 'sse'.")
                 raise ValueError("Invalid server transport protocol provided for dynamic analysis.")
-            dynamic_results = await agent.dynamic_analysis(args.repo, args.server_url, args.server_transport, args.tasks)
+            dynamic_results = await agent.dynamic_analysis(args.repo, args.server_url, args.server_transport,
+                                                           args.tasks)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
@@ -175,7 +178,7 @@ async def main():
         # 确保关闭资源
         if hasattr(agent, 'dispatcher'):
             await agent.dispatcher.close()
-    
+
 
 # Example for dynamic testing & analyzing: `python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse`
 if __name__ == "__main__":
@@ -183,6 +186,4 @@ if __name__ == "__main__":
     args = parse_args()
 
     # 如果是 debug 模式，初始化 Laminar
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
     asyncio.run(main())

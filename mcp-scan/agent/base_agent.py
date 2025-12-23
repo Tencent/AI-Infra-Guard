@@ -197,17 +197,13 @@ class BaseAgent:
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
         final_output = ""
-        while True:
+        for _ in range(3):
             final_output = self.llm.chat(recent_history)
+            logger.info(f"Final Output: {final_output}")
             if self.output_check_fn:
                 ret = self.output_check_fn(final_output)
                 if isinstance(ret, bool) and ret:
-                    final_output = ret
                     break
-                else:
-                    error_message = f"Output does not match the required format. Please try again.{ret}"
-                    recent_history.append({"role": "user", "content": error_message})
             else:
                 break
-        logger.info(f"Final Output: {final_output}")
         return final_output
