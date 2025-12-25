@@ -41,6 +41,7 @@ img/
 *.txt
 License.txt
 !README.md
+!CHANGELOG.md
 
 # GitHub Actions配置
 .github/
