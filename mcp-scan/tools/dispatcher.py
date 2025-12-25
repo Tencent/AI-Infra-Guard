@@ -45,16 +45,14 @@ class ToolDispatcher:
 
     async def get_all_tools_prompt(self) -> str:
         """获取所有可用工具的描述 Prompt"""
-        common_tools = ['finish', 'think']
-
-        normal_tools = copy.copy(common_tools)
-        normal_tools.extend(['read_file', 'execute_shell'])
-
-        dynamic_tools = copy.copy(common_tools)
-        dynamic_tools.extend(['mcp_tool'])
+        # common_tools = ['finish', 'think']
+        # normal_tools = copy.copy(common_tools)
+        # normal_tools.extend(['read_file', 'execute_shell'])
+        # dynamic_tools = copy.copy(common_tools)
+        # dynamic_tools.extend(['call_mcp_tool', 'list_mcp_tools', 'list_mcp_prompts', 'list_mcp_resources'])
 
         if self.mcp_server_url:
-            prompt = get_tools_prompt(dynamic_tools or [])
+            prompt = get_tools_prompt([])
             manager = await self._ensure_mcp_manager()
             if not manager:
                 raise RuntimeError("Failed to connect to MCP server")
@@ -66,7 +64,7 @@ class ToolDispatcher:
                 logger.error(f"Failed to fetch MCP tools description: {e}")
                 return prompt
         else:
-            prompt = get_tools_prompt(normal_tools or [])
+            prompt = get_tools_prompt([])
 
         return prompt
 

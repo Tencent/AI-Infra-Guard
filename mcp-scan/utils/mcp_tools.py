@@ -83,12 +83,43 @@ class MCPTools:
             result = await session.call_tool(tool_name, kw)
             if result is None:
                 return None
-            result = result.content[0]
-            # 判断TextContent or ImageContent or VideoContent
-            if hasattr(result, 'text'):
-                return result.text
-            elif hasattr(result, 'data'):
-                return result.data
+            
+            # Combine all text contents
+            text_parts = []
+            for content in result.content:
+                if hasattr(content, 'text'):
+                    text_parts.append(content.text)
+                elif hasattr(content, 'data'):
+                    text_parts.append(f"[Binary Data: {len(content.data)} bytes]")
+            
+            return "\n".join(text_parts) if text_parts else str(result)
+
+    async def list_remote_prompts(self) -> str:
+        """Return a string listing available prompts."""
+        async with self._session() as session:
+            data = await session.list_prompts()
+            if not data.prompts:
+                return "No prompts available."
+            
+            lines = ["Available Prompts:"]
+            for p in data.prompts:
+                args = ", ".join([f"{arg.name} ({'required' if arg.required else 'optional'})" for arg in p.arguments or []])
+                lines.append(f"- {p.name}: {p.description or 'No description'}")
+                if args:
+                    lines.append(f"  Arguments: {args}")
+            return "\n".join(lines)
+
+    async def list_remote_resources(self) -> str:
+        """Return a string listing available resources."""
+        async with self._session() as session:
+            data = await session.list_resources()
+            if not data.resources:
+                return "No resources available."
+            
+            lines = ["Available Resources:"]
+            for r in data.resources:
+                lines.append(f"- {r.name} ({r.uri}): {r.description or 'No description'}")
+            return "\n".join(lines)
 
 
 if __name__ == "__main__":
