@@ -23,6 +23,9 @@ Important notes:
     <parameter name="timeout" type="integer" required="false">
         <description>Maximum execution time in seconds. Default is 300 seconds. Use higher values for long-running commands.</description>
     </parameter>
+    <parameter name="cwd" type="string" required="false">
+        <description>The working directory in which to execute the command. If not specified, defaults to the current working directory of the agent.</description>
+    </parameter>
 </parameters>
 <returns type="Dict[str, Any]">
     <description>Response containing:
@@ -58,9 +61,15 @@ Important notes:
         </function>
 
         # Git operations
-<function=execute_shell>
-<parameter=command>git status</parameter>
-</function>
+        <function=execute_shell>
+        <parameter=command>git status</parameter>
+        </function>
+
+        # Execute in a specific directory
+        <function=execute_shell>
+        <parameter=command>ls -la</parameter>
+        <parameter=cwd>/app/AIG-PromptSecurity</parameter>
+        </function>
     </examples>
   </tool>
 </tools>

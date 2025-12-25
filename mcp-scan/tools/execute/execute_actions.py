@@ -12,14 +12,13 @@ def _execute_code(code: str, timeout: int) -> dict[str, Any]:
     """执行Python代码的辅助函数
     
     Args:
-        command: The shell command to execute.
-        timeout: Timeout in seconds for synchronous execution (default: 300).
-        background: If True, runs the command in background and returns PID immediately.
+        code: 要执行的 Python 代码
+        timeout: 超时时间（秒）
 
     Returns:
-        A dictionary containing execution results (stdout, stderr, exit_code) or PID.
+        包含执行结果的字典
     """
-    logger.info(f"Executing shell command: {command} (background={background})")
+    logger.info(f"Executing Python code (timeout={timeout}s)")
 
     try:
         # 创建临时 Python 文件
@@ -86,12 +85,13 @@ def _execute_code(code: str, timeout: int) -> dict[str, Any]:
 
 
 @register_tool
-def execute_shell(command: str, timeout: int = 300) -> dict[str, Any]:
+def execute_shell(command: str, timeout: int = 300, cwd: Optional[str] = None) -> dict[str, Any]:
     """执行 Shell 命令
     
     Args:
         command: 要执行的 Shell 命令
         timeout: 超时时间（秒），默认 300 秒
+        cwd: 执行命令的工作目录（可选）
         
     Returns:
         包含执行结果的字典
@@ -102,7 +102,8 @@ def execute_shell(command: str, timeout: int = 300) -> dict[str, Any]:
             shell=True,
             capture_output=True,
             text=True,
-            timeout=timeout
+            timeout=timeout,
+            cwd=cwd
         )
 
         output = {
