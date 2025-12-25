@@ -89,14 +89,7 @@ def get_top_language(stats: dict) -> str:
 def calc_mcp_score(issues: list) -> int:
     """
     根据漏洞列表计算安全分数（0-100）
-    
-    评分规则：
-    - 无漏洞时得分为100
-    - 高危/严重漏洞权重为0.7
-    - 中危漏洞权重为0.5
-    - 低危漏洞权重为0.3
-    - 最终得分 = 100 - 加权风险比例 * 100
-    
+
     Args:
         issues: 漏洞列表，每个漏洞应包含 risk_type 字段
         
@@ -125,9 +118,9 @@ def calc_mcp_score(issues: list) -> int:
 
     # 计算加权风险比例
     weighted_risk = (
-            (high / total) * 0.7 +
-            (middle / total) * 0.5 +
-            (low / total) * 0.3
+            (high / total) * 0.9 +
+            (middle / total) * 0.6 +
+            (low / total) * 0.4
     )
 
     # 计算安全评分（百分制）
