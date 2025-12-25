@@ -40,9 +40,8 @@ RUN set -eux; \
         fontconfig \
         tzdata \
         build-essential \
-        gcc \
-        python3-dev; \
-    rm -rf /var/lib/apt/lists/*
+        vim \
+        gcc
 
 RUN fc-cache -fv
 
@@ -60,9 +59,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN set -eux; \
     apt-get purge -y --auto-remove \
         build-essential \
-        gcc \
-        python3-dev || true; \
-    rm -rf /var/lib/apt/lists/* /root/.cache
+        gcc
 
 COPY --from=builder /app/agent /app/agent
 COPY --from=builder /app/data /app/data

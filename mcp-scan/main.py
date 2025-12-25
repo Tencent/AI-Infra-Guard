@@ -14,6 +14,7 @@ from utils.llm import LLM
 # 配置专用模型
 from utils.llm_manager import LLMManager
 from utils.loging import logger
+from utils.aig_logger import mcpLogger
 from utils import config
 
 # 重要：导入 tools 包以触发工具注册
@@ -88,14 +89,6 @@ async def main():
         logger.error("API Key not provided. Use --api-key or set OPENROUTER_API_KEY environment variable.")
         sys.exit(1)
 
-    # 验证项目路径
-    if not os.path.exists(args.repo):
-        logger.error(f"Project path does not exist: {args.repo}")
-        sys.exit(1)
-
-    if not os.path.isdir(args.repo):
-        logger.error(f"Project path is not a directory: {args.repo}")
-        sys.exit(1)
 
     # 创建主 LLM 实例
     llm = LLM(model=args.model, api_key=api_key, base_url=args.base_url)
@@ -118,16 +111,22 @@ async def main():
         prompt += "所有回复都应使用中文。"
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")
+    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
+                  language=args.language)
     try:
-        if args.server:
+        if args.server_url:
             logger.info(f"Server mode enabled with URL: {args.server_url}")
-            agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
-                          language=args.language)
             dynamic_results = await agent.dynamic_analysis(args.prompt)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
         else:
-            agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=None,
-                          language=args.language)
+            # 验证项目路径
+            if not os.path.exists(args.repo):
+                logger.error(f"Project path does not exist: {args.repo}")
+                sys.exit(1)
+
+            if not os.path.isdir(args.repo):
+                logger.error(f"Project path is not a directory: {args.repo}")
+                sys.exit(1)
             result = await agent.scan(args.repo, args.prompt)
             logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
@@ -136,6 +135,7 @@ async def main():
     except Exception as e:
         print(f"\n\nError during execution: {e}")
         logger.error(f"Error during execution: {e}", exc_info=True)
+        mcpLogger.error_log(f"Execution failed: {e}")
         raise Exception(f"Execution failed: {e}")
     finally:
         # 确保关闭资源

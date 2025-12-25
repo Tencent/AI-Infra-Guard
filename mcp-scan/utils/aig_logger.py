@@ -91,6 +91,9 @@ class McpLogger:
     def result_update(self, content: dict):
         self._log("resultUpdate", content)
 
+    def error_log(self, msg: str):
+        self._log("error", errorLog(msg=msg))
+
 
 mcpLogger = McpLogger()
 

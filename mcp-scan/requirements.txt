@@ -4,3 +4,4 @@ pydantic==2.12.4
 python-dotenv==1.0.0
 starlette==0.50.0
 uvicorn==0.38.0
+loguru==0.7.3

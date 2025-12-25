@@ -78,7 +78,10 @@ class ToolDispatcher:
             if needs_context(tool_name) and context:
                 args["context"] = context
 
-            result = tool_func(**args)
+            try:
+                result = tool_func(**args)
+            except Exception as e:
+                return f"Error: {e}"
             if inspect.isawaitable(result):
                 result = await result
             return self._format_result(result)
