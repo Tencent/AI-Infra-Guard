@@ -30,10 +30,10 @@ type TaskCreateRequest struct {
 
 // 通用事件消息体（SSE推送）
 type TaskEventMessage struct {
-	ID        string      `json:"id" validate:"required"`        // 事件ID - 必需
+	ID        string      `json:"id"`                            // 事件ID - 必需
 	Type      string      `json:"type" validate:"required"`      // 事件类型 - 必需
 	SessionID string      `json:"sessionId" validate:"required"` // 会话ID - 必需
-	Timestamp int64       `json:"timestamp" validate:"required"` // 时间戳 - 必需
+	Timestamp int64       `json:"timestamp"`                     // 时间戳 - 必需
 	Event     interface{} `json:"event" validate:"required"`     // 事件数据 - 必需
 }
 
