@@ -8,13 +8,9 @@ from utils.loging import logger
 from utils.tool_context import ToolContext
 
 
-@register_tool
-def execute_shell(command: str, timeout: int = 36000, background: bool = False, context: ToolContext = None) -> dict[
-    str, Any]:
-    """
-    Executes a shell command.
-    Supports both synchronous execution with timeout and background execution.
-
+def _execute_code(code: str, timeout: int) -> dict[str, Any]:
+    """执行Python代码的辅助函数
+    
     Args:
         command: The shell command to execute.
         timeout: Timeout in seconds for synchronous execution (default: 300).
@@ -26,71 +22,112 @@ def execute_shell(command: str, timeout: int = 36000, background: bool = False, 
     logger.info(f"Executing shell command: {command} (background={background})")
 
     try:
-        if background:
-            # Background execution
-            # We use setsid to create a new session so it survives if the parent dies (optional but good for servers)
-            process = subprocess.Popen(
-                command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                start_new_session=True,
-                # cwd=context.repo_dir,
-            )
+        # 创建临时 Python 文件
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
+            f.write(code)
+            temp_file = f.name
 
-            # Give it a moment to potentially fail immediately
-            time.sleep(0.5)
-            if process.poll() is not None:
-                # It died immediately
-                stdout, stderr = process.communicate()
-                return {
-                    "success": False,
-                    "exit_code": process.returncode,
-                    "stdout": stdout,
-                    "stderr": stderr,
-                    "message": "Command failed immediately upon start"
-                }
+        logger.debug(f"Executing Python code from temporary file: {temp_file}")
 
-            return {
-                "success": True,
-                "pid": process.pid,
-                "message": f"Command started in background (PID: {process.pid})",
-                "background": True
-            }
+        # 执行临时文件
+        result = subprocess.run(
+            ["python3", temp_file],
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
 
+        output = {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "return_code": result.returncode,
+            "temp_file": temp_file  # 返回临时文件路径，便于调试
+        }
+
+        # 如果执行失败，在 stderr 中添加临时文件信息
+        if result.returncode != 0:
+            output["message"] = f"Python code execution failed. Temp file: {temp_file}"
+            logger.error(f"Python execution failed, temp file kept at: {temp_file}")
         else:
-            # Synchronous execution
-            start_time = time.time()
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                # cwd=context.repo_dir
-            )
-            duration = time.time() - start_time
+            # 成功时删除临时文件
+            try:
+                os.remove(temp_file)
+                output["temp_file"] = None
+            except:
+                pass
 
-            return {
-                "success": result.returncode == 0,
-                "exit_code": result.returncode,
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-                "duration": duration,
-                "message": f"Command finished with code {result.returncode}"
-            }
+        return output
 
     except subprocess.TimeoutExpired:
+        logger.error(f"Python code execution timeout after {timeout}s")
+        error_msg = f"Execution timeout after {timeout} seconds. Temp file: {temp_file}"
         return {
             "success": False,
-            "error": "timeout",
-            "message": f"Command timed out after {timeout} seconds"
+            "message": error_msg,
+            "stdout": "",
+            "stderr": error_msg,
+            "return_code": -1,
+            "temp_file": temp_file
         }
     except Exception as e:
-        logger.error(f"Shell execution error: {e}")
+        logger.error(f"Error executing Python code: {e}")
+        error_msg = f"Error executing Python code: {str(e)}"
+        if temp_file:
+            error_msg += f"\nTemp file: {temp_file}"
         return {
             "success": False,
-            "error": str(e),
-            "message": "Internal error executing command"
+            "message": error_msg,
+            "stdout": "",
+            "stderr": str(e),
+            "return_code": -1,
+            "temp_file": temp_file
+        }
+
+
+@register_tool
+def execute_shell(command: str, timeout: int = 300) -> dict[str, Any]:
+    """执行 Shell 命令
+    
+    Args:
+        command: 要执行的 Shell 命令
+        timeout: 超时时间（秒），默认 300 秒
+        
+    Returns:
+        包含执行结果的字典
+    """
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+
+        output = {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "return_code": result.returncode
+        }
+        return output
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"Shell command timeout after {timeout}s")
+        return {
+            "success": False,
+            "message": f"Execution timeout after {timeout} seconds",
+            "stdout": "",
+            "stderr": "Timeout",
+            "return_code": -1
+        }
+    except Exception as e:
+        logger.error(f"Error executing shell command: {e}")
+        return {
+            "success": False,
+            "message": f"Error executing shell command: {str(e)}",
+            "stdout": "",
+            "stderr": str(e),
+            "return_code": -1
         }

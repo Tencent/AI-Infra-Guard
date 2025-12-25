@@ -1,7 +1,10 @@
 """
 工具执行上下文 - 提供工具运行所需的环境信息
 """
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    from tools.dispatcher import ToolDispatcher
 from utils.llm import LLM
 
 
@@ -15,24 +18,28 @@ class ToolContext:
             agent_name: str = "Agent",
             iteration: int = 0,
             specialized_llms: Optional[Dict[str, LLM]] = None,
-            repo_dir: str = ""
+            folder: Optional[str] = None,
+            tool_dispatcher: Optional["ToolDispatcher"] = None,
     ):
         """
         初始化工具上下文
-        
-        Args:
-            llm: 主要使用的LLM实例
-            history: 对话历史记录
-            agent_name: Agent名称
-            iteration: 当前迭代次数
-            specialized_llms: 专用LLM字典，key为用途(如"thinking", "coding")
         """
         self.llm = llm
         self.history = history
         self.agent_name = agent_name
         self.iteration = iteration
         self.specialized_llms = specialized_llms or {}
-        self.repo_dir = repo_dir
+        self.folder = folder
+        self.tool_dispatcher = tool_dispatcher
+
+    async def call_mcp_tools(self, tool_name: str, tool_args: Dict[str, Any]):
+        if not self.tool_dispatcher:
+            raise RuntimeError("Tool dispatcher is not available in ToolContext")
+        if not self.tool_dispatcher.mcp_tools_manager:
+            await self.tool_dispatcher._ensure_mcp_manager()
+        if not self.tool_dispatcher.mcp_tools_manager:
+            raise RuntimeError("MCP tools manager is not initialized")
+        return await self.tool_dispatcher.mcp_tools_manager.call_remote_tool(tool_name, **tool_args)
 
     def get_llm(self, purpose: str = "default") -> LLM:
         """

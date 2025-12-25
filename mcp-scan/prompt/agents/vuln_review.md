@@ -43,19 +43,25 @@
 ## MCP特定风险评估框架
 
 ### 风险类型分类标准
-漏洞类型(risk_type)必须为以下类别之一：
+漏洞类型（risk_type）分类规则：
+- **若漏洞属于下表任一风险类型（包含 MCP01-MCP10 或表中列出的 MCP 特定风险）**：必须**使用表中规定的风险类型名称**，并在报告中**展示对应风险 ID**（如 MCP05）。
+- **若漏洞不属于下表**：risk_type 仍需准确命名，但必须同时补充通用安全分类编号作为依据（至少一种）：**CWE-\***、**OWASP Top 10（如 A01:2021）**、**OWASP ASVS** 等。
 
-| 风险类型 | 检测重点 | MCP环境特殊性 |
-|---------|---------|-------------|
-| Auth Bypass | 认证绕过漏洞 | 关注MCP工具间的认证机制 |
-| Command Injection | 命令注入漏洞 | 评估MCP工具的命令执行权限 |
-| Credential Theft | 凭据窃取风险 | MCP配置文件(.cursor/mcp.json)敏感性 |
-| Hardcoded API Key | 硬编码API密钥 | AI服务密钥的泄露风险 |
-| Indirect Prompt Injection | 间接提示注入 | MCP特有的AI交互安全风险 |
-| Name Confusion | 名称混淆攻击 | MCP工具注册机制的滥用 |
-| Rug Pull Attack | 拉地毯攻击 | MCP服务突然终止的恶意行为 |
-| Tool Poisoning Attack | 工具投毒攻击 | 合法MCP工具的恶意修改 |
-| Tool Shadowing Attack | 工具阴影攻击 | MCP工具重定义攻击 |
+| 风险 ID | 风险类型 | 检测重点 | MCP 环境特殊性 |
+| :--- | :--- | :--- | :--- |
+| **MCP01** | **Token Mismanagement & Secret Exposure** | 凭据窃取与密钥泄露 | 硬编码密钥、环境变量泄露、`.cursor/mcp.json` 敏感凭据窃取 |
+| **MCP02** | **Privilege Escalation via Scope Creep** | 权限提升与范围蔓延 | 工具权限定义过宽，导致代理获得非必要的系统控制权或数据访问权 |
+| **MCP03** | **Tool Poisoning** | 工具投毒攻击 | 合法 MCP 工具被篡改或注入恶意逻辑，返回虚假/偏见结果以操纵模型 |
+| **MCP04** | **Software Supply Chain Attacks** | 软件供应链攻击 | 依赖库篡改、恶意第三方 MCP 服务器或构建脚本中的后门 |
+| **MCP05** | **Command Injection & Execution** | 命令注入与执行 | 代理根据不可信输入构造并执行系统命令、Shell 脚本或 API 调用 |
+| **MCP06** | **Prompt Injection via Contextual Payloads** | 提示注入攻击 | 通过上下文（如 OCR、网页内容）注入恶意指令，劫持模型控制流 |
+| **MCP07** | **Insufficient Auth & Authz** | 认证与授权不足 | MCP 服务器或工具未能有效校验身份，导致跨代理/跨用户的越权操作 |
+| **MCP08** | **Lack of Audit and Telemetry** | 审计与遥测缺失 | 缺乏对工具调用和上下文更改的不可篡改日志，阻碍安全溯源 |
+| **MCP09** | **Shadow MCP Servers** | 影子 MCP 服务器 | 未经授权部署的 MCP 实例，常存在默认配置风险或缺乏安全合规监管 |
+| **MCP10** | **Context Injection & Over-Sharing** | 上下文注入与过度分享 | 敏感上下文在不同会话或代理间共享，导致信息泄露或逻辑干扰 |
+| - | **Name Confusion** | 名称混淆攻击 | 恶意工具注册为常用工具的相似名称，诱导代理错误调用 |
+| - | **Rug Pull Attack** | 拉地毯攻击 | 恶意 MCP 服务在获取信任后突然终止或变更行为，造成拒绝服务或数据丢失 |
+| - | **Tool Shadowing Attack** | 工具阴影攻击 | 通过重定义同名工具来覆盖合法工具的行为 |
 
 ### 风险等级校准矩阵
 
@@ -91,11 +97,10 @@
 ## 严格过滤规则
 
 ### 必须排除的报告类型
-1. **测试环境专用**：明确标记为test、demo、example的代码
-2. **正常业务功能**：预期的应用程序功能而非安全缺陷
-3. **框架默认行为**：开发框架的标准实现模式
-4. **配置管理正常操作**：合理的配置文件读取和环境变量使用
-5. **无实际危害**：理论存在但实际无法利用的问题
+**正常业务功能**：预期的应用程序功能而非安全缺陷
+**框架默认行为**：开发框架的标准实现模式
+**配置管理正常操作**：合理的配置文件读取和环境变量使用
+**无实际危害**：理论存在但实际无法利用的问题
 
 ### MCP环境适用性检查
 - **执行环境限制**：检查攻击在目标环境中的可行性

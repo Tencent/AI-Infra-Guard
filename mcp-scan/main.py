@@ -5,18 +5,19 @@ Agent Framework - 主入口文件
 这是一个模仿 Claude Code / Gemini CLI 的 Agent 框架。
 Agent 可以自动调用工具完成任务。
 """
-import logging
+import asyncio
 import os
 import sys
 import argparse
-from agent.base_agent import BaseAgent
 from agent.agent import Agent
 from utils.llm import LLM
+# 配置专用模型
+from utils.llm_manager import LLMManager
 from utils.loging import logger
 from utils import config
 
 # 重要：导入 tools 包以触发工具注册
-import tools
+import tools as _
 
 
 def parse_args():
@@ -28,7 +29,8 @@ def parse_args():
 
     # 必需参数
     parser.add_argument(
-        "repo",
+        "--repo",
+        default="",
         help="要扫描的项目文件夹路径"
     )
 
@@ -65,15 +67,14 @@ def parse_args():
     )
 
     parser.add_argument(
-    "--language",
-        default="zh",
-        help="zh/en"
+        "--server_url",
+        help=f"remote MCP server URL",
+        default=None
     )
-
     return parser.parse_args()
 
 
-def main():
+async def main():
     """主函数"""
     # 解析命令行参数
     args = parse_args()
@@ -97,9 +98,6 @@ def main():
     llm = LLM(model=args.model, api_key=api_key, base_url=args.base_url)
     logger.info(f"Main LLM initialized: {args.model}")
 
-    # 配置专用模型
-    from utils.llm_manager import LLMManager
-
     # 使用主 API Key 作为默认值
     llm_manager = LLMManager(api_key=api_key, base_url=args.base_url)
 
@@ -108,31 +106,34 @@ def main():
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
     # 创建 Agent 实例，传入专用模型
-    agent = Agent(llm=llm, specialized_llms=specialized_llms, language=args.language, debug=args.debug)
+    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")
-
     try:
-        result = agent.scan(args.repo, args.prompt)
-        logger.info(f"Agent completed successfully:\n\n {result}")
+        if args.server:
+            logger.info(f"Server mode enabled with URL: {args.server_url}")
+            dynamic_results = await agent.dynamic_analysis(args.prompt)
+            logger.info(f"Dynamic analysis results:\n{dynamic_results}")
+        else:
+            result = await agent.scan(args.repo, args.prompt)
+            logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
         logger.warning("Task interrupted by user")
     except Exception as e:
         print(f"\n\nError during execution: {e}")
         logger.error(f"Error during execution: {e}", exc_info=True)
+        raise Exception(f"Execution failed: {e}")
+    finally:
+        # 确保关闭资源
+        if hasattr(agent, 'dispatcher'):
+            await agent.dispatcher.close()
 
 
 if __name__ == "__main__":
     # 先解析参数以检查是否为 debug 模式
     args = parse_args()
-
     # 如果是 debug 模式，初始化 Laminar
-    console_handler = logging.StreamHandler()
-    if args.debug:
-        console_handler.setLevel(logging.DEBUG)
-    else:
-        console_handler.setLevel(logging.INFO)
-    main()
+    asyncio.run(main())

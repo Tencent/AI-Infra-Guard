@@ -48,7 +48,7 @@ class VulnerabilityExtractor:
         suggestion = self._extract_tag_content(block, 'suggestion')
 
         # 验证必要字段
-        if not all([title, desc, risk_type, level, suggestion]):
+        if not all([title, desc, risk_type]):
             print(f"第 {index} 个漏洞块缺少必要字段，跳过")
             return None
 

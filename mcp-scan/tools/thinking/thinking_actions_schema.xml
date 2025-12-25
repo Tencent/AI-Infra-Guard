@@ -1,7 +1,29 @@
 <tools>
-    <tool name="think">
-        <description>使用此工具进行思考。当任务需要推理时使用。</description>
-        <details>Your goal is to provide deep, structured analysis to help the agent solve complex problems.
+  <tool name="think">
+    <description>使用此工具进行思考。当任务需要推理时使用。</description>
+    <details>该工具为复杂任务中的结构化思考创建专用空间，
+特别适用于：
+- 工具输出分析：需要仔细处理先前工具调用的输出时
+- 策略密集环境：需要遵循详细指南并验证合规性时
+- 顺序决策：当每个操作都基于前序操作且错误代价高昂时
+- 多步骤问题解决：需要将复杂问题分解为可管理步骤时</details>
+    <parameters>
+      <parameter name="thought" type="string" required="true">
+        <description>要思考的问题以及相应上下文以及解决方案</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>响应包含: - message：包含字符数或错误详情的确认消息</description>
+    </returns>
+    <examples>
+  # 规划与策略
+  <function=think>
+  <parameter=thought>我需要系统分析扫描结果。首先回顾
+  开放端口：22 (SSH)、80 (HTTP)、443 (HTTPS) 和 3306 (MySQL)。MySQL端口
+  对外可访问是高优先级安全隐患。应检查默认凭证
+  和版本信息。对于Web服务，需要枚举目录并测试
+  常见Web漏洞。</parameter>
+  </function>
 
 You are NOT the one executing the code. You are the BRAIN.
 The agent is currently stuck or needs a plan.
