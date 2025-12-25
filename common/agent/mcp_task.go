@@ -33,8 +33,6 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 			Token   string `json:"token"`
 			BaseUrl string `json:"base_url"`
 		} `json:"model"`
-		Quick   bool     `json:"quick"`
-		Plugins []string `json:"plugins,omitempty"`
 	}
 
 	var params ScanMcpRequest
@@ -55,6 +53,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	}
 
 	var folder string
+	var serverUrl string
 	if transport == "code" {
 		// 创建临时目录用于存储上传的文件
 		tempDir := "uploads"
@@ -112,7 +111,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 			return fmt.Errorf("folder does not exist or is not a directory: %s", folder)
 		}
 	} else if transport == "url" {
-		return errors.New("暂不支持url")
+		serverUrl = params.Content
 	}
 
 	var argv []string = make([]string, 0)
@@ -121,22 +120,33 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	argv = append(argv, "--base_url", params.Model.BaseUrl)
 	argv = append(argv, "--api_key", params.Model.Token)
 	argv = append(argv, "--prompt", params.Content)
-	argv = append(argv, "--debug", folder)
+	argv = append(argv, "--debug")
 	argv = append(argv, "--language", language)
 
-	var tasks []SubTask
-	taskTitles := []string{
-		"信息收集",
-		"代码审计",
-		"漏洞整理",
-	}
-	if language == "en" {
+	var taskTitles []string
+	if transport == "code" {
+		argv = append(argv, "--repo", folder)
 		taskTitles = []string{
 			"Info Collection",
 			"Code Audit",
 			"Vulnerability Review",
 		}
+	} else if transport == "url" {
+		argv = append(argv, "--server_url", serverUrl)
+		taskTitles = []string{
+			"Info Collection",
+			"Malicious Testing",
+			"Vulnerability Testing",
+			"Vulnerability Review",
+		}
 	}
+
+	var tasks []SubTask
+	//taskTitles := []string{
+	//	"信息收集",
+	//	"代码审计",
+	//	"漏洞整理",
+	//}
 
 	for i, title := range taskTitles {
 		tasks = append(tasks, CreateSubTask(SubTaskStatusTodo, title, 0, strconv.Itoa(i+1)))

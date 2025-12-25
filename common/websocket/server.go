@@ -7,12 +7,14 @@ package websocket
 import (
 	"embed"
 	"mime"
+	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/trpc"
 	_ "github.com/Tencent/AI-Infra-Guard/docs"
-	"github.com/Tencent/AI-Infra-Guard/internal/options"
+	version "github.com/Tencent/AI-Infra-Guard/internal/options"
 	"github.com/Tencent/AI-Infra-Guard/pkg/database"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -23,7 +25,7 @@ import (
 //go:embed static/*
 var staticFS embed.FS
 
-func RunWebServer(options *options.Options) {
+func RunWebServer(options *version.Options) {
 	// 1. 初始化trpc-go
 	if err := trpc.InitTrpc("./trpc_go.yaml"); err != nil {
 		log.Fatalf("Trpc-go初始化失败: %v", err)
@@ -244,6 +246,18 @@ func RunWebServer(options *options.Options) {
 				HandleUploadFile(c, taskManager)
 			})
 		}
+		// version
+		v1.GET("/version", func(c *gin.Context) {
+			filename := "CHANGELOG.md"
+			data, err := os.ReadFile(filename)
+			if err != nil {
+				data = []byte("")
+			}
+			c.JSON(http.StatusOK, gin.H{
+				"version":   version.GetVersion(),
+				"changelog": string(data),
+			})
+		})
 	}
 
 	// Swagger UI - 必须在 NoRoute 之前注册

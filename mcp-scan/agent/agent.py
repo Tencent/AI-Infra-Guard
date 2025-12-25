@@ -15,14 +15,14 @@ from utils.parse import parse_mcp_invocations
 class ScanStage:
     """定义扫描的一个阶段"""
 
-    def __init__(self, stage_id: str, name: str, template: str, output_format: str = None, output_check_fn=None,
-                 next_step_msg: str = None):
+    def __init__(self, stage_id: str, name: str, template: str, output_format: str = None, output_check_fn=None
+                 , language="zh"):
         self.stage_id = stage_id
         self.name = name
         self.template = template
         self.output_format = output_format
-        self.next_step_msg = next_step_msg
         self.output_check_fn = output_check_fn
+        self.language = language
 
 
 class ScanPipeline:
@@ -51,6 +51,7 @@ class ScanPipeline:
             debug=self.agent_wrapper.debug,
             output_format=stage.output_format,
             output_check_fn=stage.output_check_fn,
+            language=stage.language
         )
         agent.set_repo_dir(repo_dir)
         await agent.initialize()
@@ -108,12 +109,13 @@ class ScanPipeline:
 
 class Agent:
     def __init__(self, llm, specialized_llms: dict = None, debug: bool = False,
-                 server_url: str = None):
+                 server_url: str = None, language='zh'):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
         self.dispatcher = ToolDispatcher(mcp_server_url=server_url)
         self.pipeline = ScanPipeline(self)
+        self.language = language
 
     async def scan(self, repo_dir: str, prompt: str):
         result_meta = {
@@ -127,7 +129,8 @@ class Agent:
         # 1. 信息收集
         info_ret_format = "生成一份详细的代码审计信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
         info_collection = await self.pipeline.execute_stage(
-            ScanStage("1", "信息收集", "agents/project_summary", output_format=info_ret_format),
+            ScanStage("1", "Info Collection", "agents/project_summary", output_format=info_ret_format,
+                      language=self.language),
             repo_dir, prompt
         )
 
@@ -144,7 +147,7 @@ markdown格式返回
 严格标准：必须提供完整的漏洞利用路径和影响分析。
         '''
         code_audit = await self.pipeline.execute_stage(
-            ScanStage("2", "代码审计", "agents/code_audit", output_format=audit_ret_format),
+            ScanStage("2", "Code Audit", "agents/code_audit", output_format=audit_ret_format, language=self.language),
             repo_dir, prompt, {"信息收集报告": info_collection}
         )
 
@@ -176,8 +179,8 @@ markdown格式返回
 '''.strip()
         vuln_review_check = lambda x: '<vuln>' in x or '<empty>' in x
         vuln_review = await self.pipeline.execute_stage(
-            ScanStage("3", "漏洞整理", "agents/vuln_review", output_format=review_format,
-                      output_check_fn=vuln_review_check),
+            ScanStage("3", "Vulnerability Review", "agents/vuln_review", output_format=review_format,
+                      output_check_fn=vuln_review_check, language=self.language),
             repo_dir, prompt, {"代码审计报告": code_audit}
         )
 
@@ -213,7 +216,8 @@ markdown格式返回
 
         info_ret_format = "生成一份详细的MCP(model context protocol)信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
         info_collection = await self.pipeline.execute_stage_dynamic(
-            ScanStage("1", "信息收集", "agents/dynamic/project_summary", output_format=info_ret_format),
+            ScanStage("1", "Info Collection", "agents/dynamic/project_summary", output_format=info_ret_format,
+                      language=self.language),
             prompt=prompt
         )
         result_meta["readme"] = info_collection
@@ -240,13 +244,13 @@ markdown格式返回
     ```
         '''
         report1 = await self.pipeline.execute_stage_dynamic(
-            ScanStage("2", "malicious testing", "agents/dynamic/malicious_behaviour_testing.md",
-                      output_format=vuln_ret_format),
+            ScanStage("2", "Malicious Testing", "agents/dynamic/malicious_behaviour_testing.md",
+                      output_format=vuln_ret_format, language=self.language),
             prompt, {"信息收集报告": info_collection}
         )
         report2 = await self.pipeline.execute_stage_dynamic(
-            ScanStage("3", "vulnerability testing", "agents/dynamic/vulnerability_testing.md",
-                      output_format=vuln_ret_format),
+            ScanStage("3", "Vulnerability Testing", "agents/dynamic/vulnerability_testing.md",
+                      output_format=vuln_ret_format, language=self.language),
             prompt, {"信息收集报告": info_collection, "malicious testing": report1}
         )
 
@@ -278,8 +282,9 @@ markdown格式返回
         '''.strip()
         vuln_review_check = lambda x: '<vuln>' in x or '<empty>' in x
         vuln_review = await self.pipeline.execute_stage_dynamic(
-            ScanStage("4", "漏洞整理", "agents/dynamic/general_analyzing_prompt_template", output_format=review_format,
-                      output_check_fn=vuln_review_check),
+            ScanStage("4", "Vulnerability Review", "agents/dynamic/general_analyzing_prompt_template",
+                      output_format=review_format,
+                      output_check_fn=vuln_review_check, language=self.language),
             prompt, {"malicious testing": report1, "vulnerability testing": report2}
         )
         # 提取与分析结果

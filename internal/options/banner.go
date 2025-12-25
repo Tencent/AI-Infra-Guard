@@ -8,6 +8,10 @@ import (
 
 const version = "v3.5-dev"
 
+func GetVersion() string {
+	return version
+}
+
 // ShowBanner is used to show the banner to the user
 func ShowBanner() {
 	const banner = `AI Infrastructure Guard System ` + version

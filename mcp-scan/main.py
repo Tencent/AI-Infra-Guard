@@ -71,6 +71,9 @@ def parse_args():
         help=f"remote MCP server URL",
         default=None
     )
+
+    parser.add_argument("--language", default="zh", help="Output language (zh/en)")
+
     return parser.parse_args()
 
 
@@ -106,17 +109,25 @@ async def main():
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
     # 创建 Agent 实例，传入专用模型
-    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url)
 
     logger.info(f"Starting scan on: {args.repo}")
+    prompt = args.prompt
+    if args.language == "en":
+        prompt += "All responses should be in English."
+    elif args.language == "zh":
+        prompt += "所有回复都应使用中文。"
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")
     try:
         if args.server:
             logger.info(f"Server mode enabled with URL: {args.server_url}")
+            agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
+                          language=args.language)
             dynamic_results = await agent.dynamic_analysis(args.prompt)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
         else:
+            agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=None,
+                          language=args.language)
             result = await agent.scan(args.repo, args.prompt)
             logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:

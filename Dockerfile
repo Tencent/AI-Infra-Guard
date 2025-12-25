@@ -29,6 +29,7 @@ WORKDIR /app
 # 从构建阶段复制二进制文件和配置文件
 COPY --from=builder /app/ai-infra-guard .
 COPY --from=builder /app/trpc_go.yaml .
+COPY --from=builder /app/CHANGELOG.md .
 
 # 复制数据文件到容器中
 COPY --from=builder /app/data ./data

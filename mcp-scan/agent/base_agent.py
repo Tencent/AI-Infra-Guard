@@ -27,7 +27,8 @@ class BaseAgent:
             debug: bool = False,
             capabilities: List[str] = None,
             output_format: Optional[str] = None,
-            output_check_fn: callable = None
+            output_check_fn: callable = None,
+            language: str = "zh"
     ):
         self.llm = llm
         self.name = name
@@ -44,6 +45,7 @@ class BaseAgent:
         self.debug = debug
         self.repo_dir = ""
         self.output_check_fn = output_check_fn
+        self.language = language
 
     async def initialize(self):
         """异步初始化系统提示词"""
@@ -54,19 +56,21 @@ class BaseAgent:
     def add_user_message(self, message: str):
         self.history.append({"role": "user", "content": message})
 
+    def set_repo_dir(self, repo_dir: str):
+        self.repo_dir = repo_dir
+        
     def compact_history(self):
         if len(self.history) < 3:
             return
 
-        # prompt = prompt_manager.load_template("compact")
-        # history = self.history[1:]
-        # history.append({"role": "user", "content": prompt})
-        # response = self.llm.chat(history)
-        #
-        # system_prompt = self.history[0]
-        # user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
-        # self.history = [system_prompt, {"role": "user", "content": user_messages}]
-        # todo
+        prompt = prompt_manager.load_template("compact")
+        history = self.history[1:]
+        history.append({"role": "user", "content": prompt})
+        response = self.llm.chat(history)
+
+        system_prompt = self.history[0]
+        user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     async def generate_system_prompt(self):
 
@@ -109,6 +113,8 @@ class BaseAgent:
         description = clean_content(response)
         if description == "":
             description = "我将继续执行"
+            if self.language == "en":
+                description = "I will continue to execute"
 
         mcpLogger.status_update(self.step_id, description, "", "running")
 
