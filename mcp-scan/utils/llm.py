@@ -18,8 +18,8 @@ class LLM:
         retry = 0
         while True:
             for word in self.chat_stream(message):
-                if p:
-                    print(word, end='', flush=True)
+                # if p:
+                #     print(word, end='', flush=True)
                 ret += word
             if ret != '':
                 break
@@ -30,6 +30,8 @@ class LLM:
                 if retry > 5:
                     logger.error('LLM chat error, retry 5 times, exit')
                     return ''
+        if p:
+            print(ret)
         return ret
 
     def chat_stream(self, message: List[dict]):
