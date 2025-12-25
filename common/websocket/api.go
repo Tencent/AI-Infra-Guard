@@ -29,7 +29,7 @@ type ModelParams struct {
 	BaseUrl string `json:"base_url" example:"https://api.openai.com/v1"` // Model API base URL
 	Token   string `json:"token" example:"sk-xxx"`                       // API access token
 	Model   string `json:"model" example:"gpt-4"`                        // Model name
-	Limit   int    `json:"limit" example:"1000"`                         // Request limit
+	Limit   int    `json:"limit,omitempty" example:"1000"`               // Request limit
 }
 
 // MCPTaskRequest represents MCP task request structure
@@ -47,15 +47,20 @@ type MCPTaskRequest struct {
 }
 
 // AIInfraScanTaskRequest AI基础设施扫描任务请求结构体
-// @Description AI基础设施安全扫描任务请求参数
+// @Description AI基础设施安全扫描任务请求参数，支持目标URL、自定义请求头以及用于辅助分析的模型配置
 type AIInfraScanTaskRequest struct {
 	Target  []string          `json:"target" example:"https://example.com"`                   // 扫描目标URL列表
 	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // 自定义请求头
 	Timeout int               `json:"timeout" example:"30"`                                   // 请求超时时间(秒)
+	Model   struct {
+		Model   string `json:"model" binding:"required" example:"gpt-4"`               // 模型名称 - 必需
+		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API密钥 - 必需
+		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
+	} `json:"model,omitempty"` // 模型配置 - 可选，用于辅助漏洞扫描结果分析
 }
 
 // PromptSecurityTaskRequest 提示词安全测试任务请求结构体
-// @Description 提示词安全测试任务请求参数
+// @Description 提示词安全测试任务请求参数，支持通过指定数据集或手动输入 Prompt 进行红队测试
 // @Description 支持的数据集:
 // @Description - JailBench-Tiny: 小型越狱基准测试数据集
 // @Description - JailbreakPrompts-Tiny: 小型越狱提示词数据集
@@ -66,10 +71,12 @@ type PromptSecurityTaskRequest struct {
 	Model     []ModelParams `json:"model"`      // 测试模型列表
 	EvalModel ModelParams   `json:"eval_model"` // 评估模型配置
 	Datasets  struct {
-		DataFile   []string `json:"dataFile" example:"[\"JailBench-Tiny\",\"JailbreakPrompts-Tiny\"]"` // 数据集文件列表，可选: JailBench-Tiny, JailbreakPrompts-Tiny, ChatGPT-Jailbreak-Prompts, JADE-db-v3.0, HarmfulEvalBenchmark
+		DataFile   []string `json:"dataFile" example:"[\"JailBench-Tiny\",\"JailbreakPrompts-Tiny\"]"` // 数据集文件列表
 		NumPrompts int      `json:"numPrompts" example:"100"`                                          // 提示词数量
 		RandomSeed int      `json:"randomSeed" example:"42"`                                           // 随机种子
 	} `json:"dataset"` // 数据集配置
+	Prompt     string   `json:"prompt"`     // 自定义测试 Prompt - 可选
+	Techniques []string `json:"techniques"` // 测试技术列表 - 可选
 }
 
 // APIResponse 通用API响应结构
@@ -186,7 +193,12 @@ type TaskCreateResponse struct {
 // @Description     "headers": {
 // @Description       "Authorization": "Bearer token"
 // @Description     },
-// @Description     "timeout": 30
+// @Description     "timeout": 30,
+// @Description     "model": {
+// @Description       "model": "gpt-4",
+// @Description       "token": "sk-xxx",
+// @Description       "base_url": "https://api.openai.com/v1"
+// @Description     }
 // @Description   }
 // @Description }
 // @Description
@@ -207,7 +219,9 @@ type TaskCreateResponse struct {
 // @Description       "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],
 // @Description       "numPrompts": 100,
 // @Description       "randomSeed": 42
-// @Description     }
+// @Description     },
+// @Description     "prompt": "How to make a bomb?",
+// @Description     "techniques": [""]
 // @Description   }
 // @Description }
 // @Tags taskapi
@@ -297,6 +311,11 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		scanParams := map[string]interface{}{
 			"headers": req.Headers,
 			"timeout": req.Timeout,
+			"model": map[string]interface{}{
+				"model":    req.Model.Model,
+				"token":    req.Model.Token,
+				"base_url": req.Model.BaseUrl,
+			},
 		}
 
 		taskReq = TaskCreateRequest{
@@ -324,6 +343,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			"model":      req.Model,
 			"eval_model": req.EvalModel,
 			"dataset":    req.Datasets,
+			"techniques": req.Techniques,
 		}
 		taskReq = TaskCreateRequest{
 			ID:          messageId,
@@ -331,7 +351,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Username:    username,
 			Task:        agent.TaskTypeModelRedteamReport,
 			Timestamp:   time.Now().UnixMilli(),
-			Content:     "",
+			Content:     req.Prompt,
 			Attachments: []string{},
 			Params:      params,
 		}

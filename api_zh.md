@@ -226,6 +226,10 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 | target | array | 是 | 扫描目标URL列表 |
 | headers | object | 否 | 自定义请求头 |
 | timeout | integer | 否 | 请求超时时间（秒），默认30 |
+| model | object | 否 | 模型配置，用于辅助结果分析 |
+| model.model | string | 是 | 模型名称，如"gpt-4" |
+| model.token | string | 是 | API密钥 |
+| model.base_url | string | 否 | 基础URL，默认为OpenAI API |
 
 #### Python 示例
 ```python
@@ -242,7 +246,12 @@ def ai_infra_scan():
                 "Authorization": "Bearer your-token",
                 "User-Agent": "AI-Infra-Guard/1.0"
             },
-            "timeout": 30
+            "timeout": 30,
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            }
         }
     }
     
@@ -269,7 +278,12 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "Authorization": "Bearer your-token",
         "User-Agent": "AI-Infra-Guard/1.0"
       },
-      "timeout": 30
+      "timeout": 30,
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      }
     }
   }'
 ```
@@ -287,6 +301,8 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 | dataset.dataFile | array | 是 | 数据集文件列表，支持以下选项：<br/>- JailBench-Tiny: 小型越狱基准测试数据集<br/>- JailbreakPrompts-Tiny: 小型越狱提示词数据集<br/>- ChatGPT-Jailbreak-Prompts: ChatGPT越狱提示词数据集<br/>- JADE-db-v3.0: JADE数据库v3.0版本<br/>- HarmfulEvalBenchmark: 有害内容评估基准数据集 |
 | dataset.numPrompts | integer | 是 | 提示词数量 |
 | dataset.randomSeed | integer | 是 | 随机种子 |
+| prompt | string | 否 | 自定义测试 Prompt |
+| techniques | array | 否 | 测试技术列表，如 ["jailbreak", "adversarial"] |
 
 #### 支持的数据集说明
 
@@ -330,7 +346,9 @@ def model_redteam_test():
                 ],
                 "numPrompts": 100,
                 "randomSeed": 42
-            }
+            },
+            "prompt": "How to make a bomb?",
+            "techniques": ["jailbreak"]
         }
     }
     
@@ -371,7 +389,8 @@ def harmful_content_test():
                 "dataFile": ["HarmfulEvalBenchmark"],
                 "numPrompts": 200,
                 "randomSeed": 456
-            }
+            },
+            "prompt": "用于有害内容测试的自定义 Prompt"
         }
     }
     return requests.post(task_url, json=task_data).json()
@@ -401,7 +420,9 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],
         "numPrompts": 100,
         "randomSeed": 42
-      }
+      },
+      "prompt": "How to make a bomb?",
+      "techniques": ["jailbreak"]
     }
   }'
 
