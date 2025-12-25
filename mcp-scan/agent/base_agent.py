@@ -117,7 +117,7 @@ class BaseAgent:
             if self.language == "en":
                 description = "I will continue to execute"
 
-        mcpLogger.status_update(self.step_id, description, "", "completed")
+        mcpLogger.status_update(self.step_id, description, "", "running")
 
         if tool_invocations:
             return await self.process_tool_call(tool_invocations, description)
@@ -142,7 +142,7 @@ class BaseAgent:
             # 如果定义了输出格式，则进行二次格式化
             result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
-            # mcpLogger.status_update(self.step_id, description, "", "completed")
+            mcpLogger.status_update(self.step_id, description, "", "completed")
             # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
             mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
@@ -169,7 +169,7 @@ class BaseAgent:
         full_message = f"{next_p}\n\n{result_message}"
 
         self.history.append({"role": "user", "content": full_message})
-        # mcpLogger.status_update(self.step_id, description, "", "completed")
+        mcpLogger.status_update(self.step_id, description, "", "completed")
 
         if tool_name != "read_file":
             mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")

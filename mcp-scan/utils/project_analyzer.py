@@ -89,44 +89,26 @@ def get_top_language(stats: dict) -> str:
 def calc_mcp_score(issues: list) -> int:
     """
     根据漏洞列表计算安全分数（0-100）
-
+    
     Args:
         issues: 漏洞列表，每个漏洞应包含 risk_type 字段
         
     Returns:
         安全评分（0-100的整数）
     """
-    total = len(issues)
-    if total == 0:
+    if not issues:
         return 100
 
-    high = 0
-    middle = 0
-    low = 0
-
+    score = 100
     for item in issues:
         # 兼容字典和对象两种格式
-        risk_type = item.get("risk_type", "").lower() if isinstance(item, dict) else getattr(item, "risk_type",
-                                                                                             "").lower()
+        risk_type = item.get("risk_type", "").lower() if isinstance(item, dict) else getattr(item, "risk_type", "").lower()
 
         if risk_type in ["high", "critical", "高危", "严重"]:
-            high += 1
+            score -= 40
         elif risk_type in ["medium", "中危"]:
-            middle += 1
+            score -= 25
         else:
-            low += 1
+            score -= 10
 
-    # 计算加权风险比例
-    weighted_risk = (
-            (high / total) * 0.9 +
-            (middle / total) * 0.6 +
-            (low / total) * 0.4
-    )
-
-    # 计算安全评分（百分制）
-    safety_score = int(100 - weighted_risk * 100)
-
-    # 确保评分在0-100范围内
-    safety_score = max(0, min(100, safety_score))
-
-    return int(round(safety_score))
+    return max(0, score)
