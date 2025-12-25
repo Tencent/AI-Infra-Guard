@@ -133,7 +133,7 @@ class BaseAgent:
         if isinstance(params, str):
             params = params.replace(self.repo_dir, "")
 
-        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "doing", tool_name, f"{params}")
+        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
 
         if tool_name == "finish":
             self.is_finished = True
@@ -143,7 +143,7 @@ class BaseAgent:
             result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
             # mcpLogger.status_update(self.step_id, description, "", "completed")
-            mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
+            # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
             mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 
@@ -174,7 +174,7 @@ class BaseAgent:
         if tool_name != "read_file":
             mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
 
-        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+        # mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
         return None
 
     async def handle_no_tool(self, description: str):
