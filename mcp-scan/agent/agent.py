@@ -5,7 +5,6 @@ from typing import List, Dict, Any, Optional
 from agent.base_agent import BaseAgent
 from tools.dispatcher import ToolDispatcher
 from utils.prompt_manager import prompt_manager
-from utils.dynamic_tasks import get_targets_for_tasks
 from utils.extract_vuln import VulnerabilityExtractor
 from utils.loging import logger
 from utils.aig_logger import mcpLogger
@@ -70,14 +69,49 @@ class ScanPipeline:
         self.results[stage.name] = result
         return result
 
+    async def execute_stage_dynamic(self, stage: ScanStage, prompt: str,
+                                    context_data: Dict[str, Any] = None) -> str:
+        logger.info(f"=== 阶段 {stage.stage_id}: {stage.name} ===")
+        mcpLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
+
+        # 加载提示词模板
+        instruction = prompt_manager.load_template(stage.template)
+
+        # 初始化阶段 Agent
+        agent = BaseAgent(
+            name=f"{stage.name} Agent",
+            instruction=instruction,
+            llm=self.agent_wrapper.llm,
+            dispatcher=self.agent_wrapper.dispatcher,
+            specialized_llms=self.agent_wrapper.specialized_llms,
+            log_step_id=stage.stage_id,
+            debug=self.agent_wrapper.debug,
+            output_format=stage.output_format,
+            output_check_fn=stage.output_check_fn,
+        )
+        await agent.initialize()
+
+        # 构造用户消息
+        user_msg = f"请进行{stage.name}，进行MCP动态扫描\n{prompt}"
+        if context_data:
+            user_msg += "\n\n有以下背景信息：\n"
+            for key, value in context_data.items():
+                user_msg += f"{key}:{value}\n\n"
+
+        agent.add_user_message(user_msg)
+
+        # 运行并返回结果
+        result = await agent.run()
+        self.results[stage.name] = result
+        return result
+
 
 class Agent:
-    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False, dynamic: bool = False,
+    def __init__(self, llm, specialized_llms: dict = None, debug: bool = False,
                  server_url: str = None):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
-        self.dynamic = dynamic
         self.dispatcher = ToolDispatcher(mcp_server_url=server_url)
         self.pipeline = ScanPipeline(self)
 
@@ -167,94 +201,99 @@ markdown格式返回
             "results": vuln_results
         })
         mcpLogger.result_update(result_meta)
-
         return result_meta
 
-    async def dynamic_analysis(self, repo_dir: str, server_url: str, server_transport: str, tasks: list):
-        logger.info("=== 阶段4: 动态分析 ===")
-        mcpLogger.new_plan_step(stepId="4", stepName="动态分析")
+    async def dynamic_analysis(self, prompt: str):
+        result_meta = {
+            "readme": "",
+            "score": 0,
+            "language": "",
+            "start_time": time.time(),
+            "end_time": 0,
+            "results": [],
+        }
 
-        # 确保环境变量已设置（Dispatcher 会用到）
-        os.environ["MCP_SERVER_URL"] = server_url
-        os.environ["MCP_TRANSPORT_PROTOCOL"] = server_transport
+        info_ret_format = "生成一份详细的MCP(model context protocol)信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
+        info_collection = await self.pipeline.execute_stage_dynamic(
+            ScanStage("1", "信息收集", "agents/dynamic/project_summary", output_format=info_ret_format),
+            prompt=prompt
+        )
+        result_meta["readme"] = info_collection
 
-        try:
-            targets_list = get_targets_for_tasks(tasks or [])
-        except Exception as e:
-            logger.error(f"动态任务加载失败: {e}")
-            raise
+        # 漏洞探测
+        vuln_ret_format = '''
+        ## Output format
+- The output should be in Markdown format. Please Never use any other format, and make sure the output has no format issue.
+- The Markdown document should have the following Chapter:
+    - "Overview": `YES` or `NO`, representing whether there are any risks analyzed.
+    - "Threats": A list of xml strings, each representing a threat analyzed. Including threat types, confidence scores, and potential impacts.
+    - "Reasons": A list of normal strings, each representing the reason why the corresponding threat is analyzed.
+    - "Summarization": A paragraph summarizing the overall security assessment results.
+- example:
+    ```
+    # Overview
+    - YES
+    # Threats
+        - <threat><tool_name>{{ tool_name }}</tool_name><type>SQL Injection</type><confidence>0.9</confidence><impact>High</impact></threat>
+    # Reasons 
+        - SQL Injection: The tool named {{ tool_name }} detected a potential SQL Injection vulnerability in the input parameter.
+    # Summarization: 
+        ...... (The clear, detailed summary of the security assessment results)
+    ```
+        '''
+        report1 = await self.pipeline.execute_stage_dynamic(
+            ScanStage("2", "malicious testing", "agents/dynamic/malicious_behaviour_testing.md",
+                      output_format=vuln_ret_format),
+            prompt, {"信息收集报告": info_collection}
+        )
+        report2 = await self.pipeline.execute_stage_dynamic(
+            ScanStage("3", "vulnerability testing", "agents/dynamic/vulnerability_testing.md",
+                      output_format=vuln_ret_format),
+            prompt, {"信息收集报告": info_collection,"malicious testing": report1}
+        )
 
-        results = []
-        for idx, (name, config) in enumerate(targets_list):
-            target_prompt = config.get("prompt_content") or ""
-            if not target_prompt and config.get("prompt"):
-                with open(config["prompt"]) as f:
-                    target_prompt = f.read()
+        # 3. 漏洞整理
+        review_format = '''
+        必须满足以下xml格式，多个漏洞返回多个vuln标签
+        <vuln>
+          <title>title</title>
+          <desc>
+          <!-- Markdown格式漏洞描述 -->
+          ## 漏洞详情
+          **文件位置**: 
+          **漏洞类型**: 
+          **风险等级**: 
 
-            target_type = config.get("type", "malicious")
-            logger.info(f"[Dynamic] Start target {name} ({target_type})")
+          ### 技术分析
 
-            # 准备 Prompt
-            if target_type == "malicious":
-                instruction = prompt_manager.load_template("agents/dynamic/malicious_behaviour_testing")
-            else:
-                instruction = prompt_manager.load_template("agents/dynamic/vulnerability_testing")
+          ### 攻击路径
 
-            # a. 测试阶段 (注入 MCP 能力)
-            testing_agent = BaseAgent(
-                name="TestingAgent",
-                instruction=instruction,
-                llm=self.llm,
-                dispatcher=self.dispatcher,
-                specialized_llms=self.specialized_llms,
-                log_step_id=f"4.{idx + 1}.1",
-                debug=self.debug,
-                capabilities=["standard", "mcp"]
-            )
-            testing_agent.set_repo_dir(repo_dir)
-            # 注入特定的 target_prompt 变量到 instruction (这里需要微调 generate_system_prompt 或直接在这里处理)
-            # 我们在 BaseAgent.generate_system_prompt 中添加了对 target_prompt 的支持逻辑
-            testing_agent.instruction += f"\n\n测试目标详情:\n```yaml\n{target_prompt}\n```"
+          ### 影响评估  
+          </desc>
+          <risk_type>RiskType</risk_type>
+          <level>Level</level>
+          <suggestion>
+          ## 修复建议
+          </suggestion>
+        </vuln>
+        若无漏洞或漏洞为空,返回<empty>
+        '''.strip()
+        vuln_review_check = lambda x: '<vuln>' in x or '<empty>' in x
+        vuln_review = await self.pipeline.execute_stage_dynamic(
+            ScanStage("4", "漏洞整理", "agents/dynamic/general_analyzing_prompt_template", output_format=review_format,
+                      output_check_fn=vuln_review_check),
+            prompt, {"malicious testing": report1, "vulnerability testing": report2}
+        )
+        # 提取与分析结果
+        extractor = VulnerabilityExtractor()
+        vuln_results = extractor.extract_vulnerabilities(vuln_review)
+        safety_score = calc_mcp_score(vuln_results)
 
-            testing_agent.add_user_message(f"请进行测试用例生成，测试目标: {name}\n类别: {target_type}\n")
-
-            history_summary = await testing_agent.run()
-
-            # 提取 MCP 调用并执行 (这部分逻辑保持在 Agent 层作为协调)
-            mcp_calls = parse_mcp_invocations(history_summary) or []
-            test_history = []
-            for call in mcp_calls:
-                # 通过 dispatcher 直接调用远程工具
-                try:
-                    # 注意：dispatcher.call_tool 是统一接口，这里我们可能需要更详细的信息
-                    # 但为了简化架构，我们直接用 dispatcher 的 manager
-                    tool_info, execution = await self.dispatcher.mcp_tools_manager.call_remote_tool(call)
-                    test_history.append({"tool_info": tool_info, "tool_call": call, "execution_result": execution})
-                except Exception as e:
-                    logger.error(f"MCP Tool call failed: {e}")
-
-            # b. 分析阶段
-            analysis_instr = prompt_manager.load_template("agents/dynamic/general_analyzing_prompt_template")
-            analysis_format = "请使用中文输出最终的分析报告，确保包含测试结论、风险等级和修复建议。"
-            analyzing_agent = BaseAgent(
-                name="AnalyzingAgent",
-                instruction=analysis_instr,
-                llm=self.llm,
-                dispatcher=self.dispatcher,
-                specialized_llms=self.specialized_llms,
-                log_step_id=f"4.{idx + 1}.2",
-                debug=self.debug,
-                output_format=analysis_format
-            )
-            analyzing_agent.add_user_message(
-                f"请进行测试用例结果分析，测试历史为{test_history}\n使用中文输出最终的分析报告。")
-            execution_review = await analyzing_agent.run()
-
-            results.append({
-                "target": name,
-                "type": target_type,
-                "test_execution": test_history,
-                "execution_review": execution_review,
-            })
-
-        return results
+        result_meta.update({
+            "readme": info_collection,
+            "score": safety_score,
+            "end_time": time.time(),
+            "results": vuln_results
+        })
+        mcpLogger.result_update(result_meta)
+        return result_meta

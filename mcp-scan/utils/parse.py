@@ -40,15 +40,14 @@ def parse_mcp_invocations(content: str) -> list[dict[str, Any]] | None:
 def clean_content(content: str) -> str:
     if not content:
         return ""
-    tool_pattern = r"<function=[^>]+>.*?</function.*?>"
-    cleaned = re.sub(tool_pattern, "", content, flags=re.DOTALL)
-
     hidden_xml_patterns = [
+        r"<function=[^>]+>.*?</function.*?>",
+        r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
-        r"<agent_completion_report>.*?</agent_completion_report>",
     ]
+    cleaned = content
     for pattern in hidden_xml_patterns:
-        cleaned = re.sub(pattern, "", cleaned, flags=re.DOTALL | re.IGNORECASE)
+        cleaned = re.sub(pattern, "", content, flags=re.DOTALL | re.IGNORECASE)
 
     cleaned = re.sub(r"\n\s*\n", "\n\n", cleaned)
 

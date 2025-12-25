@@ -9,7 +9,7 @@
 - 多步骤问题解决：需要将复杂问题分解为可管理步骤时</details>
     <parameters>
       <parameter name="thought" type="string" required="true">
-        <description>记录的思考或推理的内容(简洁描述)</description>
+        <description>要思考的问题以及相应上下文以及解决方案</description>
       </parameter>
     </parameters>
     <returns type="Dict[str, Any]">

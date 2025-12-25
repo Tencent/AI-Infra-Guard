@@ -9,16 +9,15 @@ import asyncio
 import os
 import sys
 import argparse
-from agent.base_agent import BaseAgent
 from agent.agent import Agent
-from utils.dynamic_tasks import get_allowed_dynamic_tasks
 from utils.llm import LLM
+# 配置专用模型
+from utils.llm_manager import LLMManager
 from utils.loging import logger
 from utils import config
-from lmnr import Laminar
 
 # 重要：导入 tools 包以触发工具注册
-import tools
+import tools as _
 
 
 def parse_args():
@@ -30,7 +29,8 @@ def parse_args():
 
     # 必需参数
     parser.add_argument(
-        "repo",
+        "--repo",
+        default="",
         help="要扫描的项目文件夹路径"
     )
 
@@ -67,48 +67,11 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--dynamic",
-        action="store_true",
-        help="启用动态分析模式（需要指定 MCP 服务器 URL）",
-        default=False,
-    )
-
-    parser.add_argument(
-        "-t", "--tasks",
-        nargs="+",
-        help="动态分析要执行的任务列表（空格分隔），例如: -t test analyze",
-        default=None
-    )
-
-    parser.add_argument(
         "--server_url",
         help=f"remote MCP server URL",
         default=None
     )
-
-    parser.add_argument(
-        "--server_transport",
-        help=f"remote MCP server transport protocol",
-        default="streamable-http"
-    )
     return parser.parse_args()
-
-
-def task_validation(input_tasks: list) -> bool:
-    """验证任务列表是否合法"""
-    if not input_tasks or len(input_tasks) == 0:
-        logger.error("动态模式需要通过 --tasks 指定至少一个任务")
-        return False
-    try:
-        allowed_tasks = get_allowed_dynamic_tasks()
-    except Exception:
-        logger.error("无法获取允许的动态任务列表，请检查配置文件是否正确")
-        return False
-    invalid_tasks = [t for t in input_tasks if t not in allowed_tasks]
-    if invalid_tasks:
-        logger.error(f"无效的任务: {invalid_tasks}。允许的任务: {allowed_tasks}")
-        return False
-    return True
 
 
 async def main():
@@ -135,9 +98,6 @@ async def main():
     llm = LLM(model=args.model, api_key=api_key, base_url=args.base_url)
     logger.info(f"Main LLM initialized: {args.model}")
 
-    # 配置专用模型
-    from utils.llm_manager import LLMManager
-
     # 使用主 API Key 作为默认值
     llm_manager = LLMManager(api_key=api_key, base_url=args.base_url)
 
@@ -146,27 +106,19 @@ async def main():
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
     # 创建 Agent 实例，传入专用模型
-    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug,
-                  dynamic=args.dynamic, server_url=args.server_url)
+    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url)
 
     logger.info(f"Starting scan on: {args.repo}")
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")
     try:
-        result = await agent.scan(args.repo, args.prompt)
-        logger.info(f"Scan completed successfully:\n\n {result}")
-
-        if args.dynamic:
-            logger.info(f"Dynamic analysis enabled with server URL: {args.server_url}")
-            if not task_validation(args.tasks):
-                raise ValueError("Invalid tasks provided for dynamic analysis.")
-            if args.server_transport not in ["streamable-http", "sse"]:
-                logger.error(
-                    f"Invalid server transport protocol: {args.server_transport}. Allowed values are 'streamable-http' or 'sse'.")
-                raise ValueError("Invalid server transport protocol provided for dynamic analysis.")
-            dynamic_results = await agent.dynamic_analysis(args.repo, args.server_url, args.server_transport,
-                                                           args.tasks)
+        if args.server:
+            logger.info(f"Server mode enabled with URL: {args.server_url}")
+            dynamic_results = await agent.dynamic_analysis(args.prompt)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
+        else:
+            result = await agent.scan(args.repo, args.prompt)
+            logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
         logger.warning("Task interrupted by user")
@@ -180,10 +132,8 @@ async def main():
             await agent.dispatcher.close()
 
 
-# Example for dynamic testing & analyzing: `python main.py testcase --dynamic -t tool_poisoning --server_url http://localhost:9005/sse --server_transport sse`
 if __name__ == "__main__":
     # 先解析参数以检查是否为 debug 模式
     args = parse_args()
-
     # 如果是 debug 模式，初始化 Laminar
     asyncio.run(main())

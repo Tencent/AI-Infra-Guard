@@ -1,53 +1,88 @@
-from typing import Any, Dict, List, Optional
+import inspect
+import copy
+from typing import Any, Dict, Optional, TYPE_CHECKING
 from tools.registry import get_tool_by_name, needs_context
 from utils.mcp_tools import MCPTools
 from utils.loging import logger
-from utils.tool_context import ToolContext
+from utils.prompt_manager import prompt_manager
+from tools.registry import get_tools_prompt
+
+if TYPE_CHECKING:  # pragma: no cover
+    from utils.tool_context import ToolContext
+
 
 class ToolDispatcher:
-    def __init__(self, mcp_server_url: Optional[str] = None, mcp_transport: str = "streamable-http"):
+    def __init__(self, mcp_server_url: Optional[str] = None):
+        """
+        NOTE: __init__ must be synchronous. We do lazy MCP connection on first remote usage.
+        """
+        self.mcp_server_url = mcp_server_url
         self.mcp_tools_manager: Optional[MCPTools] = None
-        if mcp_server_url:
-            self.mcp_tools_manager = MCPTools(mcp_server_url, mcp_transport)
-            logger.info(f"ToolDispatcher initialized with MCP server: {mcp_server_url}")
+        self.mcp_transport = None
 
-    async def get_all_tools_prompt(self, local_tool_list: List[str] = None) -> str:
-        """获取所有可用工具的描述 Prompt"""
-        from tools.registry import get_tools_prompt
-        prompt = get_tools_prompt(local_tool_list or [])
-        
+    async def _ensure_mcp_manager(self) -> Optional[MCPTools]:
+        if not self.mcp_server_url:
+            return None
         if self.mcp_tools_manager:
+            return self.mcp_tools_manager
+
+        transports = [self.mcp_transport] if self.mcp_transport else ["streamable-http", "sse"]
+        for transport in transports:
+            if not transport:
+                continue
             try:
-                mcp_prompt = await self.mcp_tools_manager.describe_mcp_tools()
-                prompt += f"\n\n{mcp_prompt}"
+                manager = MCPTools(self.mcp_server_url, transport)  # type: ignore[arg-type]
+                # verify connectivity
+                await manager.describe_mcp_tools()
+                self.mcp_tools_manager = manager
+                logger.info(f"ToolDispatcher: MCP tools manager initialized with transport: {transport}")
+                return self.mcp_tools_manager
+            except Exception:
+                continue
+
+        logger.error(f"ToolDispatcher: Failed to connect to MCP server: {self.mcp_server_url}")
+        return None
+
+    async def get_all_tools_prompt(self) -> str:
+        """获取所有可用工具的描述 Prompt"""
+        common_tools = ['finish', 'think']
+
+        normal_tools = copy.copy(common_tools)
+        normal_tools.extend(['read_file', 'execute_shell'])
+
+        dynamic_tools = copy.copy(common_tools)
+        dynamic_tools.extend(['mcp_tool'])
+
+        if self.mcp_server_url:
+            prompt = get_tools_prompt(dynamic_tools or [])
+            manager = await self._ensure_mcp_manager()
+            if not manager:
+                raise RuntimeError("Failed to connect to MCP server")
+            try:
+                mcp_prompt = await manager.describe_mcp_tools()
+                mcp_remote_prompt = prompt_manager.format_prompt("dynamic/system_prompt", mcp_tools=mcp_prompt)
+                prompt += f"\n\n{mcp_remote_prompt}"
             except Exception as e:
                 logger.error(f"Failed to fetch MCP tools description: {e}")
-        
+                return prompt
+        else:
+            prompt = get_tools_prompt(normal_tools or [])
+
         return prompt
 
-    async def call_tool(self, tool_name: str, args: Dict[str, Any], context: Optional[ToolContext] = None) -> str:
+    async def call_tool(self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None) -> str:
         """统一调用入口：自动识别是本地还是远程工具"""
         # 1. 尝试作为本地工具调用
         tool_func = get_tool_by_name(tool_name)
         if tool_func:
             if needs_context(tool_name) and context:
                 args["context"] = context
-            
+
             result = tool_func(**args)
+            if inspect.isawaitable(result):
+                result = await result
             return self._format_result(result)
-
-        # 2. 尝试作为远程工具调用
-        if self.mcp_tools_manager:
-            try:
-                # 注意：mcp_tools.py 中的 call_remote_tool 返回的是 (tool_info, result)
-                # 为了简化，我们只返回结果部分
-                _, result = await self.mcp_tools_manager.call_remote_tool({"toolName": tool_name, "args": args})
-                return str(result)
-            except Exception as e:
-                logger.error(f"Error calling remote tool {tool_name}: {e}")
-                return f"Error: Remote tool '{tool_name}' failed: {str(e)}"
-
-        return f"Error: Tool '{tool_name}' not found locally or on MCP server"
+        return f"Error: Tool '{tool_name}' not found locally or MCP server is unavailable"
 
     def _format_result(self, result: Any) -> str:
         if isinstance(result, dict):
@@ -61,4 +96,3 @@ class ToolDispatcher:
         if self.mcp_tools_manager:
             await self.mcp_tools_manager.close()
             logger.info("ToolDispatcher: MCP tools manager closed")
-

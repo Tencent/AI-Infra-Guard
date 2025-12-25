@@ -74,7 +74,7 @@ class BaseAgent:
         # todo
 
     async def generate_system_prompt(self):
-        # 通过 Dispatcher 获取所有工具描述
+
         tools_prompt = await self.dispatcher.get_all_tools_prompt()
 
         template_name = "system_prompt"
@@ -83,14 +83,6 @@ class BaseAgent:
             "name": self.name,
             "instruction": self.instruction
         }
-
-        # 如果有 MCP 能力，可能需要不同的模板或额外的变量
-        if "mcp" in self.capabilities:
-            template_name = "dynamic_prompt"
-            # dynamic_prompt.md 还需要 {target_prompt} 和 {mcp_tools}
-            # 这里为了保持 BaseAgent 通用，我们可以在构造时传入特定的 instruction 或在子类/配置中处理
-            # 暂时假设 dynamic_prompt 逻辑可以由外部传入的 instruction 涵盖或通过更灵活的模板变量
-            pass
 
         return prompt_manager.format_prompt(template_name, **format_kwargs)
 
@@ -161,7 +153,8 @@ class BaseAgent:
             agent_name=self.name,
             iteration=self.iter,
             specialized_llms=self.specialized_llms,
-            folder=self.repo_dir
+            folder=self.repo_dir,
+            tool_dispatcher=self.dispatcher
         )
 
         # 通过 Dispatcher 调用工具
