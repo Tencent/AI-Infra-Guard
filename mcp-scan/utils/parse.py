@@ -47,7 +47,7 @@ def clean_content(content: str) -> str:
     ]
     cleaned = content
     for pattern in hidden_xml_patterns:
-        cleaned = re.sub(pattern, "", content, flags=re.DOTALL | re.IGNORECASE)
+        cleaned = re.sub(pattern, "", cleaned, flags=re.DOTALL | re.IGNORECASE)
 
     cleaned = re.sub(r"\n\s*\n", "\n\n", cleaned)
 
