@@ -1,3 +1,4 @@
+import json
 import os.path
 import time
 import uuid
@@ -58,7 +59,7 @@ class BaseAgent:
 
     def set_repo_dir(self, repo_dir: str):
         self.repo_dir = repo_dir
-        
+
     def compact_history(self):
         if len(self.history) < 3:
             return
@@ -128,7 +129,7 @@ class BaseAgent:
         tool_args = tool_call["args"]
         tool_id = uuid.uuid4().__str__()
 
-        params = tool_args[list(tool_args.keys())[0]] if tool_args else ""
+        params = json.dumps(tool_args, ensure_ascii=False) if tool_args else ""
         if isinstance(params, str):
             params = params.replace(self.repo_dir, "")
 
