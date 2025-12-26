@@ -117,8 +117,8 @@ async def main():
         prompt += "All responses should be in English."
     elif args.language == "zh":
         prompt += "所有回复都应使用中文。"
-    if args.prompt:
-        logger.info(f"Custom prompt: {args.prompt}")
+    if prompt:
+        logger.info(f"Custom prompt: {prompt}")
 
     # 解析 headers
     headers = {}
@@ -144,7 +144,7 @@ async def main():
     try:
         if args.server_url:
             logger.info(f"Server mode enabled with URL: {args.server_url}")
-            dynamic_results = await agent.dynamic_analysis(args.prompt)
+            dynamic_results = await agent.dynamic_analysis(prompt)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
         else:
             # 验证项目路径
@@ -155,7 +155,7 @@ async def main():
             if not os.path.isdir(args.repo):
                 logger.error(f"Project path is not a directory: {args.repo}")
                 sys.exit(1)
-            result = await agent.scan(args.repo, args.prompt)
+            result = await agent.scan(args.repo, prompt)
             logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
