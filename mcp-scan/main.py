@@ -73,6 +73,14 @@ def parse_args():
         default=None
     )
 
+    parser.add_argument(
+        "--header",
+        action="append",
+        dest="headers",
+        help="Custom header in key:value format (can be used multiple times)",
+        default=[]
+    )
+
     parser.add_argument("--language", default="zh", help="Output language (zh/en)")
 
     return parser.parse_args()
@@ -111,8 +119,28 @@ async def main():
         prompt += "所有回复都应使用中文。"
     if args.prompt:
         logger.info(f"Custom prompt: {args.prompt}")
+
+    # 解析 headers
+    headers = {}
+    if args.headers:
+        for header_item in args.headers:
+            try:
+                if ':' in header_item:
+                    key, value = header_item.split(':', 1)
+                    headers[key.strip()] = value.strip()
+                elif '=' in header_item:
+                    key, value = header_item.split('=', 1)
+                    headers[key.strip()] = value.strip()
+                else:
+                    logger.warning(f"Ignored invalid header format: {header_item}")
+            except Exception as e:
+                logger.warning(f"Failed to parse header {header_item}: {e}")
+        
+        if headers:
+            logger.info(f"Custom headers: {headers}")
+
     agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
-                  language=args.language)
+                  language=args.language, headers=headers)
     try:
         if args.server_url:
             logger.info(f"Server mode enabled with URL: {args.server_url}")

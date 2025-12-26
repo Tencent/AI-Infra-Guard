@@ -12,13 +12,14 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class ToolDispatcher:
-    def __init__(self, mcp_server_url: Optional[str] = None):
+    def __init__(self, mcp_server_url: Optional[str] = None, mcp_headers: Optional[Dict[str, str]] = None):
         """
         NOTE: __init__ must be synchronous. We do lazy MCP connection on first remote usage.
         """
         self.mcp_server_url = mcp_server_url
         self.mcp_tools_manager: Optional[MCPTools] = None
         self.mcp_transport = None
+        self.mcp_headers = mcp_headers
 
     async def _ensure_mcp_manager(self) -> Optional[MCPTools]:
         if not self.mcp_server_url:
@@ -31,7 +32,7 @@ class ToolDispatcher:
             if not transport:
                 continue
             try:
-                manager = MCPTools(self.mcp_server_url, transport)  # type: ignore[arg-type]
+                manager = MCPTools(self.mcp_server_url, transport, headers=self.mcp_headers)  # type: ignore[arg-type]
                 # verify connectivity
                 await manager.describe_mcp_tools()
                 self.mcp_tools_manager = manager

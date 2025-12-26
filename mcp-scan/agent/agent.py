@@ -109,11 +109,11 @@ class ScanPipeline:
 
 class Agent:
     def __init__(self, llm, specialized_llms: dict = None, debug: bool = False,
-                 server_url: str = None, language='zh'):
+                 server_url: str = None, language='zh', headers=None):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
-        self.dispatcher = ToolDispatcher(mcp_server_url=server_url)
+        self.dispatcher = ToolDispatcher(mcp_server_url=server_url, mcp_headers=headers)
         self.pipeline = ScanPipeline(self)
         self.language = language
 

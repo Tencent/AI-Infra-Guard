@@ -11,10 +11,14 @@ from mcp.client.streamable_http import streamablehttp_client
 class MCPTools:
     """Small MCP-only wrapper used by this repo (no agno dependency)."""
 
-    def __init__(self, url: Optional[str] = None, transport: Literal["sse", "streamable-http"] = "sse"):
+    def __init__(self, url: Optional[str] = None, transport: Literal["sse", "streamable-http"] = "sse",
+                 headers: dict = None):
+        if headers is None:
+            headers = {}
         self.url = url
         self.transport = transport
         self.timeout_seconds = 10
+        self.headers = headers
 
     async def close(self) -> None:
         # Stateless wrapper: each operation uses a short-lived session.
@@ -27,9 +31,9 @@ class MCPTools:
             raise ValueError("MCP server url is required")
 
         if self.transport == "sse":
-            ctx = sse_client(url=self.url)  # type: ignore
+            ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
-            ctx = streamablehttp_client(url=self.url)  # type: ignore
+            ctx = streamablehttp_client(url=self.url, headers=self.headers)  # type: ignore
         else:
             raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
@@ -54,7 +58,7 @@ class MCPTools:
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
             parameters = ''
-            for k,param in t.inputSchema['properties'].items():
+            for k, param in t.inputSchema['properties'].items():
                 required = 'true' if k in t.inputSchema["required"] else 'false'
                 parameters += f'''<parameter name="{k}" type="{param['type']}" required="{required}"></parameter>'''
             xml_lines.append(f'''
@@ -101,5 +105,6 @@ if __name__ == "__main__":
             filename="/etc/passwd"
         )
         print(f"Tool call result: {result}")
+
 
     asyncio.run(main())
