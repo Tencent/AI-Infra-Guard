@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [v3.5-rc4] - 2025-12-25
+
+### Added
+- 📚 **Research & Documentation**: Added AIG Technical Report, Black Hat Europe 2025 slides, and Black Hat Arsenal presentation (@hermitgreen, @Nicky, @LouisHovaldt)
+- 🎓 **Academic Collaborations**: Added academic collaboration section with partner institutions (@zonashi)
+- 🔍 **Dynamic Analysis Framework**: Complete dynamic analysis workflow with specialized agents for malicious behavior testing and vulnerability testing (@sc, @MoonBirdLin)
+- 🛡️ **Security Detection**: Tool poisoning detection and rug pull detection support (@sc)
+- 📊 **Evaluation Datasets**: Added comprehensive test datasets (copyright-violation, misinformation, privacy-leakage, unethical-behavior, violent, non-violent-illegal-activity) (@zonashi)
+- 🔧 **MCP Tools Enhancement**: Added mcp_tool for remote MCP server tool invocation (@zhuque)
+- 📝 **File Operations**: Added write_file tool for file writing operations (@zhuque)
+- 🔌 **Version API**: Added version router endpoint (@zhuque)
+- 🎯 **Prompt Manager**: Introduced prompt_manager utility for better prompt template management (@zhuque)
+- 🔐 **MCP Header Support**: Added custom MCP header support for authentication and protocol configuration (@zhuque)
+
+### Changed
+- ♻️ **MCP Architecture Refactoring**: Complete overhaul of MCP agent architecture for better modularity and performance (@zhuque, @MoonBirdLin)
+- 🎨 **Agent Optimization**: Significantly improved agent prompts and reduced tool execution overhead (@zhuque)
+- 📦 **Tool System Redesign**: Introduced ToolDispatcher, refactored tool registry, and improved tool schema management (@zhuque)
+- 🐳 **Docker Optimization**: Further reduced Docker Agent image size and improved Dockerfile structure (@zhuque, @ac0d3r)
+- 📝 **Logging Enhancement**: Optimized logging system and status update mechanisms (@zhuque)
+- 🔄 **Prompt Updates**: Comprehensive updates to code audit, project summary, and vulnerability review prompts (@zhuque)
+- 📦 **Dependencies**: Updated requirements, pinned deepeval to <3.7.6 for compatibility (@zhuque, @Truman)
+- 🎯 **Scoring Algorithm**: Improved calc_mcp_score function for better vulnerability assessment (@zhuque)
+- 🌐 **README Updates**: Enhanced README with better structure, GIF demos, and recommended security tools (@zonashi)
+- 📡 **Backend API Simplification**: Refactored and simplified MCP-scan backend API, reduced code complexity in websocket/api.go (@zhuque)
+- 📖 **API Documentation**: Updated Swagger documentation with latest API endpoints and improvements (@zhuque)
+
+### Fixed
+- 🐛 **MCP Agent Bugs**: Fixed various MCP agent bugs and improved stability (@boy-hack, @zhuque)
+- 🔧 **Execute Actions**: Fixed execute_actions timeout handling and parameter type conversion (@zhuque)
+- 🎯 **Transport Type**: Fixed server_transport type issue (@sc)
+- 📊 **Output Handling**: Fixed error output when testing without function invocation but with mcp_function invocation (@MoonBirdLin)
+- 🛠️ **System Robustness**: Multiple bug fixes for improved system stability (@zhuque, @MoonBirdLin)
+- 📝 **LLM Integration**: Fixed llm.py parameter handling and retry logic (@zhuque)
+
+### Contributors
+Special thanks to @zhuque, @sc, @MoonBirdLin, @zonashi, @Truman, @ac0d3r, @hermitgreen, @Nicky, @LouisHovaldt, @boy-hack
+
+---
+
 ## [v3.5-rc3] - 2025-12-10
 - fixed mcp-scan not found directory bug
 - update frontend
