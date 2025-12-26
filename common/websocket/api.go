@@ -35,15 +35,16 @@ type ModelParams struct {
 // MCPTaskRequest represents MCP task request structure
 // @Description MCP (Model Context Protocol) 安全扫描任务请求参数
 type MCPTaskRequest struct {
-	Content string `json:"content,omitempty" example:"扫描目标MCP服务器"` // 任务内容描述
-	Model   struct {
+	Prompt string `json:"prompt,omitempty" example:"prompt,填写url则远程mcp扫描"` // 任务内容描述
+	Model  struct {
 		Model   string `json:"model" binding:"required" example:"gpt-4"`               // 模型名称 - 必需
 		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API密钥 - 必需
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
 	} `json:"model" binding:"required"` // 模型配置 - 必需
-	Thread      int    `json:"thread,omitempty" example:"4"`              // 并发线程数
-	Language    string `json:"language,omitempty" example:"zh"`           // 语言代码 - 可选
-	Attachments string `json:"attachments,omitempty" example:"file1.zip"` // 附件文件路径
+	Thread      int               `json:"thread,omitempty" example:"4"`              // 并发线程数
+	Language    string            `json:"language,omitempty" example:"zh"`           // 语言代码 - 可选
+	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // 附件文件路径
+	Headers     map[string]string `json:"headers,omitempty" example:"{\"Authorization\":\"Bearer token\"}"`
 }
 
 // AIInfraScanTaskRequest AI基础设施扫描任务请求结构体
@@ -101,65 +102,6 @@ type TaskCreateResponse struct {
 	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
 }
 
-// Task Types and Parameters Documentation:
-//
-// 1. MCP Scan Task (type: "mcp_scan")
-//    - Purpose: Model Context Protocol security scanning
-//    - Request structure:
-//      {
-//        "type": "mcp_scan",
-//        "content": {
-//          "content": "任务描述",              // 可选: 任务内容描述
-//          "model": {
-//            "model": "gpt-4",               // 必需: 模型名称
-//            "token": "sk-xxx",             // 必需: API密钥
-//            "base_url": "https://api.openai.com/v1"  // 可选: 基础URL
-//          },
-//          "thread": 4,                     // 可选: 并发线程数
-//          "language": "zh",             // 可选: 语言代码
-//          "attachments": "file.zip"       // 可选: 附件文件路径
-//        }
-//      }
-//
-// 2. AI Infra Scan Task (type: "ai_infra_scan")
-//    - Purpose: AI infrastructure security scanning
-//    - Request structure:
-//      {
-//        "type": "ai_infra_scan",
-//        "content": {
-//          "target": ["https://example.com"],  // 必需: 扫描目标URL列表
-//          "headers": {                        // 可选: 自定义请求头
-//            "Authorization": "Bearer token"
-//          },
-//          "timeout": 30                       // 可选: 请求超时时间(秒)
-//        }
-//      }
-//
-// 3. Model Redteam Task (type: "model_redteam_report")
-//    - Purpose: AI model red team testing and security assessment
-//    - Request structure:
-//      {
-//        "type": "model_redteam_report",
-//        "content": {
-//          "model": [                        // 必需: 测试模型列表
-//            {
-//              "model": "gpt-4",
-//              "token": "sk-xxx",
-//              "base_url": "https://api.openai.com/v1"
-//            }
-//          ],
-//          "eval_model": {                   // 必需: 评估模型配置
-//            "model": "gpt-4",
-//            "token": "sk-xxx"
-//          },
-//          "dataset": {                      // 必需: 数据集配置
-//            "dataFile": ["JailBench-Tiny", "JailbreakPrompts-Tiny"],   // 数据集文件列表，可选: JailBench-Tiny, JailbreakPrompts-Tiny, ChatGPT-Jailbreak-Prompts, JADE-db-v3.0, HarmfulEvalBenchmark
-//            "numPrompts": 100,              // 提示词数量
-//            "randomSeed": 42                // 随机种子
-//          }
-//        }
-//      }
-
 // SubmitTask 创建任务接口
 // @Summary Create a new task
 // @Description Submit a new task for processing. Supports three types of tasks:
@@ -174,6 +116,7 @@ type TaskCreateResponse struct {
 // @Description   "type": "mcp_scan",
 // @Description   "content": {
 // @Description     "content": "扫描MCP服务器",
+// @Description     "prompt": "Custom prompt for scan",
 // @Description     "model": {
 // @Description       "model": "gpt-4",
 // @Description       "token": "sk-xxx",
@@ -181,7 +124,10 @@ type TaskCreateResponse struct {
 // @Description     },
 // @Description     "thread": 4,
 // @Description     "language": "zh",
-// @Description     "attachments": "file.zip"
+// @Description     "attachments": "file.zip",
+// @Description     "headers": {
+// @Description       "Authorization": "Bearer token"
+// @Description     }
 // @Description   }
 // @Description }
 // @Description
@@ -276,10 +222,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 				"token":    req.Model.Token,
 				"base_url": req.Model.BaseUrl,
 			},
-			"quick": false,
-			"plugins": []string{
-				"auth_bypass", "cmd_injection", "credential_theft", "hardcoded_api_key", "indirect_prompt_injection", "name_confusion", "rug_pull", "tool_poisoning", "tool_shadowing",
-			},
+			"headers": req.Headers,
 		}
 		var attachments []string
 		if req.Attachments != "" {
@@ -293,7 +236,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Username:    username,
 			Task:        agent.TaskTypeMcpScan,
 			Timestamp:   time.Now().UnixMilli(),
-			Content:     req.Content,
+			Content:     req.Prompt,
 			Params:      params,
 			Attachments: attachments,
 		}

@@ -140,6 +140,7 @@ paths:
         "type": "mcp_scan",
         "content": {
         "content": "扫描MCP服务器",
+        "prompt": "Custom prompt for scan",
         "model": {
         "model": "gpt-4",
         "token": "sk-xxx",
@@ -147,7 +148,10 @@ paths:
         },
         "thread": 4,
         "language": "zh",
-        "attachments": "file.zip"
+        "attachments": "file.zip",
+        "headers": {
+        "Authorization": "Bearer token"
+        }
         }
         }
 

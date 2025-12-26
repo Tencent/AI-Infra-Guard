@@ -108,6 +108,8 @@ MCP Server Scan is used to detect security vulnerabilities in MCP servers.
 | thread | integer | No | Concurrent thread count, default 4 |
 | language | string | No | Language code, e.g., "zh" |
 | attachments | string | No | Attachment file path (file must be uploaded first) |
+| headers | object | No | Custom request headers, e.g., {"Authorization": "Bearer token"} |
+| prompt | string | No | Custom scan prompt description |
 
 #### Source Code Scanning Process
 1. First call the file upload interface to upload source code files
@@ -137,6 +139,7 @@ def mcp_scan_with_source_code():
         "type": "mcp_scan",
         "content": {
             "content": "",
+            "prompt": "Scan this MCP server",
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -187,6 +190,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
     "type": "mcp_scan",
     "content": {
       "content": "",
+      "prompt": "Scan this MCP server",
       "model": {
         "model": "gpt-4",
         "token": "sk-your-api-key",
@@ -559,6 +563,7 @@ def complete_mcp_scan_workflow():
         "type": "mcp_scan",
         "content": {
             "content": "",
+            "prompt": "Scan this MCP server",
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",

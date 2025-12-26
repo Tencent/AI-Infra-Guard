@@ -33,6 +33,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 			Token   string `json:"token"`
 			BaseUrl string `json:"base_url"`
 		} `json:"model"`
+		Headers map[string]string `json:"headers"`
 	}
 
 	var params ScanMcpRequest
@@ -122,6 +123,11 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	argv = append(argv, "--prompt", params.Content)
 	argv = append(argv, "--debug")
 	argv = append(argv, "--language", language)
+	if params.Headers != nil {
+		for k, v := range params.Headers {
+			argv = append(argv, "--header", fmt.Sprintf("%s:%s", k, v))
+		}
+	}
 
 	var taskTitles []string
 	if transport == "code" {

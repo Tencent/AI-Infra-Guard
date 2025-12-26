@@ -108,6 +108,8 @@ MCP（Model Context Protocol）安全扫描用于检测MCP服务中的安全漏�
 | thread | integer | 否 | 并发线程数，默认4 |
 | language | string | 否 | 语言代码，如"zh" |
 | attachments | string | 否 | 附件文件路径（需要先上传文件） |
+| headers | object | 否 | 自定义请求头，如 {"Authorization": "Bearer token"} |
+| prompt | string | 否 | 自定义扫描提示词描述 |
 
 #### 源码扫描流程
 1. 先调用文件上传接口上传源码文件
@@ -137,6 +139,7 @@ def mcp_scan_with_source_code():
         "type": "mcp_scan",
         "content": {
             "content": "",
+            "prompt": "扫描此MCP服务器",
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -187,6 +190,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
     "type": "mcp_scan",
     "content": {
       "content": "",
+      "prompt": "扫描此MCP服务器",
       "model": {
         "model": "gpt-4",
         "token": "sk-your-api-key",
@@ -559,6 +563,7 @@ def complete_mcp_scan_workflow():
         "type": "mcp_scan",
         "content": {
             "content": "",
+            "prompt": "扫描此MCP服务器",
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
