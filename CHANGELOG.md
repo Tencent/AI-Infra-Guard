@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v3.5-rc4] - 2025-12-25
+## [v3.5.0] - 2025-12-26
 
 ### Added
 - 📚 **Research & Documentation**: Added AIG Technical Report, Black Hat Europe 2025 slides, and Black Hat Arsenal presentation (@hermitgreen, @Nicky, @LouisHovaldt)
@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🌐 **README Updates**: Enhanced README with better structure, GIF demos, and recommended security tools (@zonashi)
 - 📡 **Backend API Simplification**: Refactored and simplified MCP-scan backend API, reduced code complexity in websocket/api.go (@zhuque)
 - 📖 **API Documentation**: Updated Swagger documentation with latest API endpoints and improvements (@zhuque)
+- 🎨 **Frontend UI Optimization**: Enhanced LLM security check experience with prompt input detection support (@zonashi)
+- 🔧 **Frontend Settings Consolidation**: Merged auxiliary functions (plugin management, model management) into unified settings panel for cleaner interface (@zonashi)
+- 📋 **Version Display**: Added version number and changelog display in frontend for easier issue tracking (@zonashi)
+- 🔐 **MCP Header Configuration**: Added MCP scan header configuration in frontend to support MCP service authentication (@zonashi)
 
 ### Fixed
 - 🐛 **MCP Agent Bugs**: Fixed various MCP agent bugs and improved stability (@boy-hack, @zhuque)
@@ -39,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📊 **Output Handling**: Fixed error output when testing without function invocation but with mcp_function invocation (@MoonBirdLin)
 - 🛠️ **System Robustness**: Multiple bug fixes for improved system stability (@zhuque, @MoonBirdLin)
 - 📝 **LLM Integration**: Fixed llm.py parameter handling and retry logic (@zhuque)
+- 🔐 **Frontend Header Bug**: Fixed AI infrastructure scan header configuration not taking effect (@zonashi)
 
 ### Contributors
 Special thanks to @zhuque, @sc, @MoonBirdLin, @zonashi, @Truman, @ac0d3r, @hermitgreen, @Nicky, @LouisHovaldt, @boy-hack
