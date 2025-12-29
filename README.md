@@ -119,9 +119,9 @@ Experience the Pro version with advanced features and improved performance. The 
 
 | Feature | More Info |
 |:--------|:------------|
-| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
-| **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
-| **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
+| **AI&nbsp;Infra&nbsp;Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
+| **MCP&nbsp;Server&nbsp;Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
+| **Jailbreak&nbsp;Evaluation** | Assesses prompt security risks with curated datasets and multiple attack methods, Cross-model comparison. |
 
 <details>
 <summary><strong>💎 Additional Benefits</strong></summary>

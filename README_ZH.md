@@ -122,7 +122,7 @@ docker-compose up -d
 |:--------|:------------|
 | **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖400+已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
 | **MCP Server风险检测** | 基于AI Agent驱动，检测9大类MCP安全风险，支持源代码/远程URL扫描 |
-| **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，跨模型安全性能对比 |
+| **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，支持多种越狱攻击算子，跨模型安全性能对比 |
 
 <details>
 <summary><strong>其他优势</strong></summary>
