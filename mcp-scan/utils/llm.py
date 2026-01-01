@@ -34,6 +34,7 @@ class LLM:
             print(ret)
         return ret
 
+
     def chat_stream(self, message: List[dict]):
         response = self.client.chat.completions.create(
             model=self.model,
@@ -41,6 +42,21 @@ class LLM:
             temperature=self.temperature,
             stream=True
         )
+
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
+            # Skip chunks without choices (e.g. keep-alive or heartbeat)
+            choices = getattr(chunk, "choices", None)
+            if not choices:
+                continue
+
+            choice = choices[0]
+
+            # Skip chunks without delta (role-only, tool-only, finish_reason)
+            delta = getattr(choice, "delta", None)
+            if not delta:
+                continue
+
+            # Only yield if there is actual content
+            content = getattr(delta, "content", None)
+            if content:
+                yield content
