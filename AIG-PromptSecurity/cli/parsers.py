@@ -1,4 +1,5 @@
 import os
+import re
 import importlib
 import ast
 from typing import List, Any, Tuple
@@ -147,8 +148,7 @@ def parse_vulnerability(arg: str, plugin_manager: PluginManager):
                     vuln = CustomPrompt(prompt=prompt)
                     # 使用元数据中的信息来命名vulnerability（仅对文件输入）
                     category = meta.get('category', 'custom')
-                    language = meta.get('language', 'unknown')
-                    vuln.name = f"Custom Prompt {i+1} ({category}-{language})"
+                    vuln.name = f"{category}"
                     vulnerabilities.append(vuln)
                 return vulnerabilities, os.path.basename(prompt_file)
             else:
@@ -159,7 +159,7 @@ def parse_vulnerability(arg: str, plugin_manager: PluginManager):
             logger.debug(f"Creating MultiDatasetVulnerability with kwargs: {kwargs}")
             
             # 处理MultiDatasetVulnerability的特殊参数
-            dataset_file = kwargs.get('dataset_file', 'jailbreak_prompts_top.json')
+            dataset_file = kwargs.get('dataset_file')
             num_prompts = kwargs.get('num_prompts', 10)
             random_seed = kwargs.get('random_seed')
             prompt_column = kwargs.get('prompt_column')
@@ -173,7 +173,13 @@ def parse_vulnerability(arg: str, plugin_manager: PluginManager):
                 prompt_column=prompt_column,
                 filter_conditions=filter_conditions
             )
-            
+            tag = vuln.dataset_name
+            if tag is None:
+                source_file = os.path.basename(dataset_file)
+                dataset_name = os.path.splitext(source_file)[0]
+                match = re.search(r"(.*?)(?:-\d{16})?$", dataset_name)
+                tag = match.group(1) if match else dataset_name
+
             # 为每个prompt创建独立的vulnerability对象
             vulnerabilities = []
             for i, prompt in enumerate(vuln.prompts):
@@ -181,17 +187,13 @@ def parse_vulnerability(arg: str, plugin_manager: PluginManager):
                 single_vuln = MultiDatasetVulnerability(
                     prompt=prompt,
                 )
+                single_vuln.types = vuln.types
                 
                 # 使用元数据中的信息来命名vulnerability
-                if i < len(vuln.metadata):
-                    meta = vuln.metadata[i]
-                    single_vuln.metadata = [meta]
-                    category = meta.get('category', 'multi_dataset')
-                    language = meta.get('language', 'unknown')
-                    source_file = meta.get('source_file', 'unknown')
-                    single_vuln.name = f"MultiDataset Vulnerability {i+1} ({category}-{language}-{source_file})"
-                else:
-                    single_vuln.name = f"MultiDataset Vulnerability {i+1}"
+                meta = vuln.metadata[i]
+                single_vuln.metadata = [meta]
+                category = meta.get('category')
+                single_vuln.name = f"{tag}-{category}" if category else f"{tag}"
                 
                 vulnerabilities.append(single_vuln)
             
