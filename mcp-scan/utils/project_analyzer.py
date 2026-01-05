@@ -102,11 +102,12 @@ def calc_mcp_score(issues: list) -> int:
     score = 100
     for item in issues:
         # 兼容字典和对象两种格式
-        risk_type = item.get("risk_type", "").lower() if isinstance(item, dict) else getattr(item, "risk_type", "").lower()
-
-        if risk_type in ["high", "critical", "高危", "严重"]:
+        level = item.get("level", "").lower() if isinstance(item, dict) else getattr(item, "level", "").lower()
+        if level in ['critical', '严重']:
+            score -= 100
+        elif level in ["high", "高危"]:
             score -= 40
-        elif risk_type in ["medium", "中危"]:
+        elif level in ["medium", "中危"]:
             score -= 25
         else:
             score -= 10
