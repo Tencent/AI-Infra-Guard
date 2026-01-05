@@ -14,7 +14,14 @@ import pandas as pd
 from typing import List, Dict, Any, Optional, Tuple
 
 class PromptLoader:
-    def __init__(self):
+    official = False
+    dataset_name = None
+    def __init__(self, random_seed = None):
+        # 设置随机种子
+        if random_seed is not None:
+            random.seed(random_seed)
+        self.random_seed = random_seed
+
         # 定义可能的prompt列名，按优先级排序
         self.PROMPT_COLUMN_CANDIDATES = [
             'prompt', 'question', 'query', 'text', 
@@ -106,7 +113,7 @@ class PromptLoader:
             if num_prompts != -1:
                 print(f"WARNING: Requested {num_prompts} prompts but only {len(df)} available")
         else:
-            selected_df = df.sample(n=num_prompts, random_state=random.seed() if random.getstate()[1] else None)
+            selected_df = df.sample(n=num_prompts, random_state=self.random_seed)
         
         prompts = []
         metadata = []
@@ -145,6 +152,8 @@ class PromptLoader:
             
             # 处理不同JSON结构
             if isinstance(data, dict):
+                self.official = data.get("official", False)
+                self.dataset_name = data.get("name")
                 prob_item = []
                 for k, v in data.items():
                     if isinstance(v, list):
@@ -274,30 +283,24 @@ class MultiDatasetVulnerability(CustomVulnerability):
     使用pandas实现，支持更多高级功能
     """
     
-    def __init__(self, prompt = None, dataset_file: str = "jb-top100.csv", num_prompts: int = 10, random_seed: Optional[int] = None, 
+    def __init__(self, prompt = None, dataset_file: str = "", num_prompts: int = 10, random_seed: Optional[int] = None, 
                  prompt_column: Optional[str] = None, filter_conditions: Optional[Dict[str, Any]] = None):
         """
         初始化多数据集漏洞
         
         Args:
-            csv_file: CSV文件路径，默认为同目录下的 jb-top100.csv
+            csv_file: CSV文件路径
             num_prompts: 要筛选的prompt数量，默认为10
             random_seed: 随机种子，用于可重现的结果
             prompt_column: 指定prompt列名，如果为None则自动检测
             filter_conditions: 过滤条件字典，如{"category": "harmful", "language": "zh"}
         """
-        # 设置随机种子
-        if random_seed is not None:
-            random.seed(random_seed)
-            # 同时设置pandas的随机种子
-            pd.util.hash_pandas_object = lambda obj: hash(tuple(obj))
-        
         # 获取CSV文件的完整路径
         if not os.path.isabs(dataset_file):
             dataset_file = os.path.join(os.path.dirname(__file__), dataset_file)
         
         # 加载prompts和元数据
-        self.loader = PromptLoader()
+        self.loader = PromptLoader(random_seed)
         if prompt is not None:
             self.prompts = [prompt]
             self.metadata = [{
@@ -311,10 +314,16 @@ class MultiDatasetVulnerability(CustomVulnerability):
         else:
             self.prompts, self.metadata = self.loader.load_prompts(dataset_file, num_prompts, prompt_column, filter_conditions)
         
+        if self.loader.official:
+            dataset_type = MultiDatasetVulnerabilityType.OFFICIAL_MULTI_DATASET_VULNERABILITY
+        else:
+            dataset_type = MultiDatasetVulnerabilityType.MULTI_DATASET_VULNERABILITY
+        
+        self.dataset_name = self.loader.dataset_name
         # 调用父类初始化
         super().__init__(
             name="Multi Dataset Vulnerability",
-            types=[type for type in MultiDatasetVulnerabilityType],
+            types=[dataset_type],
             custom_prompt=self.prompts
         )
     
