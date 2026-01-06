@@ -1,6 +1,6 @@
 import asyncio
 from datetime import timedelta
-from typing import Any, AsyncIterator, Literal, Optional
+from typing import Any, AsyncIterator, Dict, Literal, Optional
 from contextlib import asynccontextmanager
 
 from mcp import ClientSession
@@ -19,6 +19,8 @@ class MCPTools:
         self.transport = transport
         self.timeout_seconds = 10
         self.headers = headers
+        # 缓存工具 schema，用于参数类型转换
+        self._tools_schema: Dict[str, Dict[str, Any]] = {}
 
     async def close(self) -> None:
         # Stateless wrapper: each operation uses a short-lived session.
@@ -57,6 +59,9 @@ class MCPTools:
 
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
+            # 缓存工具 schema，用于后续参数类型转换
+            self._tools_schema[t.name] = t.inputSchema
+
             parameters = ''
             for k, param in t.inputSchema['properties'].items():
                 required = 'true' if k in t.inputSchema["required"] else 'false'
@@ -75,6 +80,59 @@ class MCPTools:
         xml_lines.append("</mcp_tools>")
         return "\n".join(xml_lines)
 
+    def _convert_param_type(self, value: Any, param_type: str) -> Any:
+        """根据 schema 定义的类型转换参数值"""
+        if value is None:
+            return None
+
+        try:
+            if param_type == "integer":
+                return int(value)
+            elif param_type == "number":
+                return float(value)
+            elif param_type == "boolean":
+                if isinstance(value, bool):
+                    return value
+                if isinstance(value, str):
+                    return value.lower() in ("true", "1", "yes")
+                return bool(value)
+            elif param_type == "array":
+                if isinstance(value, list):
+                    return value
+                if isinstance(value, str):
+                    import json
+                    return json.loads(value)
+                return [value]
+            elif param_type == "object":
+                if isinstance(value, dict):
+                    return value
+                if isinstance(value, str):
+                    import json
+                    return json.loads(value)
+                return value
+            else:
+                # string 或其他类型，保持原样
+                return value
+        except (ValueError, TypeError):
+            # 转换失败，返回原值
+            return value
+
+    def _convert_args_by_schema(self, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """根据工具 schema 转换所有参数类型"""
+        schema = self._tools_schema.get(tool_name)
+        if not schema:
+            return args
+
+        properties = schema.get("properties", {})
+        converted_args = {}
+
+        for key, value in args.items():
+            param_schema = properties.get(key, {})
+            param_type = param_schema.get("type", "string")
+            converted_args[key] = self._convert_param_type(value, param_type)
+
+        return converted_args
+
     async def call_remote_tool(self, tool_name: str, **kw) -> Any:
         """
         Call remote MCP server tool.
@@ -83,8 +141,11 @@ class MCPTools:
         if not tool_name:
             raise ValueError("call_remote_tool requires call['toolName']")
 
+        # 根据 schema 转换参数类型
+        converted_kw = self._convert_args_by_schema(tool_name, kw)
+
         async with self._session() as session:
-            result = await session.call_tool(tool_name, kw)
+            result = await session.call_tool(tool_name, converted_kw)
             if result is None:
                 return None
             result = result.content[0]
