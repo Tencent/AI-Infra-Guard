@@ -44,19 +44,17 @@ class LLM:
         )
 
         for chunk in response:
-            # Skip chunks without choices (e.g. keep-alive or heartbeat)
             choices = getattr(chunk, "choices", None)
-            if not choices:
-                continue
 
+            # Ensure choices is a non-empty list
+            if not isinstance(choices, list) or not choices:
+                continue
             choice = choices[0]
 
-            # Skip chunks without delta (role-only, tool-only, finish_reason)
             delta = getattr(choice, "delta", None)
             if not delta:
                 continue
 
-            # Only yield if there is actual content
             content = getattr(delta, "content", None)
             if content:
                 yield content
