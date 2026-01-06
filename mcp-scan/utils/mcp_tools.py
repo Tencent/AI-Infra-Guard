@@ -54,8 +54,11 @@ class MCPTools:
         try:
             async with self._session() as session:
                 data = await session.list_tools()
+        except BaseExceptionGroup as eg:
+            root_cause = self._extract_root_cause(eg)
+            raise RuntimeError(f"Failed to fetch MCP tools: {root_cause}") from eg
         except Exception as e:
-            raise Exception(f"Failed to fetch MCP tools description from server: {e}")
+            raise RuntimeError(f"Failed to fetch MCP tools: {type(e).__name__}: {e}") from e
 
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
@@ -133,6 +136,18 @@ class MCPTools:
 
         return converted_args
 
+    def _extract_root_cause(self, exc: Exception) -> str:
+        """从 ExceptionGroup/TaskGroup 中提取原始错误信息"""
+        # 处理 ExceptionGroup (Python 3.11+)
+        if isinstance(exc, BaseExceptionGroup):
+            messages = []
+            for sub_exc in exc.exceptions:
+                # 递归提取嵌套的 ExceptionGroup
+                messages.append(self._extract_root_cause(sub_exc))
+            return "; ".join(messages)
+        # 普通异常，返回其消息
+        return f"{type(exc).__name__}: {exc}"
+
     async def call_remote_tool(self, tool_name: str, **kw) -> Any:
         """
         Call remote MCP server tool.
@@ -144,16 +159,23 @@ class MCPTools:
         # 根据 schema 转换参数类型
         converted_kw = self._convert_args_by_schema(tool_name, kw)
 
-        async with self._session() as session:
-            result = await session.call_tool(tool_name, converted_kw)
-            if result is None:
-                return None
-            result = result.content[0]
-            # 判断TextContent or ImageContent or VideoContent
-            if hasattr(result, 'text'):
-                return result.text
-            elif hasattr(result, 'data'):
-                return result.data
+        try:
+            async with self._session() as session:
+                result = await session.call_tool(tool_name, converted_kw)
+                if result is None:
+                    return None
+                result = result.content[0]
+                # 判断TextContent or ImageContent or VideoContent
+                if hasattr(result, 'text'):
+                    return result.text
+                elif hasattr(result, 'data'):
+                    return result.data
+        except BaseExceptionGroup as eg:
+            # 提取 TaskGroup 中的原始错误
+            root_cause = self._extract_root_cause(eg)
+            raise RuntimeError(f"MCP call failed: {root_cause}") from eg
+        except Exception as e:
+            raise RuntimeError(f"MCP call failed: {type(e).__name__}: {e}") from e
 
 
 if __name__ == "__main__":
