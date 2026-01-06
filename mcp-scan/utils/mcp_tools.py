@@ -1,4 +1,5 @@
 import asyncio
+import json
 from datetime import timedelta
 from typing import Any, AsyncIterator, Dict, Literal, Optional
 from contextlib import asynccontextmanager
@@ -49,6 +50,79 @@ class MCPTools:
                 await session.initialize()
                 yield session
 
+    def _build_parameter_attributes(self, param: Dict[str, Any]) -> str:
+        """构建参数的 XML 属性字符串，包含所有 schema 信息"""
+        attrs = []
+        
+        # 基础属性：type 和 required 在调用处处理
+        
+        # description: 描述
+        if 'description' in param and param['description']:
+            desc = str(param['description']).replace('"', '&quot;')
+            attrs.append(f'description="{desc}"')
+        
+        # enum: 枚举值列表
+        if 'enum' in param and param['enum']:
+            enum_values = param['enum']
+            if isinstance(enum_values, list):
+                enum_str = ','.join(str(v) for v in enum_values)
+                enum_str = enum_str.replace('"', '&quot;')
+                attrs.append(f'enum="{enum_str}"')
+        
+        # default: 默认值
+        if 'default' in param:
+            default_val = param['default']
+            if isinstance(default_val, (dict, list)):
+                default_str = json.dumps(default_val, ensure_ascii=False)
+            else:
+                default_str = str(default_val)
+            default_str = default_str.replace('"', '&quot;')
+            attrs.append(f'default="{default_str}"')
+        
+        # minimum/maximum: 数值范围
+        if 'minimum' in param:
+            attrs.append(f'minimum="{param["minimum"]}"')
+        if 'maximum' in param:
+            attrs.append(f'maximum="{param["maximum"]}"')
+        
+        # minLength/maxLength: 字符串长度限制
+        if 'minLength' in param:
+            attrs.append(f'minLength="{param["minLength"]}"')
+        if 'maxLength' in param:
+            attrs.append(f'maxLength="{param["maxLength"]}"')
+        
+        # pattern: 正则表达式模式
+        if 'pattern' in param and param['pattern']:
+            pattern_str = str(param['pattern']).replace('"', '&quot;')
+            attrs.append(f'pattern="{pattern_str}"')
+        
+        # format: 格式（如 date-time, email, uri 等）
+        if 'format' in param and param['format']:
+            attrs.append(f'format="{param["format"]}"')
+        
+        # examples: 示例值
+        if 'examples' in param and param['examples']:
+            examples = param['examples']
+            if isinstance(examples, list) and examples:
+                examples_str = ','.join(str(v) for v in examples)
+                examples_str = examples_str.replace('"', '&quot;')
+                attrs.append(f'examples="{examples_str}"')
+        
+        # items: 数组元素类型（对于 array 类型）
+        if 'items' in param:
+            items = param['items']
+            if isinstance(items, dict):
+                if 'type' in items:
+                    attrs.append(f'itemsType="{items["type"]}"')
+                if 'enum' in items:
+                    items_enum = items['enum']
+                    if isinstance(items_enum, list):
+                        items_enum_str = ','.join(str(v) for v in items_enum)
+                        items_enum_str = items_enum_str.replace('"', '&quot;')
+                        attrs.append(f'itemsEnum="{items_enum_str}"')
+        
+        return ' '.join(attrs)
+
     async def describe_mcp_tools(self) -> str:
         """Return `<mcp_tools>` XML listing tool names and descriptions."""
         try:
@@ -67,8 +141,15 @@ class MCPTools:
 
             parameters = ''
             for k, param in t.inputSchema['properties'].items():
-                required = 'true' if k in t.inputSchema["required"] else 'false'
-                parameters += f'''<parameter name="{k}" type="{param['type']}" required="{required}"></parameter>'''
+                required = 'true' if k in t.inputSchema.get("required", []) else 'false'
+                param_type = param.get('type', 'string')
+                # 构建基础属性
+                base_attrs = f'name="{k}" type="{param_type}" required="{required}"'
+                # 构建额外的 schema 属性
+                extra_attrs = self._build_parameter_attributes(param)
+                # 合并所有属性（如果 extra_attrs 不为空，则添加空格）
+                all_attrs = f'{base_attrs} {extra_attrs}'.strip() if extra_attrs else base_attrs
+                parameters += f'''<parameter {all_attrs}></parameter>'''
             xml_lines.append(f'''
     <name>{t.name}</name>
     <description>{t.description}</description>
