@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.6.0-rc1] - 2025-01-07
+
+### Changed
+- 🎯 **Audit Prompt Optimization**: Reduced false positives by focusing on network-layer vulnerabilities
+  - Added input source risk priority rules, ignoring CLI inputs
+  - Only report medium+ severity vulnerabilities
+  - Command injection detection excludes CLI parameter scenarios
+  - Credential theft detection requires network exfiltration path
+- 🔍 **Skill Project Audit**: Improved Skill project security analysis
+  - Skill projects don't require MCP risk classification
+  - Focus on malicious behavior detection (reverse shell, data exfiltration, backdoor, cryptominer)
+  - Ignore code quality and development standard issues
+- ✅ **Quality Checklist**: Added network reachability verification to vulnerability review
+
+---
+
 ## [v3.5.0] - 2025-12-26
 
 ### Added
