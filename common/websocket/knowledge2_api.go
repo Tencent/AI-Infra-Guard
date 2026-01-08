@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
@@ -314,4 +315,220 @@ func GetJailBreak(c *gin.Context) {
 		"message": "success",
 		"data":    data1,
 	})
+}
+
+// ============== Agent Scan Config Management ==============
+const AgentConfigRoot = "data/agents"
+
+func HandleListAgentNames(c *gin.Context) {
+	names, err := listAgentConfigNames()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "获取失败: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "success",
+		"data":    names,
+	})
+}
+
+func HandleGetAgentConfig(c *gin.Context) {
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	data, err := readAgentConfigContent(name)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"status":  1,
+				"message": "配置不存在",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "读取失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "success",
+		"data":    string(data),
+	})
+}
+
+func HandleSaveAgentConfig(c *gin.Context) {
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	var req struct {
+		Content string `json:"content" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "content parameter is required",
+		})
+		return
+	}
+	content := strings.TrimSpace(req.Content)
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "content不能为空",
+		})
+		return
+	}
+	// todo: 校验content yaml连通性
+
+	if err := os.MkdirAll(AgentConfigRoot, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "创建目录失败: " + err.Error(),
+		})
+		return
+	}
+
+	targetPath, err := resolveAgentConfigPathForWrite(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "保存失败: " + err.Error(),
+		})
+		return
+	}
+
+	if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "保存失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "创建成功",
+	})
+}
+
+func HandleDeleteAgentConfig(c *gin.Context) {
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	deleted, err := deleteAgentConfig(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "删除失败: " + err.Error(),
+		})
+		return
+	}
+	if !deleted {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  1,
+			"message": "配置不存在",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "删除成功",
+	})
+}
+
+func listAgentConfigNames() ([]string, error) {
+	entries, err := os.ReadDir(AgentConfigRoot)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []string{}, nil
+		}
+		return nil, err
+	}
+
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		switch {
+		case strings.HasSuffix(entry.Name(), ".yaml"):
+			names = append(names, strings.TrimSuffix(entry.Name(), ".yaml"))
+		case strings.HasSuffix(entry.Name(), ".yml"):
+			names = append(names, strings.TrimSuffix(entry.Name(), ".yml"))
+		}
+	}
+	sort.Strings(names)
+	return names, nil
+}
+
+func readAgentConfigContent(name string) ([]byte, error) {
+	for _, ext := range []string{".yaml", ".yml"} {
+		path := filepath.Join(AgentConfigRoot, name+ext)
+		data, err := os.ReadFile(path)
+		if err == nil {
+			return data, nil
+		}
+		if !errors.Is(err, os.ErrNotExist) {
+			return nil, err
+		}
+	}
+	return nil, os.ErrNotExist
+}
+
+func resolveAgentConfigPathForWrite(name string) (string, error) {
+	candidates := []string{
+		filepath.Join(AgentConfigRoot, name+".yaml"),
+		filepath.Join(AgentConfigRoot, name+".yml"),
+	}
+	for _, path := range candidates {
+		_, statErr := os.Stat(path)
+		if statErr == nil {
+			return path, nil
+		}
+		if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
+			return "", statErr
+		}
+	}
+	return candidates[0], nil
+}
+
+func deleteAgentConfig(name string) (bool, error) {
+	for _, ext := range []string{".yaml", ".yml"} {
+		path := filepath.Join(AgentConfigRoot, name+ext)
+		err := os.Remove(path)
+		if err == nil {
+			return true, nil
+		}
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		return false, err
+	}
+	return false, nil
 }
