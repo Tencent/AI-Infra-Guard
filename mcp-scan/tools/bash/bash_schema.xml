@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="bash">
+  <description>
+    Execute a shell command in the system's default shell.
+    
+    IMPORTANT: Always use 'workdir' parameter instead of 'cd' commands for changing directories.
+    Commands will be executed with the shell's default behavior.
+    
+    Output is automatically truncated at 500 lines or 30000 characters.
+  </description>
+  <parameters>
+    <parameter name="command" type="string" required="true">
+      The command to execute. Can be multi-line.
+    </parameter>
+    <parameter name="timeout" type="number" required="false">
+      Optional timeout in seconds. Defaults to 120 seconds.
+    </parameter>
+    <parameter name="workdir" type="string" required="false">
+      The working directory to run the command in. Use this instead of 'cd' commands.
+    </parameter>
+    <parameter name="description" type="string" required="false">
+      Clear, concise description of what this command does in 5-10 words.
+      Examples:
+        - "Lists files in current directory"
+        - "Shows working tree status"
+        - "Installs package dependencies"
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the command succeeded (exit code 0)</field>
+    <field name="output" type="string">Combined stdout and stderr output</field>
+    <field name="exit_code" type="number">The command's exit code</field>
+    <field name="title" type="string">Description or truncated command</field>
+    <field name="error" type="string">Error message if failed</field>
+  </returns>
+</tool>
+</tools>
+

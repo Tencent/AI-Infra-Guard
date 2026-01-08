@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="task">
+  <description>
+    Execute a task using a specialized sub-agent.
+    Sub-agents are defined by markdown files in the prompt/agents/ directory.
+    
+    Each sub-agent has specific capabilities and instructions for handling
+    particular types of tasks (e.g., code review, vulnerability testing, etc.)
+    
+    Use 'list_agents' to see available sub-agent types.
+  </description>
+  <parameters>
+    <parameter name="prompt" type="string" required="true">
+      The task prompt describing what the agent should do
+    </parameter>
+    <parameter name="subagent_type" type="string" required="true">
+      The type of specialized agent to use (e.g., 'code_audit', 'vuln_review')
+    </parameter>
+    <parameter name="description" type="string" required="false">
+      A short (3-5 words) description of the task
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the task succeeded</field>
+    <field name="title" type="string">Task description</field>
+    <field name="output" type="string">Task execution result</field>
+    <field name="agent" type="string">The agent type used</field>
+    <field name="metadata" type="object">Additional task metadata</field>
+  </returns>
+</tool>
+
+<tool name="list_agents">
+  <description>
+    List all available sub-agents that can be used with the 'task' tool.
+    Returns the name and description of each available agent.
+  </description>
+  <parameters>
+    <!-- No parameters required -->
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the listing succeeded</field>
+    <field name="output" type="string">Formatted list of available agents</field>
+    <field name="agents" type="array">List of agent objects with name, description, path</field>
+  </returns>
+</tool>
+</tools>
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="batch">
+  <description>
+    Execute multiple tool calls in a single request for optimal performance.
+    
+    IMPORTANT RULES:
+    - Maximum of 10 tool calls per batch
+    - Cannot nest batch calls (no batch within batch)
+    - Cannot call 'finish' tool within batch
+    - Tools are executed serially to maintain order
+    
+    Use batch when you need to:
+    - Read multiple files at once
+    - Perform several independent operations
+    - Improve response time by reducing round trips
+  </description>
+  <parameters>
+    <parameter name="tool_calls" type="array" required="true">
+      Array of tool calls to execute. Each element must have:
+      - tool: The name of the tool to execute (string)
+      - parameters: Parameters for the tool (object)
+      
+      Example:
+      [
+        {"tool": "read", "parameters": {"file_path": "file1.py"}},
+        {"tool": "read", "parameters": {"file_path": "file2.py"}}
+      ]
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether all calls succeeded</field>
+    <field name="title" type="string">Summary of execution</field>
+    <field name="output" type="string">Human-readable result summary</field>
+    <field name="metadata" type="object">
+      Contains: total_calls, successful, failed, tools, details
+    </field>
+  </returns>
+</tool>
+</tools>
+
