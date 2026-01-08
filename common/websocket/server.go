@@ -146,6 +146,13 @@ func RunWebServer(options *version.Options) {
 				collections.PUT("/:id", HandleEdit(promptCollectionUpdateFunc))
 				collections.DELETE("", HandleDelete(promptCollectionDeleteFunc))
 			}
+			agentConfigs := knowledge.Group("/agent")
+			{
+				agentConfigs.GET("/names", HandleListAgentNames)
+				agentConfigs.GET("/:name", HandleGetAgentConfig)
+				agentConfigs.POST("/:name", HandleSaveAgentConfig)
+				agentConfigs.DELETE("/:name", HandleDeleteAgentConfig)
+			}
 			// 算子列表
 			knowledge.GET("/jailbreak", GetJailBreak)
 		}
