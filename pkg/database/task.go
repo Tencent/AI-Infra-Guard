@@ -9,11 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// User 用户表
+// User 用户表（扩展版本）
 type User struct {
-	Username  string `gorm:"primaryKey;column:username" json:"username"`
-	CreatedAt int64  `gorm:"column:created_at;not null" json:"created_at"` // 时间戳毫秒级
-	UpdatedAt int64  `gorm:"column:updated_at;not null" json:"updated_at"` // 时间戳毫秒级
+	UserID     string `gorm:"primaryKey;column:user_id" json:"user_id"`
+	Username   string `gorm:"column:username;not null;uniqueIndex" json:"username"`        // 用户名（唯一）
+	Email      string `gorm:"column:email;not null;uniqueIndex" json:"email"`              // 邮箱（唯一）
+	IsActive   bool   `gorm:"column:is_active;not null;default:true" json:"is_active"`     // 是否激活
+	FirstLogin bool   `gorm:"column:first_login;not null;default:true" json:"first_login"` // 是否首次登录，默认true
+	CreatedAt  int64  `gorm:"column:created_at;not null" json:"created_at"`                // 创建时间
 }
 
 // Session 会话表（一个会话对应一个任务）
@@ -62,6 +65,14 @@ func NewTaskStore(db *gorm.DB) *TaskStore {
 	return &TaskStore{db: db}
 }
 
+// ResetRunningTasks 重置运行中的任务为失败
+func (s *TaskStore) ResetRunningTasks() error {
+	return s.db.Model(&Session{}).Where("status = 'doing' or status = 'failed'").Updates(map[string]interface{}{
+		"status":     "error",
+		"updated_at": time.Now().UnixMilli(),
+	}).Error
+}
+
 // Init 自动迁移任务相关表结构
 func (s *TaskStore) Init() error {
 	return s.db.AutoMigrate(&User{}, &Session{}, &TaskMessage{})
@@ -71,16 +82,7 @@ func (s *TaskStore) Init() error {
 func (s *TaskStore) CreateUser(user *User) error {
 	now := time.Now().UnixMilli()
 	user.CreatedAt = now
-	user.UpdatedAt = now
 	return s.db.Create(user).Error
-}
-
-// ResetRunningTasks 重置运行中的任务为失败
-func (s *TaskStore) ResetRunningTasks() error {
-	return s.db.Model(&Session{}).Where("status = 'doing' or status = 'failed'").Updates(map[string]interface{}{
-		"status":     "error",
-		"updated_at": time.Now().UnixMilli(),
-	}).Error
 }
 
 // GetUser 获取用户信息
@@ -91,6 +93,23 @@ func (s *TaskStore) GetUser(username string) (*User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// GetUserByEmail 根据邮箱获取用户
+func (s *TaskStore) GetUserByEmail(email string) (*User, error) {
+	var user User
+	err := s.db.First(&user, "email = ?", email).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// CheckUserExists 检查用户是否存在
+func (s *TaskStore) CheckUserExists(email string) (bool, error) {
+	var count int64
+	err := s.db.Model(&User{}).Where(" email = ?", email).Count(&count).Error
+	return count > 0, err
 }
 
 // CreateSession 创建会话（包含任务信息）
@@ -162,6 +181,15 @@ func (s *TaskStore) DeleteSessionMessages(sessionID string) error {
 	return s.db.Where("session_id = ?", sessionID).Delete(&TaskMessage{}).Error
 }
 
+func (s *TaskStore) DeleteUser(email string) error {
+	return s.db.Where("email = ?", email).Delete(&User{}).Error
+}
+
+// UpdateUserFirstLogin 更新用户的首次登录状态
+func (s *TaskStore) UpdateUserFirstLogin(username string, firstLogin bool) error {
+	return s.db.Model(&User{}).Where("username = ?", username).Update("first_login", firstLogin).Error
+}
+
 // DeleteSessionWithMessages 使用事务删除会话及其所有消息
 func (s *TaskStore) DeleteSessionWithMessages(sessionID string) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
@@ -208,7 +236,7 @@ func (s *TaskStore) GetUserSessions(username string) ([]*Session, error) {
 
 // GetUserSessionsByType 获取用户的会话，支持可选的任务类型过滤
 func (s *TaskStore) GetUserSessionsByType(username string, taskType string) ([]*Session, error) {
-	query := s.db.Where("username = ?", username)
+	query := s.db.Where("username = ? or username = 'demo-test'", username)
 
 	// 如果指定了任务类型，添加类型过滤
 	if taskType != "" {
@@ -259,7 +287,7 @@ func (s *TaskStore) GetSessionEventsByType(sessionID string, eventType string) (
 
 // SearchUserSessionsSimple 使用单个查询参数搜索用户的会话，支持在title、content、task_type字段中搜索
 func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams SimpleSearchParams) ([]*Session, int64, error) {
-	query := s.db.Model(&Session{}).Where("username = ?", username)
+	query := s.db.Model(&Session{}).Where("username = ? or username = 'demo-test'", username)
 
 	// 如果指定了任务类型，添加类型过滤
 	if searchParams.TaskType != "" {
