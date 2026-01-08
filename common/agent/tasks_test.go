@@ -9,12 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	Model   = "Qwen/Qwen3-32B"
-	Token   = "empty"
-	BaseUrl = "http://11.220.10.79:8080/v1"
-)
-
 // 创建一个mock回调结构来验证agent执行流程
 type MockCallbacks struct {
 	ResultCallbackFunc           func(result map[string]interface{})
