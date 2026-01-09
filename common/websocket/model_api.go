@@ -77,53 +77,22 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 	log.Debugf("用户请求获取模型列表: trace_id=%s, username=%s", traceID, username)
 
 	var userModels []*database.Model
-	var publicModels []*database.Model
 	var err error
 
-	// 获取public_user的模型（系统模型）
-	publicModels, err = mm.modelStore.GetUserModels("public_user")
+	userModels, err = mm.modelStore.GetUserModels(username)
 	if err != nil {
-		log.Errorf("获取公共模型列表失败: trace_id=%s, username=%s, error=%v", traceID, username, err)
-		// 公共模型获取失败不影响主流程，只记录警告
-		log.Warnf("获取public_user模型失败，继续返回用户模型: %v", err)
-		publicModels = []*database.Model{}
-	}
-
-	// 如果不是public_user，才获取用户自己的模型
-	if username != "public_user" {
-		userModels, err = mm.modelStore.GetUserModels(username)
-		if err != nil {
-			log.Errorf("获取用户模型列表失败: trace_id=%s, username=%s, error=%v", traceID, username, err)
-			c.JSON(http.StatusOK, gin.H{
-				"status":  1,
-				"message": "获取模型列表失败: " + err.Error(),
-				"data":    nil,
-			})
-			return
-		}
+		log.Errorf("获取用户模型列表失败: trace_id=%s, username=%s, error=%v", traceID, username, err)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "获取模型列表失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
 	}
 
 	// 转换为期望的返回格式
 	var result []map[string]interface{}
 
-	// 1. 首先添加系统模型（public_user的模型），永远排在前面
-	for _, model := range publicModels {
-		// 系统模型同样对外不暴露真实 token，但如果存在 token，
-		// 通过掩码串告知“已配置密钥”，方便前端交互。
-		item := map[string]interface{}{
-			"model_id": model.ModelID,
-			"model": map[string]interface{}{
-				"model":    model.ModelName,
-				"token":    maskToken(model.Token),
-				"base_url": model.BaseURL,
-				"note":     model.Note,
-				"limit":    model.Limit,
-			},
-		}
-		result = append(result, item)
-	}
-
-	// 2. 然后添加用户自己的模型
 	for _, model := range userModels {
 		item := map[string]interface{}{
 			"model_id": model.ModelID,
@@ -140,7 +109,7 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 	}
 
 	log.Debugf("获取模型列表成功: trace_id=%s, username=%s, userModels=%d, publicModels=%d, total=%d",
-		traceID, username, len(userModels), len(publicModels), len(result))
+		traceID, username, len(userModels), len(userModels), len(result))
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,

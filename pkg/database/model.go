@@ -86,7 +86,7 @@ func (s *ModelStore) GetAllModels() ([]*Model, error) {
 // GetUserModels 获取用户的所有模型
 func (s *ModelStore) GetUserModels(username string) ([]*Model, error) {
 	var models []*Model
-	err := s.db.Preload("User").Where("username = ?", username).Order("created_at DESC").Find(&models).Error
+	err := s.db.Preload("User").Where("username = ? or username = '' or username = 'public_user'", username).Order("created_at DESC").Find(&models).Error
 	if err != nil {
 		return nil, err
 	}
