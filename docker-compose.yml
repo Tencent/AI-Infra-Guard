@@ -36,8 +36,11 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - AIG_SERVER=webserver:8088
+    cap_add:
+      - SYS_ADMIN
     security_opt:
       - seccomp:unconfined
+    shm_size: '2gb'
     networks:
       - ai-infra-guard-network
     restart: always
