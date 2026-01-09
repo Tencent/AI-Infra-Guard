@@ -138,12 +138,10 @@ class BaseAgent:
         if tool_name == "finish":
             self.is_finished = True
             brief_content = tool_args.get("content", "")
-
-            # 如果定义了输出格式，则进行二次格式化
-            result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
             mcpLogger.status_update(self.step_id, description, "", "completed")
             # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
+            result = await self._format_final_output()
             mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 
