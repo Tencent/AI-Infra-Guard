@@ -75,7 +75,30 @@ func (s *TaskStore) ResetRunningTasks() error {
 
 // Init 自动迁移任务相关表结构
 func (s *TaskStore) Init() error {
-	return s.db.AutoMigrate(&User{}, &Session{}, &TaskMessage{})
+	if err := s.db.AutoMigrate(&User{}, &Session{}, &TaskMessage{}); err != nil {
+		return err
+	}
+	return s.createIndexes()
+}
+
+// createIndexes 创建查询优化索引
+func (s *TaskStore) createIndexes() error {
+	indexes := []string{
+		// Session 表索引
+		"CREATE INDEX IF NOT EXISTS idx_sessions_username_created ON sessions(username, created_at DESC)",
+		"CREATE INDEX IF NOT EXISTS idx_sessions_username_tasktype ON sessions(username, task_type)",
+		"CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status)",
+		// TaskMessage 表索引
+		"CREATE INDEX IF NOT EXISTS idx_taskmessages_session_timestamp ON task_messages(session_id, timestamp)",
+		"CREATE INDEX IF NOT EXISTS idx_taskmessages_session_type ON task_messages(session_id, type)",
+	}
+
+	for _, sql := range indexes {
+		if err := s.db.Exec(sql).Error; err != nil {
+			return fmt.Errorf("创建索引失败: %s, error: %v", sql, err)
+		}
+	}
+	return nil
 }
 
 // CreateUser 创建用户
