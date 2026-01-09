@@ -125,6 +125,7 @@ class Agent:
             "start_time": time.time(),
             "end_time": 0,
             "results": [],
+            "llm": self.llm.model,
         }
         # 1. 信息收集
         info_ret_format = "生成一份详细的信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
