@@ -1,18 +1,17 @@
-package agent
+package utils
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
+	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
 // DownloadFile 下载文件
@@ -24,8 +23,16 @@ func DownloadFile(server, sessionId, uri, path string) error {
 		"fileUrl": uri,
 	}
 	jsonData, err := json.Marshal(data)
+	// 创建请求并添加 header
+	req, err := http.NewRequest("POST", fmt.Sprintf("http://%s/api/v1/app/tasks/%s/downloadFile", server, sessionId), io.NopCloser(bytes.NewBuffer(jsonData)))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-APIKey", "zhuque")
+
 	// 发送 POST 请求
-	resp, err := client.Post(fmt.Sprintf("http://%s/api/v1/app/tasks/%s/downloadFile", server, sessionId), "application/json", io.NopCloser(bytes.NewBuffer(jsonData)))
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -102,6 +109,7 @@ func UploadFile(server, filePath string) (*UploadFileResponse, error) {
 
 	// 设置 Content-Type
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
 	client := &http.Client{}
@@ -139,6 +147,7 @@ func GetEvaluationsDetail(server, name string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
+	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
 	client := &http.Client{}
@@ -169,37 +178,83 @@ func GetEvaluationsDetail(server, name string) ([]byte, error) {
 	return msg.Data, nil
 }
 
-// CalcMcpScore 计算安全分数
-func CalcMcpScore(issues []mcp.Issue) int {
-	var total, high, middle, low int = 0, 0, 0, 0
-	total = len(issues)
-	for _, item := range issues {
-		item.RiskType = strings.ToLower(item.RiskType)
-		if item.RiskType == "high" || item.RiskType == "critical" || item.RiskType == "高危" || item.RiskType == "严重" {
-			high++
-		} else if item.RiskType == "medium" || item.RiskType == "中危" {
-			middle++
-		} else {
-			low++
+func LoadRemoteFingerPrints(hostname string) ([]parser.FingerPrint, error) {
+	type msg struct {
+		Data struct {
+			FingerPrints []json.RawMessage `json:"items"`
+			Total        int               `json:"total"`
+		} `json:"data"`
+		Message string `json:"message"`
+	}
+	// 创建请求并添加 header
+	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s/api/v1/knowledge/fingerprints?page=1&size=9999", hostname), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-APIKey", "zhuque")
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var m msg
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	fps := make([]parser.FingerPrint, 0)
+	for _, raw := range m.Data.FingerPrints {
+		fp, err := parser.InitFingerPrintFromData(raw)
+		if err != nil {
+			gologger.WithError(err).Fatalf("无法解析指纹模板:%s", string(raw))
+			continue
 		}
+		fps = append(fps, *fp)
 	}
-	if total == 0 {
-		return 100
-	}
-	// 计算加权风险比例
-	weightedRisk := (float64(high)/float64(total))*0.7 +
-		(float64(middle)/float64(total))*0.5 +
-		(float64(low)/float64(total))*0.3
+	return fps, nil
+}
 
-	// 计算安全评分（百分制）
-	safetyScore := 100 - weightedRisk*100
+func LoadRemoteVulStruct(api string) ([]json.RawMessage, error) {
+	type msg struct {
+		Data struct {
+			Vuls  []json.RawMessage `json:"items"`
+			Total int               `json:"total"`
+		} `json:"data"`
+		Message string `json:"message"`
+	}
+	// 创建请求并添加 header
+	req, err := http.NewRequest("GET", api, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-APIKey", "zhuque")
 
-	// 确保评分在0-100范围内
-	if safetyScore < 0 {
-		safetyScore = 0
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
-	if safetyScore >= 100 {
-		safetyScore = 100
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
 	}
-	return int(math.Round(safetyScore))
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var m msg
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	return m.Data.Vuls, nil
 }

@@ -252,7 +252,7 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 	for _, file := range request.Attachments {
 		gologger.Infof(texts.downloadFileLog, file)
 		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.%s", time.Now().UnixMicro(), filepath.Ext(file)))
-		if err := DownloadFile(t.Server, request.SessionId, file, fileName); err != nil {
+		if err := utils.DownloadFile(t.Server, request.SessionId, file, fileName); err != nil {
 			gologger.WithError(err).Errorln(texts.downloadFile)
 			return nil, err
 		}
@@ -508,7 +508,7 @@ target count:%s
 						gologger.WithError(err).Errorf("write file failed: %v", err)
 						return
 					}
-					info, err := UploadFile(t.Server, tmpPath)
+					info, err := utils.UploadFile(t.Server, tmpPath)
 					if err != nil {
 						gologger.WithError(err).Errorf("upload file failed: %v", err)
 						return
