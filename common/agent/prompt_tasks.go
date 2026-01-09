@@ -132,7 +132,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		if param.Datasets.PromptColumn != "" {
 			scenarios += fmt.Sprintf(",prompt_column=%s", param.Datasets.PromptColumn)
 		}
-		err := DownloadFile(m.Server, request.SessionId, fileName, fileName2)
+		err := utils.DownloadFile(m.Server, request.SessionId, fileName, fileName2)
 		if err != nil {
 			gologger.Errorf("下载文件失败: %v", err)
 			return err
@@ -145,7 +145,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		tempDir := os.TempDir()
 		fileName := filepath.Join(tempDir, fmt.Sprintf("%s-%d.json", dataName, time.Now().UnixMicro()))
 		fileName = strings.Replace(fileName, " ", "_", -1)
-		data, err := GetEvaluationsDetail(m.Server, dataName)
+		data, err := utils.GetEvaluationsDetail(m.Server, dataName)
 		if err != nil {
 			gologger.Errorf("获取评测数据失败: %v", err)
 			return err
