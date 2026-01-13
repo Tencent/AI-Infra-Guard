@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="skill">
+  <description>
+    Load a skill to get detailed instructions for a specific task.
+    Skills are markdown files in the prompt/agents/ directory.
+    
+    Usage:
+    - Call without 'name' to list all available skills
+    - Call with 'name' to load a specific skill's content
+    
+    Skills provide specialized knowledge and step-by-step guidance for tasks.
+    Use this when a task matches an available skill's description.
+  </description>
+  <parameters>
+    <parameter name="name" type="string" required="false">
+      The skill identifier (e.g., 'code_audit' or 'dynamic/vulnerability_testing').
+      If not provided, lists all available skills.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the operation succeeded</field>
+    <field name="title" type="string">Title of loaded skill</field>
+    <field name="name" type="string">Skill name</field>
+    <field name="dir" type="string">Base directory of the skill</field>
+    <field name="output" type="string">Skill content or list of available skills</field>
+    <field name="skills" type="array">List of skills when listing (name, description, location)</field>
+  </returns>
+</tool>
+</tools>
+
