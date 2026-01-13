@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="todo_read">
+  <description>
+    Read the current todo list. Returns all todos with their status and content.
+    
+    Todos are stored in .mcp/todos.json in the project root.
+    
+    Status values:
+    - pending: Not yet started
+    - in_progress: Currently being worked on
+    - completed: Finished successfully
+    - cancelled: No longer needed
+  </description>
+  <parameters>
+    <!-- No parameters required -->
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the read succeeded</field>
+    <field name="title" type="string">Summary of pending todos</field>
+    <field name="output" type="string">Formatted todo list</field>
+    <field name="todos" type="array">Array of todo objects</field>
+    <field name="summary" type="object">Stats: total, pending, in_progress, completed, cancelled</field>
+  </returns>
+</tool>
+
+<tool name="todo_write">
+  <description>
+    Replace the entire todo list with a new list.
+    
+    Each todo must have: id, content, status.
+    Use this for bulk updates or replacing the entire list.
+  </description>
+  <parameters>
+    <parameter name="todos" type="array" required="true">
+      Array of todo objects. Each object must have:
+      - id: Unique identifier (string)
+      - content: Todo description (string)
+      - status: One of "pending", "in_progress", "completed", "cancelled"
+      - priority: Optional priority number (default 0)
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the write succeeded</field>
+    <field name="title" type="string">Summary of pending todos</field>
+    <field name="output" type="string">Update summary</field>
+    <field name="todos" type="array">Updated todo list</field>
+    <field name="summary" type="object">Updated stats</field>
+  </returns>
+</tool>
+
+<tool name="todo_add">
+  <description>
+    Add a single todo to the list.
+    The ID must be unique - duplicates will be rejected.
+  </description>
+  <parameters>
+    <parameter name="id" type="string" required="true">
+      Unique identifier for the todo
+    </parameter>
+    <parameter name="content" type="string" required="true">
+      Description of the todo item
+    </parameter>
+    <parameter name="status" type="string" required="false">
+      Initial status. Default is "pending".
+      Valid values: pending, in_progress, completed, cancelled
+    </parameter>
+    <parameter name="priority" type="number" required="false">
+      Priority level. Default is 0.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the add succeeded</field>
+    <field name="title" type="string">Added todo summary</field>
+    <field name="output" type="string">Result message</field>
+    <field name="todo" type="object">The added todo</field>
+  </returns>
+</tool>
+
+<tool name="todo_update">
+  <description>
+    Update a single todo by ID.
+    Only updates the fields that are provided.
+  </description>
+  <parameters>
+    <parameter name="id" type="string" required="true">
+      ID of the todo to update
+    </parameter>
+    <parameter name="content" type="string" required="false">
+      New description (optional)
+    </parameter>
+    <parameter name="status" type="string" required="false">
+      New status (optional)
+      Valid values: pending, in_progress, completed, cancelled
+    </parameter>
+    <parameter name="priority" type="number" required="false">
+      New priority (optional)
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the update succeeded</field>
+    <field name="title" type="string">Update summary</field>
+    <field name="output" type="string">Result message</field>
+    <field name="todo" type="object">The updated todo</field>
+  </returns>
+</tool>
+</tools>
+
