@@ -2,7 +2,7 @@ import os
 import time
 from typing import List, Dict, Any, Optional
 
-from agent.base_agent import BaseAgent
+from core.base_agent import BaseAgent
 from tools.dispatcher import ToolDispatcher
 from utils.prompt_manager import prompt_manager
 from utils.extract_vuln import VulnerabilityExtractor

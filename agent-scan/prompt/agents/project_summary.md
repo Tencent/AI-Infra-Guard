@@ -14,7 +14,7 @@
 - 基础信息与项目定位：包括项目类型（MCP Server 或 Agent Skill）、核心功能、业务价值及用户群体。  
 - 技术架构与实现方案：高层次描述整体设计。  
 
-#### Skill 特性分析 (仅适用于 Agent Skill 项目)
+####```` Skill 特性分析 (仅适用于 Agent Skill 项目)
 - **SKILL.md 摘要**：提取 `SKILL.md` 中的 `name`、`description` 及核心指令概览。
 - **工具/脚本清单**：列出 `scripts/` 目录下的可执行文件及其用途推断。
 - **依赖与资源**：列出 Skill 依赖的外部包或资源文件。

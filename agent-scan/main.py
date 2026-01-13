@@ -9,7 +9,7 @@ import asyncio
 import os
 import sys
 import argparse
-from agent.agent import Agent
+from core.agent import Agent
 from utils.llm import LLM
 # 配置专用模型
 from utils.llm_manager import LLMManager
