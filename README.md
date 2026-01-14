@@ -50,8 +50,9 @@
 <br>
 
 > 📢 **News**:
+
+> * A.I.G v3.6.0-rc1 adds Skills security assessment to AI Tool Protocol scan. Reduced false positives by focusing on network-layer vulnerabilities. [View all changelog.](./CHANGELOG.md)
 > * A.I.G v3.5.0 features major improvements in modular architecture, system stability, and detection capabilities. Update now to explore the new version. [View all changelog.](./CHANGELOG.md)
-> * 🎉 A.I.G was featured at **Black Hat Arsenal Europe 2025**! Check out our [presentation slides.](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
@@ -86,7 +87,7 @@ Once the service is running, you can access the A.I.G web interface at:
 <br>
 
 <details>
-<summary><strong>📦 More installation options and online pro version</strong></summary>
+<summary><strong>📦 More installation options</strong></summary>
 
 ### Other Installation Methods
 
@@ -109,10 +110,11 @@ Note: The AI-Infra-Guard project is positioned as an AI red teaming platform for
 
 For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
-### Try the Online Pro Version
-Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/)
-
 </details>
+
+### Try the Online Pro Version
+Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
+<br>
 <br>
 
 ## ✨ Features
@@ -120,7 +122,7 @@ Experience the Pro version with advanced features and improved performance. The 
 | Feature | More Info |
 |:--------|:------------|
 | **AI&nbsp;Infra&nbsp;Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
-| **MCP&nbsp;Server&nbsp;Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
+| **AI&nbsp;Tool&nbsp;Protocol&nbsp;Scan** | Powered by an AI Agent, Detects 14 major categories of security risks in MCP Servers and Skills, Supports scanning of source code and remote URLs. |
 | **Jailbreak&nbsp;Evaluation** | Assesses prompt security risks with curated datasets and multiple attack methods, Cross-model comparison. |
 
 <details>
@@ -376,15 +378,17 @@ If you use A.I.G in your research, please cite:
 
 We are deeply grateful to the research teams who have used A.I.G in their academic work and contributed to advancing AI security research:
 
-[1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
-[2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
-[3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
-[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
-[5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
+[1] Ruiqi Li, Zhiqiang Wang, Yunhao Yao et al. **"MCP-ITP: An Automated Framework for Implicit Tool Poisoning in MCP."** arXiv preprint arXiv:2601.07395v1 (2026). [[pdf]](http://arxiv.org/abs/2601.07395v1)  
+[2] Jingxiao Yang, Ping He, Tianyu Du et al. **"HogVul: Black-box Adversarial Code Generation Framework Against LM-based Vulnerability Detectors."** arXiv preprint arXiv:2601.05587v1 (2026). [[pdf]](http://arxiv.org/abs/2601.05587v1)  
+[3] Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)  
+[4] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
+[5] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
 [6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
-[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
-[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
-[9] Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)  
+[7] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
+[8] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
+[9] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
+[10] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
+[11] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
 
 📧 If you have used A.I.G in your research or product, or if we have inadvertently missed your publication, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>
