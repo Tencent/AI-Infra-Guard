@@ -1,31 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tools>
-<tool name="skill">
+<tool name="search_skill">
   <description>
-    Load a skill to get detailed instructions for a specific task.
-    Skills are markdown files in the prompt/agents/ directory.
+    Search and list available skills in the system.
+    Skills are directories in 'prompt/skills/' containing a SKILL.md file.
     
     Usage:
-    - Call without 'name' to list all available skills
-    - Call with 'name' to load a specific skill's content
+    - Call without 'query' to list all available skills
+    - Call with 'query' to search skills by name or description
     
-    Skills provide specialized knowledge and step-by-step guidance for tasks.
-    Use this when a task matches an available skill's description.
+    Examples:
+    - query: "ssrf" - Find skills related to SSRF detection
+    - query: "" (empty) - List all available skills
   </description>
   <parameters>
-    <parameter name="name" type="string" required="false">
-      The skill identifier (e.g., 'code_audit' or 'dynamic/vulnerability_testing').
-      If not provided, lists all available skills.
+    <parameter name="query" type="string" required="false">
+      Search keyword to filter skills by name, title or description.
+      If not provided, returns all available skills.
     </parameter>
   </parameters>
   <returns>
-    <field name="success" type="boolean">Whether the operation succeeded</field>
-    <field name="title" type="string">Title of loaded skill</field>
-    <field name="name" type="string">Skill name</field>
-    <field name="dir" type="string">Base directory of the skill</field>
-    <field name="output" type="string">Skill content or list of available skills</field>
-    <field name="skills" type="array">List of skills when listing (name, description, location)</field>
+    <field name="success" type="boolean">Whether the search succeeded</field>
+    <field name="count" type="number">Number of skills found</field>
+    <field name="skills" type="array">List of skills (name, title, description, path)</field>
+  </returns>
+</tool>
+
+<tool name="load_skill">
+  <description>
+    Load a specific skill to get detailed instructions for a task.
+    Reads the SKILL.md file from the skill directory, parsing YAML metadata and prompt content.
+    
+    Usage:
+    - Use search_skill first to find available skills
+    - Then use load_skill with the skill name (directory name)
+    
+    The loaded skill provides:
+    - Metadata (name, description, etc.)
+    - Detailed Prompt Instructions
+    
+    Examples:
+    - name: "ssrf" - Load SSRF detection skill (from prompt/skills/ssrf/SKILL.md)
+  </description>
+  <parameters>
+    <parameter name="name" type="string" required="true">
+      The skill identifier (directory name) to load.
+      Use the exact name returned by search_skill.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the skill was loaded successfully</field>
+    <field name="content" type="string">Skill prompt content</field>
   </returns>
 </tool>
 </tools>
-
