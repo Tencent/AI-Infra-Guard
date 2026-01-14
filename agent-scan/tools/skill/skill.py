@@ -1,186 +1,189 @@
 """
-Skill 工具 - 遍历 prompt/agents/** 下的 Markdown，列出可用技能并返回指定模板内容
+Skill 工具 - 技能管理工具集
+遵循 Claude Code Skill 标准：
+- 技能存储在 prompt/skills/ 下的子目录中
+- 每个技能目录包含一个 SKILL.md 文件
+- SKILL.md 包含 YAML Frontmatter (元数据) 和 Prompt 内容
 """
 import os
-from typing import Any, Optional, List, Dict
+import yaml
+from typing import Any, Optional, Dict, List
 from tools.registry import register_tool
 from utils.loging import logger
 from utils.tool_context import ToolContext
 from utils.config import base_dir
+import re
+
+SKILLS_DIR = os.path.join(base_dir, "prompt", "skills")
 
 
-SKILLS_DIR = os.path.join(base_dir, "prompt", "agents")
+def parse_skill_file(file_path: str) -> Dict[str, Any]:
+    """解析带有 YAML Frontmatter 的 Skill 文件"""
+    if not os.path.exists(file_path):
+        return {}
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    meta = {}
+    body = content
+
+    # 使用正则匹配 YAML Frontmatter
+    # 匹配规则：以 --- 开头，非贪婪匹配中间内容，以 --- 结尾
+    # re.DOTALL 允许 . 匹配换行符
+    frontmatter_pattern = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.DOTALL)
+    match = frontmatter_pattern.match(content)
+
+    if match:
+        yaml_content = match.group(1)
+        meta = yaml.safe_load(yaml_content) or {}
+        # 获取 body：从匹配结束位置开始
+        body = content[match.end():].strip()
+
+    # 确保 meta 中有基本信息
+    if 'description' not in meta:
+        # 尝试从 body 前几行提取描述
+        lines = body.split('\n')
+        desc_lines = []
+        for line in lines[:5]:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                desc_lines.append(line)
+        meta['description'] = ' '.join(desc_lines)[:200]
+
+    return {
+        "meta": meta,
+        "content": body,
+        "raw": content
+    }
 
 
-def scan_skills(skills_dir: str) -> List[Dict[str, Any]]:
-    """
-    扫描技能目录，获取所有可用技能
-    
-    Args:
-        skills_dir: 技能目录路径
-        
-    Returns:
-        技能信息列表
-    """
+def get_all_skills() -> List[Dict[str, Any]]:
+    """扫描目录获取所有技能"""
     skills = []
-    
-    if not os.path.isdir(skills_dir):
+
+    if not os.path.exists(SKILLS_DIR):
         return skills
-    
-    for root, dirs, files in os.walk(skills_dir):
-        # 过滤隐藏目录
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
-        
-        for filename in files:
-            if not filename.endswith('.md'):
-                continue
-            
-            full_path = os.path.join(root, filename)
-            rel_path = os.path.relpath(full_path, skills_dir)
-            
-            # 生成技能名称（去掉 .md 扩展名）
-            skill_name = rel_path[:-3]  # 移除 .md
-            skill_name = skill_name.replace(os.sep, '/')  # 统一使用 /
-            
-            # 读取描述（第一行或前几行）
-            description = ""
-            try:
-                with open(full_path, 'r', encoding='utf-8') as f:
-                    # 读取前几行获取描述
-                    lines = []
-                    for _ in range(5):
-                        line = f.readline()
-                        if not line:
-                            break
-                        line = line.strip()
-                        # 跳过标题行和空行
-                        if line and not line.startswith('#'):
-                            lines.append(line)
-                    description = ' '.join(lines)[:200]
-            except Exception:
-                description = f"Skill: {skill_name}"
-            
-            skills.append({
-                'name': skill_name,
-                'description': description,
-                'location': full_path
-            })
-    
-    return sorted(skills, key=lambda x: x['name'])
 
+    # 遍历 prompt/skills 下的一级目录
+    for name in os.listdir(SKILLS_DIR):
+        if name.startswith('.'):
+            continue
 
-def load_skill_content(skill_name: str, skills_dir: str) -> Optional[str]:
-    """
-    加载技能内容
-    
-    Args:
-        skill_name: 技能名称
-        skills_dir: 技能目录
-        
-    Returns:
-        技能内容，如果不存在返回 None
-    """
-    # 尝试多种路径格式
-    possible_paths = [
-        os.path.join(skills_dir, f"{skill_name}.md"),
-        os.path.join(skills_dir, skill_name, "index.md"),
-        os.path.join(skills_dir, f"{skill_name}/main.md"),
-    ]
-    
-    # 处理子目录格式 (category/skill)
-    if '/' in skill_name:
-        parts = skill_name.split('/')
-        possible_paths.insert(0, os.path.join(skills_dir, *parts[:-1], f"{parts[-1]}.md"))
-    
-    for path in possible_paths:
-        if os.path.isfile(path):
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except Exception:
-                continue
-    
-    return None
+        skill_dir = os.path.join(SKILLS_DIR, name)
+        if not os.path.isdir(skill_dir):
+            continue
+
+        # 查找 SKILL.md (不区分大小写)
+        skill_file = None
+        for f in os.listdir(skill_dir):
+            if f.upper() == 'SKILL.MD':
+                skill_file = os.path.join(skill_dir, f)
+                break
+
+        if not skill_file:
+            continue
+
+        data = parse_skill_file(skill_file)
+        meta = data.get('meta', {})
+
+        skills.append({
+            "name": name,  # 目录名作为 ID
+            "title": meta.get('name', name),  # YAML 中的 name 作为标题
+            "description": meta.get('description', ''),
+            "path": skill_file,
+            "dir": skill_dir
+        })
+
+    return skills
 
 
 @register_tool
-def skill(
-    name: Optional[str] = None,
-    context: ToolContext = None
+def search_skill(
+        query: Optional[str] = None,
+        context: ToolContext = None
 ) -> dict[str, Any]:
     """
-    加载技能或列出可用技能
+    搜索可用技能
     
     Args:
-        name: 技能名称（可选，为空则列出所有技能）
-        context: 工具上下文
-        
-    Returns:
-        包含技能信息的字典
+        query: 搜索关键词（可选）
     """
-    try:
-        skills_dir = SKILLS_DIR
-        
-        # 如果没有指定名称，列出所有技能
-        if not name:
-            skills = scan_skills(skills_dir)
-            
-            if not skills:
-                return {
-                    "success": True,
-                    "output": "No skills available.",
-                    "skills": []
-                }
-            
-            # 格式化输出
-            output_lines = ["Available skills:", ""]
-            for s in skills:
-                output_lines.append(f"  - {s['name']}: {s['description'][:80]}...")
-            
-            return {
-                "success": True,
-                "output": '\n'.join(output_lines),
-                "skills": skills
-            }
-        
-        # 加载指定技能
-        content = load_skill_content(name, skills_dir)
-        
-        if content is None:
-            # 获取可用技能列表作为建议
-            available = scan_skills(skills_dir)
-            available_names = [s['name'] for s in available]
-            
-            return {
-                "success": False,
-                "error": f"Skill '{name}' not found. Available skills: {', '.join(available_names) if available_names else 'none'}"
-            }
-        
-        # 确定技能目录
-        skill_dir = os.path.dirname(os.path.join(skills_dir, f"{name}.md"))
-        
-        output = [
-            f"## Skill: {name}",
-            "",
-            f"**Base directory**: {skill_dir}",
-            "",
-            content.strip()
+    skills = get_all_skills()
+
+    if query:
+        q = query.lower()
+        skills = [
+            s for s in skills
+            if q in s['name'].lower()
+               or q in s['title'].lower()
+               or q in s['description'].lower()
         ]
-        
-        logger.info(f"Loaded skill: {name}")
-        
+
+    # 格式化输出
+    if not skills:
         return {
             "success": True,
-            "title": f"Loaded skill: {name}",
-            "name": name,
-            "dir": skill_dir,
-            "output": '\n'.join(output)
-        }
-        
-    except Exception as e:
-        logger.error(f"Error loading skill: {e}")
-        return {
-            "success": False,
-            "error": f"Error loading skill: {str(e)}"
+            "count": 0,
+            "output": f"No skills found{' matching ' + query if query else ''}."
         }
 
+    output_lines = [f"Found {len(skills)} skills:"]
+    for s in skills:
+        output_lines.append(f"- {s['name']}: {s['description']}")
+    if len(skills) == 0:
+        output_lines.append("No skills found.You can use follow skill:")
+        skills = get_all_skills()
+        for s in skills:
+            output_lines.append(f"- {s['name']}: {s['description']}")
+    return {
+        "success": True,
+        "count": len(skills),
+        "skills": "\n".join(output_lines)
+    }
+
+
+@register_tool
+def load_skill(
+        name: str,
+        context: ToolContext = None
+) -> dict[str, Any]:
+    """
+    加载指定技能
+    
+    Args:
+        name: 技能名称（目录名）
+    """
+    # 查找匹配的技能
+    target_skill = None
+
+    # 直接检查目录是否存在
+    skill_dir = os.path.join(SKILLS_DIR, name)
+    if os.path.isdir(skill_dir):
+        # 查找文件
+        for f in os.listdir(skill_dir):
+            if f.upper() == 'SKILL.MD':
+                target_skill = os.path.join(skill_dir, f)
+                break
+
+    if not target_skill:
+        # 尝试模糊匹配或查找
+        all_skills = get_all_skills()
+        for s in all_skills:
+            if s['name'] == name:
+                target_skill = s['path']
+                break
+
+        if not target_skill:
+            return {
+                "success": False,
+                "error": f"Skill '{name}' not found."
+            }
+
+    # 解析文件
+    data = parse_skill_file(target_skill)
+
+    return {
+        "success": True,
+        "content": data["raw"],
+    }
