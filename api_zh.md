@@ -3,9 +3,36 @@
 
 ## 概述
 
-A.I.G(AI-Infra-Guard) 提供了一套完整的API接口，用于AI基础设施扫描、MCP安全扫描和大模型安全体检。本文档详细介绍了各个API接口的使用方法、参数说明和示例代码。
+A.I.G(AI-Infra-Guard) 提供了一套完整的API接口，用于AI基础设施扫描、MCP安全扫描、大模型安全体检和模型配置管理。本文档详细介绍了各个API接口的使用方法、参数说明和示例代码。
 
 项目运行后，可访问 `http://localhost:8088/docs/index.html` 查看Swagger文档。
+
+## 文档目录
+
+### 基础接口
+- 文件上传接口
+- 任务创建接口
+
+### 任务类型
+1. MCP 安全扫描 API
+2. AI 基础设施扫描 API
+3. 大模型安全体检 API
+
+### 模型管理 API
+1. 获取模型列表
+2. 获取模型详情
+3. 创建模型
+4. 更新模型
+5. 删除模型
+6. YAML配置模型
+
+### 任务状态查询
+- 获取任务状态
+- 获取任务结果
+
+### 完整工作流程示例
+- MCP 源码扫描完整流程
+- 模型红队测评完整流程
 
 ## 基础信息
 
@@ -138,7 +165,6 @@ def mcp_scan_with_source_code():
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "",
             "prompt": "扫描此MCP服务器",
             "model": {
                 "model": "gpt-4",
@@ -189,7 +215,6 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -d '{
     "type": "mcp_scan",
     "content": {
-      "content": "",
       "prompt": "扫描此MCP服务器",
       "model": {
         "model": "gpt-4",
@@ -449,6 +474,448 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
+## 模型管理 API
+
+### 1. 获取模型列表
+
+#### 接口信息
+- **URL**: `/api/v1/app/models`
+- **方法**: `GET`
+- **Content-Type**: `application/json`
+
+#### 响应字段
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| model_id | string | 模型ID |
+| model | object | 模型配置信息 |
+| model.model | string | 模型名称 |
+| model.token | string | API密钥（已脱敏显示为********） |
+| model.base_url | string | 基础URL |
+| model.note | string | 备注信息 |
+| model.limit | integer | 请求限制 |
+| default | array | 默认字段（仅YAML配置模型有此字段） |
+
+#### Python 示例
+```python
+import requests
+
+def get_model_list():
+    url = "http://localhost:8088/api/v1/app/models"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# 使用示例
+result = get_model_list()
+if result['status'] == 0:
+    print("模型列表获取成功:")
+    for model in result['data']:
+        print(f"模型ID: {model['model_id']}")
+        print(f"模型名称: {model['model']['model']}")
+        print(f"基础URL: {model['model']['base_url']}")
+        print(f"备注: {model['model']['note']}")
+        print("---")
+```
+
+#### cURL 示例
+```bash
+curl -X GET http://localhost:8088/api/v1/app/models \
+  -H "Content-Type: application/json"
+```
+
+#### 响应示例
+```json
+{
+  "status": 0,
+  "message": "获取模型列表成功",
+  "data": [
+    {
+      "model_id": "gpt4-model",
+      "model": {
+        "model": "gpt-4",
+        "token": "********",
+        "base_url": "https://api.openai.com/v1",
+        "note": "GPT-4模型",
+        "limit": 1000
+      }
+    },
+    {
+      "model_id": "system_default",
+      "model": {
+        "model": "deepseek-chat",
+        "token": "********",
+        "base_url": "https://api.deepseek.com/v1",
+        "note": "系统默认模型",
+        "limit": 1000
+      },
+      "default": ["mcp_scan", "ai_infra_scan"]
+    }
+  ]
+}
+```
+
+### 2. 获取模型详情
+
+#### 接口信息
+- **URL**: `/api/v1/app/models/{modelId}`
+- **方法**: `GET`
+- **Content-Type**: `application/json`
+
+#### 参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| modelId | string | 是 | 模型ID（路径参数） |
+
+#### 响应字段
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| model_id | string | 模型ID |
+| model | object | 模型配置信息 |
+| model.model | string | 模型名称 |
+| model.token | string | API密钥（已脱敏显示为********） |
+| model.base_url | string | 基础URL |
+| model.note | string | 备注信息 |
+| model.limit | integer | 请求限制 |
+| default | array | 默认字段（仅YAML配置模型有此字段） |
+
+#### Python 示例
+```python
+def get_model_detail(model_id):
+    url = f"http://localhost:8088/api/v1/app/models/{model_id}"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# 使用示例
+result = get_model_detail("gpt4-model")
+if result['status'] == 0:
+    model_data = result['data']
+    print(f"模型ID: {model_data['model_id']}")
+    print(f"模型名称: {model_data['model']['model']}")
+    print(f"基础URL: {model_data['model']['base_url']}")
+    print(f"备注: {model_data['model']['note']}")
+```
+
+#### cURL 示例
+```bash
+curl -X GET http://localhost:8088/api/v1/app/models/gpt4-model \
+  -H "Content-Type: application/json"
+```
+
+#### 响应示例
+```json
+{
+  "status": 0,
+  "message": "获取模型详情成功",
+  "data": {
+    "model_id": "gpt4-model",
+    "model": {
+      "model": "gpt-4",
+      "token": "********",
+      "base_url": "https://api.openai.com/v1",
+      "note": "GPT-4模型",
+      "limit": 1000
+    }
+  }
+}
+```
+
+### 3. 创建模型
+
+#### 接口信息
+- **URL**: `/api/v1/app/models`
+- **方法**: `POST`
+- **Content-Type**: `application/json`
+
+#### 请求参数
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| model_id | string | 是 | 模型ID，全局唯一 |
+| model | object | 是 | 模型配置信息 |
+| model.model | string | 是 | 模型名称 |
+| model.token | string | 是 | API密钥 |
+| model.base_url | string | 是 | 基础URL |
+| model.note | string | 否 | 备注信息 |
+| model.limit | integer | 否 | 请求限制，默认1000 |
+
+#### Python 示例
+```python
+def create_model():
+    url = "http://localhost:8088/api/v1/app/models"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model_id": "my-gpt4-model",
+        "model": {
+            "model": "gpt-4",
+            "token": "sk-your-api-key-here",
+            "base_url": "https://api.openai.com/v1",
+            "note": "我的GPT-4模型",
+            "limit": 2000
+        }
+    }
+    
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
+
+# 使用示例
+result = create_model()
+if result['status'] == 0:
+    print("模型创建成功")
+else:
+    print(f"模型创建失败: {result['message']}")
+```
+
+#### cURL 示例
+```bash
+curl -X POST http://localhost:8088/api/v1/app/models \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model_id": "my-gpt4-model",
+    "model": {
+      "model": "gpt-4",
+      "token": "sk-your-api-key-here",
+      "base_url": "https://api.openai.com/v1",
+      "note": "我的GPT-4模型",
+      "limit": 2000
+    }
+  }'
+```
+
+#### 响应示例
+```json
+{
+  "status": 0,
+  "message": "模型创建成功",
+  "data": null
+}
+```
+
+### 4. 更新模型
+
+#### 接口信息
+- **URL**: `/api/v1/app/models/{modelId}`
+- **方法**: `PUT`
+- **Content-Type**: `application/json`
+
+#### 参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| modelId | string | 是 | 模型ID（路径参数） |
+| model | object | 是 | 模型配置信息 |
+| model.model | string | 否 | 模型名称 |
+| model.token | string | 否 | API密钥（如不修改可传********或不传） |
+| model.base_url | string | 否 | 基础URL |
+| model.note | string | 否 | 备注信息 |
+| model.limit | integer | 否 | 请求限制 |
+
+**注意**: 
+- 如果token字段传入`********`或空值，则不会更新token，保持原值
+- 支持只更新部分字段，未传入的字段保持原值
+
+#### Python 示例
+```python
+def update_model(model_id):
+    url = f"http://localhost:8088/api/v1/app/models/{model_id}"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    # 只更新备注和限制，不修改token
+    data = {
+        "model": {
+            "model": "gpt-4-turbo",
+            "token": "********",  # 不修改token
+            "base_url": "https://api.openai.com/v1",
+            "note": "更新后的备注信息",
+            "limit": 3000
+        }
+    }
+    
+    response = requests.put(url, json=data, headers=headers)
+    return response.json()
+
+# 使用示例
+result = update_model("my-gpt4-model")
+if result['status'] == 0:
+    print("模型更新成功")
+else:
+    print(f"模型更新失败: {result['message']}")
+```
+
+#### 更新token示例
+```python
+def update_model_token(model_id, new_token):
+    url = f"http://localhost:8088/api/v1/app/models/{model_id}"
+    data = {
+        "model": {
+            "model": "gpt-4",
+            "token": new_token,  # 传入新的token
+            "base_url": "https://api.openai.com/v1",
+            "note": "更新了API密钥",
+            "limit": 2000
+        }
+    }
+    
+    response = requests.put(url, json=data)
+    return response.json()
+```
+
+#### cURL 示例
+```bash
+# 只更新备注信息
+curl -X PUT http://localhost:8088/api/v1/app/models/my-gpt4-model \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": {
+      "model": "gpt-4-turbo",
+      "token": "********",
+      "base_url": "https://api.openai.com/v1",
+      "note": "更新后的备注信息",
+      "limit": 3000
+    }
+  }'
+
+# 更新token
+curl -X PUT http://localhost:8088/api/v1/app/models/my-gpt4-model \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": {
+      "model": "gpt-4",
+      "token": "sk-new-api-key-here",
+      "base_url": "https://api.openai.com/v1",
+      "note": "更新了API密钥",
+      "limit": 2000
+    }
+  }'
+```
+
+#### 响应示例
+```json
+{
+  "status": 0,
+  "message": "模型更新成功",
+  "data": null
+}
+```
+
+### 5. 删除模型
+
+#### 接口信息
+- **URL**: `/api/v1/app/models`
+- **方法**: `DELETE`
+- **Content-Type**: `application/json`
+
+#### 请求参数
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| model_ids | array | 是 | 要删除的模型ID列表，支持批量删除 |
+
+#### Python 示例
+```python
+def delete_models(model_ids):
+    url = "http://localhost:8088/api/v1/app/models"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model_ids": model_ids
+    }
+    
+    response = requests.delete(url, json=data, headers=headers)
+    return response.json()
+
+# 删除单个模型
+result = delete_models(["my-gpt4-model"])
+if result['status'] == 0:
+    print("模型删除成功")
+
+# 批量删除多个模型
+result = delete_models(["model1", "model2", "model3"])
+if result['status'] == 0:
+    print("批量删除成功")
+```
+
+#### cURL 示例
+```bash
+# 删除单个模型
+curl -X DELETE http://localhost:8088/api/v1/app/models \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model_ids": ["my-gpt4-model"]
+  }'
+
+# 批量删除多个模型
+curl -X DELETE http://localhost:8088/api/v1/app/models \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model_ids": ["model1", "model2", "model3"]
+  }'
+```
+
+#### 响应示例
+```json
+{
+  "status": 0,
+  "message": "删除成功",
+  "data": null
+}
+```
+
+### 6. YAML配置模型
+
+除了通过API创建的数据库模型外，系统还支持通过YAML配置文件定义系统级模型。
+
+#### 配置文件位置
+`db/model.yaml`
+
+#### YAML配置格式
+```yaml
+- model_id: system_default
+  model_name: deepseek-chat
+  token: sk-your-api-key
+  base_url: https://api.deepseek.com/v1
+  note: 系统默认模型
+  limit: 1000
+  default:
+    - mcp_scan
+    - ai_infra_scan
+
+- model_id: eval_model
+  model_name: gpt-4
+  token: sk-your-eval-key
+  base_url: https://api.openai.com/v1
+  note: 评估模型
+  limit: 2000
+  default:
+    - model_redteam_report
+```
+
+#### 字段说明
+| 字段名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| model_id | string | 是 | 模型ID |
+| model_name | string | 是 | 模型名称 |
+| token | string | 是 | API密钥 |
+| base_url | string | 是 | 基础URL |
+| note | string | 否 | 备注信息 |
+| limit | integer | 否 | 请求限制 |
+| default | array | 否 | 默认使用此模型的任务类型列表 |
+
+#### 特点说明
+- YAML配置的模型为**只读**，不支持通过API进行修改和删除
+- YAML配置的模型在获取列表和详情时会与数据库模型合并返回
+- `default`字段为YAML模型特有，用于标识该模型适用的默认任务类型
+- 系统启动时自动加载YAML配置
+
+---
+
 ## 任务状态查询
 
 ### 获取任务状态
@@ -562,7 +1029,7 @@ def complete_mcp_scan_workflow():
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "",
+            "prompt": "",
             "prompt": "扫描此MCP服务器",
             "model": {
                 "model": "gpt-4",
@@ -744,13 +1211,25 @@ except Exception as e:
 
 ## 注意事项
 
+### 通用注意事项
 1. **认证**: 确保在请求头中包含正确的认证信息
 2. **文件大小**: 上传文件大小限制请参考服务器配置
 3. **超时设置**: 根据任务复杂度合理设置超时时间
 4. **并发限制**: 避免同时创建过多任务，以免影响系统性能
 5. **结果保存**: 及时保存扫描结果，避免数据丢失
+
+### 任务相关注意事项
 6. **数据集选择**: 根据测试需求选择合适的数据集组合
 7. **模型配置**: 确保测试模型和评估模型配置正确
+
+### 模型管理注意事项
+8. **模型ID唯一性**: 创建模型时，model_id必须全局唯一
+9. **Token安全**: API密钥在返回时会自动脱敏显示为`********`，前端显示和编辑时需要注意
+10. **Token更新**: 更新模型时，如果token字段为空或`********`，则不会更新token，保持原值
+11. **模型验证**: 创建模型时系统会自动验证token和base_url的有效性
+12. **YAML模型**: 通过YAML配置的模型为只读，不支持通过API修改或删除
+13. **批量删除**: 删除模型时支持传入多个model_id进行批量删除
+14. **权限控制**: 只有模型的创建者才能查看、修改和删除该模型
 
 ## 技术支持
 
