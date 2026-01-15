@@ -1,26 +1,83 @@
 # 自动导入所有工具模块，触发 @register_tool 装饰器的执行
 
 # 原有工具
-from tools.thinking import thinking_actions
-from tools.finish import finish_actions
-from tools.file import read_file
-from tools.execute import execute_actions
-from tools.mcp_tool import mcp_tool
+try:
+    from tools.thinking import thinking_actions
+except ImportError:
+    pass
+
+try:
+    from tools.finish import finish_actions
+except ImportError:
+    pass
+
+try:
+    from tools.execute import execute_actions
+except ImportError:
+    pass
+
+try:
+    from tools.mcp_tool import mcp_tool
+except ImportError:
+    pass
 
 # 新增工具 - Shell / 文件类
-from tools import bash
-from tools import batch
-from tools import edit
-from tools import glob
-from tools import grep
-from tools import ls
-from tools import read
-from tools import write
+try:
+    from tools import bash
+except ImportError:
+    pass
+
+try:
+    from tools import batch
+except ImportError:
+    pass
+
+try:
+    from tools import edit
+except ImportError:
+    pass
+
+try:
+    from tools import glob
+except ImportError:
+    pass
+
+try:
+    from tools import grep
+except ImportError:
+    pass
+
+try:
+    from tools import ls
+except ImportError:
+    pass
+
+try:
+    from tools.file import read, write
+except ImportError:
+    pass
 
 # 新增工具 - 知识与协作类
-from tools import skill
-from tools import task
-from tools import todo
+try:
+    from tools import skill
+except ImportError:
+    pass
+
+try:
+    from tools import task
+except ImportError:
+    pass
+
+try:
+    from tools import todo
+except ImportError:
+    pass
+
+# Security scanning tools
+try:
+    from tools import scan
+except ImportError:
+    pass
 
 __all__ = [
     # 原有工具
@@ -42,4 +99,6 @@ __all__ = [
     'skill',
     'task',
     'todo',
+    # Security scanning tools
+    'scan',
 ]
