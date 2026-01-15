@@ -11,14 +11,14 @@ services:
       - "8088:8088"
     environment:
       - APP_ENV=production
-      - UPLOAD_DIR=/ai-infra-guard/uploads
-      - DB_PATH=/ai-infra-guard/db/tasks.db
+      - UPLOAD_DIR=/app/uploads
+      - DB_PATH=/app/db/tasks.db
       - TZ=Asia/Shanghai
     volumes:
-      - ./data:/ai-infra-guard/data
-      - ./db:/ai-infra-guard/db
-      - ./logs:/ai-infra-guard/logs
-      - ./uploads:/ai-infra-guard/uploads
+      - ./data:/app/data
+      - ./db:/app/db
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
     networks:
       - ai-infra-guard-network
     restart: always
