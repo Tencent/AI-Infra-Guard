@@ -115,7 +115,6 @@ type TaskCreateResponse struct {
 // @Description {
 // @Description   "type": "mcp_scan",
 // @Description   "content": {
-// @Description     "content": "扫描MCP服务器",
 // @Description     "prompt": "Custom prompt for scan",
 // @Description     "model": {
 // @Description       "model": "gpt-4",

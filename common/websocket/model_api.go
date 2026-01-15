@@ -105,6 +105,9 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 				"limit":    model.Limit,
 			},
 		}
+		if model.Default != nil {
+			item["default"] = model.Default
+		}
 		result = append(result, item)
 	}
 
@@ -173,6 +176,7 @@ func HandleGetModelDetail(c *gin.Context, mm *ModelManager) {
 			"note":     model.Note,
 			"limit":    model.Limit,
 		},
+		"default": model.Default,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
