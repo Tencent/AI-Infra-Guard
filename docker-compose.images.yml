@@ -9,14 +9,14 @@ services:
       - "8088:8088"
     environment:
       - APP_ENV=production
-      - UPLOAD_DIR=/ai-infra-guard/uploads
-      - DB_PATH=/ai-infra-guard/db/tasks.db
+      - UPLOAD_DIR=/app/uploads
+      - DB_PATH=/app/db/tasks.db
       - TZ=Asia/Shanghai
     volumes:
-      - ./data:/ai-infra-guard/data
-      - ./db:/ai-infra-guard/db
-      - ./logs:/ai-infra-guard/logs
-      - ./uploads:/ai-infra-guard/uploads
+      - ./data:/app/data
+      - ./db:/app/db
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
     networks:
       - ai-infra-guard-network
     restart: always
@@ -30,15 +30,19 @@ services:
     container_name: ai-infra-guard-agent
     environment:
       - TZ=Asia/Shanghai
-      - AIG_SERVER=webserver:8088  # agent需要与webserver通信
-    networks:
-      - ai-infra-guard-network
+      - AIG_SERVER=webserver:8088
+    cap_add:
+      - SYS_ADMIN
     security_opt:
       - seccomp:unconfined
+    shm_size: '2gb'
+    networks:
+      - ai-infra-guard-network
     restart: always
     depends_on:
       webserver:
         condition: service_healthy
+
 networks:
   ai-infra-guard-network:
     driver: bridge
