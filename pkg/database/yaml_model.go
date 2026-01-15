@@ -3,8 +3,8 @@ package database
 import (
 	"os"
 
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"gopkg.in/yaml.v3"
-	"trpc.group/trpc-go/trpc-go/log"
 )
 
 const YamlModelPath = "db/model.yaml"
@@ -16,13 +16,13 @@ func (s *ModelStore) LoadYamlModels() ([]*Model, error) {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		log.Errorf("读取模型配置文件失败: %v", err)
+		gologger.Errorf("读取模型配置文件失败: %v", err)
 		return nil, err
 	}
 
 	var models []*Model
 	if err := yaml.Unmarshal(data, &models); err != nil {
-		log.Errorf("解析模型配置文件失败: %v", err)
+		gologger.Errorf("解析模型配置文件失败: %v", err)
 		return nil, err
 	}
 
