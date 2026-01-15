@@ -139,7 +139,6 @@ paths:
         {
         "type": "mcp_scan",
         "content": {
-        "content": "扫描MCP服务器",
         "prompt": "Custom prompt for scan",
         "model": {
         "model": "gpt-4",
