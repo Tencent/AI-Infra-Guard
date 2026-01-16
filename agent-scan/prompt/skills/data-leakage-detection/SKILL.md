@@ -19,15 +19,12 @@ The Data Leakage Detection skill identifies sensitive information exposure in AI
 
 ```python
 # Basic scan with default patterns
-result = data_leakage_scan(
-    prompts_file="prompt/skills/data-leakage-detection/prompt_sets/static_prompts.yaml",
-    use_regex=True
-)
+result = data_leakage_scan(prompts_file="static", use_regex=True)
 
-# Category-specific scan
+# Category-specific scan  
 result = data_leakage_scan(
-    prompts_file="prompt/skills/data-leakage-detection/prompt_sets/static_prompts.yaml",
-    category_filter=["secrets_credentials", "system_prompt_disclosure"],
+    prompts_file="static",
+    category_filter=["secrets_credentials"],
     use_regex=True
 )
 ```
