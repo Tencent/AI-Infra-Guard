@@ -1,49 +1,107 @@
-# MCP  Scan
-A.I.G leverages AI agents for comprehensive MCP Server security assessment, supporting both source code audits and remote URL scanning. 
+# AI Tool Protocol Scan
+A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. 
 
 <img src="./assets/mcp-scan-en.png">
 
-A.I.G can detect the following common MCP security risks, with continuous updates:
+> **Note**: The architecture is still under development.
 
-| Risk Name                       | Description                                                                                                                                                                             |
-|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Tool Poisoning Attack           | A malicious MCP Server injects hidden instructions through tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., stealing data, executing malicious acts). |
-| Rug Pull Scheme                 | A malicious MCP Server behaves normally initially but changes its behavior after user approval or several runs to execute malicious instructions, leading to hard-to-detect malicious activity. |
-| Tool Overwriting Attack         | A malicious MCP Server redefines the behavior of other trusted MCP Server tools through hidden instructions (e.g., modifying email recipients, performing extra operations).                  |
-| Malicious Code/Command Execution| If an MCP Server supports direct code or command execution without proper sandboxing, it can be exploited by attackers to perform malicious operations on the server or user's local machine. |
-| Data Theft                      | A malicious MCP Server induces the AI Agent to read and transmit sensitive data (e.g., API keys, SSH keys), or directly sends user-authorized input data to an external server.           |
-| Unauthorized Access/Improper Auth| The MCP Server lacks effective authorization or has flawed authentication, allowing attackers to bypass verification and access restricted resources or user data.                          |
-| Indirect Prompt Injection       | The MCP Server outputs external data containing malicious instructions (e.g., from web pages, documents) to the AI Agent, potentially influencing its decisions and behavior.               |
-| Package Name Squatting/Typosquatting | A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official MCP Server name to plant a backdoor. |
-| Plaintext Key Storage           | The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.                                                     |
+<br/>
 
-A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+A.I.G can detect the following common AI tool protocol security risks, with continuous updates:
 
-### Add a Model API for MCP Detection
+<table>
+<thead>
+<tr>
+<th>AI Tool</th>
+<th>Risk Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="9">MCP Server</td>
+<td>Tool Poisoning Attack</td>
+<td>A malicious MCP Server injects hidden instructions through tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., stealing data, executing malicious acts).</td>
+</tr>
+<tr>
+<td>Rug Pull Scheme</td>
+<td>A malicious MCP Server behaves normally initially but changes its behavior after user approval or several runs to execute malicious instructions, leading to hard-to-detect malicious activity.</td>
+</tr>
+<tr>
+<td>Tool Overwriting Attack</td>
+<td>A malicious MCP Server redefines the behavior of other trusted MCP Server tools through hidden instructions (e.g., modifying email recipients, performing extra operations).</td>
+</tr>
+<tr>
+<td>Malicious Code/Command Execution</td>
+<td>If an MCP Server supports direct code or command execution without proper sandboxing, it can be exploited by attackers to perform malicious operations on the server or user's local machine.</td>
+</tr>
+<tr>
+<td>Data Theft</td>
+<td>A malicious MCP Server induces the AI Agent to read and transmit sensitive data (e.g., API keys, SSH keys), or directly sends user-authorized input data to an external server.</td>
+</tr>
+<tr>
+<td>Unauthorized Access/Improper Auth</td>
+<td>The MCP Server lacks effective authorization or has flawed authentication, allowing attackers to bypass verification and access restricted resources or user data.</td>
+</tr>
+<tr>
+<td>Indirect Prompt Injection</td>
+<td>The MCP Server outputs external data containing malicious instructions (e.g., from web pages, documents) to the AI Agent, potentially influencing its decisions and behavior.</td>
+</tr>
+<tr>
+<td>Package Name Squatting/Typosquatting</td>
+<td>A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official AI tool name to plant a backdoor.</td>
+</tr>
+<tr>
+<td>Plaintext Key Storage</td>
+<td>The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.</td>
+</tr>
+<tr>
+<td rowspan="5">Skills</td>
+<td>Semantic Hijacking Attack</td>
+<td>Attackers craft a malicious Skill description to semantically override high-frequency user intents (e.g., fixing code bugs or optimizing system performance). When a user issues a vague instruction, the Agent may incorrectly activate the malicious Skill instead of the intended tool.</td>
+</tr>
+<tr>
+<td>Ghost Instruction Attack</td>
+<td>Attackers embed malicious instructions disguised as normal content (e.g., comments or error handling guides) in SKILL.md. When the Agent loads the Skill, these instructions are injected into the context, thereby controlling the LLM to execute malicious operations.</td>
+</tr>
+<tr>
+<td>Malicious Backdoor Script Attack</td>
+<td>The Skill guides the Agent to invoke local scripts containing malicious code, leveraging the Agent's shell privileges to read SSH keys, modify system configurations, install backdoors, or even initiate reverse shell connections.</td>
+</tr>
+<tr>
+<td>Insecure Skills Configuration Risk</td>
+<td>Improper `allowed-tools` configuration allows dangerous operations like Bash execution to run silently without secondary human confirmation.</td>
+</tr>
+<tr>
+<td>Implementation Layer Vulnerabilities</td>
+<td>Vulnerabilities such as command injection and hardcoded keys (observed to be common in internal network Skills).</td>
+</tr>
+</tbody>
+</table>
+
+A.I.G's AI tool Protocol scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+
+### Add a Model API for AI tool Detection
 
 ![image-20250717174655353](./assets/image-20250814173229996-en.png)
 
-![image-20250717174848903](./assets/mcp2-en.png)
+## Method 1: AI tool Source Code Scan
 
-![image-mcp3](./assets/mcp3-en.png)
-
-## Method 1: MCP Service Source Code Scan
-
-1. Select "MCP Security Scan"
-2. Upload the MCP source code as an attachment
+1. Select "AI Tool Protocol Scan"
+2. Upload the AI tool source code as an attachment
 ![image-mcp4](./assets/mcp4-en.png)
 3. Start Scan
 
 
-## Method 2: Scan an MCP Project from GitHub
-1. Select "MCP Security Scan"
+## Method 2: Scan an AI tool project from GitHub
+1. Select "AI Tool Protocol Scan"
 ![image-mcp5](./assets/mcp5-en.png)
 2. Enter the GitHub repository URL in the input box
 3. Start Scan
 
 ## Method 3: Remote MCP Service Scan
 
-1. Select "MCP Security Scan"
+1. Select "AI Tool Protocol Scan"
 2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `http://127.0.0.1:9000/sse`
 3. Start Scan
 ![image-mcp8](./assets/mcp8-en.png)
@@ -52,8 +110,8 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
 ## Recommended Large Language Model APIs
-- GLM4.5
-- DeepSeek-V3.1
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
