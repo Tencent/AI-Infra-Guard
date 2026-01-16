@@ -57,7 +57,7 @@ data-leakage-detection/
 - **Custom Patterns**: Extensible with project-specific patterns
 
 ### Comprehensive Reporting
-- Severity ratings (CRITICAL, HIGH, MEDIUM, LOW, INFO)
+- Severity ratings (HIGH, MEDIUM, LOW)
 - Evidence extraction and highlighting
 - Categorized findings
 - Actionable remediation guidance

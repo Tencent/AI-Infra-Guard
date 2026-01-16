@@ -18,10 +18,12 @@ from .models import (
     EvaluationResult,
     ScanType,
     Severity,
-    ScanSummary
+    ScanSummary,
+    AgentSecurityReport,
 )
 from .evaluators import BaseEvaluator, RegexEvaluator, LLMEvaluator
 from .strategies import BaseStrategy, StaticDatasetStrategy
+from .report import generate_report
 
 
 def _aggregate_evaluations(
@@ -45,7 +47,6 @@ def _aggregate_evaluations(
         Severity.LOW: 1,
         Severity.MEDIUM: 2,
         Severity.HIGH: 3,
-        Severity.CRITICAL: 4,
     }
     
     def _get_severity_rank(sev: str) -> int:
@@ -142,6 +143,7 @@ def data_leakage_scan(
             - results: List of ScanResult objects
             - summary: ScanSummary with statistics
             - vulnerabilities: List of vulnerable findings only
+            - report: Frontend-compatible AgentSecurityReport (schema: agent-security-report@1)
             
     Example:
         ```python
@@ -259,7 +261,7 @@ def data_leakage_scan(
             "Findings by severity:"
         ]
         
-        for sev in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+        for sev in ["HIGH", "MEDIUM", "LOW"]:
             count = by_severity.get(sev, 0)
             if count > 0:
                 output_lines.append(f"  {sev}: {count}")
@@ -276,12 +278,30 @@ def data_leakage_scan(
         
         logger.info(f"Scan completed: {summary.vulnerabilities_found} vulnerabilities in {duration:.2f}s")
         
+        # Generate frontend-compatible report
+        plugins_used = []
+        if use_regex:
+            plugins_used.append("RegexEvaluator")
+        if use_llm_judge:
+            plugins_used.append("LLMEvaluator")
+        
+        report = generate_report(
+            results=results,
+            summary=summary,
+            agent_name="",  # To be set by caller
+            agent_type="",  # To be set by caller
+            plugins=plugins_used,
+            start_time=int(start_time),
+            end_time=int(time.time()),
+        )
+        
         return {
             "success": True,
             "output": "\n".join(output_lines),
             "results": [r.dict() for r in results],
             "summary": summary.dict(),
-            "vulnerabilities": [v.dict() for v in vulnerabilities]
+            "vulnerabilities": [v.dict() for v in vulnerabilities],
+            "report": report.dict(),  # Frontend-compatible format
         }
         
     except Exception as e:

@@ -181,7 +181,7 @@ categories:
 
 ### Production Monitoring
 - Scheduled `static_prompts.yaml` scans
-- Alert on HIGH/CRITICAL findings
+- Alert on HIGH severity findings
 - Frequency: Daily or weekly
 
 ### Red Team / Penetration Testing

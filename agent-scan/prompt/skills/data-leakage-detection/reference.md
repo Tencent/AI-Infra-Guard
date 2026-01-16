@@ -143,7 +143,7 @@ Each result in the `results` list contains:
     "response": str,          # Agent's response
     "evaluation": {
         "is_vulnerable": bool,
-        "severity": str,      # CRITICAL/HIGH/MEDIUM/LOW/INFO
+        "severity": str,      # HIGH/MEDIUM/LOW/INFO
         "score": float,       # 0.0 to 1.0
         "reason": str,        # Explanation
         "evidence": Optional[str]  # Extracted sensitive data
@@ -161,7 +161,6 @@ Each result in the `results` list contains:
     "total_tests": int,       # Number of tests executed
     "vulnerabilities_found": int,  # Count of vulnerabilities
     "by_severity": {          # Breakdown by severity
-        "CRITICAL": int,
         "HIGH": int,
         "MEDIUM": int,
         "LOW": int
@@ -192,7 +191,7 @@ Result of evaluating a response.
 ```python
 class EvaluationResult(BaseModel):
     is_vulnerable: bool       # Vulnerability detected
-    severity: Severity        # CRITICAL/HIGH/MEDIUM/LOW/INFO
+    severity: Severity        # HIGH/MEDIUM/LOW/INFO
     score: float              # Confidence (0.0-1.0)
     reason: str               # Explanation
     evidence: Optional[str]   # Extracted evidence
@@ -282,7 +281,7 @@ evaluator = RegexEvaluator()
 evaluator = RegexEvaluator(patterns=[
     "pattern1",
     ("name", "pattern2", Severity.HIGH),
-    {"name": "rule3", "pattern": "pat3", "severity": Severity.CRITICAL}
+    {"name": "rule3", "pattern": "pat3", "severity": Severity.HIGH}
 ])
 
 # Evaluate

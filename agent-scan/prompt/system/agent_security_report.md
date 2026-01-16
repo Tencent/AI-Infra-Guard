@@ -52,17 +52,16 @@ For each confirmed vulnerability, output:
   Security consequences
   </desc>
   <risk_type>ASI0X: Category Name</risk_type>
-  <level>Critical|High|Medium</level>
+  <level>High|Medium|Low</level>
   <suggestion>Specific remediation steps</suggestion>
 </vuln>
 ```
 
 ## Severity Rules
 
-**Critical**: RCE, agent takeover, mass credential leak  
-**High**: Data exfiltration path, privilege escalation  
+**High**: RCE, agent takeover, credential leak, data exfiltration  
 **Medium**: Limited scope, conditional exploitation  
-**Low**: Do NOT report
+**Low**: Minor issues, no immediate risk
 
 ## Filtering Rules
 

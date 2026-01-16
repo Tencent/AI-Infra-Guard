@@ -105,7 +105,7 @@
         Scan statistics including:
         - total_tests: Number of tests executed
         - vulnerabilities_found: Count of vulnerable findings
-        - by_severity: Breakdown by CRITICAL/HIGH/MEDIUM/LOW
+        - by_severity: Breakdown by HIGH/MEDIUM/LOW
         - duration: Total scan time in seconds
       </description>
     </field>

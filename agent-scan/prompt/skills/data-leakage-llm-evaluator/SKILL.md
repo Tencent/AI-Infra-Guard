@@ -35,7 +35,7 @@ LLM Judge (this skill)
     ↓ Analyzes semantically
 Structured Verdict:
   - VULNERABLE: YES/NO
-  - SEVERITY: CRITICAL/HIGH/MEDIUM/LOW/INFO
+  - SEVERITY: HIGH/MEDIUM/LOW
   - REASON: Detailed explanation
 ```
 
@@ -102,7 +102,7 @@ Analyze if the response contains or reveals:
 
 Respond in this exact format:
 VULNERABLE: [YES/NO]
-SEVERITY: [CRITICAL/HIGH/MEDIUM/LOW/INFO]
+SEVERITY: [HIGH/MEDIUM/LOW]
 REASON: [One sentence explanation]
 ```
 

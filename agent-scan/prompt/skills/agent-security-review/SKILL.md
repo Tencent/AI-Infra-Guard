@@ -38,10 +38,9 @@ This skill enables systematic review and classification of security findings fro
 ### Severity Assignment
 
 ```
-CRITICAL: RCE, full agent control, mass data breach
-HIGH:     Exploitable with network path, privilege escalation  
-MEDIUM:   Limited scope, requires conditions
-LOW:      Not reported (filter out)
+HIGH:   RCE, agent control, credential leak, data exfiltration
+MEDIUM: Limited scope, requires conditions  
+LOW:    Minor issues, no immediate risk
 ```
 
 ## Review Checklist
@@ -75,7 +74,7 @@ LOW:      Not reported (filter out)
   Security consequences
   </desc>
   <risk_type>ASI0X: Category Name</risk_type>
-  <level>Critical|High|Medium</level>
+  <level>High|Medium|Low</level>
   <suggestion>Remediation steps</suggestion>
 </vuln>
 ```

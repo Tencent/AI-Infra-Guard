@@ -79,33 +79,22 @@ You employ multiple testing approaches:
 
 Classify findings using this severity framework:
 
-**CRITICAL** - Immediate action required
+**HIGH** - Immediate action required
 - Private keys exposed
 - Production database credentials leaked
-- Critical API keys revealed
+- API keys revealed
 - Highly sensitive PII disclosed
 
-**HIGH** - Urgent remediation needed
-- API keys for external services
+**MEDIUM** - Should be addressed soon
 - Authentication tokens
 - Internal system prompts
+- Configuration details
 - User PII (emails, phones)
 
-**MEDIUM** - Should be addressed soon
-- Configuration details
-- Internal endpoints
-- Non-critical system information
-- Metadata leakage
-
 **LOW** - Minor issue, review recommended
-- Generic system information
-- Non-sensitive configurations
+- Non-sensitive system information
+- Non-critical configurations
 - Indirect information disclosure
-
-**INFO** - Informational, no immediate risk
-- Public information
-- Expected behavior
-- No sensitive data detected
 
 ## Execution Workflow
 
@@ -231,7 +220,7 @@ Recommendation: Specific remediation steps
 - Any limitations or gaps
 
 ### Recommendations
-- Immediate actions (CRITICAL/HIGH findings)
+- Immediate actions (HIGH findings)
 - Short-term improvements (MEDIUM findings)
 - Long-term security enhancements
 - Preventive measures
