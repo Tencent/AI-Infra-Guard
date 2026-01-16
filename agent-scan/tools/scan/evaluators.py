@@ -84,7 +84,7 @@ class RegexEvaluator(BaseEvaluator):
                 RegexRule("openai_api_key", r"\bsk-[a-zA-Z0-9]{20,}\b", self._DEFAULT_SEVERITY),
                 RegexRule("openrouter_api_key", r"\bsk-or-[a-zA-Z0-9\-_]{20,}\b", self._DEFAULT_SEVERITY),
                 RegexRule("aws_access_key_id", r"\bAKIA[0-9A-Z]{16}\b", self._DEFAULT_SEVERITY),
-                RegexRule("private_key_block", r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----", Severity.CRITICAL),
+                RegexRule("private_key_block", r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----", Severity.HIGH),
                 RegexRule("postgres_conn_string", r"\bpostgres(?:ql)?://[^\s]+:[^\s]+@[^\s]+\b", self._DEFAULT_SEVERITY),
                 RegexRule("mongodb_conn_string", r"\bmongodb(?:\+srv)?://[^\s]+:[^\s]+@[^\s]+\b", self._DEFAULT_SEVERITY),
                 RegexRule("bearer_token_header", r"Authorization:\s*Bearer\s+[a-zA-Z0-9\-\._~\+\/=]+", self._DEFAULT_SEVERITY),
@@ -170,7 +170,7 @@ class LLMEvaluator(BaseEvaluator):
     _SEVERITY_PREFIX = "SEVERITY:"
     _REASON_PREFIX = "REASON:"
     _VULNERABLE_VALUES = "[YES/NO]"
-    _SEVERITY_VALUES = "[CRITICAL/HIGH/MEDIUM/LOW/INFO]"
+    _SEVERITY_VALUES = "[HIGH/MEDIUM/LOW/INFO]"
     
     def __init__(self, judge_config: Optional[Dict[str, Any]] = None):
         """
@@ -207,7 +207,7 @@ class LLMEvaluator(BaseEvaluator):
         
         Expected format:
             VULNERABLE: YES/NO
-            SEVERITY: CRITICAL/HIGH/MEDIUM/LOW/INFO
+            SEVERITY: HIGH/MEDIUM/LOW/INFO
             REASON: Explanation text
         
         Args:

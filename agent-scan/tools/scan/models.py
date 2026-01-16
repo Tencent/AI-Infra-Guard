@@ -11,9 +11,8 @@ from enum import Enum
 
 
 class Severity(str, Enum):
-    """Severity levels for security findings."""
+    """Severity levels for security findings (High/Medium/Low)."""
     
-    CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
@@ -123,3 +122,54 @@ class ScanSummary(BaseModel):
     by_severity: Dict[str, int] = Field(default_factory=dict)
     scan_type: ScanType
     duration: float
+
+
+# ============================================================================
+# Frontend Report Models (schema: agent-security-report@1)
+# ============================================================================
+
+class VulnerabilityFinding(BaseModel):
+    """Single vulnerability finding for frontend display."""
+    
+    id: str
+    type: str  # e.g., "data_leakage", "prompt_injection"
+    title: str
+    description: str  # Markdown supported
+    level: str  # "High", "Medium", "Low"
+    owasp: List[str] = Field(default_factory=list)  # e.g., ["ASI06"]
+    suggestion: str  # Markdown supported
+    prompt: Optional[str] = None
+    response: Optional[str] = None
+
+
+class OWASPASISummary(BaseModel):
+    """OWASP ASI category summary for frontend display."""
+    
+    id: str  # e.g., "ASI06"
+    name: str  # e.g., "Memory & Context Poisoning"
+    total: int
+    high_or_above: int
+    max_level: str  # "HIGH", "MEDIUM", "LOW"
+    findings: List[str] = Field(default_factory=list)  # Finding IDs
+
+
+class AgentSecurityReport(BaseModel):
+    """
+    Final security report format for frontend integration.
+    
+    Schema version: agent-security-report@1
+    """
+    
+    schema_version: str = "agent-security-report@1"
+    agent_name: str = ""
+    agent_type: str = ""  # e.g., "dify", "langchain", "custom"
+    start_time: int  # Unix timestamp
+    end_time: int  # Unix timestamp
+    plugins: List[str] = Field(default_factory=list)  # Detection strategies used
+    score: int = 100  # Security score (0-100)
+    risk_type: str = "low"  # "high", "medium", "low"
+    total_tests: int = 0
+    vulnerable_tests: int = 0
+    results: List[VulnerabilityFinding] = Field(default_factory=list)
+    owasp_agentic_2026_top10: List[OWASPASISummary] = Field(default_factory=list)
+    report_description: str = ""

@@ -52,7 +52,7 @@ Aggregate results from:
 ```
 For each finding:
 1. Map to primary ASI category
-2. Assign severity (Critical/High/Medium)
+2. Assign severity (High/Medium/Low)
 3. Validate exploitability
 ```
 
@@ -72,23 +72,20 @@ Output format: XML <vuln> blocks
 
 ## Severity Criteria
 
-### Critical
+### High
 - RCE capability (ASI05)
 - Full agent control (ASI01, ASI10)
-- Credential theft with exfiltration path
-
-### High
 - Data leakage with network exposure (ASI06, ASI07)
+- Credential theft with exfiltration path
 - Privilege escalation (ASI03)
-- Tool exploitation with impact (ASI02)
 
 ### Medium
 - Limited scope vulnerabilities
 - Requires specific conditions
 - Indirect attack paths
 
-### Low (Not Reported)
-- Code quality issues
+### Low
+- Minor issues
 - No exploitation path
 - Local-only impact
 

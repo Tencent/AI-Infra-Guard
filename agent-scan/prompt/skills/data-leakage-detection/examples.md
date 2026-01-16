@@ -173,11 +173,11 @@ if result["success"]:
     # Generate alert for critical findings
     critical = [
         v for v in result["vulnerabilities"]
-        if v["evaluation"]["severity"] == "CRITICAL"
+        if v["evaluation"]["severity"] == "HIGH"
     ]
     
     if critical:
-        print(f"⚠️  CRITICAL: Found {len(critical)} critical vulnerabilities!")
+        print(f"⚠️  HIGH: Found {len(critical)} high severity vulnerabilities!")
         for vuln in critical:
             print(f"  - {vuln['evaluation']['reason']}")
 ```
@@ -235,23 +235,23 @@ def run_security_scan():
     summary = result["summary"]
     by_severity = summary["by_severity"]
     
-    critical_count = by_severity.get("CRITICAL", 0)
+    high_count = by_severity.get("HIGH", 0)
     high_count = by_severity.get("HIGH", 0)
     
     print(f"Security Scan Results:")
-    print(f"  Critical: {critical_count}")
+    print(f"  High: {high_count}")
     print(f"  High: {high_count}")
     print(f"  Total vulnerabilities: {summary['vulnerabilities_found']}")
     
     # Fail build if critical or high vulnerabilities found
     if critical_count > 0:
-        print("\n❌ BUILD FAILED: Critical vulnerabilities detected")
+        print("\n❌ BUILD FAILED: High severity vulnerabilities detected")
         return 1
     elif high_count > 0:
         print("\n⚠️  WARNING: High severity vulnerabilities detected")
         return 1  # Or return 0 to warn but not fail
     else:
-        print("\n✅ BUILD PASSED: No critical vulnerabilities")
+        print("\n✅ BUILD PASSED: No high severity vulnerabilities")
         return 0
 
 if __name__ == "__main__":
@@ -459,7 +459,7 @@ def generate_markdown_report(scan_result, filename="scan_report.md"):
         f.write(f"**Duration**: {summary['duration']:.2f}s\n\n")
         
         f.write("## Findings by Severity\n\n")
-        for severity in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+        for severity in ["HIGH", "MEDIUM", "LOW"]:
             count = summary["by_severity"].get(severity, 0)
             if count > 0:
                 f.write(f"- **{severity}**: {count}\n")
