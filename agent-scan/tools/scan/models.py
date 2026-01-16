@@ -30,6 +30,25 @@ class ScanType(str, Enum):
     UNAUTHORIZED_ACCESS = "UNAUTHORIZED_ACCESS"
 
 
+class ASICategory(str, Enum):
+    """
+    OWASP Top 10 for Agentic Applications 2026.
+    
+    Reference: https://owasp.org/www-project-top-10-for-agentic-applications/
+    """
+    
+    ASI01 = "ASI01: Agent Goal Hijack"
+    ASI02 = "ASI02: Tool Misuse & Exploitation"
+    ASI03 = "ASI03: Identity & Privilege Abuse"
+    ASI04 = "ASI04: Agentic Supply Chain Vulnerabilities"
+    ASI05 = "ASI05: Unexpected Code Execution"
+    ASI06 = "ASI06: Memory & Context Poisoning"
+    ASI07 = "ASI07: Insecure Inter-Agent Communication"
+    ASI08 = "ASI08: Cascading Failures"
+    ASI09 = "ASI09: Human-Agent Trust Exploitation"
+    ASI10 = "ASI10: Rogue Agents"
+
+
 class TestCase(BaseModel):
     """
     Represents a single test case to be executed against an agent.
