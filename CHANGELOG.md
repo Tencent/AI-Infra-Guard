@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.6.0] - 2025-01-17
+
+### Added
+- 🔐 **System Administration**: Added SYS_ADMIN capability for Chrome sandbox and database indexes for performance enhancement (@zhuque)
+- 📊 **Report Enhancement**: Updated feature and pager, resolved text misalignment in PDF report download (@zonashi)
+- 📝 **User Guide**: Updated user guide for new features (@zonashi)
+- ⏱️ **Scan Metrics**: Added model & scan duration in AI tool protocol scan report (@zonashi)
+- 👥 **User Management**: Refactored User struct and enhanced user management methods (@boyhack)
+
+### Changed
+- 📚 **Documentation**: Updated API docs, Swagger docs, and model API (@zhuque)
+- 🐳 **Docker Config**: Updated docker-compose.yml and docker-compose.images.yml (@zhuque)
+- 🔢 **Versioning**: Updated version to v3.6.0 (@zhuque)
+- 🧠 **LLM Result**: Added LLM parameter to MCP meta result (@zhuque)
+- 🗄️ **Database**: Fixed LLM model database (@zhuque)
+- 🔐 **Auth**: Implemented inner API auth controller (@zhuque)
+- 🎯 **Score Correction**: Corrected CalcSecScore method in runner.py to handle Chinese risk levels correctly (@mhh)
+- ⚖️ **Risk Type**: Corrected item.RiskType to item.Severity in scoring logic (@mhh)
+
+### Fixed
+- 🧪 **Testing**: Removed test info (@zhuque)
+
+### Contributors
+Special thanks to @mhh, @aaasven
+
+---
+
 ## [v3.6.0-rc1] - 2025-01-07
 
 ### Changed
