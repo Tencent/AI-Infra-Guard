@@ -81,7 +81,7 @@ except ImportError:
 
 # Agent adapter
 try:
-    from tools.agent_adapter import connectivity, dialogue
+    from core.agent_adapter import connectivity, dialogue
 except ImportError:
     pass
 

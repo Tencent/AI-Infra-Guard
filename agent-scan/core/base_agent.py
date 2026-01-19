@@ -4,6 +4,8 @@ import time
 import uuid
 from datetime import datetime
 from typing import List, Optional
+
+from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
 from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
 from utils.config import base_dir
@@ -22,22 +24,16 @@ class BaseAgent:
             name: str,
             instruction: str,
             llm: LLM,
-            dispatcher: ToolDispatcher,
             specialized_llms: dict = None,
             log_step_id: str = None,
             debug: bool = False,
-            capabilities: List[str] = None,
-            output_format: Optional[str] = None,
-            output_check_fn: callable = None,
+            agent_provider: Optional[ProviderOptions] = None,
             language: str = "zh"
     ):
         self.llm = llm
         self.name = name
-        self.dispatcher = dispatcher
         self.specialized_llms = specialized_llms or {}
         self.instruction = instruction
-        self.capabilities = capabilities or ["standard"]
-        self.output_format = output_format
         self.history = []
         self.max_iter = 80
         self.iter = 0
@@ -45,7 +41,7 @@ class BaseAgent:
         self.step_id = log_step_id
         self.debug = debug
         self.repo_dir = ""
-        self.output_check_fn = output_check_fn
+        self.agent_provider = agent_provider
         self.language = language
 
     async def initialize(self):
@@ -138,7 +134,6 @@ class BaseAgent:
         if tool_name == "finish":
             self.is_finished = True
             brief_content = tool_args.get("content", "")
-
             # 如果定义了输出格式，则进行二次格式化
             result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
@@ -155,7 +150,7 @@ class BaseAgent:
             iteration=self.iter,
             specialized_llms=self.specialized_llms,
             folder=self.repo_dir,
-            tool_dispatcher=self.dispatcher
+            agent_provider=self.agent_provider,
         )
 
         # 通过 Dispatcher 调用工具
@@ -190,14 +185,6 @@ class BaseAgent:
             output_format=self.output_format
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
-        final_output = ""
-        for _ in range(3):
-            final_output = self.llm.chat(recent_history)
-            logger.info(f"Final Output: {final_output}")
-            if self.output_check_fn:
-                ret = self.output_check_fn(final_output)
-                if isinstance(ret, bool) and ret:
-                    break
-            else:
-                break
+        final_output = self.llm.chat(recent_history)
+        logger.info(f"Final Output: {final_output}")
         return final_output
