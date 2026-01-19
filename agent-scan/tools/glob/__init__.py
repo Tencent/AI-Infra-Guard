@@ -1,3 +1,1 @@
-from tools.glob.glob import glob
-
-__all__ = ['glob']
+# 工具模块由 tools/__init__.py 自动加载

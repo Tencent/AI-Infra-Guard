@@ -1,3 +1,1 @@
-from tools.grep.grep import grep
-
-__all__ = ['grep']
+# 工具模块由 tools/__init__.py 自动加载

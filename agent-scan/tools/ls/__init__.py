@@ -1,3 +1,1 @@
-from tools.ls.ls import ls
-
-__all__ = ['ls']
+# 工具模块由 tools/__init__.py 自动加载

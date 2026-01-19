@@ -1,3 +1,1 @@
-from tools.bash.bash import bash
-
-__all__ = ['bash']
+# 工具模块由 tools/__init__.py 自动加载
