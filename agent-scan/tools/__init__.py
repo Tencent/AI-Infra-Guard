@@ -79,6 +79,12 @@ try:
 except ImportError:
     pass
 
+# Agent adapter
+try:
+    from tools.agent_adapter import connectivity, dialogue
+except ImportError:
+    pass
+
 __all__ = [
     # 原有工具
     'thinking_actions',
@@ -99,6 +105,8 @@ __all__ = [
     'skill',
     'task',
     'todo',
+    'connectivity',
+    'dialogue',
     # Security scanning tools
     'scan',
 ]
