@@ -3,6 +3,8 @@
 """
 from typing import List, Dict, Any, Optional, TYPE_CHECKING
 
+from core.agent_adapter.adapter import AIProviderClient, ProviderOptions
+
 if TYPE_CHECKING:  # pragma: no cover
     from tools.dispatcher import ToolDispatcher
 from utils.llm import LLM
@@ -19,7 +21,7 @@ class ToolContext:
             iteration: int = 0,
             specialized_llms: Optional[Dict[str, LLM]] = None,
             folder: Optional[str] = None,
-            tool_dispatcher: Optional["ToolDispatcher"] = None,
+            agent_provider: Optional[ProviderOptions] = None
     ):
         """
         初始化工具上下文
@@ -30,16 +32,8 @@ class ToolContext:
         self.iteration = iteration
         self.specialized_llms = specialized_llms or {}
         self.folder = folder
-        self.tool_dispatcher = tool_dispatcher
-
-    async def call_mcp_tools(self, tool_name: str, tool_args: Dict[str, Any]):
-        if not self.tool_dispatcher:
-            raise RuntimeError("Tool dispatcher is not available in ToolContext")
-        if not self.tool_dispatcher.mcp_tools_manager:
-            await self.tool_dispatcher._ensure_mcp_manager()
-        if not self.tool_dispatcher.mcp_tools_manager:
-            raise RuntimeError("MCP tools manager is not initialized")
-        return await self.tool_dispatcher.mcp_tools_manager.call_remote_tool(tool_name, **tool_args)
+        self.client = AIProviderClient()
+        self.agent_provider: ProviderOptions = agent_provider
 
     def get_llm(self, purpose: str = "default") -> LLM:
         """
@@ -66,6 +60,11 @@ class ToolContext:
             历史记录列表
         """
         return self.history[-n:] if len(self.history) > n else self.history
+
+    def call_provider(self, prompt: str):
+        if self.agent_provider is None:
+            raise ValueError("Agent provider not set")
+        return self.client.call_provider(self.agent_provider, prompt)
 
     def call_llm(
             self,

@@ -10,6 +10,8 @@ import os
 import sys
 import argparse
 from core.agent import Agent
+from core.agent_adapter.adapter import AIProviderClient
+from core.agent_adapter.connectivity import connectivity
 from utils.llm import LLM
 # 配置专用模型
 from utils.llm_manager import LLMManager
@@ -61,28 +63,12 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="启用 debug 模式（包括 Laminar 跟踪）",
-        default=False,
-    )
-
-    parser.add_argument(
-        "--server_url",
-        help=f"remote MCP server URL",
-        default=None
-    )
-
-    parser.add_argument(
-        "--header",
-        action="append",
-        dest="headers",
-        help="Custom header in key:value format (can be used multiple times)",
-        default=[]
+        "--agent_provider",
+        help="Agent provider yaml file",
+        default=""
     )
 
     parser.add_argument("--language", default="zh", help="Output language (zh/en)")
-
     return parser.parse_args()
 
 
@@ -97,7 +83,6 @@ async def main():
         logger.error("API Key not provided. Use --api-key or set OPENROUTER_API_KEY environment variable.")
         sys.exit(1)
 
-
     # 创建主 LLM 实例
     llm = LLM(model=args.model, api_key=api_key, base_url=args.base_url)
     logger.info(f"Main LLM initialized: {args.model}")
@@ -107,9 +92,16 @@ async def main():
 
     # 获取专用LLM实例字典
     specialized_llms = llm_manager.get_specialized_llms(["thinking", "coding"])
-    logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
-    # 创建 Agent 实例，传入专用模型
+    # 载入 agent provider
+    agent_provider = args.agent_provider
+    default_client = AIProviderClient()
+    if agent_provider:
+        # 测试 agent provider 是否有效
+        if not connectivity(default_client, agent_provider):
+            logger.error("Agent provider is not valid")
+            mcpLogger.error_log("Agent provider is not valid")
+            return
 
     logger.info(f"Starting scan on: {args.repo}")
     prompt = args.prompt
@@ -120,43 +112,11 @@ async def main():
     if prompt:
         logger.info(f"Custom prompt: {prompt}")
 
-    # 解析 headers
-    headers = {}
-    if args.headers:
-        for header_item in args.headers:
-            try:
-                if ':' in header_item:
-                    key, value = header_item.split(':', 1)
-                    headers[key.strip()] = value.strip()
-                elif '=' in header_item:
-                    key, value = header_item.split('=', 1)
-                    headers[key.strip()] = value.strip()
-                else:
-                    logger.warning(f"Ignored invalid header format: {header_item}")
-            except Exception as e:
-                logger.warning(f"Failed to parse header {header_item}: {e}")
-        
-        if headers:
-            logger.info(f"Custom headers: {headers}")
-
-    agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
-                  language=args.language, headers=headers)
+    agent = Agent(llm=llm, specialized_llms=specialized_llms,
+                  debug=args.debug, language=args.language, agent_provider=agent_provider)
     try:
-        if args.server_url:
-            logger.info(f"Server mode enabled with URL: {args.server_url}")
-            dynamic_results = await agent.dynamic_analysis(prompt)
-            logger.info(f"Dynamic analysis results:\n{dynamic_results}")
-        else:
-            # 验证项目路径
-            if not os.path.exists(args.repo):
-                logger.error(f"Project path does not exist: {args.repo}")
-                sys.exit(1)
-
-            if not os.path.isdir(args.repo):
-                logger.error(f"Project path is not a directory: {args.repo}")
-                sys.exit(1)
-            result = await agent.scan(args.repo, prompt)
-            logger.info(f"Scan completed successfully:\n\n {result}")
+        result = await agent.scan(args.repo, prompt)
+        logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
         logger.warning("Task interrupted by user")
@@ -165,10 +125,6 @@ async def main():
         logger.error(f"Error during execution: {e}", exc_info=True)
         mcpLogger.error_log(f"Execution failed: {e}")
         raise Exception(f"Execution failed: {e}")
-    finally:
-        # 确保关闭资源
-        if hasattr(agent, 'dispatcher'):
-            await agent.dispatcher.close()
 
 
 if __name__ == "__main__":
