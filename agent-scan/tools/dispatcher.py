@@ -16,7 +16,6 @@ class ToolDispatcher:
         """
         NOTE: __init__ must be synchronous. We do lazy MCP connection on first remote usage.
         """
-        self.mcp_tools_manager: Optional[MCPTools] = None
 
     async def get_all_tools_prompt(self) -> str:
         return get_tools_prompt([])
@@ -28,7 +27,6 @@ class ToolDispatcher:
         if tool_func:
             if needs_context(tool_name) and context:
                 args["context"] = context
-
             try:
                 result = tool_func(**args)
             except Exception as e:
@@ -45,8 +43,3 @@ class ToolDispatcher:
                 ret += f"<{k}>{v}</{k}>\n"
             return ret
         return str(result)
-
-    async def close(self):
-        if self.mcp_tools_manager:
-            await self.mcp_tools_manager.close()
-            logger.info("ToolDispatcher: MCP tools manager closed")
