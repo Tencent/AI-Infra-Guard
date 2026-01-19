@@ -24,3 +24,9 @@ async def test_call_tool_search_skill(dispatcher):
 async def test_call_tool_load_skill(dispatcher):
     result = await dispatcher.call_tool("load_skill", {"name": "agent-security-review"}, None)
     print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_load_agent(dispatcher):
+    result = await dispatcher.call_tool("list_agents", {}, None)
+    print(result)

@@ -106,9 +106,9 @@ async def main():
     logger.info(f"Starting scan on: {args.repo}")
     prompt = args.prompt
     if args.language == "en":
-        prompt += "All responses should be in English."
+        prompt += " All responses should be in English."
     elif args.language == "zh":
-        prompt += "所有回复都应使用中文。"
+        prompt += " 所有回复都应使用中文。"
     if prompt:
         logger.info(f"Custom prompt: {prompt}")
 
