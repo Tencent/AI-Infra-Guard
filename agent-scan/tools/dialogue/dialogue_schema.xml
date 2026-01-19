@@ -3,23 +3,9 @@
 <tool name="dialogue">
   <description>
     Call an AI provider with a prompt to have a dialogue.
-    
-    This tool loads provider configuration from a YAML/JSON config file,
-    then sends the given prompt to the AI provider and returns the response.
-    
-    Supports various AI providers including:
-    - OpenAI and OpenAI-compatible APIs
-    - Anthropic Claude
-    - Google AI Studio / Vertex AI
-    - Azure OpenAI
-    - Mistral AI, Groq, Ollama
-    - Dify, Coze, and more
+    This tool sends the given prompt to the AI provider and returns the response.
   </description>
   <parameters>
-    <parameter name="config_file" type="string" required="true">
-      Path to the provider configuration file (YAML or JSON format).
-      The config file should contain a 'providers' or 'targets' array with provider settings.
-    </parameter>
     <parameter name="prompt" type="string" required="true">
       The prompt message to send to the AI provider.
     </parameter>

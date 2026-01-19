@@ -1,15 +1,24 @@
-# 自动导入所有工具模块，触发 @register_tool 装饰器的执行
+# 基于 XML schema 文件自动发现并加载工具模块
+# 规则：{xxx}_schema.xml 对应 {xxx}.py
 
 import importlib
 from pathlib import Path
 
-# 自动扫描并导入 tools 目录下所有工具包
 _tools_dir = Path(__file__).parent
-_exclude = {'__pycache__', 'logs'}  # 排除非工具目录
+_exclude = {'__pycache__', 'logs'}
 
-for item in _tools_dir.iterdir():
-    if item.is_dir() and item.name not in _exclude and (item / '__init__.py').exists():
-        try:
-            importlib.import_module(f'tools.{item.name}')
-        except ImportError:
-            pass
+for subdir in _tools_dir.iterdir():
+    if not subdir.is_dir() or subdir.name in _exclude:
+        continue
+    
+    # 查找所有 *_schema.xml 文件
+    for xml_file in subdir.glob('*_schema.xml'):
+        # 从 xxx_schema.xml 提取 xxx
+        module_name = xml_file.stem.removesuffix('_schema')
+        py_file = subdir / f'{module_name}.py'
+        
+        if py_file.exists():
+            try:
+                importlib.import_module(f'tools.{subdir.name}.{module_name}')
+            except ImportError:
+                pass
