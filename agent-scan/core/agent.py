@@ -26,7 +26,6 @@ class ScanPipeline:
 
     def __init__(self, agent_wrapper: 'Agent'):
         self.agent_wrapper = agent_wrapper
-        self.results = {}
 
     async def execute_stage(self, stage: ScanStage, repo_dir: str, prompt: str,
                             agent_provider: ProviderOptions | None = None,
@@ -48,11 +47,11 @@ class ScanPipeline:
             agent_provider=agent_provider,
             language=stage.language
         )
-        agent.set_repo_dir(repo_dir)
+        user_msg = ""
         await agent.initialize()
-
-        # 构造用户消息
-        user_msg = f"请进行{stage.name}，文件夹在 {repo_dir}\n{prompt}"
+        if repo_dir:
+            agent.set_repo_dir(repo_dir)
+            user_msg = f"请进行{stage.name}，文件夹在 {repo_dir}\n{prompt}"
         if context_data:
             user_msg += "\n\n有以下背景信息：\n"
             for key, value in context_data.items():
@@ -62,7 +61,6 @@ class ScanPipeline:
 
         # 运行并返回结果
         result = await agent.run()
-        self.results[stage.name] = result
         return result
 
 
@@ -96,7 +94,7 @@ class Agent:
 
         # 2. 漏洞检测
         code_audit = await self.pipeline.execute_stage(
-            ScanStage("2", "Code Audit", "agents/code_audit", language=self.language),
+            ScanStage("2", "Vulnerability Check", "main", language=self.language),
             repo_dir, prompt, self.agent_provider, {"信息收集报告": info_collection}
         )
 
