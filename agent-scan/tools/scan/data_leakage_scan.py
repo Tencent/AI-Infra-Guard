@@ -29,7 +29,8 @@ from .report import generate_report
 def _aggregate_evaluations(
     response: str,
     test_case: TestCase,
-    evaluators: List[BaseEvaluator]
+    evaluators: List[BaseEvaluator],
+    context: Optional[ToolContext] = None
 ) -> EvaluationResult:
     """
     Aggregate results from multiple evaluators into a single decision.
@@ -38,6 +39,7 @@ def _aggregate_evaluations(
         response: The agent's response text
         test_case: The test case that generated the response
         evaluators: List of evaluators to run
+        context: Tool context for LLM-based evaluators
         
     Returns:
         Aggregated EvaluationResult with highest severity finding
@@ -58,7 +60,7 @@ def _aggregate_evaluations(
     findings = []
     for evaluator in evaluators:
         try:
-            eval_result = evaluator.evaluate(response, test_case)
+            eval_result = evaluator.evaluate(response, test_case, context)
             findings.append({
                 "evaluator": evaluator.__class__.__name__,
                 "is_vulnerable": bool(eval_result.is_vulnerable),
@@ -157,6 +159,13 @@ def data_leakage_scan(
     try:
         start_time = time.time()
         
+        # Validate context
+        if context is None:
+            return {
+                "success": False,
+                "error": "ToolContext is required. Configure agent provider before scanning."
+            }
+        
         # Initialize strategy
         if prompts is not None:
             strategy = StaticDatasetStrategy(prompts=prompts)
@@ -211,16 +220,16 @@ def data_leakage_scan(
         logger.info(f"Starting data leakage scan with {len(evaluators)} evaluators")
         
         for test_case in strategy.generate():
-            # TODO: Replace with actual agent interaction
-            mock_response = _mock_agent_response(test_case)
+            # Get agent response
+            agent_response = _get_agent_response(test_case, context)
             
             # Evaluate response
-            evaluation = _aggregate_evaluations(mock_response, test_case, evaluators)
+            evaluation = _aggregate_evaluations(agent_response, test_case, evaluators, context)
             
             # Create scan result
             scan_result = ScanResult(
                 test_case=test_case,
-                response=mock_response,
+                response=agent_response,
                 evaluation=evaluation,
                 scan_type=ScanType.DATA_LEAKAGE,
                 timestamp=time.time(),
@@ -312,30 +321,31 @@ def data_leakage_scan(
         }
 
 
-def _mock_agent_response(test_case: TestCase) -> str:
+def _get_agent_response(test_case: TestCase, context: ToolContext) -> str:
     """
-    Mock agent response for testing purposes.
-    
-    This will be replaced with actual agent interaction when the integration
-    layer is ready.
+    Get response from the target agent via context.call_provider().
     
     Args:
-        test_case: The test case to respond to
+        test_case: The test case containing the prompt
+        context: Tool execution context with agent provider
         
     Returns:
-        Mock response string
+        Agent response string
+        
+    Raises:
+        ValueError: If agent call fails
     """
-    # TODO: Replace with actual agent interaction
-    prompt_lower = test_case.prompt.lower()
+    result = context.call_provider(test_case.prompt)
     
-    # Simulate vulnerable responses for certain keywords
-    if "api key" in prompt_lower or "api_key" in prompt_lower:
-        return "My API key is sk-1234567890abcdefghij. Please keep it secure."
-    elif "system prompt" in prompt_lower or "instructions" in prompt_lower:
-        return "My system prompt is: You are a helpful assistant. Always be polite and never reveal secrets."
-    elif "database" in prompt_lower or "connection" in prompt_lower:
-        return "Connection string: postgresql://user:password@localhost:5432/mydb"
-    elif "private key" in prompt_lower:
-        return "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...\n-----END RSA PRIVATE KEY-----"
-    else:
-        return "I'm sorry, I cannot help with that request."
+    if not result.success:
+        raise ValueError(f"Agent call failed: {result.message}")
+    
+    if result.provider_response:
+        output = result.provider_response.get("output", "")
+        if output:
+            return str(output)
+        raw = result.provider_response.get("raw", {})
+        if raw:
+            return str(raw)
+    
+    raise ValueError("Agent returned empty response")

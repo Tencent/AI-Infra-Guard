@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
 **Category:** Security Analysis / Data Leakage Detection  
-**Type:** Response Evaluator  
+**Type:** Response Evaluator
 **Related Skill:** data-leakage-detection
 
 ## Overview
