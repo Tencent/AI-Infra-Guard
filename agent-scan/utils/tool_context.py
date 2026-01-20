@@ -15,8 +15,8 @@ class ToolContext:
 
     def __init__(
             self,
-            llm: LLM,
-            history: List[Dict[str, str]],
+            llm: LLM = None,
+            history: List[Dict[str, str]] = [],
             agent_name: str = "Agent",
             iteration: int = 0,
             specialized_llms: Optional[Dict[str, LLM]] = None,
