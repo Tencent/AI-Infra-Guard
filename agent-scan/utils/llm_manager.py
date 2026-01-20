@@ -122,7 +122,6 @@ class LLMManager:
             )
             llm.temperature = llm_config.get("temperature", 0.7)
             self._llm_instances[purpose] = llm
-            logger.info(f"Created LLM instance for purpose '{purpose}': {llm_config['model']} @ {base_url}")
             return llm
         except Exception as e:
             logger.error(f"Failed to create LLM for purpose '{purpose}': {e}")
