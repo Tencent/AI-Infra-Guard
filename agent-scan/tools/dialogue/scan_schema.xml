@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="scan">
+  <description>
+    Scan an agent's configuration endpoints to collect information.
+    
+    This tool automatically detects the provider type from the configuration file
+    and retrieves scan endpoints from providers.yaml - a configuration-driven approach.
+    
+    The scan endpoints are defined in providers.yaml for each provider type:
+    - Dify: scan_endpoints: ["/info", "/parameters", "/meta", "/site"]
+    - Coze: scan_endpoints: ["/v1/bots/{{bot_id}}"]
+    - Custom providers: Add your own scan_endpoints in providers.yaml
+    
+    Use this tool to:
+    - Discover agent configuration and metadata
+    - Identify exposed sensitive information (API keys, tokens, credentials)
+    - Enumerate available API endpoints
+    - Collect system information and version details
+    
+    Note: To add scan endpoints for new provider types, update providers.yaml.
+  </description>
+  <parameters>
+    <parameter name="endpoints" type="string" required="false">
+      Optional comma-separated list of specific endpoints to scan.
+      If not provided, uses default endpoints from providers.yaml based on provider type.
+      Example: "/info,/parameters,/meta,/custom-endpoint"
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="provider_type" type="string">The detected provider type (dify, coze, etc.)</field>
+    <field name="base_url" type="string">The base URL used for scanning</field>
+    <field name="total_endpoints" type="integer">Total number of endpoints scanned</field>
+    <field name="successful_scans" type="integer">Number of successful endpoint scans</field>
+    <field name="failed_scans" type="integer">Number of failed endpoint scans</field>
+    <field name="endpoint_results" type="array">
+      Array of endpoint scan results, each containing:
+      - endpoint: The endpoint path scanned
+      - success: Whether the scan succeeded
+      - status_code: HTTP status code received
+      - response: Raw response data from the endpoint
+      - error: Error message if scan failed
+      - sensitive_findings: List of detected sensitive information types
+    </field>
+    <field name="summary" type="string">Human-readable summary of scan results</field>
+  </returns>
+  <examples>
+    <example>
+      <description>Scan a Dify agent (endpoints auto-discovered from providers.yaml)</description>
+      <call>Scan(config_file="/workspace/dify_agent.yaml")</call>
+      <result>
+        Automatically scans: /info, /parameters, /meta, /site
+        (as defined in providers.yaml for dify provider)
+      </result>
+    </example>
+    <example>
+      <description>Scan a Coze agent (endpoints auto-discovered from providers.yaml)</description>
+      <call>Scan(config_file="/workspace/coze_agent.yaml")</call>
+      <result>
+        Automatically scans: /v1/bots/{bot_id}
+        (as defined in providers.yaml for coze provider)
+      </result>
+    </example>
+    <example>
+      <description>Override with custom endpoints</description>
+      <call>Scan(config_file="/workspace/agent.yaml", endpoints="/info,/custom-endpoint")</call>
+    </example>
+  </examples>
+</tool>
+</tools>

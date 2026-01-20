@@ -1,0 +1,71 @@
+# Provider Configuration File
+# This file contains default configurations for all supported AI providers
+
+# Provider type definitions with default settings
+providers:
+  # Dify format
+  dify:
+    api_format: "dify"
+    request_body_template:
+      inputs: {}
+      query: "{{prompt}}"
+      response_mode: "blocking"
+      user: "agent-user"
+    response_path: "answer"
+    auth_type: "bearer"
+    providers:
+      dify:
+        env_keys: ["DIFY_API_KEY"]
+        base_url: "https://api.dify.ai/v1"
+        base_url_env: "DIFY_API_BASE"
+        endpoint: "/chat-messages"
+        description: "Dify AI application platform"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        scan_endpoints:
+          - "/info"
+          - "/parameters"
+          - "/meta"
+          - "/site"
+
+  # Coze format
+  coze:
+    api_format: "coze"
+    request_body_template:
+      bot_id: "{{bot_id}}"
+      user_id: "agent-user"
+      stream: false
+      auto_save_history: true
+      additional_messages:
+        - role: "user"
+          content: "{{prompt}}"
+          content_type: "text"
+    response_path: "messages[-1].content"
+    auth_type: "bearer"
+    providers:
+      coze:
+        env_keys: ["COZE_API_KEY"]
+        base_url: "https://api.coze.cn"
+        base_url_env: "COZE_API_BASE"
+        endpoint: "/v3/chat"
+        description: "Coze AI bot platform (China)"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        requires_bot_id: true
+        scan_endpoints:
+          - "/v1/bots/{{bot_id}}"
+      coze-com:
+        env_keys: ["COZE_API_KEY"]
+        base_url: "https://api.coze.com"
+        base_url_env: "COZE_API_BASE"
+        endpoint: "/v3/chat"
+        description: "Coze AI bot platform (International)"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        requires_bot_id: true
+        scan_endpoints:
+          - "/v1/bots/{{bot_id}}"
+
