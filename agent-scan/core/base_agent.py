@@ -1,20 +1,15 @@
 import json
-import os.path
-import time
 import uuid
-from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
-from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
-from utils.config import base_dir
+from utils.aig_logger import mcpLogger
 from utils.llm import LLM
 from utils.loging import logger
-from utils.parse import parse_tool_invocations, clean_content, parse_mcp_invocations
-from utils.tool_context import ToolContext
-from utils.aig_logger import mcpLogger
+from utils.parse import parse_tool_invocations, clean_content
 from utils.prompt_manager import prompt_manager
+from utils.tool_context import ToolContext
 
 
 class BaseAgent:
@@ -43,6 +38,7 @@ class BaseAgent:
         self.repo_dir = ""
         self.agent_provider = agent_provider
         self.language = language
+        self.dispatcher = ToolDispatcher()
 
     async def initialize(self):
         """异步初始化系统提示词"""
@@ -182,7 +178,7 @@ class BaseAgent:
         recent_history = self.history[1:]
         formatting_prompt = prompt_manager.format_prompt(
             "format_report",
-            output_format=self.output_format
+            output_format=self.instruction
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
         final_output = self.llm.chat(recent_history)
