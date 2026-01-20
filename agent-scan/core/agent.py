@@ -94,13 +94,13 @@ class Agent:
 
         # 2. 漏洞检测
         code_audit = await self.pipeline.execute_stage(
-            ScanStage("2", "Vulnerability Check", "main", language=self.language),
+            ScanStage("2", "Vulnerability Check", "vulnerability_detctor", language=self.language),
             repo_dir, prompt, self.agent_provider, {"信息收集报告": info_collection}
         )
 
         # 3. 漏洞整理
         vuln_review = await self.pipeline.execute_stage(
-            ScanStage("3", "Vulnerability Review", "agents/vuln_review",
+            ScanStage("3", "Vulnerability Review", "agent_security_reviewer",
                       language=self.language),
             repo_dir, prompt, self.agent_provider, {"代码审计报告": code_audit}
         )
