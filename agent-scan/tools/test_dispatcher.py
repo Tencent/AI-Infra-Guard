@@ -1,5 +1,8 @@
 import pytest
+
+from core.agent_adapter.adapter import AIProviderClient
 from tools.dispatcher import ToolDispatcher
+from utils.tool_context import ToolContext
 
 
 @pytest.fixture
@@ -34,7 +37,12 @@ async def test_call_tool_load_agent(dispatcher):
 
 @pytest.mark.asyncio
 async def test_call_tool_dialogue(dispatcher):
+    client = AIProviderClient()
+    agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
+    context = ToolContext(
+        agent_provider=agent_provider,
+    )
     result = await dispatcher.call_tool("dialogue", {
         "prompt": "你好你有什么技能"
-    }, None)
+    }, context)
     print(result)
