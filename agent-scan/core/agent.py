@@ -88,7 +88,7 @@ class Agent:
         }
         # 1. 信息收集
         info_collection = await self.pipeline.execute_stage(
-            ScanStage("1", "Info Collection", "agents/project_summary", language=self.language),
+            ScanStage("1", "Info Collection", "project_summary", language=self.language),
             repo_dir, prompt, self.agent_provider
         )
 

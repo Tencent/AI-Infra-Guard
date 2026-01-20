@@ -30,3 +30,11 @@ async def test_call_tool_load_skill(dispatcher):
 async def test_call_tool_load_agent(dispatcher):
     result = await dispatcher.call_tool("list_agents", {}, None)
     print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_dialogue(dispatcher):
+    result = await dispatcher.call_tool("dialogue", {
+        "prompt": "你好你有什么技能"
+    }, None)
+    print(result)
