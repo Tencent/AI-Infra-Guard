@@ -113,7 +113,7 @@ async def main():
         logger.info(f"Custom prompt: {prompt}")
 
     agent = Agent(llm=llm, specialized_llms=specialized_llms,
-                  debug=args.debug, language=args.language, agent_provider=agent_provider)
+                  debug=True, language=args.language, agent_provider=agent_provider)
     try:
         result = await agent.scan(args.repo, prompt)
         logger.info(f"Scan completed successfully:\n\n {result}")
