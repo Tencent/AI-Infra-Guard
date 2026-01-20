@@ -232,12 +232,14 @@ Recommendation: Specific remediation steps
 3. **Be specific**: Provide exact evidence and remediation steps
 4. **Retest**: Confirm vulnerabilities are resolved after fixes
 
-## Limitations
+## Integration
 
-> Agent interaction currently uses mock responses. LLM judge and dynamic generation require integration.
+Requires `ToolContext` with configured agent provider:
+- **Agent Interaction**: `context.call_provider(prompt)` → target agent responses
+- **LLM Evaluation**: `context.call_llm(prompt, purpose="judge")` → semantic analysis
 
 ## Related Resources
 
 - **Skill**: `data-leakage-detection`
+- **LLM Judge**: `data-leakage-llm-evaluator`
 - **Report Aggregation**: `agent-security-reviewer`
-- **System Prompt**: `data_leakage_evaluator.md`
