@@ -30,7 +30,8 @@ class ScanPipeline:
     async def execute_stage(self, stage: ScanStage, repo_dir: str, prompt: str,
                             agent_provider: ProviderOptions | None = None,
                             context_data: Dict[str, Any] = None) -> str:
-        return await run_agent(stage.name, stage.template, self.agent_wrapper.llm, prompt, stage.stage_id,
+        instruction = prompt_manager.load_template(stage.template)
+        return await run_agent(stage.name, instruction, self.agent_wrapper.llm, prompt, stage.stage_id,
                                self.agent_wrapper.specialized_llms,
                                agent_provider, stage.language, repo_dir, context_data)
 

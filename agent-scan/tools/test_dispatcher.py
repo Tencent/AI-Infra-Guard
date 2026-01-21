@@ -52,9 +52,9 @@ async def test_call_list_agents(dispatcher):
 
 @pytest.mark.asyncio
 async def test_call_run_task(dispatcher):
-    model = ""
-    api_key = ""
-    base_url = ""
+    model = "deepseek/deepseek-v3.2"
+    api_key = "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"
+    base_url = "https://openrouter.ai/api/v1"
     client = AIProviderClient()
     agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
     llm = LLM(model=model, api_key=api_key, base_url=base_url)

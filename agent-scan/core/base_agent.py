@@ -186,14 +186,11 @@ class BaseAgent:
         return final_output
 
 
-async def run_agent(description: str, template: str, llm: LLM, prompt: str, stage_id: str,
+async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, stage_id: str,
                     specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
                     language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
     logger.info(f"=== 阶段 {stage_id}: {description} ===")
     scanLogger.new_plan_step(stepId=stage_id, stepName=description)
-
-    # 加载提示词模板
-    instruction = prompt_manager.load_template(template)
 
     # 初始化阶段 Agent
     agent = BaseAgent(
