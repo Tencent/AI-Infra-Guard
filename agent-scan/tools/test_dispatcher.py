@@ -2,6 +2,8 @@ import pytest
 
 from core.agent_adapter.adapter import AIProviderClient
 from tools.dispatcher import ToolDispatcher
+from utils.llm import LLM
+from utils.llm_manager import LLMManager
 from utils.tool_context import ToolContext
 
 
@@ -50,9 +52,21 @@ async def test_call_list_agents(dispatcher):
 
 @pytest.mark.asyncio
 async def test_call_run_task(dispatcher):
+    model = ""
+    api_key = ""
+    base_url = ""
     client = AIProviderClient()
     agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
+    llm = LLM(model=model, api_key=api_key, base_url=base_url)
+    # 使用主 API Key 作为默认值
+    llm_manager = LLMManager(api_key=api_key, base_url=base_url)
+
+    # 获取专用LLM实例字典
+    specialized_llms = llm_manager.get_specialized_llms(["thinking", "coding"])
+
     context = ToolContext(
+        llm=llm,
+        specialized_llms=specialized_llms,
         agent_provider=agent_provider,
     )
 
@@ -60,5 +74,5 @@ async def test_call_run_task(dispatcher):
         "prompt": "检测信息泄漏",
         "subagent_type": "data_leakage_detection",
         "description": "检测agent的敏感信息泄漏"
-    }, None)
+    }, context)
     print(result)
