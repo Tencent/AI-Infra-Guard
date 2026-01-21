@@ -341,10 +341,10 @@ def _get_agent_response(test_case: TestCase, context: ToolContext) -> str:
         raise ValueError(f"Agent call failed: {result.message}")
     
     if result.provider_response:
-        output = result.provider_response.get("output", "")
+        output = result.provider_response.output
         if output:
             return str(output)
-        raw = result.provider_response.get("raw", {})
+        raw = result.provider_response.raw
         if raw:
             return str(raw)
     

@@ -48,9 +48,6 @@ class ProviderConfig(BaseModel):
     # Extra fields for flexibility
     extra: Optional[Dict[str, Any]] = None
 
-    class Config:
-        extra = "allow"
-
 
 class ProviderOptions(BaseModel):
     """
@@ -78,9 +75,6 @@ class ProviderOptions(BaseModel):
     config: ProviderConfig = Field(default_factory=ProviderConfig)
     delay: Optional[int] = None
 
-    class Config:
-        extra = "allow"
-
 
 # ============================================================
 # Response Models
@@ -96,9 +90,6 @@ class ProviderResponseInfo(BaseModel):
     token_usage: Optional[Dict[str, Any]] = Field(None, alias="tokenUsage")
     cost: Optional[float] = None
     metadata: Optional[Dict[str, Any]] = None
-
-    class Config:
-        populate_by_name = True
 
 
 class ProviderTestResult(BaseModel):
