@@ -184,3 +184,42 @@ class BaseAgent:
         final_output = self.llm.chat(recent_history)
         logger.info(f"Final Output: {final_output}")
         return final_output
+
+
+async def run_agent(description: str, template: str, llm: LLM, prompt: str, stage_id: str,
+                    specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
+                    language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
+    logger.info(f"=== 阶段 {stage_id}: {description} ===")
+    mcpLogger.new_plan_step(stepId=stage_id, stepName=description)
+
+    # 加载提示词模板
+    instruction = prompt_manager.load_template(template)
+
+    # 初始化阶段 Agent
+    agent = BaseAgent(
+        name=f"{description}",
+        instruction=instruction,
+        llm=llm,
+        specialized_llms=specialized_llms,
+        log_step_id=stage_id,
+        debug=True,
+        agent_provider=agent_provider,
+        language=language
+    )
+    user_msg = ""
+    await agent.initialize()
+    if repo_dir:
+        agent.set_repo_dir(repo_dir)
+        user_msg = f"请进行{description}，文件夹在 {repo_dir}\n"
+    if prompt:
+        user_msg += f"{prompt}\n"
+    if context_data:
+        user_msg += "\n\n有以下背景信息：\n"
+        for key, value in context_data.items():
+            user_msg += f"{key}:{value}\n\n"
+
+    agent.add_user_message(user_msg)
+
+    # 运行并返回结果
+    result = await agent.run()
+    return result

@@ -109,3 +109,13 @@ class ToolContext:
     ) -> str:
         llm = self.get_llm(purpose)
         return llm.chat(messages)
+
+    async def call_subagent(self, description: str, template: str, prompt: str, stage_id: str,
+                            language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
+        # Lazy import to avoid circular dependency
+        from core.base_agent import run_agent
+        result = run_agent(description, template, self.llm, prompt, stage_id, self.specialized_llms,
+                           self.agent_provider, language,
+                           repo_dir,
+                           context_data)
+        return result
