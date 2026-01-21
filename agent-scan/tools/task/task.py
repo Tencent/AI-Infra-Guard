@@ -162,9 +162,9 @@ async def task(
         包含执行结果的字典
     """
     # 加载 Agent 数据
-    agent_data = load_agent_prompt(subagent_type)
+    agent_instruction = load_agent_prompt(subagent_type)
 
-    if agent_data is None:
+    if agent_instruction is None:
         available = get_all_agents()
         available_names = [a['name'] for a in available]
 
@@ -172,8 +172,6 @@ async def task(
             "success": False,
             "error": f"Unknown agent type: {subagent_type}. Available agents: {', '.join(available_names) if available_names else 'none'}"
         }
-
-    agent_prompt = agent_data.get('content') or agent_data.get('raw', '')
 
     # 构建任务提示词
     task_prompt = f"""
@@ -187,7 +185,7 @@ Please complete this task and provide a summary of your actions and results.
     logger.info(f"Executing task with agent '{subagent_type}': {description or prompt[:50]}")
 
     result = await context.call_subagent(
-        description, agent_prompt, task_prompt, uuid.uuid4().__str__(), "zh", "", {}
+        description, subagent_type, task_prompt, uuid.uuid4().__str__(), "zh", "", {}
     )
 
     return {

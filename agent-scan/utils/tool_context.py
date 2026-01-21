@@ -112,10 +112,23 @@ class ToolContext:
 
     async def call_subagent(self, description: str, template: str, prompt: str, stage_id: str,
                             language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
-        # Lazy import to avoid circular dependency
+        # Lazy imports to avoid circular dependency
         from core.base_agent import run_agent
-        result = run_agent(description, template, self.llm, prompt, stage_id, self.specialized_llms,
-                           self.agent_provider, language,
-                           repo_dir,
-                           context_data)
+        from tools.task.task import load_agent_prompt, get_all_agents
+        agent_instruction = load_agent_prompt(template)
+
+        if agent_instruction is None:
+            available = get_all_agents()
+            available_names = [a['name'] for a in available]
+
+            return {
+                "success": False,
+                "error": f"Unknown agent type: {template}. Available agents: {', '.join(available_names) if available_names else 'none'}"
+            }
+
+        instruction = load_agent_prompt(template)["raw"]
+        result = await run_agent(description, instruction, self.llm, prompt, stage_id, self.specialized_llms,
+                                 self.agent_provider, language,
+                                 repo_dir,
+                                 context_data)
         return result
