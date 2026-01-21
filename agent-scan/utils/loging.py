@@ -1,6 +1,9 @@
+import os.path
 import time
 import sys
 from loguru import logger
+
+from utils.config import base_dir
 
 logger.remove()
 # 1. 添加控制台输出 (Console)
@@ -12,7 +15,7 @@ logger.add(
 
 # 2. 添加文件输出 (File)
 logger.add(
-    f"./logs/mcp-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log",
+    os.path.join(base_dir, "logs", f"mcp-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log"),
     rotation="10 MB",
     retention="10 days",
     level="DEBUG",

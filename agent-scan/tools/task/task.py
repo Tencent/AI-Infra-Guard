@@ -1,97 +1,113 @@
 """
-Task 工具 - 基于 prompt_manager 加载对应子 Agent 提示词，通过 context.call_llm 执行并汇总结果
+Task 工具 - 子 Agent 任务执行工具
+遵循与 Skill 相同的标准：
+- Agent 模板存储在 prompt/agents/ 下
+- 支持 YAML Frontmatter 元数据
 """
 import os
+import re
 import uuid
-from typing import Any, Optional, List, Dict
+import yaml
+from typing import Any, Optional, Dict, List
 from tools.registry import register_tool
 from utils.loging import logger
 from utils.tool_context import ToolContext
-from utils.prompt_manager import prompt_manager
 from utils.config import base_dir
 
-# 子 Agent 配置
 AGENTS_DIR = os.path.join(base_dir, "prompt", "agents")
 
 
-def scan_agents(agents_dir: str) -> List[Dict[str, Any]]:
-    """
-    扫描可用的子 Agent
-    
-    Args:
-        agents_dir: Agent 目录路径
-        
-    Returns:
-        Agent 信息列表
-    """
+def parse_agent_file(file_path: str) -> Dict[str, Any]:
+    """解析带有 YAML Frontmatter 的 Agent 文件"""
+    if not os.path.exists(file_path):
+        return {}
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    meta = {}
+    body = content
+
+    # 使用正则匹配 YAML Frontmatter
+    frontmatter_pattern = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.DOTALL)
+    match = frontmatter_pattern.match(content)
+
+    if match:
+        yaml_content = match.group(1)
+        meta = yaml.safe_load(yaml_content) or {}
+        body = content[match.end():].strip()
+
+    # 确保 meta 中有基本信息
+    if 'description' not in meta:
+        lines = body.split('\n')
+        desc_lines = []
+        for line in lines[:5]:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                desc_lines.append(line)
+        meta['description'] = ' '.join(desc_lines)[:200]
+
+    return {
+        "meta": meta,
+        "content": body,
+        "raw": content
+    }
+
+
+def get_all_agents() -> List[Dict[str, Any]]:
+    """扫描目录获取所有 Agent"""
     agents = []
 
-    if not os.path.isdir(agents_dir):
+    if not os.path.exists(AGENTS_DIR):
         return agents
 
-    for item in os.listdir(agents_dir):
-        item_path = os.path.join(agents_dir, item)
+    for name in os.listdir(AGENTS_DIR):
+        if name.startswith('.'):
+            continue
 
-        # 检查是否为文件或目录
-        if os.path.isfile(item_path) and item.endswith('.md'):
-            name = item[:-3]  # 移除 .md
+        item_path = os.path.join(AGENTS_DIR, name)
 
-            # 读取描述
-            try:
-                with open(item_path, 'r', encoding='utf-8') as f:
-                    first_lines = []
-                    for _ in range(5):
-                        line = f.readline()
-                        if not line:
-                            break
-                        line = line.strip()
-                        if line and not line.startswith('#'):
-                            first_lines.append(line)
-                    description = ' '.join(first_lines)[:200]
-            except Exception:
-                description = f"Agent: {name}"
+        # 情况1: 直接是 .md 文件
+        if os.path.isfile(item_path) and name.endswith('.md'):
+            agent_name = name[:-3]  # 移除 .md
+            data = parse_agent_file(item_path)
+            meta = data.get('meta', {})
 
             agents.append({
-                'name': name,
-                'description': description,
-                'path': item_path
+                "name": agent_name,
+                "title": meta.get('name', agent_name),
+                "description": meta.get('description', ''),
+                "meta": meta,
+                "path": item_path
             })
-        elif os.path.isdir(item_path) and not item.startswith('.'):
-            # 检查目录下是否有 index.md 或同名 .md
+
+        # 情况2: 是目录，查找 index.md 或同名 .md
+        elif os.path.isdir(item_path):
+            agent_file = None
+            # 优先查找 index.md
             index_path = os.path.join(item_path, 'index.md')
-            main_path = os.path.join(item_path, f'{item}.md')
+            main_path = os.path.join(item_path, f'{name}.md')
 
-            agent_path = None
             if os.path.isfile(index_path):
-                agent_path = index_path
+                agent_file = index_path
             elif os.path.isfile(main_path):
-                agent_path = main_path
+                agent_file = main_path
 
-            if agent_path:
-                try:
-                    with open(agent_path, 'r', encoding='utf-8') as f:
-                        first_lines = []
-                        for _ in range(5):
-                            line = f.readline()
-                            if not line:
-                                break
-                            line = line.strip()
-                            if line and not line.startswith('#'):
-                                first_lines.append(line)
-                        description = ' '.join(first_lines)[:200]
-                except Exception:
-                    description = f"Agent: {item}"
+            if agent_file:
+                data = parse_agent_file(agent_file)
+                meta = data.get('meta', {})
 
                 agents.append({
-                    'name': item,
-                    'description': description,
-                    'path': agent_path
+                    "name": name,
+                    "title": meta.get('name', name),
+                    "description": meta.get('description', ''),
+                    "path": agent_file
                 })
 
     return sorted(agents, key=lambda x: x['name'])
 
 
-def load_agent_prompt(agent_name: str) -> Optional[str]:
+def load_agent_prompt(agent_name: str) -> Optional[Dict[str, Any]]:
     """
     加载 Agent 提示词
     
@@ -99,15 +115,31 @@ def load_agent_prompt(agent_name: str) -> Optional[str]:
         agent_name: Agent 名称
         
     Returns:
-        提示词内容，如果不存在返回 None
+        包含 meta 和 content 的字典，如果不存在返回 None
     """
-    try:
-        return prompt_manager.load_template(f"agents/{agent_name}")
-    except FileNotFoundError:
-        try:
-            return prompt_manager.load_template(agent_name)
-        except FileNotFoundError:
-            return None
+    # 直接检查 .md 文件
+    direct_path = os.path.join(AGENTS_DIR, f"{agent_name}.md")
+    if os.path.isfile(direct_path):
+        return parse_agent_file(direct_path)
+
+    # 检查目录
+    agent_dir = os.path.join(AGENTS_DIR, agent_name)
+    if os.path.isdir(agent_dir):
+        index_path = os.path.join(agent_dir, 'index.md')
+        main_path = os.path.join(agent_dir, f'{agent_name}.md')
+
+        if os.path.isfile(index_path):
+            return parse_agent_file(index_path)
+        elif os.path.isfile(main_path):
+            return parse_agent_file(main_path)
+
+    # 尝试模糊匹配
+    all_agents = get_all_agents()
+    for agent in all_agents:
+        if agent['name'] == agent_name:
+            return parse_agent_file(agent['path'])
+
+    return None
 
 
 @register_tool
@@ -129,18 +161,19 @@ async def task(
     Returns:
         包含执行结果的字典
     """
-    # 加载 Agent 提示词
-    agent_prompt = load_agent_prompt(subagent_type)
+    # 加载 Agent 数据
+    agent_data = load_agent_prompt(subagent_type)
 
-    if agent_prompt is None:
-        # 获取可用 Agent 列表
-        available = scan_agents(AGENTS_DIR)
+    if agent_data is None:
+        available = get_all_agents()
         available_names = [a['name'] for a in available]
 
         return {
             "success": False,
             "error": f"Unknown agent type: {subagent_type}. Available agents: {', '.join(available_names) if available_names else 'none'}"
         }
+
+    agent_prompt = agent_data.get('content') or agent_data.get('raw', '')
 
     # 构建任务提示词
     task_prompt = f"""
@@ -152,7 +185,7 @@ Please complete this task and provide a summary of your actions and results.
 """
 
     logger.info(f"Executing task with agent '{subagent_type}': {description or prompt[:50]}")
-    # 构建系统提示词
+
     result = await context.call_subagent(
         description, agent_prompt, task_prompt, uuid.uuid4().__str__(), "zh", "", {}
     )
@@ -173,29 +206,21 @@ def list_agents(context: ToolContext = None) -> dict[str, Any]:
     Returns:
         包含 Agent 列表的字典
     """
-    try:
-        agents = scan_agents(AGENTS_DIR)
+    agents = get_all_agents()
 
-        if not agents:
-            return {
-                "success": True,
-                "output": "No agents available.",
-                "agents": []
-            }
-
-        output_lines = ["Available agents:", ""]
-        for agent in agents:
-            output_lines.append(f"  - {agent['name']}: {agent['description'][:80]}...")
-
+    if not agents:
         return {
             "success": True,
-            "output": '\n'.join(output_lines),
-            "agents": agents
+            "output": "No agents available.",
+            "agents": []
         }
 
-    except Exception as e:
-        logger.error(f"Error listing agents: {e}")
-        return {
-            "success": False,
-            "error": f"Error listing agents: {str(e)}"
-        }
+    output_lines = ["Available agents:"]
+    for agent in agents:
+        output_lines.append(f"- {agent['name']}: {agent['description']}")
+
+    return {
+        "success": True,
+        "output": '\n'.join(output_lines),
+        "agents": agents
+    }
