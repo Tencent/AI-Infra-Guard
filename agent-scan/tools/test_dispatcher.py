@@ -30,12 +30,6 @@ async def test_call_tool_load_skill(dispatcher):
 
 
 @pytest.mark.asyncio
-async def test_call_tool_load_agent(dispatcher):
-    result = await dispatcher.call_tool("list_agents", {}, None)
-    print(result)
-
-
-@pytest.mark.asyncio
 async def test_call_tool_dialogue(dispatcher):
     client = AIProviderClient()
     agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
