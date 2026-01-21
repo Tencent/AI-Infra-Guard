@@ -86,30 +86,35 @@ def get_top_language(stats: dict) -> str:
     return sorted_langs[0][0]
 
 
-def calc_mcp_score(issues: list) -> int:
+def calculate_security_score(issues: list) -> int:
     """
-    根据漏洞列表计算安全分数（0-100）
+    Calculate security score (0-100) based on vulnerability list.
+    
+    Deprecated: Use tools.scan.report.calculate_security_score instead.
     
     Args:
-        issues: 漏洞列表，每个漏洞应包含 risk_type 字段
+        issues: List of vulnerabilities, each should contain 'level' field
         
     Returns:
-        安全评分（0-100的整数）
+        Security score (0-100 integer)
     """
     if not issues:
         return 100
 
     score = 100
     for item in issues:
-        # 兼容字典和对象两种格式
         level = item.get("level", "").lower() if isinstance(item, dict) else getattr(item, "level", "").lower()
-        if level in ['critical', '严重']:
+        if level in ['critical']:
             score -= 100
-        elif level in ["high", "高危"]:
+        elif level in ["high"]:
             score -= 40
-        elif level in ["medium", "中危"]:
+        elif level in ["medium"]:
             score -= 25
         else:
             score -= 10
 
     return max(0, score)
+
+
+# Backward compatibility alias (deprecated)
+calc_mcp_score = calculate_security_score

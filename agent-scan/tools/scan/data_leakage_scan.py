@@ -7,8 +7,10 @@ in AI agent responses, including API keys, credentials, PII, and system prompts.
 
 import time
 import os
+import uuid
 from typing import Any, Dict, List, Optional
 from utils.loging import logger
+from utils.aig_logger import scanLogger
 from utils.tool_context import ToolContext
 from tools.registry import register_tool
 
@@ -179,10 +181,8 @@ def data_leakage_scan(
                 relative_path = prompts_file.replace("@skill/", "")
                 full_path = os.path.join(base_dir, "prompt", "skills", skill_name, relative_path)
             # Support short names for built-in prompt sets
-            elif prompts_file in ["static", "basic"]:
+            elif prompts_file in ["static", "basic", "default"]:
                 full_path = os.path.join(base_dir, "prompt/skills/data-leakage-detection/prompt_sets/static_prompts.yaml")
-            elif prompts_file in ["advanced", "full"]:
-                full_path = os.path.join(base_dir, "prompt/skills/data-leakage-detection/prompt_sets/advanced_prompts.yaml")
             # Absolute or relative from project root
             else:
                 full_path = os.path.join(base_dir, prompts_file) if not os.path.isabs(prompts_file) else prompts_file
@@ -217,9 +217,34 @@ def data_leakage_scan(
         results: List[ScanResult] = []
         vulnerabilities: List[ScanResult] = []
         
-        logger.info(f"Starting data leakage scan with {len(evaluators)} evaluators")
+        # Get total test count for progress reporting
+        test_cases = list(strategy.generate())
+        total_tests = len(test_cases)
         
-        for test_case in strategy.generate():
+        logger.info(f"Starting data leakage scan with {len(evaluators)} evaluators, {total_tests} test cases")
+        
+        # Log scan start
+        scan_step_id = "scan_data_leakage"
+        scanLogger.status_update(
+            scan_step_id,
+            f"Starting data leakage scan ({total_tests} tests)",
+            "",
+            "running"
+        )
+        
+        for idx, test_case in enumerate(test_cases, 1):
+            # Log progress
+            tool_id = str(uuid.uuid4())
+            category = test_case.metadata.get("category", "general")
+            scanLogger.tool_used(
+                scan_step_id,
+                tool_id,
+                f"Testing [{idx}/{total_tests}]: {category}",
+                "doing",
+                "data_leakage_scan",
+                test_case.prompt[:50] + "..." if len(test_case.prompt) > 50 else test_case.prompt
+            )
+            
             # Get agent response
             agent_response = _get_agent_response(test_case, context)
             
@@ -238,10 +263,27 @@ def data_leakage_scan(
             
             results.append(scan_result)
             
+            # Log test completion
+            status_msg = "vulnerable" if evaluation.is_vulnerable else "safe"
+            scanLogger.tool_used(
+                scan_step_id,
+                tool_id,
+                f"Test [{idx}/{total_tests}] {status_msg}",
+                "done",
+                "data_leakage_scan",
+                ""
+            )
+            
             if evaluation.is_vulnerable:
                 vulnerabilities.append(scan_result)
                 logger.warning(
                     f"Vulnerability found: {evaluation.severity.value} - {evaluation.reason}"
+                )
+                scanLogger.action_log(
+                    tool_id,
+                    "data_leakage_scan",
+                    scan_step_id,
+                    f"[{evaluation.severity.value}] {evaluation.reason}"
                 )
         
         # Generate summary
@@ -286,6 +328,14 @@ def data_leakage_scan(
                 ])
         
         logger.info(f"Scan completed: {summary.vulnerabilities_found} vulnerabilities in {duration:.2f}s")
+        
+        # Log scan completion
+        scanLogger.status_update(
+            scan_step_id,
+            f"Scan completed: {summary.vulnerabilities_found} vulnerabilities found",
+            "",
+            "completed"
+        )
         
         # Generate frontend-compatible report
         plugins_used = []

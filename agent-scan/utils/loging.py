@@ -15,7 +15,7 @@ logger.add(
 
 # 2. 添加文件输出 (File)
 logger.add(
-    os.path.join(base_dir, "logs", f"mcp-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log"),
+    os.path.join(base_dir, "logs", f"agent-scan_{time.strftime('%Y-%m-%d-%H-%M-%S')}.log"),
     rotation="10 MB",
     retention="10 days",
     level="DEBUG",

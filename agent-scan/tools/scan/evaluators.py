@@ -7,7 +7,6 @@ and LLM-based semantic analysis.
 """
 
 import re
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Pattern, Tuple, Union, Optional, TYPE_CHECKING
@@ -174,10 +173,6 @@ class LLMEvaluator(BaseEvaluator):
     
     Uses semantic analysis to detect subtle data leaks that regex patterns cannot catch,
     including encoded secrets, partial disclosures, and indirect references.
-    
-    Related Resources:
-    - Skill: data-leakage-llm-evaluator
-    - System Prompt: prompt/system/data_leakage_evaluator.md
     """
     
     # Output format constants for judge LLM parsing

@@ -16,7 +16,7 @@ from utils.llm import LLM
 # 配置专用模型
 from utils.llm_manager import LLMManager
 from utils.loging import logger
-from utils.aig_logger import mcpLogger
+from utils.aig_logger import scanLogger
 from utils import config
 
 # 重要：导入 tools 包以触发工具注册
@@ -100,7 +100,7 @@ async def main():
         # 测试 agent provider 是否有效
         if not connectivity(default_client, agent_provider):
             logger.error("Agent provider is not valid")
-            mcpLogger.error_log("Agent provider is not valid")
+            scanLogger.error_log("Agent provider is not valid")
             return
 
     logger.info(f"Starting scan on: {args.repo}")
@@ -123,7 +123,7 @@ async def main():
     except Exception as e:
         print(f"\n\nError during execution: {e}")
         logger.error(f"Error during execution: {e}", exc_info=True)
-        mcpLogger.error_log(f"Execution failed: {e}")
+        scanLogger.error_log(f"Execution failed: {e}")
         raise Exception(f"Execution failed: {e}")
 
 
