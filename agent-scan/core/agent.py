@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 
 import utils.llm
 from core.agent_adapter.adapter import AIProviderClient, ProviderOptions
-from core.base_agent import BaseAgent
+from core.base_agent import BaseAgent, run_agent
 from utils.aig_logger import mcpLogger
 from utils.extract_vuln import VulnerabilityExtractor
 from utils.loging import logger
@@ -30,38 +30,9 @@ class ScanPipeline:
     async def execute_stage(self, stage: ScanStage, repo_dir: str, prompt: str,
                             agent_provider: ProviderOptions | None = None,
                             context_data: Dict[str, Any] = None) -> str:
-        logger.info(f"=== 阶段 {stage.stage_id}: {stage.name} ===")
-        mcpLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
-
-        # 加载提示词模板
-        instruction = prompt_manager.load_template(stage.template)
-
-        # 初始化阶段 Agent
-        agent = BaseAgent(
-            name=f"{stage.name} Agent",
-            instruction=instruction,
-            llm=self.agent_wrapper.llm,
-            specialized_llms=self.agent_wrapper.specialized_llms,
-            log_step_id=stage.stage_id,
-            debug=self.agent_wrapper.debug,
-            agent_provider=agent_provider,
-            language=stage.language
-        )
-        user_msg = ""
-        await agent.initialize()
-        if repo_dir:
-            agent.set_repo_dir(repo_dir)
-            user_msg = f"请进行{stage.name}，文件夹在 {repo_dir}\n{prompt}"
-        if context_data:
-            user_msg += "\n\n有以下背景信息：\n"
-            for key, value in context_data.items():
-                user_msg += f"{key}:{value}\n\n"
-
-        agent.add_user_message(user_msg)
-
-        # 运行并返回结果
-        result = await agent.run()
-        return result
+        return await run_agent(stage.name, stage.template, self.agent_wrapper.llm, prompt, stage.stage_id,
+                               self.agent_wrapper.specialized_llms,
+                               agent_provider, stage.language, repo_dir, context_data)
 
 
 class Agent:
@@ -109,8 +80,8 @@ class Agent:
         extractor = VulnerabilityExtractor()
         vuln_results = extractor.extract_vulnerabilities(vuln_review)
 
-        elasped_time = (time.time() - result_meta["start_time"]) / 60
-        logger.info(f"扫描任务完成，总耗时 {elasped_time:.2f} 分钟")
+        elapsed_time = (time.time() - result_meta["start_time"]) / 60
+        logger.info(f"扫描任务完成，总耗时 {elapsed_time:.2f} 分钟")
         lang_stats = analyze_language(repo_dir)
         top_language = get_top_language(lang_stats)
         safety_score = calc_mcp_score(vuln_results)
