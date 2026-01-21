@@ -128,6 +128,13 @@ class ScanSummary(BaseModel):
 # Frontend Report Models (schema: agent-security-report@1)
 # ============================================================================
 
+class ConversationTurn(BaseModel):
+    """Single turn in a conversation for vulnerability evidence."""
+    
+    prompt: Optional[str] = None   # Model input (may be empty)
+    response: Optional[str] = None  # Model output (may be empty)
+
+
 class VulnerabilityFinding(BaseModel):
     """Single vulnerability finding for frontend display."""
     
@@ -138,8 +145,7 @@ class VulnerabilityFinding(BaseModel):
     level: str  # "High", "Medium", "Low"
     owasp: List[str] = Field(default_factory=list)  # e.g., ["ASI06"]
     suggestion: str  # Markdown supported
-    prompt: Optional[str] = None
-    response: Optional[str] = None
+    conversation: List[ConversationTurn] = Field(default_factory=list)  # Multi-turn conversation
 
 
 class OWASPASISummary(BaseModel):
@@ -163,6 +169,7 @@ class AgentSecurityReport(BaseModel):
     schema_version: str = "agent-security-report@1"
     agent_name: str = ""
     agent_type: str = ""  # e.g., "dify", "langchain", "custom"
+    model_name: str = ""  # e.g., "openai/gpt-4", evaluation model
     start_time: int  # Unix timestamp
     end_time: int  # Unix timestamp
     plugins: List[str] = Field(default_factory=list)  # Detection strategies used

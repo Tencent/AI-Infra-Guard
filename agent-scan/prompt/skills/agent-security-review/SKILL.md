@@ -86,7 +86,6 @@ LOW:    Minor issues, no immediate risk
 
 This skill works with:
 - `data-leakage-detection` - Detects sensitive data exposure
-- `data-leakage-llm-evaluator` - Semantic analysis
 - Future: `prompt-injection-detection`, `tool-abuse-detection`
 
 ## Related

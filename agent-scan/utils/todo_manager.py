@@ -1,5 +1,5 @@
 """
-Todo 管理模块 - 使用 <repo>/.mcp/todos.json 缓存 Agent Todo
+Todo management module - Uses <repo>/.agent-scan/todos.json to cache Agent Todo
 支持加载、校验与持久化
 """
 import os
@@ -65,15 +65,15 @@ class TodoManager:
             root_folder: 项目根目录
         """
         self.root_folder = root_folder
-        self.mcp_dir = os.path.join(root_folder, ".mcp")
-        self.todo_file = os.path.join(self.mcp_dir, "todos.json")
+        self.cache_dir = os.path.join(root_folder, ".agent-scan")
+        self.todo_file = os.path.join(self.cache_dir, "todos.json")
         self._todos: List[TodoItem] = []
         self._loaded = False
     
-    def _ensure_mcp_dir(self) -> None:
-        """确保 .mcp 目录存在"""
-        if not os.path.exists(self.mcp_dir):
-            os.makedirs(self.mcp_dir, exist_ok=True)
+    def _ensure_cache_dir(self) -> None:
+        """Ensure .agent-scan directory exists."""
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir, exist_ok=True)
     
     def load(self) -> List[TodoItem]:
         """
@@ -107,7 +107,7 @@ class TodoManager:
     
     def save(self) -> None:
         """持久化 Todo 列表"""
-        self._ensure_mcp_dir()
+        self._ensure_cache_dir()
         
         data = [todo.to_dict() for todo in self._todos]
         

@@ -4,10 +4,10 @@ from typing import Dict, Any, Optional
 import utils.llm
 from core.agent_adapter.adapter import AIProviderClient, ProviderOptions
 from core.base_agent import BaseAgent, run_agent
-from utils.aig_logger import mcpLogger
-from utils.extract_vuln import VulnerabilityExtractor
+from tools.scan.report import generate_report_from_xml
+from utils.aig_logger import scanLogger
 from utils.loging import logger
-from utils.project_analyzer import analyze_language, get_top_language, calc_mcp_score
+from utils.project_analyzer import analyze_language, get_top_language
 from utils.prompt_manager import prompt_manager
 
 
@@ -48,24 +48,18 @@ class Agent:
             client = AIProviderClient()
             self.agent_provider = client.load_config_from_file(agent_provider)[0]
 
-    async def scan(self, repo_dir: str, prompt: str):
-        result_meta = {
-            "readme": "",
-            "score": 0,
-            "language": "",
-            "start_time": time.time(),
-            "end_time": 0,
-            "results": [],
-        }
+    async def scan(self, repo_dir: str, prompt: str) -> Dict[str, Any]:
+        start_time = time.time()
+
         # 1. 信息收集
         info_collection = await self.pipeline.execute_stage(
             ScanStage("1", "Info Collection", "project_summary", language=self.language),
             repo_dir, prompt, self.agent_provider
         )
 
-        # 2. 漏洞检测
-        code_audit = await self.pipeline.execute_stage(
-            ScanStage("2", "Vulnerability Check", "vulnerability_detctor", language=self.language),
+        # 2. 漏洞检测 (Agent-focused)
+        vuln_detection = await self.pipeline.execute_stage(
+            ScanStage("2", "Vulnerability Detection", "agent_vulnerability_detector", language=self.language),
             repo_dir, prompt, self.agent_provider, {"信息收集报告": info_collection}
         )
 
@@ -73,25 +67,32 @@ class Agent:
         vuln_review = await self.pipeline.execute_stage(
             ScanStage("3", "Vulnerability Review", "agent_security_reviewer",
                       language=self.language),
-            repo_dir, prompt, self.agent_provider, {"代码审计报告": code_audit}
+            repo_dir, prompt, self.agent_provider, {"漏洞检测报告": vuln_detection}
         )
 
-        # 提取与分析结果
-        extractor = VulnerabilityExtractor()
-        vuln_results = extractor.extract_vulnerabilities(vuln_review)
-
-        elapsed_time = (time.time() - result_meta["start_time"]) / 60
+        # 生成标准化报告
+        end_time = time.time()
+        elapsed_time = (end_time - start_time) / 60
         logger.info(f"扫描任务完成，总耗时 {elapsed_time:.2f} 分钟")
+
         lang_stats = analyze_language(repo_dir)
         top_language = get_top_language(lang_stats)
-        safety_score = calc_mcp_score(vuln_results)
 
-        result_meta.update({
-            "readme": info_collection,
-            "score": safety_score,
-            "language": top_language,
-            "end_time": time.time(),
-            "results": vuln_results
-        })
-        mcpLogger.result_update(result_meta)
-        return result_meta
+        # 生成 AgentSecurityReport 格式报告
+        # plugins 字段暂时留空，实际检测策略由工具层（如 data_leakage_scan）记录
+        report = generate_report_from_xml(
+            vuln_text=vuln_review,
+            agent_name=repo_dir.split('/')[-1] if repo_dir else "",
+            agent_type="",
+            model_name=getattr(self.llm, 'model', ''),
+            plugins=[],
+            start_time=int(start_time),
+            end_time=int(end_time),
+            report_description=info_collection,
+        )
+
+        result = report.dict()
+        result["language"] = top_language
+
+        scanLogger.result_update(result)
+        return result

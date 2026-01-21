@@ -4,7 +4,7 @@ from typing import Optional
 
 from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
-from utils.aig_logger import mcpLogger
+from utils.aig_logger import scanLogger
 from utils.llm import LLM
 from utils.loging import logger
 from utils.parse import parse_tool_invocations, clean_content
@@ -109,7 +109,7 @@ class BaseAgent:
             if self.language == "en":
                 description = "I will continue to execute"
 
-        mcpLogger.status_update(self.step_id, description, "", "running")
+        scanLogger.status_update(self.step_id, description, "", "running")
 
         if tool_invocations:
             return await self.process_tool_call(tool_invocations, description)
@@ -125,7 +125,7 @@ class BaseAgent:
         if isinstance(params, str):
             params = params.replace(self.repo_dir, "")
 
-        mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+        scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
 
         if tool_name == "finish":
             self.is_finished = True
@@ -133,9 +133,9 @@ class BaseAgent:
             # 如果定义了输出格式，则进行二次格式化
             result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
-            mcpLogger.status_update(self.step_id, description, "", "completed")
-            # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
-            mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
+            scanLogger.status_update(self.step_id, description, "", "completed")
+            # scanLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
+            scanLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 
         # 构造上下文
@@ -160,12 +160,12 @@ class BaseAgent:
         full_message = f"{next_p}\n\n{result_message}"
 
         self.history.append({"role": "user", "content": full_message})
-        mcpLogger.status_update(self.step_id, description, "", "completed")
+        scanLogger.status_update(self.step_id, description, "", "completed")
 
         if tool_name != "read_file":
-            mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
+            scanLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
 
-        # mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+        # scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
         return None
 
     async def handle_no_tool(self, description: str):
@@ -190,7 +190,7 @@ async def run_agent(description: str, template: str, llm: LLM, prompt: str, stag
                     specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
                     language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
     logger.info(f"=== 阶段 {stage_id}: {description} ===")
-    mcpLogger.new_plan_step(stepId=stage_id, stepName=description)
+    scanLogger.new_plan_step(stepId=stage_id, stepName=description)
 
     # 加载提示词模板
     instruction = prompt_manager.load_template(template)
