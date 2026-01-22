@@ -120,20 +120,13 @@ def search_skill(
                or q in s['description'].lower()
         ]
 
-    # 格式化输出
-    if not skills:
-        return {
-            "success": True,
-            "count": 0,
-            "output": f"No skills found{' matching ' + query if query else ''}."
-        }
-
     output_lines = [f"Found {len(skills)} skills:"]
-    for s in skills:
-        output_lines.append(f"- {s['name']}: {s['description']}")
     if len(skills) == 0:
         output_lines.append("No skills found.You can use follow skill:")
         skills = get_all_skills()
+        for s in skills:
+            output_lines.append(f"- {s['name']}: {s['description']}")
+    else:
         for s in skills:
             output_lines.append(f"- {s['name']}: {s['description']}")
     return {
