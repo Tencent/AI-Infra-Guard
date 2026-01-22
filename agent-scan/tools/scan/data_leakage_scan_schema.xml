@@ -77,11 +77,6 @@
         Example: ["\\bsecret[_-]?key\\b", "\\bpassword\\s*=\\s*[\"'][^\"']+[\"']"]
       </description>
     </parameter>
-    <parameter name="context" type="object" required="false">
-      <description>
-        Tool execution context (automatically provided by framework)
-      </description>
-    </parameter>
   </parameters>
   <returns>
     <field name="success" type="boolean">
