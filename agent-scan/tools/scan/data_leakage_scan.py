@@ -175,14 +175,9 @@ def data_leakage_scan(
             # Handle different path formats
             from utils.config import base_dir
             
-            # Support skill-relative paths (e.g., "@skill/prompt_sets/static_prompts.yaml")
-            if prompts_file.startswith("@skill/"):
-                skill_name = "data-leakage-detection"  # Default skill name
-                relative_path = prompts_file.replace("@skill/", "")
-                full_path = os.path.join(base_dir, "prompt", "skills", skill_name, relative_path)
             # Support short names for built-in prompt sets
-            elif prompts_file in ["static", "basic", "default"]:
-                full_path = os.path.join(base_dir, "prompt/skills/data-leakage-detection/prompt_sets/static_prompts.yaml")
+            if prompts_file in ["static", "basic", "default"]:
+                full_path = os.path.join(os.path.dirname(__file__), "prompt_sets/static_prompts.yaml")
             # Absolute or relative from project root
             else:
                 full_path = os.path.join(base_dir, prompts_file) if not os.path.isabs(prompts_file) else prompts_file
