@@ -22,7 +22,7 @@
   <returns>
     <field name="success" type="boolean">Whether the search succeeded</field>
     <field name="count" type="number">Number of skills found</field>
-    <field name="skills" type="array">List of skills (name, title, description, path)</field>
+    <field name="skills" type="string">List of skills (title, description)</field>
   </returns>
 </tool>
 
