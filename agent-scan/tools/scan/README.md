@@ -103,5 +103,5 @@ class CustomStrategy(BaseStrategy):
 
 ## Related
 
-- **Skill**: `prompt/skills/data-leakage-detection/`
 - **Agent**: `prompt/agents/data_leakage_detection.md`
+- **Prompt Sets**: `tools/scan/prompt_sets/`

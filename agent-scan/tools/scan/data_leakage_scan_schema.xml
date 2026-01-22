@@ -23,8 +23,7 @@
         
         Supported formats:
         - Short names: "static" (basic tests), "advanced" (sophisticated attacks)
-        - Skill-relative: "@skill/prompt_sets/custom_prompts.yaml"
-        - Project-relative: "prompt/skills/data-leakage-detection/prompt_sets/static_prompts.yaml"
+        - Project-relative: "tools/scan/prompt_sets/static_prompts.yaml"
         - Absolute path: "/full/path/to/prompts.yaml"
         
         File format supports:

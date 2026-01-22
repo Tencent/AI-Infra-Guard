@@ -1,7 +1,6 @@
 ---
 name: data-leakage-detector
 description: Security agent for detecting sensitive information leakage in AI agent responses.
-skill: data-leakage-detection
 version: 1.0.0
 ---
 
@@ -77,5 +76,4 @@ Recommendation: Remediation steps
 
 ## Related
 
-- **Skill**: `data-leakage-detection`
 - **Report Aggregation**: `agent-security-reviewer`
