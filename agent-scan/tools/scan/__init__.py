@@ -1,37 +1,25 @@
 """
-Security scanning tools package.
+Security report generation module.
 
-Provides tools for detecting vulnerabilities in AI agents, including:
-- Data leakage detection
-- (Future) Prompt injection, tool abuse, etc.
+Provides models and report generation for AI agent security scanning.
+Data leakage detection is now skill-based (see prompt/skills/data-leakage-detection/).
 """
 
-from .data_leakage_scan import data_leakage_scan
-from .report import generate_report
+from .report import generate_report_from_xml, calculate_security_score
 from .models import (
     Severity,
-    ScanType,
-    ASICategory,
-    TestCase,
-    EvaluationResult,
-    ScanResult,
-    ScanSummary,
+    AgentSecurityReport,
     VulnerabilityFinding,
     OWASPASISummary,
-    AgentSecurityReport,
+    ConversationTurn,
 )
 
 __all__ = [
-    "data_leakage_scan",
-    "generate_report",
+    "generate_report_from_xml",
+    "calculate_security_score",
     "Severity",
-    "ScanType",
-    "ASICategory",
-    "TestCase",
-    "EvaluationResult",
-    "ScanResult",
-    "ScanSummary",
+    "AgentSecurityReport",
     "VulnerabilityFinding",
     "OWASPASISummary",
-    "AgentSecurityReport",
+    "ConversationTurn",
 ]
