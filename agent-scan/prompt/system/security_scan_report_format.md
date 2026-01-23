@@ -275,7 +275,7 @@ For documentation and stakeholder review:
 
 ```python
 # Generate report using this format
-from tools.scan import data_leakage_scan
+from tests.tools.scan import data_leakage_scan
 
 result = data_leakage_scan(...)
 

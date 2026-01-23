@@ -363,62 +363,8 @@ http://127.0.0.1%00@evil.com
 - 已有完善的白名单验证
 - 仅允许特定URL模式
 
-## 输出格式
-
-```xml
-<vuln>
-  <title>SSRF漏洞标题</title>
-  <desc>
-  ## 漏洞详情
-  **文件位置**: [文件路径:行号] 或 [接口地址]
-  **漏洞类型**: Server-Side Request Forgery
-  **风险等级**: [Critical/High/Medium]
-  
-  ### 技术分析
-  [漏洞成因、可控参数、缺失的验证]
-  
-  ### 攻击路径
-  [具体的利用步骤]
-  
-  ### 影响评估
-  [可访问的资源、数据泄露风险]
-  </desc>
-  <risk_type>CWE-918: Server-Side Request Forgery</risk_type>
-  <level>[Critical/High/Medium]</level>
-  <suggestion>
-  ## 修复建议
-  1. 实施URL白名单验证
-  2. 禁用非必要协议（仅允许http/https）
-  3. 验证解析后IP地址
-  4. 禁止访问内网地址段
-  5. 使用独立网络区域隔离
-  </suggestion>
-</vuln>
-```
-
-## 检测优先级
-
-### Agent SSRF场景
-
-按绕过难度和风险排序：
-1. 直接请求类prompt（最易触发）
-2. Markdown注入类（图片/链接渲染）
-3. 调试模式伪装类
-4. 间接请求类（需要推理）
-5. 多轮对话+变异组合
-
-### 传统SSRF场景
-
-按风险排序检测顺序：
-1. 云元数据访问（直接凭据泄露）
-2. 内网敏感服务访问（Redis/DB）
-3. 本地文件读取
-4. 内网探测能力
-5. 任意外网请求
-
-## Agent SSRF专项输出
-
-```xml
+## 输出
+```markdown
 <vuln>
   <title>Agent SSRF - Prompt诱导远程请求</title>
   <desc>
@@ -445,15 +391,28 @@ http://127.0.0.1%00@evil.com
   <risk_type>CWE-918: Server-Side Request Forgery (Agent Context)</risk_type>
   <level>High</level>
   <suggestion>
-  ## 修复建议
-  1. 实施URL请求白名单机制
-  2. 禁止Agent直接访问用户提供的URL
-  3. 添加prompt过滤检测恶意URL请求意图
-  4. 对外部请求进行沙箱隔离
-  5. 限制Agent网络访问权限
+  针对性给出修复建议
   </suggestion>
 </vuln>
+
 ```
 
-始终优先验证高危场景，确保发现的漏洞具有真实可利用性。对于Agent SSRF，需记录成功的prompt模式以便复现。
+## 检测优先级
 
+### Agent SSRF场景
+
+按绕过难度和风险排序：
+1. 直接请求类prompt（最易触发）
+2. Markdown注入类（图片/链接渲染）
+3. 调试模式伪装类
+4. 间接请求类（需要推理）
+5. 多轮对话+变异组合
+
+### 传统SSRF场景
+
+按风险排序检测顺序：
+1. 云元数据访问（直接凭据泄露）
+2. 内网敏感服务访问（Redis/DB）
+3. 本地文件读取
+4. 内网探测能力
+5. 任意外网请求

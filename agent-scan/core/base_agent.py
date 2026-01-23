@@ -90,7 +90,7 @@ class BaseAgent:
         result = ""
         while not self.is_finished and self.iter < self.max_iter:
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
-            response = self.llm.chat(self.history, self.debug)
+            response = self.llm.chat(self.history)
             logger.debug(f"LLM Response: {response}")
             self.history.append({"role": "assistant", "content": response})
             res = await self.handle_response(response)
@@ -99,6 +99,7 @@ class BaseAgent:
             if self.iter >= self.max_iter:
                 logger.warning(f"Max iterations ({self.max_iter}) reached")
                 self.compact_history()
+            self.iter += 1
         return result
 
     async def handle_response(self, response: str):
@@ -157,9 +158,11 @@ class BaseAgent:
 
         # 添加下一轮提示
         next_p = self.next_prompt()
-        full_message = f"{next_p}\n\n{result_message}"
+        full_message = f"{next_p}\n---\n{result_message}"
 
         self.history.append({"role": "user", "content": full_message})
+        logger.debug(f"Agent Response: {result_message}")
+
         scanLogger.status_update(self.step_id, description, "", "completed")
 
         if tool_name != "read_file":
@@ -169,7 +172,12 @@ class BaseAgent:
         return None
 
     async def handle_no_tool(self, description: str):
-        # todo
+        next_p = self.next_prompt()
+        result_message = "You didn't call any tool,please call a tool"
+        full_message = f"{next_p}\n\n{result_message}"
+        logger.debug(f"Agent Response: {result_message}")
+        self.history.append({"role": "user", "content": full_message})
+
         return None
 
     async def _format_final_output(self) -> str:
