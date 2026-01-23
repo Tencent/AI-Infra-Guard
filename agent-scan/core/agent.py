@@ -1,15 +1,14 @@
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 import utils.llm
 from core.agent_adapter.adapter import AIProviderClient, ProviderOptions
-from core.base_agent import BaseAgent, run_agent
-from tools.scan.report import generate_report_from_xml
+from core.base_agent import run_agent
 from utils.aig_logger import scanLogger
 from utils.loging import logger
 from utils.project_analyzer import analyze_language, get_top_language
 from utils.prompt_manager import prompt_manager
-
+from tools.scan.report import generate_report_from_xml
 
 class ScanStage:
     """定义扫描的一个阶段"""
