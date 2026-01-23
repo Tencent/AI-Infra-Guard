@@ -79,7 +79,7 @@ class Agent:
         top_language = get_top_language(lang_stats)
 
         # 生成 AgentSecurityReport 格式报告
-        # plugins 字段暂时留空，实际检测策略由工具层（如 data_leakage_scan）记录
+        # plugins 字段记录实际使用的检测策略（skill-based detection）
         report = generate_report_from_xml(
             vuln_text=vuln_review,
             agent_name=repo_dir.split('/')[-1] if repo_dir else "",

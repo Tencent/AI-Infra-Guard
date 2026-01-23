@@ -1,107 +1,56 @@
-# Security Scanning Tools
+# Security Report Generation
 
-Security scanning framework for AI agents, focused on data leakage detection.
+Models and report generation for AI agent security scanning.
 
 ## Architecture
 
 ```
 tools/scan/
-├── data_leakage_scan.py    # Main tool (entry point)
-├── strategies.py           # Test case generation
-├── evaluators.py           # Response evaluation (Regex, LLM)
-├── models.py               # Data models (TestCase, ScanResult, etc.)
-├── report.py               # Report generation
-└── data_leakage_scan_schema.xml  # Tool schema
+├── models.py    # Data models (Severity, VulnerabilityFinding, AgentSecurityReport)
+└── report.py    # Report generation (generate_report_from_xml)
 ```
 
-## Quick Start
+## Usage
+
+### Generate Report from XML
 
 ```python
-from tools.scan import data_leakage_scan
+from tools.scan import generate_report_from_xml
 
-# Basic scan
-result = data_leakage_scan(
-    prompts_file="static",
-    use_regex=True
+vuln_xml = """
+<vuln>
+  <title>API Key Disclosure</title>
+  <desc>Agent leaked OpenAI API key in response</desc>
+  <risk_type>ASI06: Memory & Context Poisoning</risk_type>
+  <level>High</level>
+  <suggestion>Implement output filtering</suggestion>
+</vuln>
+"""
+
+report = generate_report_from_xml(
+    vuln_text=vuln_xml,
+    agent_name="my-agent",
+    agent_type="dify",
 )
 
-# Category-specific with custom patterns
-result = data_leakage_scan(
-    prompts_file="static",
-    category_filter=["secrets_credentials", "system_prompt_disclosure"],
-    custom_patterns=[r"\bproject_token:\s*[a-zA-Z0-9]{32}"],
-    use_regex=True
-)
-
-# Process results
-if result["success"]:
-    print(f"Found {result['summary']['vulnerabilities_found']} vulnerabilities")
-    for vuln in result["vulnerabilities"]:
-        print(f"[{vuln['evaluation']['severity']}] {vuln['evaluation']['reason']}")
+print(report.dict())
 ```
 
-## Components
+### Models
 
-### Strategies (`strategies.py`)
+| Model | Description |
+|-------|-------------|
+| `Severity` | HIGH, MEDIUM, LOW, INFO |
+| `VulnerabilityFinding` | Single finding for frontend display |
+| `AgentSecurityReport` | Complete report (schema: agent-security-report@1) |
+| `OWASPASISummary` | OWASP ASI category summary |
+| `ConversationTurn` | Prompt/response pair for evidence |
 
-| Strategy | Description |
-|----------|-------------|
-| `StaticDatasetStrategy` | Load prompts from YAML files or lists |
-| `DynamicGenerationStrategy` | Generate prompts via attacker LLM |
-| `HybridStrategy` | Combine multiple strategies |
+## Data Leakage Detection
 
-### Evaluators (`evaluators.py`)
+Data leakage detection uses a **skill-based approach**:
 
-| Evaluator | Speed | Detects |
-|-----------|-------|---------|
-| `RegexEvaluator` | Fast | API keys, tokens, connection strings, private keys |
-| `LLMEvaluator` | Slow | Encoded secrets, partial disclosure, semantic leaks |
-
-### Models (`models.py`)
-
-- `TestCase`: Single security test
-- `EvaluationResult`: Analysis result with severity/evidence
-- `ScanResult`: Complete result (test + response + evaluation)
-- `ScanSummary`: Aggregated statistics
-
-## Extension
-
-### Add Custom Evaluator
-
-```python
-from tools.scan.evaluators import BaseEvaluator
-from tools.scan.models import EvaluationResult, Severity, TestCase
-
-class CustomEvaluator(BaseEvaluator):
-    def evaluate(self, response: str, test_case: TestCase, context=None) -> EvaluationResult:
-        is_vuln = self._check(response)
-        return EvaluationResult(
-            is_vulnerable=is_vuln,
-            severity=Severity.HIGH if is_vuln else Severity.INFO,
-            score=1.0 if is_vuln else 0.0,
-            reason="Custom check",
-            evidence=None
-        )
-```
-
-### Add Custom Strategy
-
-```python
-from tools.scan.strategies import BaseStrategy
-from tools.scan.models import TestCase
-import uuid
-
-class CustomStrategy(BaseStrategy):
-    def generate(self):
-        for prompt in self._get_prompts():
-            yield TestCase(
-                id=str(uuid.uuid4()),
-                prompt=prompt,
-                metadata={"strategy": "custom"}
-            )
-```
-
-## Related
-
+- **Skill**: `prompt/skills/data-leakage-detection/SKILL.md`
 - **Agent**: `prompt/agents/data_leakage_detection.md`
-- **Prompt Sets**: `tools/scan/prompt_sets/`
+
+The agent uses `dialogue()` for interactive testing, with the skill providing attack vectors and evaluation criteria.
