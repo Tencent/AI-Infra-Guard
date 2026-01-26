@@ -78,12 +78,21 @@ class Agent:
         lang_stats = analyze_language(repo_dir)
         top_language = get_top_language(lang_stats)
 
-        # 生成 AgentSecurityReport 格式报告
-        # plugins 字段记录实际使用的检测策略（skill-based detection）
+        # Generate AgentSecurityReport
+        # Extract agent_type from provider configuration
+        agent_type = ""
+        if self.agent_provider and self.agent_provider.id:
+            # Extract provider type from id (e.g., "dify:bot_123" -> "dify", "coze" -> "coze")
+            provider_id = self.agent_provider.id
+            if ":" in provider_id:
+                agent_type = provider_id.split(":")[0]
+            else:
+                agent_type = provider_id
+        
         report = generate_report_from_xml(
             vuln_text=vuln_review,
             agent_name=repo_dir.split('/')[-1] if repo_dir else "",
-            agent_type="",
+            agent_type=agent_type,
             model_name=getattr(self.llm, 'model', ''),
             plugins=[],
             start_time=int(start_time),

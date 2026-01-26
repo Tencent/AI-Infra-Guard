@@ -70,9 +70,9 @@ async def test_call_run_task(dispatcher):
         agent_provider=agent_provider,
     )
 
-    result = await dispatcher.call_tool("task", {
-        "prompt": "检测信息泄漏",
-        "subagent_type": "data_leakage_detection",
-        "description": "检测agent的敏感信息泄漏"
+    # Data leakage detection is skill-based, not agent-based
+    # Use load_skill(name="data-leakage-detection") instead of task()
+    result = await dispatcher.call_tool("load_skill", {
+        "name": "data-leakage-detection"
     }, context)
     print(result)
