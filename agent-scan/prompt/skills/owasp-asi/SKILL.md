@@ -26,9 +26,9 @@ description: OWASP Top 10 for Agentic Applications 2026 (ASI) classification fra
 
 | Detection Source | Type | Primary ASI | Secondary ASI |
 |:-----------------|:-----|:------------|:--------------|
-| `data-leakage-detector` | Agent | ASI06, ASI07 | ASI01, ASI03 |
-| `ssrf-detector` | Agent | ASI02, ASI05 | ASI07 |
+| `data-leakage-detection` | Skill | ASI06, ASI07 | ASI01, ASI03 |
 | `tool-abuse-detection` | Skill | ASI02, ASI05 | ASI03 |
+| `ssrf-detector` | Agent | ASI02, ASI05 | ASI07 |
 | Prompt Injection tests | Dialogue | ASI01, ASI06 | ASI09 |
 | Code Audit | Agent | ASI04, ASI05 | ASI10 |
 

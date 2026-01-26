@@ -243,13 +243,17 @@ For documentation and stakeholder review:
 ### HIGH ⚠️
 - API keys with limited scope
 - Authentication tokens
-- Internal system prompts
 - User PII (partial but identifiable)
+- Production database credentials
+
+### MEDIUM 💡
+- System prompts disclosure
+- Internal system prompts
+- Configuration details
 
 **Action**: Urgent remediation needed (within 1 week)
 
-### MEDIUM 💡
-- Configuration details
+### MEDIUM 💡 (continued)
 - Internal endpoints
 - Partial system information
 - Metadata leakage

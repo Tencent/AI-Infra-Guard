@@ -59,35 +59,75 @@ def _extract_conversation_from_desc(desc: str) -> List[Dict[str, Optional[str]]]
     Parses patterns like:
     - Test prompt: "..."
     - Agent response: "..."
+    
+    Handles multi-line responses by matching until the next markdown section or list item.
     """
     conversation = []
     
+    # Patterns for quoted strings (single or double quotes) - these are complete
+    # Support both English and Chinese labels
     prompt_patterns = [
-        r'Test prompt:\s*["\'](.+?)["\']',
-        r'Test prompt:\s*(.+?)(?:\n|$)',
-        r'Prompt:\s*["\'](.+?)["\']',
+        r'(?:Test prompt|测试提示词):\s*["\'](.+?)["\']',
+        r'(?:Prompt|提示词):\s*["\'](.+?)["\']',
     ]
     
-    response_patterns = [
-        r'Agent response:\s*["\'](.+?)["\']',
-        r'Agent response:\s*(.+?)(?:\n|$)',
-        r'Response:\s*["\'](.+?)["\']',
+    response_patterns_quoted = [
+        r'(?:Agent response|Agent响应|响应):\s*["\'](.+?)["\']',
+        r'(?:Response|响应):\s*["\'](.+?)["\']',
+    ]
+    
+    # For unquoted text, match until:
+    # - Next markdown section: ** (bold), ## (heading)
+    # - Next list item: - at start of line
+    # - Next field: Capitalized word followed by colon (e.g., "Impact:", "Attack Path:")
+    # - End of string
+    # Support both English and Chinese labels
+    response_patterns_unquoted = [
+        # Match from "Agent response:" or "Agent响应:" to next section marker or end
+        r'(?:Agent response|Agent响应|响应):\s*((?:[^\n]|\n(?!\s*\*\*|\s*##|\s*\-|\s*[A-Z][a-z]+\s*:|\s*影响\s*:|\s*攻击路径\s*:))*?)(?=\n\s*\*\*|\n\s*##|\n\s*\-|\n\s*[A-Z][a-z]+\s*:|\n\s*影响\s*:|\n\s*攻击路径\s*:|$)',
+        r'(?:Response|响应):\s*((?:[^\n]|\n(?!\s*\*\*|\s*##|\s*\-|\s*[A-Z][a-z]+\s*:|\s*影响\s*:|\s*攻击路径\s*:))*?)(?=\n\s*\*\*|\n\s*##|\n\s*\-|\n\s*[A-Z][a-z]+\s*:|\n\s*影响\s*:|\n\s*攻击路径\s*:|$)',
     ]
     
     prompt = None
     response = None
     
+    # Extract prompt (usually single line or quoted)
     for pattern in prompt_patterns:
         match = re.search(pattern, desc, re.IGNORECASE | re.DOTALL)
         if match:
             prompt = match.group(1).strip()
             break
     
-    for pattern in response_patterns:
+    # If prompt not found in quotes, try unquoted (until newline or next field)
+    # Support both English and Chinese
+    if not prompt:
+        prompt_match = re.search(r'(?:Test prompt|测试提示词):\s*([^\n]+)', desc, re.IGNORECASE)
+        if prompt_match:
+            prompt = prompt_match.group(1).strip()
+    
+    # Extract response - try quoted first
+    for pattern in response_patterns_quoted:
         match = re.search(pattern, desc, re.IGNORECASE | re.DOTALL)
         if match:
             response = match.group(1).strip()
             break
+    
+    # If not quoted, try unquoted patterns (handles multi-line)
+    if not response:
+        for pattern in response_patterns_unquoted:
+            match = re.search(pattern, desc, re.IGNORECASE | re.DOTALL | re.MULTILINE)
+            if match:
+                response = match.group(1).strip()
+                break
+    
+    if not response:
+        fallback = re.search(
+            r'(?:Agent response|Agent响应|响应):\s*(.+?)(?=\n\s*\*\*|\n\s*##|\n\s*\-|\n\s*[A-Z][a-z]+\s*:|\n\s*影响\s*:|\n\s*攻击路径\s*:|$)',
+            desc,
+            re.IGNORECASE | re.DOTALL | re.MULTILINE
+        )
+        if fallback:
+            response = fallback.group(1).strip()
     
     if prompt or response:
         conversation.append({
@@ -96,6 +136,78 @@ def _extract_conversation_from_desc(desc: str) -> List[Dict[str, Optional[str]]]
         })
     
     return conversation
+
+
+def _extract_conversation_from_xml(block: str) -> List[Dict[str, Optional[str]]]:
+    """
+    Extract conversation from <conversation> XML tag.
+    
+    Supports format:
+    <conversation>
+      <turn>
+        <prompt>...</prompt>
+        <response>...</response>
+      </turn>
+    </conversation>
+    """
+    conversation = []
+    conversation_tag = _extract_tag_content(block, 'conversation')
+    
+    if conversation_tag:
+        # Extract individual turns
+        turn_pattern = re.compile(r'<turn>\s*(.*?)\s*</turn>', re.DOTALL)
+        turns = turn_pattern.findall(conversation_tag)
+        
+        for turn_block in turns:
+            prompt = _extract_tag_content(turn_block, 'prompt')
+            response = _extract_tag_content(turn_block, 'response')
+            if prompt or response:
+                conversation.append({
+                    'prompt': prompt,
+                    'response': response
+                })
+    
+    return conversation
+
+
+def _is_example_placeholder(text: str) -> bool:
+    """
+    Check if text contains example/placeholder data that should be filtered out.
+    
+    Filters obvious placeholder patterns like example API keys and test data.
+    """
+    if not text:
+        return False
+    
+    text_lower = text.lower()
+    
+    # Check for obvious example API keys (specific placeholder patterns only)
+    # Only match very specific placeholder patterns to avoid false positives
+    example_key_patterns = [
+        r'sk-abc123def456',  # Specific example from documentation
+        r'sk-proj-(?:abc|test|demo|example|sample)\d{3,4}',  # Very specific placeholder words
+    ]
+    
+    for pattern in example_key_patterns:
+        if re.search(pattern, text_lower):
+            return True
+    
+    # Check for explicit placeholder syntax (only specific patterns to avoid false positives)
+    placeholder_patterns = [
+        r'\[user\]', r'<password>', r'\{variable\}',
+        r'\[your[_-]?api[_-]?key\]',
+        r'\[.*?api[_-]?key.*?\]',
+    ]
+    
+    if any(re.search(p, text_lower) for p in placeholder_patterns):
+        if '```' not in text and '`' not in text:
+            return True
+    
+    # Check for test/demo indicators in key context
+    if any(word in text_lower for word in ['example api key', 'test key', 'dummy key', 'placeholder key']):
+        return True
+    
+    return False
 
 
 def _extract_vuln_blocks(text: str) -> List[Dict[str, Any]]:
@@ -111,7 +223,18 @@ def _extract_vuln_blocks(text: str) -> List[Dict[str, Any]]:
         level = _extract_tag_content(block, 'level')
         suggestion = _extract_tag_content(block, 'suggestion')
         
-        conversation = _extract_conversation_from_desc(desc) if desc else []
+        conversation = _extract_conversation_from_xml(block)
+        if not conversation and desc:
+            conversation = _extract_conversation_from_desc(desc)
+        
+        # Filter out example/placeholder vulnerabilities
+        combined_text = f"{desc or ''} {title or ''}"
+        if conversation:
+            for turn in conversation:
+                combined_text += f" {turn.get('prompt', '')} {turn.get('response', '')}"
+        
+        if _is_example_placeholder(combined_text):
+            continue
         
         if title and desc and risk_type:
             vulnerabilities.append({
@@ -165,7 +288,7 @@ def _extract_asi_from_risk_type(risk_type: str) -> str:
         if keyword in risk_lower:
             return asi
     
-    return 'ASI06'  # Default
+    return 'ASI10'  # Default to ASI10 (Rogue Agents) for unclassified risks
 
 
 def calculate_security_score(vulnerabilities: List[Dict[str, str]]) -> int:
@@ -227,6 +350,14 @@ def generate_report_from_xml(
     # Extract vulnerabilities from XML
     vuln_list = _extract_vuln_blocks(vuln_text)
     
+    # Extract total_tests from XML if present
+    xml_total_tests = _extract_tag_content(vuln_text, 'total_tests')
+    if xml_total_tests:
+        try:
+            total_tests = int(xml_total_tests)
+        except (ValueError, TypeError):
+            pass  # Keep original total_tests value if XML value is invalid
+    
     # Set timestamps
     now = int(time.time())
     start_time = start_time or now
@@ -269,6 +400,8 @@ def generate_report_from_xml(
     
     for asi_id, finding_ids in asi_findings.items():
         severities = asi_severity[asi_id]
+        if not severities:
+            continue
         high_or_above = sum(1 for s in severities if s == Severity.HIGH)
         max_severity = max(severities, key=lambda s: severity_rank.get(s, 0))
         
@@ -324,7 +457,7 @@ def generate_report_from_xml(
         plugins=plugins or [],
         score=score,
         risk_type=risk_type,
-        total_tests=total_tests or len(vuln_list),
+        total_tests=total_tests if total_tests > 0 else len(vuln_list),
         vulnerable_tests=len(vuln_list),
         results=findings,
         owasp_agentic_2026_top10=owasp_summary,
