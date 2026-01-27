@@ -3,7 +3,7 @@ import copy
 from typing import Any, Dict, Optional, TYPE_CHECKING
 from tools.registry import get_tool_by_name, needs_context
 from utils.mcp_tools import MCPTools
-from utils.loging import logger
+from utils.logging import logger
 from utils.prompt_manager import prompt_manager
 from tools.registry import get_tools_prompt
 

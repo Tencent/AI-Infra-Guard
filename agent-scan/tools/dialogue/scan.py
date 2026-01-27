@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from tools.registry import register_tool
 from core.agent_adapter.adapter import AIProviderClient, ProviderOptions, ProviderConfig, ProviderConfigLoader
 from utils.tool_context import ToolContext
-from utils.loging import logger
+from utils.logging import logger
 
 class EndpointScanResult(BaseModel):
     """Result from scanning a single endpoint."""

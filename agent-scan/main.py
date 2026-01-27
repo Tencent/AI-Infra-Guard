@@ -15,7 +15,7 @@ from core.agent_adapter.connectivity import connectivity
 from utils.llm import LLM
 # 配置专用模型
 from utils.llm_manager import LLMManager
-from utils.loging import logger
+from utils.logging import logger
 from utils.aig_logger import scanLogger
 from utils import config
 

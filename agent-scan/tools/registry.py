@@ -6,7 +6,7 @@ from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import Any
-from utils.loging import logger
+from utils.logging import logger
 
 tools: list[dict[str, Any]] = []
 _tools_by_name: dict[str, Callable[..., Any]] = {}
