@@ -253,7 +253,7 @@ class AgentScanner:
 
 
 @register_tool
-def scan(endpoints: str = None, context: ToolContext = None) -> ScanResult:
+def scan(endpoints: str = None, context: ToolContext = None) -> str:
     """
     Scan an agent's configuration endpoints to collect information.
     
@@ -271,7 +271,7 @@ def scan(endpoints: str = None, context: ToolContext = None) -> ScanResult:
                   If not provided, uses endpoints from providers.yaml.
     
     Returns:
-        Dictionary containing scan results with endpoint responses and findings
+        Json string containing scan results with endpoint responses and findings
     """
     scanner = AgentScanner()
     
@@ -280,6 +280,6 @@ def scan(endpoints: str = None, context: ToolContext = None) -> ScanResult:
     if endpoints:
         endpoint_list = [e.strip() for e in endpoints.split(",") if e.strip()]
     
-    result = scanner.scan_agent(context.agent_provider, endpoint_list)
+    result: ScanResult = scanner.scan_agent(context.agent_provider, endpoint_list)
     logger.info(f"Agent configuration: {result}")
-    return result
+    return result.model_dump_json()
