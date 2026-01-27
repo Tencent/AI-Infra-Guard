@@ -51,8 +51,8 @@
 
 > 📢 **News**:
 
-> * A.I.G v3.6.0-rc1 adds Skills security assessment to AI Tool Protocol scan. Reduced false positives by focusing on network-layer vulnerabilities. [View all changelog.](./CHANGELOG.md)
-> * A.I.G v3.5.0 features major improvements in modular architecture, system stability, and detection capabilities. Update now to explore the new version. [View all changelog.](./CHANGELOG.md)
+> * A.I.G v3.6.1 Support Clawdbot(moltbot) Gateway unauthorized access risk detection. [View all changelog.](./CHANGELOG.md)
+> * A.I.G v3.6.0 Add Agent Skills security scan to AI Tool Protocol scan.  [View all changelog.](./CHANGELOG.md)
 
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
