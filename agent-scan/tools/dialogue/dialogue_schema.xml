@@ -11,21 +11,10 @@
     </parameter>
   </parameters>
   <returns>
-    <field name="success" type="boolean">Whether the API call succeeded</field>
-    <field name="message" type="string">Status message describing the result</field>
-    <field name="suggestions" type="array">Optional suggestions for troubleshooting if failed</field>
-    <field name="cached" type="boolean">Whether the response was from cache</field>
-    <field name="provider_response" type="object">
-      Provider response details containing:
-      - raw: Raw response from the provider
-      - output: Extracted text output from the response
-      - error: Error message if failed
-      - session_id: Session/conversation ID for multi-turn dialogs
-      - headers: Response headers
-      - token_usage: Token usage statistics
-      - cost: Estimated API cost
-      - metadata: Additional metadata
-    </field>
+    <return type="string">
+      The text output extracted from the AI provider's response.
+      This is the direct output content from the provider_response.output field.
+    </return>
   </returns>
 </tool>
 </tools>

@@ -4,7 +4,7 @@ from utils.tool_context import ToolContext
 from utils.loging import logger
 
 @register_tool
-def dialogue(prompt: str = None, context: ToolContext = None) -> ProviderTestResult:
+def dialogue(prompt: str = None, context: ToolContext = None) -> str:
     result: ProviderTestResult = context.call_provider(prompt)
     logger.info(f"Dialogue result: {result}")
     return result.provider_response.output

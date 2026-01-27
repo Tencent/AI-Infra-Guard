@@ -28,21 +28,27 @@
     </parameter>
   </parameters>
   <returns>
-    <field name="provider_type" type="string">The detected provider type (dify, coze, etc.)</field>
-    <field name="base_url" type="string">The base URL used for scanning</field>
-    <field name="total_endpoints" type="integer">Total number of endpoints scanned</field>
-    <field name="successful_scans" type="integer">Number of successful endpoint scans</field>
-    <field name="failed_scans" type="integer">Number of failed endpoint scans</field>
-    <field name="endpoint_results" type="array">
-      Array of endpoint scan results, each containing:
-      - endpoint: The endpoint path scanned
-      - success: Whether the scan succeeded
-      - status_code: HTTP status code received
-      - response: Raw response data from the endpoint
-      - error: Error message if scan failed
-      - sensitive_findings: List of detected sensitive information types
-    </field>
-    <field name="summary" type="string">Human-readable summary of scan results</field>
+    <return type="string">
+      JSON string containing the scan results with the following structure:
+      {
+        "provider_type": "string - The detected provider type (dify, coze, etc.)",
+        "base_url": "string - The base URL used for scanning",
+        "total_endpoints": "integer - Total number of endpoints scanned",
+        "successful_scans": "integer - Number of successful endpoint scans",
+        "failed_scans": "integer - Number of failed endpoint scans",
+        "endpoint_results": [
+          {
+            "endpoint": "string - The endpoint path scanned",
+            "success": "boolean - Whether the scan succeeded",
+            "status_code": "integer - HTTP status code received",
+            "response": "any - Raw response data from the endpoint",
+            "error": "string - Error message if scan failed",
+            "sensitive_findings": ["string - List of detected sensitive information types"]
+          }
+        ],
+        "summary": "string - Human-readable summary of scan results"
+      }
+    </return>
   </returns>
   <examples>
     <example>
