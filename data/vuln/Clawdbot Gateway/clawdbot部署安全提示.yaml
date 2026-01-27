@@ -1,0 +1,10 @@
+info:
+  name: Clawdbot Gateway
+  cve: Clawdbot Gateway部署安全提示
+  summary: Clawdbot Gateway外部开放将导致算力窃取和数据资源滥用
+  details: Clawdbot Gateway外部开放将导致算力窃取和数据资源滥用
+  cvss:
+  severity: LOW
+  security_advise: Clawdbot Gateway建议仅在本地开放
+rule: is_internal=="true"
+references:
