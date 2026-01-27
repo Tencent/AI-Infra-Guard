@@ -1,0 +1,10 @@
+info:
+  name: Clawdbot Gateway
+  cve: Clawdbot Gateway Deployment Security Notice
+  summary: Exposing Clawdbot Gateway externally may lead to computational power theft and data resource misuse
+  details: Exposing Clawdbot Gateway externally may lead to computational power theft and data resource misuse
+  cvss:
+  severity: LOW
+  security_advise: It is recommended to only expose Clawdbot Gateway locally
+rule: is_internal=="true"
+references:
