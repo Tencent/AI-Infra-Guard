@@ -3,7 +3,7 @@ LLM管理器 - 管理多个专用LLM实例
 """
 from typing import Dict, Optional
 from utils.llm import LLM
-from utils.loging import logger
+from utils.logging import logger
 from utils import config
 
 

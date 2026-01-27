@@ -6,7 +6,7 @@ from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
 from utils.aig_logger import scanLogger
 from utils.llm import LLM
-from utils.loging import logger
+from utils.logging import logger
 from utils.parse import parse_tool_invocations, clean_content
 from utils.prompt_manager import prompt_manager
 from utils.tool_context import ToolContext

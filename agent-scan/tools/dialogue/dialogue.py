@@ -1,7 +1,7 @@
 from tools.registry import register_tool
 from core.agent_adapter.adapter import AIProviderClient, ProviderTestResult
 from utils.tool_context import ToolContext
-from utils.loging import logger
+from utils.logging import logger
 
 @register_tool
 def dialogue(prompt: str = None, context: ToolContext = None) -> str:

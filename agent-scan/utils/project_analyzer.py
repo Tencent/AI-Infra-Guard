@@ -6,7 +6,7 @@
 import math
 from pathlib import Path
 from collections import defaultdict
-from .loging import logger
+from .logging import logger
 
 
 def classify_language(ext: str) -> str:

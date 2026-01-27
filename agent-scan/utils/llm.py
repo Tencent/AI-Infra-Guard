@@ -2,7 +2,7 @@ import time
 
 import openai
 from typing import List
-from utils.loging import logger
+from utils.logging import logger
 
 
 class LLM:

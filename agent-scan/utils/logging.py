@@ -10,7 +10,7 @@ logger.remove()
 logger.add(
     sys.stderr,
     level="DEBUG",
-    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{message}</cyan>",
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{line}</cyan> | <cyan>{message}</cyan>",
 )
 
 # 2. 添加文件输出 (File)
@@ -19,7 +19,7 @@ logger.add(
     rotation="10 MB",
     retention="10 days",
     level="DEBUG",
-    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{line} | {message}",
     mode="w",  # 每次运行时覆盖旧日志
 )
 if __name__ == '__main__':
