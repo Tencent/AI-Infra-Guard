@@ -1,0 +1,408 @@
+{
+  "http": {
+    "name": "HTTP Endpoint",
+    "description": "Configure HTTP endpoint to send requests",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "url",
+        "label": "URL",
+        "type": "text",
+        "required": true,
+        "placeholder": "https://api.example.com/chat",
+        "description": "The HTTP endpoint URL to send requests to"
+      },
+      {
+        "field": "method",
+        "label": "HTTP Method",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "POST", "value": "POST" },
+          { "label": "GET", "value": "GET" },
+          { "label": "PUT", "value": "PUT" },
+          { "label": "PATCH", "value": "PATCH" },
+          { "label": "DELETE", "value": "DELETE" }
+        ],
+        "defaultValue": "POST",
+        "description": "HTTP request method"
+      },
+      {
+        "field": "headers",
+        "label": "Headers",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "defaultValue": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "rows": 4,
+        "description": "HTTP headers in JSON format"
+      },
+      {
+        "field": "body",
+        "label": "Request Body",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "{\n  \"message\": \"{{prompt}}\"\n}",
+        "defaultValue": "{\n  \"message\": \"{{prompt}}\"\n}",
+        "rows": 6,
+        "description": "Request body template. Use {{prompt}} for the test input"
+      },
+      {
+        "field": "transform_response",
+        "label": "Response Parser",
+        "type": "text",
+        "required": false,
+        "placeholder": "json.choices[0].message.content",
+        "description": "JSONPath or JavaScript expression to extract the response (optional)"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 30000,
+        "description": "Request timeout in milliseconds"
+      }
+    ]
+  },
+  "websocket": {
+    "name": "WebSocket Endpoint",
+    "description": "Configure WebSocket endpoint",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "url",
+        "label": "WebSocket URL",
+        "type": "text",
+        "required": true,
+        "placeholder": "wss://api.example.com/ws",
+        "description": "The WebSocket endpoint URL"
+      },
+      {
+        "field": "message_template",
+        "label": "Message Template",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "{\"message\": \"{{prompt}}\"}",
+        "defaultValue": "{\"message\": \"{{prompt}}\"}",
+        "rows": 4,
+        "description": "Message template to send. Use {{prompt}} for the test input"
+      },
+      {
+        "field": "transform_response",
+        "label": "Response Parser",
+        "type": "text",
+        "required": false,
+        "placeholder": "response.message",
+        "defaultValue": "response.message",
+        "description": "Expression to extract the response from WebSocket message"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 30000,
+        "description": "Request timeout in milliseconds"
+      }
+    ]
+  },
+  "foundation_model": {
+    "name": "Foundation Model",
+    "description": "Configure foundation models like OpenAI, Anthropic, etc.",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "model",
+        "label": "Model",
+        "type": "select_or_text",
+        "required": true,
+        "placeholder": "Select or enter model ID",
+        "description": "Model identifier",
+        "options_by_provider": {
+          "openai": ["gpt-4.1", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "o1", "o1-mini"],
+          "anthropic": ["claude-sonnet-4-20250514", "claude-3-opus-20240229", "claude-3-haiku-20240307"],
+          "google": ["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"],
+          "vertex": ["gemini-2.5-pro", "gemini-2.0-flash"],
+          "mistral": ["mistral-large-latest", "mistral-medium", "mistral-small"],
+          "groq": ["llama-3.1-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+          "deepseek": ["deepseek-chat", "deepseek-coder"],
+          "perplexity": ["llama-3.1-sonar-large-128k-online", "llama-3.1-sonar-small-128k-online"],
+          "ollama": ["llama3.2:latest", "llama3.1:latest", "mistral:latest", "phi3:latest"],
+          "openrouter": ["openai/gpt-4o", "anthropic/claude-3-opus"]
+        }
+      },
+      {
+        "field": "apiKey",
+        "label": "API Key",
+        "type": "password",
+        "required": false,
+        "placeholder": "Enter API key or leave empty to use environment variable",
+        "description": "API key. If not set, will use environment variable (e.g., OPENAI_API_KEY)",
+        "group": "authentication"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API Base URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "https://api.example.com/v1",
+        "description": "Custom API base URL. Leave empty to use the default endpoint",
+        "group": "endpoint"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 600000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "Request timeout in milliseconds (default: 60000ms = 1 minute)",
+        "group": "endpoint"
+      },
+      {
+        "field": "temperature",
+        "label": "Temperature",
+        "type": "slider",
+        "required": false,
+        "min": 0.0,
+        "max": 2.0,
+        "step": 0.1,
+        "defaultValue": 0.7,
+        "description": "Controls randomness. Lower = more deterministic, Higher = more creative",
+        "group": "model_params"
+      },
+      {
+        "field": "max_tokens",
+        "label": "Max Tokens",
+        "type": "number",
+        "required": false,
+        "min": 1,
+        "max": 128000,
+        "defaultValue": 4096,
+        "description": "Maximum number of tokens in the response",
+        "group": "model_params"
+      },
+      {
+        "field": "deployment",
+        "label": "Deployment Name",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter Azure deployment name",
+        "description": "Azure OpenAI deployment name (Azure only)",
+        "provider_specific": ["azure"]
+      },
+      {
+        "field": "region",
+        "label": "AWS Region",
+        "type": "text",
+        "required": false,
+        "defaultValue": "us-east-1",
+        "description": "AWS region (Bedrock only)",
+        "provider_specific": ["bedrock"]
+      }
+    ]
+  },
+  "dify": {
+    "name": "Dify AI",
+    "description": "Configure Dify AI platform",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "dify_type",
+        "label": "Dify Endpoint Type",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "Chat Messages", "value": "chat" },
+          { "label": "Workflow", "value": "workflow" }
+        ],
+        "defaultValue": "chat",
+        "description": "Chat Messages for conversational apps, Workflow for workflow execution"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API Base URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "https://api.dify.ai/v1",
+        "description": "Dify API base URL. Leave empty to use default or DIFY_API_BASE env var"
+      },
+      {
+        "field": "apiKey",
+        "label": "API Key",
+        "type": "password",
+        "required": false,
+        "placeholder": "app-xxxx",
+        "description": "Dify API key. If not set, will use DIFY_API_KEY environment variable"
+      },
+      {
+        "field": "user",
+        "label": "User ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "promptfoo-user",
+        "description": "User identifier for the conversation"
+      },
+      {
+        "field": "conversation_id",
+        "label": "Conversation ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "Leave empty to start a new conversation",
+        "description": "Leave empty to start a new conversation, or provide an existing conversation ID"
+      },
+      {
+        "field": "inputs",
+        "label": "Custom Inputs",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "Custom inputs that will be passed to the Dify app/workflow (JSON format)"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "Request timeout in milliseconds"
+      }
+    ]
+  },
+  "coze": {
+    "name": "Coze AI",
+    "description": "Configure Coze AI bot platform",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "coze_region",
+        "label": "Coze Region",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "China (api.coze.cn)", "value": "cn" },
+          { "label": "International (api.coze.com)", "value": "com" }
+        ],
+        "defaultValue": "cn",
+        "description": "Select the Coze API region"
+      },
+      {
+        "field": "bot_id",
+        "label": "Bot ID",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter your Coze Bot ID",
+        "description": "Required. Your Coze bot ID from the Coze platform"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API Base URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "https://api.coze.cn",
+        "description": "Coze API base URL. Leave empty to use default based on region"
+      },
+      {
+        "field": "apiKey",
+        "label": "API Key",
+        "type": "password",
+        "required": false,
+        "placeholder": "pat_xxxx",
+        "description": "Coze API key. If not set, will use COZE_API_KEY environment variable"
+      },
+      {
+        "field": "user_id",
+        "label": "User ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "promptfoo-user",
+        "description": "User identifier for the conversation"
+      },
+      {
+        "field": "conversation_id",
+        "label": "Conversation ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "Leave empty to start a new conversation",
+        "description": "Leave empty to start a new conversation, or provide an existing conversation ID"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 120000,
+        "description": "Request timeout in milliseconds (default: 120000ms = 2 minutes)"
+      }
+    ]
+  },
+  "common": {
+    "name": "Common Configuration",
+    "description": "Common configuration options for all provider types",
+    "fields": [
+      {
+        "field": "delay",
+        "label": "Delay (ms)",
+        "type": "number",
+        "required": false,
+        "min": 0,
+        "max": 60000,
+        "step": 100,
+        "defaultValue": 0,
+        "description": "Delay between requests in milliseconds to simulate a real user"
+      }
+    ]
+  }
+}

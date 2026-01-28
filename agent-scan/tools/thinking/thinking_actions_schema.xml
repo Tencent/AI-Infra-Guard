@@ -1,0 +1,85 @@
+<tools>
+  <tool name="think">
+    <description>使用此工具进行思考。当任务需要推理时使用。</description>
+    <details>该工具为复杂任务中的结构化思考创建专用空间，
+特别适用于：
+- 工具输出分析：需要仔细处理先前工具调用的输出时
+- 策略密集环境：需要遵循详细指南并验证合规性时
+- 顺序决策：当每个操作都基于前序操作且错误代价高昂时
+- 多步骤问题解决：需要将复杂问题分解为可管理步骤时</details>
+    <parameters>
+      <parameter name="thought" type="string" required="true">
+        <description>要思考的问题以及相应上下文以及解决方案</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>响应包含: - message：包含字符数或错误详情的确认消息</description>
+    </returns>
+    <examples>
+  # 规划与策略
+  <function=think>
+  <parameter=thought>我需要系统分析扫描结果。首先回顾
+  开放端口：22 (SSH)、80 (HTTP)、443 (HTTPS) 和 3306 (MySQL)。MySQL端口
+  对外可访问是高优先级安全隐患。应检查默认凭证
+  和版本信息。对于Web服务，需要枚举目录并测试
+  常见Web漏洞。</parameter>
+  </function>
+
+You are NOT the one executing the code. You are the BRAIN.
+The agent is currently stuck or needs a plan.
+
+Analyze the provided situation using the following framework:
+
+1.  **Deconstruction**: Break down the problem into its fundamental components. What are the knowns? What are the unknowns?
+2.  **Hypothesis Generation**: Formulate 2-3 possible approaches or explanations.
+3.  **Critical Evaluation**: For each hypothesis, list pros, cons, and risks.
+4.  **Selection and Planning**: Select the best approach. Create a concrete, step-by-step plan for the agent to follow.
+    *   Specify which tools to use for each step.
+    *   Identify what to verify after each step.
+
+**Output Format:**
+Please provide your response in a clear, structured Markdown format.
+Start with a brief "High-Level Summary" and then go into the details.
+End with a "Recommended Next Action" section.
+</details>
+        <parameters>
+            <parameter name="thought" type="string" required="true">
+                <description>记录的思考或推理的内容</description>
+            </parameter>
+        </parameters>
+        <returns type="bool">
+        </returns>
+        <examples>
+            # 规划与策略
+            <function=think>
+            <parameter=thought>我需要系统分析扫描结果。首先回顾
+            开放端口：22 (SSH)、80 (HTTP)、443 (HTTPS) 和 3306 (MySQL)。MySQL端口
+            对外可访问是高优先级安全隐患。应检查默认凭证
+            和版本信息。对于Web服务，需要枚举目录并测试
+            常见Web漏洞。</parameter>
+    </function>
+
+    # 工具输出分析
+    <function=think>
+    <parameter=thought>Nmap扫描显示15个开放端口，其中三个值得关注：
+    - 端口3306 (MySQL) - 数据库不应对外暴露
+    - 端口5432 (PostgreSQL) - 另一个公开存在风险的数据库端口
+    - 端口6379 (Redis) - 常配置不当导致数据泄露
+    应优先测试这些数据库服务的认证绕过和
+    信息泄露漏洞。</parameter>
+        </function>
+
+        # 决策与后续步骤
+<function=think>
+<parameter=thought>根据漏洞扫描结果，已识别若干需立即关注的
+        关键问题：
+        1. 登录表单中的SQL注入（已通过sqlmap确认）
+        2. 搜索参数中的反射型XSS
+        3. 文件上传功能中的目录遍历
+        应结合漏洞验证代码记录这些发现，并分配合适的
+        CVSS评分。由于可能造成数据泄露，
+        SQL注入风险最高。</parameter>
+        </function>
+        </examples>
+        </tool>
+        </tools>
