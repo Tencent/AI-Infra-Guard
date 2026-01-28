@@ -313,6 +313,7 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
+<img src="img/antintl.svg" alt="Antintl" height="45px">
 </div>
 
 <br>
