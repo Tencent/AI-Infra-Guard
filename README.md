@@ -320,6 +320,7 @@ We are deeply grateful to the following teams and organizations for their trust,
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
+<img src="img/antintl.svg" alt="Antintl" height="45px">
 </div>
 
 <br>
