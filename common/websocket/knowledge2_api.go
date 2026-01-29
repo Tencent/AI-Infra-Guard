@@ -11,10 +11,15 @@ import (
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
+	"github.com/Tencent/AI-Infra-Guard/common/utils"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
+
+const AgentScanDir = "/app/agent-scan"
+const UvBin = "/usr/local/bin/uv"
 
 func HandleList(root string, loadFile func(filePath string) (interface{}, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -531,4 +536,241 @@ func deleteAgentConfig(name string) (bool, error) {
 		return false, err
 	}
 	return false, nil
+}
+
+// AgentConnectRequest represents the request body for agent connect test
+type AgentConnectRequest struct {
+	Content string `json:"content"`
+}
+
+// AgentPromptTestRequest represents the request body for agent prompt test
+type AgentPromptTestRequest struct {
+	Content string `json:"content"`
+	Prompt  string `json:"prompt"`
+}
+
+// ProviderResponse represents the provider_response field in result
+type ProviderResponse struct {
+	Raw    interface{} `json:"raw"`
+	Output *string     `json:"output"`
+	Error  *string     `json:"error"`
+}
+
+// ConnectResultContent represents the content of resultUpdate response
+type ConnectResultContent struct {
+	Success          bool              `json:"success"`
+	Message          string            `json:"message"`
+	ProviderResponse *ProviderResponse `json:"provider_response"`
+}
+
+// ConnectResultUpdate represents the resultUpdate response from Python script
+type ConnectResultUpdate struct {
+	Type    string               `json:"type"`
+	Content ConnectResultContent `json:"content"`
+}
+
+func HandleAgentConnect(c *gin.Context) {
+	var req AgentConnectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if req.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Content cannot be empty",
+		})
+		return
+	}
+
+	// Create temporary file for the YAML content
+	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to create temporary file: " + err.Error(),
+		})
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write YAML content to temp file
+	if _, err := tmpFile.WriteString(req.Content); err != nil {
+		tmpFile.Close()
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to write config file: " + err.Error(),
+		})
+		return
+	}
+	tmpFile.Close()
+
+	// Run Python connectivity test script using uv
+	var lastLine string
+	err = utils.RunCmd(
+		AgentScanDir,
+		UvBin,
+		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name()},
+		func(line string) {
+			lastLine += line
+		},
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to run connectivity test: " + err.Error(),
+		})
+		return
+	}
+	gologger.Infof("connectivity test result: %s", lastLine)
+
+	// Parse the JSON output from Python script
+	var result ConnectResultUpdate
+	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to parse result: " + err.Error(),
+		})
+		return
+	}
+
+	// Return result based on connectivity test outcome
+	if result.Content.Success {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  0,
+			"message": result.Content.Message,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": result.Content.Message,
+		})
+	}
+}
+
+func HandleAgentPromptTest(c *gin.Context) {
+	var req AgentPromptTestRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if req.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Content cannot be empty",
+		})
+		return
+	}
+
+	if req.Prompt == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Prompt cannot be empty",
+		})
+		return
+	}
+
+	// Create temporary file for the YAML content
+	tmpFile, err := os.CreateTemp("", "agent_prompt_test_*.yaml")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to create temporary file: " + err.Error(),
+		})
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write YAML content to temp file
+	if _, err := tmpFile.WriteString(req.Content); err != nil {
+		tmpFile.Close()
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to write config file: " + err.Error(),
+		})
+		return
+	}
+	tmpFile.Close()
+
+	// Run Python prompt test script using uv
+	var lastLine string
+	err = utils.RunCmd(
+		AgentScanDir,
+		UvBin,
+		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name(), "--prompt", req.Prompt},
+		func(line string) {
+			lastLine += line
+		},
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to run prompt test: " + err.Error(),
+		})
+		return
+	}
+	gologger.Infof("prompt test result: %s", lastLine)
+
+	// Parse the JSON output from Python script
+	var result ConnectResultUpdate
+	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to parse result: " + err.Error(),
+		})
+		return
+	}
+
+	// Return result based on prompt test outcome
+	if result.Content.Success {
+		// Extract output from provider_response
+		var output string
+		if result.Content.ProviderResponse != nil {
+			if result.Content.ProviderResponse.Output != nil && *result.Content.ProviderResponse.Output != "" {
+				output = *result.Content.ProviderResponse.Output
+			} else if result.Content.ProviderResponse.Raw != nil {
+				// Fallback to raw response
+				rawBytes, _ := json.Marshal(result.Content.ProviderResponse.Raw)
+				output = string(rawBytes)
+			}
+		}
+		if output == "" {
+			output = result.Content.Message
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status":  0,
+			"message": output,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": result.Content.Message,
+		})
+	}
+}
+
+func HandleAgentTemplate(c *gin.Context) {
+	enConfig := "agent-scan/config/provider_config_en.json"
+	zhConfig := "agent-scan/config/provider_config_zh.json"
+	language := c.DefaultQuery("language", "zh")
+	var data []byte
+	var err error
+	if language == "zh" {
+		data, err = os.ReadFile(zhConfig)
+		gologger.WithError(err).Errorln("read zh config")
+	} else {
+		data, err = os.ReadFile(enConfig)
+		gologger.WithError(err).Errorln("read en config")
+	}
+	c.JSON(http.StatusOK, data)
 }
