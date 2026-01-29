@@ -159,7 +159,6 @@ func RunWebServer(options *version.Options) {
 			// 算子列表
 			knowledge.GET("/jailbreak", GetJailBreak)
 		}
-		v1.GET("/agent/template", HandleAgentTemplate)
 		appSecurity := v1.Group("/app")
 		{
 			appSecurity.Use(setupIdentityMiddleware())

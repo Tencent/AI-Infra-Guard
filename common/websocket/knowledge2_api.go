@@ -772,5 +772,5 @@ func HandleAgentTemplate(c *gin.Context) {
 		data, err = os.ReadFile(enConfig)
 		gologger.WithError(err).Errorln("read en config")
 	}
-	c.JSON(http.StatusOK, string(data))
+	c.Data(http.StatusOK, "application/json", data)
 }
