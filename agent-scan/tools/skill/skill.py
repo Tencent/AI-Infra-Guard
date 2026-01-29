@@ -9,7 +9,7 @@ import os
 import yaml
 from typing import Any, Optional, Dict, List
 from tools.registry import register_tool
-from utils.loging import logger
+from utils.logging import logger
 from utils.tool_context import ToolContext
 from utils.config import base_dir
 import re
