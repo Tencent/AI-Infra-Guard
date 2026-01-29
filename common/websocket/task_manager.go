@@ -333,6 +333,19 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 				enhancedParams["eval_model"] = evalModelInfo
 			}
 		}
+		// 处理agent_id，将其转换为agent_data(yaml文本)
+		if agentIdStr, exists := task.Params["agent_id"]; exists {
+			agentId, ok := agentIdStr.(string)
+			if ok && agentId != "" {
+				log.Infof("找到AgentID: trace_id=%s, sessionId=%s, agentID=%s", traceID, sessionId, agentId)
+				agentData, err := readAgentConfigContent(agentId)
+				if err != nil {
+					log.Errorf("获取Agent配置失败: trace_id=%s, sessionId=%s, agentID=%s, error=%v", traceID, sessionId, agentId, err)
+					return fmt.Errorf("获取Agent配置 '%s' 失败: %v", agentId, err)
+				}
+				enhancedParams["agent_data"] = string(agentData)
+			}
+		}
 	}
 
 	// 6. 构造任务分配消息
