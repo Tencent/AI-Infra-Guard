@@ -5,7 +5,7 @@ Batch 工具 - 批量执行多个工具调用
 import asyncio
 from typing import Any, List, Dict, Optional
 from tools.registry import register_tool, get_tool_by_name, needs_context
-from utils.loging import logger
+from utils.logging import logger
 from utils.tool_context import ToolContext
 import inspect
 

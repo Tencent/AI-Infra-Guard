@@ -2,7 +2,7 @@ from typing import Any
 
 from utils.tool_context import ToolContext
 from tools.registry import register_tool
-from utils.loging import logger
+from utils.logging import logger
 
 
 @register_tool(sandbox_execution=False)
