@@ -45,6 +45,8 @@ RUN mkdir -p /app/uploads \
     chmod -R 755 /app && \
     mkdir -p /app/AIG-PromptSecurity/utils
 COPY ./AIG-PromptSecurity/utils/strategy_map.json /app/AIG-PromptSecurity/utils/strategy_map.json
+COPY ./agent-scan/config/provider_config_en.json /app/agent-scan/config/provider_config_en.json
+COPY ./agent-scan/config/provider_config_zh.json /app/agent-scan/config/provider_config_zh.json
 
 # 设置环境变量
 ENV APP_ENV=production
