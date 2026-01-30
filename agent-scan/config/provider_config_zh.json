@@ -1,6 +1,7 @@
 {
   "http": {
     "name": "HTTP接口",
+    "icon": "/images/http.png",
     "description": "配置HTTP端点以发送请求",
     "fields": [
       {
@@ -75,165 +76,9 @@
       }
     ]
   },
-  "websocket": {
-    "name": "WebSocket接口",
-    "description": "配置WebSocket端点",
-    "fields": [
-      {
-        "field": "label",
-        "label": "目标标签",
-        "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
-      },
-      {
-        "field": "url",
-        "label": "WebSocket URL",
-        "type": "text",
-        "required": true,
-        "placeholder": "wss://api.example.com/ws",
-        "description": "WebSocket端点URL"
-      },
-      {
-        "field": "message_template",
-        "label": "消息模板",
-        "type": "textarea",
-        "required": false,
-        "placeholder": "{\"message\": \"{{prompt}}\"}",
-        "defaultValue": "{\"message\": \"{{prompt}}\"}",
-        "rows": 4,
-        "description": "要发送的消息模板。使用 {{prompt}} 作为测试输入的占位符"
-      },
-      {
-        "field": "transform_response",
-        "label": "响应解析器",
-        "type": "text",
-        "required": false,
-        "placeholder": "response.message",
-        "defaultValue": "response.message",
-        "description": "从WebSocket消息中提取响应的表达式"
-      },
-      {
-        "field": "timeout_ms",
-        "label": "超时时间（毫秒）",
-        "type": "number",
-        "required": false,
-        "min": 1000,
-        "max": 300000,
-        "step": 1000,
-        "defaultValue": 30000,
-        "description": "请求超时时间（毫秒）"
-      }
-    ]
-  },
-  "foundation_model": {
-    "name": "基础模型",
-    "description": "配置OpenAI、Anthropic等基础模型",
-    "fields": [
-      {
-        "field": "label",
-        "label": "目标标签",
-        "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
-      },
-      {
-        "field": "model",
-        "label": "模型",
-        "type": "select_or_text",
-        "required": true,
-        "placeholder": "选择或输入模型ID",
-        "description": "模型标识符",
-        "options_by_provider": {
-          "openai": ["gpt-4.1", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "o1", "o1-mini"],
-          "anthropic": ["claude-sonnet-4-20250514", "claude-3-opus-20240229", "claude-3-haiku-20240307"],
-          "google": ["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"],
-          "vertex": ["gemini-2.5-pro", "gemini-2.0-flash"],
-          "mistral": ["mistral-large-latest", "mistral-medium", "mistral-small"],
-          "groq": ["llama-3.1-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-          "deepseek": ["deepseek-chat", "deepseek-coder"],
-          "perplexity": ["llama-3.1-sonar-large-128k-online", "llama-3.1-sonar-small-128k-online"],
-          "ollama": ["llama3.2:latest", "llama3.1:latest", "mistral:latest", "phi3:latest"],
-          "openrouter": ["openai/gpt-4o", "anthropic/claude-3-opus"]
-        }
-      },
-      {
-        "field": "apiKey",
-        "label": "API密钥",
-        "type": "password",
-        "required": false,
-        "placeholder": "输入API密钥或留空使用环境变量",
-        "description": "API密钥。如果未设置，将使用环境变量（例如 OPENAI_API_KEY）",
-        "group": "authentication"
-      },
-      {
-        "field": "apiBaseUrl",
-        "label": "API基础URL",
-        "type": "text",
-        "required": false,
-        "placeholder": "https://api.example.com/v1",
-        "description": "自定义API基础URL。留空使用默认端点",
-        "group": "endpoint"
-      },
-      {
-        "field": "timeout_ms",
-        "label": "超时时间（毫秒）",
-        "type": "number",
-        "required": false,
-        "min": 1000,
-        "max": 600000,
-        "step": 1000,
-        "defaultValue": 60000,
-        "description": "请求超时时间（毫秒，默认：60000ms = 1分钟）",
-        "group": "endpoint"
-      },
-      {
-        "field": "temperature",
-        "label": "温度",
-        "type": "slider",
-        "required": false,
-        "min": 0.0,
-        "max": 2.0,
-        "step": 0.1,
-        "defaultValue": 0.7,
-        "description": "控制随机性。较低=更确定，较高=更有创意",
-        "group": "model_params"
-      },
-      {
-        "field": "max_tokens",
-        "label": "最大令牌数",
-        "type": "number",
-        "required": false,
-        "min": 1,
-        "max": 128000,
-        "defaultValue": 4096,
-        "description": "响应中的最大令牌数",
-        "group": "model_params"
-      },
-      {
-        "field": "deployment",
-        "label": "部署名称",
-        "type": "text",
-        "required": false,
-        "placeholder": "输入Azure部署名称",
-        "description": "Azure OpenAI部署名称（仅Azure）",
-        "provider_specific": ["azure"]
-      },
-      {
-        "field": "region",
-        "label": "AWS区域",
-        "type": "text",
-        "required": false,
-        "defaultValue": "us-east-1",
-        "description": "AWS区域（仅Bedrock）",
-        "provider_specific": ["bedrock"]
-      }
-    ]
-  },
   "dify": {
     "name": "Dify AI",
+    "icon": "/images/dify.png",
     "description": "配置Dify AI平台",
     "fields": [
       {
@@ -246,6 +91,7 @@
       },
       {
         "field": "dify_type",
+        "idSuffix": "dify:{value}",
         "label": "Dify端点类型",
         "type": "select",
         "required": true,
@@ -273,15 +119,15 @@
         "description": "Dify API密钥。如果未设置，将使用DIFY_API_KEY环境变量"
       },
       {
-        "field": "user",
+        "field": "extra.user",
         "label": "用户ID",
         "type": "text",
         "required": false,
-        "defaultValue": "promptfoo-user",
+        "defaultValue": "agent-user",
         "description": "对话的用户标识符"
       },
       {
-        "field": "conversation_id",
+        "field": "extra.conversation_id",
         "label": "对话ID",
         "type": "text",
         "required": false,
@@ -289,7 +135,7 @@
         "description": "留空开始新对话，或提供现有对话ID"
       },
       {
-        "field": "inputs",
+        "field": "extra.inputs",
         "label": "自定义输入",
         "type": "textarea",
         "required": false,
@@ -313,6 +159,7 @@
   },
   "coze": {
     "name": "Coze AI",
+    "icon": "/images/coze.png",
     "description": "配置Coze AI机器人平台",
     "fields": [
       {
@@ -325,18 +172,19 @@
       },
       {
         "field": "coze_region",
+        "idSuffix": "coze:{value}",
         "label": "Coze区域",
         "type": "select",
         "required": true,
         "options": [
-          { "label": "中国 (api.coze.cn)", "value": "cn" },
-          { "label": "国际 (api.coze.com)", "value": "com" }
+          { "label": "中国 (api.coze.cn)", "value": "coze-cn" },
+          { "label": "国际 (api.coze.com)", "value": "coze-com" }
         ],
         "defaultValue": "cn",
         "description": "选择Coze API区域"
       },
       {
-        "field": "bot_id",
+        "field": "extra.bot_id",
         "label": "机器人ID",
         "type": "text",
         "required": true,
@@ -360,15 +208,15 @@
         "description": "Coze API密钥。如果未设置，将使用COZE_API_KEY环境变量"
       },
       {
-        "field": "user_id",
+        "field": "extra.user_id",
         "label": "用户ID",
         "type": "text",
         "required": false,
-        "defaultValue": "promptfoo-user",
+        "defaultValue": "agent-user",
         "description": "对话的用户标识符"
       },
       {
-        "field": "conversation_id",
+        "field": "extra.conversation_id",
         "label": "对话ID",
         "type": "text",
         "required": false,
