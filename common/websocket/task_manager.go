@@ -849,6 +849,31 @@ type MergeChunksResult struct {
 	FileSize int64  `json:"fileSize"` // 文件大小
 }
 
+// validatePathSafety 验证路径安全性，确保路径在基础目录内
+func (tm *TaskManager) validatePathSafety(targetPath string) error {
+	// 获取基础目录的绝对路径
+	baseDir, err := filepath.Abs(tm.fileConfig.UploadDir)
+	if err != nil {
+		return fmt.Errorf("获取基础目录失败: %v", err)
+	}
+
+	// 获取目标路径的绝对路径
+	absPath, err := filepath.Abs(targetPath)
+	if err != nil {
+		return fmt.Errorf("获取目标路径失败: %v", err)
+	}
+
+	// 清理路径（处理 .. 等）
+	cleanPath := filepath.Clean(absPath)
+
+	// 验证目标路径是否在基础目录内
+	if !strings.HasPrefix(cleanPath, baseDir+string(filepath.Separator)) && cleanPath != baseDir {
+		return fmt.Errorf("路径越界: %s 不在 %s 内", cleanPath, baseDir)
+	}
+
+	return nil
+}
+
 // UploadFileChunk 上传文件分片
 func (tm *TaskManager) UploadFileChunk(fileID string, filename string, chunkIndex int, totalChunks int, chunkData []byte, traceID string) (*ChunkUploadResult, error) {
 	log.Infof("开始分片上传: trace_id=%s, fileID=%s, filename=%s, chunkIndex=%d/%d, size=%d",
@@ -856,6 +881,13 @@ func (tm *TaskManager) UploadFileChunk(fileID string, filename string, chunkInde
 
 	// 创建临时目录存储分片
 	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
+
+	// 验证路径安全性（防止路径穿越）
+	if err := tm.validatePathSafety(tempDir); err != nil {
+		log.Errorf("路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		log.Errorf("创建临时目录失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
 		return nil, fmt.Errorf("创建临时目录失败: %v", err)
@@ -863,6 +895,13 @@ func (tm *TaskManager) UploadFileChunk(fileID string, filename string, chunkInde
 
 	// 保存分片到临时目录
 	chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", chunkIndex))
+
+	// 验证分片路径安全性
+	if err := tm.validatePathSafety(chunkPath); err != nil {
+		log.Errorf("分片路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, chunkPath, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
 	if err := os.WriteFile(chunkPath, chunkData, 0644); err != nil {
 		log.Errorf("保存分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
 		return nil, fmt.Errorf("保存分片失败: %v", err)
@@ -884,6 +923,12 @@ func (tm *TaskManager) MergeFileChunks(fileID string, filename string, totalChun
 
 	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
 
+	// 验证临时目录路径安全性（防止路径穿越）
+	if err := tm.validatePathSafety(tempDir); err != nil {
+		log.Errorf("临时目录路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
 	// 确保最终完成后清理临时目录
 	defer func() {
 		if err := os.RemoveAll(tempDir); err != nil {
@@ -895,6 +940,13 @@ func (tm *TaskManager) MergeFileChunks(fileID string, filename string, totalChun
 	var mergedData []byte
 	for i := 0; i < totalChunks; i++ {
 		chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", i))
+
+		// 验证分片路径安全性
+		if err := tm.validatePathSafety(chunkPath); err != nil {
+			log.Errorf("分片路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, chunkPath, err)
+			return nil, fmt.Errorf("无效的文件路径")
+		}
+
 		chunkData, err := os.ReadFile(chunkPath)
 		if err != nil {
 			log.Errorf("读取分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
@@ -920,6 +972,13 @@ func (tm *TaskManager) MergeFileChunks(fileID string, filename string, totalChun
 	}
 
 	filePath := filepath.Join(uploadDir, secureFileName)
+
+	// 验证最终文件路径安全性
+	if err := tm.validatePathSafety(filePath); err != nil {
+		log.Errorf("文件路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, filePath, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
 	if err := os.WriteFile(filePath, mergedData, 0644); err != nil {
 		log.Errorf("保存合并文件失败: trace_id=%s, filePath=%s, error=%v", traceID, filePath, err)
 		return nil, fmt.Errorf("保存文件失败: %v", err)
