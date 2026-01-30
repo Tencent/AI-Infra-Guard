@@ -835,6 +835,109 @@ func (tm *TaskManager) UploadFile(file *multipart.FileHeader, traceID string) (*
 	}, nil
 }
 
+// ChunkUploadResult 分片上传结果
+type ChunkUploadResult struct {
+	ChunkIndex  int    `json:"chunkIndex"`  // 当前分片索引
+	TotalChunks int    `json:"totalChunks"` // 总分片数
+	Message     string `json:"message"`     // 消息
+}
+
+// MergeChunksResult 合并分片结果
+type MergeChunksResult struct {
+	Filename string `json:"filename"` // 原始文件名
+	FileURL  string `json:"fileUrl"`  // 文件访问URL
+	FileSize int64  `json:"fileSize"` // 文件大小
+}
+
+// UploadFileChunk 上传文件分片
+func (tm *TaskManager) UploadFileChunk(fileID string, filename string, chunkIndex int, totalChunks int, chunkData []byte, traceID string) (*ChunkUploadResult, error) {
+	log.Infof("开始分片上传: trace_id=%s, fileID=%s, filename=%s, chunkIndex=%d/%d, size=%d",
+		traceID, fileID, filename, chunkIndex+1, totalChunks, len(chunkData))
+
+	// 创建临时目录存储分片
+	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
+		log.Errorf("创建临时目录失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("创建临时目录失败: %v", err)
+	}
+
+	// 保存分片到临时目录
+	chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", chunkIndex))
+	if err := os.WriteFile(chunkPath, chunkData, 0644); err != nil {
+		log.Errorf("保存分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
+		return nil, fmt.Errorf("保存分片失败: %v", err)
+	}
+
+	log.Infof("分片上传成功: trace_id=%s, fileID=%s, chunkIndex=%d/%d", traceID, fileID, chunkIndex+1, totalChunks)
+
+	return &ChunkUploadResult{
+		ChunkIndex:  chunkIndex,
+		TotalChunks: totalChunks,
+		Message:     fmt.Sprintf("分片 %d/%d 上传成功", chunkIndex+1, totalChunks),
+	}, nil
+}
+
+// MergeFileChunks 合并文件分片
+func (tm *TaskManager) MergeFileChunks(fileID string, filename string, totalChunks int, fileSize int64, traceID string) (*MergeChunksResult, error) {
+	log.Infof("开始合并分片: trace_id=%s, fileID=%s, filename=%s, totalChunks=%d, expectedSize=%d",
+		traceID, fileID, filename, totalChunks, fileSize)
+
+	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
+
+	// 确保最终完成后清理临时目录
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			log.Warnf("清理临时文件失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		}
+	}()
+
+	// 读取并合并所有分片
+	var mergedData []byte
+	for i := 0; i < totalChunks; i++ {
+		chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", i))
+		chunkData, err := os.ReadFile(chunkPath)
+		if err != nil {
+			log.Errorf("读取分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
+			return nil, fmt.Errorf("读取分片 %d 失败: %v", i, err)
+		}
+		mergedData = append(mergedData, chunkData...)
+	}
+
+	// 验证文件大小
+	if int64(len(mergedData)) != fileSize {
+		log.Errorf("文件大小不匹配: trace_id=%s, expected=%d, actual=%d", traceID, fileSize, len(mergedData))
+		return nil, fmt.Errorf("文件大小不匹配: 期望 %d 字节, 实际 %d 字节", fileSize, len(mergedData))
+	}
+
+	// 生成安全的唯一文件名
+	secureFileName := generateSecureFileName(filename)
+
+	// 保存合并后的文件
+	uploadDir := tm.fileConfig.UploadDir
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		log.Errorf("创建上传目录失败: trace_id=%s, path=%s, error=%v", traceID, uploadDir, err)
+		return nil, fmt.Errorf("创建上传目录失败: %v", err)
+	}
+
+	filePath := filepath.Join(uploadDir, secureFileName)
+	if err := os.WriteFile(filePath, mergedData, 0644); err != nil {
+		log.Errorf("保存合并文件失败: trace_id=%s, filePath=%s, error=%v", traceID, filePath, err)
+		return nil, fmt.Errorf("保存文件失败: %v", err)
+	}
+
+	// 生成文件访问URL
+	fileURL := tm.fileConfig.GetFileURL(secureFileName)
+
+	log.Infof("文件合并成功: trace_id=%s, fileID=%s, filename=%s, secureName=%s, size=%d, fileURL=%s",
+		traceID, fileID, filename, secureFileName, len(mergedData), fileURL)
+
+	return &MergeChunksResult{
+		Filename: filename,
+		FileURL:  fileURL,
+		FileSize: int64(len(mergedData)),
+	}, nil
+}
+
 // GetUserTasks 获取指定用户的任务列表，只返回属于该用户的会话，确保用户只能看到自己的任务。
 func (tm *TaskManager) GetUserTasks(username string, traceID string) ([]map[string]interface{}, error) {
 	// 从数据库获取用户的任务列表
