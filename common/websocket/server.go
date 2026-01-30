@@ -185,9 +185,17 @@ func RunWebServer(options *version.Options) {
 				tasks.POST("", func(c *gin.Context) {
 					HandleTaskCreate(c, taskManager)
 				})
-				// 文件上传接口
+				// 文件上传接口（完整文件上传）
 				tasks.POST("/uploadFile", func(c *gin.Context) {
 					HandleUploadFile(c, taskManager)
+				})
+				// 分片上传接口
+				tasks.POST("/uploadChunk", func(c *gin.Context) {
+					HandleUploadFileChunk(c, taskManager)
+				})
+				// 合并分片接口
+				tasks.POST("/mergeChunks", func(c *gin.Context) {
+					HandleMergeFileChunks(c, taskManager)
 				})
 				// 文件下载接口
 				tasks.POST("/:sessionId/downloadFile", func(c *gin.Context) {
@@ -254,6 +262,14 @@ func RunWebServer(options *version.Options) {
 			})
 			taskApi.POST("/upload", func(c *gin.Context) {
 				HandleUploadFile(c, taskManager)
+			})
+			// 分片上传接口
+			taskApi.POST("/uploadChunk", func(c *gin.Context) {
+				HandleUploadFileChunk(c, taskManager)
+			})
+			// 合并分片接口
+			taskApi.POST("/mergeChunks", func(c *gin.Context) {
+				HandleMergeFileChunks(c, taskManager)
 			})
 		}
 		// version

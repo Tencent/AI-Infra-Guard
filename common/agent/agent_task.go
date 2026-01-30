@@ -99,7 +99,6 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
-
 	err = utils.RunCmd(AgentScanDir, NAME, argv, func(line string) {
 		ParseStdoutLine(m.Server, AgentScanDir, tasks, line, callbacks, &config, false)
 	})
