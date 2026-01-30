@@ -507,8 +507,8 @@ class AIProviderClient:
         Supports both China (api.coze.cn) and International (api.coze.com) endpoints.
         
         Provider ID formats:
-        - coze:<bot_id>: China endpoint
-        - coze-com:<bot_id>: International endpoint
+        - coze:coze-cn: China endpoint
+        - coze:coze-com: International endpoint
         """
         config = provider.config
         provider_id = provider.id.lower()
@@ -522,21 +522,14 @@ class AIProviderClient:
                 suggestions=["Set COZE_API_KEY environment variable", "Or provide apiKey in config"]
             )
 
-        # Extract bot_id from provider_id or config
-        bot_id = None
-        if ":" in provider_id:
-            parts = provider_id.split(":", 1)
-            if len(parts) > 1 and parts[1]:
-                bot_id = parts[1]
-
-        if not bot_id:
-            bot_id = getattr(config, 'extra', {}).get('bot_id') if config else None
+        # Extract bot_id from config
+        bot_id = getattr(config, 'extra', {}).get('bot_id') if config else None
 
         if not bot_id:
             return ProviderTestResult(
                 success=False,
-                message="❌ Coze bot_id required. Specify as 'coze:<bot_id>' or in config.extra.bot_id",
-                suggestions=["Use provider ID format: coze:<your_bot_id>", "Or set bot_id in config extra"]
+                message="❌ Coze bot_id required. Specify in config.extra.bot_id",
+                suggestions=["Set bot_id in config extra"]
             )
 
         # Get base URL based on provider type
