@@ -24,14 +24,14 @@ func (m *AgentTask) GetName() string {
 func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
 	type EvalModel struct {
 		Model         string `json:"model"`
-		ApiKey        string `json:"apiKey"`
-		BaseUrl       string `json:"baseUrl"`
+		ApiKey        string `json:"api_key"`
+		BaseUrl       string `json:"base_url"`
 		MaxConcurrent int    `json:"max_concurrent"`
 	}
 
 	type AgentScanParams struct {
 		AgentData string    `json:"agent_data"` // yaml content from dispatchTask
-		EvalModel EvalModel `json:"model"`
+		EvalModel EvalModel `json:"eval_model"`
 	}
 
 	var params AgentScanParams
