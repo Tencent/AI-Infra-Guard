@@ -24,9 +24,9 @@ func (m *AgentTask) GetName() string {
 func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks TaskCallbacks) error {
 	type EvalModel struct {
 		Model         string `json:"model"`
-		ApiKey        string `json:"api_key"`
+		ApiKey        string `json:"token"`
 		BaseUrl       string `json:"base_url"`
-		MaxConcurrent int    `json:"max_concurrent"`
+		MaxConcurrent int    `json:"limit"`
 	}
 
 	type AgentScanParams struct {
@@ -47,10 +47,10 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 		return errors.New("eval_model.model is required")
 	}
 	if params.EvalModel.ApiKey == "" {
-		return errors.New("eval_model.apiKey is required")
+		return errors.New("eval_model.token is required")
 	}
 	if params.EvalModel.BaseUrl == "" {
-		return errors.New("eval_model.baseUrl is required")
+		return errors.New("eval_model.base_url is required")
 	}
 
 	// Set default max_concurrent
