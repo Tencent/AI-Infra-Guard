@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import httpx
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Json
 
 
 class ProviderConfig(BaseModel):
@@ -27,8 +27,8 @@ class ProviderConfig(BaseModel):
     url: Optional[str] = None
     endpoint: Optional[str] = None
     method: Optional[str] = None
-    headers: Optional[Dict[str, str]] = None
-    body: Optional[Union[Dict[str, Any], str]] = None
+    headers: Optional[Union[Json[Dict], Dict]] = None
+    body: Optional[Union[Json[Dict], Dict, str]] = None
 
     # Common specific
     type: Optional[str] = None
@@ -46,7 +46,7 @@ class ProviderConfig(BaseModel):
     apiBaseUrl: Optional[str] = None
 
     # Extra fields for flexibility
-    extra: Optional[Dict[str, Any]] = None
+    extra: Optional[Union[Json[Dict], Dict]] = None
 
 
 class ProviderOptions(BaseModel):
