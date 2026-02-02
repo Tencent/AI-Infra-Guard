@@ -1,7 +1,7 @@
 {
   "http": {
     "name": "HTTP Endpoint",
-    "icon": "/images/http.png",
+    "icon": "/images/http.webp",
     "description": "Configure HTTP endpoint to send requests",
     "fields": [
       {
@@ -78,7 +78,7 @@
   },
   "dify": {
     "name": "Dify AI",
-    "icon": "/images/dify.png",
+    "icon": "/images/dify.webp",
     "description": "Configure Dify AI platform",
     "fields": [
       {
