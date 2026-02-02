@@ -78,7 +78,7 @@
   },
   "dify": {
     "name": "Dify AI",
-    "icon": "/images/webp.png",
+    "icon": "/images/dify.webp",
     "description": "配置Dify AI平台",
     "fields": [
       {
