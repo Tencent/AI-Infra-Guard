@@ -1030,7 +1030,12 @@ class AIProviderClient:
             config_data = yaml.safe_load(content)
 
         # Extract providers or targets
-        providers_data = config_data.get('providers') or config_data.get('targets', [])
+        if isinstance(config_data, dict):
+            providers_data = config_data.get('providers') or config_data.get('targets')
+        elif isinstance(config_data, list):
+            providers_data = config_data
+        else:
+            raise ValueError("Configuration file parsing failed")
 
         if not providers_data:
             raise ValueError("No 'providers' or 'targets' found in configuration file")

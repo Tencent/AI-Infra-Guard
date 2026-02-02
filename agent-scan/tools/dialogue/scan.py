@@ -140,7 +140,7 @@ class AgentScanner:
         """
         provider_conf = self.config_loader.get_provider_config(provider_type)
         if not provider_conf:
-            return []
+            provider_conf = {}
         
         # Get scan_endpoints from provider configuration
         endpoints = provider_conf.get("scan_endpoints", [])
