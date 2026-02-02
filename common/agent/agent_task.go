@@ -31,7 +31,7 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 
 	type AgentScanParams struct {
 		AgentData string    `json:"agent_data"` // yaml content from dispatchTask
-		EvalModel EvalModel `json:"eval_model"`
+		EvalModel EvalModel `json:"model"`
 	}
 
 	var params AgentScanParams
