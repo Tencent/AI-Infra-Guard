@@ -1,7 +1,7 @@
 {
   "http": {
     "name": "HTTP接口",
-    "icon": "/images/http.png",
+    "icon": "/images/http.webp",
     "description": "配置HTTP端点以发送请求",
     "fields": [
       {
@@ -78,7 +78,7 @@
   },
   "dify": {
     "name": "Dify AI",
-    "icon": "/images/dify.png",
+    "icon": "/images/webp.png",
     "description": "配置Dify AI平台",
     "fields": [
       {
