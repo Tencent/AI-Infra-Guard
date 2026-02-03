@@ -549,7 +549,7 @@ class AIProviderClient:
         body = {
             "bot_id": bot_id,
             "user_id": user_id,
-            "stream": False,  # Use non-streaming for simplicity in test
+            "stream": True,  # Use streaming for simplicity in test
             "auto_save_history": True,
             "additional_messages": [
                 {
@@ -772,6 +772,12 @@ class AIProviderClient:
                             usage = data.get("usage", {})
                             if usage:
                                 token_usage = usage
+                        
+                        # Extract content from coze streaming response
+                        elif event_type == "answer":
+                            text = data.get("content")
+                            if text:
+                                content_parts.append(text)
 
                     # Extract content from dify streaming response
                     elif "answer" in data:
