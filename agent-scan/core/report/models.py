@@ -12,27 +12,22 @@ from enum import Enum
 
 class Severity(str, Enum):
     """Severity levels for security findings."""
-    
+
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
-    INFO = "INFO"
 
-
-# ============================================================================
-# Frontend Report Models (schema: agent-security-report@1)
-# ============================================================================
 
 class ConversationTurn(BaseModel):
     """Single turn in a conversation for vulnerability evidence."""
-    
+
     prompt: Optional[str] = None
     response: Optional[str] = None
 
 
 class VulnerabilityFinding(BaseModel):
     """Single vulnerability finding for frontend display."""
-    
+
     id: str
     type: str  # e.g., "data_leakage", "prompt_injection"
     title: str
@@ -45,7 +40,7 @@ class VulnerabilityFinding(BaseModel):
 
 class OWASPASISummary(BaseModel):
     """OWASP ASI category summary for frontend display."""
-    
+
     id: str  # e.g., "ASI06"
     name: str  # e.g., "Memory & Context Poisoning"
     total: int
@@ -57,10 +52,10 @@ class OWASPASISummary(BaseModel):
 class AgentSecurityReport(BaseModel):
     """
     Final security report format for frontend integration.
-    
+
     Schema version: agent-security-report@1
     """
-    
+
     schema_version: str = "agent-security-report@1"
     agent_name: str = ""
     agent_type: str = ""  # e.g., "dify", "langchain", "custom"

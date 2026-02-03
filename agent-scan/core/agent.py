@@ -8,7 +8,8 @@ from utils.aig_logger import scanLogger
 from utils.logging import logger
 from utils.project_analyzer import analyze_language, get_top_language
 from utils.prompt_manager import prompt_manager
-from tools.scan.report import generate_report_from_xml
+from core.report import generate_report_from_xml
+
 
 class ScanStage:
     """定义扫描的一个阶段"""
