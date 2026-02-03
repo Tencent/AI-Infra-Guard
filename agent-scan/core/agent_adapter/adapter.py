@@ -674,8 +674,7 @@ class AIProviderClient:
                 else:
                     error_msg = ""
                     if isinstance(raw_response, dict):
-                        error_msg = raw_response.get("error", {}).get("message", "") or str(
-                            raw_response.get("error", ""))
+                        error_msg = raw_response.get("error", {}).get("message", "") or str(raw_response.get("error", "")) or raw_response.get("message", "")
                     return ProviderTestResult(
                         success=False,
                         message=f"❌ Request failed with status {status_code}: {error_msg or 'Unknown error'}",
