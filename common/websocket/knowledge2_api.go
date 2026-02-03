@@ -324,9 +324,31 @@ func GetJailBreak(c *gin.Context) {
 
 // ============== Agent Scan Config Management ==============
 const AgentConfigRoot = "data/agents"
+const PublicUser = "public_user"
+
+// getAgentUserDir 获取用户的 agent 配置目录
+func getAgentUserDir(username string) string {
+	return filepath.Join(AgentConfigRoot, username)
+}
+
+// validateUsername 验证用户名安全性（防止路径穿越）
+func validateUsername(username string) bool {
+	if username == "" {
+		return false
+	}
+	if strings.Contains(username, "..") || strings.ContainsAny(username, "/\\<>:\"|?*") {
+		return false
+	}
+	return true
+}
 
 func HandleListAgentNames(c *gin.Context) {
-	names, err := listAgentConfigNames()
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
+	names, err := listAgentConfigNames(username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
@@ -342,6 +364,11 @@ func HandleListAgentNames(c *gin.Context) {
 }
 
 func HandleGetAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
 	name := strings.TrimSpace(c.Param("name"))
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -351,7 +378,7 @@ func HandleGetAgentConfig(c *gin.Context) {
 		return
 	}
 
-	data, err := readAgentConfigContent(name)
+	data, err := readAgentConfigContent(username, name)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -416,6 +443,11 @@ func testAgentConnectivity(content string) (bool, string, error) {
 }
 
 func HandleSaveAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
 	name := strings.TrimSpace(c.Param("name"))
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -461,7 +493,9 @@ func HandleSaveAgentConfig(c *gin.Context) {
 		return
 	}
 
-	if err := os.MkdirAll(AgentConfigRoot, 0755); err != nil {
+	// 创建用户专属目录
+	userDir := getAgentUserDir(username)
+	if err := os.MkdirAll(userDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
 			"message": "创建目录失败: " + err.Error(),
@@ -469,7 +503,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 		return
 	}
 
-	targetPath, err := resolveAgentConfigPathForWrite(name)
+	targetPath, err := resolveAgentConfigPathForWrite(username, name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
@@ -493,6 +527,11 @@ func HandleSaveAgentConfig(c *gin.Context) {
 }
 
 func HandleDeleteAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
 	name := strings.TrimSpace(c.Param("name"))
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -502,7 +541,7 @@ func HandleDeleteAgentConfig(c *gin.Context) {
 		return
 	}
 
-	deleted, err := deleteAgentConfig(name)
+	deleted, err := deleteAgentConfig(username, name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
@@ -524,8 +563,9 @@ func HandleDeleteAgentConfig(c *gin.Context) {
 	})
 }
 
-func listAgentConfigNames() ([]string, error) {
-	entries, err := os.ReadDir(AgentConfigRoot)
+// listAgentConfigNamesFromDir 从指定目录读取配置名称列表
+func listAgentConfigNamesFromDir(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return []string{}, nil
@@ -545,13 +585,49 @@ func listAgentConfigNames() ([]string, error) {
 			names = append(names, strings.TrimSuffix(entry.Name(), ".yml"))
 		}
 	}
-	sort.Strings(names)
 	return names, nil
 }
 
-func readAgentConfigContent(name string) ([]byte, error) {
+// listAgentConfigNames 列出用户的配置名称（合并用户目录和公共目录，去重）
+func listAgentConfigNames(username string) ([]string, error) {
+	// 读取用户目录的配置
+	userDir := getAgentUserDir(username)
+	userNames, err := listAgentConfigNamesFromDir(userDir)
+	if err != nil {
+		return nil, err
+	}
+
+	// 如果不是公共用户，还需要合并公共目录的配置
+	if username != PublicUser {
+		publicDir := getAgentUserDir(PublicUser)
+		publicNames, err := listAgentConfigNamesFromDir(publicDir)
+		if err != nil {
+			return nil, err
+		}
+
+		// 合并并去重
+		nameSet := make(map[string]struct{})
+		for _, name := range userNames {
+			nameSet[name] = struct{}{}
+		}
+		for _, name := range publicNames {
+			nameSet[name] = struct{}{}
+		}
+
+		userNames = make([]string, 0, len(nameSet))
+		for name := range nameSet {
+			userNames = append(userNames, name)
+		}
+	}
+
+	sort.Strings(userNames)
+	return userNames, nil
+}
+
+// readAgentConfigContentFromDir 从指定目录读取配置内容
+func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(AgentConfigRoot, name+ext)
+		path := filepath.Join(dir, name+ext)
 		data, err := os.ReadFile(path)
 		if err == nil {
 			return data, nil
@@ -563,10 +639,33 @@ func readAgentConfigContent(name string) ([]byte, error) {
 	return nil, os.ErrNotExist
 }
 
-func resolveAgentConfigPathForWrite(name string) (string, error) {
+// readAgentConfigContent 读取配置内容（优先用户目录，fallback 到公共目录）
+func readAgentConfigContent(username, name string) ([]byte, error) {
+	// 优先从用户目录读取
+	userDir := getAgentUserDir(username)
+	data, err := readAgentConfigContentFromDir(userDir, name)
+	if err == nil {
+		return data, nil
+	}
+	if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	// 如果不是公共用户且用户目录没有，尝试从公共目录读取
+	if username != PublicUser {
+		publicDir := getAgentUserDir(PublicUser)
+		return readAgentConfigContentFromDir(publicDir, name)
+	}
+
+	return nil, os.ErrNotExist
+}
+
+// resolveAgentConfigPathForWrite 解析写入路径（写入用户目录）
+func resolveAgentConfigPathForWrite(username, name string) (string, error) {
+	userDir := getAgentUserDir(username)
 	candidates := []string{
-		filepath.Join(AgentConfigRoot, name+".yaml"),
-		filepath.Join(AgentConfigRoot, name+".yml"),
+		filepath.Join(userDir, name+".yaml"),
+		filepath.Join(userDir, name+".yml"),
 	}
 	for _, path := range candidates {
 		_, statErr := os.Stat(path)
@@ -580,9 +679,11 @@ func resolveAgentConfigPathForWrite(name string) (string, error) {
 	return candidates[0], nil
 }
 
-func deleteAgentConfig(name string) (bool, error) {
+// deleteAgentConfig 删除配置（只删除用户目录的配置）
+func deleteAgentConfig(username, name string) (bool, error) {
+	userDir := getAgentUserDir(username)
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(AgentConfigRoot, name+ext)
+		path := filepath.Join(userDir, name+ext)
 		err := os.Remove(path)
 		if err == nil {
 			return true, nil
