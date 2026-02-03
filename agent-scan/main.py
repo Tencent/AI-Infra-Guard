@@ -122,8 +122,10 @@ async def main():
         logger.warning("Task interrupted by user")
     except Exception as e:
         print(f"\n\nError during execution: {e}")
-        logger.error(f"Error during execution: {e}", exc_info=True)
-        scanLogger.error_log(f"Execution failed: {e}")
+        import traceback
+        traceback = traceback.format_exc()
+        logger.error(f"Error during execution: {e}\n{traceback}")
+        scanLogger.error_log(f"Error during execution: {e}\n{traceback}")
         raise Exception(f"Execution failed: {e}")
 
 
