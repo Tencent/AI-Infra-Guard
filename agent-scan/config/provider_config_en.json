@@ -38,7 +38,7 @@
       {
         "field": "headers",
         "label": "Headers",
-        "type": "textarea",
+        "type": "json",
         "required": false,
         "placeholder": "{\n  \"Content-Type\": \"application/json\"\n}",
         "defaultValue": "{\n  \"Content-Type\": \"application/json\"\n}",
@@ -137,7 +137,7 @@
       {
         "field": "extra.inputs",
         "label": "Custom Inputs",
-        "type": "textarea",
+        "type": "json",
         "required": false,
         "placeholder": "{}",
         "defaultValue": "{}",
