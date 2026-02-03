@@ -338,7 +338,12 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 			agentId, ok := agentIdStr.(string)
 			if ok && agentId != "" {
 				log.Infof("找到AgentID: trace_id=%s, sessionId=%s, agentID=%s", traceID, sessionId, agentId)
-				agentData, err := readAgentConfigContent(agentId)
+				// 使用任务的用户名读取配置，如果为空则使用公共用户
+				username := task.Username
+				if username == "" {
+					username = PublicUser
+				}
+				agentData, err := readAgentConfigContent(username, agentId)
 				if err != nil {
 					log.Errorf("获取Agent配置失败: trace_id=%s, sessionId=%s, agentID=%s, error=%v", traceID, sessionId, agentId, err)
 					return fmt.Errorf("获取Agent配置 '%s' 失败: %v", agentId, err)
