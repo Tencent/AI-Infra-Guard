@@ -1124,7 +1124,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	// 定义语言相关的文本
 	var texts struct {
 		// 任务类型标题
-		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, otherTask string
+		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, agentScan, otherTask string
 		// 其他文本
 		model, prompt, github, sse string
 	}
@@ -1134,6 +1134,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.mcpScan = "AI Protocol Scan - "
 		texts.modelJailbreak = "LLM Jailbreaking - "
 		texts.modelRedteamReport = "Jailbreak Evaluation - "
+		texts.agentScan = "Agent Scan - "
 		texts.otherTask = "Other Task - "
 		texts.model = "Model:"
 		texts.prompt = "Prompt:"
@@ -1144,6 +1145,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.mcpScan = "AI协议扫描 - "
 		texts.modelJailbreak = "一键越狱任务 - "
 		texts.modelRedteamReport = "大模型安全体检 - "
+		texts.agentScan = "Agent安全扫描 - "
 		texts.otherTask = "其他任务 - "
 		texts.model = "模型:"
 		texts.prompt = "prompt:"
@@ -1199,6 +1201,15 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		ret = texts.modelJailbreak + fmt.Sprintf("%s%s, %s%s", texts.model, ModelName, texts.prompt, req.Content)
 	case agent.TaskTypeModelRedteamReport:
 		ret = texts.modelRedteamReport + ModelName
+	case agent.TaskTypeAgentScan:
+		agentId, ok := req.Params["agent_id"]
+		ret = texts.agentScan
+		if ok {
+			ret += agentId.(string)
+		}
+		if req.Content != "" {
+			ret += " " + req.Content
+		}
 	default:
 		ret = texts.otherTask + req.Content
 	}

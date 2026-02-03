@@ -374,6 +374,47 @@ func HandleGetAgentConfig(c *gin.Context) {
 	})
 }
 
+// testAgentConnectivity 测试Agent配置的连通性
+// 返回 (success, message, error)
+func testAgentConnectivity(content string) (bool, string, error) {
+	// Create temporary file for the YAML content
+	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
+	if err != nil {
+		return false, "", fmt.Errorf("创建临时文件失败: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write YAML content to temp file
+	if _, err := tmpFile.WriteString(content); err != nil {
+		tmpFile.Close()
+		return false, "", fmt.Errorf("写入配置文件失败: %v", err)
+	}
+	tmpFile.Close()
+
+	// Run Python connectivity test script using uv
+	var lastLine string
+	err = utils.RunCmd(
+		AgentScanDir,
+		UvBin,
+		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name()},
+		func(line string) {
+			lastLine += line
+		},
+	)
+
+	if err != nil {
+		return false, "", fmt.Errorf("连通性测试执行失败: %v", err)
+	}
+
+	// Parse the JSON output from Python script
+	var result ConnectResultUpdate
+	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
+		return false, "", fmt.Errorf("解析测试结果失败: %v", err)
+	}
+
+	return result.Content.Success, result.Content.Message, nil
+}
+
 func HandleSaveAgentConfig(c *gin.Context) {
 	name := strings.TrimSpace(c.Param("name"))
 	if name == "" || !isValidName(name) {
@@ -402,7 +443,23 @@ func HandleSaveAgentConfig(c *gin.Context) {
 		})
 		return
 	}
-	// todo: 校验content yaml连通性
+
+	// 检测Agent连通性
+	success, message, err := testAgentConnectivity(content)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "连通性检测失败: " + err.Error(),
+		})
+		return
+	}
+	if !success {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "连通性检测失败: " + message,
+		})
+		return
+	}
 
 	if err := os.MkdirAll(AgentConfigRoot, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -431,7 +488,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
-		"message": "创建成功",
+		"message": "保存成功，连通性验证通过",
 	})
 }
 
@@ -587,39 +644,8 @@ func HandleAgentConnect(c *gin.Context) {
 		return
 	}
 
-	// Create temporary file for the YAML content
-	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  1,
-			"message": "Failed to create temporary file: " + err.Error(),
-		})
-		return
-	}
-	defer os.Remove(tmpFile.Name())
-
-	// Write YAML content to temp file
-	if _, err := tmpFile.WriteString(req.Content); err != nil {
-		tmpFile.Close()
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  1,
-			"message": "Failed to write config file: " + err.Error(),
-		})
-		return
-	}
-	tmpFile.Close()
-
-	// Run Python connectivity test script using uv
-	var lastLine string
-	err = utils.RunCmd(
-		AgentScanDir,
-		UvBin,
-		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name()},
-		func(line string) {
-			lastLine += line
-		},
-	)
-
+	// 使用公共的连通性测试函数
+	success, message, err := testAgentConnectivity(req.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
@@ -627,28 +653,16 @@ func HandleAgentConnect(c *gin.Context) {
 		})
 		return
 	}
-	gologger.Infof("connectivity test result: %s", lastLine)
 
-	// Parse the JSON output from Python script
-	var result ConnectResultUpdate
-	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  1,
-			"message": "Failed to parse result: " + err.Error(),
-		})
-		return
-	}
-
-	// Return result based on connectivity test outcome
-	if result.Content.Success {
+	if success {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  0,
-			"message": result.Content.Message,
+			"message": message,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": result.Content.Message,
+			"message": message,
 		})
 	}
 }
