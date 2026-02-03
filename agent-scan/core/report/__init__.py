@@ -1,7 +1,7 @@
 """
-Security report generation module.
+Security report generation for agent scanning pipeline.
 
-Provides models and report generation for AI agent security scanning.
+Provides models and report generation (XML -> agent-security-report@1).
 """
 
 from .report import generate_report_from_xml, calculate_security_score

@@ -90,7 +90,7 @@ def calculate_security_score(issues: list) -> int:
     """
     Calculate security score (0-100) based on vulnerability list.
     
-    Deprecated: Use tools.scan.report.calculate_security_score instead.
+    Deprecated: Use core.report.calculate_security_score instead.
     
     Args:
         issues: List of vulnerabilities, each should contain 'level' field
