@@ -432,6 +432,9 @@ func testAgentConnectivity(content string) (bool, string, error) {
 	if err != nil {
 		return false, "", fmt.Errorf("连通性测试执行失败: %v", err)
 	}
+	if lastLine != "" {
+		gologger.Infoln("test_agent_connect", lastLine)
+	}
 
 	// Parse the JSON output from Python script
 	var result ConnectResultUpdate
