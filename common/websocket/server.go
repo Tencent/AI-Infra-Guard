@@ -100,6 +100,7 @@ func RunWebServer(options *version.Options) {
 		})
 		// 1. 知识库模块
 		knowledge := v1.Group("/knowledge")
+		knowledge.Use(setupIdentityMiddleware())
 		{
 			// AI应用指纹
 			fingerprints := knowledge.Group("/fingerprints")
