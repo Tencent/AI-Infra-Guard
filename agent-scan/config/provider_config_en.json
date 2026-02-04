@@ -94,7 +94,7 @@
         "idSuffix": "dify:{value}",
         "label": "Dify Endpoint Type",
         "type": "select",
-        "required": true,
+        "required": false,
         "options": [
           { "label": "Chat Messages", "value": "chat" },
           { "label": "Workflow", "value": "workflow" }
@@ -108,15 +108,15 @@
         "type": "text",
         "required": false,
         "placeholder": "https://api.dify.ai/v1",
-        "description": "Dify API base URL. Leave empty to use default or DIFY_API_BASE env var"
+        "description": "Dify API base URL. Leave empty to use default"
       },
       {
         "field": "apiKey",
         "label": "API Key",
         "type": "password",
-        "required": false,
+        "required": true,
         "placeholder": "app-xxxx",
-        "description": "Dify API key. If not set, will use DIFY_API_KEY environment variable"
+        "description": "Dify API key"
       },
       {
         "field": "extra.user",
@@ -175,12 +175,12 @@
         "idSuffix": "coze:{value}",
         "label": "Coze Region",
         "type": "select",
-        "required": true,
+        "required": false,
         "options": [
           { "label": "China (api.coze.cn)", "value": "coze-cn" },
           { "label": "International (api.coze.com)", "value": "coze-com" }
         ],
-        "defaultValue": "cn",
+        "defaultValue": "coze-cn",
         "description": "Select the Coze API region"
       },
       {
@@ -203,9 +203,165 @@
         "field": "apiKey",
         "label": "API Key",
         "type": "password",
-        "required": false,
+        "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Coze API key. If not set, will use COZE_API_KEY environment variable"
+        "description": "Coze API key"
+      },
+      {
+        "field": "extra.user_id",
+        "label": "User ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "User identifier for the conversation"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "Conversation ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "Leave empty to start a new conversation",
+        "description": "Leave empty to start a new conversation, or provide an existing conversation ID"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 120000,
+        "description": "Request timeout in milliseconds (default: 120000ms = 2 minutes)"
+      }
+    ]
+  },
+  "knot": {
+    "name": "Knot",
+    "icon": "/images/knot.png",
+    "description": "Configure Knot AI platform",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "endpoint",
+        "label": "Agent ID",
+        "type": "text",
+        "required": true,
+        "description": "Enter the Knot agent details page to get the agent ID from the URL"
+      },
+      {
+        "field": "apiKey",
+        "label": "Personal Token",
+        "type": "password",
+        "required": true,
+        "placeholder": "xxxxxxx",
+        "description": "Knot agent API key. Apply via https://knot.woa.com/settings/token"
+      },
+      {
+        "field": "extra.model",
+        "label": "Model Name",
+        "type": "text",
+        "required": false,
+        "defaultValue": "deepseek-v3.1",
+        "description": "The model name to use"
+      },
+      {
+        "field": "extra.temperature",
+        "label": "Model Temperature",
+        "type": "number",
+        "required": false,
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "description": "Model temperature. If specified, this takes precedence; otherwise, use agent configuration"
+      },
+      {
+        "field": "extra.enable_web_search",
+        "label": "Web Search",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "True", "value": true },
+          { "label": "False", "value": false }
+        ],
+        "defaultValue": false,
+        "description": "Enable web search"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "Conversation ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "Leave empty to start a new conversation",
+        "description": "Leave empty to start a new conversation, or provide an existing conversation ID"
+      },
+      {
+        "field": "extra.chat_extra",
+        "label": "Extra Information",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "Additional information"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "Request timeout in milliseconds"
+      }
+    ]
+  },
+  "coze-taiji": {
+    "name": "Taiji Coze AI",
+    "icon": "/images/taiji.png",
+    "description": "Configure Taiji Coze AI bot platform",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Target Label",
+        "type": "text",
+        "required": false,
+        "placeholder": "Enter a descriptive name for this target",
+        "description": "A descriptive name for this target"
+      },
+      {
+        "field": "extra.bot_id",
+        "label": "Bot ID",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter your Coze Bot ID",
+        "description": "Required. Your Coze bot ID from the Coze platform"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API Base URL",
+        "type": "text",
+        "required": false,
+        "defaultValue": "http://coze.taiji.woa.com",
+        "placeholder": "http://coze.taiji.woa.com",
+        "description": "Taiji Coze API base URL. Leave empty to use default"
+      },
+      {
+        "field": "apiKey",
+        "label": "API Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "pat_xxxx",
+        "description": "Taiji Coze API key"
       },
       {
         "field": "extra.user_id",

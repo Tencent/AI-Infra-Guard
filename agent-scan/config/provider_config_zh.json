@@ -94,7 +94,7 @@
         "idSuffix": "dify:{value}",
         "label": "Dify端点类型",
         "type": "select",
-        "required": true,
+        "required": false,
         "options": [
           { "label": "聊天消息", "value": "chat" },
           { "label": "工作流", "value": "workflow" }
@@ -108,15 +108,15 @@
         "type": "text",
         "required": false,
         "placeholder": "https://api.dify.ai/v1",
-        "description": "Dify API基础URL。留空使用默认值或DIFY_API_BASE环境变量"
+        "description": "Dify API基础URL。留空使用默认值"
       },
       {
         "field": "apiKey",
         "label": "API密钥",
         "type": "password",
-        "required": false,
+        "required": true,
         "placeholder": "app-xxxx",
-        "description": "Dify API密钥。如果未设置，将使用DIFY_API_KEY环境变量"
+        "description": "Dify API密钥"
       },
       {
         "field": "extra.user",
@@ -175,12 +175,12 @@
         "idSuffix": "coze:{value}",
         "label": "Coze区域",
         "type": "select",
-        "required": true,
+        "required": false,
         "options": [
           { "label": "中国 (api.coze.cn)", "value": "coze-cn" },
           { "label": "国际 (api.coze.com)", "value": "coze-com" }
         ],
-        "defaultValue": "cn",
+        "defaultValue": "coze-cn",
         "description": "选择Coze API区域"
       },
       {
@@ -203,9 +203,165 @@
         "field": "apiKey",
         "label": "API密钥",
         "type": "password",
-        "required": false,
+        "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Coze API密钥。如果未设置，将使用COZE_API_KEY环境变量"
+        "description": "Coze API密钥"
+      },
+      {
+        "field": "extra.user_id",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 120000,
+        "description": "请求超时时间（毫秒，默认：120000ms = 2分钟）"
+      }
+    ]
+  },
+  "knot": {
+    "name": "Knot",
+    "icon": "/images/knot.png",
+    "description": "配置Knot AI平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "目标标签",
+        "type": "text",
+        "required": false,
+        "placeholder": "为此目标输入描述性名称",
+        "description": "此目标的描述性名称"
+      },
+      {
+        "field": "endpoint",
+        "label": "智能体 ID",
+        "type": "text",
+        "required": true,
+        "description": "进入Knot智能体详情页，可以在链接中获取智能体ID"
+      },
+      {
+        "field": "apiKey",
+        "label": "用户的个人token",
+        "type": "password",
+        "required": true,
+        "placeholder": "xxxxxxx",
+        "description": "Knot智能体的API密钥。## 通过https://knot.woa.com/settings/token申请"
+      },
+      {
+        "field": "extra.model",
+        "label": "模型名称",
+        "type": "text",
+        "required": false,
+        "defaultValue": "deepseek-v3.1",
+        "description": "使用的模型名称"
+      },
+      {
+        "field": "extra.temperature",
+        "label": "模型温度",
+        "type": "number",
+        "required": false,
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "description": "模型温度。如果指定了，则以这个为准，否则以智能体配置为准"
+      },
+      {
+        "field": "extra.enable_web_search",
+        "label": "联网搜索",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "True", "value": true },
+          { "label": "False", "value": false }
+        ],
+        "defaultValue": false,
+        "description": "是否开启联网搜索"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "extra.chat_extra",
+        "label": "额外信息",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "额外的信息"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
+  "coze-taiji": {
+    "name": "Taiji Coze AI",
+    "icon": "/images/taiji.png",
+    "description": "配置Taiji Coze AI机器人平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "目标标签",
+        "type": "text",
+        "required": false,
+        "placeholder": "为此目标输入描述性名称",
+        "description": "此目标的描述性名称"
+      },
+      {
+        "field": "extra.bot_id",
+        "label": "机器人ID",
+        "type": "text",
+        "required": true,
+        "placeholder": "输入您的Coze机器人ID",
+        "description": "必填。来自Coze平台的机器人ID"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "defaultValue": "http://coze.taiji.woa.com",
+        "placeholder": "http://coze.taiji.woa.com",
+        "description": "Taiji Coze API基础URL。留空使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API密钥",
+        "type": "password",
+        "required": true,
+        "placeholder": "pat_xxxx",
+        "description": "Taiji Coze API密钥"
       },
       {
         "field": "extra.user_id",
