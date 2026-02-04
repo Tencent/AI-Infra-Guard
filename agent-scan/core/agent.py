@@ -29,7 +29,7 @@ class ScanPipeline:
 
     async def execute_stage(self, stage: ScanStage, repo_dir: str, prompt: str,
                             agent_provider: ProviderOptions | None = None,
-                            context_data: Dict[str, Any] = None) -> str:
+                            context_data: Dict[str, Any] = None):
         instruction = prompt_manager.load_template(stage.template)
         return await run_agent(stage.name, instruction, self.agent_wrapper.llm, prompt, stage.stage_id,
                                self.agent_wrapper.specialized_llms,
@@ -51,21 +51,24 @@ class Agent:
 
     async def scan(self, repo_dir: str, prompt: str) -> Dict[str, Any]:
         start_time = time.time()
+        total_dialogue_count = 0
 
         # 1. 信息收集
-        info_collection = await self.pipeline.execute_stage(
+        info_collection, info_stats = await self.pipeline.execute_stage(
             ScanStage("1", "Info Collection", "project_summary", language=self.language),
             repo_dir, prompt, self.agent_provider
         )
+        total_dialogue_count += info_stats.get("dialogue", 0)
 
         # 2. 漏洞检测 (Agent-focused)
-        vuln_detection = await self.pipeline.execute_stage(
+        vuln_detection, vuln_stats = await self.pipeline.execute_stage(
             ScanStage("2", "Vulnerability Detection", "agent_vulnerability_detector", language=self.language),
             repo_dir, prompt, self.agent_provider, {"信息收集报告": info_collection}
         )
+        total_dialogue_count += vuln_stats.get("dialogue", 0)
 
         # 3. 漏洞整理
-        vuln_review = await self.pipeline.execute_stage(
+        vuln_review, review_stats = await self.pipeline.execute_stage(
             ScanStage("3", "Vulnerability Review", "agent_security_reviewer",
                       language=self.language),
             repo_dir, prompt, self.agent_provider, {"漏洞检测报告": vuln_detection}
@@ -99,6 +102,7 @@ class Agent:
             start_time=int(start_time),
             end_time=int(end_time),
             report_description=info_collection,
+            total_tests=total_dialogue_count
         )
 
         result = report.dict()

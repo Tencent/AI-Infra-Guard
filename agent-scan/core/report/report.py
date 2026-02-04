@@ -231,12 +231,9 @@ def generate_report_from_xml(
     """
     vuln_list = _extract_vuln_blocks(vuln_text)
 
-    xml_total_tests = _extract_tag_content(vuln_text, 'total_tests')
-    if xml_total_tests:
-        try:
-            total_tests = int(xml_total_tests)
-        except (ValueError, TypeError):
-            pass
+    # Use passed total_tests, default to vuln_list length if 0
+    if total_tests == 0 and len(vuln_list) > 0:
+         total_tests = len(vuln_list)
 
     now = int(time.time())
     start_time = start_time or now
