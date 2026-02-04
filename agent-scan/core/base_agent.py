@@ -183,7 +183,7 @@ class BaseAgent:
         full_message = f"{next_p}\n\n{result_message}"
         logger.debug(f"Agent Response: {result_message}")
         self.history.append({"role": "user", "content": full_message})
-
+        scanLogger.status_update(self.step_id, description, "", "completed")
         return None
 
     async def _format_final_output(self) -> str:
