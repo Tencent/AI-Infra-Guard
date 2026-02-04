@@ -39,6 +39,7 @@ class BaseAgent:
         self.agent_provider = agent_provider
         self.language = language
         self.dispatcher = ToolDispatcher()
+        self.tool_usage_stats = {}
 
     async def initialize(self):
         """异步初始化系统提示词"""
@@ -127,6 +128,11 @@ class BaseAgent:
             params = params.replace(self.repo_dir, "")
 
         scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+
+        # Update stats
+        if tool_name not in self.tool_usage_stats:
+            self.tool_usage_stats[tool_name] = 0
+        self.tool_usage_stats[tool_name] += 1
 
         if tool_name == "finish":
             self.is_finished = True
@@ -227,4 +233,4 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
 
     # 运行并返回结果
     result = await agent.run()
-    return result
+    return result, agent.tool_usage_stats

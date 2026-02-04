@@ -146,16 +146,6 @@ Bad example (DO NOT DO THIS):
 
 Generate concise, professional reports. One `<vuln>` block per confirmed issue (after deduplication).
 
-## Optional: Test Count Reporting
-
-If you tracked the number of dialogue tests executed, you can include it in the XML:
-
-```xml
-<total_tests>10</total_tests>
-```
-
-This helps provide accurate test coverage statistics. If not included, the system will use the vulnerability count as a fallback.
-
 ## Related
 
 - **Classification**: `load_skill(name="owasp-asi")` — OWASP Top 10 for Agentic Applications; use it to map finding types to `ASI0X: Category Name`. You do not need to reference detection modules; input is already raw findings with evidence.

@@ -10,7 +10,7 @@
     - Call with 'query' to search skills by name or description
     
     Examples:
-    - query: "ssrf" - Find skills related to SSRF detection
+    - query: "tool-abuse" - Find skills related to tool abuse detection (includes SSRF)
     - query: "" (empty) - List all available skills
   </description>
   <parameters>
@@ -40,7 +40,7 @@
     - Detailed Prompt Instructions
     
     Examples:
-    - name: "ssrf" - Load SSRF detection skill (from prompt/skills/ssrf/SKILL.md)
+    - name: "tool-abuse-detection" - Load tool abuse detection skill (includes SSRF detection)
   </description>
   <parameters>
     <parameter name="name" type="string" required="true">
