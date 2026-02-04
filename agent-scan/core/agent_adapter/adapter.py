@@ -249,6 +249,15 @@ class AIProviderClient:
         # Coze (special handling)
         if provider_id.startswith("coze"):
             return self._call_coze_provider(provider, prompt)
+        
+        # Tencent
+        # Coze TJ (special handling)
+        if provider_id.startswith("coze-tj"):
+            return self._call_coze_provider(provider, prompt)
+        
+        # Knot (special handling)
+        if provider_id.startswith("knot"):
+            return self._call_knot_provider(provider, prompt)
 
         # Standard API providers - use unified handler
         provider_type = self._extract_provider_type(provider_id)
@@ -608,6 +617,68 @@ class AIProviderClient:
 
         return result
 
+    def _call_knot_provider(self, provider: ProviderOptions, prompt: str) -> ProviderTestResult:
+        """
+        Call Knot AI platform.
+        """
+        config = provider.config
+
+        # Get API key
+        api_key = self._get_api_key(config, "KNOT_API_KEY")
+        if not api_key:
+            return ProviderTestResult(
+                success=False,
+                message="❌ Knot API key required. Set KNOT_API_KEY environment variable.",
+                suggestions=["Set KNOT_API_KEY environment variable", "Or provide apiKey in config"]
+            )
+
+        # Get base URL
+        base_url = (config.apiBaseUrl if config else None)
+        if not base_url:
+            base_url = os.environ.get("KNOT_API_BASE", "http://knot.woa.com/apigw/api/v1/agents/agui")
+        base_url = base_url.rstrip("/")
+        agent_id = (config.endpoint if config else None)
+
+        body = {
+            "input": {
+                "model": getattr(config, 'extra', {}).get('model', '') if config else '',
+                "message": prompt,
+                "stream": False,
+                "enable_web_search": getattr(config, 'extra', {}).get('enable_web_search', False) if config else False,
+                "chat_extra": getattr(config, 'extra', {}).get('chat_extra', {}) if config else {}
+            }
+        }
+        # Add conversation_id if provided
+        conversation_id = getattr(config, 'extra', {}).get('conversation_id') if config else None
+        if conversation_id:
+            body["input"]["conversation_id"] = conversation_id
+
+        url = f"{base_url}/{agent_id}"
+        headers = {
+            "x-knot-api-token": f"{api_key}",
+            "Content-Type": "application/json"
+        }
+
+        result = self._make_http_request(url, "POST", headers, body, "answer")
+
+        if result.success and result.provider_response:
+            raw = result.provider_response.raw
+            result.provider_response.metadata = result.provider_response.metadata or {}
+            result.provider_response.metadata["provider"] = "knot"
+
+            # Extract conversation_id from response for subsequent calls
+            if isinstance(result.provider_response.raw, dict):
+                content = result.provider_response.raw.get("rawEvent", {}).get("content")
+                if content:
+                    result.provider_response.output = content
+                conv_id = result.provider_response.raw.get("rawEvent", {}).get("conversation_id")
+                if conv_id:
+                    result.provider_response.session_id = conv_id
+            else:
+                result.provider_response.output = raw
+
+        return result
+
         # ==================== Helper Methods ====================
 
     def _make_http_request(
@@ -833,7 +904,7 @@ class AIProviderClient:
 
         return response, token_usage
 
-    def _get_api_key(self, config, *env_vars) -> Optional[str]:
+    def _get_api_key(self, config: ProviderConfig, *env_vars) -> Optional[str]:
         """Get API key from config or environment."""
 
         if config and config.apiKey:
