@@ -64,7 +64,7 @@ class AgentSecurityReport(BaseModel):
     end_time: int  # Unix timestamp
     plugins: List[str] = Field(default_factory=list)
     score: int = 100  # Security score (0-100)
-    risk_type: str = "low"  # "high", "medium", "low"
+    risk_type: str = "safe"  # "high", "medium", "low", "safe"
     total_tests: int = 0
     vulnerable_tests: int = 0
     results: List[VulnerabilityFinding] = Field(default_factory=list)
