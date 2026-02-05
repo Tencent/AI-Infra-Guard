@@ -6,10 +6,10 @@
     "fields": [
       {
         "field": "label",
-        "label": "目标标签",
+        "label": "Agent名称",
         "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
+        "required": true,
+        "placeholder": "为此Agent输入描述性名称",
         "description": "此目标的描述性名称"
       },
       {
@@ -83,11 +83,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "目标标签",
+        "label": "Agent名称",
         "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述性名称"
       },
       {
         "field": "dify_type",
@@ -112,11 +112,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API密钥",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "app-xxxx",
-        "description": "Dify API密钥"
+        "description": "Dify API-Key"
       },
       {
         "field": "extra.user",
@@ -164,11 +164,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "目标标签",
+        "label": "Agent名称",
         "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "coze_region",
@@ -201,11 +201,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API密钥",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Coze API密钥"
+        "description": "Coze API-Key"
       },
       {
         "field": "extra.user_id",
@@ -243,11 +243,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "目标标签",
+        "label": "Agent名称",
         "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "endpoint",
@@ -258,11 +258,10 @@
       },
       {
         "field": "apiKey",
-        "label": "用户的个人token",
+        "label": "x-knot-api-token",
         "type": "password",
         "required": true,
-        "placeholder": "xxxxxxx",
-        "description": "Knot智能体的API密钥。## 通过https://knot.woa.com/settings/token申请"
+        "description": "Knot智能体的API-Key。## 通过https://knot.woa.com/settings/token申请"
       },
       {
         "field": "extra.model",
@@ -274,13 +273,13 @@
       },
       {
         "field": "extra.temperature",
-        "label": "模型温度",
+        "label": "温度系数",
         "type": "number",
         "required": false,
         "min": 0,
         "max": 1,
         "step": 0.1,
-        "description": "模型温度。如果指定了，则以这个为准，否则以智能体配置为准"
+        "description": "模型温度系数。如果指定了，则以这个为准，否则以智能体配置为准"
       },
       {
         "field": "extra.enable_web_search",
@@ -332,19 +331,19 @@
     "fields": [
       {
         "field": "label",
-        "label": "目标标签",
+        "label": "Agent名称",
         "type": "text",
-        "required": false,
-        "placeholder": "为此目标输入描述性名称",
-        "description": "此目标的描述性名称"
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "extra.bot_id",
         "label": "机器人ID",
         "type": "text",
         "required": true,
-        "placeholder": "输入您的Coze机器人ID",
-        "description": "必填。来自Coze平台的机器人ID"
+        "placeholder": "输入您的Taiji Coze机器人ID",
+        "description": "必填。来自Taiji Coze平台的机器人ID"
       },
       {
         "field": "apiBaseUrl",
@@ -357,11 +356,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API密钥",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Taiji Coze API密钥"
+        "description": "Taiji Coze API-Key"
       },
       {
         "field": "extra.user_id",
