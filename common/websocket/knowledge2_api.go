@@ -885,10 +885,14 @@ func HandleAgentTemplate(c *gin.Context) {
 	var err error
 	if language == "zh" {
 		data, err = os.ReadFile(zhConfig)
-		gologger.WithError(err).Errorln("read zh config")
+		if err != nil {
+			gologger.WithError(err).Errorln("read zh config")
+		}
 	} else {
 		data, err = os.ReadFile(enConfig)
-		gologger.WithError(err).Errorln("read en config")
+		if err != nil {
+			gologger.WithError(err).Errorln("read en config")
+		}
 	}
 	c.Data(http.StatusOK, "application/json", data)
 }
