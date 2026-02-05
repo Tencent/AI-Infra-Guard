@@ -6,11 +6,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "Target Label",
+        "label": "Agent Name",
         "type": "text",
-        "required": false,
-        "placeholder": "Enter a descriptive name for this target",
-        "description": "A descriptive name for this target"
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
       },
       {
         "field": "url",
@@ -83,11 +83,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "Target Label",
+        "label": "Agent Name",
         "type": "text",
-        "required": false,
-        "placeholder": "Enter a descriptive name for this target",
-        "description": "A descriptive name for this target"
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
       },
       {
         "field": "dify_type",
@@ -112,11 +112,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API Key",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "app-xxxx",
-        "description": "Dify API key"
+        "description": "Dify API-Key"
       },
       {
         "field": "extra.user",
@@ -164,11 +164,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "Target Label",
+        "label": "Agent Name",
         "type": "text",
-        "required": false,
-        "placeholder": "Enter a descriptive name for this target",
-        "description": "A descriptive name for this target"
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
       },
       {
         "field": "coze_region",
@@ -201,11 +201,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API Key",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Coze API key"
+        "description": "Coze API-Key"
       },
       {
         "field": "extra.user_id",
@@ -243,11 +243,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "Target Label",
+        "label": "Agent Name",
         "type": "text",
-        "required": false,
-        "placeholder": "Enter a descriptive name for this target",
-        "description": "A descriptive name for this target"
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
       },
       {
         "field": "endpoint",
@@ -258,11 +258,10 @@
       },
       {
         "field": "apiKey",
-        "label": "Personal Token",
+        "label": "x-knot-api-token",
         "type": "password",
         "required": true,
-        "placeholder": "xxxxxxx",
-        "description": "Knot agent API key. Apply via https://knot.woa.com/settings/token"
+        "description": "Knot agent API-Key. Apply via https://knot.woa.com/settings/token"
       },
       {
         "field": "extra.model",
@@ -274,13 +273,13 @@
       },
       {
         "field": "extra.temperature",
-        "label": "Model Temperature",
+        "label": "Temperature",
         "type": "number",
         "required": false,
         "min": 0,
         "max": 1,
         "step": 0.1,
-        "description": "Model temperature. If specified, this takes precedence; otherwise, use agent configuration"
+        "description": "Temperature. If specified, this takes precedence; otherwise, use agent configuration"
       },
       {
         "field": "extra.enable_web_search",
@@ -332,11 +331,11 @@
     "fields": [
       {
         "field": "label",
-        "label": "Target Label",
+        "label": "Agent Name",
         "type": "text",
-        "required": false,
-        "placeholder": "Enter a descriptive name for this target",
-        "description": "A descriptive name for this target"
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
       },
       {
         "field": "extra.bot_id",
@@ -357,11 +356,11 @@
       },
       {
         "field": "apiKey",
-        "label": "API Key",
+        "label": "API-Key",
         "type": "password",
         "required": true,
         "placeholder": "pat_xxxx",
-        "description": "Taiji Coze API key"
+        "description": "Taiji Coze API-Key"
       },
       {
         "field": "extra.user_id",
