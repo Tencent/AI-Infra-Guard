@@ -659,7 +659,7 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body, "answer")
+        result = self._make_http_request(url, "POST", headers, body, "json.rawEvent.content")
 
         if result.success and result.provider_response:
             raw = result.provider_response.raw
@@ -668,9 +668,6 @@ class AIProviderClient:
 
             # Extract conversation_id from response for subsequent calls
             if isinstance(result.provider_response.raw, dict):
-                content = result.provider_response.raw.get("rawEvent", {}).get("content")
-                if content:
-                    result.provider_response.output = content
                 conv_id = result.provider_response.raw.get("rawEvent", {}).get("conversation_id")
                 if conv_id:
                     result.provider_response.session_id = conv_id
@@ -1141,8 +1138,8 @@ class AIProviderClient:
                     # Standard format with 'id' field
                     providers.append(ProviderOptions(
                         id=provider_data.get("id", ""),
-                        label=provider_data.get("label"),
-                        delay=provider_data.get("delay"),
+                        label=provider_data.get("config", {}).get("label"),
+                        delay=provider_data.get("config", {}).get("delay"),
                         config=ProviderConfig(**provider_data.get("config", {}))
                     ))
 
