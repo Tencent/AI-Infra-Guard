@@ -391,6 +391,88 @@
       }
     ]
   },
+  "dify-venus": {
+    "name": "Venus Dify AI",
+    "icon": "/images/agents-icon/venus.png",
+    "description": "Configure Dify AI platform",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter a descriptive name for this agent",
+        "description": "A descriptive name for this agent"
+      },
+      {
+        "field": "dify_type",
+        "idSuffix": "dify:{value}",
+        "label": "Dify Endpoint Type",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "Chat Messages", "value": "chat" },
+          { "label": "Workflow", "value": "workflow" }
+        ],
+        "defaultValue": "chat",
+        "description": "Chat Messages for conversational apps, Workflow for workflow execution"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API Base URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "http://api.dify.woa.com/v1",
+        "defaultValue": "http://api.dify.woa.com/v1",
+        "description": "Venus Dify API base URL. Leave empty to use default"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "app-xxxx",
+        "description": "Venus Dify API-Key"
+      },
+      {
+        "field": "extra.user",
+        "label": "User ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "User identifier for the conversation"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "Conversation ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "Leave empty to start a new conversation",
+        "description": "Leave empty to start a new conversation, or provide an existing conversation ID"
+      },
+      {
+        "field": "extra.inputs",
+        "label": "Custom Inputs",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "Custom inputs that will be passed to the Dify app/workflow (JSON format)"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "Request timeout in milliseconds"
+      }
+    ]
+  },
   "common": {
     "name": "Common Configuration",
     "description": "Common configuration options for all provider types",
