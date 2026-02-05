@@ -83,19 +83,26 @@ class Agent:
         top_language = get_top_language(lang_stats)
 
         # Generate AgentSecurityReport
-        # Extract agent_type from provider configuration
+        # Extract agent_type and agent_name from provider configuration
         agent_type = ""
+        agent_name = ""
+        
         if self.agent_provider and self.agent_provider.id:
-            # Extract provider type from id (e.g., "dify:bot_123" -> "dify", "coze" -> "coze")
             provider_id = self.agent_provider.id
+            
+            # Extract agent_type from id (e.g., "dify:bot_123" -> "dify", "coze" -> "coze")
             if ":" in provider_id:
                 agent_type = provider_id.split(":")[0]
             else:
                 agent_type = provider_id
+            
+            # Extract agent_name from label
+            if self.agent_provider.label:
+                agent_name = self.agent_provider.label
         
         report = generate_report_from_xml(
             vuln_text=vuln_review,
-            agent_name=repo_dir.split('/')[-1] if repo_dir else "",
+            agent_name=agent_name,
             agent_type=agent_type,
             model_name=getattr(self.llm, 'model', ''),
             plugins=[],
