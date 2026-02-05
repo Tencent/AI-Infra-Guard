@@ -391,6 +391,88 @@
       }
     ]
   },
+  "dify-venus": {
+    "name": "Venus Dify AI",
+    "icon": "/images/agents-icon/venus.png",
+    "description": "配置Dify AI平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述性名称"
+      },
+      {
+        "field": "dify_type",
+        "idSuffix": "dify:{value}",
+        "label": "Dify端点类型",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "聊天消息", "value": "chat" },
+          { "label": "工作流", "value": "workflow" }
+        ],
+        "defaultValue": "chat",
+        "description": "聊天消息用于对话应用，工作流用于工作流执行"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "http://api.dify.woa.com/v1",
+        "defaultValue": "http://api.dify.woa.com/v1",
+        "description": "Venus Dify API基础URL。留空使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "app-xxxx",
+        "description": "Venus Dify API-Key"
+      },
+      {
+        "field": "extra.user",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "extra.inputs",
+        "label": "自定义输入",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "将传递给Dify应用/工作流的自定义输入（JSON格式）"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
   "common": {
     "name": "通用配置",
     "description": "所有provider类型的通用配置选项",
