@@ -1,7 +1,7 @@
 {
   "http": {
     "name": "HTTP接口",
-    "icon": "/images/http.webp",
+    "icon": "/images/agents-icon/http.webp",
     "description": "配置HTTP端点以发送请求",
     "fields": [
       {
@@ -9,8 +9,8 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入描述性名称",
-        "description": "此目标的描述性名称"
+        "placeholder": "为此Agent输入自定义名称",
+        "description": "此Agent的描述性名称"
       },
       {
         "field": "url",
@@ -78,7 +78,7 @@
   },
   "dify": {
     "name": "Dify AI",
-    "icon": "/images/dify.webp",
+    "icon": "/images/agents-icon/dify.webp",
     "description": "配置Dify AI平台",
     "fields": [
       {
@@ -159,7 +159,7 @@
   },
   "coze": {
     "name": "Coze AI",
-    "icon": "/images/coze.png",
+    "icon": "/images/agents-icon/coze.png",
     "description": "配置Coze AI机器人平台",
     "fields": [
       {
@@ -185,11 +185,11 @@
       },
       {
         "field": "extra.bot_id",
-        "label": "机器人ID",
+        "label": "Bot ID",
         "type": "text",
         "required": true,
-        "placeholder": "输入您的Coze机器人ID",
-        "description": "必填。来自Coze平台的机器人ID"
+        "placeholder": "输入您的Coze Bot ID",
+        "description": "必填。来自Coze平台的Bot ID"
       },
       {
         "field": "apiBaseUrl",
@@ -238,7 +238,7 @@
   },
   "knot": {
     "name": "Knot",
-    "icon": "/images/knot.png",
+    "icon": "/images/agents-icon/knot.png",
     "description": "配置Knot AI平台",
     "fields": [
       {
@@ -251,10 +251,10 @@
       },
       {
         "field": "endpoint",
-        "label": "智能体 ID",
+        "label": "Agent ID",
         "type": "text",
         "required": true,
-        "description": "进入Knot智能体详情页，可以在链接中获取智能体ID"
+        "description": "进入Knot智能体详情页，可以在链接中获取Agent ID"
       },
       {
         "field": "apiKey",
@@ -326,7 +326,7 @@
   },
   "coze-taiji": {
     "name": "Taiji Coze AI",
-    "icon": "/images/taiji.png",
+    "icon": "/images/agents-icon/taiji.png",
     "description": "配置Taiji Coze AI机器人平台",
     "fields": [
       {
@@ -339,11 +339,11 @@
       },
       {
         "field": "extra.bot_id",
-        "label": "机器人ID",
+        "label": "Bot ID",
         "type": "text",
         "required": true,
-        "placeholder": "输入您的Taiji Coze机器人ID",
-        "description": "必填。来自Taiji Coze平台的机器人ID"
+        "placeholder": "输入您的Taiji Coze Bot ID",
+        "description": "必填。来自Taiji Coze平台的Bot ID"
       },
       {
         "field": "apiBaseUrl",

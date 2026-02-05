@@ -1,7 +1,7 @@
 {
   "http": {
     "name": "HTTP Endpoint",
-    "icon": "/images/http.webp",
+    "icon": "/images/agents-icon/http.webp",
     "description": "Configure HTTP endpoint to send requests",
     "fields": [
       {
@@ -78,7 +78,7 @@
   },
   "dify": {
     "name": "Dify AI",
-    "icon": "/images/dify.webp",
+    "icon": "/images/agents-icon/dify.webp",
     "description": "Configure Dify AI platform",
     "fields": [
       {
@@ -159,7 +159,7 @@
   },
   "coze": {
     "name": "Coze AI",
-    "icon": "/images/coze.png",
+    "icon": "/images/agents-icon/coze.png",
     "description": "Configure Coze AI bot platform",
     "fields": [
       {
@@ -238,7 +238,7 @@
   },
   "knot": {
     "name": "Knot",
-    "icon": "/images/knot.png",
+    "icon": "/images/agents-icon/knot.png",
     "description": "Configure Knot AI platform",
     "fields": [
       {
@@ -326,7 +326,7 @@
   },
   "coze-taiji": {
     "name": "Taiji Coze AI",
-    "icon": "/images/taiji.png",
+    "icon": "/images/agents-icon/taiji.png",
     "description": "Configure Taiji Coze AI bot platform",
     "fields": [
       {
