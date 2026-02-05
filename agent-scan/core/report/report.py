@@ -291,11 +291,16 @@ def generate_report_from_xml(
 
     score = calculate_security_score(vuln_list)
     
-    risk_type = "low"
-    if any(v['level'].lower() in ['critical', 'high'] for v in vuln_list):
+    # Determine overall risk type based on vulnerabilities found
+    if not vuln_list:
+        # No vulnerabilities found - report as safe
+        risk_type = "safe"
+    elif any(v['level'].lower() in ['critical', 'high'] for v in vuln_list):
         risk_type = "high"
     elif any(v['level'].lower() == 'medium' for v in vuln_list):
         risk_type = "medium"
+    else:
+        risk_type = "low"
 
     if not report_description:
         desc_parts = [
