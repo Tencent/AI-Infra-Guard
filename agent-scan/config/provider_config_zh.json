@@ -90,8 +90,7 @@
         "description": "此Agent的描述性名称"
       },
       {
-        "field": "dify_type",
-        "idSuffix": "dify:{value}",
+        "field": "extra.dify_type",
         "label": "Dify端点类型",
         "type": "select",
         "required": false,
@@ -171,8 +170,7 @@
         "description": "此Agent的描述名称"
       },
       {
-        "field": "coze_region",
-        "idSuffix": "coze:{value}",
+        "field": "extra.coze_region",
         "label": "Coze区域",
         "type": "select",
         "required": false,
@@ -405,8 +403,7 @@
         "description": "此Agent的描述性名称"
       },
       {
-        "field": "dify_type",
-        "idSuffix": "dify:{value}",
+        "field": "extra.dify_type",
         "label": "Dify端点类型",
         "type": "select",
         "required": false,

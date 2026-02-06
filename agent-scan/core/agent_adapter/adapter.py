@@ -464,7 +464,8 @@ class AIProviderClient:
         base_url = base_url.rstrip("/")
 
         # Determine endpoint
-        if "workflow" in provider_id:
+        dify_type = getattr(config, 'extra', {}).get('dify_type', 'chat') if config else 'chat'
+        if "workflow" in dify_type:
             endpoint = "/workflows/run"
             # Workflow uses 'inputs' for the prompt
             body = {
@@ -546,7 +547,8 @@ class AIProviderClient:
         if not base_url:
             base_url = os.environ.get("COZE_API_BASE")
         if not base_url:
-            if "coze-com" in provider_id:
+            coze_region = getattr(config, 'extra', {}).get('coze_region', 'coze-cn') if config else 'coze-cn'
+            if "coze-com" in coze_region:
                 base_url = "https://api.coze.com"
             else:
                 base_url = "https://api.coze.cn"
