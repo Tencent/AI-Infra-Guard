@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="search_skill">
+  <description>
+    Search and list available skills in the system.
+    Skills are directories in 'prompt/skills/' containing a SKILL.md file.
+    
+    Usage:
+    - Call without 'query' to list all available skills
+    - Call with 'query' to search skills by name or description
+    
+    Examples:
+    - query: "tool-abuse" - Find skills related to tool abuse detection (includes SSRF)
+    - query: "" (empty) - List all available skills
+  </description>
+  <parameters>
+    <parameter name="query" type="string" required="false">
+      Search keyword to filter skills by name, title or description.
+      If not provided, returns all available skills.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the search succeeded</field>
+    <field name="count" type="number">Number of skills found</field>
+    <field name="skills" type="string">List of skills (title, description)</field>
+  </returns>
+</tool>
+
+<tool name="load_skill">
+  <description>
+    Load a specific skill to get detailed instructions for a task.
+    Reads the SKILL.md file from the skill directory, parsing YAML metadata and prompt content.
+    
+    Usage:
+    - Use search_skill first to find available skills
+    - Then use load_skill with the skill name (directory name)
+    
+    The loaded skill provides:
+    - Metadata (name, description, etc.)
+    - Detailed Prompt Instructions
+    
+    Examples:
+    - name: "tool-abuse-detection" - Load tool abuse detection skill (includes SSRF detection)
+  </description>
+  <parameters>
+    <parameter name="name" type="string" required="true">
+      The skill identifier (directory name) to load.
+      Use the exact name returned by search_skill.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the skill was loaded successfully</field>
+    <field name="content" type="string">Skill prompt content</field>
+  </returns>
+</tool>
+</tools>

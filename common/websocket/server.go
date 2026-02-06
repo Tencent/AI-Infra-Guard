@@ -100,6 +100,7 @@ func RunWebServer(options *version.Options) {
 		})
 		// 1. 知识库模块
 		knowledge := v1.Group("/knowledge")
+		knowledge.Use(setupIdentityMiddleware())
 		{
 			// AI应用指纹
 			fingerprints := knowledge.Group("/fingerprints")
@@ -146,6 +147,16 @@ func RunWebServer(options *version.Options) {
 				collections.PUT("/:id", HandleEdit(promptCollectionUpdateFunc))
 				collections.DELETE("", HandleDelete(promptCollectionDeleteFunc))
 			}
+			agentConfigs := knowledge.Group("/agent")
+			{
+				agentConfigs.GET("/names", HandleListAgentNames)
+				agentConfigs.GET("/:name", HandleGetAgentConfig)
+				agentConfigs.POST("/:name", HandleSaveAgentConfig)
+				agentConfigs.DELETE("/:name", HandleDeleteAgentConfig)
+				agentConfigs.POST("/connect", HandleAgentConnect)
+				agentConfigs.POST("/prompt_test", HandleAgentPromptTest)
+				agentConfigs.GET("/template", HandleAgentTemplate)
+			}
 			// 算子列表
 			knowledge.GET("/jailbreak", GetJailBreak)
 		}
@@ -175,9 +186,17 @@ func RunWebServer(options *version.Options) {
 				tasks.POST("", func(c *gin.Context) {
 					HandleTaskCreate(c, taskManager)
 				})
-				// 文件上传接口
+				// 文件上传接口（完整文件上传）
 				tasks.POST("/uploadFile", func(c *gin.Context) {
 					HandleUploadFile(c, taskManager)
+				})
+				// 分片上传接口
+				tasks.POST("/uploadChunk", func(c *gin.Context) {
+					HandleUploadFileChunk(c, taskManager)
+				})
+				// 合并分片接口
+				tasks.POST("/mergeChunks", func(c *gin.Context) {
+					HandleMergeFileChunks(c, taskManager)
 				})
 				// 文件下载接口
 				tasks.POST("/:sessionId/downloadFile", func(c *gin.Context) {
@@ -244,6 +263,14 @@ func RunWebServer(options *version.Options) {
 			})
 			taskApi.POST("/upload", func(c *gin.Context) {
 				HandleUploadFile(c, taskManager)
+			})
+			// 分片上传接口
+			taskApi.POST("/uploadChunk", func(c *gin.Context) {
+				HandleUploadFileChunk(c, taskManager)
+			})
+			// 合并分片接口
+			taskApi.POST("/mergeChunks", func(c *gin.Context) {
+				HandleMergeFileChunks(c, taskManager)
 			})
 		}
 		// version

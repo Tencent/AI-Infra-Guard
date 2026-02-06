@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="dialogue">
+  <description>
+    Call an AI provider with a prompt to have a dialogue.
+    This tool sends the given prompt to the AI provider and returns the response.
+  </description>
+  <parameters>
+    <parameter name="prompt" type="string" required="true">
+      The prompt message to send to the AI provider.
+    </parameter>
+  </parameters>
+  <returns>
+    <return type="string">
+      The text output extracted from the AI provider's response.
+      This is the direct output content from the provider_response.output field.
+    </return>
+  </returns>
+</tool>
+</tools>

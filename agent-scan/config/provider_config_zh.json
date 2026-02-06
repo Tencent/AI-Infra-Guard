@@ -1,0 +1,490 @@
+{
+  "http": {
+    "name": "HTTP接口",
+    "icon": "/images/agents-icon/http.webp",
+    "description": "配置HTTP端点以发送请求",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "url",
+        "label": "URL",
+        "type": "text",
+        "required": true,
+        "placeholder": "https://api.example.com/chat",
+        "description": "要发送请求的HTTP端点URL"
+      },
+      {
+        "field": "method",
+        "label": "HTTP方法",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "POST", "value": "POST" },
+          { "label": "GET", "value": "GET" },
+          { "label": "PUT", "value": "PUT" },
+          { "label": "PATCH", "value": "PATCH" },
+          { "label": "DELETE", "value": "DELETE" }
+        ],
+        "defaultValue": "POST",
+        "description": "HTTP请求方法"
+      },
+      {
+        "field": "headers",
+        "label": "请求头",
+        "type": "json",
+        "required": false,
+        "placeholder": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "defaultValue": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "rows": 4,
+        "description": "JSON格式的HTTP请求头"
+      },
+      {
+        "field": "body",
+        "label": "请求体",
+        "type": "textarea",
+        "required": false,
+        "placeholder": "{\n  \"message\": \"{{prompt}}\"\n}",
+        "defaultValue": "{\n  \"message\": \"{{prompt}}\"\n}",
+        "rows": 6,
+        "description": "请求体模板。使用 {{prompt}} 作为测试输入的占位符"
+      },
+      {
+        "field": "transform_response",
+        "label": "响应解析器",
+        "type": "text",
+        "required": false,
+        "placeholder": "json.choices[0].message.content",
+        "description": "用于提取响应的JSONPath（可选）"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 30000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
+  "dify": {
+    "name": "Dify AI",
+    "icon": "/images/agents-icon/dify.webp",
+    "description": "配置Dify AI平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "extra.dify_type",
+        "label": "Dify端点类型",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "聊天消息", "value": "chat" },
+          { "label": "工作流", "value": "workflow" }
+        ],
+        "defaultValue": "chat",
+        "description": "聊天消息用于对话应用，工作流用于工作流执行"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "https://api.dify.ai/v1",
+        "description": "Dify API基础URL。留空使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "app-xxxx",
+        "description": "Dify API-Key"
+      },
+      {
+        "field": "extra.user",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "extra.inputs",
+        "label": "自定义输入",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "将传递给Dify应用/工作流的自定义输入（JSON格式）"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
+  "coze": {
+    "name": "Coze AI",
+    "icon": "/images/agents-icon/coze.png",
+    "description": "配置Coze AI机器人平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "extra.coze_region",
+        "label": "Coze区域",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "中国 (api.coze.cn)", "value": "coze-cn" },
+          { "label": "国际 (api.coze.com)", "value": "coze-com" }
+        ],
+        "defaultValue": "coze-cn",
+        "description": "选择Coze API区域"
+      },
+      {
+        "field": "extra.bot_id",
+        "label": "Bot ID",
+        "type": "text",
+        "required": true,
+        "placeholder": "输入您的Coze Bot ID",
+        "description": "必填。来自Coze平台的Bot ID"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "https://api.coze.cn",
+        "description": "Coze API基础URL。留空根据区域使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "pat_xxxx",
+        "description": "Coze API-Key"
+      },
+      {
+        "field": "extra.user_id",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 120000,
+        "description": "请求超时时间（毫秒，默认：120000ms = 2分钟）"
+      }
+    ]
+  },
+  "knot": {
+    "name": "Knot",
+    "icon": "/images/agents-icon/knot.png",
+    "description": "配置Knot AI平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "endpoint",
+        "label": "Agent ID",
+        "type": "text",
+        "required": true,
+        "description": "进入Knot智能体详情页，可以在链接中获取Agent ID"
+      },
+      {
+        "field": "apiKey",
+        "label": "x-knot-api-token",
+        "type": "password",
+        "required": true,
+        "description": "Knot智能体的API-Key。## 通过https://knot.woa.com/settings/token申请"
+      },
+      {
+        "field": "extra.model",
+        "label": "模型名称",
+        "type": "text",
+        "required": false,
+        "defaultValue": "deepseek-v3.1",
+        "description": "使用的模型名称"
+      },
+      {
+        "field": "extra.temperature",
+        "label": "温度系数",
+        "type": "number",
+        "required": false,
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "description": "模型温度系数。如果指定了，则以这个为准，否则以智能体配置为准"
+      },
+      {
+        "field": "extra.enable_web_search",
+        "label": "联网搜索",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "True", "value": true },
+          { "label": "False", "value": false }
+        ],
+        "defaultValue": false,
+        "description": "是否开启联网搜索"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "extra.chat_extra",
+        "label": "额外信息",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "额外的信息"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
+  "coze-taiji": {
+    "name": "Taiji Coze AI",
+    "icon": "/images/agents-icon/taiji.png",
+    "description": "配置Taiji Coze AI机器人平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "extra.bot_id",
+        "label": "Bot ID",
+        "type": "text",
+        "required": true,
+        "placeholder": "输入您的Taiji Coze Bot ID",
+        "description": "必填。来自Taiji Coze平台的Bot ID"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "defaultValue": "http://coze.taiji.woa.com",
+        "placeholder": "http://coze.taiji.woa.com",
+        "description": "Taiji Coze API基础URL。留空使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "pat_xxxx",
+        "description": "Taiji Coze API-Key"
+      },
+      {
+        "field": "extra.user_id",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 120000,
+        "description": "请求超时时间（毫秒，默认：120000ms = 2分钟）"
+      }
+    ]
+  },
+  "dify-venus": {
+    "name": "Venus Dify AI",
+    "icon": "/images/agents-icon/venus.png",
+    "description": "配置Dify AI平台",
+    "fields": [
+      {
+        "field": "label",
+        "label": "Agent名称",
+        "type": "text",
+        "required": true,
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
+      },
+      {
+        "field": "extra.dify_type",
+        "label": "Dify端点类型",
+        "type": "select",
+        "required": false,
+        "options": [
+          { "label": "聊天消息", "value": "chat" },
+          { "label": "工作流", "value": "workflow" }
+        ],
+        "defaultValue": "chat",
+        "description": "聊天消息用于对话应用，工作流用于工作流执行"
+      },
+      {
+        "field": "apiBaseUrl",
+        "label": "API基础URL",
+        "type": "text",
+        "required": false,
+        "placeholder": "http://api.dify.woa.com/v1",
+        "defaultValue": "http://api.dify.woa.com/v1",
+        "description": "Venus Dify API基础URL。留空使用默认值"
+      },
+      {
+        "field": "apiKey",
+        "label": "API-Key",
+        "type": "password",
+        "required": true,
+        "placeholder": "app-xxxx",
+        "description": "Venus Dify API-Key"
+      },
+      {
+        "field": "extra.user",
+        "label": "用户ID",
+        "type": "text",
+        "required": false,
+        "defaultValue": "agent-user",
+        "description": "对话的用户标识符"
+      },
+      {
+        "field": "extra.conversation_id",
+        "label": "对话ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "留空开始新对话",
+        "description": "留空开始新对话，或提供现有对话ID"
+      },
+      {
+        "field": "extra.inputs",
+        "label": "自定义输入",
+        "type": "json",
+        "required": false,
+        "placeholder": "{}",
+        "defaultValue": "{}",
+        "rows": 4,
+        "description": "将传递给Dify应用/工作流的自定义输入（JSON格式）"
+      },
+      {
+        "field": "timeout_ms",
+        "label": "超时时间（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 1000,
+        "max": 300000,
+        "step": 1000,
+        "defaultValue": 60000,
+        "description": "请求超时时间（毫秒）"
+      }
+    ]
+  },
+  "common": {
+    "name": "通用配置",
+    "description": "所有provider类型的通用配置选项",
+    "fields": [
+      {
+        "field": "delay",
+        "label": "延迟（毫秒）",
+        "type": "number",
+        "required": false,
+        "min": 0,
+        "max": 60000,
+        "step": 100,
+        "defaultValue": 0,
+        "description": "请求之间的延迟时间（毫秒），用于模拟真实用户"
+      }
+    ]
+  }
+}

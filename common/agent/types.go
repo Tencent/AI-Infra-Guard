@@ -58,6 +58,7 @@ const (
 	TaskTypeMcpScan            = "Mcp-Scan"
 	TaskTypeModelRedteamReport = "Model-Redteam-Report"
 	TaskTypeModelJailbreak     = "Model-Jailbreak"
+	TaskTypeAgentScan          = "Agent-Scan"
 )
 
 type AgentInfo struct {
