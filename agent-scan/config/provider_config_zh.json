@@ -9,8 +9,8 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
-        "description": "此Agent的描述性名称"
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "url",
@@ -61,7 +61,7 @@
         "type": "text",
         "required": false,
         "placeholder": "json.choices[0].message.content",
-        "description": "用于提取响应的JSONPath或JavaScript表达式（可选）"
+        "description": "用于提取响应的JSONPath（可选）"
       },
       {
         "field": "timeout_ms",
@@ -86,8 +86,8 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
-        "description": "此Agent的描述性名称"
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "extra.dify_type",
@@ -166,7 +166,7 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
         "description": "此Agent的描述名称"
       },
       {
@@ -244,7 +244,7 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
         "description": "此Agent的描述名称"
       },
       {
@@ -332,7 +332,7 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
         "description": "此Agent的描述名称"
       },
       {
@@ -399,8 +399,8 @@
         "label": "Agent名称",
         "type": "text",
         "required": true,
-        "placeholder": "为此Agent输入自定义名称",
-        "description": "此Agent的描述性名称"
+        "placeholder": "为此Agent输入自定义名称（支持英文及数字）",
+        "description": "此Agent的描述名称"
       },
       {
         "field": "extra.dify_type",
