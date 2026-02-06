@@ -9,7 +9,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
@@ -61,7 +61,7 @@
         "type": "text",
         "required": false,
         "placeholder": "json.choices[0].message.content",
-        "description": "JSONPath or JavaScript expression to extract the response (optional)"
+        "description": "JSONPath to extract the response (optional)"
       },
       {
         "field": "timeout_ms",
@@ -86,7 +86,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
@@ -166,7 +166,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
@@ -244,7 +244,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
@@ -332,7 +332,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
@@ -399,7 +399,7 @@
         "label": "Agent Name",
         "type": "text",
         "required": true,
-        "placeholder": "Enter a descriptive name for this agent",
+        "placeholder": "Enter a descriptive name for this agent(Letters and numbers only)",
         "description": "A descriptive name for this agent"
       },
       {
