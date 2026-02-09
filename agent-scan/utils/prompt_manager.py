@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from utils.config import base_dir
 
@@ -22,9 +23,16 @@ class PromptManager:
             with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
 
+            content = self._strip_frontmatter(content)
             self._templates[name] = content
 
         return self._templates[name]
+
+    def _strip_frontmatter(self, content: str) -> str:
+        """Remove YAML frontmatter (---...---) from template content."""
+        frontmatter_pattern = r'^---\s*\n.*?\n---\s*\n'
+        content = re.sub(frontmatter_pattern, '', content, count=1, flags=re.DOTALL)
+        return content.strip()
 
     def format_prompt(self, template_name: str, **kwargs) -> str:
         template = self.load_template(template_name)
