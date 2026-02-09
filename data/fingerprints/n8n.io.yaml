@@ -1,0 +1,12 @@
+info:
+  name: n8n
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: n8n-io
+    vendor: n8n-io
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>n8n.io - Workflow Automation</title>"
