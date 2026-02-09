@@ -48,7 +48,7 @@
 </p>
 
 > 📢 **News**:
-> * A.I.G V3.6.1 AI基础设施扫描支持n8n（工作流自动化平台）扫描，并增加Ollama等15个AI组件共计78个CVE漏洞检测。[查看完整更新日志](./CHANGELOG.md)
+> * A.I.G V3.6.2 AI基础设施扫描支持n8n（工作流自动化平台）扫描，并增加Ollama等15个AI组件共计78个CVE漏洞检测。[查看完整更新日志](./CHANGELOG.md)
 > * A.I.G V3.6.1 新增支持 clawdbot(moltbot) 网关未授权访问风险检测能力。
 
 ## 目录
