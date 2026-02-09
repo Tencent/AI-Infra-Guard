@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.6.2] - 2026-02-09
+
+### Added
+- 🛡️ **Vulnerability Database Expansion**: Added 78 new CVE entries across 15 AI/ML infrastructure components
+  - **anythingllm** (1): CVE-2025-63390
+  - **comfyui** (2): CVE-2025-67303, CVE-2026-22777
+  - **dask** (1): CVE-2026-23528
+  - **dify** (4): CVE-2025-56157, CVE-2025-63386, CVE-2025-63387, CVE-2025-63388
+  - **feast** (1): CVE-2025-11157
+  - **jupyter-notebook** (1): CVE-2025-53000
+  - **langchain** (4): CVE-2024-58340, CVE-2025-67644, CVE-2025-68664, CVE-2025-68665
+  - **langflow** (9): CVE-2025-34291, CVE-2025-68477, CVE-2025-68478, CVE-2026-0768, CVE-2026-0769, CVE-2026-0770, CVE-2026-0771, CVE-2026-0772, CVE-2026-21445
+  - **lobechat** (1): CVE-2026-23835
+  - **mlflow** (3): CVE-2025-10279, CVE-2025-14279, CVE-2026-22607
+  - **n8n** (33): CVE-2023-27562, CVE-2023-27563, CVE-2023-27564, CVE-2025-46343, CVE-2025-49592, CVE-2025-49595, CVE-2025-52478, CVE-2025-52554, CVE-2025-55526, CVE-2025-57749, CVE-2025-61914, CVE-2025-61917, CVE-2025-62726, CVE-2025-65964, CVE-2025-68613, CVE-2025-68668, CVE-2025-68697, CVE-2025-68949, CVE-2026-0863, CVE-2026-1470, CVE-2026-21858, CVE-2026-21877, CVE-2026-21893, CVE-2026-21894, CVE-2026-25049, CVE-2026-25051, CVE-2026-25052, CVE-2026-25053, CVE-2026-25054, CVE-2026-25055, CVE-2026-25056, CVE-2026-25115, CVE-2026-25631
+  - **ollama** (5): CVE-2025-15063, CVE-2025-15514, CVE-2025-63389, CVE-2025-66959, CVE-2025-66960
+  - **open-webui** (1): CVE-2025-63391
+  - **simstudioai** (8): CVE-2025-7107, CVE-2025-7114, CVE-2025-9800, CVE-2025-9801, CVE-2025-9805, CVE-2025-10096, CVE-2025-10097, CVE-2025-15099
+  - **vllm** (4): CVE-2026-22773, CVE-2026-22778, CVE-2026-22807, CVE-2026-24779
+
+### Changed
+- 📝 **CVE Updates**: Updated existing vulnerability entries for improved accuracy
+  - clickhouse: CVE-2024-23689
+  - gradio: CVE-2024-1728
+  - langchain: CVE-2025-65106
+  - langflow: CVE-2025-57760
+  - mlflow: CVE-2025-11201
+  - vllm: CVE-2025-62164
+
+---
+
 ## [v3.6.1] - 2026-01-27
 
 ### Added
