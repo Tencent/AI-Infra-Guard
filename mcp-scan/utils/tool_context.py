@@ -41,6 +41,22 @@ class ToolContext:
             raise RuntimeError("MCP tools manager is not initialized")
         return await self.tool_dispatcher.mcp_tools_manager.call_remote_tool(tool_name, **tool_args)
 
+    async def read_mcp_resource(self, *, resource_name: Optional[str] = None, uri: Optional[str] = None):
+        """
+        通过 MCP 客户端读取远程资源内容。
+        可以通过资源名称（resource_name）或直接提供 URI（uri）进行读取。
+        """
+        if not self.tool_dispatcher:
+            raise RuntimeError("Tool dispatcher is not available in ToolContext")
+        if not self.tool_dispatcher.mcp_tools_manager:
+            await self.tool_dispatcher._ensure_mcp_manager()
+        if not self.tool_dispatcher.mcp_tools_manager:
+            raise RuntimeError("MCP tools manager is not initialized")
+        return await self.tool_dispatcher.mcp_tools_manager.read_remote_resource(
+            resource_name=resource_name,
+            uri=uri,
+        )
+
     def get_llm(self, purpose: str = "default") -> LLM:
         """
         根据用途获取合适的LLM

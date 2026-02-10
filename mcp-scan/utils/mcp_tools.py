@@ -22,6 +22,8 @@ class MCPTools:
         self.headers = headers
         # 缓存工具 schema，用于参数类型转换
         self._tools_schema: Dict[str, Dict[str, Any]] = {}
+        # 缓存资源名称到 URI 的映射，便于按名称读取资源
+        self._resources_index: Dict[str, str] = {}
 
     async def close(self) -> None:
         # Stateless wrapper: each operation uses a short-lived session.
@@ -164,6 +166,47 @@ class MCPTools:
         xml_lines.append("</mcp_tools>")
         return "\n".join(xml_lines)
 
+    async def describe_mcp_resources(self) -> str:
+        """
+        Return `<mcp_resources>` XML listing resource names, URIs and descriptions.
+        This is used to let the LLM understand what readonly resources the remote MCP
+        server exposes so it can plan safe dynamic scans.
+        """
+        try:
+            async with self._session() as session:
+                data = await session.list_resources()
+        except BaseExceptionGroup as eg:  # type: ignore[name-defined]
+            # Python 3.11+ ExceptionGroup from anyio / MCP internals
+            root_cause = self._extract_root_cause(eg)
+            raise RuntimeError(f"Failed to fetch MCP resources: {root_cause}") from eg
+        except Exception as e:  # pragma: no cover - network / protocol errors
+            raise RuntimeError(f"Failed to fetch MCP resources: {type(e).__name__}: {e}") from e
+
+        xml_lines = ["<mcp_resources>"]
+        self._resources_index.clear()
+
+        for r in data.resources:
+            # 缓存 name -> uri，便于后续通过名称读取
+            if getattr(r, "name", None) and getattr(r, "uri", None):
+                self._resources_index[r.name] = r.uri
+
+            name = getattr(r, "name", "") or ""
+            uri = getattr(r, "uri", "") or ""
+            desc = getattr(r, "description", "") or ""
+            mime_type = getattr(r, "mime_type", "") or ""
+            size = getattr(r, "size", None)
+
+            size_attr = f' size="{size}"' if size is not None else ""
+
+            xml_lines.append(
+                f'<resource name="{name}" uri="{uri}" mime_type="{mime_type}"{size_attr}>'
+                f"<description>{desc}</description>"
+                f"</resource>"
+            )
+
+        xml_lines.append("</mcp_resources>")
+        return "\n".join(xml_lines)
+
     def _convert_param_type(self, value: Any, param_type: str) -> Any:
         """根据 schema 定义的类型转换参数值"""
         if value is None:
@@ -257,6 +300,66 @@ class MCPTools:
             raise RuntimeError(f"MCP call failed: {root_cause}") from eg
         except Exception as e:
             raise RuntimeError(f"MCP call failed: {type(e).__name__}: {e}") from e
+
+    async def read_remote_resource(self, *, resource_name: Optional[str] = None, uri: Optional[str] = None) -> Any:
+        """
+        Read a remote MCP resource.
+
+        You can either:
+        - specify `uri` directly, or
+        - specify `resource_name`, which will be resolved to a URI using the cached
+          index from `describe_mcp_resources()`. If not found, a fresh list_resources()
+          call will be made to refresh the cache.
+        """
+        if not uri and not resource_name:
+            raise ValueError("read_remote_resource requires either `uri` or `resource_name`.")
+
+        # 优先使用显式传入的 URI
+        target_uri = uri
+
+        # 若未提供 URI，则尝试通过资源名称解析
+        if not target_uri and resource_name:
+            # 如果缓存中没有，主动刷新一次资源列表
+            if resource_name not in self._resources_index:
+                try:
+                    await self.describe_mcp_resources()
+                except Exception:
+                    # 资源列表获取失败时，不中断调用，后续会抛出更明确的错误
+                    pass
+
+            target_uri = self._resources_index.get(resource_name)
+
+        if not target_uri:
+            raise RuntimeError(f"Unknown MCP resource: name={resource_name!r}, uri={uri!r}")
+
+        try:
+            async with self._session() as session:
+                result = await session.read_resource(target_uri)
+        except BaseExceptionGroup as eg:  # type: ignore[name-defined]
+            root_cause = self._extract_root_cause(eg)
+            raise RuntimeError(f"MCP resource read failed: {root_cause}") from eg
+        except Exception as e:
+            raise RuntimeError(f"MCP resource read failed: {type(e).__name__}: {e}") from e
+
+        # 将资源内容标准化为可读形式：
+        # - 若有多个 TextResourceContents，则按顺序拼接
+        # - 若包含二进制 Blob，则返回 base64 字符串列表
+        texts = []
+        blobs = []
+        for item in result.contents:
+            if hasattr(item, "text") and getattr(item, "text") is not None:
+                texts.append(item.text)
+            elif hasattr(item, "blob") and getattr(item, "blob") is not None:
+                blobs.append(item.blob)
+
+        if texts and not blobs:
+            return "\n".join(texts)
+        if blobs and not texts:
+            # 对二进制内容直接返回 base64 数据列表，由上层决定如何处理
+            return blobs if len(blobs) > 1 else blobs[0]
+
+        # 若两者都有或都没有，直接返回原始结构，让上层自行处理
+        return result.contents
 
 
 if __name__ == "__main__":

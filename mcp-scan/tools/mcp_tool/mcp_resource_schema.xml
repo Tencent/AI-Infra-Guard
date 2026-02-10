@@ -1,0 +1,54 @@
+<tools>
+  <tool name="mcp_resource">
+    <description>
+      Read a remote MCP server resource (by name or URI) and return its contents.
+      Use this tool during MCP dynamic analysis to inspect configuration files,
+      documentation, logs and other readonly data exposed as MCP resources.
+    </description>
+    <details>
+      This tool forwards the read request to the configured remote MCP server
+      (configured via CLI --server_url).
+
+      - You may specify either `resource_name` (preferred) or `uri`.
+      - If `resource_name` is provided, it will be resolved using the resource
+        list discovered from the MCP server.
+      - If both are provided, `uri` takes precedence.
+      - The returned content can be plain text or base64-encoded binary data,
+        depending on the resource type.
+    </details>
+    <parameters>
+      <parameter name="resource_name" type="string" required="false">
+        <description>
+          Logical name of the MCP resource to read. This should match the
+          `name` field from the `<mcp_resources>` listing.
+        </description>
+      </parameter>
+      <parameter name="uri" type="string" required="false">
+        <description>
+          Full URI of the MCP resource to read. When provided, this takes
+          precedence over `resource_name`.
+        </description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>Response containing:
+- resource_name: Name used to look up the resource (if any)
+- uri: Final URI that was read from the MCP server
+- content: The resource contents (string or base64-encoded blob)
+- error: Error details if the remote read fails
+      </description>
+    </returns>
+    <examples>
+      <!-- Read by resource name -->
+      <function=mcp_resource>
+        <parameter=resource_name>server_config</parameter>
+      </function>
+
+      <!-- Read by full URI -->
+      <function=mcp_resource>
+        <parameter=uri>mcp://logs/access.log</parameter>
+      </function>
+    </examples>
+  </tool>
+</tools>
+

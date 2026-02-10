@@ -60,11 +60,23 @@ class ToolDispatcher:
             if not manager:
                 raise RuntimeError("Failed to connect to MCP server")
             try:
-                mcp_prompt = await manager.describe_mcp_tools()
-                mcp_remote_prompt = prompt_manager.format_prompt("dynamic/system_prompt", mcp_tools=mcp_prompt)
+                # Describe remote tools
+                mcp_tools_xml = await manager.describe_mcp_tools()
+                # Describe remote resources (best-effort; do not fail tools prompt if this fails)
+                try:
+                    mcp_resources_xml = await manager.describe_mcp_resources()
+                except Exception as re:
+                    logger.warning(f"Failed to fetch MCP resources description: {re}")
+                    mcp_resources_xml = ""
+
+                mcp_remote_prompt = prompt_manager.format_prompt(
+                    "dynamic/system_prompt",
+                    mcp_tools=mcp_tools_xml,
+                    mcp_resources=mcp_resources_xml,
+                )
                 prompt += f"\n\n{mcp_remote_prompt}"
             except Exception as e:
-                logger.error(f"Failed to fetch MCP tools description: {e}")
+                logger.error(f"Failed to fetch MCP tools/resources description: {e}")
                 return prompt
         else:
             prompt = get_tools_prompt(normal_tools or [])
@@ -75,12 +87,14 @@ class ToolDispatcher:
         """统一调用入口：自动识别是本地还是远程工具"""
         # 1. 尝试作为本地工具调用
         tool_func = get_tool_by_name(tool_name)
+        print(f"tool_func: {tool_func}")
         if tool_func:
             if needs_context(tool_name) and context:
                 args["context"] = context
 
             try:
                 result = tool_func(**args)
+                print(f"result: {result}")
             except Exception as e:
                 return f"Error: {e}"
             if inspect.isawaitable(result):
