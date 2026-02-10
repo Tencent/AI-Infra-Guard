@@ -327,7 +327,7 @@ def generate_report_from_xml(
         schema_version="agent-security-report@1",
         agent_name=agent_name,
         agent_type=agent_type,
-        model_name=model_name,
+        # model_name=model_name,
         start_time=start_time,
         end_time=end_time,
         plugins=plugins or [],
