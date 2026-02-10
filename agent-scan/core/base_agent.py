@@ -217,15 +217,22 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
         agent_provider=agent_provider,
         language=language
     )
-    user_msg = ""
     await agent.initialize()
     if repo_dir:
         agent.set_repo_dir(repo_dir)
-        user_msg = f"请进行{description}，文件夹在 {repo_dir}\n"
+        if language == "en":
+            user_msg = f"Please perform {description}. The repository folder is {repo_dir}\n"
+        else:
+            user_msg = f"请进行{description}，文件夹在 {repo_dir}\n"
+    else:
+        user_msg = ""
     if prompt:
         user_msg += f"{prompt}\n"
     if context_data:
-        user_msg += "\n\n有以下背景信息：\n"
+        if language == "en":
+            user_msg += "\n\nThe following background information is provided:\n"
+        else:
+            user_msg += "\n\n有以下背景信息：\n"
         for key, value in context_data.items():
             user_msg += f"{key}:{value}\n\n"
 
