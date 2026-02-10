@@ -30,7 +30,7 @@ class BaseAgent:
         self.specialized_llms = specialized_llms or {}
         self.instruction = instruction
         self.history = []
-        self.max_iter = 80
+        self.max_iter = 40
         self.iter = 0
         self.is_finished = False
         self.step_id = log_step_id
@@ -137,11 +137,9 @@ class BaseAgent:
         if tool_name == "finish":
             self.is_finished = True
             brief_content = tool_args.get("content", "")
-            # 如果定义了输出格式，则进行二次格式化
             result = await self._format_final_output()
             logger.info(f"Finish tool called, final result formatted.")
             scanLogger.status_update(self.step_id, description, "", "completed")
-            # scanLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
             scanLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 
@@ -174,7 +172,6 @@ class BaseAgent:
         if tool_name != "read_file":
             scanLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
 
-        # scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
         return None
 
     async def handle_no_tool(self, description: str):
@@ -205,6 +202,21 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
                     language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
     logger.info(f"=== 阶段 {stage_id}: {description} ===")
     scanLogger.new_plan_step(stepId=stage_id, stepName=description)
+
+    if language == "en":
+        instruction = (
+            "You are generating security scanning outputs.\n"
+            "All of your outputs (including intermediate notes and final reports) MUST be in English.\n"
+            "Some of the following instructions and example templates are written in Chinese; "
+            "they are ONLY examples of structure and content types. "
+            "Follow their structure, but ALWAYS write your own output in English.\n\n"
+        ) + instruction
+    else:
+        instruction = (
+            "你正在生成安全扫描相关的输出。\n"
+            "所有输出（包括中间说明和最终报告）必须使用中文撰写。\n"
+            "下面的指令和示例模板如果包含英文内容，仅作为结构示例，你的实际输出依然需要使用中文。\n\n"
+        ) + instruction
 
     # 初始化阶段 Agent
     agent = BaseAgent(
