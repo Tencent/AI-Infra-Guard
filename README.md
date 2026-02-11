@@ -36,7 +36,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server & Agent Skills scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 <p>
   We are committed to making A.I.G(AI-Infra-Guard) the industry-leading AI red teaming platform. More stars help this project reach a wider audience, attracting more developers to contribute, which accelerates iteration and improvement. Your star is crucial to us!
@@ -121,7 +121,7 @@ Experience the Pro version with advanced features and improved performance. The 
 | Feature | More Info |
 |:--------|:------------|
 | **AI&nbsp;Infra&nbsp;Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
-| **AI&nbsp;Tool&nbsp;Protocol&nbsp;Scan** | Powered by an AI Agent, Detects 14 major categories of security risks in MCP Servers and Skills, Supports scanning of source code and remote URLs. |
+| **AI&nbsp;Tool&nbsp;Protocol&nbsp;Scan** | Powered by an AI Agent, Detects 14 major categories of security risks in MCP Servers and Agent Skills, Supports scanning of source code and remote URLs. |
 | **Jailbreak&nbsp;Evaluation** | Assesses prompt security risks with curated datasets and multiple attack methods, Cross-model comparison. |
 
 <details>
