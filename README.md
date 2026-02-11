@@ -51,7 +51,7 @@
 
 > 📢 **News**:
 > * A.I.G V3.6.2 AI Infrastructure Scanning now supports n8n (workflow automation platform) and adds detection for 78 CVEs across 15 AI components including Ollama. [View full changelog](./CHANGELOG.md)
-> * A.I.G v3.6.1 Support Clawdbot(moltbot) Gateway unauthorized access risk detection.
+> * A.I.G v3.6.1 Support Openclaw/clawdbot/moltbot Gateway unauthorized access risk detection.
 
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
