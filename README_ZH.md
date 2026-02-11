@@ -36,7 +36,7 @@
     <h3 align="center">🚀 腾讯朱雀实验室推出的一站式 AI 红队安全测试平台</h3>
 </p>
 
-**A.I.G (AI-Infra-Guard)** 集成AI基础设施漏洞扫描、MCP Server风险检测与大模型安全体检等能力，旨在为用户提供最全面、智能与易用的AI安全风险自查解决方案。
+**A.I.G (AI-Infra-Guard)** 集成AI基础设施漏洞扫描、MCP Server & Agent Skills风险检测与大模型安全体检等能力，旨在为用户提供最全面、智能与易用的AI安全风险自查解决方案。
 
 <p>
   我们致力于将A.I.G(AI-Infra-Guard)打造为业界领先的 AI 红队工具平台。更多的 Star 能让这个项目被更多人看到，吸引更多的开发者参与进来，从而让项目更快地迭代和完善。您的 Star 对我们至关重要！
@@ -49,7 +49,7 @@
 
 > 📢 **News**:
 > * A.I.G V3.6.2 AI基础设施扫描支持n8n（工作流自动化平台）扫描，并增加Ollama等15个AI组件共计78个CVE漏洞检测。[查看完整更新日志](./CHANGELOG.md)
-> * A.I.G V3.6.1 新增支持 clawdbot(moltbot) 网关未授权访问风险检测能力。
+> * A.I.G V3.6.1 新增支持 Openclaw/clawdbot/moltbot 网关未授权访问风险检测能力。
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
