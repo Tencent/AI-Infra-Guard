@@ -1,0 +1,13 @@
+info:
+  name: huggingface-tgi
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: Hugging Face Text Generation Inference 服务，用于高性能部署大语言模型。
+  metadata:
+    product: text-generation-inference
+    vendor: huggingface
+http:
+  - method: GET
+    path: '/info'
+    matchers:
+      - body="\"model_id\":" && body="\"model_pipeline_tag\":"

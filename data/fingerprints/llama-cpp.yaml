@@ -1,0 +1,17 @@
+info:
+  name: llama-cpp
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 基于 C++ 的 LLaMA 模型推理引擎，支持本地高效运行 LLaMA 系列模型。
+  metadata:
+    product: llama-cpp
+    vendor: llama-cpp
+http:
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"owned_by\":\"llamacpp\""
+  - method: GET
+    path: '/health'
+    matchers:
+      - header="llama.cpp"
