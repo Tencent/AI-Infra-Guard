@@ -72,9 +72,16 @@ install_docker() {
     fi
 }
 
-# 检查并安装 Docker Compose
+# 检查并安装 Docker Compose（优先使用 docker compose v2，不可用时回退到 docker-compose）
+COMPOSE_CMD=""
 install_docker_compose() {
+    if docker compose version &>/dev/null; then
+        COMPOSE_CMD="docker compose"
+        success "Docker Compose (docker compose) 已可用。版本信息: $(docker compose version)"
+        return
+    fi
     if command_exists docker-compose; then
+        COMPOSE_CMD="docker-compose"
         success "Docker Compose 已安装。版本信息: $(docker-compose --version)"
     else
         info "未检测到 Docker Compose，正在尝试安装版本 ${COMPOSE_VERSION}..."
@@ -91,6 +98,7 @@ install_docker_compose() {
             error_exit "为 Docker Compose 添加执行权限失败。"
         fi
 
+        COMPOSE_CMD="docker-compose"
         success "Docker Compose 安装成功！版本信息: $(docker-compose --version)"
     fi
 }
@@ -115,7 +123,7 @@ deploy_application() {
 
     # 1. 克隆仓库
     info "正在从 ${GIT_URL} 克隆仓库..."
-    if ! git clone "${GIT_URL}"; then
+    if ! git clone --depth 1 "${GIT_URL}"; then
         error_exit "Git 克隆失败。请检查 Git URL 或网络连接。"
     fi
     success "仓库克隆成功。"
@@ -143,30 +151,30 @@ deploy_application() {
     rm -rf "${REPO_NAME}"
     success "临时文件清理完毕。"
 
-    # 4. 检测并删除原有容器
+    # 4. 检测并删除旧镜像
     if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$IMAGE_AGENT$"; then
-        info "检测到旧Agent容器，正在删除..."
+        info "检测到旧Agent镜像，正在删除..."
         docker rmi "$IMAGE_AGENT"
     fi
 
     if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$IMAGE_SERVER$"; then
-            info "检测到旧Server容器，正在删除..."
-            docker rmi "$IMAGE_SERVER"
+        info "检测到旧Server镜像，正在删除..."
+        docker rmi "$IMAGE_SERVER"
     fi
 
-    # 4. 启动 Docker Compose
+    # 5. 启动 Docker Compose
     cd "${RELEASE_DIR}"
     info "当前目录: $(pwd)"
-    info "正在使用 docker-compose 启动服务 (后台模式)..."
+    info "正在使用 ${COMPOSE_CMD} 启动服务 (后台模式)..."
     # 在拉取镜像前先检查 Docker 守护进程是否可用，避免用户已经安装 Docker 但服务未启动的情况
     if ! docker info >/dev/null 2>&1; then
         error_exit "无法连接到 Docker 守护进程。请确认 Docker 服务已启动（例如使用 'systemctl status docker' 或 'service docker start'），然后重新运行本脚本。"
     fi
-    if ! docker-compose pull; then
-        error_exit "docker-compose 拉取镜像失败。请先查看上方 docker-compose 输出的详细错误信息。常见原因包括：无法访问镜像仓库（网络或代理问题）、镜像仓库被防火墙拦截、或仓库地址配置错误。"
+    if ! $COMPOSE_CMD pull; then
+        error_exit "Compose 拉取镜像失败。请先查看上方 ${COMPOSE_CMD} 输出的详细错误信息。常见原因包括：无法访问镜像仓库（网络或代理问题）、镜像仓库被防火墙拦截、或仓库地址配置错误。"
     fi
-    if ! docker-compose up -d; then
-        error_exit "docker-compose 启动失败。请使用 'docker-compose logs' 查看错误日志。"
+    if ! $COMPOSE_CMD up -d; then
+        error_exit "Compose 启动失败。请使用 '${COMPOSE_CMD} logs' 查看错误日志。"
     fi
 
     success "应用部署并启动成功！"
@@ -195,9 +203,9 @@ main() {
     success "=========================================================="
     info "应用正在后台运行中。"
     info "您可以使用 'cd ${RELEASE_DIR}' 进入应用目录。"
-    info "查看服务状态: ${YELLOW}docker-compose ps${NC}"
-    info "查看实时日志: ${YELLOW}docker-compose logs -f${NC}"
-    info "停止并移除容器: ${YELLOW}docker-compose down${NC}"
+    info "查看服务状态: ${YELLOW}${COMPOSE_CMD} ps${NC}"
+    info "查看实时日志: ${YELLOW}${COMPOSE_CMD} logs -f${NC}"
+    info "停止并移除容器: ${YELLOW}${COMPOSE_CMD} down${NC}"
     echo
 }
 
