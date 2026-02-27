@@ -63,7 +63,11 @@ class BaseAgent:
         response = self.llm.chat(history)
 
         system_prompt = self.history[0]
-        user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        original_task = self.history[1]['content']
+        if self.language == "en":
+            user_messages = f"I want you to complete: {original_task}\n\nThe following context is provided for reference:\n{response}"
+        else:
+            user_messages = f"我希望你完成:{original_task}\n\n有以下上下文提供你参考:\n{response}"
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     async def generate_system_prompt(self):
@@ -88,19 +92,31 @@ class BaseAgent:
 
     async def _run(self):
         logger.info(f"Agent {self.name} started with max_iter={self.max_iter}")
+        # Compact history when this fraction of max iterations has been consumed.
+        compact_threshold = int(self.max_iter * 0.7)
+        compacted = False
         result = ""
         while not self.is_finished and self.iter < self.max_iter:
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
+
+            # Compact once at 70 % of max iterations so the agent can keep running
+            # with a condensed context rather than hitting the hard limit cold.
+            if not compacted and self.iter >= compact_threshold:
+                logger.warning(f"Compacting history at iteration {self.iter} (threshold={compact_threshold})")
+                self.compact_history()
+                compacted = True
+
             response = self.llm.chat(self.history)
             logger.debug(f"LLM Response: {response}")
             self.history.append({"role": "assistant", "content": response})
             res = await self.handle_response(response)
             if res is not None:
                 result = res
-            if self.iter >= self.max_iter:
-                logger.warning(f"Max iterations ({self.max_iter}) reached")
-                self.compact_history()
             self.iter += 1
+
+        if self.iter >= self.max_iter:
+            logger.warning(f"Max iterations ({self.max_iter}) reached without finish signal")
+
         return result
 
     async def handle_response(self, response: str):
@@ -152,6 +168,7 @@ class BaseAgent:
             specialized_llms=self.specialized_llms,
             folder=self.repo_dir,
             agent_provider=self.agent_provider,
+            language=self.language,
         )
 
         # 通过 Dispatcher 调用工具
@@ -176,7 +193,10 @@ class BaseAgent:
 
     async def handle_no_tool(self, description: str):
         next_p = self.next_prompt()
-        result_message = "You didn't call any tool,please call a tool"
+        if self.language == "en":
+            result_message = "You didn't call any tool. Please call a tool to continue."
+        else:
+            result_message = "你没有调用任何工具，请调用一个工具继续执行。"
         full_message = f"{next_p}\n\n{result_message}"
         logger.debug(f"Agent Response: {result_message}")
         self.history.append({"role": "user", "content": full_message})

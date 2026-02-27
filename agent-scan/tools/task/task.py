@@ -185,7 +185,7 @@ Please complete this task and provide a summary of your actions and results.
     logger.info(f"Executing task with agent '{subagent_type}': {description or prompt[:50]}")
 
     result = await context.call_subagent(
-        description, subagent_type, task_prompt, uuid.uuid4().__str__(), "zh", "", {}
+        description, subagent_type, task_prompt, uuid.uuid4().__str__(), context.language, "", {}
     )
 
     return {

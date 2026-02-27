@@ -109,26 +109,29 @@ def search_skill(
     Args:
         query: 搜索关键词（可选）
     """
-    skills = get_all_skills()
+    all_skills = get_all_skills()
 
     if query:
         q = query.lower()
         skills = [
-            s for s in skills
+            s for s in all_skills
             if q in s['name'].lower()
                or q in s['title'].lower()
                or q in s['description'].lower()
         ]
-
-    output_lines = [f"Found {len(skills)} skills:"]
-    if len(skills) == 0:
-        output_lines.append("No skills found.You can use follow skill:")
-        skills = get_all_skills()
-        for s in skills:
-            output_lines.append(f"- {s['name']}: {s['description']}")
     else:
-        for s in skills:
-            output_lines.append(f"- {s['name']}: {s['description']}")
+        skills = all_skills
+
+    if len(skills) == 0 and query:
+        # No match for the query — fall back to the full list so the caller can pick
+        output_lines = [f"No skills matched '{query}'. Available skills:"]
+        skills = all_skills
+    else:
+        output_lines = [f"Found {len(skills)} skill(s):"]
+
+    for s in skills:
+        output_lines.append(f"- {s['name']}: {s['description']}")
+
     return {
         "success": True,
         "count": len(skills),
