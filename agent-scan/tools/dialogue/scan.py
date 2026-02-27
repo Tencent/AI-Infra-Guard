@@ -5,7 +5,9 @@ This tool automatically discovers and scans configuration endpoints based on
 the provider type defined in providers.yaml - configuration driven approach.
 """
 
-from typing import Any, Dict, List, Optional
+import re
+import json
+from typing import Any, Dict, List, Optional, Tuple
 from pydantic import BaseModel, Field
 from tools.registry import register_tool
 from core.agent_adapter.adapter import AIProviderClient, ProviderOptions, ProviderConfig, ProviderConfigLoader
@@ -43,19 +45,26 @@ class AgentScanner:
     The scan endpoints are configuration-driven, not hardcoded.
     """
     
-    # Sensitive patterns to detect in responses
-    SENSITIVE_PATTERNS = [
-        ("api_key", "API Key Exposure"),
-        ("api_secret", "API Secret Exposure"),
-        ("password", "Password Exposure"),
-        ("token", "Token Exposure"),
-        ("secret", "Secret Exposure"),
-        ("private_key", "Private Key Exposure"),
-        ("credential", "Credential Exposure"),
-        ("database", "Database Configuration"),
-        ("connection_string", "Connection String"),
-        ("internal_", "Internal Configuration"),
-        ("debug", "Debug Information"),
+    # Sensitive patterns: (compiled_regex, finding_type, severity)
+    # Ordered roughly High → Medium → Low to stop early on first match per type.
+    SENSITIVE_PATTERNS: List[Tuple[re.Pattern, str, str]] = [
+        # ── High severity: real credential formats ──────────────────────────
+        (re.compile(r'sk-[A-Za-z0-9_-]{20,}'), "OpenAI/Anthropic API Key", "High"),
+        (re.compile(r'AKIA[0-9A-Z]{16}'), "AWS Access Key ID", "High"),
+        (re.compile(r'-----BEGIN\s+(?:RSA\s+|EC\s+|OPENSSH\s+)?PRIVATE KEY-----'), "Private Key", "High"),
+        (re.compile(r'(?:postgres|mysql|mongodb|redis|mssql)://[^:\s]+:[^@\s]+@\S+'), "Database URI with Credentials", "High"),
+        (re.compile(r'(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}'), "GitHub Token", "High"),
+        (re.compile(r'xox[baprs]-[0-9A-Za-z-]{10,}'), "Slack Token", "High"),
+        (re.compile(r'AIza[0-9A-Za-z\-_]{35}'), "Google API Key", "High"),
+        (re.compile(r'sk_live_[0-9A-Za-z]{24,}'), "Stripe Live Secret Key", "High"),
+        (re.compile(r'(?:SG\.|sendgrid)[A-Za-z0-9._-]{30,}'), "SendGrid API Key", "High"),
+        (re.compile(r'(?:"|\')\s*(?:api[_-]?key|api[_-]?secret|access[_-]?token)\s*(?:"|\')\s*:\s*(?:"|\')\s*[A-Za-z0-9_\-]{16,}\s*(?:"|\')', re.IGNORECASE), "API Key in JSON", "High"),
+        # ── Medium severity: structural / contextual indicators ──────────────
+        (re.compile(r'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'), "JWT Token", "Medium"),
+        (re.compile(r'(?:"|\')\s*(?:password|passwd|pwd)\s*(?:"|\')\s*:\s*(?:"|\')\s*[^"\']{6,}\s*(?:"|\')', re.IGNORECASE), "Password in JSON", "Medium"),
+        (re.compile(r'Bearer\s+[A-Za-z0-9\-._~+/]{20,}={0,2}'), "Bearer Token in Header", "Medium"),
+        (re.compile(r'(?:You are|Your instructions are|System prompt:).{50,}', re.IGNORECASE | re.DOTALL), "System Prompt Disclosure", "Medium"),
+        (re.compile(r'(?:localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+):\d{2,5}'), "Internal Network Endpoint", "Medium"),
     ]
     
     def __init__(self, timeout: int = 30):
@@ -241,15 +250,27 @@ class AgentScanner:
         return headers
     
     def _detect_sensitive_info(self, response: Any) -> List[str]:
-        """Detect sensitive information in response data."""
-        findings = []
-        response_str = str(response).lower()
-        
-        for pattern, finding_type in self.SENSITIVE_PATTERNS:
-            if pattern in response_str:
-                findings.append(finding_type)
-        
-        return list(set(findings))  # Remove duplicates
+        """Detect sensitive information in response data using regex patterns."""
+        findings: List[str] = []
+
+        # Normalise to string; for dict/list responses use JSON so key names are preserved
+        if isinstance(response, (dict, list)):
+            try:
+                response_str = json.dumps(response, ensure_ascii=False)
+            except Exception:
+                response_str = str(response)
+        else:
+            response_str = str(response)
+
+        seen_types: set = set()
+        for pattern, finding_type, severity in self.SENSITIVE_PATTERNS:
+            if finding_type in seen_types:
+                continue
+            if pattern.search(response_str):
+                findings.append(f"[{severity}] {finding_type}")
+                seen_types.add(finding_type)
+
+        return findings
 
 
 @register_tool

@@ -21,7 +21,8 @@ class ToolContext:
             iteration: int = 0,
             specialized_llms: Optional[Dict[str, LLM]] = None,
             folder: Optional[str] = None,
-            agent_provider: Optional[ProviderOptions] = None
+            agent_provider: Optional[ProviderOptions] = None,
+            language: str = "zh"
     ):
         """
         初始化工具上下文
@@ -34,6 +35,7 @@ class ToolContext:
         self.folder = folder
         self.client = AIProviderClient()
         self.agent_provider: ProviderOptions = agent_provider
+        self.language = language
 
     def get_llm(self, purpose: str = "default") -> LLM:
         """
