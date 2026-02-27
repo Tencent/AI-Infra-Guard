@@ -153,6 +153,8 @@ Experience the Pro version with advanced features and improved performance. The 
 Visit our online documentation: [https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
 
 For more detailed FAQs and troubleshooting guides, visit our [documentation](https://tencent.github.io/AI-Infra-Guard/?menu=faq).
+
+Architecture evolution notes: [docs/architecture_versions.md](./docs/architecture_versions.md).
 <br />
 <br>
 
