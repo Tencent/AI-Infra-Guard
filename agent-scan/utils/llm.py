@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 import openai
@@ -12,6 +13,22 @@ class LLM:
         self.base_url = base_url
         self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
         self.temperature = 0.7
+
+    async def chat_async(self, message: List[dict]) -> str:
+        """Non-blocking wrapper around :meth:`chat` for use inside async contexts.
+
+        Runs the synchronous ``openai.OpenAI`` call in a thread-pool executor
+        via :func:`asyncio.to_thread`, so the event loop is free to schedule
+        other coroutines (e.g. parallel skill workers) while waiting for the
+        LLM response.
+
+        Args:
+            message: Conversation history in OpenAI chat format.
+
+        Returns:
+            The model's response text.
+        """
+        return await asyncio.to_thread(self.chat, message)
 
     def chat(self, message: List[dict], p=False):
         ret = ''

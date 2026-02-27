@@ -421,11 +421,20 @@ class AIProviderClient:
         if "Content-Type" not in headers and "content-type" not in headers:
             headers["Content-Type"] = "application/json"
 
-        # Build body with prompt placeholder
+        # Build body with prompt placeholder.
+        # The body template is already a JSON-encoded string (from json.dumps), so
+        # any literal backslashes or double-quotes in the prompt must be escaped
+        # before substitution — otherwise the resulting string is invalid JSON and
+        # json.loads will raise JSONDecodeError (manifests as HTTP 400 on the target).
         body = None
         if config.body:
             body_str = json.dumps(config.body) if isinstance(config.body, dict) else str(config.body)
-            body_str = body_str.replace("{{prompt}}", prompt).replace("{{ prompt }}", prompt)
+            json_escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
+            body_str = (
+                body_str
+                .replace("{{prompt}}", json_escaped_prompt)
+                .replace("{{ prompt }}", json_escaped_prompt)
+            )
             try:
                 body = json.loads(body_str)
             except json.JSONDecodeError:

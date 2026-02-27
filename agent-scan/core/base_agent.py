@@ -23,7 +23,8 @@ class BaseAgent:
             log_step_id: str = None,
             debug: bool = False,
             agent_provider: Optional[ProviderOptions] = None,
-            language: str = "zh"
+            language: str = "zh",
+            format_on_finish: bool = True,
     ):
         self.llm = llm
         self.name = name
@@ -38,6 +39,7 @@ class BaseAgent:
         self.repo_dir = ""
         self.agent_provider = agent_provider
         self.language = language
+        self.format_on_finish = format_on_finish
         self.dispatcher = ToolDispatcher()
         self.tool_usage_stats = {}
 
@@ -53,14 +55,14 @@ class BaseAgent:
     def set_repo_dir(self, repo_dir: str):
         self.repo_dir = repo_dir
 
-    def compact_history(self):
+    async def compact_history(self):
         if len(self.history) < 3:
             return
 
         prompt = prompt_manager.load_template("compact")
         history = self.history[1:]
         history.append({"role": "user", "content": prompt})
-        response = self.llm.chat(history)
+        response = await self.llm.chat_async(history)
 
         system_prompt = self.history[0]
         original_task = self.history[1]['content']
@@ -103,10 +105,13 @@ class BaseAgent:
             # with a condensed context rather than hitting the hard limit cold.
             if not compacted and self.iter >= compact_threshold:
                 logger.warning(f"Compacting history at iteration {self.iter} (threshold={compact_threshold})")
-                self.compact_history()
+                await self.compact_history()
                 compacted = True
 
-            response = self.llm.chat(self.history)
+            # Use the non-blocking async wrapper so the event loop is free to
+            # schedule other coroutines (e.g. parallel skill workers in
+            # ScanPipeline.run_parallel_detection) while awaiting the response.
+            response = await self.llm.chat_async(self.history)
             logger.debug(f"LLM Response: {response}")
             self.history.append({"role": "assistant", "content": response})
             res = await self.handle_response(response)
@@ -152,9 +157,18 @@ class BaseAgent:
 
         if tool_name == "finish":
             self.is_finished = True
-            brief_content = tool_args.get("content", "")
-            result = await self._format_final_output()
-            logger.info(f"Finish tool called, final result formatted.")
+            if self.format_on_finish:
+                # Full stages (recon, review): reformat the entire history via LLM
+                # to produce a clean, structured final report.
+                result = await self._format_final_output()
+            else:
+                # Skill workers: the last assistant turn already contains the
+                # <vuln> XML blocks emitted just before the finish() call.
+                # brief_content is only a plain-text summary (no XML) — always
+                # use the full assistant message so _extract_vuln_blocks() can
+                # find the <vuln> tags.
+                result = self.history[-1].get("content", "")
+            logger.info("Finish tool called, final result formatted.")
             scanLogger.status_update(self.step_id, description, "", "completed")
             scanLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
@@ -212,14 +226,15 @@ class BaseAgent:
             output_format=self.instruction
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
-        final_output = self.llm.chat(recent_history)
+        final_output = await self.llm.chat_async(recent_history)
         logger.info(f"Final Output: {final_output}")
         return final_output
 
 
 async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, stage_id: str,
                     specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
-                    language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None):
+                    language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None,
+                    format_on_finish: bool = True):
     logger.info(f"=== 阶段 {stage_id}: {description} ===")
     scanLogger.new_plan_step(stepId=stage_id, stepName=description)
 
@@ -247,7 +262,8 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
         log_step_id=stage_id,
         debug=True,
         agent_provider=agent_provider,
-        language=language
+        language=language,
+        format_on_finish=format_on_finish,
     )
     await agent.initialize()
     if repo_dir:
