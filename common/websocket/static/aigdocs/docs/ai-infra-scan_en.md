@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **36 mainstream AI frameworks**, covering **404 known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **40 mainstream AI frameworks**, covering **404 known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -60,6 +60,10 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | ollama                  | 7                   | Medium-High|
 |                            | triton-inference-server | 7                   | Medium-High|
 |                            | vllm                    | 4                   | Medium     |
+|                            | llama-cpp               | 0                   | Low        |
+|                            | huggingface-tgi         | 0                   | Low        |
+|                            | nvidia-nim              | 0                   | Low        |
+|                            | localai                 | 0                   | Low        |
 |                            | xinference              | 0                   | Low        |
 | **LLM App Frameworks**     | langchain               | 33                  | High       |
 |                            | dify                    | 11                  | High       |
