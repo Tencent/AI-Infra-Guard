@@ -125,7 +125,8 @@ class BaseAgent:
         return result
 
     async def handle_response(self, response: str):
-        tool_invocations = parse_tool_invocations(response)
+        # Parse tool invocation (only first invocation supported)
+        tool_invocation = parse_tool_invocations(response)
         description = clean_content(response)
         if description == "":
             description = "我将继续执行"
@@ -134,8 +135,8 @@ class BaseAgent:
 
         scanLogger.status_update(self.step_id, description, "", "running")
 
-        if tool_invocations:
-            return await self.process_tool_call(tool_invocations, description)
+        if tool_invocation:
+            return await self.process_tool_call(tool_invocation, description)
         else:
             return await self.handle_no_tool(description)
 
@@ -204,6 +205,7 @@ class BaseAgent:
             scanLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
 
         return None
+
 
     async def handle_no_tool(self, description: str):
         next_p = self.next_prompt()

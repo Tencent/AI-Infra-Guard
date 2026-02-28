@@ -28,6 +28,7 @@ def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
 
 
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:
+    """Parse first tool invocation only."""
     invocations = _parse_tags(content, "function")
     return invocations[0] if invocations else None
 
