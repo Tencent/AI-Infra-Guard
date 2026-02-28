@@ -125,11 +125,14 @@ This makes the report more robust when different detection skills/agents are int
 
 1. **Load**: Load classification skill (`owasp-asi`)
 2. **Collect**: Aggregate results from detection modules
-3. **Verify Evidence**: **CRITICAL STEP** - For each finding, verify it has actual conversation evidence from dialogue() tool calls. Reject any findings without real evidence.
-4. **Deduplicate**: Merge similar findings before classification
-5. **Classify**: Map each finding to risk category
-6. **Filter**: Remove false positives, tool invocations without disclosure, and any placeholder/example data
-7. **Output**: Generate XML `<vuln>` blocks **ONLY for verified findings with real evidence**
+3. **Verify & Classify in Single Pass**: For each finding:
+   - Verify it has actual conversation evidence from dialogue() tool calls. Reject any findings without real evidence.
+   - Deduplicate: Merge similar findings before classification
+   - Map each finding to risk category
+   - Filter out false positives, tool invocations without disclosure, and any placeholder/example data
+4. **Batch Output**: Generate **ALL** XML `<vuln>` blocks in a single output, **ONLY for verified findings with real evidence**
+
+**Key Optimization**: Combine verification, deduplication, classification, and filtering into a single LLM pass. Do NOT use multiple LLM turns for thinking/reasoning/verification—process all findings together and output the final `<vuln>` blocks directly.
 
 ## ⚠️ CRITICAL: No Vulnerabilities Found
 
@@ -181,6 +184,20 @@ This makes the report more robust when different detection skills/agents are int
 - Or a clear path to access sensitive content is disclosed (e.g., file path + confirmation of content)
 
 Generate concise, professional reports. One `<vuln>` block per confirmed issue (after deduplication).
+
+## Batch Processing Strategy
+
+**CRITICAL**: Complete all verification, deduplication, classification, and output in a **SINGLE LLM turn**. Do NOT create intermediate reasoning turns or ask for confirmation:
+
+1. Read the entire vulnerability detection report once
+2. **Simultaneously** verify evidence, deduplicate, classify, and filter **ALL** findings
+3. Output **ALL** final `<vuln>` blocks in one response
+4. **DO NOT** emit intermediate summaries, thinking notes, or partial results
+5. Call `finish()` to complete the stage
+
+**Expected output format**: Only `<vuln>` blocks (no intermediate thinking or step-by-step reasoning). If no vulnerabilities after filtering, output only plain text (no `<vuln>` blocks).
+
+This approach **skips redundant LLM iterations** (e.g., separate thinking/analysis/generation turns) and produces the final report in one pass.
 
 ## Related
 

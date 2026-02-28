@@ -423,13 +423,15 @@ class AIProviderClient:
 
         # Build body with prompt placeholder.
         # The body template is already a JSON-encoded string (from json.dumps), so
-        # any literal backslashes or double-quotes in the prompt must be escaped
-        # before substitution — otherwise the resulting string is invalid JSON and
-        # json.loads will raise JSONDecodeError (manifests as HTTP 400 on the target).
+        # the prompt must be escaped as a complete JSON string value (with quotes).
+        # This ensures newlines, quotes, backslashes, and other special chars are
+        # correctly escaped in the final JSON body.
         body = None
         if config.body:
             body_str = json.dumps(config.body) if isinstance(config.body, dict) else str(config.body)
-            json_escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
+            # Use json.dumps to properly escape the entire prompt string, then strip the outer quotes
+            # to get the content that's already properly JSON-escaped internally.
+            json_escaped_prompt = json.dumps(prompt)[1:-1]  # Remove surrounding quotes from json.dumps output
             body_str = (
                 body_str
                 .replace("{{prompt}}", json_escaped_prompt)
