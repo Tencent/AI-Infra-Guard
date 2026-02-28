@@ -139,8 +139,8 @@ class SafetyMetric(BaseRedTeamingMetric):
             self.success = False
         else:
             try:
-                self.score == 1
-            except:
+                self.success = self.score == 1
+            except AttributeError:
                 self.success = False
         return self.success
 
