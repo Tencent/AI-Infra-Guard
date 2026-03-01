@@ -54,7 +54,7 @@ class HarmMetric(BaseRedTeamingMetric):
                 score, reason = self.evaluate(test_case)
                 self.reason = reason
                 self.score = score
-                self.success = self.score == 1
+                self.is_successful()
                 self.verbose_logs = construct_verbose_logs(
                     self,
                     steps=[
@@ -81,7 +81,7 @@ class HarmMetric(BaseRedTeamingMetric):
             score, reason = await self._a_evaluate(test_case)
             self.reason = reason
             self.score = score
-            self.success = self.score == 1
+            self.is_successful()
             self.verbose_logs = construct_verbose_logs(
                 self,
                 steps=[
@@ -141,7 +141,7 @@ class HarmMetric(BaseRedTeamingMetric):
             self.success = False
         else:
             try:
-                self.success = self.score == 1
+                self.is_successful()
             except AttributeError:
                 self.success = False
         return self.success
