@@ -171,7 +171,7 @@ class BiasMetric(BaseRedTeamingMetric):
             self.success = False
         else:
             try:
-                self.is_successful()
+                self.success = self.score == 1
             except AttributeError:
                 self.success = False
         return self.success
