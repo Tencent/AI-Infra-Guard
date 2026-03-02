@@ -44,7 +44,7 @@ class BaseAgent:
         self.tool_usage_stats = {}
 
     async def initialize(self):
-        """异步初始化系统提示词"""
+        """Asynchronously initialize system prompt"""
         if not self.history:
             system_prompt = await self.generate_system_prompt()
             self.history.append({"role": "system", "content": system_prompt})
@@ -66,10 +66,7 @@ class BaseAgent:
 
         system_prompt = self.history[0]
         original_task = self.history[1]['content']
-        if self.language == "en":
-            user_messages = f"I want you to complete: {original_task}\n\nThe following context is provided for reference:\n{response}"
-        else:
-            user_messages = f"我希望你完成:{original_task}\n\n有以下上下文提供你参考:\n{response}"
+        user_messages = f"I want you to complete: {original_task}\n\nThe following context is provided for reference:\n{response}"
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     async def generate_system_prompt(self):
@@ -129,9 +126,7 @@ class BaseAgent:
         tool_invocation = parse_tool_invocations(response)
         description = clean_content(response)
         if description == "":
-            description = "我将继续执行"
-            if self.language == "en":
-                description = "I will continue to execute"
+            description = "I will continue to execute"
 
         scanLogger.status_update(self.step_id, description, "", "running")
 
@@ -174,7 +169,7 @@ class BaseAgent:
             scanLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 
-        # 构造上下文
+        # Build context
         context = ToolContext(
             llm=self.llm,
             history=self.history,
@@ -186,13 +181,13 @@ class BaseAgent:
             language=self.language,
         )
 
-        # 通过 Dispatcher 调用工具
+        # Call tool via Dispatcher
         tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
 
-        # 格式化工具结果并添加到历史
+        # Format tool result and add to history
         result_message = f"{tool_result}"
 
-        # 添加下一轮提示
+        # Add next prompt
         next_p = self.next_prompt()
         full_message = f"{next_p}\n---\n{result_message}"
 
@@ -209,10 +204,7 @@ class BaseAgent:
 
     async def handle_no_tool(self, description: str):
         next_p = self.next_prompt()
-        if self.language == "en":
-            result_message = "You didn't call any tool. Please call a tool to continue."
-        else:
-            result_message = "你没有调用任何工具，请调用一个工具继续执行。"
+        result_message = "You didn't call any tool. Please call a tool to continue."
         full_message = f"{next_p}\n\n{result_message}"
         logger.debug(f"Agent Response: {result_message}")
         self.history.append({"role": "user", "content": full_message})
@@ -220,8 +212,8 @@ class BaseAgent:
         return None
 
     async def _format_final_output(self) -> str:
-        """使用 LLM 根据历史记录和预设格式生成最终输出"""
-        # 取最近的对话历史作为参考
+        """Use LLM to generate final output based on history and preset format"""
+        # Use recent conversation history as reference
         recent_history = self.history[1:]
         formatting_prompt = prompt_manager.format_prompt(
             "format_report",
@@ -237,7 +229,7 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
                     specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
                     language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None,
                     format_on_finish: bool = True):
-    logger.info(f"=== 阶段 {stage_id}: {description} ===")
+    logger.info(f"=== Stage {stage_id}: {description} ===")
     scanLogger.new_plan_step(stepId=stage_id, stepName=description)
 
     if language == "en":
@@ -255,7 +247,7 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
             "下面的指令和示例模板如果包含英文内容，仅作为结构示例，你的实际输出依然需要使用中文。\n\n"
         ) + instruction
 
-    # 初始化阶段 Agent
+    # Initialize stage agent
     agent = BaseAgent(
         name=f"{description}",
         instruction=instruction,
@@ -270,24 +262,18 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
     await agent.initialize()
     if repo_dir:
         agent.set_repo_dir(repo_dir)
-        if language == "en":
-            user_msg = f"Please perform {description}. The repository folder is {repo_dir}\n"
-        else:
-            user_msg = f"请进行{description}，文件夹在 {repo_dir}\n"
+        user_msg = f"Please perform {description}. The repository folder is {repo_dir}\n"
     else:
         user_msg = ""
     if prompt:
         user_msg += f"{prompt}\n"
     if context_data:
-        if language == "en":
-            user_msg += "\n\nThe following background information is provided:\n"
-        else:
-            user_msg += "\n\n有以下背景信息：\n"
+        user_msg += "\n\nThe following background information is provided:\n"
         for key, value in context_data.items():
             user_msg += f"{key}:{value}\n\n"
 
     agent.add_user_message(user_msg)
 
-    # 运行并返回结果
+    # Run and return results
     result = await agent.run()
     return result, agent.tool_usage_stats
