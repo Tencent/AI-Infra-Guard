@@ -56,6 +56,11 @@ COPY ./mcp-scan /app/mcp-scan/
 WORKDIR /app/mcp-scan
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY ./agent-scan /app/agent-scan/
+WORKDIR /app/agent-scan
+RUN pip install --no-cache-dir -r requirements.txt
+
+
 RUN set -eux; \
     apt-get purge -y --auto-remove \
         build-essential \
