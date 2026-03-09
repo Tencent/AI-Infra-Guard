@@ -7,13 +7,19 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
+	"github.com/Tencent/AI-Infra-Guard/common/utils"
+	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
+
+const AgentScanDir = "/app/agent-scan"
+const UvBin = "/usr/local/bin/uv"
 
 func HandleList(root string, loadFile func(filePath string) (interface{}, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -314,4 +320,579 @@ func GetJailBreak(c *gin.Context) {
 		"message": "success",
 		"data":    data1,
 	})
+}
+
+// ============== Agent Scan Config Management ==============
+const AgentConfigRoot = "data/agents"
+const PublicUser = "public_user"
+
+// getAgentUserDir 获取用户的 agent 配置目录
+func getAgentUserDir(username string) string {
+	return filepath.Join(AgentConfigRoot, username)
+}
+
+// validateUsername 验证用户名安全性（防止路径穿越）
+func validateUsername(username string) bool {
+	if username == "" {
+		return false
+	}
+	if strings.Contains(username, "..") || strings.ContainsAny(username, "/\\<>:\"|?*") {
+		return false
+	}
+	return true
+}
+
+func HandleListAgentNames(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
+	names, err := listAgentConfigNames(username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "获取失败: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "success",
+		"data":    names,
+	})
+}
+
+func HandleGetAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	data, err := readAgentConfigContent(username, name)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"status":  1,
+				"message": "配置不存在",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "读取失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "success",
+		"data":    string(data),
+	})
+}
+
+// testAgentConnectivity 测试Agent配置的连通性
+// 返回 (success, message, error)
+func testAgentConnectivity(content string) (bool, string, error) {
+	// Create temporary file for the YAML content
+	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
+	if err != nil {
+		return false, "", fmt.Errorf("创建临时文件失败: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write YAML content to temp file
+	if _, err := tmpFile.WriteString(content); err != nil {
+		tmpFile.Close()
+		return false, "", fmt.Errorf("写入配置文件失败: %v", err)
+	}
+	tmpFile.Close()
+
+	// Run Python connectivity test script using uv
+	var lastLine string
+	err = utils.RunCmd(
+		AgentScanDir,
+		UvBin,
+		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name()},
+		func(line string) {
+			lastLine += line
+		},
+	)
+
+	if err != nil {
+		return false, "", fmt.Errorf("连通性测试执行失败: %v", err)
+	}
+	if lastLine != "" {
+		gologger.Infoln("test_agent_connect", lastLine)
+	}
+
+	// Parse the JSON output from Python script
+	var result ConnectResultUpdate
+	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
+		return false, "", fmt.Errorf("解析测试结果失败: %v", err)
+	}
+
+	return result.Content.Success, result.Content.Message, nil
+}
+
+func HandleSaveAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	var req struct {
+		Content string `json:"content" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "content parameter is required",
+		})
+		return
+	}
+	content := strings.TrimSpace(req.Content)
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "content不能为空",
+		})
+		return
+	}
+
+	// 检测Agent连通性
+	success, message, err := testAgentConnectivity(content)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "连通性检测失败: " + err.Error(),
+		})
+		return
+	}
+	if !success {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "连通性检测失败: " + message,
+		})
+		return
+	}
+
+	// 创建用户专属目录
+	userDir := getAgentUserDir(username)
+	if err := os.MkdirAll(userDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "创建目录失败: " + err.Error(),
+		})
+		return
+	}
+
+	targetPath, err := resolveAgentConfigPathForWrite(username, name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "保存失败: " + err.Error(),
+		})
+		return
+	}
+
+	if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "保存失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "保存成功，连通性验证通过",
+	})
+}
+
+func HandleDeleteAgentConfig(c *gin.Context) {
+	username := c.GetString("username")
+	if !validateUsername(username) {
+		username = PublicUser
+	}
+
+	name := strings.TrimSpace(c.Param("name"))
+	if name == "" || !isValidName(name) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "配置名称非法",
+		})
+		return
+	}
+
+	deleted, err := deleteAgentConfig(username, name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "删除失败: " + err.Error(),
+		})
+		return
+	}
+	if !deleted {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  1,
+			"message": "配置不存在",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "删除成功",
+	})
+}
+
+// listAgentConfigNamesFromDir 从指定目录读取配置名称列表
+func listAgentConfigNamesFromDir(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []string{}, nil
+		}
+		return nil, err
+	}
+
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		switch {
+		case strings.HasSuffix(entry.Name(), ".yaml"):
+			names = append(names, strings.TrimSuffix(entry.Name(), ".yaml"))
+		case strings.HasSuffix(entry.Name(), ".yml"):
+			names = append(names, strings.TrimSuffix(entry.Name(), ".yml"))
+		}
+	}
+	return names, nil
+}
+
+// listAgentConfigNames 列出用户的配置名称（合并用户目录和公共目录，去重）
+func listAgentConfigNames(username string) ([]string, error) {
+	// 读取用户目录的配置
+	userDir := getAgentUserDir(username)
+	userNames, err := listAgentConfigNamesFromDir(userDir)
+	if err != nil {
+		return nil, err
+	}
+
+	// 如果不是公共用户，还需要合并公共目录的配置
+	if username != PublicUser {
+		publicDir := getAgentUserDir(PublicUser)
+		publicNames, err := listAgentConfigNamesFromDir(publicDir)
+		if err != nil {
+			return nil, err
+		}
+
+		// 合并并去重
+		nameSet := make(map[string]struct{})
+		for _, name := range userNames {
+			nameSet[name] = struct{}{}
+		}
+		for _, name := range publicNames {
+			nameSet[name] = struct{}{}
+		}
+
+		userNames = make([]string, 0, len(nameSet))
+		for name := range nameSet {
+			userNames = append(userNames, name)
+		}
+	}
+
+	sort.Strings(userNames)
+	return userNames, nil
+}
+
+// readAgentConfigContentFromDir 从指定目录读取配置内容
+func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
+	for _, ext := range []string{".yaml", ".yml"} {
+		path := filepath.Join(dir, name+ext)
+		data, err := os.ReadFile(path)
+		if err == nil {
+			return data, nil
+		}
+		if !errors.Is(err, os.ErrNotExist) {
+			return nil, err
+		}
+	}
+	return nil, os.ErrNotExist
+}
+
+// readAgentConfigContent 读取配置内容（优先用户目录，fallback 到公共目录）
+func readAgentConfigContent(username, name string) ([]byte, error) {
+	// 优先从用户目录读取
+	userDir := getAgentUserDir(username)
+	data, err := readAgentConfigContentFromDir(userDir, name)
+	if err == nil {
+		return data, nil
+	}
+	if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	// 如果不是公共用户且用户目录没有，尝试从公共目录读取
+	if username != PublicUser {
+		publicDir := getAgentUserDir(PublicUser)
+		return readAgentConfigContentFromDir(publicDir, name)
+	}
+
+	return nil, os.ErrNotExist
+}
+
+// resolveAgentConfigPathForWrite 解析写入路径（写入用户目录）
+func resolveAgentConfigPathForWrite(username, name string) (string, error) {
+	userDir := getAgentUserDir(username)
+	candidates := []string{
+		filepath.Join(userDir, name+".yaml"),
+		filepath.Join(userDir, name+".yml"),
+	}
+	for _, path := range candidates {
+		_, statErr := os.Stat(path)
+		if statErr == nil {
+			return path, nil
+		}
+		if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
+			return "", statErr
+		}
+	}
+	return candidates[0], nil
+}
+
+// deleteAgentConfig 删除配置（只删除用户目录的配置）
+func deleteAgentConfig(username, name string) (bool, error) {
+	userDir := getAgentUserDir(username)
+	for _, ext := range []string{".yaml", ".yml"} {
+		path := filepath.Join(userDir, name+ext)
+		err := os.Remove(path)
+		if err == nil {
+			return true, nil
+		}
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		return false, err
+	}
+	return false, nil
+}
+
+// AgentConnectRequest represents the request body for agent connect test
+type AgentConnectRequest struct {
+	Content string `json:"content"`
+}
+
+// AgentPromptTestRequest represents the request body for agent prompt test
+type AgentPromptTestRequest struct {
+	Content string `json:"content"`
+	Prompt  string `json:"prompt"`
+}
+
+// ProviderResponse represents the provider_response field in result
+type ProviderResponse struct {
+	Raw    interface{} `json:"raw"`
+	Output *string     `json:"output"`
+	Error  *string     `json:"error"`
+}
+
+// ConnectResultContent represents the content of resultUpdate response
+type ConnectResultContent struct {
+	Success          bool              `json:"success"`
+	Message          string            `json:"message"`
+	ProviderResponse *ProviderResponse `json:"provider_response"`
+}
+
+// ConnectResultUpdate represents the resultUpdate response from Python script
+type ConnectResultUpdate struct {
+	Type    string               `json:"type"`
+	Content ConnectResultContent `json:"content"`
+}
+
+func HandleAgentConnect(c *gin.Context) {
+	var req AgentConnectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if req.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Content cannot be empty",
+		})
+		return
+	}
+
+	// 使用公共的连通性测试函数
+	success, message, err := testAgentConnectivity(req.Content)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to run connectivity test: " + err.Error(),
+		})
+		return
+	}
+
+	if success {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  0,
+			"message": message,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": message,
+		})
+	}
+}
+
+func HandleAgentPromptTest(c *gin.Context) {
+	var req AgentPromptTestRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if req.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Content cannot be empty",
+		})
+		return
+	}
+
+	if req.Prompt == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  1,
+			"message": "Prompt cannot be empty",
+		})
+		return
+	}
+
+	// Create temporary file for the YAML content
+	tmpFile, err := os.CreateTemp("", "agent_prompt_test_*.yaml")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to create temporary file: " + err.Error(),
+		})
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write YAML content to temp file
+	if _, err := tmpFile.WriteString(req.Content); err != nil {
+		tmpFile.Close()
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to write config file: " + err.Error(),
+		})
+		return
+	}
+	tmpFile.Close()
+
+	// Run Python prompt test script using uv
+	var lastLine string
+	err = utils.RunCmd(
+		AgentScanDir,
+		UvBin,
+		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name(), "--prompt", req.Prompt},
+		func(line string) {
+			lastLine += line
+		},
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to run prompt test: " + err.Error(),
+		})
+		return
+	}
+	gologger.Infof("prompt test result: %s", lastLine)
+
+	// Parse the JSON output from Python script
+	var result ConnectResultUpdate
+	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to parse result: " + err.Error(),
+		})
+		return
+	}
+
+	// Return result based on prompt test outcome
+	if result.Content.Success {
+		// Extract output from provider_response
+		var output string
+		if result.Content.ProviderResponse != nil {
+			if result.Content.ProviderResponse.Output != nil && *result.Content.ProviderResponse.Output != "" {
+				output = *result.Content.ProviderResponse.Output
+			} else if result.Content.ProviderResponse.Raw != nil {
+				// Fallback to raw response
+				rawBytes, _ := json.Marshal(result.Content.ProviderResponse.Raw)
+				output = string(rawBytes)
+			}
+		}
+		if output == "" {
+			output = result.Content.Message
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status":  0,
+			"message": output,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": result.Content.Message,
+		})
+	}
+}
+
+func HandleAgentTemplate(c *gin.Context) {
+	enConfig := "agent-scan/config/provider_config_en.json"
+	zhConfig := "agent-scan/config/provider_config_zh.json"
+	language := c.DefaultQuery("language", "zh")
+	var data []byte
+	var err error
+	if language == "zh" {
+		data, err = os.ReadFile(zhConfig)
+		if err != nil {
+			gologger.WithError(err).Errorln("read zh config")
+		}
+	} else {
+		data, err = os.ReadFile(enConfig)
+		if err != nil {
+			gologger.WithError(err).Errorln("read en config")
+		}
+	}
+	c.Data(http.StatusOK, "application/json", data)
 }

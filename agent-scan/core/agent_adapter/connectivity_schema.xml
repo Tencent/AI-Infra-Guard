@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="connectivity">
+  <description>
+    Test connectivity to an AI provider.
+    
+    This tool loads provider configuration from a YAML/JSON config file,
+    sends a simple test prompt ("Only return 1") to verify the connection,
+    and returns whether the provider is reachable and responding correctly.
+    
+    Use this tool to verify API credentials and network connectivity
+    before running actual dialogue requests.
+    
+    Supports various AI providers including:
+    - OpenAI and OpenAI-compatible APIs
+    - Anthropic Claude
+    - Google AI Studio / Vertex AI
+    - Azure OpenAI
+    - Mistral AI, Groq, Ollama
+    - Dify, Coze, and more
+  </description>
+  <parameters>
+    <parameter name="config_file" type="string" required="true">
+      Path to the provider configuration file (YAML or JSON format).
+      The config file should contain a 'providers' or 'targets' array with provider settings.
+    </parameter>
+  </parameters>
+  <returns>
+    <field name="success" type="boolean">Whether the connectivity test passed (True if provider responded successfully)</field>
+  </returns>
+</tool>
+</tools>

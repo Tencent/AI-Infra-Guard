@@ -1,0 +1,279 @@
+import json
+import uuid
+from typing import Optional
+
+from core.agent_adapter.adapter import ProviderOptions
+from tools.dispatcher import ToolDispatcher
+from utils.aig_logger import scanLogger
+from utils.llm import LLM
+from utils.logging import logger
+from utils.parse import parse_tool_invocations, clean_content
+from utils.prompt_manager import prompt_manager
+from utils.tool_context import ToolContext
+
+
+class BaseAgent:
+
+    def __init__(
+            self,
+            name: str,
+            instruction: str,
+            llm: LLM,
+            specialized_llms: dict = None,
+            log_step_id: str = None,
+            debug: bool = False,
+            agent_provider: Optional[ProviderOptions] = None,
+            language: str = "zh",
+            format_on_finish: bool = True,
+    ):
+        self.llm = llm
+        self.name = name
+        self.specialized_llms = specialized_llms or {}
+        self.instruction = instruction
+        self.history = []
+        self.max_iter = 40
+        self.iter = 0
+        self.is_finished = False
+        self.step_id = log_step_id
+        self.debug = debug
+        self.repo_dir = ""
+        self.agent_provider = agent_provider
+        self.language = language
+        self.format_on_finish = format_on_finish
+        self.dispatcher = ToolDispatcher()
+        self.tool_usage_stats = {}
+
+    async def initialize(self):
+        """Asynchronously initialize system prompt"""
+        if not self.history:
+            system_prompt = await self.generate_system_prompt()
+            self.history.append({"role": "system", "content": system_prompt})
+
+    def add_user_message(self, message: str):
+        self.history.append({"role": "user", "content": message})
+
+    def set_repo_dir(self, repo_dir: str):
+        self.repo_dir = repo_dir
+
+    async def compact_history(self):
+        if len(self.history) < 3:
+            return
+
+        prompt = prompt_manager.load_template("compact")
+        history = self.history[1:]
+        history.append({"role": "user", "content": prompt})
+        response = await self.llm.chat_async(history)
+
+        system_prompt = self.history[0]
+        original_task = self.history[1]['content']
+        user_messages = f"I want you to complete: {original_task}\n\nThe following context is provided for reference:\n{response}"
+        self.history = [system_prompt, {"role": "user", "content": user_messages}]
+
+    async def generate_system_prompt(self):
+
+        tools_prompt = await self.dispatcher.get_all_tools_prompt()
+
+        template_name = "system_prompt"
+        format_kwargs = {
+            "generate_tools": tools_prompt,
+            "name": self.name,
+            "instruction": self.instruction
+        }
+
+        return prompt_manager.format_prompt(template_name, **format_kwargs)
+
+    def next_prompt(self):
+        return prompt_manager.format_prompt("next_prompt", round=self.iter)
+
+    async def run(self):
+        await self.initialize()
+        return await self._run()
+
+    async def _run(self):
+        logger.info(f"Agent {self.name} started with max_iter={self.max_iter}")
+        # Compact history when this fraction of max iterations has been consumed.
+        compact_threshold = int(self.max_iter * 0.7)
+        compacted = False
+        result = ""
+        while not self.is_finished and self.iter < self.max_iter:
+            logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
+
+            # Compact once at 70 % of max iterations so the agent can keep running
+            # with a condensed context rather than hitting the hard limit cold.
+            if not compacted and self.iter >= compact_threshold:
+                logger.warning(f"Compacting history at iteration {self.iter} (threshold={compact_threshold})")
+                await self.compact_history()
+                compacted = True
+
+            # Use the non-blocking async wrapper so the event loop is free to
+            # schedule other coroutines (e.g. parallel skill workers in
+            # ScanPipeline.run_parallel_detection) while awaiting the response.
+            response = await self.llm.chat_async(self.history)
+            logger.debug(f"LLM Response: {response}")
+            self.history.append({"role": "assistant", "content": response})
+            res = await self.handle_response(response)
+            if res is not None:
+                result = res
+            self.iter += 1
+
+        if self.iter >= self.max_iter:
+            logger.warning(f"Max iterations ({self.max_iter}) reached without finish signal")
+
+        return result
+
+    async def handle_response(self, response: str):
+        # Parse tool invocation (only first invocation supported)
+        tool_invocation = parse_tool_invocations(response)
+        description = clean_content(response)
+        if description == "":
+            description = "I will continue to execute"
+
+        scanLogger.status_update(self.step_id, description, "", "running")
+
+        if tool_invocation:
+            return await self.process_tool_call(tool_invocation, description)
+        else:
+            return await self.handle_no_tool(description)
+
+    async def process_tool_call(self, tool_call: dict, description: str):
+        tool_name = tool_call["toolName"]
+        tool_args = tool_call["args"]
+        tool_id = uuid.uuid4().__str__()
+
+        params = json.dumps(tool_args, ensure_ascii=False) if tool_args else ""
+        if isinstance(params, str):
+            params = params.replace(self.repo_dir, "")
+
+        scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
+
+        # Update stats
+        if tool_name not in self.tool_usage_stats:
+            self.tool_usage_stats[tool_name] = 0
+        self.tool_usage_stats[tool_name] += 1
+
+        if tool_name == "finish":
+            self.is_finished = True
+            if self.format_on_finish:
+                # Full stages (recon, review): reformat the entire history via LLM
+                # to produce a clean, structured final report.
+                result = await self._format_final_output()
+            else:
+                # Skill workers: the last assistant turn already contains the
+                # <vuln> XML blocks emitted just before the finish() call.
+                # brief_content is only a plain-text summary (no XML) — always
+                # use the full assistant message so _extract_vuln_blocks() can
+                # find the <vuln> tags.
+                result = self.history[-1].get("content", "")
+            logger.info("Finish tool called, final result formatted.")
+            scanLogger.status_update(self.step_id, description, "", "completed")
+            scanLogger.action_log(tool_id, tool_name, self.step_id, result)
+            return result
+
+        # Build context
+        context = ToolContext(
+            llm=self.llm,
+            history=self.history,
+            agent_name=self.name,
+            iteration=self.iter,
+            specialized_llms=self.specialized_llms,
+            folder=self.repo_dir,
+            agent_provider=self.agent_provider,
+            language=self.language,
+        )
+
+        # Call tool via Dispatcher
+        tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+
+        # Format tool result and add to history
+        result_message = f"{tool_result}"
+
+        # Add next prompt
+        next_p = self.next_prompt()
+        full_message = f"{next_p}\n---\n{result_message}"
+
+        self.history.append({"role": "user", "content": full_message})
+        logger.debug(f"Agent Response: {result_message}")
+
+        scanLogger.status_update(self.step_id, description, "", "completed")
+
+        if tool_name != "read_file":
+            scanLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
+
+        return None
+
+
+    async def handle_no_tool(self, description: str):
+        next_p = self.next_prompt()
+        result_message = "You didn't call any tool. Please call a tool to continue."
+        full_message = f"{next_p}\n\n{result_message}"
+        logger.debug(f"Agent Response: {result_message}")
+        self.history.append({"role": "user", "content": full_message})
+        scanLogger.status_update(self.step_id, description, "", "completed")
+        return None
+
+    async def _format_final_output(self) -> str:
+        """Use LLM to generate final output based on history and preset format"""
+        # Use recent conversation history as reference
+        recent_history = self.history[1:]
+        formatting_prompt = prompt_manager.format_prompt(
+            "format_report",
+            output_format=self.instruction
+        )
+        recent_history.append({"role": "user", "content": formatting_prompt})
+        final_output = await self.llm.chat_async(recent_history)
+        logger.info(f"Final Output: {final_output}")
+        return final_output
+
+
+async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, stage_id: str,
+                    specialized_llms: dict | None = None, agent_provider: ProviderOptions | None = None,
+                    language: str = "zh", repo_dir: str | None = None, context_data: dict | None = None,
+                    format_on_finish: bool = True):
+    logger.info(f"=== Stage {stage_id}: {description} ===")
+    scanLogger.new_plan_step(stepId=stage_id, stepName=description)
+
+    if language == "en":
+        instruction = (
+            "You are generating security scanning outputs.\n"
+            "All of your outputs (including intermediate notes and final reports) MUST be in English.\n"
+            "Some of the following instructions and example templates are written in Chinese; "
+            "they are ONLY examples of structure and content types. "
+            "Follow their structure, but ALWAYS write your own output in English.\n\n"
+        ) + instruction
+    else:
+        instruction = (
+            "你正在生成安全扫描相关的输出。\n"
+            "所有输出（包括中间说明和最终报告）必须使用中文撰写。\n"
+            "下面的指令和示例模板如果包含英文内容，仅作为结构示例，你的实际输出依然需要使用中文。\n\n"
+        ) + instruction
+
+    # Initialize stage agent
+    agent = BaseAgent(
+        name=f"{description}",
+        instruction=instruction,
+        llm=llm,
+        specialized_llms=specialized_llms,
+        log_step_id=stage_id,
+        debug=True,
+        agent_provider=agent_provider,
+        language=language,
+        format_on_finish=format_on_finish,
+    )
+    await agent.initialize()
+    if repo_dir:
+        agent.set_repo_dir(repo_dir)
+        user_msg = f"Please perform {description}. The repository folder is {repo_dir}\n"
+    else:
+        user_msg = ""
+    if prompt:
+        user_msg += f"{prompt}\n"
+    if context_data:
+        user_msg += "\n\nThe following background information is provided:\n"
+        for key, value in context_data.items():
+            user_msg += f"{key}:{value}\n\n"
+
+    agent.add_user_message(user_msg)
+
+    # Run and return results
+    result = await agent.run()
+    return result, agent.tool_usage_stats

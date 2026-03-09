@@ -162,9 +162,11 @@ async def main():
         logger.warning("Task interrupted by user")
     except Exception as e:
         print(f"\n\nError during execution: {e}")
-        logger.error(f"Error during execution: {e}", exc_info=True)
-        mcpLogger.error_log(f"Execution failed: {e}")
-        raise Exception(f"Execution failed: {e}")
+        logger.error(f"Error during execution: {e}")
+        import traceback
+        traceback = traceback.format_exc()
+        mcpLogger.error_log(f"Execution failed: {e}\n{traceback}")
+        raise e
     finally:
         # 确保关闭资源
         if hasattr(agent, 'dispatcher'):
