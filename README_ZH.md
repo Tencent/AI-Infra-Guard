@@ -51,7 +51,7 @@
 
 我们非常高兴地宣布 **AI-Infra-Guard v4.0** 正式发布！本次重大更新将我们的安全防护边界从 AI 基础设施全面拓展至**自主智能体（Autonomous Agent）生态**。此版本重磅推出了两大独立的核心模块：
 
-- 🛡️ **OpenClaw安全体检[EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**：支持一键完成 OpenClaw 安全风险评估，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建Skill安全情报数据。 
+- 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建Skill安全情报数据。 
 - 🤖 **Agent安全扫描**：一个全新、独立的多智能体自动化扫描框架，旨在全面评估各类平台（如 OpenClaw、Dify、Coze 等）上运行的 AI 智能体工作流的安全性。
 
 👉[阅读完整的 v4.0 版本发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [立即体验 EdgeOne ClawScan 安全体检](https://matrix.tencent.com/clawscan/openclaw)
