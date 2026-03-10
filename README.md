@@ -36,7 +36,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server & Agent Skills scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as ClawScan(OpenClaw Security Scan), Agent Scan，AI infra vulnerability scan, MCP Server & Agent Skills scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 <p>
   We are committed to making A.I.G(AI-Infra-Guard) the industry-leading AI red teaming platform. More stars help this project reach a wider audience, attracting more developers to contribute, which accelerates iteration and improvement. Your star is crucial to us!
@@ -49,9 +49,15 @@
 
 <br>
 
-> 📢 **News**:
-> * A.I.G V3.6.2 AI Infrastructure Scanning now supports n8n (workflow automation platform) and adds detection for 78 CVEs across 15 AI components including Ollama. [View full changelog](./CHANGELOG.md)
-> * A.I.G v3.6.1 Support Openclaw/clawdbot/moltbot Gateway unauthorized access risk detection.
+## 🚀 What's New in v4.0: The Era of Agent Security
+
+We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security boundaries from AI infrastructure to the **Autonomous Agent Ecosystem**. This release introduces two major independent modules:
+
+- 🛡️ **[EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**: A dedicated, comprehensive security scanning portal for OpenClaw, officially powered by Tencent Zhuque Lab. 
+- 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agents across various providers (Dify, Coze, etc.).
+
+👉 [Read the full v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan/openclaw)
+
 
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
