@@ -121,12 +121,13 @@ docker-compose up -d
 
 ## ✨ 功能特性
 
-
-| 特性 | 详细信息 |
+| 功能模块 | 详情说明 |
 |:--------|:------------|
-| **AI基础设施漏洞扫描** | 精准识别30+AI框架组件，覆盖400+已知CVE漏洞，包括Ollama/ComfyUI/vLLM等 |
-| **AI工具协议扫描** | 基于AI Agent驱动，检测14大类MCP Server与Skills安全风险，支持源代码/远程URL扫描 |
-| **大模型安全体检** | 快速评估Prompt安全风险，内置多个精选越狱评估数据集，支持多种越狱攻击算子，跨模型安全性能对比 |
+| **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
+| **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
+| **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 40 多种 AI 开源 Web 组件。涵盖 600 多个已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
+| **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
 
 <details>
 <summary><strong>其他优势</strong></summary>
