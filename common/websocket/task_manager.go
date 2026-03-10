@@ -1136,7 +1136,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 
 	if language == "en" {
 		texts.aiInfraScan = "AI Infra Scan - "
-		texts.mcpScan = "AI Protocol Scan - "
+		texts.mcpScan = "AI Tool and Skill Scan - "
 		texts.modelJailbreak = "LLM Jailbreaking - "
 		texts.modelRedteamReport = "Jailbreak Evaluation - "
 		texts.agentScan = "Agent Scan - "
@@ -1147,7 +1147,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.sse = "SSE:"
 	} else {
 		texts.aiInfraScan = "AI基础设施扫描 - "
-		texts.mcpScan = "AI协议扫描 - "
+		texts.mcpScan = "AI工具技能扫描 - "
 		texts.modelJailbreak = "一键越狱任务 - "
 		texts.modelRedteamReport = "大模型安全体检 - "
 		texts.agentScan = "Agent安全扫描 - "
