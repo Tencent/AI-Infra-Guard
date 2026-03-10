@@ -36,7 +36,7 @@
     <h3 align="center">🚀 腾讯朱雀实验室推出的一站式 AI 红队安全测试平台</h3>
 </p>
 
-**A.I.G (AI-Infra-Guard)** 集成AI基础设施漏洞扫描、MCP Server & Agent Skills风险检测与大模型安全体检等能力，旨在为用户提供最全面、智能与易用的AI安全风险自查解决方案。
+**A.I.G (AI-Infra-Guard)** 集成OpenClaw安全体检、Agent安全扫描、AI工具技能扫描、AI基础设施漏洞扫描与大模型安全体检（越狱评估）等能力，旨在为用户提供最全面、智能与易用的AI安全风险自查解决方案。
 
 <p>
   我们致力于将A.I.G(AI-Infra-Guard)打造为业界领先的 AI 红队工具平台。更多的 Star 能让这个项目被更多人看到，吸引更多的开发者参与进来，从而让项目更快地迭代和完善。您的 Star 对我们至关重要！
@@ -47,9 +47,14 @@
   </a>
 </p>
 
-> 📢 **News**:
-> * A.I.G V3.6.2 AI基础设施扫描支持n8n（工作流自动化平台）扫描，并增加Ollama等15个AI组件共计78个CVE漏洞检测。[查看完整更新日志](./CHANGELOG.md)
-> * A.I.G V3.6.1 新增支持 Openclaw/clawdbot/moltbot 网关未授权访问风险检测能力。
+## 🚀 v4.0 最新动态：迈入 Agent 安全时代
+
+我们非常高兴地宣布 **AI-Infra-Guard v4.0** 正式发布！本次重大更新将我们的安全防护边界从 AI 基础设施全面拓展至**自主智能体（Autonomous Agent）生态**。此版本重磅推出了两大独立的核心模块：
+
+- 🛡️ **OpenClaw安全体检[EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**：支持一键完成 OpenClaw 安全风险评估，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建Skill安全情报数据。 
+- 🤖 **Agent安全扫描**：一个全新、独立的多智能体自动化扫描框架，旨在全面评估各类平台（如 OpenClaw、Dify、Coze 等）上运行的 AI 智能体工作流的安全性。
+
+👉[阅读完整的 v4.0 版本发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [立即体验 EdgeOne ClawScan 安全体检](https://matrix.tencent.com/clawscan/openclaw)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
