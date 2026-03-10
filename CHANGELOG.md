@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.0] - 2026-03-10
+
+### Added
+- **Agent-Scan Framework**: Introduced a brand-new Agent-Scan scanning engine — a complete AI-powered autonomous agent security scanning framework
+  - Multi-agent architecture with specialized sub-agents: main agent, SSRF agent, config-scanner agent, vulnerability detector agent, agent security reviewer, and data leakage detection agent
+  - Full tool ecosystem including bash, file read/write, edit, grep, glob, ls, batch, thinking, todo, task, skill, MCP tool, dialogue, and finish actions
+  - Agent adapter system with support for multiple providers (Dify, Coze, etc.) with streaming response and connectivity testing
+  - Skill-based scanning capabilities: OWASP ASI compliance, authorization bypass detection, indirect injection detection, tool abuse detection, data leakage detection (with static & advanced prompt sets and LLM evaluator)
+  - Agent security review report generation with structured vulnerability assessment
+  - Scan pipeline with dialogue count tracking, tool usage statistics, and async processing
+- **Claw-Scan Enhancement**: Improved ClawScan (AIG-PromptSecurity) evaluation framework
+- **Component Fingerprints**: Added 4 new AI component fingerprints for improved detection coverage
+  - llama.cpp, HuggingFace TGI, NVIDIA NIM, LocalAI
+
+### Changed
+- 🐳 **Docker Optimization**: Updated Dockerfile and deployment scripts
+  - Use shallow clone and prefer docker compose v2 in `docker.sh`
+  - Handle chmod failures gracefully in `start.sh`
+  - Updated Dockerfile for Agent-Scan support
+- 📝 **Documentation Updates**: Comprehensive README updates
+  - Updated README to include Agent Skills in scans
+  - Updated README_ZH.md for clarity and accuracy
+  - Updated research papers and news sections
+- ⚙️ **Configuration Refactoring**: Removed some provider configurations, restructured field hierarchy
+  - Removed `idSuffix` field and updated related logic
+  - Improved parsing compatibility for config files
+  - Updated config JSON files with icon support
+
+### Contributors
+Special thanks to @rocie799, @Truman, @test0Emma, @hobostay, @Yang Luo, @mhh
+
+---
+
 ## [v3.6.2] - 2026-02-09
 
 ### Added
