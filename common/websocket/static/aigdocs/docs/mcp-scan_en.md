@@ -1,13 +1,5 @@
 # AI Tool Protocol Scan
-A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. 
-
-<img src="./assets/mcp-scan-en.png">
-
-> **Note**: The architecture is still under development.
-
-<br/>
-
-A.I.G can detect the following common AI tool protocol security risks, with continuous updates:
+A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. A.I.G can detect the following common AI tool protocol security risks, with continuous updates:
 
 <table>
 <thead>

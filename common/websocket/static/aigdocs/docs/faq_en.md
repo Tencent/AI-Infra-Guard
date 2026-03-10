@@ -57,8 +57,10 @@ To upgrade to the latest version and clean up obsolete resources:
 ```bash
 # Stop service
 docker-compose down
+# Pull new images
+docker-compose pull
 # Rebuild container images and restart services
-docker-compose -f docker-compose.images.yml up -d --build
+docker-compose -f docker-compose.images.yml up -d
 # Prune dangling Docker images (optional cleanup)
 docker image prune -f
 ```

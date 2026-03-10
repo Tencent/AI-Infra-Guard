@@ -1,13 +1,6 @@
 # AI工具协议扫描
 
-A.I.G使用了基于AI Agent驱动的AI工具协议检测方案，支持MCP Server、Skills源代码安全审计与远程MCP Server URL安全扫描。
-
-<img src= "./assets/mcp-scan.png">
-
-> **注意**：架构内容部分仍在升级中。
-
-<br/>
-A.I.G 可检测以下常见的AI工具协议安全风险，并持续更新：
+A.I.G使用了基于AI Agent驱动的AI工具协议检测方案，支持MCP Server、Skills源代码安全审计与远程MCP Server URL安全扫描，可检测以下常见的AI工具协议安全风险，并持续更新：
 
 <table>
 <tr>
