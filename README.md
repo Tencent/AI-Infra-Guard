@@ -53,10 +53,10 @@
 
 We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security boundaries from AI infrastructure to the **Autonomous Agent Ecosystem**. This release introduces two major independent modules:
 
-- 🛡️ **OpenClaw Security Scan [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
+- 🛡️ **OpenClaw Security Scan **: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
 - 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agent workflows running across various platforms (Dify, Coze, etc.).
 
-👉 [Read the full v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [Read the full v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan/) 
 
 
 ## Table of Contents
