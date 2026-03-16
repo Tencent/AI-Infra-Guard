@@ -3,7 +3,7 @@
 
 ## Overview
 
-A.I.G(AI-Infra-Guard) provides a comprehensive set of API interfaces for AI Infra Scan, MCP Server Scan, Jailbreak Evaluation, and Model Configuration Management. This documentation details the usage methods, parameter descriptions, and example code for each API interface.
+A.I.G(AI-Infra-Guard) provides a comprehensive set of API interfaces for AI Infra Scan, MCP Server Scan, Agent Scan, Jailbreak Evaluation, and Model Configuration Management. This documentation details the usage methods, parameter descriptions, and example code for each API interface.
 
 After the project is running, you can access `http://localhost:8088/docs/index.html` to view the Swagger documentation.
 
@@ -16,7 +16,8 @@ After the project is running, you can access `http://localhost:8088/docs/index.h
 ### Task Types
 1. MCP Server Scan API
 2. AI Infra Scan API
-3. Jailbreak Evaluation API
+3. Agent Scan API
+4. Jailbreak Evaluation API
 
 ### Model Management API
 1. Get Model List
@@ -317,7 +318,45 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   }'
 ```
 
-### 3. Jailbreak Evaluation API
+### 3. Agent Scan API
+
+Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HTTP endpoints) to detect vulnerabilities including prompt injection, privilege escalation, and data leakage.
+
+> **Note**: Agent Scan is triggered via the WebSocket task submission interface using `type: "agent_scan"`. The Agent target must be configured in advance through the UI or via the `agent_data` YAML field in the request body.
+
+#### Request Parameter Description
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| type | string | Yes | Fixed value: `"agent_scan"` |
+| content.agent_data | string | Yes | YAML-formatted Agent provider configuration |
+| content.eval_model.model | string | Yes | Model name for evaluation (e.g., `gpt-4o`) |
+| content.eval_model.token | string | Yes | API key for the evaluation model |
+| content.eval_model.base_url | string | Yes | Base URL of the evaluation model API |
+| content.eval_model.limit | int | No | Max concurrent requests (default: 10) |
+| language | string | No | Report language: `zh` (default) or `en` |
+
+#### Example Request
+
+```json
+{
+  "type": "agent_scan",
+  "language": "en",
+  "content": {
+    "agent_data": "- id: dify\n  label: MyDifyAgent\n  dify_type: chat\n  apiKey: app-xxxx\n  apiBaseUrl: https://api.dify.ai/v1\n",
+    "eval_model": {
+      "model": "gpt-4o",
+      "token": "sk-xxxx",
+      "base_url": "https://api.openai.com/v1",
+      "limit": 10
+    }
+  }
+}
+```
+
+---
+
+### 4. Jailbreak Evaluation API
 
 Used to perform Jailbreak Evaluation testing on LLM to assess their security and robustness.
 
