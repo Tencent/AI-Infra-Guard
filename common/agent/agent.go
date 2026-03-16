@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"sync"
@@ -278,11 +279,33 @@ func (a *Agent) processMessage(data []byte) error {
 				go func() {
 					err := taskFunc.Execute(taskCtx, task, callbacks)
 					if err != nil {
+						if errors.Is(err, context.Canceled) {
+							gologger.Infof("任务已取消: sessionId=%s", task.SessionId)
+							taskContext.Status = TaskStatusFailed
+							a.removeTask(task.SessionId)
+							return
+						}
+						taskContext.Status = TaskStatusFailed
 						a.SendError(task.SessionId, err.Error())
+						a.removeTask(task.SessionId)
+						return
 					}
+					taskContext.Status = TaskStatusComplete
+					a.removeTask(task.SessionId)
 				}()
 				break
 			}
+		}
+	case ServerMsgTypeTerminate:
+		var terminateReq TerminateTaskRequest
+		if err := json.Unmarshal(baseMsg.Content, &terminateReq); err != nil {
+			return err
+		}
+		if terminateReq.SessionID == "" {
+			return fmt.Errorf("terminate message missing session_id")
+		}
+		if !a.cancelTask(terminateReq.SessionID) {
+			gologger.Warningf("未找到可终止的任务: sessionId=%s", terminateReq.SessionID)
 		}
 	default:
 		return nil
@@ -334,6 +357,35 @@ func (a *Agent) GetTaskBySessionId(sessionId string) *TaskContext {
 		}
 	}
 	return nil
+}
+
+func (a *Agent) cancelTask(sessionId string) bool {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	for _, task := range a.Tasks {
+		if task.Request.SessionId != sessionId {
+			continue
+		}
+		if task.Cancel != nil {
+			task.Cancel()
+		}
+		return true
+	}
+	return false
+}
+
+func (a *Agent) removeTask(sessionId string) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	for idx, task := range a.Tasks {
+		if task.Request.SessionId != sessionId {
+			continue
+		}
+		a.Tasks = append(a.Tasks[:idx], a.Tasks[idx+1:]...)
+		return
+	}
 }
 
 func (a *Agent) SendsToolUsedLog(sessionId, actionId, tool, planStepId, actionLog string) error {
