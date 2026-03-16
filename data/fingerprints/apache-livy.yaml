@@ -1,0 +1,20 @@
+info:
+  name: apache-livy
+  author: A.I.G bot
+  severity: info
+  desc: Apache Livy is a service that enables easy interaction with a Spark cluster over a REST interface. It enables programmatic, fault-tolerant, multi-tenant submission of Spark jobs from web/mobile apps, widely used in ML/AI training pipelines.
+  metadata:
+    product: apache-livy
+    vendor: apache
+http:
+  - method: GET
+    path: '/sessions'
+    matchers:
+      - body='"sessions"' && body='"total"' && body='"from"'
+  version:
+    - method: GET
+      path: '/version'
+      extractor:
+        part: body
+        group: 1
+        regex: '"version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+)"'

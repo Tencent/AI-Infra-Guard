@@ -1,0 +1,13 @@
+info:
+  name: hyperterse
+  author: A.I.G bot
+  severity: info
+  desc: Hyperterse is a tool-first MCP framework for building AI-ready backend surfaces from declarative config, exposing database tools to LLMs via MCP protocol.
+  metadata:
+    product: hyperterse
+    vendor: hyperterse
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Hyperterse</title>" || body="hyperterse"
