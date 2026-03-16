@@ -1,70 +1,120 @@
-# MCP  Scan
-A.I.G leverages AI agents for comprehensive MCP Server security assessment, supporting both source code audits and remote URL scanning. 
+# AI工具技能扫描
 
-<img src="./assets/mcp-scan-en.png">
+A.I.G使用了基于AI Agent驱动的AI工具协议检测方案，支持MCP Server、Skills源代码安全审计与远程MCP Server URL安全扫描，可检测以下常见的AI工具协议安全风险，并持续更新：
 
-A.I.G can detect the following common MCP security risks, with continuous updates:
+<table>
+<tr>
+<th>AI工具</th>
+<th>风险名称</th>
+<th>风险说明</th>
+</tr>
+<tr>
+<td rowspan="9">MCP Server</td>
+<td>工具投毒攻击</td>
+<td>恶意MCP Server通过工具描述注入隐藏指令，操纵AI Agent执行未授权操作（例如窃取数据、执行恶意行为）。</td>
+</tr>
+<tr>
+<td>地毯式骗局</td>
+<td>恶意MCP Server在初期表现正常，但在用户批准或运行若干次后改变行为，执行恶意指令，导致难以察觉的恶意行为。</td>
+</tr>
+<tr>
+<td>工具覆盖攻击</td>
+<td>恶意MCP Server通过隐藏指令重新定义其他可信MCP Server工具的行为（例如修改邮件接收者、执行额外操作）。</td>
+</tr>
+<tr>
+<td>恶意代码/命令执行</td>
+<td>MCP Server若支持直接执行代码或命令且缺乏沙箱隔离，可能被攻击者利用在服务器或用户本地执行恶意操作。</td>
+</tr>
+<tr>
+<td>数据窃取</td>
+<td>恶意MCP Server诱导AI Agent读取并传输敏感数据（例如API密钥、SSH密钥），或直接将用户授权输入的数据发送至外部服务器。</td>
+</tr>
+<tr>
+<td>未授权访问/鉴权不当</td>
+<td>MCP Server缺乏有效授权认证或存在缺陷，导致攻击者可绕过验证访问受限资源或用户数据。</td>
+</tr>
+<tr>
+<td>间接提示词注入</td>
+<td>MCP Server将包含恶意指令的外部数据（例如网页、文档）输出给AI Agent，可能影响AI Agent的决策和行为。</td>
+</tr>
+<tr>
+<td>包名混淆与抢注攻击</td>
+<td>恶意MCP Server使用与可信服务相似的名称、工具名或描述，诱导AI Agent错误调用；或第三方抢注官方AI工具名称，植入后门。</td>
+</tr>
+<tr>
+<td>明文存储密钥</td>
+<td>MCP Server在代码或配置文件中硬编码或明文存储敏感密钥，易导致泄露风险。</td>
+</tr>
+<tr>
+<td rowspan="5">Skills</td>
+<td>语义劫持攻击</td>
+<td>攻击者可以精心构造一个恶意的Skill描述，使其在语义上覆盖高频的用户意图（例如修复代码错误或优化系统性能）。当用户发出模糊指令时，Agent可能会错误地激活恶意Skill而非预期工具。</td>
+</tr>
+<tr>
+<td>幽灵指令攻击</td>
+<td>攻击者在SKILL.md中嵌入伪装成正常内容（如注释或错误处理指南）的恶意指令，Agent加载Skill时这些指令会被注入上下文，从而控制LLM执行恶意操作。</td>
+</tr>
+<tr>
+<td>恶意后门脚本攻击</td>
+<td>Skill引导Agent调用包含恶意代码的本地脚本，利用Agent的Shell权限读取SSH密钥、修改系统配置、安装后门，甚至发起反向Shell连接。</td>
+</tr>
+<tr>
+<td>不安全SKILLS配置风险</td>
+<td>allowed-tools配置不当，无需二次人工确认可以静默执行Bash等危险操作。</td>
+</tr>
+<tr>
+<td>代码实现层漏洞</td>
+<td>如命令注入与密钥硬编码（实测在内网Skills中较为常见）。</td>
+</tr>
+</table>
 
-| Risk Name                       | Description                                                                                                                                                                             |
-|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Tool Poisoning Attack           | A malicious MCP Server injects hidden instructions through tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., stealing data, executing malicious acts). |
-| Rug Pull Scheme                 | A malicious MCP Server behaves normally initially but changes its behavior after user approval or several runs to execute malicious instructions, leading to hard-to-detect malicious activity. |
-| Tool Overwriting Attack         | A malicious MCP Server redefines the behavior of other trusted MCP Server tools through hidden instructions (e.g., modifying email recipients, performing extra operations).                  |
-| Malicious Code/Command Execution| If an MCP Server supports direct code or command execution without proper sandboxing, it can be exploited by attackers to perform malicious operations on the server or user's local machine. |
-| Data Theft                      | A malicious MCP Server induces the AI Agent to read and transmit sensitive data (e.g., API keys, SSH keys), or directly sends user-authorized input data to an external server.           |
-| Unauthorized Access/Improper Auth| The MCP Server lacks effective authorization or has flawed authentication, allowing attackers to bypass verification and access restricted resources or user data.                          |
-| Indirect Prompt Injection       | The MCP Server outputs external data containing malicious instructions (e.g., from web pages, documents) to the AI Agent, potentially influencing its decisions and behavior.               |
-| Package Name Squatting/Typosquatting | A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official MCP Server name to plant a backdoor. |
-| Plaintext Key Storage           | The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.                                                     |
+A.I.G的AI工具技能扫描能力完全由Agent驱动，检测准确性与时长取决于用户选择的大模型API。
 
-## a) MCP Service Source Code Scan
-A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+### 添加用检测AI工具的模型API
 
-### Add a Model API for MCP Detection
+![image-20250717174655353](./assets/mcp1.png)
 
-![image-20250717174655353](./assets/image-20250814173229996-en.png)
+![image-mcp3](./assets/mcp3.png)
 
-![image-20250717174848903](./assets/mcp2-en.png)
+## 方式一：AI工具源代码压缩包扫描
 
-![image-mcp3](./assets/mcp3-en.png)
+1. 选择“AI工具技能扫描”
+2. 添加附件上传源代码压缩包
+![image-mcp4](./assets/mcp4.png)
+3. 开始扫描
 
-### Upload MCP Server Source Code Attachment
+## 方式二：AI工具代码仓库扫描
 
-1. Select "MCP Security Scan"
-2. Upload the MCP source code as an attachment
-![image-mcp4](./assets/mcp4-en.png)
-3. Start Scan
+1. 选择“AI工具技能扫描”
+2. 输入框输入代码仓库地址，如：https://github.com/xxx/mcp-server
+3. 开始扫描
+![image-mcp4](./assets/mcp5.png)
 
+## 方式三：远程MCP服务扫描
 
-### Scan an MCP Project from GitHub
-1. Select "MCP Security Scan"
-![image-mcp5](./assets/mcp5-en.png)
-2. Enter the GitHub repository URL in the input box
-3. Start Scan
+1. 选择“AI工具技能扫描”
+2. 输入框输入MCP服务地址 (SSE或Streamable HTTP协议)，如：http://127.0.0.1:9000/sse
+3. 开始扫描
+![image-mcp8](./assets/mcp8.png)
 
-## b) Remote MCP Service Scan
+## 查看扫描状态和结果
+![image-mcp6](./assets/mcp6.png)
+![image-mcp7](./assets/mcp7.png)
 
-1. Select "MCP Security Scan"
-2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `https://mcp.deepwiki.com/mcp`
-3. Start Scan
-
-### View Scan Status and Results
-![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
-
-## Recommended Large Language Model APIs
-- GLM4.5
-- DeepSeek-V3.1
+## 推荐使用的大模型API
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
-## MCP Plugins
+## MCP 插件
 
-MCP scanning is powered by on an AI agent that inspects the code. A.I.G. modularizes MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
+MCP扫描基于AI Agent对代码进行检测，A.I.G将MCP漏洞抽象为了插件，可以在前端查看。
 
-![image-20250814105330552](./assets/image-20250814105330552-en.png)
+![image-20250814105330552](./assets/image-20250814105330552.png)
 
-The MCP plugin template is shown below. The key field is `prompt_template`, which defines the prompt to instruct the large language model about the vulnerability type and the scanning method.
+MCP插件模板如下，关键的是`prompt_template`字段，用提示词告诉大模型漏洞类型和应该如何扫描。
 
 ```yaml
 info:
@@ -174,11 +224,11 @@ prompt_template: |
   4. **Remediation Suggestions**: Provide clear security hardening solutions
 
   ## Strict Judgment Standards
-  - **Default Configuration**: If it's a framework's default configuration with documentation, do not report.
-  - **Test Identifiers**: Do not report items containing keywords like test, demo, example, mock.
-  - **Development Environment**: Do not report configurations clearly used for development and debugging.
-  - **Correct Implementation**: Do not report authentication implementations that follow security best practices.
-  - **Project-Level Permission Verification Assessment**: If no permission verification exists, assess whether the project's nature indicates it is critical (e.g., capable of operating on the local host or database). If the project is not critical, do not report.
+  - **Default Configuration**: If it's framework default configuration with documentation, do not report
+  - **Test Identifiers**: Do not report those containing test, demo, example, mock keywords
+  - **Development Environment**: Do not report configurations clearly used for development debugging
+  - **Correct Implementation**: Do not report authentication implementations that follow security best practices
+  - **Permission Verification Project Level Assessment**: If no permission verification exists, assess whether the project information collection indicates an important project (i.e., capable of operating local host or database operations). If the project is not important, do not report
 
   ## Input Data
   Source code path: {{ .CodePath }}
@@ -198,3 +248,4 @@ prompt_template: |
 
   **Strict Requirement: Must provide complete vulnerability exploitation paths and impact analysis. Remain silent when no concrete evidence exists.** 
 ```
+

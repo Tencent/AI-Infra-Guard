@@ -1,22 +1,23 @@
-# A.I.G Case Studies
+# A.I.G 实践案例
 
-## Internal AI Infrastructure Vulnerability Scanning
+## 内网AI基础设施漏洞扫描
 
-A.I.G's `AI Infra Scan` feature supports the detection of CVE vulnerabilities in the web services of AI frameworks such as vLLM, ComfyUI, Ollama, Triton Inference Server, and Ray.
+A.I.G的`AI基础设施漏洞扫描`功能，已支持发现vLLM、ComfyUI、Ollama、TritonServer、Ray等AI框架Web服务CVE漏洞。
 
 
-## More Recommended Integration Scenarios
+## 更多推荐集成场景
 
-A.I.G can be flexibly integrated into existing business pipelines to achieve automated security testing. Below are some common integration scenarios and tool types:
+A.I.G可灵活集成到现有业务流水线中，以实现自动化安全检测。以下是一些常见的集成场景和工具类型：
 
-### CI/CD Pipelines:
-A.I.G can serve as a security gate in a CI/CD pipeline, automatically triggering scans during code submission, build, or deployment phases to ensure that only applications that pass security checks can proceed to the next stage.
--   **Example Integration Point**: Call A.I.G's API for security detection after an MCP Server is built or before it is deployed.
+### CI/CD 流水线：
+A.I.G 可以作为CI/CD流水线中的一个安全门禁，在代码提交、构建或部署阶段自动触发扫描，确保只有通过安全检查的应用才能进入下一阶段：
+-   **示例集成点**：在MCP Server构建后或部署前调用A.I.G的API进行安全检测。
 
-### DevSecOps Platforms:
-Integrate with DevSecOps platforms to aggregate all of A.I.G's risk scan results into a unified security dashboard, providing comprehensive security posture awareness.
--   **Example Integration Point**: Import A.I.G's scan reports into the DevSecOps platform via API or report export functionality.
+### DevSecOps 平台：
+与DevSecOps平台集成，将A.I.G的所有风险扫描结果汇聚到统一的安全仪表盘中，提供全面的安全态势感知：
+-   **示例集成点**：通过API或报告导出功能，将A.I.G的扫描报告导入到DevSecOps平台。
 
-### Git Code Security Review:
-Integrate with code repositories to automatically trigger security scans during Pull Requests or Merge Requests, with results displayed directly in the code review interface. Common integration tools include:
--   **Example Integration Point**: Configure webhooks to trigger A.I.G scans on PR/MR events and send the status check results back to the code repository.
+### Git代码安全评审：
+与代码仓库集成，在Pull Request或Merge Request时自动触发安全扫描，并将结果直接显示在代码评审界面。常见的集成工具包括：
+-   **示例集成点**：配置Webhooks，在PR/MR事件发生时触发A.I.G扫描，并将状态检查结果回传给代码仓库。
+

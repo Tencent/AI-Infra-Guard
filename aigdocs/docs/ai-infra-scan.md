@@ -1,121 +1,112 @@
-# AI Infra Scan
+# AI基础设施安全扫描
 
-## Feature Overview
-AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
+## 功能概述
 
-## Core Features
-- **Comprehensive Coverage**: Identifies **36 mainstream AI frameworks**, covering **404 known vulnerabilities** (CVEs).  
-- **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
-- **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
-- **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
+AI Infra Guard 的 AI基础设施安全扫描模块专为检测AI系统中基于Web的组件的已知安全漏洞而设计。该模块通过精准的指纹识别技术，能够快速定位AI基础设施中存在的安全隐患，帮助安全团队及时发现并修复潜在风险，保障AI系统的安全稳定运行。
 
-## Quick Start
+## 核心特性
 
-### WebUI Interface Workflow
+- **全面覆盖**：支持识别36种主流AI组件框架，覆盖404已知漏洞
+- **灵活部署**：支持单目标扫描、批量扫描及本地服务一键检测
+- **智能匹配**：基于YAML规则的指纹识别系统，准确率高
+- **可扩展性**：支持自定义指纹规则和漏洞模板，适应不同环境需求
 
+## 快速使用指南
 
+### 通过WebUI界面操作
 
-1.**Call Scan Service**
-   Select `AI Infra Scan` from the main page.
+1. 在主界面点击"AI基础设施扫描"选项卡
+2. 在目标输入区域填写待扫描的URL或IP地址
+   - 支持单行或多行输入（每行一个目标）
+   - 支持从TXT文件导入目标列表
+   - 填写IP地址将自动扫描该IP下开放的所有常见端口
+3. 如需检测AI未鉴权，请选择多模态大模型，推荐模型GPT5/Gemini Pro/Sonnet4.5
+4. 点击"开始扫描"按钮，系统将自动执行安全检测
 
-2.**Configure Scan Targets**
-   In the target input field:
-   - Enter single/multiple URLs or IP addresses (one per line)
-   - Import target lists via `.txt` file upload
-   - ✨ *IP inputs trigger comprehensive port scanning*
-      (Automatically checks common open ports)
+![image-20250717185311173](./assets/image-20250717185311173.png)
 
-3.**Execute Security Assessment**
-   Click `Send Message` button to initiate automated vulnerability detection.
-   Results will populate in real-time upon completion.
+![image-20250717185509861](./assets/image-20250717185509861.png)
 
-![image-20250717185311173](./assets/image-20250717185311173-en.png)
+## 指纹库与漏洞库管理
 
-![image-20250717185509861](./assets/image-20250717185509861-en.png)
+### 内置指纹库
 
-## Fingerprint & Vulnerability Database
+AI Infra Guard内置了丰富的AI组件指纹库，可通过"插件管理"页面进行查看和管理：
 
-### Built-in Fingerprint Repository
-A.I.G includes **an extensive library of pre-configured AI component fingerprints**, accessible via the Plugin Management interface:
+1. 点击界面左下角"插件管理"进入指纹库管理页面
+2. 在指纹库管理页面，可查看所有内置的AI组件指纹规则
+3. 支持指纹搜索、新增、修改等操作
+点击左下角插件管理页面可以看到AIG内置的指纹库以及漏洞库。
 
+![image-20250814173036377](./assets/image-20250814173036377.png)
 
-1. **Access plugin management**
-   Navigate to `Plugin Management` (bottom-left of the main page)
-2. **Review Built-in Resources**
-   View all default fingerprint rules with search/filter capabilities
-3. **Manage Fingerprints**
-   Perform real-time operations:
-   - 🔍 Search rules by name/description/contributor
-   - ➕ Add custom fingerprints and associated vulnerabilities
-   - ✏️ Edit existing fingerprints and associated vulnerabilities
+在插件管理中可以搜索指纹、对应漏洞、新增、修改等操作，修改后再次扫描便会使用最新的指纹以及漏洞库。
 
-![image-20250814173036377](./assets/image-20250814173036377-en.png)
-▶️ Changes apply immediately – subsequent scans automatically utilize updated databases
-![image-20250717185223588](./assets/image-20250717185223588-en.png)
+![image-20250717185223588](./assets/image-20250717185223588.png)
 
-## Supported AI Components & Vulnerability Coverage
+## 支持的AI组件及漏洞覆盖
 
-A.I.G delivers comprehensive security coverage for critical AI infrastructure components. Current supported components and vulnerability statistics:
+AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测，当前支持的组件及漏洞数量如下：
 
-| Category                   | Component Name          | Vulnerability Count | Risk Level |
-| -------------------------- | ----------------------- | ------------------- | ---------- |
-| **Model Serving**          | gradio                  | 42                  | High       |
-|                            | ollama                  | 7                   | Medium-High|
-|                            | triton-inference-server | 7                   | Medium-High|
-|                            | vllm                    | 4                   | Medium     |
-|                            | xinference              | 0                   | Low        |
-| **LLM App Frameworks**     | langchain               | 33                  | High       |
-|                            | dify                    | 11                  | High       |
-|                            | anythingllm             | 8                   | Medium-High|
-|                            | open-webui              | 8                   | Medium-High|
-|                            | ragflow                 | 2                   | Medium     |
-|                            | qanything               | 2                   | Medium     |
-| **Data Processing**        | clickhouse              | 22                  | High       |
-|                            | feast                   | 0                   | Low        |
-| **Visualization & UI**     | jupyter-server          | 13                  | Medium-High|
-|                            | jupyterlab              | 6                   | Medium     |
-|                            | jupyter-notebook        | 1                   | Low        |
-|                            | tensorboard             | 0                   | Low        |
-| **Workflow Orchestration** | kubeflow                | 4                   | Medium     |
-|                            | ray                     | 4                   | Medium     |
-| **Other AI Components**    | comfyui                 | 1                   | Low        |
-|                            | comfy_mtb               | 1                   | Low        |
-|                            | ComfyUI-Prompt-Preview  | 1                   | Low        |
-|                            | ComfyUI-Custom-Scripts  | 1                   | Low        |
-|                            | pyload-ng               | 18                  | Medium     |
-|                            | kubepi                  | 5                   | Medium     |
-|                            | llamafactory            | 1                   | Low        |
-| **Total**                  |                         | **200+**            |            |
+| 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
+| ------------------ | ----------------------- | -------- | -------- |
+| **模型部署与服务** | gradio                  | 42       | 高       |
+|                    | ollama                  | 7        | 中高     |
+|                    | triton-inference-server | 7        | 中高     |
+|                    | vllm                    | 4        | 中       |
+|                    | xinference              | 0        | 低       |
+| **LLM应用框架**    | langchain               | 33       | 高       |
+|                    | dify                    | 11       | 高       |
+|                    | anythingllm             | 8        | 中高     |
+|                    | open-webui              | 8        | 中高     |
+|                    | ragflow                 | 2        | 中       |
+|                    | qanything               | 2        | 中       |
+| **数据处理与分析** | clickhouse              | 22       | 高       |
+|                    | feast                   | 0        | 低       |
+| **可视化与交互**   | jupyter-server          | 13       | 中高     |
+|                    | jupyterlab              | 6        | 中       |
+|                    | jupyter-notebook        | 1        | 低       |
+|                    | tensorboard             | 0        | 低       |
+| **工作流编排**     | kubeflow                | 4        | 中       |
+|                    | ray                     | 4        | 中       |
+| **其他AI组件**     | comfyui                 | 1        | 低       |
+|                    | comfy_mtb               | 1        | 低       |
+|                    | ComfyUI-Prompt-Preview  | 1        | 低       |
+|                    | ComfyUI-Custom-Scripts  | 1        | 低       |
+|                    | pyload-ng               | 18       | 中       |
+|                    | kubepi                  | 5        | 中       |
+|                    | llamafactory            | 1        | 低       |
+| **总计**           |                         | **200+** |          |
 
-> **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
+> **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 
-## Fingerprint Matching Rule Details
+## 指纹匹配规则详解
 
-### Rule Structure
+### 规则结构
 
-AI Infra Guard uses YAML format to define fingerprint matching rules, which mainly include the following parts:
+AI Infra Guard使用YAML格式定义指纹匹配规则，主要包含以下部分：
 
 ```yaml
 info:
-  name: Component Name
-  author: Rule Author
-  severity: Information Level
+  name: 组件名称
+  author: 规则作者
+  severity: 信息级别
   metadata:
-    product: Product Name
-    vendor: Vendor Name
+    product: 产品名称
+    vendor: 供应商
 http:
-  - method: HTTP Request Method
-    path: Request Path
+  - method: HTTP请求方法
+    path: 请求路径
     matchers:
-      - Matching Conditions
+      - 匹配条件
 ```
 
-### Example: Gradio Fingerprint Rule
+### 示例：Gradio 指纹规则
 
 ```yaml
 info:
   name: dify
-  author: Tencent Zhuque Lab
+  author: 腾讯朱雀实验室
   severity: info
   metadata:
     product: dify
@@ -134,40 +125,35 @@ version:
       regex: 'x-version:\s*(\d+\.\d+\.?\d+?)'
 ```
 
-### Matcher Syntax Explanation
+### 匹配语法说明
 
-#### Match Locations
+#### 匹配位置
 
-| Location | Description             | Example                                   |
-| -------- | ----------------------- | ----------------------------------------- |
-| `title`  | HTML page title         | `title="Gradio"`                          |
-| `body`   | HTTP response body      | `body="gradio-config"`                    |
-| `header` | HTTP response header    | `header="X-Gradio-Version: 3.34.0"`       |
-| `icon`   | Website favicon hash    | `icon="d41d8cd98f00b204e9800998ecf8427e"` |
+| 位置     | 说明              | 示例                                      |
+| -------- | ----------------- | ----------------------------------------- |
+| `title`  | HTML页面标题      | `title="Gradio"`                          |
+| `body`   | HTTP响应正文      | `body="gradio-config"`                    |
+| `header` | HTTP响应头        | `header="X-Gradio-Version: 3.34.0"`       |
+| `icon`   | 网站favicon哈希值 | `icon="d41d8cd98f00b204e9800998ecf8427e"` |
 
-#### Logical Operators
+#### 逻辑运算符
 
-| Operator | Description                               | Example                                                      |
-| -------- | ----------------------------------------- | ------------------------------------------------------------ |
-| `=`      | Fuzzy contains match (case-insensitive)   | `body="gradio"`                                              |
-| `==`     | Exact equals match (case-sensitive)       | `header="Server: Gradio"`                                    |
-| `!=`     | Not equals match                          | `header!="Server: Apache"`                                   |
-| `~=`     | Regular expression match                  | `body~="Gradio v[0-9]+.[0-9]+.[0-9]+"`                       |
-| `&&`     | Logical AND                               | `body="gradio" && header="X-Gradio-Version"`                 |
-| `||`     | Logical OR                                | `body="gradio" || body="Gradio"`                             |
-| `()`     | Grouping to change precedence             | `(body="gradio" || body="Gradio") && header="X-Gradio-Version"` |
+| 运算符 | 说明                         | 示例                                                         |
+| ------ | ---------------------------- | ------------------------------------------------------------ |
+| `=`    | 模糊包含匹配（不区分大小写） | `body="gradio"`                                              |
+| `==`   | 精确等于匹配（区分大小写）   | `header="Server: Gradio"`                                    |
+| `!=`   | 不等于匹配                   | `header!="Server: Apache"`                                   |
+| `~=`   | 正则表达式匹配               | `body~="Gradio v[0-9]+.[0-9]+.[0-9]+"`                       |
+| `&&`   | 逻辑与                       | `body="gradio" && header="X-Gradio-Version"`                 |
+| `||`   | 逻辑或                       | `body="gradio" || body="Gradio"`                             |
+| `()`   | 分组改变优先级               | `(body="gradio" || body="Gradio") && header="X-Gradio-Version"` |
 
-## Operational Best Practices
+## 最佳实践建议
 
+1. **定期扫描**：建议每周对AI基础设施进行一次全面扫描，及时发现新出现的漏洞
+2. **重点关注高危组件**：gradio、langchain、clickhouse等高漏洞数量组件应优先处理
+3. **自定义规则扩展**：针对企业特定的AI组件，可添加自定义指纹规则增强检测能力
+4. **结合CI/CD流程**：将安全扫描集成到AI应用的持续集成流程中，实现安全左移
+5. **漏洞修复跟踪**：对扫描发现的漏洞建立跟踪机制，确保及时修复
 
-1.**Schedule Regular Scans**: Schedule weekly comprehensive scans of your AI infrastructure to promptly identify emerging vulnerabilities.
-
-2.**Prioritize High-Risk Components**: Focus scanning resources on components with high vulnerability densities, such as Gradio, LangChain, and ClickHouse.
-
-3.**Extend with Custom Rules**: Enhance detection capabilities for organization-specific AI components by adding custom fingerprint rules.
-
-4.**Integrate into CI/CD Pipelines**: Embed security scanning into the continuous integration (CI) process for AI applications to implement shift-left security.
-
-5.**Track Vulnerability Remediation**: Establish a tracking mechanism for vulnerabilities discovered during scans to ensure timely remediation.
-
-By leveraging the AI Infra Scan service, you can effectively identify potential security risks within your AI systems, providing robust assurance for building a secure and reliable AI infrastructure.
+通过AI基础设施安全扫描模块，您可以有效识别AI系统中潜在的安全风险，为构建安全可靠的AI基础设施提供有力保障。

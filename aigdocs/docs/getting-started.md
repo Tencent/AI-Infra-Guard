@@ -1,101 +1,92 @@
-# Getting Started
+# 快速开始
 
-This section will guide you on how to quickly deploy and use A.I.G.
+本章节将指导您如何快速部署和使用A.I.G。
 
-**System Requirements**
+**系统要求**
 
-- Docker 20.10 or higher
-- At least 4GB of available RAM
-- At least 10GB of available disk space
+- Docker 20.10 或更高版本
+- 4GB+ 可用内存
+- 10GB+ 可用磁盘空间
 
 
-**Method 1: One-Click Install Script （Recommended）**
+**方法 1：一键安装脚本（推荐）**
 ```bash
-# This method will automatically install Docker and launch A.I.G with one command  
+# 该方法将自动安装 Docker 并启动 A.I.G
 curl https://raw.githubusercontent.com/Tencent/AI-Infra-Guard/refs/heads/main/docker.sh | bash
 ```
 
-**Method 2: Run with pre-built images (Recommended)**
+**方法 2：使用预构建镜像运行（推荐）**
 ```bash
-# This method pulls pre-built images from Docker Hub for a faster start
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
+# 该方法从 Docker Hub 拉取预构建镜像以便快速启动
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-**Method 3: Build and run from source**
+**方法 3：源码构建并运行**
 ```bash
-# This method builds a Docker image from local source code and starts the service
 git clone https://github.com/Tencent/AI-Infra-Guard.git
 cd AI-Infra-Guard
-# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
+# 该方法从本地源码构建 Docker 镜像并启动服务
 docker-compose up -d
 ```
 
-Once the installation is complete, you can access the A.I.G Web UI by visiting `http://localhost:8088` in your browser.
+安装完成后，您可以通过浏览器访问 `http://localhost:8088` 来使用A.I.G的Web界面。
 
-**Directory Structure**
+**目录结构**
 
-| Directory/File      | Description                                                 | Mount Path                      |
-|---------------------|-------------------------------------------------------------|---------------------------------|
-| `uploads/`          | Uploads directory                                           | `/ai-infra-guard/uploads`       |
-| `db/`               | Database file directory                                     | `/ai-infra-guard/db`            |
-| `data/`             | Knowledge base data directory (fingerprints, vulnerabilities) | `/ai-infra-guard/data`          |
-| `logs/`             | Application log directory                                   | `/ai-infra-guard/logs`          |
+| 目录/文件           | 描述                                                         | 挂载路径                        |
+|---------------------|--------------------------------------------------------------|---------------------------------|
+| `uploads/`          | 上传文件目录                                                     | `/ai-infra-guard/uploads`       |
+| `db/`               | 数据库文件目录                                               | `/ai-infra-guard/db`            |
+| `data/`             | 知识库数据目录（越狱评测集、指纹、漏洞）                                 | `/ai-infra-guard/data`          |
+| `logs/`             | 应用日志目录                                                 | `/ai-infra-guard/logs`          |
+
+## 配置模型KEY
+
+A.I.G 需要使用到大模型API。若需要使用这两个功能，可以先配置大模型API KEY。
+
+![image-20250814173229996](./assets/image-20250814173229996.png)
+
+配置大模型必须的 模型名称、API Key、Base URL，后点击保存即可。
+
+![image-20250813113550192](./assets/image-20250813113550192.png)
 
 
-## 🔑 LLM API Requirement
-The `MCP Scan` and `Jailbreak Evaluation` features require an LLM API key.
-**Configure your key in Settings** before using these services.
+## 常见问题
 
-![image-20250814173229996](./assets/image-20250814173229996-en.png)
-
-Fill in the Model Name, API Key, and Base URL, then click Save.
-
-![image-20250813113550192](./assets/image-20250813113550192-en.png)
-
-
-## Frequently Asked Questions
-
-1.**Port Conflict**
+1.**端口冲突**
    ```bash
-   # Modify the webserver port mapping
+   # 修改webserver端口映射
    ports:
-     - "8080:8088"  # Use port 8080
+     - "8080:8088"  # 使用8080端口
    ```
-
-2.**Permission Issues**
+2.**权限问题**
    ```bash
-   # Ensure the data directory has read/write permissions
+   # 检查数据目录权限
    sudo chown -R $USER:$USER ./data
    ```
-
-3.**Service Startup Failure**
+3.**服务启动失败**
    ```bash
-   # View detailed logs
-   # For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
+   # 查看详细日志
    docker-compose logs webserver
    docker-compose logs agent
    ```
-
-4.**Stopping the Service**
+4.**停止服务**
    ```bash
-   # Stop the service
-   # For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
-   docker-compose down
-   # Stop the service and remove data volumes (use with caution)
-   docker-compose down -v
+    # 停止服务
+    docker-compose down
+    
+    # 停止服务并删除数据卷（谨慎使用）
+    docker-compose down -v
    ```
 
-## Updating the Deployment
 
-To upgrade to the latest version and clean up obsolete resources:
+## 更新升级
 
 ```bash
-# Rebuild container images and restart services
-# For Docker Compose V2+, replace 'docker-compose' with 'docker compose'
+# 重新构建并启动
 docker-compose -f docker-compose.images.yml up -d --build
-# Prune dangling Docker images (optional cleanup)
+# 清理旧镜像
 docker image prune -f
 ```

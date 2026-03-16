@@ -1,162 +1,166 @@
-# Table of Contents
+# 常见问题
 
-- [1. Installation](#1-installation)
-  - [1.1 Port Conflict](#11-port-conflict)
-  - [1.2 Permission Issues](#12-permission-issues)
-  - [1.3 Service Startup Failure](#13-service-startup-failure)
-  - [1.4 Stopping the Service](#14-stopping-the-service)
-  - [1.5 Updating the Deployment](#15-updating-the-deployment)
-- [2. Task Execution Errors and Troubleshooting](#2-task-execution-errors-and-troubleshooting)
-- [3. Installation Without Internet Connection](#3-installation-without-internet-connection)
-  - [3.1 Prepare Images on Internet-Connected Server](#31-prepare-images-on-internet-connected-server)
-  - [3.2 Export Images to Tar Files](#32-export-images-to-tar-files)
-  - [3.3 Copy Image Packages to Internal Network Server](#33-copy-image-packages-to-internal-network-server)
-  - [3.4 Import Images on Internal Network Server](#34-import-images-on-internal-network-server)
-  - [3.5 Start Containers](#35-start-containers)
-- [4. Recommended Models](#4-recommended-models)
-  - [4.1 Recommended Choices for MCP Scan](#41-recommended-choices-for-mcp-scan)
-  - [4.2 Recommended Choices for Jailbreak Evaluation Models](#42-recommended-choices-for-jailbreak-evaluation-models)
-- [5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets](#5-inaccurate-jailbreak-detection-with-custom-evaluation-datasets)
-- [6. Adding Model Failed](#6-adding-model-failed)
+- [1. 安装](#1-安装)
+  - [1.1 端口冲突](#11-端口冲突)
+  - [1.2 权限问题](#12-权限问题)
+  - [1.3 服务启动失败](#13-服务启动失败)
+  - [1.4 停止服务](#14-停止服务)
+  - [1.5 更新部署](#15-更新部署)
+- [2. 任务执行错误和故障排除](#2-任务执行错误和故障排除)
+- [3. 离线安装](#3-离线安装)
+  - [3.1 在有外网的服务器上准备镜像](#31-在有外网的服务器上准备镜像)
+  - [3.2 将镜像导出为Tar文件](#32-将镜像导出为tar文件)
+  - [3.3 复制镜像包到内网服务器](#33-复制镜像包到内网服务器)
+  - [3.4 在内网服务器上导入镜像](#34-在内网服务器上导入镜像)
+  - [3.5 启动容器](#35-启动容器)
+- [4. 推荐模型](#4-推荐模型)
+  - [4.1 MCP扫描推荐](#41-mcp扫描推荐)
+  - [4.2 越狱评估模型推荐](#42-越狱评估模型推荐)
+- [5. 使用自定义评估数据集时越狱评估不准确](#5-使用自定义评估数据集时越狱评估不准确)
+- [6. 添加模型失败](#6-添加模型失败)  
 
 ---
 
-## 1.Installation
-### 1.1 Port Conflict
+## 1. 安装
+### 1.1 端口冲突
    ```bash
-   # Modify the webserver port mapping
+   # 修改webserver端口映射
    ports:
-     - "8080:8088"  # Use port 8080
+     - "8080:8088"  # 使用8080或其他端口
    ```
 
-### 1.2 Permission Issues
+### 1.2 权限问题
    ```bash
-   # Ensure the data directory has read/write permissions
+   # 确保数据目录具有读写权限
    sudo chown -R $USER:$USER ./data
    ```
 
-### 1.3 Service Startup Failure
+### 1.3 服务启动失败
    ```bash
-   # View detailed logs
+   # 查看详细日志
    docker-compose logs webserver
    docker-compose logs agent
    ```
 
-### 1.4 Stopping the Service
+### 1.4 停止服务
    ```bash
-   # Stop the service
+   # 停止服务
    docker-compose down
-   # Stop the service and remove data volumes (use with caution)
+   # 停止服务并删除数据卷（请谨慎使用）
    docker-compose down -v
    ```
 
-### 1.5 Updating the Deployment
+### 1.5 更新部署
 
-To upgrade to the latest version and clean up obsolete resources:
+升级到最新版本并清理过时资源：
 
 ```bash
-# Rebuild container images and restart services
-docker-compose -f docker-compose.images.yml up -d --build
-# Prune dangling Docker images (optional cleanup)
+# 停止原服务
+docker-compose down
+# 拉取新镜像
+docker-compose pull
+# 重新构建容器镜像并重启服务
+docker-compose -f docker-compose.yml up -d
+# 清理悬空的Docker镜像（可选）
 docker image prune -f
 ```
 
 
 
-## 2. Task Execution Errors and Troubleshooting
+## 2. 任务执行错误和故障排除
 
-When encountering task execution errors or agent service problems, follow these troubleshooting steps:
+当遇到任务执行错误或agent服务问题时，请按照以下故障排除步骤操作：
 
 ```bash
-# Log into the server where the Docker container is running
-# Execute the following command to view agent logs
+# 登录到运行Docker容器的服务器
+# 执行以下命令查看agent日志
 docker compose logs agent
 ```
 
 
-## 3. Installation Without Internet Connection
+## 3. 离线安装
 
-You can prepare the required images and resources on a machine with internet access, then migrate them to the internal network server for deployment. Here's the specific approach:
+您可以在有外网的机器上准备所需的镜像和资源，再将其迁移到内网服务器进行部署。具体方法如下：
 
-### 3.1 Prepare Images on Internet-Connected Server
+### 3.1 在有外网的服务器上准备镜像
 
-On a server with internet access, pull the required images:
+在有外网的服务器上，拉取所需的镜像：
 
 ```bash
-# Pull the required A.I.G images
+# 拉取所需的A.I.G镜像
 docker pull zhuquelab/aig-server:latest
 docker pull zhuquelab/aig-agent:latest
 
-# View local images
+# 查看本地镜像
 docker images
 ```
 
-### 3.2 Export Images to Tar Files
+### 3.2 将镜像导出为Tar文件
 
-Use the `docker save` command to save A.I.G images as tar packages:
+使用`docker save`命令将A.I.G镜像保存为tar包：
 
 ```bash
-# Export A.I.G images to tar files
+# 将A.I.G镜像导出为tar文件
 docker save -o aig-server.tar zhuquelab/aig-server:latest
 docker save -o aig-agent.tar zhuquelab/aig-agent:latest
 ```
 
-### 3.3 Copy Image Packages to Internal Network Server
+### 3.3 复制镜像包到内网服务器
 
-Transfer the tar files to your internal network server using your preferred method (USB drive, network transfer, etc.).
+使用您可用的方法（U盘、网络传输等）将tar文件传输到您的内网服务器。
 
-### 3.4 Import Images on Internal Network Server
+### 3.4 在内网服务器上导入镜像
 
-Use the `docker load` command to import the tar packages into Docker:
+使用`docker load`命令将tar包导入到Docker中：
 
 ```bash
-# Import A.I.G images from tar files
+# 从tar文件导入A.I.G镜像
 docker load -i aig-server.tar
 docker load -i aig-agent.tar
 ```
 
-### 3.5 Start Containers
+### 3.5 启动容器
 
-After importing the images, you can start the containers using the `docker-compose.images.yml` file (download from the GitHub repository root directory):
+导入镜像后，您可以使用`docker-compose.images.yml`文件启动容器（从GitHub仓库根目录下载）：
 
 ```bash
-# Start containers with the images
+# 使用镜像启动容器
 docker-compose -f docker-compose.images.yml up -d
 ```
 
-## 4. Recommended Models
-### 4.1 Recommended Choices for MCP Scan
-- GLM4.5
-- DeepSeek-V3.1
+## 4. 推荐模型
+### 4.1 MCP扫描推荐
+- GLM4.6
+- DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
-### 4.2 Recommended Choices for Jailbreak Evaluation Models
+### 4.2 越狱评估模型推荐
 
-When working with a custom dataset, selecting an appropriate safety evaluation model can significantly improve the accuracy of automated assessments. You can balance model selection from two dimensions: **language** and **scenario**.
+在使用自定义数据集时，选择合适的安全评估模型可以显著提高自动化评估的准确性。您可以从两个维度平衡模型选择：**语言**和**场景**。
 
-#### Language
-- **Chinese Recommendation:**  
-  - `qwen3-max` (best performance)  
-  - `qwen3-235b-a22b-2507` (cost-effective choice)  
-- **English Recommendation:**  
-  - `claude-opus-4.1` (best performance)  
-  - `claude-sonnet-4` (very good performance)  
-  - `gemini-2.0-flash` (cost-effective choice)  
+#### 语言
+- **中文推荐：**  
+  - `qwen3-max`（性能最佳）  
+  - `qwen3-235b-a22b-2507`（性价比选择）  
+- **英文推荐：**  
+  - `claude-opus-4.1`（性能最佳）  
+  - `claude-sonnet-4`（性能良好）  
+  - `gemini-2.0-flash`（性价比选择）  
 
-#### Scenario
-- **Politically sensitive content testing:**  
-  **Do not** choose Gemini models. Instead, prioritize domestic models such as `hunyuan-turbos` or `qwen3`. Cloud-based API calls yield better results.  
-- **National, regional, or racial bias testing:**  
-  Gemini models perform best.  
-- **Dangerous weapons or high-risk behavior testing:**  
-  Claude models perform best. For cost-effectiveness, Gemini models are also an option.  
+#### 场景
+- **政治敏感内容测试：**  
+  **不要**选择Gemini模型。相反，优先选择国产模型，如`hunyuan-turbos`或`qwen3`。云API调用效果更好。  
+- **国家、地区或种族偏见测试：**  
+  Gemini模型表现最佳。  
+- **危险武器或高风险行为测试：**  
+  Claude模型表现最佳。从成本效益考虑，Gemini模型也是不错的选择。  
 
-## 5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets
+## 5. 使用自定义评估数据集时越狱评估不准确
 
-You can adjust the evaluation criteria based on the characteristics of your dataset. To modify the evaluation standards, please refer to the template file at: [https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py](https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py)
+您可以根据数据集的特点调整评估标准。如需修改评估标准，请修改该文件：[https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py](https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py)
 
-## 6. Adding Model Failed
+## 6. 添加模型失败
 
-A.I.G supports model interfaces in standard OpenAI format. If your model is not in OpenAI format, you can use a model API gateway to perform format conversion, such as [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm).
+A.I.G 支持标准 OpenAI 格式的模型接口。如果您的模型不是 OpenAI 格式，可以使用模型 API 网关进行格式转换，例如 [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm)。
