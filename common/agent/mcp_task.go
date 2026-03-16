@@ -160,7 +160,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
 
-	err := utils.RunCmd(McpDir, NAME, argv, func(line string) {
+	err := utils.RunCmdWithContext(ctx, McpDir, NAME, argv, func(line string) {
 		ParseStdoutLine(m.Server, McpDir, tasks, line, callbacks, &config, false)
 	})
 	return err
