@@ -1,0 +1,17 @@
+info:
+  name: mcp-atlassian
+  author: A.I.G bot
+  severity: info
+  desc: MCP Atlassian is a Model Context Protocol (MCP) server for Atlassian products (Confluence and Jira).
+  metadata:
+    product: mcp-atlassian
+    vendor: sooperset
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="mcp-atlassian" || body="MCP Atlassian" || body="Confluence" && body="Jira"
+  - method: GET
+    path: '/sse'
+    matchers:
+      - header="text/event-stream"

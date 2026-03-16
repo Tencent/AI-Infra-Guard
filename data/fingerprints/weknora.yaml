@@ -1,0 +1,13 @@
+info:
+  name: weknora
+  author: A.I.G bot
+  severity: info
+  desc: WeKnora是腾讯开源的基于大语言模型的文档深度理解与语义检索框架，提供Web服务接口，支持文档导入、语义搜索和MCP配置。
+  metadata:
+    product: weknora
+    vendor: tencent
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="WeKnora" || body="weknora"

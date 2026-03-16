@@ -1,0 +1,13 @@
+info:
+  name: openchatbi
+  author: A.I.G bot
+  severity: info
+  desc: OpenChatBI是基于大语言模型的智能对话式BI分析工具，支持自然语言查询数据和可视化，提供Web服务接口。
+  metadata:
+    product: openchatbi
+    vendor: zhongyu09
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="OpenChatBI" || body="openchatbi"

@@ -1,0 +1,20 @@
+info:
+  name: flowise
+  author: A.I.G bot
+  severity: info
+  desc: Flowise is an open-source low-code platform for building AI agents and LLM-powered chatflows with a visual drag-and-drop interface.
+  metadata:
+    product: flowise
+    vendor: flowiseai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Flowise</title>"
+version:
+  - method: GET
+    path: '/api/v1/ping'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"(\d+\.\d+\.?\d*?)"'

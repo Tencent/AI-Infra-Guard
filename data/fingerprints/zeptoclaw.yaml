@@ -1,0 +1,13 @@
+info:
+  name: zeptoclaw
+  author: A.I.G bot
+  severity: info
+  desc: ZeptoClaw is a personal AI assistant platform supporting multi-channel integrations including webhooks, with agent orchestration and session management capabilities.
+  metadata:
+    product: zeptoclaw
+    vendor: qhkm
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="ZeptoClaw" || body="zeptoclaw"

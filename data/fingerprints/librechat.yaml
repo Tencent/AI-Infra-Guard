@@ -1,0 +1,20 @@
+info:
+  name: librechat
+  author: A.I.G bot
+  severity: info
+  desc: LibreChat is an open-source, self-hosted AI chat platform supporting multiple AI providers (OpenAI, Anthropic, Google, etc.), agents, MCP, and code execution. It provides a ChatGPT-like interface for enterprise and personal use.
+  metadata:
+    product: librechat
+    vendor: danny-avila
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="LibreChat" || header="librechat"
+  version:
+    - method: GET
+      path: '/api/health'
+      extractor:
+        part: body
+        group: 1
+        regex: '"version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+[^"]*)"'

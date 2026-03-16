@@ -1,0 +1,24 @@
+info:
+  name: sglang
+  author: A.I.G bot
+  severity: info
+  desc: SGLang is a fast serving framework for large language models and vision-language models, providing OpenAI-compatible API endpoints.
+  metadata:
+    product: sglang
+    vendor: sgl-project
+http:
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="sglang" || body="SGLang"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="ok" || status="200"
+version:
+  - method: GET
+    path: '/get_server_info'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+)"'

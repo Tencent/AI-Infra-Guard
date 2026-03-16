@@ -1,0 +1,17 @@
+info:
+  name: ha-mcp
+  author: A.I.G bot
+  severity: info
+  desc: ha-mcp is a Home Assistant MCP Server providing AI assistant integration with Home Assistant.
+  metadata:
+    product: ha-mcp
+    vendor: ha-mcp
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="ha-mcp" || body="Home Assistant" && body="MCP"
+  - method: GET
+    path: '/sse'
+    matchers:
+      - header="text/event-stream"

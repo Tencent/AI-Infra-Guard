@@ -1,0 +1,13 @@
+info:
+  name: azure-mcp
+  author: A.I.G bot
+  severity: info
+  desc: Azure MCP Server is Microsoft's official Model Context Protocol server for Azure services, enabling AI agents to interact with Azure resources via MCP.
+  metadata:
+    product: azure-mcp
+    vendor: microsoft
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="azure" && body="mcp" || body="Azure MCP"

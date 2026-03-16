@@ -1,0 +1,13 @@
+info:
+  name: graphiti
+  author: A.I.G bot
+  severity: info
+  desc: Graphiti is a framework for building and querying temporal knowledge graphs for AI agents, supporting Neo4j, FalkorDB, and Neptune backends.
+  metadata:
+    product: graphiti
+    vendor: getzep
+http:
+  - method: GET
+    path: '/healthcheck'
+    matchers:
+      - body="graphiti" || body="ok"
