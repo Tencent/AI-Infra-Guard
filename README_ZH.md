@@ -54,7 +54,7 @@
 - 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建 Skill 安全情报数据。 
 - 🤖 **Agent安全扫描**：基于多个 AI 红队智能体驱动的 Agent 安全风险自动化扫描框架，旨在全面评估各类 Agent 平台（如Dify、Coze 等）上运行的智能体工作流的安全性，提供间接提示注入、SSRF、System Prompt泄露等安全风险检测能力（基于 OWASP Top 10 for Agentic Apps 2026）。
 
-👉[阅读完整的 v4.0 版本发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [立即体验 EdgeOne ClawScan 安全体检](https://matrix.tencent.com/clawscan/openclaw)
+👉[阅读完整的 v4.0 版本发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [立即体验 EdgeOne ClawScan 安全体检](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
