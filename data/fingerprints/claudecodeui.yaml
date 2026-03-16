@@ -1,0 +1,13 @@
+info:
+  name: claudecodeui
+  author: A.I.G bot
+  severity: info
+  desc: Claude Code UI (claudecodeui) is a desktop and mobile UI for Claude Code, Cursor CLI, Codex, and Gemini-CLI.
+  metadata:
+    product: claudecodeui
+    vendor: siteboon
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Claude Code</title>" || body="claudecodeui" || body="app-name=\"ClaudeCodeUI\""
