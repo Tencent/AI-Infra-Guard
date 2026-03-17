@@ -649,6 +649,10 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 	if !validateUsername(safeUsername) {
 		safeUsername = PublicUser
 	}
+	name = strings.TrimSpace(name)
+	if name == "" || !isValidName(name) {
+		return nil, os.ErrNotExist
+	}
 
 	// 优先从用户目录读取
 	userDir := getAgentUserDir(safeUsername)
