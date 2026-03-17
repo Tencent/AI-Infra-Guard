@@ -3,7 +3,7 @@
 
 ## Overview
 
-A.I.G(AI-Infra-Guard) provides a comprehensive set of API interfaces for AI Infra Scan, MCP Server Scan, Jailbreak Evaluation, and Model Configuration Management. This documentation details the usage methods, parameter descriptions, and example code for each API interface.
+A.I.G(AI-Infra-Guard) provides a comprehensive set of API interfaces for Agent Scan, MCP Server Scan, Jailbreak Evaluation, AI Infra Scan, and Model Configuration Management. This documentation details the usage methods, parameter descriptions, and example code for each API interface.
 
 After the project is running, you can access `http://localhost:8088/docs/index.html` to view the Swagger documentation.
 
@@ -14,9 +14,10 @@ After the project is running, you can access `http://localhost:8088/docs/index.h
 - Task Creation Interface
 
 ### Task Types
-1. MCP Server Scan API
-2. AI Infra Scan API
+1. Agent Scan API
+2. MCP Server Scan API
 3. Jailbreak Evaluation API
+4. AI Infra Scan API
 
 ### Model Management API
 1. Get Model List
@@ -120,7 +121,15 @@ curl -X POST \
 
 ## Detailed Task Type Descriptions
 
-### 1. MCP Server Scan API
+### 1. Agent Scan API
+
+Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HTTP endpoints) to detect vulnerabilities including prompt injection, privilege escalation, and data leakage.
+
+> **Note**: Agent Scan API is not yet available. Please use the web UI to configure and trigger Agent Scan tasks.
+
+---
+
+### 2. MCP Server Scan API
 
 MCP Server Scan is used to detect security vulnerabilities in MCP servers.
 
@@ -241,78 +250,6 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
       },
       "thread": 4,
       "language": "zh"
-    }
-  }'
-```
-
-### 2. AI Infra Scan API
-
-Used to scan AI infra for security vulnerabilities and configuration issues.
-
-#### Request Parameter Description
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| target | array | Yes | List of target URLs to scan |
-| headers | object | No | Custom request headers |
-| timeout | integer | No | Request timeout (seconds), default 30 |
-| model | object | No | Model configuration for auxiliary analysis |
-| model.model | string | Yes | Model name, e.g., "gpt-4" |
-| model.token | string | Yes | API key |
-| model.base_url | string | No | Base URL, defaults to OpenAI API |
-
-#### Python Example
-```python
-def ai_infra_scan():
-    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
-    task_data = {
-        "type": "ai_infra_scan",
-        "content": {
-            "target": [
-                "https://ai-service1.example.com",
-                "https://ai-service2.example.com"
-            ],
-            "headers": {
-                "Authorization": "Bearer your-token",
-                "User-Agent": "AI-Infra-Guard/1.0"
-            },
-            "timeout": 30,
-            "model": {
-                "model": "gpt-4",
-                "token": "sk-your-api-key",
-                "base_url": "https://api.openai.com/v1"
-            }
-        }
-    }
-    
-    response = requests.post(task_url, json=task_data)
-    return response.json()
-
-# Usage example
-result = ai_infra_scan()
-print(f"AI infra scan task created successfully, session ID: {result['data']['session_id']}")
-```
-
-#### cURL Example
-```bash
-curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "ai_infra_scan",
-    "content": {
-      "target": [
-        "https://ai-service1.example.com",
-        "https://ai-service2.example.com"
-      ],
-      "headers": {
-        "Authorization": "Bearer your-token",
-        "User-Agent": "AI-Infra-Guard/1.0"
-      },
-      "timeout": 30,
-      "model": {
-        "model": "gpt-4",
-        "token": "sk-your-api-key",
-        "base_url": "https://api.openai.com/v1"
-      }
     }
   }'
 ```
@@ -467,6 +404,80 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "dataFile": ["JADE-db-v3.0", "HarmfulEvalBenchmark"],
         "numPrompts": 500,
         "randomSeed": 123
+      }
+    }
+  }'
+```
+
+---
+
+### 4. AI Infra Scan API
+
+Used to scan AI infra for security vulnerabilities and configuration issues.
+
+#### Request Parameter Description
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| target | array | Yes | List of target URLs to scan |
+| headers | object | No | Custom request headers |
+| timeout | integer | No | Request timeout (seconds), default 30 |
+| model | object | No | Model configuration for auxiliary analysis |
+| model.model | string | Yes | Model name, e.g., "gpt-4" |
+| model.token | string | Yes | API key |
+| model.base_url | string | No | Base URL, defaults to OpenAI API |
+
+#### Python Example
+```python
+def ai_infra_scan():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "ai_infra_scan",
+        "content": {
+            "target": [
+                "https://ai-service1.example.com",
+                "https://ai-service2.example.com"
+            ],
+            "headers": {
+                "Authorization": "Bearer your-token",
+                "User-Agent": "AI-Infra-Guard/1.0"
+            },
+            "timeout": 30,
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            }
+        }
+    }
+    
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+
+# Usage example
+result = ai_infra_scan()
+print(f"AI infra scan task created successfully, session ID: {result['data']['session_id']}")
+```
+
+#### cURL Example
+```bash
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "ai_infra_scan",
+    "content": {
+      "target": [
+        "https://ai-service1.example.com",
+        "https://ai-service2.example.com"
+      ],
+      "headers": {
+        "Authorization": "Bearer your-token",
+        "User-Agent": "AI-Infra-Guard/1.0"
+      },
+      "timeout": 30,
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
       }
     }
   }'

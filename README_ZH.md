@@ -51,7 +51,7 @@
 
 此版本重磅推出了两大全新功能：
 
-- 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建 Skill 安全情报数据。 
+- 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建 Skill 安全情报数据。 
 - 🤖 **Agent安全扫描**：基于多个 AI 红队智能体驱动的 Agent 安全风险自动化扫描框架，旨在全面评估各类 Agent 平台（如Dify、Coze 等）上运行的智能体工作流的安全性，提供间接提示注入、SSRF、System Prompt泄露等安全风险检测能力（基于 OWASP Top 10 for Agentic Apps 2026）。
 
 👉[阅读完整的 v4.0 版本发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) | 🩺 [立即体验 EdgeOne ClawScan 安全体检](https://matrix.tencent.com/clawscan/)
@@ -126,7 +126,7 @@ docker-compose up -d
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
 | **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 40 多种 AI 开源 Web 组件。涵盖 600 多个已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 43 种 AI 开源 Web 组件。涵盖 589 个已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
 | **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
 
 <details>
