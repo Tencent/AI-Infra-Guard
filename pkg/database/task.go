@@ -9,6 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	publicUserUsername = "public_user"
+	demoTestUsername   = "demo-test"
+)
+
 // User 用户表（扩展版本）
 type User struct {
 	UserID     string `gorm:"primaryKey;column:user_id" json:"user_id"`
@@ -168,7 +173,7 @@ func (s *TaskStore) UpdateSessionStatus(id string, status string) error {
 
 	if status == "doing" {
 		updates["started_at"] = &now
-	} else if status == "done" {
+	} else if status == "done" || status == "error" || status == "terminated" {
 		updates["completed_at"] = &now
 	}
 
@@ -250,7 +255,9 @@ func (s *TaskStore) GetSessionMessages(sessionID string) ([]*TaskMessage, error)
 // GetUserSessions 获取用户的所有会话
 func (s *TaskStore) GetUserSessions(username string) ([]*Session, error) {
 	var sessions []*Session
-	err := s.db.Where("username = ?", username).Order("created_at DESC").Find(&sessions).Error
+	err := s.visibleSessionsQuery(username).
+		Order("created_at DESC").
+		Find(&sessions).Error
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +266,7 @@ func (s *TaskStore) GetUserSessions(username string) ([]*Session, error) {
 
 // GetUserSessionsByType 获取用户的会话，支持可选的任务类型过滤
 func (s *TaskStore) GetUserSessionsByType(username string, taskType string) ([]*Session, error) {
-	query := s.db.Where("username = ? or username = 'demo-test'", username)
+	query := s.visibleSessionsQuery(username)
 
 	// 如果指定了任务类型，添加类型过滤
 	if taskType != "" {
@@ -310,7 +317,7 @@ func (s *TaskStore) GetSessionEventsByType(sessionID string, eventType string) (
 
 // SearchUserSessionsSimple 使用单个查询参数搜索用户的会话，支持在title、content、task_type字段中搜索
 func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams SimpleSearchParams) ([]*Session, int64, error) {
-	query := s.db.Model(&Session{}).Where("username = ? or username = 'demo-test'", username)
+	query := s.visibleSessionsQuery(username)
 
 	// 如果指定了任务类型，添加类型过滤
 	if searchParams.TaskType != "" {
@@ -343,6 +350,25 @@ func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams Simpl
 	}
 
 	return sessions, total, nil
+}
+
+func (s *TaskStore) visibleSessionsQuery(username string) *gorm.DB {
+	query := s.db.Model(&Session{})
+
+	if username == publicUserUsername || username == "" {
+		return query.Where(
+			"username = ? OR username = ? OR share = ?",
+			publicUserUsername,
+			demoTestUsername,
+			true,
+		)
+	}
+
+	return query.Where(
+		"username = ? OR username = ?",
+		username,
+		demoTestUsername,
+	)
 }
 
 // SimpleSearchParams 简化搜索参数结构
