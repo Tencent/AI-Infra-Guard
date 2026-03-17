@@ -629,8 +629,20 @@ func listAgentConfigNames(username string) ([]string, error) {
 
 // readAgentConfigContentFromDir 从指定目录读取配置内容
 func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || !isValidName(name) {
+		return nil, os.ErrNotExist
+	}
+
+	cleanDir := filepath.Clean(dir)
+	rootDir := filepath.Clean(AgentConfigRoot)
+	relDir, err := filepath.Rel(rootDir, cleanDir)
+	if err != nil || relDir == ".." || strings.HasPrefix(relDir, ".."+string(filepath.Separator)) {
+		return nil, os.ErrNotExist
+	}
+
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(dir, name+ext)
+		path := filepath.Join(cleanDir, name+ext)
 		data, err := os.ReadFile(path)
 		if err == nil {
 			return data, nil
