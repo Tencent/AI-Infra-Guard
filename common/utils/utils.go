@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"errors"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -456,8 +457,16 @@ func GitClone(repoURL, targetDir string, timeout time.Duration) error {
 }
 
 func RunCmd(dir, name string, arg []string, callback func(line string)) error {
+	return RunCmdWithContext(context.Background(), dir, name, arg, callback)
+}
+
+func RunCmdWithContext(ctx context.Context, dir, name string, arg []string, callback func(line string)) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	// 命令行执行,stdio读取
-	cmd := exec.Command(name, arg...)
+	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = dir
 	cmd.Env = os.Environ()
 	// 获取命令行
@@ -511,6 +520,9 @@ func RunCmd(dir, name string, arg []string, callback func(line string)) error {
 	readErr := <-done
 
 	// 优先返回读取错误，其次返回命令执行错误
+	if errors.Is(ctx.Err(), context.Canceled) {
+		return ctx.Err()
+	}
 	if readErr != nil {
 		return readErr
 	}

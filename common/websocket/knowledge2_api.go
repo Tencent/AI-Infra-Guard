@@ -629,8 +629,20 @@ func listAgentConfigNames(username string) ([]string, error) {
 
 // readAgentConfigContentFromDir 从指定目录读取配置内容
 func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || !isValidName(name) {
+		return nil, os.ErrNotExist
+	}
+
+	cleanDir := filepath.Clean(dir)
+	rootDir := filepath.Clean(AgentConfigRoot)
+	relDir, err := filepath.Rel(rootDir, cleanDir)
+	if err != nil || relDir == ".." || strings.HasPrefix(relDir, ".."+string(filepath.Separator)) {
+		return nil, os.ErrNotExist
+	}
+
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(dir, name+ext)
+		path := filepath.Join(cleanDir, name+ext)
 		data, err := os.ReadFile(path)
 		if err == nil {
 			return data, nil
@@ -644,8 +656,18 @@ func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
 
 // readAgentConfigContent 读取配置内容（优先用户目录，fallback 到公共目录）
 func readAgentConfigContent(username, name string) ([]byte, error) {
+	// 确保用于构造路径的用户名是安全的；否则退回到公共用户目录
+	safeUsername := username
+	if !validateUsername(safeUsername) {
+		safeUsername = PublicUser
+	}
+	name = strings.TrimSpace(name)
+	if name == "" || !isValidName(name) {
+		return nil, os.ErrNotExist
+	}
+
 	// 优先从用户目录读取
-	userDir := getAgentUserDir(username)
+	userDir := getAgentUserDir(safeUsername)
 	data, err := readAgentConfigContentFromDir(userDir, name)
 	if err == nil {
 		return data, nil
@@ -655,7 +677,7 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 	}
 
 	// 如果不是公共用户且用户目录没有，尝试从公共目录读取
-	if username != PublicUser {
+	if safeUsername != PublicUser {
 		publicDir := getAgentUserDir(PublicUser)
 		return readAgentConfigContentFromDir(publicDir, name)
 	}
