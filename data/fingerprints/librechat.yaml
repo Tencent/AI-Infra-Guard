@@ -1,0 +1,24 @@
+info:
+  name: librechat
+  author: A.I.G bot
+  severity: info
+  desc: LibreChat - Enhanced ChatGPT Clone with support for multiple AI models (OpenAI, Azure, Anthropic, Google, etc.)
+  metadata:
+    product: librechat
+    vendor: danny-avila
+http:
+  - method: GET
+    path: /
+    matchers:
+      - title="LibreChat"
+  - method: GET
+    path: /api/config
+    matchers:
+      - header="Content-Type: application/json"
+version:
+  - method: GET
+    path: /api/config
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([^"]+)"'

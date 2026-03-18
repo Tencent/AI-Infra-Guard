@@ -1,0 +1,21 @@
+info:
+  name: mlflow
+  author: A.I.G bot
+  severity: info
+  desc: MLflow - Machine Learning lifecycle platform for experiment tracking, model management, and deployment
+  metadata:
+    product: mlflow
+    vendor: mlflow
+http:
+  - method: GET
+    path: /
+    matchers:
+      - title="MLflow"
+      - body="mlflow-ui-container"
+version:
+  - method: GET
+    path: /version
+    extractor:
+      part: body
+      group: 1
+      regex: '^([0-9]+\.[0-9]+\.[0-9]+.*)$'
