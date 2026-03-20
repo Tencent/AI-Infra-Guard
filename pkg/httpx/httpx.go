@@ -63,7 +63,7 @@ func NewHttpx(options *HTTPOptions) (*HTTPX, error) {
 	transport := &http.Transport{
 		MaxIdleConnsPerHost: -1,
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true, // #nosec G402 -- scanner intentionally probes targets with self-signed certs
 		},
 		DisableKeepAlives: true,
 	}
@@ -88,7 +88,7 @@ func NewHttpx(options *HTTPOptions) (*HTTPX, error) {
 	httpx.client2 = &http.Client{
 		Transport: &http2.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
+				InsecureSkipVerify: true, // #nosec G402 -- scanner intentionally probes targets with self-signed certs
 			},
 			AllowHTTP: true,
 		},

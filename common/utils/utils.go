@@ -412,15 +412,14 @@ func ExtractTGZ(src, dest string) error {
 
 // 安全路径检查，防止路径穿越
 func safePath(dest, name string) (string, error) {
-	targetPath := filepath.Join(dest, name)
-	cleanedPath := filepath.Clean(targetPath)
-	dest = filepath.Clean(dest)
+	cleanedDest := filepath.Clean(dest)
+	cleanedPath := filepath.Clean(filepath.Join(cleanedDest, name))
 
-	// 检查目标路径是否在目标目录下
-	if !strings.HasPrefix(cleanedPath, dest+string(os.PathSeparator)) && cleanedPath != dest {
+	// 检查目标路径是否在目标目录下，防止路径穿越（path traversal）攻击
+	if !strings.HasPrefix(cleanedPath, cleanedDest+string(os.PathSeparator)) && cleanedPath != cleanedDest {
 		return "", fmt.Errorf("非法路径: %s", name)
 	}
-	return targetPath, nil
+	return cleanedPath, nil
 }
 
 // 写入文件内容
