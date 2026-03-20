@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/openai/openai-go/option"
 
@@ -74,32 +75,48 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 			chatMessages = append(chatMessages, openai.UserMessage(content))
 		}
 	}
-	stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
-		Messages: chatMessages,
-		Seed:     openai.Int(24),
-		Model:    ai.Model,
-	})
-	// 循环读取结果
+
+	const maxRetries = 3
 	go func() {
+		defer close(resp)
 		var totalToken int64 = 0
-		for stream.Next() {
-			evt := stream.Current()
-			if len(evt.Choices) > 0 {
-				word := evt.Choices[0].Delta.Content
-				if evt.Usage.TotalTokens > 0 {
-					totalToken = evt.Usage.TotalTokens
+		for attempt := 0; attempt < maxRetries; attempt++ {
+			if attempt > 0 {
+				waitSec := time.Duration(1<<attempt) * time.Second // 2s, 4s
+				gologger.Infof("ChatStream retry %d/%d after %v", attempt, maxRetries-1, waitSec)
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(waitSec):
 				}
-				resp <- word
+			}
+			stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
+				Messages: chatMessages,
+				Seed:     openai.Int(24),
+				Model:    ai.Model,
+			})
+			streamErr := false
+			for stream.Next() {
+				evt := stream.Current()
+				if len(evt.Choices) > 0 {
+					word := evt.Choices[0].Delta.Content
+					if evt.Usage.TotalTokens > 0 {
+						totalToken = evt.Usage.TotalTokens
+					}
+					resp <- word
+				}
+			}
+			if stream.Err() != nil {
+				gologger.WithError(stream.Err()).Errorf("ChatStream error (attempt %d/%d)", attempt+1, maxRetries)
+				streamErr = true
+			}
+			if !streamErr {
+				break
 			}
 		}
 		if totalToken > 0 {
 			ai.UseToken += totalToken
 		}
-		if stream.Err() != nil {
-			// 处理错误
-			gologger.WithError(stream.Err()).Errorln("ChatStream error")
-		}
-		close(resp)
 	}()
 	return resp
 }
