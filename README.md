@@ -56,7 +56,7 @@ We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security 
 - 🛡️ **OpenClaw Security Scan**: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
 - 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agent workflows running across various platforms (Dify, Coze, etc.).
 
-👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan/) 
+👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
@@ -129,7 +129,7 @@ Experience the Pro version with advanced features and improved performance. The 
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
 | **Agent&nbsp;Scan** | This is an independent, multi-agent automated scanning framework. It is designed to evaluate the security of AI agent workflows. It seamlessly supports agents running across various platforms, including Dify and Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 40 AI framework components. It covers more than 600 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 43 AI framework components. It covers more than 589 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
 | **Jailbreak&nbsp;Evaluation** | It assesses prompt security risks using carefully curated datasets. The evaluation applies multiple attack methods to test robustness. It also provides detailed cross-model comparison capabilities. |
 
 <details>

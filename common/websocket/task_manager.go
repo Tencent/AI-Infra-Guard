@@ -397,6 +397,11 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, event interface{}) {
 	log.Debugf("收到Agent事件: sessionId=%s, eventType=%s", sessionId, eventType)
 
+	if tm.shouldIgnoreAgentEvent(sessionId, eventType) {
+		log.Infof("忽略无效或终态任务的Agent事件: sessionId=%s, eventType=%s", sessionId, eventType)
+		return
+	}
+
 	// 使用通用事件处理函数
 	tm.handleEvent(sessionId, eventType, event)
 
@@ -440,10 +445,7 @@ func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, even
 		}
 	case "error":
 		log.Errorf("错误事件: sessionId=%s %v", sessionId, event)
-		updates := map[string]interface{}{
-			"status": "error",
-		}
-		err := tm.taskStore.UpdateSession(sessionId, updates)
+		err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusError)
 		if err != nil {
 			log.Errorf("更新任务失败: sessionId=%s, error=%v", sessionId, err)
 		}
@@ -577,6 +579,11 @@ func (tm *TaskManager) TerminateTask(sessionId string, username string, traceID 
 		return fmt.Errorf("无权限操作此任务")
 	}
 
+	if isTerminalTaskStatus(session.Status) {
+		log.Infof("任务已结束，无需终止: trace_id=%s, sessionId=%s, status=%s", traceID, sessionId, session.Status)
+		return fmt.Errorf("任务已结束，无需终止")
+	}
+
 	// 通知 Agent 终止任务
 	if session.AssignedAgent != "" {
 		log.Infof("通知Agent终止任务: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, session.AssignedAgent)
@@ -605,38 +612,37 @@ func (tm *TaskManager) TerminateTask(sessionId string, username string, traceID 
 
 // notifyAgentToTerminate 通知 Agent 终止任务（简化版本）
 func (tm *TaskManager) notifyAgentToTerminate(agentID string, sessionId string, traceID string) {
-	// 异步通知Agent，避免阻塞
-	go func() {
-		// 获取 Agent 连接
-		availableAgents := tm.agentManager.GetAvailableAgents()
-		for _, agent := range availableAgents {
-			agent.stateMu.RLock()
-			currentAgentID := agent.agentID
-			isActive := agent.isActive
-			agent.stateMu.RUnlock()
+	// 获取 Agent 连接
+	availableAgents := tm.agentManager.GetAvailableAgents()
+	for _, agent := range availableAgents {
+		agent.stateMu.RLock()
+		currentAgentID := agent.agentID
+		isActive := agent.isActive
+		agent.stateMu.RUnlock()
 
-			if currentAgentID == agentID && isActive {
-				// 发送终止消息给 Agent
-				terminateMsg := WSMessage{
-					Type: "terminate",
-					Content: map[string]interface{}{
-						"session_id": sessionId,
-						"reason":     "用户主动终止",
-					},
-				}
-
-				// 直接发送，无重试机制
-				agent.conn.SetWriteDeadline(time.Now().Add(writeWait))
-				err := agent.conn.WriteJSON(terminateMsg)
-				if err != nil {
-					log.Errorf("发送终止消息给Agent %s失败: %v", agentID, err)
-				} else {
-					log.Infof("终止消息已发送给Agent %s: trace_id=%s, sessionId=%s", agentID, traceID, sessionId)
-				}
-				break
+		if currentAgentID == agentID && isActive {
+			// 发送终止消息给 Agent
+			terminateMsg := WSMessage{
+				Type: "terminate",
+				Content: map[string]interface{}{
+					"session_id": sessionId,
+					"reason":     "用户主动终止",
+				},
 			}
+
+			// 直接发送，无重试机制
+			agent.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			err := agent.conn.WriteJSON(terminateMsg)
+			if err != nil {
+				log.Errorf("发送终止消息给Agent %s失败: %v", agentID, err)
+			} else {
+				log.Infof("终止消息已发送给Agent %s: trace_id=%s, sessionId=%s", agentID, traceID, sessionId)
+			}
+			return
 		}
-	}()
+	}
+
+	log.Warnf("未找到可终止的Agent连接: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, agentID)
 }
 
 // sendTerminationEvent 发送终止事件给前端
@@ -655,6 +661,28 @@ func (tm *TaskManager) sendTerminationEvent(sessionId string, traceID string) {
 	tm.handleEvent(sessionId, "statusUpdate", event)
 
 	log.Infof("终止事件已发送: trace_id=%s, sessionId=%s", traceID, sessionId)
+}
+
+func isTerminalTaskStatus(status string) bool {
+	switch status {
+	case TaskStatusDone, TaskStatusError, TaskStatusTerminated:
+		return true
+	default:
+		return false
+	}
+}
+
+func (tm *TaskManager) shouldIgnoreAgentEvent(sessionId string, eventType string) bool {
+	session, err := tm.taskStore.GetSession(sessionId)
+	if err != nil || session == nil {
+		return true
+	}
+
+	if !isTerminalTaskStatus(session.Status) {
+		return false
+	}
+
+	return true
 }
 
 // generateEventID 生成事件ID
@@ -704,10 +732,26 @@ func (tm *TaskManager) DeleteTask(sessionId string, username string, traceID str
 		return fmt.Errorf("任务不存在")
 	}
 
-	// 验证用户权限（只有任务创建者才能删除任务）
-	if session.Username != username {
+	// 验证用户权限：
+	// 1. 任务创建者始终可以删除
+	// 2. 共享任务允许 Web 公共视角（public_user / 空用户）删除，
+	//    以便在前端管理通过 API 创建的共享任务
+	isSharedWebDelete := session.Share && (username == "" || username == PublicUser)
+	if session.Username != username && !isSharedWebDelete {
 		log.Errorf("无权限操作此任务: trace_id=%s, sessionId=%s, username=%s, owner=%s", traceID, sessionId, username, session.Username)
 		return fmt.Errorf("无权限操作此任务")
+	}
+
+	if session.Status == TaskStatusDoing {
+		log.Infof("删除运行中任务前先终止执行: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, session.AssignedAgent)
+		if session.AssignedAgent != "" {
+			tm.notifyAgentToTerminate(session.AssignedAgent, sessionId, traceID)
+		}
+		if err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusTerminated); err != nil {
+			log.Errorf("删除前标记任务终止失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
+			return fmt.Errorf("删除前终止任务失败: %v", err)
+		}
+		tm.sendTerminationEvent(sessionId, traceID)
 	}
 
 	// 使用事务删除会话及其所有消息
@@ -1014,15 +1058,7 @@ func (tm *TaskManager) GetUserTasks(username string, traceID string) ([]map[stri
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -1048,15 +1084,7 @@ func (tm *TaskManager) GetUserTasksByType(username string, taskType string, trac
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -1095,15 +1123,7 @@ func (tm *TaskManager) SearchUserTasksSimple(username string, searchParams datab
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -1115,6 +1135,38 @@ func (tm *TaskManager) SearchUserTasksSimple(username string, searchParams datab
 		tasks = append(tasks, task)
 	}
 	return tasks, nil
+}
+
+func buildTaskSummary(session *database.Session) map[string]interface{} {
+	source, sourceLabel := resolveTaskSource(session)
+	return map[string]interface{}{
+		"sessionId":      session.ID,
+		"title":          decorateTaskTitle(session.Title, sourceLabel),
+		"rawTitle":       session.Title,
+		"taskType":       session.TaskType,
+		"status":         session.Status,
+		"countryIsoCode": session.CountryIsoCode,
+		"updatedAt":      session.UpdatedAt,
+		"createdAt":      session.CreatedAt,
+		"source":         source,
+		"sourceLabel":    sourceLabel,
+	}
+}
+
+func decorateTaskTitle(title, sourceLabel string) string {
+	if sourceLabel == "" {
+		return title
+	}
+	return fmt.Sprintf("[%s] %s", sourceLabel, title)
+}
+
+func resolveTaskSource(session *database.Session) (string, string) {
+	switch session.Username {
+	case "", PublicUser, "demo-test":
+		return "web", ""
+	default:
+		return "api", "API"
+	}
 }
 
 // generateTaskTitle 生成任务标题（用于任务创建API）
@@ -1337,9 +1389,11 @@ func (tm *TaskManager) GetTaskDetail(sessionId string, username string, traceID 
 	}
 
 	// 构建返回数据
+	source, sourceLabel := resolveTaskSource(session)
 	detail := map[string]interface{}{
 		"sessionId":      session.ID,
-		"title":          session.Title,
+		"title":          decorateTaskTitle(session.Title, sourceLabel),
+		"rawTitle":       session.Title,
 		"status":         session.Status,
 		"countryIsoCode": session.CountryIsoCode,
 		"createdAt":      session.CreatedAt,
@@ -1348,6 +1402,8 @@ func (tm *TaskManager) GetTaskDetail(sessionId string, username string, traceID 
 		"taskType":       session.TaskType,
 		"attachments":    attachments,
 		"messages":       messageList,
+		"source":         source,
+		"sourceLabel":    sourceLabel,
 	}
 	if session.Username != username {
 		delete(detail, "attachments")
