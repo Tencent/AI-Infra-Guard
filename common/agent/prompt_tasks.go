@@ -189,7 +189,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
-	err = utils.RunCmd(DIR, NAME, argv, func(line string) {
+	err = utils.RunCmdWithContext(ctx, DIR, NAME, argv, func(line string) {
 		ParseStdoutLine(m.Server, DIR, tasks, line, callbacks, &config, true)
 	})
 	return err

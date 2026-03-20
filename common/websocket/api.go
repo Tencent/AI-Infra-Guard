@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
+	"github.com/Tencent/AI-Infra-Guard/pkg/database"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"trpc.group/trpc-go/trpc-go/log"
@@ -37,10 +38,10 @@ type ModelParams struct {
 type MCPTaskRequest struct {
 	Prompt string `json:"prompt,omitempty" example:"prompt,填写url则远程mcp扫描"` // 任务内容描述
 	Model  struct {
-		Model   string `json:"model" binding:"required" example:"gpt-4"`               // 模型名称 - 必需
-		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API密钥 - 必需
+		Model   string `json:"model" example:"gpt-4"`                         // 模型名称 - 必需
+		Token   string `json:"token" example:"sk-xxx"`                        // API密钥 - 必需
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
-	} `json:"model" binding:"required"` // 模型配置 - 必需
+	} `json:"model"` // 模型配置 - 必需
 	Thread      int               `json:"thread,omitempty" example:"4"`              // 并发线程数
 	Language    string            `json:"language,omitempty" example:"zh"`           // 语言代码 - 可选
 	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // 附件文件路径
@@ -80,6 +81,15 @@ type PromptSecurityTaskRequest struct {
 	Techniques []string `json:"techniques"` // 测试技术列表 - 可选
 }
 
+// AgentScanTaskRequest Agent 安全扫描任务请求结构体
+// @Description Agent 安全扫描任务请求参数，使用已配置的 agent_id 和评估模型执行扫描
+type AgentScanTaskRequest struct {
+	AgentID   string      `json:"agent_id" binding:"required" example:"demo-agent"` // Agent 配置名称 - 必需
+	EvalModel ModelParams `json:"eval_model"`                                        // 评估模型配置 - 可选，留空时自动选择默认模型
+	Language  string      `json:"language,omitempty" example:"zh"`                   // 语言代码 - 可选
+	Prompt    string      `json:"prompt,omitempty" example:"重点关注越权和数据泄露风险"`      // 额外扫描说明 - 可选
+}
+
 // APIResponse 通用API响应结构
 type APIResponse struct {
 	Status  int         `json:"status" example:"0"`     // 状态码: 0=成功, 1=失败
@@ -100,6 +110,42 @@ type TaskStatusResponse struct {
 // TaskCreateResponse 任务创建响应结构
 type TaskCreateResponse struct {
 	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
+}
+
+func resolveTaskAPIUsername(c *gin.Context) string {
+	username := strings.TrimSpace(c.GetString("api_user"))
+	if username != "" {
+		return username
+	}
+
+	username = strings.TrimSpace(c.GetHeader("username"))
+	if username != "" {
+		return username
+	}
+
+	return "api_user"
+}
+
+func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.ModelParams, error) {
+	if tm == nil || tm.modelStore == nil {
+		return nil, nil
+	}
+
+	models, err := tm.modelStore.GetUserModels(username)
+	if err != nil {
+		return nil, err
+	}
+	if len(models) == 0 {
+		return nil, nil
+	}
+
+	model := models[0]
+	return &database.ModelParams{
+		Model:   model.ModelName,
+		Token:   model.Token,
+		BaseUrl: model.BaseURL,
+		Limit:   model.Limit,
+	}, nil
 }
 
 // SubmitTask 创建任务接口
@@ -196,8 +242,8 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 	// 生成消息ID
 	messageId := uuid.New().String()
 
-	// 设置默认用户名为开发者API用户
-	username := c.GetString("api_user")
+	// 设置开发者 API 用户名，优先走鉴权中间件，其次允许显式 header 注入
+	username := resolveTaskAPIUsername(c)
 
 	var taskReq TaskCreateRequest
 	// content interface to byte
@@ -210,6 +256,14 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
 				"message": "参数错误: " + err.Error(),
+				"data":    nil,
+			})
+			return
+		}
+		if strings.TrimSpace(req.Model.Model) == "" || strings.TrimSpace(req.Model.Token) == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "参数错误: mcp_scan 必须显式提供 model.model 和 model.token",
 				"data":    nil,
 			})
 			return
@@ -296,6 +350,87 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			Content:     req.Prompt,
 			Attachments: []string{},
 			Params:      params,
+		}
+	case "agent_scan":
+		var req AgentScanTaskRequest
+		err := json.Unmarshal(content.Content, &req)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "参数错误: " + err.Error(),
+				"data":    nil,
+			})
+			return
+		}
+		if strings.TrimSpace(req.AgentID) == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "参数错误: agent_id 不能为空",
+				"data":    nil,
+			})
+			return
+		}
+
+		agentData, err := readAgentConfigContent(username, req.AgentID)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "参数错误: 获取 Agent 配置失败: " + err.Error(),
+				"data":    nil,
+			})
+			return
+		}
+
+		evalModel := req.EvalModel
+		if strings.TrimSpace(evalModel.Model) == "" ||
+			strings.TrimSpace(evalModel.Token) == "" ||
+			strings.TrimSpace(evalModel.BaseUrl) == "" {
+			defaultModel, err := resolveDefaultTaskAPIModel(tm, username)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "参数错误: 获取默认模型失败: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+			if defaultModel == nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "参数错误: 未配置可用的默认模型",
+					"data":    nil,
+				})
+				return
+			}
+			evalModel = ModelParams{
+				Model:   defaultModel.Model,
+				Token:   defaultModel.Token,
+				BaseUrl: defaultModel.BaseUrl,
+				Limit:   defaultModel.Limit,
+			}
+		}
+
+		params := map[string]interface{}{
+			"agent_id":   req.AgentID,
+			"agent_data": string(agentData),
+			"eval_model": map[string]interface{}{
+				"model":    evalModel.Model,
+				"token":    evalModel.Token,
+				"base_url": evalModel.BaseUrl,
+				"limit":    evalModel.Limit,
+			},
+		}
+
+		taskReq = TaskCreateRequest{
+			ID:             messageId,
+			SessionID:      sessionId,
+			Username:       username,
+			Task:           agent.TaskTypeAgentScan,
+			Timestamp:      time.Now().UnixMilli(),
+			Content:        req.Prompt,
+			Attachments:    []string{},
+			Params:         params,
+			CountryIsoCode: req.Language,
 		}
 	default:
 		c.JSON(http.StatusOK, gin.H{

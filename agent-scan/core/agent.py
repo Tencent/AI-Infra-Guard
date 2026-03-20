@@ -276,17 +276,16 @@ class ScanPipeline:
                 )
 
         logger.info(
-            f"Starting parallel detection with {len(_DETECTION_SKILLS)} skill workers "
-            f"(concurrency limit: {_WORKER_CONCURRENCY})."
+            f"Starting sequential detection with {len(_DETECTION_SKILLS)} skill workers."
         )
 
-        outcomes = await asyncio.gather(
-            *[
-                _run_skill_worker(skill, idx)
-                for idx, skill in enumerate(_DETECTION_SKILLS)
-            ],
-            return_exceptions=True,
-        )
+        outcomes: list = []
+        for idx, skill in enumerate(_DETECTION_SKILLS):
+            try:
+                result = await _run_skill_worker(skill, idx)
+                outcomes.append(result)
+            except Exception as exc:  # noqa: BLE001
+                outcomes.append(exc)
 
         merged_xml, aggregated_stats = _merge_worker_outcomes(outcomes, _DETECTION_SKILLS)
 
@@ -340,9 +339,8 @@ class Agent:
 
         Pipeline:
 
-        1. **Stage 1 — Information Collection**: single sequential agent.
-        2. **Stage 2 — Parallel Vulnerability Detection**: N concurrent
-           skill-runner workers (one per entry in :data:`_DETECTION_SKILLS`).
+        1. **Stage 1 — Info Collection**: single sequential agent.
+        2. **Stage 2 — Vulnerability Detection**: single sequential agent.
         3. **Stage 3 — Vulnerability Review**: single sequential agent that
            maps findings to OWASP ASI and finalises severity.
 
@@ -360,10 +358,10 @@ class Agent:
         total_dialogue_count = 0
 
         # ------------------------------------------------------------------
-        # Stage 1 — Information Collection
+        # Stage 1 — Info Collection
         # ------------------------------------------------------------------
         info_collection, info_stats = await self.pipeline.execute_stage(
-            stage=ScanStage("1", "Information Collection", "project_summary", language=self.language),
+            stage=ScanStage("1", "Info Collection", "project_summary", language=self.language),
             repo_dir=repo_dir,
             prompt=prompt,
             agent_provider=self.agent_provider,
@@ -372,13 +370,14 @@ class Agent:
         logger.info(f"Stage 1 complete.  Dialogue calls: {info_stats.get('dialogue', 0)}.")
 
         # ------------------------------------------------------------------
-        # Stage 2 — Parallel Vulnerability Detection
+        # Stage 2 — Vulnerability Detection
         # ------------------------------------------------------------------
-        vuln_detection, vuln_stats = await self.pipeline.run_parallel_detection(
-            recon_report=info_collection,
+        vuln_detection, vuln_stats = await self.pipeline.execute_stage(
+            stage=ScanStage("2", "Vulnerability Detection", "agent_vulnerability_detector", language=self.language),
             repo_dir=repo_dir,
             prompt=prompt,
             agent_provider=self.agent_provider,
+            context_data={"信息收集报告": info_collection},
         )
         total_dialogue_count += vuln_stats.get("dialogue", 0)
         logger.info(f"Stage 2 complete.  Dialogue calls: {vuln_stats.get('dialogue', 0)}.")
