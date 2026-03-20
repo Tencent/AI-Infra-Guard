@@ -363,8 +363,14 @@ const AgentConfigRoot = "data/agents"
 const PublicUser = "public_user"
 
 // getAgentUserDir 获取用户的 agent 配置目录
+// username 必须已通过 validateUsername 校验，此处额外用 safeJoinPath 做防御
 func getAgentUserDir(username string) string {
-	return filepath.Join(AgentConfigRoot, username)
+	p, err := safeJoinPath(AgentConfigRoot, username)
+	if err != nil {
+		// fallback to public user dir; validateUsername should have caught this
+		return filepath.Join(AgentConfigRoot, PublicUser)
+	}
+	return p
 }
 
 // validateUsername 验证用户名安全性（防止路径穿越）

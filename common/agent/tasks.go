@@ -270,6 +270,13 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 	for _, file := range request.Attachments {
 		gologger.Infof(texts.downloadFileLog, file)
 		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.%s", time.Now().UnixMicro(), filepath.Ext(file)))
+		// Verify the path is within tempDir to prevent path traversal
+		absTempDir, _ := filepath.Abs(tempDir)
+		absFileName, _ := filepath.Abs(fileName)
+		if !strings.HasPrefix(absFileName, absTempDir+string(os.PathSeparator)) {
+			gologger.WithError(fmt.Errorf("非法路径: %s", file)).Errorln(texts.downloadFile)
+			return nil, fmt.Errorf("非法文件路径")
+		}
 		if err := utils.DownloadFile(t.Server, request.SessionId, file, fileName); err != nil {
 			gologger.WithError(err).Errorln(texts.downloadFile)
 			return nil, err
