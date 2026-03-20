@@ -1,3 +1,21 @@
+// Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Requirement: Any integration or derivative work must explicitly attribute
+// Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
+// documentation or user interface, as detailed in the NOTICE file.
+
 package agent
 
 import (
@@ -128,6 +146,12 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		gologger.Infof("开始下载文件: %s", fileName)
 		fileName2 := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), filepath.Ext(fileName)))
 		fileName2, _ = filepath.Abs(fileName2)
+		// Verify the resolved path is within tempDir to prevent path traversal
+		absTempDir, _ := filepath.Abs(tempDir)
+		if !strings.HasPrefix(fileName2, absTempDir+string(os.PathSeparator)) {
+			gologger.Errorf("非法文件路径: %s", fileName)
+			return fmt.Errorf("非法文件路径")
+		}
 		scenarios := fmt.Sprintf("MultiDataset:dataset_file=%s,num_prompts=%d,random_seed=%d", fileName2, param.Datasets.NumPrompts, param.Datasets.RandomSeed)
 		if param.Datasets.PromptColumn != "" {
 			scenarios += fmt.Sprintf(",prompt_column=%s", param.Datasets.PromptColumn)

@@ -1,3 +1,21 @@
+// Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Requirement: Any integration or derivative work must explicitly attribute
+// Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
+// documentation or user interface, as detailed in the NOTICE file.
+
 package websocket
 
 import (
@@ -28,6 +46,17 @@ func isValidName(name string) bool {
 		return false
 	}
 	return validName.MatchString(name)
+}
+
+// safeJoinPath joins base and elem using filepath.Join, then verifies the result
+// is still within base to prevent path traversal attacks (defense in depth).
+func safeJoinPath(base, elem string) (string, error) {
+	cleanBase := filepath.Clean(base)
+	joined := filepath.Clean(filepath.Join(cleanBase, elem))
+	if joined != cleanBase && !strings.HasPrefix(joined, cleanBase+string(os.PathSeparator)) {
+		return "", fmt.Errorf("path traversal detected: %q is outside base %q", elem, base)
+	}
+	return joined, nil
 }
 
 // FingerprintWithTime 包含指纹数据和文件修改时间的结构体
@@ -209,7 +238,11 @@ func HandleCreateFingerprint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "指纹名称非法"})
 		return
 	}
-	yamlPath := filepath.Join("data/fingerprints", fp.Info.Name+".yaml")
+	yamlPath, err := safeJoinPath("data/fingerprints", fp.Info.Name+".yaml")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(yamlPath); err == nil {
 		c.JSON(http.StatusConflict, gin.H{"status": 1, "message": "指纹已存在"})
 		return
@@ -245,7 +278,11 @@ func HandleDeleteFingerprint(c *gin.Context) {
 			invalid = append(invalid, name)
 			continue
 		}
-		yamlPath := filepath.Join("data/fingerprints", name+".yaml")
+		yamlPath, pathErr := safeJoinPath("data/fingerprints", name+".yaml")
+		if pathErr != nil {
+			invalid = append(invalid, name)
+			continue
+		}
 		if _, err := os.Stat(yamlPath); os.IsNotExist(err) {
 			notFound = append(notFound, name)
 			continue
@@ -312,12 +349,20 @@ func HandleEditFingerprint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "指纹名称非法"})
 		return
 	}
-	oldPath := filepath.Join("data/fingerprints", oldName+".yaml")
+	oldPath, err := safeJoinPath("data/fingerprints", oldName+".yaml")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"status": 1, "message": "原指纹不存在"})
 		return
 	}
-	newPath := filepath.Join("data/fingerprints", fp.Info.Name+".yaml")
+	newPath, err := safeJoinPath("data/fingerprints", fp.Info.Name+".yaml")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 
 	// 4. 校验新文件名是否已存在（且不是原文件）
 	if newPath != oldPath {
@@ -462,14 +507,23 @@ func HandleCreateVulnerability() gin.HandlerFunc {
 		// 5. 校验通过后，正式写入到目标目录（如已存在则报冲突）
 		dir := "data/vuln"
 		if vul.Info.FingerPrintName != "" {
-			dir = filepath.Join(dir, vul.Info.FingerPrintName)
+			var pathErr error
+			dir, pathErr = safeJoinPath(dir, vul.Info.FingerPrintName)
+			if pathErr != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+				return
+			}
 		}
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "创建目录失败: " + err.Error()})
 			return
 		}
 		fileName := strings.ToUpper(vul.Info.CVEName) + ".yaml"
-		filePath := filepath.Join(dir, fileName)
+		filePath, err := safeJoinPath(dir, fileName)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+			return
+		}
 		if _, err := os.Stat(filePath); err == nil {
 			c.JSON(http.StatusConflict, gin.H{"status": 1, "message": "该CVE编号的漏洞已存在"})
 			return
@@ -555,13 +609,21 @@ func HandleEditVulnerability(c *gin.Context) {
 	// 6. 生成新文件路径
 	newDir := "data/vuln"
 	if vul.Info.FingerPrintName != "" {
-		newDir = filepath.Join(newDir, vul.Info.FingerPrintName)
+		newDir, err = safeJoinPath(newDir, vul.Info.FingerPrintName)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+			return
+		}
 	}
 	if err := os.MkdirAll(newDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "创建目录失败: " + err.Error()})
 		return
 	}
-	newPath := filepath.Join(newDir, strings.ToUpper(vul.Info.CVEName)+".yaml")
+	newPath, err := safeJoinPath(newDir, strings.ToUpper(vul.Info.CVEName)+".yaml")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 
 	// 7. 校验新文件名是否已存在（且不是原文件）
 	if newPath != oldPath {
@@ -843,7 +905,11 @@ func HandleCreateEvaluation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 		return
 	}
-	jsonPath := filepath.Join("data/eval", eval.Name+".json")
+	jsonPath, err := safeJoinPath("data/eval", eval.Name+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(jsonPath); err == nil {
 		c.JSON(http.StatusConflict, gin.H{"status": 1, "message": "评测集已存在"})
 		return
@@ -916,12 +982,20 @@ func HandleEditEvaluation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 		return
 	}
-	oldPath := filepath.Join("data/eval", oldName+".json")
+	oldPath, err := safeJoinPath("data/eval", oldName+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"status": 1, "message": "原评测集不存在"})
 		return
 	}
-	newPath := filepath.Join("data/eval", eval.Name+".json")
+	newPath, err := safeJoinPath("data/eval", eval.Name+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 
 	// 4. 校验新文件名是否已存在（且不是原文件）
 	if newPath != oldPath {
@@ -969,7 +1043,11 @@ func HandleDeleteEvaluation(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 			return
 		}
-		jsonPath := filepath.Join("data/eval", name+".json")
+		jsonPath, pathErr := safeJoinPath("data/eval", name+".json")
+		if pathErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+			return
+		}
 		if _, err := os.Stat(jsonPath); os.IsNotExist(err) {
 			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集不存在"})
 			return

@@ -1,3 +1,21 @@
+// Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Requirement: Any integration or derivative work must explicitly attribute
+// Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
+// documentation or user interface, as detailed in the NOTICE file.
+
 package agent
 
 import (
@@ -252,6 +270,13 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 	for _, file := range request.Attachments {
 		gologger.Infof(texts.downloadFileLog, file)
 		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.%s", time.Now().UnixMicro(), filepath.Ext(file)))
+		// Verify the path is within tempDir to prevent path traversal
+		absTempDir, _ := filepath.Abs(tempDir)
+		absFileName, _ := filepath.Abs(fileName)
+		if !strings.HasPrefix(absFileName, absTempDir+string(os.PathSeparator)) {
+			gologger.WithError(fmt.Errorf("非法路径: %s", file)).Errorln(texts.downloadFile)
+			return nil, fmt.Errorf("非法文件路径")
+		}
 		if err := utils.DownloadFile(t.Server, request.SessionId, file, fileName); err != nil {
 			gologger.WithError(err).Errorln(texts.downloadFile)
 			return nil, err

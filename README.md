@@ -59,6 +59,17 @@ We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security 
 👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
+## ⚖️ 许可与署名规范 (License & Attribution)
+
+本项目采用 **Apache License 2.0** 协议开源。我们非常欢迎并鼓励社区对本项目进行二次开发与集成，但必须遵守以下署名规范：
+
+1. **保留声明**：在您的项目中必须保留源项目中的 `LICENSE` 和 `NOTICE` 文件。
+2. **产品露出**：如果您将 AI-Infra-Guard 的核心代码、组件或扫描引擎集成到您的开源项目、商业产品或内部平台中，必须在您的**产品文档、使用说明或 UI 的「关于」页面**中，明确标明：
+   > "本项目集成了由腾讯朱雀实验室开源的 [AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 项目。"
+3. **学术与文章引用**：如果在漏洞分析报告、安全研究文章、学术论文等公开材料中使用了本工具，请明确提及"腾讯朱雀实验室 AI-Infra-Guard"并附上链接。
+
+严禁在隐匿原始出处的情况下，将本项目重新包装为原创产品发布。
+
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
