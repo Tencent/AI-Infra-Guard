@@ -146,6 +146,12 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		gologger.Infof("开始下载文件: %s", fileName)
 		fileName2 := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), filepath.Ext(fileName)))
 		fileName2, _ = filepath.Abs(fileName2)
+		// Verify the resolved path is within tempDir to prevent path traversal
+		absTempDir, _ := filepath.Abs(tempDir)
+		if !strings.HasPrefix(fileName2, absTempDir+string(os.PathSeparator)) {
+			gologger.Errorf("非法文件路径: %s", fileName)
+			return fmt.Errorf("非法文件路径")
+		}
 		scenarios := fmt.Sprintf("MultiDataset:dataset_file=%s,num_prompts=%d,random_seed=%d", fileName2, param.Datasets.NumPrompts, param.Datasets.RandomSeed)
 		if param.Datasets.PromptColumn != "" {
 			scenarios += fmt.Sprintf(",prompt_column=%s", param.Datasets.PromptColumn)

@@ -507,7 +507,12 @@ func HandleCreateVulnerability() gin.HandlerFunc {
 		// 5. 校验通过后，正式写入到目标目录（如已存在则报冲突）
 		dir := "data/vuln"
 		if vul.Info.FingerPrintName != "" {
-			dir = filepath.Join(dir, vul.Info.FingerPrintName)
+			var pathErr error
+			dir, pathErr = safeJoinPath(dir, vul.Info.FingerPrintName)
+			if pathErr != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+				return
+			}
 		}
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "创建目录失败: " + err.Error()})
@@ -900,7 +905,11 @@ func HandleCreateEvaluation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 		return
 	}
-	jsonPath := filepath.Join("data/eval", eval.Name+".json")
+	jsonPath, err := safeJoinPath("data/eval", eval.Name+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(jsonPath); err == nil {
 		c.JSON(http.StatusConflict, gin.H{"status": 1, "message": "评测集已存在"})
 		return
@@ -973,12 +982,20 @@ func HandleEditEvaluation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 		return
 	}
-	oldPath := filepath.Join("data/eval", oldName+".json")
+	oldPath, err := safeJoinPath("data/eval", oldName+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"status": 1, "message": "原评测集不存在"})
 		return
 	}
-	newPath := filepath.Join("data/eval", eval.Name+".json")
+	newPath, err := safeJoinPath("data/eval", eval.Name+".json")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+		return
+	}
 
 	// 4. 校验新文件名是否已存在（且不是原文件）
 	if newPath != oldPath {
@@ -1026,7 +1043,11 @@ func HandleDeleteEvaluation(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集名称非法，只允许字母、数字、下划线和横线"})
 			return
 		}
-		jsonPath := filepath.Join("data/eval", name+".json")
+		jsonPath, pathErr := safeJoinPath("data/eval", name+".json")
+		if pathErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "非法路径"})
+			return
+		}
 		if _, err := os.Stat(jsonPath); os.IsNotExist(err) {
 			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "评测集不存在"})
 			return
