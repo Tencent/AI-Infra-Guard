@@ -186,7 +186,10 @@ func mcpReadAndSave(content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(MCPROOT, id+".yaml")
+	filename, err := safeJoinPath(MCPROOT, id+".yaml")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -203,7 +206,10 @@ func mcpUpdateFunc(id string, content string) error {
 	}
 
 	// 使用提供的name作为文件名，允许更新文件而不强制更改文件名
-	filePath := filepath.Join(MCPROOT, id+".yaml")
+	filePath, err := safeJoinPath(MCPROOT, id+".yaml")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
@@ -213,7 +219,10 @@ func mcpDeleteFunc(id string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filePath := filepath.Join(MCPROOT, id+".yaml")
+	filePath, pathErr := safeJoinPath(MCPROOT, id+".yaml")
+	if pathErr != nil {
+		return pathErr
+	}
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return errors.New("文件不存在")
@@ -278,7 +287,10 @@ func promptCollectionReadAndSave(content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(PromptCollectionsRoot, id+".json")
+	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -295,7 +307,10 @@ func promptCollectionUpdateFunc(id string, content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(PromptCollectionsRoot, id+".json")
+	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -305,7 +320,10 @@ func promptCollectionDeleteFunc(id string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filePath := filepath.Join(PromptCollectionsRoot, id+".json")
+	filePath, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -706,9 +724,17 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 // resolveAgentConfigPathForWrite 解析写入路径（写入用户目录）
 func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 	userDir := getAgentUserDir(username)
-	candidates := []string{
-		filepath.Join(userDir, name+".yaml"),
-		filepath.Join(userDir, name+".yml"),
+	p1, err1 := safeJoinPath(userDir, name+".yaml")
+	p2, err2 := safeJoinPath(userDir, name+".yml")
+	if err1 != nil && err2 != nil {
+		return "", err1
+	}
+	candidates := []string{}
+	if err1 == nil {
+		candidates = append(candidates, p1)
+	}
+	if err2 == nil {
+		candidates = append(candidates, p2)
 	}
 	for _, path := range candidates {
 		_, statErr := os.Stat(path)
@@ -719,14 +745,17 @@ func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 			return "", statErr
 		}
 	}
-	return candidates[0], nil
+	return p1, nil
 }
 
 // deleteAgentConfig 删除配置（只删除用户目录的配置）
 func deleteAgentConfig(username, name string) (bool, error) {
 	userDir := getAgentUserDir(username)
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(userDir, name+ext)
+		path, pathErr := safeJoinPath(userDir, name+ext)
+		if pathErr != nil {
+			continue
+		}
 		err := os.Remove(path)
 		if err == nil {
 			return true, nil
