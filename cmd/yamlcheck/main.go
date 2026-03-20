@@ -67,16 +67,12 @@ func main() {
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "❌ [指纹格式错误] %s: %v\n", file, err)
 				hasError = true
-			} else {
-				fmt.Printf("✅ [指纹] %s\n", file)
 			}
 		case "vuln":
 			_, err = vulstruct.ReadVersionVul(data)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "❌ [漏洞格式错误] %s: %v\n", file, err)
 				hasError = true
-			} else {
-				fmt.Printf("✅ [漏洞] %s\n", file)
 			}
 		}
 	}
