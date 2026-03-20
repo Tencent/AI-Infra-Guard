@@ -1,0 +1,4 @@
+*.tgz binary
+*.tar.gz binary
+*.zip binary
+*.whl binary
