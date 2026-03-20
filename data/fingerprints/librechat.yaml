@@ -10,7 +10,7 @@ http:
   - method: GET
     path: /
     matchers:
-      - title="LibreChat"
+      - body="<title>LibreChat</title>"
 version:
   - method: GET
     path: /api/version
