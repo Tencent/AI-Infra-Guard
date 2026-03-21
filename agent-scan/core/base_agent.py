@@ -95,6 +95,9 @@ class BaseAgent:
         compact_threshold = int(self.max_iter * 0.7)
         compacted = False
         result = ""
+        consecutive_failures = 0
+        max_consecutive_failures = 3
+        
         while not self.is_finished and self.iter < self.max_iter:
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
 
@@ -108,13 +111,78 @@ class BaseAgent:
             # Use the non-blocking async wrapper so the event loop is free to
             # schedule other coroutines (e.g. parallel skill workers in
             # ScanPipeline.run_parallel_detection) while awaiting the response.
-            response = await self.llm.chat_async(self.history)
-            logger.debug(f"LLM Response: {response}")
-            self.history.append({"role": "assistant", "content": response})
-            res = await self.handle_response(response)
-            if res is not None:
-                result = res
-            self.iter += 1
+            try:
+                response = await self.llm.chat_async(self.history)
+                logger.debug(f"LLM Response: {response}")
+
+                # 检查是否是错误响应（由 llm.chat 返回的降级字符串）
+                if response.startswith("[LLM Error:"):
+                    consecutive_failures += 1
+                    logger.warning(
+                        f"LLM error response: {response}. "
+                        f"Consecutive failures: {consecutive_failures}/{max_consecutive_failures}"
+                    )
+
+                    # 如果连续出现过多错误，终止 agent
+                    if consecutive_failures >= max_consecutive_failures:
+                        logger.error(
+                            f"Max consecutive LLM failures ({max_consecutive_failures}) reached. "
+                            f"Terminating agent."
+                        )
+                        self.is_finished = True
+                        break
+
+                    # 将错误信息以 assistant + user 配对写入历史，
+                    # 保证下一轮 history 末尾始终是 user 消息，
+                    # 同时让 LLM 感知到上一轮失败并尝试调整。
+                    self.history.append({"role": "assistant", "content": response})
+                    self.history.append({
+                        "role": "user",
+                        "content": (
+                            "The previous step encountered an error from the model safety filter. "
+                            "Please continue with the remaining tasks, skipping any prompts that "
+                            "may trigger content filtering."
+                        )
+                    })
+                    self.iter += 1
+                    continue
+                else:
+                    # 成功响应，重置错误计数
+                    consecutive_failures = 0
+
+                self.history.append({"role": "assistant", "content": response})
+                res = await self.handle_response(response)
+                if res is not None:
+                    result = res
+                self.iter += 1
+
+            except Exception as e:
+                # 捕获未预期的异常（llm.chat 理论上已全部降级为字符串，此处作为兜底）
+                consecutive_failures += 1
+                logger.error(
+                    f"Unexpected error in agent iteration {self.iter}: {e}. "
+                    f"Consecutive failures: {consecutive_failures}/{max_consecutive_failures}"
+                )
+
+                if consecutive_failures >= max_consecutive_failures:
+                    logger.error(
+                        f"Max consecutive exceptions ({max_consecutive_failures}) reached. "
+                        f"Terminating agent."
+                    )
+                    self.is_finished = True
+                    break
+
+                # 以合法的 assistant + user 对写入历史，避免 role 顺序非法
+                self.history.append({
+                    "role": "assistant",
+                    "content": f"[System Error: {str(e)[:200]}]"
+                })
+                self.history.append({
+                    "role": "user",
+                    "content": "An unexpected error occurred. Please continue with the next step."
+                })
+                self.iter += 1
+                continue
 
         if self.iter >= self.max_iter:
             logger.warning(f"Max iterations ({self.max_iter}) reached without finish signal")
