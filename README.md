@@ -59,17 +59,6 @@ We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security 
 👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
-## ⚖️ 许可与署名规范 (License & Attribution)
-
-本项目采用 **Apache License 2.0** 协议开源。我们非常欢迎并鼓励社区对本项目进行二次开发与集成，但必须遵守以下署名规范：
-
-1. **保留声明**：在您的项目中必须保留源项目中的 `LICENSE` 和 `NOTICE` 文件。
-2. **产品露出**：如果您将 AI-Infra-Guard 的核心代码、组件或扫描引擎集成到您的开源项目、商业产品或内部平台中，必须在您的**产品文档、使用说明或 UI 的「关于」页面**中，明确标明：
-   > "本项目集成了由腾讯朱雀实验室开源的 [AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 项目。"
-3. **学术与文章引用**：如果在漏洞分析报告、安全研究文章、学术论文等公开材料中使用了本工具，请明确提及"腾讯朱雀实验室 AI-Infra-Guard"并附上链接。
-
-严禁在隐匿原始出处的情况下，将本项目重新包装为原创产品发布。
-
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
@@ -82,6 +71,7 @@ We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security 
 - [📖 Citation](#-citation)
 - [📚 Related Papers](#-related-papers)
 - [📄 License](#-license)
+- [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
 ### Deployment with Docker
@@ -416,7 +406,18 @@ We are deeply grateful to the research teams who have used A.I.G in their academ
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. See the [License.txt](./License.txt) file for details.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for details.
+
+## ⚖️ License & Attribution
+
+This project is open-sourced under the **Apache License 2.0**. We warmly welcome and encourage community contributions, integrations, and derivative works, subject to the following attribution requirements:
+
+1. **Retain notices**: You must retain the `LICENSE` and `NOTICE` files from the original project in any distribution.
+2. **Product attribution**: If you integrate AI-Infra-Guard's core code, components, or scanning engine into your open-source project, commercial product, or internal platform, you must clearly state the following in your **product documentation, usage guide, or UI "About" page**:
+   > "This project integrates [AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard), open-sourced by Tencent Zhuque Lab."
+3. **Academic & article citation**: If you use this tool in vulnerability analysis reports, security research articles, or academic papers, please explicitly mention "Tencent Zhuque Lab AI-Infra-Guard" and include a link to the repository.
+
+Repackaging this project as an original product without disclosing its origin is strictly prohibited.
 
 <div>
 

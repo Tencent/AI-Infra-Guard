@@ -1,11 +1,13 @@
 Tencent AI-Infra-Guard
-Copyright 2024-2026 Tencent Zhuque Lab (腾讯朱雀实验室)
+Copyright 2024-2026 Tencent Zhuque Lab
 
 This product includes software developed at
 Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard).
 
-【强制署名要求 / Mandatory Attribution Requirement】
-根据 Apache License 2.0 协议第 4(d) 条规定：
-任何包含、修改、集成或基于本项目的二次分发（无论是开源还是商业产品），都必须：
-1. 在产品说明文档、关于页面或发行说明中，明确声明"基于腾讯朱雀实验室 AI-Infra-Guard 项目开发"。
-2. 附带本项目的原始 GitHub 地址：https://github.com/Tencent/AI-Infra-Guard。
+Mandatory Attribution Requirement (per Apache License 2.0, Section 4(d)):
+Any redistribution, integration, or derivative work — whether open-source or commercial —
+that incorporates, modifies, or is based on this project must:
+
+1. Clearly state "Based on Tencent Zhuque Lab AI-Infra-Guard" in the product documentation,
+   About page, or release notes.
+2. Include a link to the original repository: https://github.com/Tencent/AI-Infra-Guard.
