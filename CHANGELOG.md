@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Docs
 - Added AI coding assistant guideline files: CLAUDE.md, CODEBUDDY.md, AGENTS.md
 - Updated README and README_ZH.md with v4.0 feature descriptions and capability overview
+- Moved license section to bottom of README_ZH.md; fixed license filename reference to `LICENSE`
+
+### Changed (additional)
+- Enforced open-source standards across README, CHANGELOG, NOTICE, and YAML CI configuration
 
 ### Contributors
 Special thanks to @zhuque, @boyhack, @Nicky, @rocie799, @aigsec
