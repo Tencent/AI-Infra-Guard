@@ -21,7 +21,7 @@ def read_file(file_path: str, context: ToolContext = None) -> dict[str, Any]:
         if not directory.startswith(context.folder):
             return {
                 "success": False,
-                "message": f"Path is not allowed: {file_path}"
+                "message": f"Path is not allowed: {file_path}, you can only access the given directory"
             }
         if not os.path.exists(file_path):
             return {
