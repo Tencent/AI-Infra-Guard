@@ -136,7 +136,7 @@ docker-compose up -d
 - 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
 - 🌐 **多语言支持**：中英文界面，本地化文档
 - 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
-- 🆓 **免费且开源**：完全免费，MIT开源协议
+- 🆓 **免费且开源**：完全免费，Apache License 2.0 开源协议
 </details>
 
 <br />
