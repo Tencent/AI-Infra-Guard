@@ -333,6 +333,24 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 				enhancedParams["eval_model"] = evalModelInfo
 			}
 		}
+		// 处理agent_id，将其转换为agent_data(yaml文本)
+		if agentIdStr, exists := task.Params["agent_id"]; exists {
+			agentId, ok := agentIdStr.(string)
+			if ok && agentId != "" {
+				log.Infof("找到AgentID: trace_id=%s, sessionId=%s, agentID=%s", traceID, sessionId, agentId)
+				// 使用任务的用户名读取配置，如果为空则使用公共用户
+				username := task.Username
+				if username == "" {
+					username = PublicUser
+				}
+				agentData, err := readAgentConfigContent(username, agentId)
+				if err != nil {
+					log.Errorf("获取Agent配置失败: trace_id=%s, sessionId=%s, agentID=%s, error=%v", traceID, sessionId, agentId, err)
+					return fmt.Errorf("获取Agent配置 '%s' 失败: %v", agentId, err)
+				}
+				enhancedParams["agent_data"] = string(agentData)
+			}
+		}
 	}
 
 	// 6. 构造任务分配消息
@@ -379,6 +397,11 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, event interface{}) {
 	log.Debugf("收到Agent事件: sessionId=%s, eventType=%s", sessionId, eventType)
 
+	if tm.shouldIgnoreAgentEvent(sessionId, eventType) {
+		log.Infof("忽略无效或终态任务的Agent事件: sessionId=%s, eventType=%s", sessionId, eventType)
+		return
+	}
+
 	// 使用通用事件处理函数
 	tm.handleEvent(sessionId, eventType, event)
 
@@ -422,10 +445,7 @@ func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, even
 		}
 	case "error":
 		log.Errorf("错误事件: sessionId=%s %v", sessionId, event)
-		updates := map[string]interface{}{
-			"status": "error",
-		}
-		err := tm.taskStore.UpdateSession(sessionId, updates)
+		err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusError)
 		if err != nil {
 			log.Errorf("更新任务失败: sessionId=%s, error=%v", sessionId, err)
 		}
@@ -559,6 +579,11 @@ func (tm *TaskManager) TerminateTask(sessionId string, username string, traceID 
 		return fmt.Errorf("无权限操作此任务")
 	}
 
+	if isTerminalTaskStatus(session.Status) {
+		log.Infof("任务已结束，无需终止: trace_id=%s, sessionId=%s, status=%s", traceID, sessionId, session.Status)
+		return fmt.Errorf("任务已结束，无需终止")
+	}
+
 	// 通知 Agent 终止任务
 	if session.AssignedAgent != "" {
 		log.Infof("通知Agent终止任务: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, session.AssignedAgent)
@@ -587,38 +612,37 @@ func (tm *TaskManager) TerminateTask(sessionId string, username string, traceID 
 
 // notifyAgentToTerminate 通知 Agent 终止任务（简化版本）
 func (tm *TaskManager) notifyAgentToTerminate(agentID string, sessionId string, traceID string) {
-	// 异步通知Agent，避免阻塞
-	go func() {
-		// 获取 Agent 连接
-		availableAgents := tm.agentManager.GetAvailableAgents()
-		for _, agent := range availableAgents {
-			agent.stateMu.RLock()
-			currentAgentID := agent.agentID
-			isActive := agent.isActive
-			agent.stateMu.RUnlock()
+	// 获取 Agent 连接
+	availableAgents := tm.agentManager.GetAvailableAgents()
+	for _, agent := range availableAgents {
+		agent.stateMu.RLock()
+		currentAgentID := agent.agentID
+		isActive := agent.isActive
+		agent.stateMu.RUnlock()
 
-			if currentAgentID == agentID && isActive {
-				// 发送终止消息给 Agent
-				terminateMsg := WSMessage{
-					Type: "terminate",
-					Content: map[string]interface{}{
-						"session_id": sessionId,
-						"reason":     "用户主动终止",
-					},
-				}
-
-				// 直接发送，无重试机制
-				agent.conn.SetWriteDeadline(time.Now().Add(writeWait))
-				err := agent.conn.WriteJSON(terminateMsg)
-				if err != nil {
-					log.Errorf("发送终止消息给Agent %s失败: %v", agentID, err)
-				} else {
-					log.Infof("终止消息已发送给Agent %s: trace_id=%s, sessionId=%s", agentID, traceID, sessionId)
-				}
-				break
+		if currentAgentID == agentID && isActive {
+			// 发送终止消息给 Agent
+			terminateMsg := WSMessage{
+				Type: "terminate",
+				Content: map[string]interface{}{
+					"session_id": sessionId,
+					"reason":     "用户主动终止",
+				},
 			}
+
+			// 直接发送，无重试机制
+			agent.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			err := agent.conn.WriteJSON(terminateMsg)
+			if err != nil {
+				log.Errorf("发送终止消息给Agent %s失败: %v", agentID, err)
+			} else {
+				log.Infof("终止消息已发送给Agent %s: trace_id=%s, sessionId=%s", agentID, traceID, sessionId)
+			}
+			return
 		}
-	}()
+	}
+
+	log.Warnf("未找到可终止的Agent连接: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, agentID)
 }
 
 // sendTerminationEvent 发送终止事件给前端
@@ -637,6 +661,28 @@ func (tm *TaskManager) sendTerminationEvent(sessionId string, traceID string) {
 	tm.handleEvent(sessionId, "statusUpdate", event)
 
 	log.Infof("终止事件已发送: trace_id=%s, sessionId=%s", traceID, sessionId)
+}
+
+func isTerminalTaskStatus(status string) bool {
+	switch status {
+	case TaskStatusDone, TaskStatusError, TaskStatusTerminated:
+		return true
+	default:
+		return false
+	}
+}
+
+func (tm *TaskManager) shouldIgnoreAgentEvent(sessionId string, eventType string) bool {
+	session, err := tm.taskStore.GetSession(sessionId)
+	if err != nil || session == nil {
+		return true
+	}
+
+	if !isTerminalTaskStatus(session.Status) {
+		return false
+	}
+
+	return true
 }
 
 // generateEventID 生成事件ID
@@ -686,10 +732,26 @@ func (tm *TaskManager) DeleteTask(sessionId string, username string, traceID str
 		return fmt.Errorf("任务不存在")
 	}
 
-	// 验证用户权限（只有任务创建者才能删除任务）
-	if session.Username != username {
+	// 验证用户权限：
+	// 1. 任务创建者始终可以删除
+	// 2. 共享任务允许 Web 公共视角（public_user / 空用户）删除，
+	//    以便在前端管理通过 API 创建的共享任务
+	isSharedWebDelete := session.Share && (username == "" || username == PublicUser)
+	if session.Username != username && !isSharedWebDelete {
 		log.Errorf("无权限操作此任务: trace_id=%s, sessionId=%s, username=%s, owner=%s", traceID, sessionId, username, session.Username)
 		return fmt.Errorf("无权限操作此任务")
+	}
+
+	if session.Status == TaskStatusDoing {
+		log.Infof("删除运行中任务前先终止执行: trace_id=%s, sessionId=%s, agentId=%s", traceID, sessionId, session.AssignedAgent)
+		if session.AssignedAgent != "" {
+			tm.notifyAgentToTerminate(session.AssignedAgent, sessionId, traceID)
+		}
+		if err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusTerminated); err != nil {
+			log.Errorf("删除前标记任务终止失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
+			return fmt.Errorf("删除前终止任务失败: %v", err)
+		}
+		tm.sendTerminationEvent(sessionId, traceID)
 	}
 
 	// 使用事务删除会话及其所有消息
@@ -822,6 +884,168 @@ func (tm *TaskManager) UploadFile(file *multipart.FileHeader, traceID string) (*
 	}, nil
 }
 
+// ChunkUploadResult 分片上传结果
+type ChunkUploadResult struct {
+	ChunkIndex  int    `json:"chunkIndex"`  // 当前分片索引
+	TotalChunks int    `json:"totalChunks"` // 总分片数
+	Message     string `json:"message"`     // 消息
+}
+
+// MergeChunksResult 合并分片结果
+type MergeChunksResult struct {
+	Filename string `json:"filename"` // 原始文件名
+	FileURL  string `json:"fileUrl"`  // 文件访问URL
+	FileSize int64  `json:"fileSize"` // 文件大小
+}
+
+// validatePathSafety 验证路径安全性，确保路径在基础目录内
+func (tm *TaskManager) validatePathSafety(targetPath string) error {
+	// 获取基础目录的绝对路径
+	baseDir, err := filepath.Abs(tm.fileConfig.UploadDir)
+	if err != nil {
+		return fmt.Errorf("获取基础目录失败: %v", err)
+	}
+
+	// 获取目标路径的绝对路径
+	absPath, err := filepath.Abs(targetPath)
+	if err != nil {
+		return fmt.Errorf("获取目标路径失败: %v", err)
+	}
+
+	// 清理路径（处理 .. 等）
+	cleanPath := filepath.Clean(absPath)
+
+	// 验证目标路径是否在基础目录内
+	if !strings.HasPrefix(cleanPath, baseDir+string(filepath.Separator)) && cleanPath != baseDir {
+		return fmt.Errorf("路径越界: %s 不在 %s 内", cleanPath, baseDir)
+	}
+
+	return nil
+}
+
+// UploadFileChunk 上传文件分片
+func (tm *TaskManager) UploadFileChunk(fileID string, filename string, chunkIndex int, totalChunks int, chunkData []byte, traceID string) (*ChunkUploadResult, error) {
+	log.Infof("开始分片上传: trace_id=%s, fileID=%s, filename=%s, chunkIndex=%d/%d, size=%d",
+		traceID, fileID, filename, chunkIndex+1, totalChunks, len(chunkData))
+
+	// 创建临时目录存储分片
+	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
+
+	// 验证路径安全性（防止路径穿越）
+	if err := tm.validatePathSafety(tempDir); err != nil {
+		log.Errorf("路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
+		log.Errorf("创建临时目录失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("创建临时目录失败: %v", err)
+	}
+
+	// 保存分片到临时目录
+	chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", chunkIndex))
+
+	// 验证分片路径安全性
+	if err := tm.validatePathSafety(chunkPath); err != nil {
+		log.Errorf("分片路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, chunkPath, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
+	if err := os.WriteFile(chunkPath, chunkData, 0644); err != nil {
+		log.Errorf("保存分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
+		return nil, fmt.Errorf("保存分片失败: %v", err)
+	}
+
+	log.Infof("分片上传成功: trace_id=%s, fileID=%s, chunkIndex=%d/%d", traceID, fileID, chunkIndex+1, totalChunks)
+
+	return &ChunkUploadResult{
+		ChunkIndex:  chunkIndex,
+		TotalChunks: totalChunks,
+		Message:     fmt.Sprintf("分片 %d/%d 上传成功", chunkIndex+1, totalChunks),
+	}, nil
+}
+
+// MergeFileChunks 合并文件分片
+func (tm *TaskManager) MergeFileChunks(fileID string, filename string, totalChunks int, fileSize int64, traceID string) (*MergeChunksResult, error) {
+	log.Infof("开始合并分片: trace_id=%s, fileID=%s, filename=%s, totalChunks=%d, expectedSize=%d",
+		traceID, fileID, filename, totalChunks, fileSize)
+
+	tempDir := filepath.Join(tm.fileConfig.UploadDir, "temp", fileID)
+
+	// 验证临时目录路径安全性（防止路径穿越）
+	if err := tm.validatePathSafety(tempDir); err != nil {
+		log.Errorf("临时目录路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
+	// 确保最终完成后清理临时目录
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			log.Warnf("清理临时文件失败: trace_id=%s, path=%s, error=%v", traceID, tempDir, err)
+		}
+	}()
+
+	// 读取并合并所有分片
+	var mergedData []byte
+	for i := 0; i < totalChunks; i++ {
+		chunkPath := filepath.Join(tempDir, fmt.Sprintf("chunk_%d", i))
+
+		// 验证分片路径安全性
+		if err := tm.validatePathSafety(chunkPath); err != nil {
+			log.Errorf("分片路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, chunkPath, err)
+			return nil, fmt.Errorf("无效的文件路径")
+		}
+
+		chunkData, err := os.ReadFile(chunkPath)
+		if err != nil {
+			log.Errorf("读取分片失败: trace_id=%s, chunkPath=%s, error=%v", traceID, chunkPath, err)
+			return nil, fmt.Errorf("读取分片 %d 失败: %v", i, err)
+		}
+		mergedData = append(mergedData, chunkData...)
+	}
+
+	// 验证文件大小
+	if int64(len(mergedData)) != fileSize {
+		log.Errorf("文件大小不匹配: trace_id=%s, expected=%d, actual=%d", traceID, fileSize, len(mergedData))
+		return nil, fmt.Errorf("文件大小不匹配: 期望 %d 字节, 实际 %d 字节", fileSize, len(mergedData))
+	}
+
+	// 生成安全的唯一文件名
+	secureFileName := generateSecureFileName(filename)
+
+	// 保存合并后的文件
+	uploadDir := tm.fileConfig.UploadDir
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		log.Errorf("创建上传目录失败: trace_id=%s, path=%s, error=%v", traceID, uploadDir, err)
+		return nil, fmt.Errorf("创建上传目录失败: %v", err)
+	}
+
+	filePath := filepath.Join(uploadDir, secureFileName)
+
+	// 验证最终文件路径安全性
+	if err := tm.validatePathSafety(filePath); err != nil {
+		log.Errorf("文件路径安全校验失败: trace_id=%s, path=%s, error=%v", traceID, filePath, err)
+		return nil, fmt.Errorf("无效的文件路径")
+	}
+
+	if err := os.WriteFile(filePath, mergedData, 0644); err != nil {
+		log.Errorf("保存合并文件失败: trace_id=%s, filePath=%s, error=%v", traceID, filePath, err)
+		return nil, fmt.Errorf("保存文件失败: %v", err)
+	}
+
+	// 生成文件访问URL
+	fileURL := tm.fileConfig.GetFileURL(secureFileName)
+
+	log.Infof("文件合并成功: trace_id=%s, fileID=%s, filename=%s, secureName=%s, size=%d, fileURL=%s",
+		traceID, fileID, filename, secureFileName, len(mergedData), fileURL)
+
+	return &MergeChunksResult{
+		Filename: filename,
+		FileURL:  fileURL,
+		FileSize: int64(len(mergedData)),
+	}, nil
+}
+
 // GetUserTasks 获取指定用户的任务列表，只返回属于该用户的会话，确保用户只能看到自己的任务。
 func (tm *TaskManager) GetUserTasks(username string, traceID string) ([]map[string]interface{}, error) {
 	// 从数据库获取用户的任务列表
@@ -834,15 +1058,7 @@ func (tm *TaskManager) GetUserTasks(username string, traceID string) ([]map[stri
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -868,15 +1084,7 @@ func (tm *TaskManager) GetUserTasksByType(username string, taskType string, trac
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -915,15 +1123,7 @@ func (tm *TaskManager) SearchUserTasksSimple(username string, searchParams datab
 	// 转换为前端需要的格式
 	var tasks []map[string]interface{}
 	for _, session := range sessions {
-		task := map[string]interface{}{
-			"sessionId":      session.ID,
-			"title":          session.Title,
-			"taskType":       session.TaskType,
-			"status":         session.Status,
-			"countryIsoCode": session.CountryIsoCode,
-			"updatedAt":      session.UpdatedAt, // 直接使用时间戳毫秒级
-			"createdAt":      session.CreatedAt, // 任务创建时间
-		}
+		task := buildTaskSummary(session)
 
 		// 添加完成时间（如果任务已完成）
 		if session.CompletedAt != nil {
@@ -935,6 +1135,38 @@ func (tm *TaskManager) SearchUserTasksSimple(username string, searchParams datab
 		tasks = append(tasks, task)
 	}
 	return tasks, nil
+}
+
+func buildTaskSummary(session *database.Session) map[string]interface{} {
+	source, sourceLabel := resolveTaskSource(session)
+	return map[string]interface{}{
+		"sessionId":      session.ID,
+		"title":          decorateTaskTitle(session.Title, sourceLabel),
+		"rawTitle":       session.Title,
+		"taskType":       session.TaskType,
+		"status":         session.Status,
+		"countryIsoCode": session.CountryIsoCode,
+		"updatedAt":      session.UpdatedAt,
+		"createdAt":      session.CreatedAt,
+		"source":         source,
+		"sourceLabel":    sourceLabel,
+	}
+}
+
+func decorateTaskTitle(title, sourceLabel string) string {
+	if sourceLabel == "" {
+		return title
+	}
+	return fmt.Sprintf("[%s] %s", sourceLabel, title)
+}
+
+func resolveTaskSource(session *database.Session) (string, string) {
+	switch session.Username {
+	case "", PublicUser, "demo-test":
+		return "web", ""
+	default:
+		return "api", "API"
+	}
 }
 
 // generateTaskTitle 生成任务标题（用于任务创建API）
@@ -949,16 +1181,17 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	// 定义语言相关的文本
 	var texts struct {
 		// 任务类型标题
-		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, otherTask string
+		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, agentScan, otherTask string
 		// 其他文本
 		model, prompt, github, sse string
 	}
 
 	if language == "en" {
 		texts.aiInfraScan = "AI Infra Scan - "
-		texts.mcpScan = "MCP Scan - "
+		texts.mcpScan = "AI Tool and Skill Scan - "
 		texts.modelJailbreak = "LLM Jailbreaking - "
 		texts.modelRedteamReport = "Jailbreak Evaluation - "
+		texts.agentScan = "Agent Scan - "
 		texts.otherTask = "Other Task - "
 		texts.model = "Model:"
 		texts.prompt = "Prompt:"
@@ -966,9 +1199,10 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.sse = "SSE:"
 	} else {
 		texts.aiInfraScan = "AI基础设施扫描 - "
-		texts.mcpScan = "MCP扫描 - "
+		texts.mcpScan = "AI工具技能扫描 - "
 		texts.modelJailbreak = "一键越狱任务 - "
 		texts.modelRedteamReport = "大模型安全体检 - "
+		texts.agentScan = "Agent安全扫描 - "
 		texts.otherTask = "其他任务 - "
 		texts.model = "模型:"
 		texts.prompt = "prompt:"
@@ -1024,6 +1258,15 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		ret = texts.modelJailbreak + fmt.Sprintf("%s%s, %s%s", texts.model, ModelName, texts.prompt, req.Content)
 	case agent.TaskTypeModelRedteamReport:
 		ret = texts.modelRedteamReport + ModelName
+	case agent.TaskTypeAgentScan:
+		agentId, ok := req.Params["agent_id"]
+		ret = texts.agentScan
+		if ok {
+			ret += agentId.(string)
+		}
+		if req.Content != "" {
+			ret += " " + req.Content
+		}
 	default:
 		ret = texts.otherTask + req.Content
 	}
@@ -1146,9 +1389,11 @@ func (tm *TaskManager) GetTaskDetail(sessionId string, username string, traceID 
 	}
 
 	// 构建返回数据
+	source, sourceLabel := resolveTaskSource(session)
 	detail := map[string]interface{}{
 		"sessionId":      session.ID,
-		"title":          session.Title,
+		"title":          decorateTaskTitle(session.Title, sourceLabel),
+		"rawTitle":       session.Title,
 		"status":         session.Status,
 		"countryIsoCode": session.CountryIsoCode,
 		"createdAt":      session.CreatedAt,
@@ -1157,6 +1402,8 @@ func (tm *TaskManager) GetTaskDetail(sessionId string, username string, traceID 
 		"taskType":       session.TaskType,
 		"attachments":    attachments,
 		"messages":       messageList,
+		"source":         source,
+		"sourceLabel":    sourceLabel,
 	}
 	if session.Username != username {
 		delete(detail, "attachments")

@@ -1,0 +1,241 @@
+# Provider Configuration File
+# This file contains default configurations for all supported AI providers
+
+# Provider type definitions with default settings
+providers:
+  # Dify format
+  dify:
+    api_format: "dify"
+    request_body_template:
+      inputs: {}
+      query: "{{prompt}}"
+      response_mode: "blocking"
+      user: "agent-user"
+    response_path: "answer"
+    auth_type: "bearer"
+    providers:
+      dify:
+        env_keys: ["DIFY_API_KEY"]
+        base_url: "https://api.dify.ai/v1"
+        base_url_env: "DIFY_API_BASE"
+        endpoint: "/chat-messages"
+        description: "Dify AI application platform"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        scan_endpoints:
+          - "/info"
+          - "/parameters"
+          - "/meta"
+          - "/site"
+
+  # Coze format
+  coze:
+    api_format: "coze"
+    request_body_template:
+      bot_id: "{{bot_id}}"
+      user_id: "agent-user"
+      stream: false
+      auto_save_history: true
+      additional_messages:
+        - role: "user"
+          content: "{{prompt}}"
+          content_type: "text"
+    response_path: "messages[-1].content"
+    auth_type: "bearer"
+    providers:
+      coze:
+        env_keys: ["COZE_API_KEY"]
+        base_url: "https://api.coze.cn"
+        base_url_env: "COZE_API_BASE"
+        endpoint: "/v3/chat"
+        description: "Coze AI bot platform (China)"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        requires_bot_id: true
+        scan_endpoints:
+          - "/v1/bots/{{bot_id}}"
+      coze-com:
+        env_keys: ["COZE_API_KEY"]
+        base_url: "https://api.coze.com"
+        base_url_env: "COZE_API_BASE"
+        endpoint: "/v3/chat"
+        description: "Coze AI bot platform (International)"
+        supports_streaming: true
+        supports_conversation: true
+        supports_file_upload: true
+        requires_bot_id: true
+        scan_endpoints:
+          - "/v1/bots/{{bot_id}}"
+
+  # OpenAI-compatible providers (share same API format)
+  openai_compatible:
+    api_format: "openai"
+    request_body_template:
+      model: "{{model}}"
+      messages:
+        - role: "user"
+          content: "{{prompt}}"
+      max_tokens: 1000
+    response_path: "choices[0].message.content"
+    auth_type: "bearer"
+    providers:
+      openai:
+        env_keys: ["OPENAI_API_KEY"]
+        base_url: "https://api.openai.com/v1"
+        endpoint: "/chat/completions"
+      
+      mistral:
+        env_keys: ["MISTRAL_API_KEY"]
+        base_url: "https://api.mistral.ai/v1"
+        endpoint: "/chat/completions"
+      
+      groq:
+        env_keys: ["GROQ_API_KEY"]
+        base_url: "https://api.groq.com/openai/v1"
+        endpoint: "/chat/completions"
+      
+      deepseek:
+        env_keys: ["DEEPSEEK_API_KEY"]
+        base_url: "https://api.deepseek.com/v1"
+        endpoint: "/chat/completions"
+      
+      perplexity:
+        env_keys: ["PERPLEXITY_API_KEY"]
+        base_url: "https://api.perplexity.ai"
+        endpoint: "/chat/completions"
+      
+      openrouter:
+        env_keys: ["OPENROUTER_API_KEY"]
+        base_url: "https://openrouter.ai/api/v1"
+        endpoint: "/chat/completions"
+        extra_headers:
+          HTTP-Referer: "https://ai-provider.dev"
+          X-Title: "AI Provider UI"
+        models:
+          - openai/gpt-4o
+          - anthropic/claude-3-opus
+      
+      togetherai:
+        env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
+        base_url: "https://api.together.xyz/v1"
+        endpoint: "/chat/completions"
+      
+      fireworks:
+        env_keys: ["FIREWORKS_API_KEY"]
+        base_url: "https://api.fireworks.ai/inference/v1"
+        endpoint: "/chat/completions"
+      
+      ollama:
+        env_keys: []
+        base_url: "http://localhost:11434"
+        base_url_env: "OLLAMA_BASE_URL"
+        endpoint: "/api/chat"
+        request_body_template:
+          model: "{{model}}"
+          messages:
+            - role: "user"
+              content: "{{prompt}}"
+          stream: false
+        response_path: "message.content"
+        auth_type: "none"
+        models:
+          - llama3.2:latest
+          - llama3.1:latest
+          - mistral:latest
+          - phi3:latest
+      
+      localai:
+        env_keys: []
+        base_url: "http://localhost:8080"
+        base_url_env: "LOCALAI_BASE_URL"
+        endpoint: "/v1/chat/completions"
+        auth_type: "none"
+      
+      litellm:
+        env_keys: ["LITELLM_API_KEY"]
+        base_url: "http://localhost:4000"
+        base_url_env: "LITELLM_BASE_URL"
+        endpoint: "/chat/completions"
+  
+  # Anthropic format
+  anthropic:
+    api_format: "anthropic"
+    request_body_template:
+      model: "{{model}}"
+      max_tokens: 1000
+      messages:
+        - role: "user"
+          content: "{{prompt}}"
+    response_path: "content[0].text"
+    auth_type: "x-api-key"
+    extra_headers:
+      anthropic-version: "2023-06-01"
+    providers:
+      anthropic:
+        env_keys: ["ANTHROPIC_API_KEY"]
+        base_url: "https://api.anthropic.com"
+        endpoint: "/v1/messages"
+  
+  # Google format
+  google:
+    api_format: "google"
+    request_body_template:
+      contents:
+        - parts:
+            - text: "{{prompt}}"
+      generationConfig:
+        maxOutputTokens: 1000
+    response_path: "candidates[0].content.parts[0].text"
+    auth_type: "query_param"
+    auth_param_name: "key"
+    providers:
+      google:
+        env_keys: ["GOOGLE_API_KEY", "GEMINI_API_KEY"]
+        base_url: "https://generativelanguage.googleapis.com/v1beta"
+        endpoint: "/models/{{model}}:generateContent"
+  
+  # Cohere format
+  cohere:
+    api_format: "cohere"
+    request_body_template:
+      model: "{{model}}"
+      message: "{{prompt}}"
+      max_tokens: 1000
+    response_path: "text"
+    auth_type: "bearer"
+    providers:
+      cohere:
+        env_keys: ["COHERE_API_KEY"]
+        base_url: "https://api.cohere.ai/v1"
+        endpoint: "/chat"
+  
+  # HuggingFace format
+  huggingface:
+    api_format: "huggingface"
+    request_body_template:
+      inputs: "{{prompt}}"
+      parameters:
+        max_new_tokens: 500
+    auth_type: "bearer"
+    providers:
+      huggingface:
+        env_keys: ["HF_API_TOKEN", "HUGGINGFACE_API_KEY"]
+        base_url: "https://api-inference.huggingface.co"
+        endpoint: "/models/{{model}}"
+  
+  # Replicate format
+  replicate:
+    api_format: "replicate"
+    request_body_template:
+      version: "{{model}}"
+      input:
+        prompt: "{{prompt}}"
+        max_tokens: 1000
+    auth_type: "token"
+    providers:
+      replicate:
+        env_keys: ["REPLICATE_API_TOKEN"]
+        base_url: "https://api.replicate.com/v1"
+        endpoint: "/predictions"

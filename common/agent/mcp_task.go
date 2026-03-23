@@ -33,6 +33,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 			Token   string `json:"token"`
 			BaseUrl string `json:"base_url"`
 		} `json:"model"`
+		Headers map[string]string `json:"headers"`
 	}
 
 	var params ScanMcpRequest
@@ -79,7 +80,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 				}
 
 				fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), ext))
-				err := DownloadFile(m.Server, request.SessionId, file, fileName)
+				err := utils.DownloadFile(m.Server, request.SessionId, file, fileName)
 				if err != nil {
 					return fmt.Errorf("download failed: %v", err)
 				}
@@ -122,6 +123,11 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	argv = append(argv, "--prompt", params.Content)
 	argv = append(argv, "--debug")
 	argv = append(argv, "--language", language)
+	if params.Headers != nil {
+		for k, v := range params.Headers {
+			argv = append(argv, "--header", fmt.Sprintf("%s:%s", k, v))
+		}
+	}
 
 	var taskTitles []string
 	if transport == "code" {
@@ -154,7 +160,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
 
-	err := utils.RunCmd(McpDir, NAME, argv, func(line string) {
+	err := utils.RunCmdWithContext(ctx, McpDir, NAME, argv, func(line string) {
 		ParseStdoutLine(m.Server, McpDir, tasks, line, callbacks, &config, false)
 	})
 	return err

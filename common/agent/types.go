@@ -18,6 +18,7 @@ const (
 	// Server -> Agent 消息类型
 	ServerMsgTypeRegisterResp = "register_ack" // 注册响应
 	ServerMsgTypeTaskAssign   = "task_assign"  // 任务分配
+	ServerMsgTypeTerminate    = "terminate"    // 终止任务
 )
 
 // 任务状态枚举
@@ -58,6 +59,7 @@ const (
 	TaskTypeMcpScan            = "Mcp-Scan"
 	TaskTypeModelRedteamReport = "Model-Redteam-Report"
 	TaskTypeModelJailbreak     = "Model-Jailbreak"
+	TaskTypeAgentScan          = "Agent-Scan"
 )
 
 type AgentInfo struct {
@@ -87,6 +89,11 @@ type RequestData struct {
 type ResponseData struct {
 	Type    string          `json:"type"`
 	Content json.RawMessage `json:"content"`
+}
+
+type TerminateTaskRequest struct {
+	SessionID string `json:"session_id"`
+	Reason    string `json:"reason"`
 }
 
 // Disconnect Agent断开

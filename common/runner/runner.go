@@ -3,9 +3,7 @@ package runner
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"os"
@@ -83,42 +81,6 @@ func New(options2 *options.Options) (*Runner, error) {
 	return runner, nil
 }
 
-func LoadRemoteFingerPrints(hostname string) ([]parser.FingerPrint, error) {
-	type msg struct {
-		Data struct {
-			FingerPrints []json.RawMessage `json:"items"`
-			Total        int               `json:"total"`
-		} `json:"data"`
-		Message string `json:"message"`
-	}
-	resp, err := http.Get(fmt.Sprintf("http://%s/api/v1/knowledge/fingerprints?page=1&size=9999", hostname))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
-	}
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var m msg
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
-	fps := make([]parser.FingerPrint, 0)
-	for _, raw := range m.Data.FingerPrints {
-		fp, err := parser.InitFingerPrintFromData(raw)
-		if err != nil {
-			gologger.WithError(err).Fatalf("无法解析指纹模板:%s", string(raw))
-			continue
-		}
-		fps = append(fps, *fp)
-	}
-	return fps, nil
-}
-
 // initFingerprints initializes the fingerprint detection engine
 func (r *Runner) initFingerprints() error {
 	options2 := r.Options
@@ -126,7 +88,7 @@ func (r *Runner) initFingerprints() error {
 	var err error
 	if r.Options.LoadRemote {
 		// 从远程加载
-		fps, err = LoadRemoteFingerPrints(options2.FPTemplates)
+		fps, err = utils.LoadRemoteFingerPrints(options2.FPTemplates)
 		if err != nil {
 			return err
 		}

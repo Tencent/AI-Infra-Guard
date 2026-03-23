@@ -1,0 +1,13 @@
+info:
+  name: localai
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 本地化 OpenAI 兼容 API 服务，支持多种开源模型与本地推理后端。
+  metadata:
+    product: localai
+    vendor: localai
+http:
+  - method: GET
+    path: '/metrics'
+    matchers:
+      - body="localai_"

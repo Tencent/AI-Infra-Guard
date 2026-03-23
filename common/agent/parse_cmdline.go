@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/google/uuid"
 )
@@ -161,7 +162,7 @@ func ParseStdoutLine(server, rootDir string, tasks []SubTask, line string, callb
 				if !ok || attachment == "" {
 					continue
 				}
-				info, err := UploadFile(server, path.Join(rootDir, attachment.(string)))
+				info, err := utils.UploadFile(server, path.Join(rootDir, attachment.(string)))
 				if err != nil {
 					gologger.WithError(err).Errorln("Failed to upload file")
 					return

@@ -3,7 +3,7 @@
 ## Core Features
 
 - **AI Infrastructure Vulnerability Scanning**: Detects known CVE vulnerabilities in the web services of various frameworks and components (e.g., Ollama, ComfyUI) used in AI training, deployment, and application building, through precise fingerprinting.
-- **MCP Server Security Detection**: Utilizes AI Agents to intelligently identify security threats in MCP Servers, such as tool poisoning and code vulnerabilities, assisting MCP developers and app marketplaces in completing security certification before release.
+- **AI Tool Protocol Scan**: Utilizes AI Agents to intelligently identify security threats in MCP Servers and Skill, such as tool poisoning and code vulnerabilities, assisting AI tool developers and app marketplaces in completing security certification before release.
 - **Large Language Model Security Health Check**: Employs high-quality and diverse evaluation datasets to automatically evaluates the overall security of different large language models when faced with malicious, adversarial, or deceptive prompt inputs. It exports bad cases to support security alignment and guardrail reinforcement.
 
 

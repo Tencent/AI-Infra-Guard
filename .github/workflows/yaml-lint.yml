@@ -1,0 +1,31 @@
+name: YAML Lint
+
+on:
+  push:
+    paths:
+      - 'data/**'
+  pull_request:
+    paths:
+      - 'data/**'
+
+permissions:
+  contents: read
+
+jobs:
+  yaml-check:
+    name: Validate YAML files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build yamlcheck tool
+        run: go build -o yamlcheck ./cmd/yamlcheck
+
+      - name: Run YAML validation
+        run: ./yamlcheck data/fingerprints data/vuln data/vuln_en

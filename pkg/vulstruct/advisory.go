@@ -2,10 +2,7 @@
 package vulstruct
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"strings"
 
@@ -56,46 +53,19 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 	return nil
 }
 
-func LoadRemoteVulStruct(api string) ([]VersionVul, error) {
-	type msg struct {
-		Data struct {
-			Vuls  []json.RawMessage `json:"items"`
-			Total int               `json:"total"`
-		} `json:"data"`
-		Message string `json:"message"`
-	}
-	resp, err := http.Get(api)
+func (ae *AdvisoryEngine) LoadFromHost(host string) error {
+	datas, err := utils.LoadRemoteVulStruct(fmt.Sprintf("http://%s/api/v1/knowledge/vulnerabilities?page=1&size=9999", host))
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
-	}
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var m msg
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
+		return err
 	}
 	ads := make([]VersionVul, 0)
-	for _, raw := range m.Data.Vuls {
+	for _, raw := range datas {
 		ad, err := ReadVersionVul(raw)
 		if err != nil {
 			gologger.WithError(err).Errorln("read advisory file error", raw)
 			continue
 		}
 		ads = append(ads, *ad)
-	}
-	return ads, nil
-}
-
-func (ae *AdvisoryEngine) LoadFromHost(host string) error {
-	ads, err := LoadRemoteVulStruct(fmt.Sprintf("http://%s/api/v1/knowledge/vulnerabilities?page=1&size=9999", host))
-	if err != nil {
-		return err
 	}
 	ae.ads = ads
 	return nil
