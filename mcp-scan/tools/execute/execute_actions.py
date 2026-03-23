@@ -9,12 +9,12 @@ from utils.loging import logger
 from utils.tool_context import ToolContext
 
 @register_tool
-def execute_shell(command: str, timeout: int = 300, cwd: Optional[str] = None) -> dict[str, Any]:
+def execute_shell(command: str, timeout: int = 30, cwd: Optional[str] = None) -> dict[str, Any]:
     """执行 Shell 命令
     
     Args:
         command: 要执行的 Shell 命令
-        timeout: 超时时间（秒），默认 300 秒
+        timeout: 超时时间（秒），默认 30 秒
         cwd: 执行命令的工作目录（可选）
         
     Returns:

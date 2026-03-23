@@ -1,7 +1,7 @@
 # MCP(model context protocol)动态分析
 
 ## Mcp Tools
-以下是你所需要生成测试用例的对象的描述，也即来自远程MCP服务器的工具描述。你可以使用`mcp_tool`调用以下工具。
+以下是你所需要生成测试用例的对象的描述，也即来自远程MCP服务器的工具描述。你可以使用`call_mcp_tool`调用以下工具。
 {mcp_tools}
 
 ## 测试覆盖
