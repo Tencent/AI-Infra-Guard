@@ -1,3 +1,21 @@
+// Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Requirement: Any integration or derivative work must explicitly attribute
+// Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
+// documentation or user interface, as detailed in the NOTICE file.
+
 package websocket
 
 import (
@@ -168,7 +186,10 @@ func mcpReadAndSave(content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(MCPROOT, id+".yaml")
+	filename, err := safeJoinPath(MCPROOT, id+".yaml")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -185,7 +206,10 @@ func mcpUpdateFunc(id string, content string) error {
 	}
 
 	// 使用提供的name作为文件名，允许更新文件而不强制更改文件名
-	filePath := filepath.Join(MCPROOT, id+".yaml")
+	filePath, err := safeJoinPath(MCPROOT, id+".yaml")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
@@ -195,7 +219,10 @@ func mcpDeleteFunc(id string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filePath := filepath.Join(MCPROOT, id+".yaml")
+	filePath, pathErr := safeJoinPath(MCPROOT, id+".yaml")
+	if pathErr != nil {
+		return pathErr
+	}
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return errors.New("文件不存在")
@@ -260,7 +287,10 @@ func promptCollectionReadAndSave(content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(PromptCollectionsRoot, id+".json")
+	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -277,7 +307,10 @@ func promptCollectionUpdateFunc(id string, content string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filename := filepath.Join(PromptCollectionsRoot, id+".json")
+	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
@@ -287,7 +320,10 @@ func promptCollectionDeleteFunc(id string) error {
 		return errors.New("无效的文件名")
 	}
 
-	filePath := filepath.Join(PromptCollectionsRoot, id+".json")
+	filePath, err := safeJoinPath(PromptCollectionsRoot, id+".json")
+	if err != nil {
+		return err
+	}
 
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -327,8 +363,14 @@ const AgentConfigRoot = "data/agents"
 const PublicUser = "public_user"
 
 // getAgentUserDir 获取用户的 agent 配置目录
+// username 必须已通过 validateUsername 校验，此处额外用 safeJoinPath 做防御
 func getAgentUserDir(username string) string {
-	return filepath.Join(AgentConfigRoot, username)
+	p, err := safeJoinPath(AgentConfigRoot, username)
+	if err != nil {
+		// fallback to public user dir; validateUsername should have caught this
+		return filepath.Join(AgentConfigRoot, PublicUser)
+	}
+	return p
 }
 
 // validateUsername 验证用户名安全性（防止路径穿越）
@@ -688,9 +730,17 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 // resolveAgentConfigPathForWrite 解析写入路径（写入用户目录）
 func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 	userDir := getAgentUserDir(username)
-	candidates := []string{
-		filepath.Join(userDir, name+".yaml"),
-		filepath.Join(userDir, name+".yml"),
+	p1, err1 := safeJoinPath(userDir, name+".yaml")
+	p2, err2 := safeJoinPath(userDir, name+".yml")
+	if err1 != nil && err2 != nil {
+		return "", err1
+	}
+	candidates := []string{}
+	if err1 == nil {
+		candidates = append(candidates, p1)
+	}
+	if err2 == nil {
+		candidates = append(candidates, p2)
 	}
 	for _, path := range candidates {
 		_, statErr := os.Stat(path)
@@ -701,14 +751,17 @@ func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 			return "", statErr
 		}
 	}
-	return candidates[0], nil
+	return p1, nil
 }
 
 // deleteAgentConfig 删除配置（只删除用户目录的配置）
 func deleteAgentConfig(username, name string) (bool, error) {
 	userDir := getAgentUserDir(username)
 	for _, ext := range []string{".yaml", ".yml"} {
-		path := filepath.Join(userDir, name+ext)
+		path, pathErr := safeJoinPath(userDir, name+ext)
+		if pathErr != nil {
+			continue
+		}
 		err := os.Remove(path)
 		if err == nil {
 			return true, nil
