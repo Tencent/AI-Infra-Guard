@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1] - 2026-03-23
+
+### Added
+- **新增扫描端口**：将 18789 加入默认 AI 基础设施扫描端口列表，覆盖更多 AI 组件部署场景
+- **新增漏洞规则**：新增 AIG Rules（2026-03-20 批次），持续扩充 AI 组件漏洞检测规则库
+- **新增 YAML CI/CD 校验**：引入 YAML 格式校验流水线，确保漏洞规则合规入库
+- **Task API 增强**：改进 taskapi 生命周期管理及 Agent Scan 支持
+- **edgeone-clawscan Skill**：新增基于 EdgeOne 的 ClawScan 安全扫描 Skill（集成朱雀实验室 AI-Infra-Guard）
+
+### Changed
+- **协议迁移**：从 MIT 协议迁移至 Apache 2.0，并添加 NOTICE 文件与归属要求
+- **License Headers**：为所有 `.go` 和 `.py` 源文件添加 Apache 2.0 协议头
+
+### Fixed
+- **安全加固（CodeQL）**：完成 CodeQL path-injection 修复（Round 2），关闭相关安全告警
+- **评分归一化**：修复 `CalcSecScore` 中 severity 大小写不一致问题，补充中文等级支持（#178）
+- **Agent 配置路径校验**：修复 `readAgentConfigContent` 中路径注入风险，增加输入校验与边界检查
+- **文档修复**：修复 ClawScan URL 格式、链接格式等多处文档错误
+
+### Docs
+- 新增 AI 编程助手指引文件（CLAUDE.md、CODEBUDDY.md、AGENTS.md）
+- 更新 README / README_ZH.md，补充 v4.0 特性描述与功能列表
+
+---
+
 ## [v4.0] - 2026-03-10
 
 ### Added
