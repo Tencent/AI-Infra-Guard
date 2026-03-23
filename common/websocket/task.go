@@ -2,9 +2,11 @@ package websocket
 
 import (
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/pkg/database"
@@ -529,6 +531,239 @@ func HandleUploadFile(c *gin.Context, tm *TaskManager) {
 		"status":  0,
 		"message": "文件上传成功",
 		"data":    uploadResult,
+	})
+}
+
+// HandleUploadFileChunk 分片上传接口
+// @Summary Upload file chunk
+// @Description Upload a file chunk for chunked file upload. Each chunk is stored temporarily until all chunks are merged.
+// @Tags taskapi
+// @Accept multipart/form-data
+// @Produce json
+// @Param fileId formData string true "Unique file identifier for grouping chunks"
+// @Param filename formData string true "Original filename"
+// @Param chunkIndex formData int true "Current chunk index (0-based)"
+// @Param totalChunks formData int true "Total number of chunks"
+// @Param chunk formData file true "File chunk data"
+// @Success 200 {object} object{status=int,message=string,data=object{chunkIndex=int,totalChunks=int,message=string}} "Chunk uploaded successfully"
+// @Failure 400 {object} object{status=int,message=string,data=object} "Invalid parameters"
+// @Failure 500 {object} object{status=int,message=string,data=object} "Internal server error"
+// @Router /api/v1/app/tasks/uploadChunk [post]
+func HandleUploadFileChunk(c *gin.Context, tm *TaskManager) {
+	traceID := getTraceID(c)
+	username := c.GetString("username")
+
+	// 获取表单字段
+	fileID := c.PostForm("fileId")
+	filename := c.PostForm("filename")
+	chunkIndexStr := c.PostForm("chunkIndex")
+	totalChunksStr := c.PostForm("totalChunks")
+
+	// 验证必要参数
+	if fileID == "" || filename == "" || chunkIndexStr == "" || totalChunksStr == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "参数不完整: 需要 fileId, filename, chunkIndex, totalChunks",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证fileID格式（防止路径遍历）
+	if strings.Contains(fileID, "..") || strings.Contains(fileID, "/") || strings.Contains(fileID, "\\") {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的fileId格式",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证filename格式（防止路径遍历）
+	if strings.Contains(filename, "..") || strings.Contains(filename, "/") || strings.Contains(filename, "\\") {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "文件名包含非法字符",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 解析数值参数
+	chunkIndex, err := strconv.Atoi(chunkIndexStr)
+	if err != nil || chunkIndex < 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的chunkIndex",
+			"data":    nil,
+		})
+		return
+	}
+
+	totalChunks, err := strconv.Atoi(totalChunksStr)
+	if err != nil || totalChunks <= 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的totalChunks",
+			"data":    nil,
+		})
+		return
+	}
+
+	if chunkIndex >= totalChunks {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "chunkIndex必须小于totalChunks",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 获取分片文件
+	chunk, err := c.FormFile("chunk")
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "获取分片数据失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 读取分片数据
+	chunkFile, err := chunk.Open()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "打开分片文件失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+	defer chunkFile.Close()
+
+	chunkData, err := io.ReadAll(chunkFile)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "读取分片数据失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	log.Infof("开始分片上传: trace_id=%s, fileId=%s, filename=%s, chunkIndex=%d/%d, size=%d, username=%s",
+		traceID, fileID, filename, chunkIndex+1, totalChunks, len(chunkData), username)
+
+	// 执行分片上传
+	result, err := tm.UploadFileChunk(fileID, filename, chunkIndex, totalChunks, chunkData, traceID)
+	if err != nil {
+		log.Errorf("分片上传失败: trace_id=%s, fileId=%s, chunkIndex=%d, username=%s, error=%v",
+			traceID, fileID, chunkIndex, username, err)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "分片上传失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	log.Infof("分片上传成功: trace_id=%s, fileId=%s, chunkIndex=%d/%d, username=%s",
+		traceID, fileID, chunkIndex+1, totalChunks, username)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": result.Message,
+		"data":    result,
+	})
+}
+
+// MergeChunksRequest 合并分片请求
+type MergeChunksRequest struct {
+	FileID      string `json:"fileId" binding:"required"`      // 文件唯一标识
+	Filename    string `json:"filename" binding:"required"`    // 原始文件名
+	TotalChunks int    `json:"totalChunks" binding:"required"` // 总分片数
+	FileSize    int64  `json:"fileSize" binding:"required"`    // 文件总大小
+}
+
+// HandleMergeFileChunks 合并分片接口
+// @Summary Merge file chunks
+// @Description Merge all uploaded chunks into a single file. Should be called after all chunks are uploaded.
+// @Tags taskapi
+// @Accept json
+// @Produce json
+// @Param request body MergeChunksRequest true "Merge request parameters"
+// @Success 200 {object} object{status=int,message=string,data=object{filename=string,fileUrl=string,fileSize=int}} "File merged successfully"
+// @Failure 400 {object} object{status=int,message=string,data=object} "Invalid parameters or missing chunks"
+// @Failure 500 {object} object{status=int,message=string,data=object} "Internal server error"
+// @Router /api/v1/app/tasks/mergeChunks [post]
+func HandleMergeFileChunks(c *gin.Context, tm *TaskManager) {
+	traceID := getTraceID(c)
+	username := c.GetString("username")
+
+	var req MergeChunksRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "参数错误: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证参数
+	if req.FileID == "" || req.Filename == "" || req.TotalChunks <= 0 || req.FileSize <= 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "参数不完整",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证fileID格式（防止路径遍历）
+	if strings.Contains(req.FileID, "..") || strings.Contains(req.FileID, "/") || strings.Contains(req.FileID, "\\") {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的fileId格式",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证filename格式（防止路径遍历）
+	if strings.Contains(req.Filename, "..") || strings.Contains(req.Filename, "/") || strings.Contains(req.Filename, "\\") {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "文件名包含非法字符",
+			"data":    nil,
+		})
+		return
+	}
+
+	log.Infof("开始合并分片: trace_id=%s, fileId=%s, filename=%s, totalChunks=%d, fileSize=%d, username=%s",
+		traceID, req.FileID, req.Filename, req.TotalChunks, req.FileSize, username)
+
+	// 执行分片合并
+	result, err := tm.MergeFileChunks(req.FileID, req.Filename, req.TotalChunks, req.FileSize, traceID)
+	if err != nil {
+		log.Errorf("分片合并失败: trace_id=%s, fileId=%s, username=%s, error=%v",
+			traceID, req.FileID, username, err)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "文件合并失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	log.Infof("分片合并成功: trace_id=%s, fileId=%s, filename=%s, fileUrl=%s, username=%s",
+		traceID, req.FileID, result.Filename, result.FileURL, username)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "文件合并成功",
+		"data":    result,
 	})
 }
 

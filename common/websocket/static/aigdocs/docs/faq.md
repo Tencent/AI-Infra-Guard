@@ -57,8 +57,10 @@
 ```bash
 # 停止原服务
 docker-compose down
+# 拉取新镜像
+docker-compose pull
 # 重新构建容器镜像并重启服务
-docker-compose -f docker-compose.yml up -d --build
+docker-compose -f docker-compose.yml up -d
 # 清理悬空的Docker镜像（可选）
 docker image prune -f
 ```

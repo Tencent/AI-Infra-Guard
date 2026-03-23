@@ -36,7 +36,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform by Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integrates capabilities such as AI infra vulnerability scan, MCP Server risk scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
+**A.I.G (AI-Infra-Guard)** integrates capabilities such as ClawScan(OpenClaw Security Scan), Agent Scan，AI infra vulnerability scan, MCP Server & Agent Skills scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
 <p>
   We are committed to making A.I.G(AI-Infra-Guard) the industry-leading AI red teaming platform. More stars help this project reach a wider audience, attracting more developers to contribute, which accelerates iteration and improvement. Your star is crucial to us!
@@ -49,11 +49,14 @@
 
 <br>
 
-> 📢 **News**: 
+## 🚀 What's New in v4.0: The Era of Agent Security
 
-> *   🎉 **[New]** A.I.G was featured at **Black Hat Arsenal Europe 2025**! Check out our [presentation slides.](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security boundaries from AI infrastructure to the **Autonomous Agent Ecosystem**. This release introduces two major independent modules:
 
-> * A.I.G v3.5-preview-2 added 100+ AI component CVEs, with support for detecting the latest React2Shell vulnerability (CVE-2025-55182). Improved the onboarding guide for newcomers.[View all changelog.](./CHANGELOG.md)
+- 🛡️ **OpenClaw Security Scan**: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
+- 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agent workflows running across various platforms (Dify, Coze, etc.).
+
+👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
@@ -89,7 +92,7 @@ Once the service is running, you can access the A.I.G web interface at:
 <br>
 
 <details>
-<summary><strong>📦 More installation options and online pro version</strong></summary>
+<summary><strong>📦 More installation options</strong></summary>
 
 ### Other Installation Methods
 
@@ -112,19 +115,22 @@ Note: The AI-Infra-Guard project is positioned as an AI red teaming platform for
 
 For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
-### Try the Online Pro Version
-Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/)
-
 </details>
+
+### Try the Online Pro Version
+Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
+<br>
 <br>
 
 ## ✨ Features
 
 | Feature | More Info |
 |:--------|:------------|
-| **AI Infra Scan** | Precisely identifies ​over​ 30 AI framework components ​and covers​ over 400 known CVE vulnerabilities, ​including​ Ollama, ComfyUI, vLLM, etc. |
-| **MCP Server Scan** | Powered by AI Agent, Detects 9 major categories of MCP security risks, Supports source code/remote URL scanning. |
-| **Jailbreak Evaluation** | Rapidly assesses Prompt security risks, Includes multiple curated jailbreak evaluation datasets, Cross-model security performance comparison. |
+| **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
+| **Agent&nbsp;Scan** | This is an independent, multi-agent automated scanning framework. It is designed to evaluate the security of AI agent workflows. It seamlessly supports agents running across various platforms, including Dify and Coze. |
+| **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 43 AI framework components. It covers more than 589 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
+| **Jailbreak&nbsp;Evaluation** | It assesses prompt security risks using carefully curated datasets. The evaluation applies multiple attack methods to test robustness. It also provides detailed cross-model comparison capabilities. |
 
 <details>
 <summary><strong>💎 Additional Benefits</strong></summary>
@@ -321,6 +327,7 @@ We are deeply grateful to the following teams and organizations for their trust,
 <div align="center">
 <img src="img/tencent.png" alt="Tencent" height="30px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
+<img src="img/antintl.svg" alt="Antintl" height="45px">
 </div>
 
 <br>
@@ -379,15 +386,18 @@ If you use A.I.G in your research, please cite:
 
 We are deeply grateful to the research teams who have used A.I.G in their academic work and contributed to advancing AI security research:
 
-[1] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
-[2] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
-[3] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
-[4] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
-[5] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
-[6] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
-[7] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
-[8] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
-[9] Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)  
+[1] Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)  
+[2] Ruiqi Li, Zhiqiang Wang, Yunhao Yao et al. **"MCP-ITP: An Automated Framework for Implicit Tool Poisoning in MCP."** arXiv preprint arXiv:2601.07395v1 (2026). [[pdf]](http://arxiv.org/abs/2601.07395v1)  
+[3] Jingxiao Yang, Ping He, Tianyu Du et al. **"HogVul: Black-box Adversarial Code Generation Framework Against LM-based Vulnerability Detectors."** arXiv preprint arXiv:2601.05587v1 (2026). [[pdf]](http://arxiv.org/abs/2601.05587v1)  
+[4] Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)  
+[5] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
+[6] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
+[7] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
+[8] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
+[9] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
+[10] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
+[11] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
+[12] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
 
 📧 If you have used A.I.G in your research or product, or if we have inadvertently missed your publication, we would love to hear from you! [Contact us here](#-join-the-community).
 <br>

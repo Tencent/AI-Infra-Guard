@@ -1,0 +1,20 @@
+info:
+  name: librechat
+  author: A.I.G bot
+  severity: info
+  desc: LibreChat is an open-source AI chat platform supporting multiple AI providers, with customizable UI and multi-user support.
+  metadata:
+    product: librechat
+    vendor: librechat
+http:
+  - method: GET
+    path: /
+    matchers:
+      - body="<title>LibreChat</title>"
+version:
+  - method: GET
+    path: /api/version
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"(\d+\.\d+\.?\d*?)"'

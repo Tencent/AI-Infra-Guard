@@ -109,11 +109,11 @@ class ScanPipeline:
 
 class Agent:
     def __init__(self, llm, specialized_llms: dict = None, debug: bool = False,
-                 server_url: str = None, language='zh'):
+                 server_url: str = None, language='zh', headers=None):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
-        self.dispatcher = ToolDispatcher(mcp_server_url=server_url)
+        self.dispatcher = ToolDispatcher(mcp_server_url=server_url, mcp_headers=headers)
         self.pipeline = ScanPipeline(self)
         self.language = language
 
@@ -125,9 +125,10 @@ class Agent:
             "start_time": time.time(),
             "end_time": 0,
             "results": [],
+            "llm": self.llm.model,
         }
         # 1. 信息收集
-        info_ret_format = "生成一份详细的代码审计信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
+        info_ret_format = "生成一份详细的信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
         info_collection = await self.pipeline.execute_stage(
             ScanStage("1", "Info Collection", "agents/project_summary", output_format=info_ret_format,
                       language=self.language),

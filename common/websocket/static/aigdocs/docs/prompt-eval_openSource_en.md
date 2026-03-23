@@ -72,8 +72,8 @@ The system supports two ways to use custom datasets:
 
 The system includes a rich library of attack methods that support dynamic enhancement of risk prompts, helping developers comprehensively test model security protection capabilities. The current version provides two major categories of attack strategies, totaling over a hundred specific attack methods.
 
-- **[Encoding Attacks](/help?menu=prompt-eval_method_Encoding_en)**: Encoding attack strategies encrypt risk prompts through various encoding and obfuscation methods to bypass model safety guardrails.
-- **[Behavioral Control Attacks](/help?menu=prompt-eval_methpd_BehavioralControl_en)**: Behavioral control attack strategies control model behavior through context guidance, redirection, or deception to bypass security restrictions.
+- **Encoding Attacks**: Encoding attack strategies encrypt risk prompts through various encoding and obfuscation methods to bypass model safety guardrails.
+- **Behavioral Control Attacks**: Behavioral control attack strategies control model behavior through context guidance, redirection, or deception to bypass security restrictions.
 
 ![Operator Configuration Interface](./assets/image-prompt-eval-attack-method_en.png)
 

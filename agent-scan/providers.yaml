@@ -1,0 +1,303 @@
+# Provider Configuration File
+# This file contains default configurations for all supported AI providers
+
+# Provider type definitions with default settings
+providers:
+  # OpenAI-compatible providers (share same API format)
+  openai_compatible:
+    api_format: "openai"
+    request_body_template:
+      model: "{{model}}"
+      messages:
+        - role: "user"
+          content: "{{prompt}}"
+      max_tokens: 1000
+    response_path: "choices[0].message.content"
+    auth_type: "bearer"
+    providers:
+      openai:
+        env_keys: ["OPENAI_API_KEY"]
+        base_url: "https://api.openai.com/v1"
+        endpoint: "/chat/completions"
+        default_model: "gpt-3.5-turbo"
+        models:
+          - gpt-4o
+          - gpt-4o-mini
+          - gpt-4-turbo
+          - gpt-4
+          - gpt-3.5-turbo
+          - o1
+          - o1-mini
+      
+      mistral:
+        env_keys: ["MISTRAL_API_KEY"]
+        base_url: "https://api.mistral.ai/v1"
+        endpoint: "/chat/completions"
+        default_model: "mistral-small-latest"
+        models:
+          - mistral-large-latest
+          - mistral-medium
+          - mistral-small-latest
+      
+      groq:
+        env_keys: ["GROQ_API_KEY"]
+        base_url: "https://api.groq.com/openai/v1"
+        endpoint: "/chat/completions"
+        default_model: "llama-3.1-8b-instant"
+        models:
+          - llama-3.1-70b-versatile
+          - llama-3.1-8b-instant
+          - mixtral-8x7b-32768
+      
+      deepseek:
+        env_keys: ["DEEPSEEK_API_KEY"]
+        base_url: "https://api.deepseek.com/v1"
+        endpoint: "/chat/completions"
+        default_model: "deepseek-chat"
+        models:
+          - deepseek-chat
+          - deepseek-coder
+      
+      perplexity:
+        env_keys: ["PERPLEXITY_API_KEY"]
+        base_url: "https://api.perplexity.ai"
+        endpoint: "/chat/completions"
+        default_model: "llama-3.1-sonar-small-128k-online"
+        models:
+          - llama-3.1-sonar-large-128k-online
+          - llama-3.1-sonar-small-128k-online
+      
+      openrouter:
+        env_keys: ["OPENROUTER_API_KEY"]
+        base_url: "https://openrouter.ai/api/v1"
+        endpoint: "/chat/completions"
+        default_model: "openai/gpt-3.5-turbo"
+        extra_headers:
+          HTTP-Referer: "https://ai-provider.dev"
+          X-Title: "AI Provider UI"
+        models:
+          - openai/gpt-4o
+          - anthropic/claude-3-opus
+      
+      togetherai:
+        env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
+        base_url: "https://api.together.xyz/v1"
+        endpoint: "/chat/completions"
+        default_model: "meta-llama/Llama-3-8b-chat-hf"
+      
+      fireworks:
+        env_keys: ["FIREWORKS_API_KEY"]
+        base_url: "https://api.fireworks.ai/inference/v1"
+        endpoint: "/chat/completions"
+        default_model: "accounts/fireworks/models/llama-v3-8b-instruct"
+      
+      ollama:
+        env_keys: []
+        base_url: "http://localhost:11434"
+        base_url_env: "OLLAMA_BASE_URL"
+        endpoint: "/api/chat"
+        default_model: "llama3.2"
+        request_body_template:
+          model: "{{model}}"
+          messages:
+            - role: "user"
+              content: "{{prompt}}"
+          stream: false
+        response_path: "message.content"
+        auth_type: "none"
+        models:
+          - llama3.2:latest
+          - llama3.1:latest
+          - mistral:latest
+          - phi3:latest
+      
+      localai:
+        env_keys: []
+        base_url: "http://localhost:8080"
+        base_url_env: "LOCALAI_BASE_URL"
+        endpoint: "/v1/chat/completions"
+        default_model: "gpt-3.5-turbo"
+        auth_type: "none"
+      
+      litellm:
+        env_keys: ["LITELLM_API_KEY"]
+        base_url: "http://localhost:4000"
+        base_url_env: "LITELLM_BASE_URL"
+        endpoint: "/chat/completions"
+        default_model: "gpt-3.5-turbo"
+  
+  # Anthropic format
+  anthropic:
+    api_format: "anthropic"
+    request_body_template:
+      model: "{{model}}"
+      max_tokens: 1000
+      messages:
+        - role: "user"
+          content: "{{prompt}}"
+    response_path: "content[0].text"
+    auth_type: "x-api-key"
+    extra_headers:
+      anthropic-version: "2023-06-01"
+    providers:
+      anthropic:
+        env_keys: ["ANTHROPIC_API_KEY"]
+        base_url: "https://api.anthropic.com"
+        endpoint: "/v1/messages"
+        default_model: "claude-3-haiku-20240307"
+        models:
+          - claude-sonnet-4-20250514
+          - claude-3-5-sonnet
+          - claude-3-opus-20240229
+          - claude-3-sonnet-20240229
+          - claude-3-haiku-20240307
+  
+  # Google format
+  google:
+    api_format: "google"
+    request_body_template:
+      contents:
+        - parts:
+            - text: "{{prompt}}"
+      generationConfig:
+        maxOutputTokens: 1000
+    response_path: "candidates[0].content.parts[0].text"
+    auth_type: "query_param"
+    auth_param_name: "key"
+    providers:
+      google:
+        env_keys: ["GOOGLE_API_KEY", "GEMINI_API_KEY"]
+        base_url: "https://generativelanguage.googleapis.com/v1beta"
+        endpoint: "/models/{{model}}:generateContent"
+        default_model: "gemini-1.5-flash"
+        models:
+          - gemini-2.5-pro
+          - gemini-2.0-flash
+          - gemini-1.5-pro
+          - gemini-1.5-flash
+  
+  # Cohere format
+  cohere:
+    api_format: "cohere"
+    request_body_template:
+      model: "{{model}}"
+      message: "{{prompt}}"
+      max_tokens: 1000
+    response_path: "text"
+    auth_type: "bearer"
+    providers:
+      cohere:
+        env_keys: ["COHERE_API_KEY"]
+        base_url: "https://api.cohere.ai/v1"
+        endpoint: "/chat"
+        default_model: "command"
+  
+  # HuggingFace format
+  huggingface:
+    api_format: "huggingface"
+    request_body_template:
+      inputs: "{{prompt}}"
+      parameters:
+        max_new_tokens: 500
+    auth_type: "bearer"
+    providers:
+      huggingface:
+        env_keys: ["HF_API_TOKEN", "HUGGINGFACE_API_KEY"]
+        base_url: "https://api-inference.huggingface.co"
+        endpoint: "/models/{{model}}"
+        default_model: "gpt2"
+  
+  # Replicate format
+  replicate:
+    api_format: "replicate"
+    request_body_template:
+      version: "{{model}}"
+      input:
+        prompt: "{{prompt}}"
+        max_tokens: 1000
+    auth_type: "token"
+    providers:
+      replicate:
+        env_keys: ["REPLICATE_API_TOKEN"]
+        base_url: "https://api.replicate.com/v1"
+        endpoint: "/predictions"
+        default_model: "meta/llama-2-70b-chat"
+
+  # HTTP endpoint (custom)
+  http:
+    api_format: "custom"
+    providers:
+      http:
+        env_keys: []
+        auth_type: "custom"
+  
+  # WebSocket endpoint
+  websocket:
+    api_format: "websocket"
+    providers:
+      websocket:
+        env_keys: []
+
+
+# Pricing data (per 1K tokens)
+pricing:
+  gpt-4o:
+    input: 0.005
+    output: 0.015
+  gpt-4o-mini:
+    input: 0.00015
+    output: 0.0006
+  gpt-4-turbo:
+    input: 0.01
+    output: 0.03
+  gpt-4:
+    input: 0.03
+    output: 0.06
+  gpt-3.5-turbo:
+    input: 0.0005
+    output: 0.0015
+  o1:
+    input: 0.015
+    output: 0.06
+  o1-mini:
+    input: 0.003
+    output: 0.012
+  claude-3-5-sonnet:
+    input: 0.003
+    output: 0.015
+  claude-3-opus:
+    input: 0.015
+    output: 0.075
+  claude-3-sonnet:
+    input: 0.003
+    output: 0.015
+  claude-3-haiku:
+    input: 0.00025
+    output: 0.00125
+  claude-sonnet-4:
+    input: 0.003
+    output: 0.015
+  gemini-1.5-pro:
+    input: 0.00125
+    output: 0.005
+  gemini-1.5-flash:
+    input: 0.000075
+    output: 0.0003
+  gemini-2.0-flash:
+    input: 0.0001
+    output: 0.0004
+  mistral-large:
+    input: 0.004
+    output: 0.012
+  mistral-medium:
+    input: 0.0027
+    output: 0.0081
+  mistral-small:
+    input: 0.001
+    output: 0.003
+  deepseek-chat:
+    input: 0.00014
+    output: 0.00028
+  deepseek-coder:
+    input: 0.00014
+    output: 0.00028

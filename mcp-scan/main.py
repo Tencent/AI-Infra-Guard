@@ -73,6 +73,14 @@ def parse_args():
         default=None
     )
 
+    parser.add_argument(
+        "--header",
+        action="append",
+        dest="headers",
+        help="Custom header in key:value format (can be used multiple times)",
+        default=[]
+    )
+
     parser.add_argument("--language", default="zh", help="Output language (zh/en)")
 
     return parser.parse_args()
@@ -109,14 +117,34 @@ async def main():
         prompt += "All responses should be in English."
     elif args.language == "zh":
         prompt += "所有回复都应使用中文。"
-    if args.prompt:
-        logger.info(f"Custom prompt: {args.prompt}")
+    if prompt:
+        logger.info(f"Custom prompt: {prompt}")
+
+    # 解析 headers
+    headers = {}
+    if args.headers:
+        for header_item in args.headers:
+            try:
+                if ':' in header_item:
+                    key, value = header_item.split(':', 1)
+                    headers[key.strip()] = value.strip()
+                elif '=' in header_item:
+                    key, value = header_item.split('=', 1)
+                    headers[key.strip()] = value.strip()
+                else:
+                    logger.warning(f"Ignored invalid header format: {header_item}")
+            except Exception as e:
+                logger.warning(f"Failed to parse header {header_item}: {e}")
+        
+        if headers:
+            logger.info(f"Custom headers: {headers}")
+
     agent = Agent(llm=llm, specialized_llms=specialized_llms, debug=args.debug, server_url=args.server_url,
-                  language=args.language)
+                  language=args.language, headers=headers)
     try:
         if args.server_url:
             logger.info(f"Server mode enabled with URL: {args.server_url}")
-            dynamic_results = await agent.dynamic_analysis(args.prompt)
+            dynamic_results = await agent.dynamic_analysis(prompt)
             logger.info(f"Dynamic analysis results:\n{dynamic_results}")
         else:
             # 验证项目路径
@@ -127,16 +155,18 @@ async def main():
             if not os.path.isdir(args.repo):
                 logger.error(f"Project path is not a directory: {args.repo}")
                 sys.exit(1)
-            result = await agent.scan(args.repo, args.prompt)
+            result = await agent.scan(args.repo, prompt)
             logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
         print("\n\nTask interrupted by user.")
         logger.warning("Task interrupted by user")
     except Exception as e:
         print(f"\n\nError during execution: {e}")
-        logger.error(f"Error during execution: {e}", exc_info=True)
-        mcpLogger.error_log(f"Execution failed: {e}")
-        raise Exception(f"Execution failed: {e}")
+        logger.error(f"Error during execution: {e}")
+        import traceback
+        traceback = traceback.format_exc()
+        mcpLogger.error_log(f"Execution failed: {e}\n{traceback}")
+        raise e
     finally:
         # 确保关闭资源
         if hasattr(agent, 'dispatcher'):
