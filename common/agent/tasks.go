@@ -309,10 +309,10 @@ func (t *AIInfraScanAgent) scanPortsAndPrepareTargets(targets []string, step01 s
 		toolId := uuid.NewString()
 		callbacks.StepStatusUpdateCallback(step01, statusNmap, AgentStatusRunning, texts.portDetection, fmt.Sprintf(texts.portDetectDescTemplate, host))
 		callbacks.ToolUsedCallback(step01, statusNmap, texts.nmapTool, []Tool{
-			CreateTool(toolId, texts.nmapTool, SubTaskStatusDoing, texts.portScan, texts.nmapTool, "-T4 -p 11434,1337,7000-9000", ""),
+			CreateTool(toolId, texts.nmapTool, SubTaskStatusDoing, texts.portScan, texts.nmapTool, "-T4 -p 11434,1337,7000-9000,18789", ""),
 		})
 
-		portScanResult, err := utils.NmapScan(host, "11434,1337,7000-9000")
+		portScanResult, err := utils.NmapScan(host, "11434,1337,7000-9000,18789")
 		if err != nil {
 			return nil, err
 		}
