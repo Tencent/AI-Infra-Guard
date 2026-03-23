@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **New Scan Port**: Added port 18789 to the default AI infrastructure scan port list for broader AI component coverage
 - **New Vulnerability Rules**: Added AIG Rules (2026-03-20 batch), continuously expanding the AI component vulnerability detection rule library
+- **OpenClaw Vulnerability Database**: Added 281 new CVE/GHSA entries for OpenClaw components, covering a wide range of AI infrastructure security advisories
 - **YAML CI/CD Validation**: Introduced automated YAML format validation pipeline via CSCD; triggered on PR and Push events to ensure rule compliance before merge
 - **Task API Enhancement**: Improved taskapi lifecycle management and Agent Scan support
 - **edgeone-clawscan Skill**: Added EdgeOne-based ClawScan security scanning Skill powered by Tencent Zhuque Lab AI-Infra-Guard
