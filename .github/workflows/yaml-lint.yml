@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'data/**'
+      - 'cmd/yamlcheck/**'
   pull_request:
     paths:
       - 'data/**'
+      - 'cmd/yamlcheck/**'
 
 permissions:
   contents: read
@@ -23,9 +25,18 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache: true
 
       - name: Build yamlcheck tool
         run: go build -o yamlcheck ./cmd/yamlcheck
 
       - name: Run YAML validation
         run: ./yamlcheck data/fingerprints data/vuln data/vuln_en
+
+      - name: Upload validation report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaml-lint-report
+          path: yamlcheck-report.txt
+          retention-days: 7
