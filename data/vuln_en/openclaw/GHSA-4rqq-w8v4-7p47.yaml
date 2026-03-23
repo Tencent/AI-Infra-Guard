@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4rqq-w8v4-7p47
+  summary: OpenClaw Incomplete IPv4 special-use SSRF blocking in web fetch guard
+  details: >-
+    Summary
+
+    isPrivateIpv4() in bundled SSRF guard code missed several IPv4 special-use/non-global ranges, so web_fetch could allow
+    targets that should be blocked by SSRF policy.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published affected version: 2026.2.21-2 (published 2026-02-21)
+
+    - Structured vulnerable range: <= 2026.2.21-2
+
+    - Planned patched version (pre-set): >= 2026.2.22
+
+
+    Impact
+
+    Low severity. Exploitation requires network reachability to the relevant special-use ranges and a request path that reaches
+    web_fetch URL fetching.
+
+
+    Technical Details
+
+    Affected releases used narrow IPv4 private-range checks that omitted multiple RFC special-use/non-global ranges. This
+    allowed requests such as http://198.18.0.1/... through SSRF validation in affected releases. Follow-up hardening consolidates
+    local-host/tailnet range checks so gateway/browser/tailnet paths share one canonical IP classification flow.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 71bd15bb4294d3d1b54386064d69cd0f5f731bd8 - 44dfbd23df453e51b71ef79a148c28c53e89168c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4rqq-w8v4-7p47
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4rqq-w8v4-7p47

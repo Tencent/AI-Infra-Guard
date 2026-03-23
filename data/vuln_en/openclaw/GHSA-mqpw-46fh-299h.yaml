@@ -1,0 +1,76 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mqpw-46fh-299h
+  summary: 'OpenClaw Authorization bypass: `operator.write` can resolve exec approvals via `chat.send` -> `/approve`'
+  details: >-
+    Summary
+
+
+    What this means (plain language)
+
+
+    If you give a client “chat/write” access to the gateway (operator.write) but you do not intend to let that client approve
+    exec requests (operator.approvals), affected versions could still let that client approve/deny a pending exec approval
+    by sending the /approve chat command.
+
+
+    This is mainly relevant for shared or multi-client setups where different tokens are intentionally scoped differently.
+    Single-operator installs are typically less impacted.
+
+
+    Technical summary
+
+
+    A gateway client authenticated with a device token scoped only to operator.write (without operator.approvals) could approve/deny
+    pending exec approval requests by sending a chat message containing the built-in /approve command.
+
+
+    exec.approval.resolve is correctly scoped to operator.approvals for direct RPC calls, but the /approve command path invoked
+    it via an internal privileged gateway client.
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): < 2026.2.2
+
+
+    Fix
+
+
+    - Fixed in openclaw 2026.2.2.
+
+    - Fix commit(s): efe2a464afcff55bb5a95b959e6bd9ec0fef086e.
+
+    - Change: when /approve is invoked from gateway clients (webchat/internal channel), it now requires the requesting client
+    to have operator.approvals (or operator.admin).
+
+
+    Workarounds
+
+
+    - Upgrade to openclaw >= 2026.2.2.
+
+    - If you cannot upgrade: avoid issuing write-only device tokens to untrusted clients; disable text commands (commands.text=false)
+    or restrict access to the webchat/control UI.
+
+
+    References
+
+
+    - Fix: src/auto-reply/reply/commands-approve.ts
+
+    - Coverage: src/auto-reply/reply/commands-approve.test.ts
+
+
+    Thanks @yueyueL for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.2.2 or later. - Fixed in openclaw 2026.2.2. - Fix commit(s): efe2a464afcff55bb5a95b959e6bd9ec0fef086e.
+    - Change: when /approve is invoked from gateway clients (webchat/internal channel), it now requires the requesting client
+    to have operator.approvals (or operator.admin).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mqpw-46fh-299h
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mqpw-46fh-299h

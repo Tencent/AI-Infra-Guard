@@ -1,0 +1,72 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mr32-vwc2-5j6h
+  summary: OpenClaw 浏览器中继 /cdp WebSocket 缺少认证可允许跨标签页 Cookie 访问
+  details: >-
+    概述
+
+    在受影响版本中，浏览器中继的 /cdp WebSocket 端点不要求认证令牌。因此，在浏览器中运行的网站可能通过回环 WebSocket 连接到本地中继，并使用 CDP 访问其他打开标签页的 Cookie 以及在其他标签页上下文中运行 JavaScript。
+
+
+    受影响的包/版本
+
+    - npm: openclaw >= 2026.1.20, < 2026.2.1
+
+    - npm: moltbot <= 0.1.0
+
+
+    详情
+
+    Chrome 扩展浏览器中继服务在 ws://127.0.0.1:18792/cdp（默认端口）暴露了一个本地 WebSocket 端点，用于转发 Chrome DevTools Protocol (CDP) 消息。
+
+
+    在受影响版本中，/cdp 升级路径验证了 TCP 对等方为回环地址，但不要求共享密钥且未阻止浏览器发起的跨源请求。
+
+
+    影响
+
+    - 可能泄露敏感信息（例如其他打开标签页的会话 Cookie）
+
+    - 可能在其他打开标签页的上下文中执行 JavaScript
+
+
+    用户必须已安装并激活浏览器中继扩展，且必须访问不受信任的站点。
+
+
+    修复
+
+    openclaw 现在要求浏览器中继访问使用每实例共享密钥头：
+
+    - HTTP 头：x-openclaw-relay-token
+
+
+    它还在 Origin 头存在但不是 chrome-extension://... 时拒绝 /cdp WebSocket 升级，并在扩展未连接时拒绝 /cdp 连接。
+
+
+    发布
+
+    - openclaw@2026.2.1 包含修复。
+
+    - moltbot 在此旧包名下没有发布修复版本；请迁移到 openclaw >= 2026.2.1。
+
+    - 撰写时最新发布的 openclaw：2026.2.13。
+
+
+    缓解措施
+
+    - 更新到 openclaw@>= 2026.2.1。
+
+    - 如果无法立即更新，禁用浏览器中继扩展/中继服务器并避免访问不受信任的站点。
+
+
+    感谢 @johnatzeropath、@LeftenantZero 和 @yueyueL 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >= 2026.2.1 或更高版本。openclaw 现在要求浏览器中继访问使用每实例共享密钥头：-
+    HTTP 头：x-openclaw-relay-token。它还在 Origin 头存在但不是 chrome-extension://... 时拒绝 /cdp WebSocket
+    升级，并在扩展未连接时拒绝 /cdp 连接。- 更新到 openclaw@>= 2026.2.1。- 如果无法立即更新，禁用浏览器中继扩展/中继服务器并避免访问不受信任的站点。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mr32-vwc2-5j6h
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mr32-vwc2-5j6h

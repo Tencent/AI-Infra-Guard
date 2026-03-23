@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7qf6-h84j-8fq4
+  summary: OpenClaw Microsoft Teams 媒体获取 SSRF 加固：统一 Graph 和附件路径的受保护 fetch
+  details: >-
+    影响
+
+    Microsoft Teams 媒体处理对 Graph 元数据/内容和附件认证重试流程使用了混合的 fetch 路径。部分路径绕过了共享的 SSRF 防护模型，在重定向/fetch 跳转之间造成了不一致的主机/DNS 强制执行。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 最新发布的受影响版本：2026.2.25
+
+    - 受影响范围：<= 2026.2.25
+
+    - 计划的下一个发布修复版本：2026.2.26
+
+
+    技术细节
+
+    Microsoft Teams 附件/媒体代码此前在部分流程中依赖插件本地的 fetch 行为，而非统一使用带有固定 DNS + 策略检查的共享受保护 fetch 逻辑。这可能导致通道/插件路径之间的策略漂移和 SSRF 边界不一致。
+
+
+    修复通过以下方式统一此路径：
+
+    - 将 Microsoft Teams Graph 消息/托管内容/附件获取路由通过共享的 SSRF 受保护 fetch 路径，
+
+    - 将认证范围回退附件下载路由通过相同的受保护策略模型，
+
+    - 在 plugin-sdk 中集中主机名后缀允许列表策略辅助程序，使通道/插件使用相同的允许列表规范化和策略构建行为。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。修复提交 - 57334cd7d85174d5f951de01114fd5801b063564
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7qf6-h84j-8fq4
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7qf6-h84j-8fq4

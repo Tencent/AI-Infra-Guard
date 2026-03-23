@@ -1,0 +1,69 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qpjj-47vm-64pj
+  summary: OpenClaw 本地浏览器控制端点缺少认证
+  details: >-
+    概述
+
+
+    本地浏览器控制 HTTP 接口在某些配置中允许未经强制认证的敏感浏览器操作。这可能允许未授权的本地调用方对受管会话调用特权浏览器控制操作。
+
+
+    受影响的组件
+
+
+    - src/browser/routes/agent.act.ts
+
+    - src/browser/pw-tools-core.interactions.ts
+
+    - 浏览器控制 HTTP 路由：/agent/act
+
+
+    受影响版本
+
+
+    - >= 2026.1.5, <= 2026.2.9
+
+
+    修复版本
+
+
+    - >= 2026.2.12
+
+
+    技术详情（已脱敏）
+
+
+    浏览器控制路由接受可执行浏览器上下文逻辑的高权限操作请求。当未配置认证时，这些 HTTP 路由的认证未被一致执行。鉴于该路由绑定到回环地址，暴露主要与本地进程和本地代理边界相关。
+
+
+    影响
+
+
+    潜在的未授权访问受管浏览器会话能力，包括访问会话内的敏感数据和特权浏览器操作。
+
+
+    修复措施
+
+
+    - 对浏览器控制 HTTP 路由执行网关认证（令牌/密码）。
+
+    - 当启用浏览器控制但未配置现有认证时，自动生成并持久化强网关认证令牌。
+
+    - 添加安全审计检测以发现无认证的浏览器控制。
+
+    - 添加认证执行和审计覆盖的回归测试。
+
+
+    致谢
+
+
+    感谢 @tcusolle 负责任地报告此问题。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.12 或更高版本。提交 - 9230a2ae14307740a13ada7afd6dcfab34e0287f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qpjj-47vm-64pj
+rule: version <= "2026.2.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qpjj-47vm-64pj

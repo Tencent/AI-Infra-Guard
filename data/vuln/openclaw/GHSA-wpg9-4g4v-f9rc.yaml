@@ -1,0 +1,74 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wpg9-4g4v-f9rc
+  summary: OpenClaw Discord 语音转录所有者标志遗漏可能在混合信任通道中暴露仅限所有者的工具
+  details: >-
+    概述
+
+    在 openclaw@2026.3.1 中，Discord 语音转录路径在调用 agentCommand(...) 时未传递 senderIsOwner，
+    而 agentCommand 在 senderIsOwner 缺失时默认为 true。
+
+
+    这可能允许同一通道中的非所有者语音参与者在语音转录轮次中访问仅限所有者的工具界面（gateway、cron）。
+
+
+    安全模型说明
+
+    OpenClaw 的文档化信任模型是个人助手模型（一个受信任的操作员），而非对抗性多用户边界。
+
+
+    - OpenClaw 不将一个共享的网关/聊天界面视为加固的每用户认证边界。
+
+    - 混合信任部署（互不信任的用户共享一个网关/通道）超出了推荐的部署边界。
+
+
+    此报告被视为有效的加固/授权漏洞，因为仅限所有者的工具策略仍应在所有聊天驱动的轮次中一致地应用，
+    包括 Discord 语音转录入口。
+
+
+    详情
+
+    相关路径：
+
+    1. Discord 语音管理器中的语音转录运行遗漏了 senderIsOwner。
+
+    2. agentCommand 中缺失的 senderIsOwner 默认为 true。
+
+    3. 仅限所有者的工具策略以 senderIsOwner 为键。
+
+    4. gateway 和 cron 是仅限所有者的工具。
+
+
+    影响
+
+    - 影响启用了 Discord 语音且机器人存在于有非所有者参与者的通道中的部署。
+
+    - 不需要网关认证边界绕过。
+
+    - 实际风险很大程度上取决于部署是单信任（推荐）还是混合信任（不推荐）。
+
+
+    严重性说明
+
+    从高降级为中，以与 OpenClaw 的信任模型和部署假设保持一致：
+
+    - 需要与受信任操作员工作流在同一语音环境中参与。
+
+    - 需要 Discord 语音路径条件（加入语音通道 + 转录流程）。
+
+    - 不引入新的跨网关或未认证的边界绕过。
+
+
+    修复措施
+
+    - 始终从 Discord 语音转录入口传递显式的 senderIsOwner。
+
+    - 当非本地/聊天入口路径的所有者状态未知时，采用失败关闭（false）策略。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:H/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpg9-4g4v-f9rc
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wpg9-4g4v-f9rc

@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v6x2-2qvm-6gv8
+  summary: OpenClaw 网关认证令牌在所有者 ID 提示哈希回退中被重用
+  details: >-
+    漏洞
+
+
+    OpenClaw 将 gateway.auth.token（和 gateway.remote.token）作为所有者 ID 提示混淆的回退哈希密钥重用，当 commands.ownerDisplay=hash 且 commands.ownerDisplaySecret 未设置时。
+
+
+    这在网关认证和提示元数据哈希之间创建了密钥双重使用。
+
+
+    影响
+
+
+    - 跨安全域的认证密钥双重使用（网关认证和提示元数据哈希）。
+
+    - 哈希输出在系统提示中对第三方模型提供者可见。
+
+    - 无直接明文令牌泄露。
+
+    - 当操作员使用弱网关令牌且未设置所有者哈希密钥时，实际风险最高。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 最新受影响发布版本：2026.2.21-2
+
+    - 受影响范围：<= 2026.2.21-2
+
+    - 修复版本（计划的下一个版本）：2026.2.22
+
+
+    受影响的组件
+
+
+    - src/agents/cli-runner/helpers.ts
+
+    - src/agents/pi-embedded-runner/run/attempt.ts
+
+    - src/agents/pi-embedded-runner/compact.ts
+
+
+    修复措施
+
+
+    - 添加了共享的所有者显示解析器和密钥生成辅助函数。
+
+    - 移除了对 gateway.auth.token 和 gateway.remote.token 的回退。
+
+    - 当启用哈希模式且密钥缺失时，自动生成并持久化专用的 commands.ownerDisplaySecret。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 到 2026.2.22 或更高版本。提交 - c99e7696e6893083b256f0a6c88fb060f3a76fb7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v6x2-2qvm-6gv8
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v6x2-2qvm-6gv8

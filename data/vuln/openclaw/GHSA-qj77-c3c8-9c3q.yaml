@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qj77-c3c8-9c3q
+  summary: OpenClaw Windows cmd.exe 解析可绕过执行白名单/审批控制
+  details: >-
+    概述
+
+
+    在 Windows 节点上，执行请求通过 cmd.exe /d /s /c <rawCommand> 执行。在白名单/审批控制模式下，白名单分析未模拟 Windows cmd.exe 解析和元字符行为。精心构造的命令字符串可能导致 cmd.exe 解释白名单/审批之外的额外操作（例如通过 & 进行命令链接，或通过 %...% / !...! 进行扩展）。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.1
+
+    - 修复：>= 2026.2.2
+
+    - 截至 2026-02-14 最新（npm）：2026.2.13
+
+
+    详情
+
+
+    - 默认安装：不受影响，除非在 Windows 节点上选择启用执行白名单/审批控制。
+
+    - Windows 执行通过 src/infra/node-shell.ts 使用 cmd.exe。
+
+    - 修复通过以下方式加固 Windows 白名单执行：
+      - 将平台传入白名单分析并拒绝 Windows shell 元字符。
+      - 在 Windows 上将 cmd.exe 调用视为非白名单安全。
+      - 在白名单模式下尽可能直接执行解析后的 argv 以避免使用 cmd.exe。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.2 或更高版本。提交 - a7f4a53ce80c98ba1452eb90802d447fca9bf3d6。感谢
+    @simecek 报告此问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qj77-c3c8-9c3q
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qj77-c3c8-9c3q

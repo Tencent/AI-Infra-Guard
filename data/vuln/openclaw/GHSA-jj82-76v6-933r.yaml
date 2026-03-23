@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jj82-76v6-933r
+  summary: OpenClaw 执行白名单包装器分析未展开 env/shell 调度链
+  details: >-
+    概述
+
+    system.run 执行白名单分析将包装器二进制文件视为有效可执行文件，未完全展开 env/shell 调度包装器。
+
+    这允许通过包装器走私的有效载荷（例如 env bash -lc ...）满足包装器的白名单条目，同时执行未在白名单中的命令。
+
+
+    影响
+
+    在受影响版本上，能够在白名单策略下触发 system.run 请求的操作者可以通过包装器二进制文件路由执行来绕过预期的白名单限制。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.21-2
+
+    - 在下一版本中修复：2026.2.22（已预设，以便在 npm 发布后立即发布）
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 2b63592be57782c8946e521bc81286933f0f99c7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jj82-76v6-933r
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jj82-76v6-933r

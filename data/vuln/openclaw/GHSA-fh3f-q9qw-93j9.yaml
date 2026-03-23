@@ -1,0 +1,31 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fh3f-q9qw-93j9
+  summary: OpenClaw 替换已弃用的沙箱哈希算法
+  details: >-
+    受影响的包/版本
+
+    - npm 包名：openclaw
+
+    - 受影响版本：<= 2026.2.14
+
+    - 已修复版本（预设）：2026.2.15
+
+
+    描述
+
+    Docker/浏览器沙箱配置的沙箱标识符缓存键使用 SHA-1 对规范化的配置载荷进行哈希。
+
+
+    SHA-1 已被弃用用于加密用途，且存在已知的碰撞弱点。在此代码路径中，确定性 ID 用于决定现有沙箱容器是否可以安全重用。此哈希中的碰撞可能使一个配置在相同的沙箱缓存标识下被解释为另一个配置，增加了缓存投毒和不安全沙箱状态重用的风险。
+
+
+    实现现在为这些确定性哈希使用 SHA-256，以恢复此安全相关标识符路径的碰撞抗性。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.2.15 或更高版本。修复提交 - 559c8d993。感谢 @kexinoh（腾讯朱雀实验室，通过 https://github.com/Tencent/AI-Infra-Guard）的报告。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fh3f-q9qw-93j9
+rule: version <= "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fh3f-q9qw-93j9

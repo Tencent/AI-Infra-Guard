@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xw4p-pw82-hqr7
+  summary: OpenClaw Sandbox skill mirroring path traversal could write outside the sandbox workspace
+  details: >-
+    Overview
+
+
+    In affected versions, OpenClaw’s sandbox skill mirroring used the skill’s frontmatter name as part of the destination
+    path when copying skills into the sandbox workspace. A crafted skill name containing traversal segments (for example ../)
+    or an absolute path could cause the copy to write outside <sandbox_workspace>/skills/.
+
+
+    Impact
+
+
+    - Files may be written outside the sandbox workspace root (within the permissions of the user running OpenClaw).
+
+
+    Attack Requirements
+
+
+    - Attacker can provide a skill package (controls SKILL.md frontmatter).
+
+    - Victim runs with sandbox enabled and skill mirroring into the sandbox workspace.
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): < 2026.2.14
+
+
+    Fixed In
+
+
+    - openclaw (npm): >= 2026.2.14
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:L
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.14 or later. Commit(s) - 3eb6a31b6fcf8268456988bfa8e3637d373438c2 Thanks
+    @1seal for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw4p-pw82-hqr7
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xw4p-pw82-hqr7

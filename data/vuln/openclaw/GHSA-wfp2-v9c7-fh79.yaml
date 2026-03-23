@@ -1,0 +1,67 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wfp2-v9c7-fh79
+  summary: OpenClaw 通过附件/媒体 URL 水合导致 SSRF
+  details: >-
+    概述
+
+
+    2026.2.2 之前版本的 openclaw npm 包可能被诱导在附件/媒体水合过程中获取任意 http(s) URL。
+    能够影响媒体 URL 的攻击者（例如通过模型控制的 sendAttachment 或自动回复媒体 URL）可以触发对内部资源的
+    SSRF 并将获取的字节作为出站附件进行数据外泄。
+
+
+    通俗解释
+
+
+    OpenClaw 可以通过先下载文件来发送文件。
+
+
+    在漏洞版本（< 2026.2.2）中，如果攻击者能让 OpenClaw 将某个 URL 视为"要附加的文件"，OpenClaw 会从
+    网关机器下载该 URL，然后将下载的字节作为附件发送出去。
+
+
+    这很重要，因为网关通常可以访问攻击者无法访问的仅限内部的端点（例如 127.0.0.1 服务、私有 RFC1918 地址
+    或云元数据端点）。这是一个数据泄露风险。
+
+
+    这不会直接授予代码执行或 shell 访问权限；它是关于让网关执行 HTTP 请求并返回响应字节。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：< 2026.2.2
+
+    - 已修复：>= 2026.2.2
+
+
+    发布时间线（npm）：
+
+
+    - 2026.2.1 发布于 2026-02-02T11:45:27Z
+
+    - 2026.2.2 发布于 2026-02-04T00:56:41Z
+
+    - 此公告创建于 2026-02-05T10:42:26Z
+
+
+    详情
+
+
+    在受影响的版本中，远程媒体获取执行了没有 SSRF 保护的原始 fetch(url)。
+
+
+    从 2026.2.2 开始，远程媒体获取受到 SSRF 检查保护（私有/回环/链路本地阻断、DNS 锁定和重定向处理），
+    因此尝试获取 127.0.0.1、私有 RFC1918 地址空间或云元数据主机名的请求将被拒绝。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.2.2 或更高版本。修复提交记录：- 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae - 9bd64c8a1f91dda602afc1d5246a2ff2be164647。
+    感谢 @simecek 的报告。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79

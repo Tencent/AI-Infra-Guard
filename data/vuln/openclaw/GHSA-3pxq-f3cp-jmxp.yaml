@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3pxq-f3cp-jmxp
+  summary: OpenClaw 浏览器输出及相关路径边界流程的统一根目录绑定写入加固
+  details: >-
+    概述
+
+    浏览器输出处理中的路径限制绕过允许在 openclaw 2026.3.1 及之前版本中写入到预期根目录之外。
+
+
+    修复统一了根目录绑定、文件描述符验证的写入语义和规范路径边界验证，覆盖浏览器输出及相关的安装/技能写入路径。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响范围：<= 2026.3.1
+
+    - 已修复版本：2026.3.2
+
+
+    技术说明
+
+    - 浏览器输出写入现在使用根目录绑定、文件描述符/inode 验证的提交流程。
+
+    - 安装和技能路径检查现在共享规范的基目录内验证以减少偏差并关闭等效的逃逸面。
+
+    - 添加了符号链接重绑定和根目录绑定源路径写入行为的回归覆盖。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - 104d32bb64cdf19d5e77f70553a511a2ae90ad1c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3pxq-f3cp-jmxp
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3pxq-f3cp-jmxp

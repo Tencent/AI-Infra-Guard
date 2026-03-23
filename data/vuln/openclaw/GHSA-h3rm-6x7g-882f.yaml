@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h3rm-6x7g-882f
+  summary: OpenClaw 节点 system.run 审批加固包装器语义漂移可执行意外的本地脚本
+  details: >-
+    概述
+
+    在 openclaw@2026.3.1 中，节点 system.run 审批路径加固以改变执行语义的方式重写了包装器命令 argv。显示/审批为 Shell 载荷（例如 echo SAFE）的命令在包装器 argv 被重写时可能执行不同的本地脚本。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：2026.3.1（截至2026年3月2日最新发布的 npm 版本）
+
+    - 已修复版本：2026.3.2（已发布）
+
+
+    技术细节
+
+    根本原因在于 system.run 的节点主机审批加固：
+
+    - src/node-host/invoke-system-run-plan.ts 将 argv[0] 重写为已解析的可执行文件。
+
+    - 包装器解析解包了分发包装器，因此输入如 ['env','sh','-c','echo SAFE'] 解析可执行文件为 sh。
+
+    - 审批计划可能变为 ['/bin/sh','sh','-c','echo SAFE']，而审批文本保持为 echo SAFE。
+
+
+    该重写改变了运行时行为：/bin/sh 将额外的 sh 位置参数解释为脚本路径，导致从审批的 cwd 执行本地 ./sh 文件而非审批的载荷文本。
+
+
+    影响
+
+    host=node 执行流程中的审批完整性破坏：操作员可见的命令文本和实际执行的行为可能发生分歧。
+
+
+    利用前提条件：
+
+    - 攻击者能影响包装器 argv 并在审批的工作目录中放置本地文件，
+
+    - 操作员对显示的命令授予审批。
+
+
+    已修复版本
+
+    - 在 openclaw@2026.3.2 中修复。
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - dded569626b0d8e7bdab10b5e7528b6caf73a0f1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h3rm-6x7g-882f
+rule: version = "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h3rm-6x7g-882f

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jjgj-cpp9-cvpv
+  summary: 'OpenClaw Local File Exfiltration via MCP Tool Result MEDIA: Directive Injection'
+  details: >-
+    Summary
+
+    A malicious or compromised MCP (Model Context Protocol) tool server can exfiltrate arbitrary local files from the host system by injecting MEDIA: directives into tool result text content. OpenClaw's tool result processing pipeline extracts file paths from MEDIA: tokens without source-level validation, passes them through a localRoots allowlist check that includes os.tmpdir() by default (covering /tmp on Linux/macOS and %TEMP% on Windows), and then reads and delivers the file contents to external messaging channels such as Discord, Slack, Telegram, and WhatsApp.
+
+    Affected Component
+
+    OpenClaw (all versions up to and including latest as of 2026-02-19)
+
+    Vulnerability Details
+
+    Root Cause
+
+    The vulnerability exists across multiple files in the media processing pipeline:
+
+    1. Unvalidated extraction (src/agents/pi-embedded-subscribe.tools.ts, lines 143-202): extractToolResultMediaPaths() parses MEDIA: tokens from MCP tool result text content blocks using a regex. It accepts any file path (absolute, relative, Windows drive, UNC, file:// URI) without validating the source is trusted or the path is within expected boundaries.
+
+    2. Overly broad default allowlist (src/media/local-roots.ts, lines 7-16): buildMediaLocalRoots() includes os.tmpdir() in the default allowed directory list. On Linux/macOS this is /tmp (world-readable, often containing application secrets, database dumps, SSH keys, session tokens), and on Windows it is %TEMP% (user's temp directory containing application caches, credentials, and temporary secrets).
+
+    3. Delivery to external channels (src/agents/pi-embedded-subscribe.handlers.tools.ts, lines 380-392): After extraction, media paths are delivered via ctx.params.onToolResult({ mediaUrls: mediaPaths }), which flows through the outbound delivery pipeline to send file contents as attachments to Discord, Slack, Telegram, and other configured messaging channels.
+
+    Attack Flow
+
+    ``
+    Malicious MCP Tool Server
+    │
+    ▼
+    Returns...
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.21 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jjgj-cpp9-cvpv
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jjgj-cpp9-cvpv

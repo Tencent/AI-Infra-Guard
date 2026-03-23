@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7xmq-g46g-f8pv
+  summary: OpenClaw 沙箱媒体 TOCTOU 可读取沙箱根目录外的文件
+  details: >-
+    概述
+
+    沙箱媒体处理存在检查时间/使用时间（TOCTOU）间隙：媒体路径可能先被验证，然后通过单独的路径被读取。在这些步骤之间重新指向符号链接可能导致读取 sandboxRoot 之外的文件。
+
+
+    影响
+
+    受影响的版本在媒体附件/图片流程中可能允许读取预期沙箱根目录之外的宿主文件。
+
+
+    修复
+
+    媒体读取现在在使用时使用统一的根目录范围、边界安全的读取路径，消除了调用站点之间的检查/使用漂移。
+
+
+    受影响和已修复版本
+
+    - 受影响版本：<= 2026.2.26
+
+    - 已修复版本：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。媒体读取现在在使用时使用统一的根目录范围、边界安全的读取路径，消除了调用站点之间的检查/使用漂移。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7xmq-g46g-f8pv
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7xmq-g46g-f8pv

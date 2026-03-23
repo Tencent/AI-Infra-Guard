@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g75x-8qqm-2vxp
+  summary: OpenClaw `tools.exec.safeBins` PATH-hijack allowed trojan binaries to bypass allowlist checks
+  details: >-
+    Summary
+
+
+    tools.exec.safeBins allowlist checks could be bypassed by PATH-hijacked binaries, allowing execution of attacker-controlled
+    trojan binaries under an allowlisted executable name.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Latest published version at triage time: 2026.2.17
+
+    - Affected range: >= 2026.1.21 < 2026.2.18
+
+    - Patched version: 2026.2.19
+
+
+    Impact
+
+
+    In allowlist mode, safeBins validation previously accepted a resolved executable path based on executable name and argument
+    shape, without enforcing trusted executable directories. If an attacker could influence process PATH resolution before
+    gateway startup (or otherwise control the gateway launch environment), a trojan binary with an allowlisted name (for example
+    jq) could be executed.
+
+
+    Severity Rationale
+
+
+    This issue is rated medium because exploitation requires an additional precondition: influencing the gateway process PATH
+    / launch environment. Request-scoped PATH injection is blocked for host execution.
+
+
+    Fix
+
+
+    safeBins now requires the resolved executable path to come from trusted bin directories (system defaults plus gateway
+    startup PATH), closing the bypass.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. safeBins now requires the resolved executable path to come from
+    trusted bin directories (system defaults plus gateway startup PATH), closing the bypass.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g75x-8qqm-2vxp
+rule: version >= "2026.1.21" && version < "2026.2.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g75x-8qqm-2vxp

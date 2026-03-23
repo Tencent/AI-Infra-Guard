@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2fgq-7j6h-9rm4
+  summary: OpenClaw system.run shell 包装器通过 SHELLOPTS/PS4 的环境变量注入可绕过白名单意图（远程代码执行）
+  details: >-
+    概述
+
+    system.run 允许通过 SHELLOPTS + PS4 环境变量注入，在白名单命令体执行之前触发 bash -lc xtrace 展开期间的命令替换。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响：<= 2026.2.21-2
+
+    - 已修复（计划下一版本）：2026.2.22
+
+
+    影响
+
+    在白名单模式下，能够使用请求范围 env 调用 system.run 的攻击者可以在预期白名单命令体之外执行额外的 shell 命令。
+
+
+    根本原因
+
+    主机 exec 环境变量清理阻止了启动文件向量（BASH_ENV、ENV 等），但未阻止 SHELLOPTS/PS4。对于 shell 包装器（bash|sh|zsh ... -c/-lc），请求环境变量覆盖被直接传递，bash 在 xtrace 下评估 PS4，从而实现命令替换。
+
+
+    修复
+
+    - 在主机 exec 环境变量清理器中阻止 SHELLOPTS 和 PS4（Node + macOS）。
+
+    - 对于 shell 包装器，将请求范围环境变量覆盖限制为显式白名单（TERM、LANG、LC_*、COLORTERM、NO_COLOR、FORCE_COLOR）。
+
+    - 为 TS 和 macOS 路径添加回归测试。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。在主机 exec 环境变量清理器中阻止 SHELLOPTS 和 PS4；对 shell 包装器将请求范围环境变量限制为显式白名单。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2fgq-7j6h-9rm4
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2fgq-7j6h-9rm4

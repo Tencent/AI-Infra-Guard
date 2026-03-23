@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2fgq-7j6h-9rm4
+  summary: OpenClaw system.run shell-wrapper env injection via SHELLOPTS/PS4 can bypass allowlist intent (RCE)
+  details: >-
+    Summary
+
+    system.run allowed SHELLOPTS + PS4 environment injection to trigger command substitution during bash -lc xtrace expansion
+    before the allowlisted command body executed.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.21-2 (includes latest published npm version at triage time)
+
+    - Patched (planned next release): 2026.2.22
+
+
+    Impact
+
+    In allowlist mode, an attacker who can invoke system.run with request-scoped env could execute additional shell commands
+    outside the intended allowlisted command body.
+
+
+    Root Cause
+
+    Host exec env sanitization blocked startup-file vectors (BASH_ENV, ENV, etc.) but did not block SHELLOPTS/PS4. For shell
+    wrappers (bash|sh|zsh ... -c/-lc), request env overrides were passed through and bash evaluated PS4 under xtrace, enabling
+    command substitution.
+
+
+    Fix
+
+    - Block SHELLOPTS and PS4 in host exec env sanitizers (Node + macOS).
+
+    - For shell wrappers (bash|sh|zsh ... -c/-lc), reduce request-scoped env overrides to an explicit allowlist (TERM, LANG,
+    LC_*, COLORTERM, NO_COLOR, FORCE_COLOR).
+
+    - Add regression tests for TS and macOS paths.
+
+
+    Severity Rationale
+
+    This advisory is rated medium because exploitation requires a caller that can already invoke system.run with request-scoped
+    env.
+
+
+    Under OpenClaw's documented trust model (SECURITY.md), authenticated Gateway callers are treated as trusted operators,
+    and adversarial multi-operator / prompt-injection scenarios are out of scope.
+
+
+    The bug remains a real allowlist-intent bypass, but it does not cross a separate trust boundary in the documented deployment
+    assumptions.
+
+
+    Thanks @tdjackey for reporting.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. - Block SHELLOPTS and PS4 in host exec env sanitizers (Node
+    + macOS). - For shell wrappers (bash|sh|zsh ... -c/-lc), reduce request-scoped env overrides to an explicit allowlist
+    (TERM, LANG, LC_*, COLORTERM, NO_COLOR, FORCE_COLOR). - Add regression tests for TS and macOS paths.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2fgq-7j6h-9rm4
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2fgq-7j6h-9rm4

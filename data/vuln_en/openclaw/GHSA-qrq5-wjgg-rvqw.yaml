@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qrq5-wjgg-rvqw
+  summary: OpenClaw Path Traversal in Plugin Installation
+  details: >-
+    Summary
+
+
+    A path traversal issue in OpenClaw plugin installation could allow a malicious plugin package name to escape the intended
+    extensions directory and write files outside of it.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: >= 2026.1.29-beta.1, < 2026.2.1
+
+    - Patched: >= 2026.2.1
+
+
+    Details
+
+
+    When installing plugins, OpenClaw derives an installation directory name from the plugin's package.json name. In affected
+    versions, crafted scoped names could result in path segments like .., which allowed the computed install target to resolve
+    outside the extensions directory.
+
+
+    Exploitation requires the victim to run openclaw plugins install on attacker-controlled plugin content.
+
+
+    Fix
+
+
+    The install path is now validated and reserved/traversal-like plugin ids are rejected.
+
+
+    Mitigation
+
+
+    Upgrade to openclaw >= 2026.2.1.
+
+
+    Thanks @logicx24 for reporting.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:H
+  severity: CRITICAL
+  security_advise: Upgrade openclaw to >= 2026.2.1 or later. The install path is now validated and reserved/traversal-like
+    plugin ids are rejected. Upgrade to openclaw >= 2026.2.1. Thanks @logicx24 for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qrq5-wjgg-rvqw
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qrq5-wjgg-rvqw

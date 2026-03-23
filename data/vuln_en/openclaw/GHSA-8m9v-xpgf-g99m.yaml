@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8m9v-xpgf-g99m
+  summary: OpenClaw Unauthorized sender bypass in stop triggers and /models command authorization
+  details: >-
+    Summary
+
+    Unauthorized senders could trigger two command paths without sender authorization checks:
+
+    1. stop-like natural-language abort triggers
+
+    2. /models command output
+
+
+    Impact
+
+    An unauthorized sender could disrupt active sessions and view model/auth metadata that should be authorization-gated.
+
+
+    Fix
+
+    Sender authorization is now enforced for stop-like abort triggers and /models listings.
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.1 or later. Sender authorization is now enforced for stop-like abort triggers
+    and /models listings.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8m9v-xpgf-g99m
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8m9v-xpgf-g99m

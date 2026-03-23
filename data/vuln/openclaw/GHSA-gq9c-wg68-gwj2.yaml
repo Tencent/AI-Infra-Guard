@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gq9c-wg68-gwj2
+  summary: OpenClaw 浏览器 trace/download 输出路径中的路径遍历可能允许在 OpenClaw 临时目录外进行任意文件写入
+  details: >-
+    概述
+
+    OpenClaw 的浏览器控制 API 接受用户提供的 trace/download 文件输出路径，而未一致性地将写入限制在 OpenClaw 管理的临时目录内。
+
+    影响
+
+    如果攻击者能访问浏览器控制 API，他们可能尝试将 trace/download 输出文件写入预期临时根目录之外的位置，具体取决于进程文件系统权限。
+
+    受影响的版本
+
+    openclaw < 2026.2.13
+
+    已修复版本
+
+    openclaw >= 2026.2.13
+
+    修复措施
+
+    升级至 2026.2.13 或更高版本。
+
+    变更内容
+
+    修复限制了以下输出路径：
+
+    - POST /trace/stop
+
+    - POST /wait/download
+
+    - POST /download
+
+    以上三者现在都强制执行 OpenClaw 临时根目录边界并拒绝遍历/逃逸路径。
+
+    致谢
+
+    感谢 Praetorian 的 Adnan Jakati (@jackhax) 负责任的披露。
+
+    修复在 PR 15652 中发布并于2026年2月13日合并到主线（7f0489e4731c8d965d78d6eac4a60312e46a9426）。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.13 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gq9c-wg68-gwj2
+rule: version < "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gq9c-wg68-gwj2

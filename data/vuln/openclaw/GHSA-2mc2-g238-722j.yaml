@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2mc2-g238-722j
+  summary: OpenClaw iMessage 远程附件 SCP 加固（严格主机密钥检查和 remoteHost 验证）
+  details: >-
+    概述
+
+
+    远程 iMessage 附件获取使用了首次使用即信任的主机密钥行为的 SCP，并接受了未验证的远程主机令牌。
+
+
+    修复前：
+
+    - SCP 在远程附件路径中使用 StrictHostKeyChecking=accept-new。
+
+    - channels.imessage.remoteHost 未作为严格 SSH 主机令牌进行验证。
+
+
+    影响
+
+
+    在使用 SCP 附件获取的远程 iMessage 部署中，首次连接的中间人/DNS 投毒场景可能导致信任错误的主机密钥。不安全的远程主机令牌值也可能改变 SCP 参数语义。
+
+
+    受影响的软件包/版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响范围：<= 2026.2.17
+
+    - 已修复版本：>= 2026.2.19
+
+
+    修复
+
+
+    修复通过以下方式加固远程附件 SSH/SCP 处理：
+
+    - SCP 和 SSH 隧道路径要求 StrictHostKeyChecking=yes
+
+    - 添加严格的 remoteHost 规范化/验证
+
+    - 为 SCP 远程源解析添加 -- 参数屏障
+
+    - 在配置模式中验证 channels.imessage.remoteHost
+
+    - 在运行时拒绝不安全的自动检测主机令牌
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。修复加固了远程附件 SSH/SCP 处理，要求 StrictHostKeyChecking=yes，并添加严格的 remoteHost 规范化/验证。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2mc2-g238-722j
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2mc2-g238-722j

@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g27f-9qjv-22pm
+  summary: OpenClaw OpenClaw log poisoning (indirect prompt injection) via WebSocket headers
+  details: >-
+    Summary
+
+    In openclaw versions prior to 2026.2.13, OpenClaw logged certain WebSocket request headers (including Origin and User-Agent)
+    without neutralization or length limits on the "closed before connect" path.
+
+
+    If an unauthenticated client can reach the gateway and send crafted header values, those values may be written into core
+    logs. Under workflows where logs are later read or interpreted by an LLM (for example via AI-assisted debugging), this
+    can increase the risk of indirect prompt injection (log poisoning).
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.12
+
+    - Fixed: >= 2026.2.13
+
+
+    Details
+
+    - Component: src/gateway/server/ws-connection.ts
+
+    - Trigger: WebSocket connection closes before completing the connect/handshake; header values are included in the log
+    message and structured context.
+
+
+    Impact
+
+    This issue is primarily an indirect prompt injection risk and depends on downstream log consumption behavior. If you do
+    not feed logs into an LLM or other automation, impact is limited.
+
+
+    Fix
+
+    Header values written to gateway logs are now sanitized and truncated (including removal of control/format characters
+    and length limiting).
+
+    - Fix commits: d637a263505448bf4505b85535babbfaacedbaac, e84318e4bcdc948d92e57fda1eb763a65e1774f0 (PR 15592)
+
+
+    Workarounds
+
+    - Upgrade to openclaw@2026.2.13 or later.
+
+    - Treat logs as untrusted input when using AI-assisted debugging (sanitize/escape, and do not auto-execute instructions
+    derived from logs).
+
+    - Restrict gateway network exposure; apply reverse-proxy limits on header size where applicable.
+
+
+    Thanks @pkerkhofs for reporting.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:N
+  severity: LOW
+  security_advise: 'Upgrade openclaw to 2026.2.13 or later. Header values written to gateway logs are now sanitized and truncated
+    (including removal of control/format characters and length limiting). - Fix commits: d637a263505448bf4505b85535babbfaacedbaac,
+    e84318e4bcdc948d92e57fda1eb763a65e1774f0 (PR #15592)'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g27f-9qjv-22pm
+rule: version <= "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g27f-9qjv-22pm

@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gw85-xp4q-5gp9
+  summary: OpenClaw Synology Chat dmPolicy=allowlist failed open on empty allowedUserIds, allowing unauthorized agent dispatch
+  details: >-
+    Summary
+
+    In openclaw versions 2026.2.22 and 2026.2.23, the optional synology-chat channel plugin had an authorization fail-open
+    condition: when dmPolicy was allowlist and allowedUserIds was empty/unset, unauthorized senders were still allowed through
+    to agent dispatch.
+
+
+    This is assessed as medium severity because it requires channel/plugin setup and Synology sender access, but can still
+    trigger downstream agent/tool actions.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.2.22, <= 2026.2.23
+
+    - Latest published affected version at patch time: 2026.2.23
+
+    - Planned patched version: 2026.2.24
+
+
+    Details
+
+    Root cause was a policy mismatch across plugin code paths:
+
+    1. Default resolved DM policy was allowlist.
+
+    2. Empty allowedUserIds was treated as allow-all.
+
+    3. Webhook auth in allowlist mode depended on that helper.
+
+
+    Result: allowlist with empty list behaved like open access for inbound Synology senders.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - 0ee30361b8f6ef3f110f3a7b001da6dd3df96bb5 - 7655c0cb3a47d0647cbbf5284e177f90b4b82ddb
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gw85-xp4q-5gp9
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gw85-xp4q-5gp9

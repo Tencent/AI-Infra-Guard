@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4cqv-h74h-93j4
+  summary: OpenClaw Discord allowFrom slug 碰撞授权绕过
+  details: >-
+    OpenClaw 支持使用用户 ID 或名称/标签的 Discord 允许列表。名称/标签匹配依赖于 slug 规范化，因此不同的用户标签可能碰撞为相同的
+    slug，无意中满足基于名称的允许列表条目。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 已修复版本：>= 2026.2.22
+
+
+    变更内容
+
+    - openclaw 安全审计现在对 Discord 名称/标签允许列表条目（DM 允许列表、公会/频道用户和配对存储条目）发出警告。
+
+    - 运行时授权现在在配置的名称/标签可被解析时优先使用已解析的用户 ID，而不重写磁盘上的配置文件。
+
+    - 出于兼容性，基于名称的条目仍受支持。
+
+
+    建议
+
+    - 对安全敏感的允许列表优先使用稳定的 Discord 用户 ID。
+
+    - 运行 openclaw security audit 并在可行时处理警告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - f97c45c5b5e0698b6667bb5f6badc0cac7dabd12 -
+    747bb581b3f2264495e1fec5a0727d9f2ca1b6f1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4

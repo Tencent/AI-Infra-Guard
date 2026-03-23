@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-553v-f69r-656j
+  summary: OpenClaw Unpaired device identity can bypass operator pairing and self-assign operator scopes with shared auth
+  details: >-
+    Summary
+
+    A client using shared gateway auth could attach an unpaired device identity and request elevated operator scopes (including
+    operator.admin) before pairing approval, enabling privilege escalation.
+
+
+    Impact
+
+    Attackers with valid shared gateway auth could self-assign higher operator scopes by presenting a self-signed, unpaired
+    device identity.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: >= 2026.2.22 <= 2026.2.24
+
+    - Latest published npm at triage time: 2026.2.24
+
+    - Planned patched release: 2026.2.25
+
+
+    Remediation
+
+    Require pairing for operator device-identity sessions authenticated with shared token/password auth (except existing control-ui
+    trusted-proxy/control-ui bypass policy paths).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 8d1481cb4a9d31bd617e52dc8c392c35689d9dea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-553v-f69r-656j
+rule: version >= "2026.2.22" && version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-553v-f69r-656j

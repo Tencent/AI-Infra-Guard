@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3jx4-q2m7-r496
+  summary: OpenClaw 硬链接别名检查在特定配置下可绕过仅工作区文件边界
+  details: >-
+    摘要
+
+    在某些工作区受限配置中，OpenClaw 可能跟随工作区内引用工作区边界之外文件的硬链接别名。
+
+
+    默认情况下，tools.fs.workspaceOnly 是关闭的。此问题主要影响有意启用仅工作区文件系统限制（和仅工作区 apply_patch 检查）的部署。
+
+
+    影响
+
+    - 机密性：可通过工作区内的硬链接别名读取工作区外文件。
+
+    - 完整性：可通过工作区内的硬链接别名修改工作区外文件。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 分类时最新发布版本：2026.2.24
+
+    - 受影响范围：<= 2026.2.24
+
+    - 计划修复版本：2026.2.25
+
+
+    修复措施
+
+    OpenClaw 现在在工作区边界验证期间拒绝硬链接最终文件别名，包括：
+
+    - 仅工作区路径检查（读/写/编辑）
+
+    - 仅工作区 apply_patch 读写路径
+
+    - 沙箱挂载根路径安全检查
+
+
+    为 apply_patch、工作区 fs 工具和沙箱 fs 桥接硬链接别名逃逸添加了回归测试。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。提交记录 - 04d91d0319b82fd4de91ed05e9fc5219ff2ab64e（main）
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3jx4-q2m7-r496
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3jx4-q2m7-r496

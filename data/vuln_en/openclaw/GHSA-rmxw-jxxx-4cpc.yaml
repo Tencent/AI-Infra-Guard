@@ -1,0 +1,67 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rmxw-jxxx-4cpc
+  summary: OpenClaw Matrix allowlist bypass via displayName and cross-homeserver localpart matching
+  details: >-
+    Summary
+
+
+    OpenClaw Matrix DM allowlist matching could be bypassed in certain configurations.
+
+
+    Matrix support ships as an optional plugin (not bundled with the core install), so this only affects deployments that
+    have installed and enabled the Matrix plugin.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: >= 2026.1.14-1, < 2026.2.2
+
+    - Patched: >= 2026.2.2
+
+
+    Details
+
+
+    In affected versions, DM allowlist decisions could be made by exact-matching channels.matrix.dm.allowFrom entries against
+    multiple sender-derived candidates, including:
+
+
+    - The sender display name (attacker-controlled and non-unique)
+
+    - The sender MXID localpart with the homeserver discarded, so @alice:evil.example and @alice:trusted.example both match
+    alice
+
+
+    If an operator configured channels.matrix.dm.allowFrom with display names or bare localparts (for example, "Alice" or
+    "alice"), a remote Matrix user may be able to impersonate an allowed identity for allowlist purposes and reach the routing/agent
+    pipeline.
+
+
+    Impact
+
+
+    Matrix DM allowlist identity confusion. The practical impact depends on your Matrix channel policies and what capabilities
+    are enabled downstream.
+
+
+    Mitigation
+
+
+    - Upgrade to openclaw >= 2026.2.2.
+
+    - Ensure Matrix allowlists contain only full Matrix user IDs (MXIDs) like @user:server (or *). Do not use display names
+    or bare localparts.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.2 or later. Commit(s) - 8f3bfbd1c4fb967a2ddb5b4b9a05784920814bcf Thanks @MegaManSec
+    (https://joshua.hu) of AISLE Research Team for reporting. - Upgrade to openclaw >= 2026.2.2. - Ensure Matrix allowlists
+    contain only full Matrix user IDs (MXIDs) like @user:server (or *). Do not use display names or bare localparts.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc

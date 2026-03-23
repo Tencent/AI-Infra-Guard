@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5ghc-98wh-gwwf
+  summary: OpenClaw Control UI 静态文件处理器跟随符号链接导致根目录外文件读取
+  details: >-
+    概述
+
+    Control UI 静态文件处理器此前通过词法方式验证资源路径，然后使用会跟随符号链接的 API 提供文件服务。在 Control UI 根目录下放置的符号链接可能导致根目录外的文件读取。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 最新发布的已观察版本：2026.2.21-2
+
+    - 受影响版本：<=2026.2.21-2
+
+    - 计划修复版本：2026.2.22
+
+
+    技术细节
+
+    漏洞流程位于 src/gateway/control-ui.ts 中，其中 path.join(...) + 字符串前缀检查之后的文件读取操作会解析符号链接。当 Control UI 根目录内存在符号链接时，这允许绕过目录限制。
+
+
+    修复措施现在强制执行 realpath 包含检查，并在提供 Control UI 资源和 SPA 回退 index.html 之前验证文件身份。
+
+
+    影响
+
+    - 漏洞类型：路径遍历/通过符号链接跟随导致的外部文件暴露。
+
+    - 主要影响：机密性（根目录外文件读取）。
+
+    - 严重性指导：在受支持的可信操作员部署中为低风险；在不受支持的共享可写环境中可能更高。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 7c500ff6236fa087ec1ec88696ca9f6881e90dc5
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5ghc-98wh-gwwf
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5ghc-98wh-gwwf

@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h656-5vcf-cm23
+  summary: 'OpenClaw Telegram: Unauthorized Senders Trigger Media Download and Disk Write Before Access Check'
+  details: >-
+    Impact
+
+
+    In Telegram DM mode, inbound media was downloaded and written to disk before sender authorization checks completed. An
+    unauthorized sender could trigger inbound media download/write activity (including media groups) even when DM access should
+    be denied.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Latest published version currently affected: 2026.2.23
+
+    - Vulnerable range: <= 2026.2.23
+
+    - Patched in planned next release: 2026.2.24
+
+
+    Technical Details
+
+
+    The Telegram handler flow now enforces DM authorization before media download/write paths execute, including media-group
+    handling. Inbound channel activity tracking was also moved to run after DM authorization in the Telegram message context
+    path.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - 9514201fb9b51de5d0b23151110d0ff5d9c8bd67
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h656-5vcf-cm23
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h656-5vcf-cm23

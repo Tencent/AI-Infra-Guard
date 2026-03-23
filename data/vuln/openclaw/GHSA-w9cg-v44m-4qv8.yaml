@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w9cg-v44m-4qv8
+  summary: OpenClaw BASH_ENV / ENV 启动文件注入到生成的 shell 命令中
+  details: >-
+    概述
+
+    BASH_ENV / ENV 启动文件注入可能导致在攻击者控制的环境变量被接受并被主机命令执行路径继承时，
+    发生意外的命令前 shell 执行。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.19-2
+
+    - 在主分支上已修复：2cdbadee1f8fcaa93302d7debbfc529e19868ea4
+
+    - 计划修补发布版本：2026.2.21
+
+
+    详情
+
+    修复加固了所有相关执行路径中的环境处理：
+
+    - 在共享主机环境清理中阻止危险的启动/运行时环境键和前缀。
+
+    - 即使未提供每请求覆盖，也清理继承的环境变量。
+
+    - 在值进入进程环境之前阻止危险的配置驱动环境注入。
+
+    - 在 macOS 主机执行路径中使用相同的清理器。
+
+    - 将技能环境覆盖清理与共享的危险环境策略对齐。
+
+
+    影响
+
+    中等。利用需要对配置或环境输入具有本地/特权影响力；仅此问题不存在独立的远程未认证触发器。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。提交记录 - 2cdbadee1f8fcaa93302d7debbfc529e19868ea4
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w9cg-v44m-4qv8
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w9cg-v44m-4qv8

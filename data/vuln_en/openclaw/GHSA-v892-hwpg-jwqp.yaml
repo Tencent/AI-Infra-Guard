@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v892-hwpg-jwqp
+  summary: OpenClaw Path traversal (Zip Slip) in archive extraction during explicit installation commands
+  details: >-
+    Summary
+
+
+    A path traversal (Zip Slip) issue in archive extraction during explicit installation commands could allow a crafted archive
+    to write files outside the intended extraction directory.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >=2026.1.16-2 <2026.2.14
+
+    - Fixed version: 2026.2.14
+
+
+    Affected Commands / Flows
+
+
+    This only affects users who run installation commands against an untrusted archive (local file or download URL), for example:
+
+
+    - openclaw skills install (download+extract installers)
+
+    - openclaw hooks install (archive installs)
+
+    - openclaw plugins install (archive installs)
+
+    - openclaw signal install (signal-cli asset extraction)
+
+
+    It is not triggered by receiving messages or normal gateway operation.
+
+
+    Impact
+
+
+    Arbitrary file write as the current user. In the worst case this can be used for persistence or code execution if an attacker
+    can convince a user to install a crafted archive.
+
+
+    Fix
+
+
+    - Fix commit: 3aa94afcfd12104c683c9cad81faf434d0dadf87
+
+    - Released in: 2026.2.14
+
+
+    Credits
+
+
+    Thanks @markmusson for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >=2026.2.14 or later. - Fix commit: 3aa94afcfd12104c683c9cad81faf434d0dadf87 - Released
+    in: 2026.2.14'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v892-hwpg-jwqp
+rule: version >= "2026.1.16-2" && version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v892-hwpg-jwqp

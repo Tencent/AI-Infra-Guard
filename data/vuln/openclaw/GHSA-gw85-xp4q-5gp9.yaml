@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gw85-xp4q-5gp9
+  summary: OpenClaw Synology Chat dmPolicy=allowlist 在空的 allowedUserIds 时开放失败，允许未授权的代理分发
+  details: >-
+    概述
+
+    在 openclaw 版本 2026.2.22 和 2026.2.23 中，可选的 synology-chat 频道插件存在授权开放失败条件：当 dmPolicy 为 allowlist 且 allowedUserIds 为空/未设置时，未经授权的发送者仍被允许通过到代理分发。
+
+
+    这被评估为中等严重性，因为它需要频道/插件设置和 Synology 发送者访问权限，但仍可触发下游代理/工具操作。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：>= 2026.2.22，<= 2026.2.23
+
+    - 修补时最新发布的受影响版本：2026.2.23
+
+    - 计划的已修复版本：2026.2.24
+
+
+    详细信息
+
+    根本原因是插件代码路径之间的策略不匹配：
+
+    1. 默认解析的 DM 策略为 allowlist。
+
+    2. 空的 allowedUserIds 被视为全部允许。
+
+    3. 允许列表模式下的 Webhook 认证依赖于该辅助程序。
+
+
+    结果：空列表的允许列表对入站 Synology 发送者表现为开放访问。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。修复提交 - 0ee30361b8f6ef3f110f3a7b001da6dd3df96bb5 - 7655c0cb3a47d0647cbbf5284e177f90b4b82ddb
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gw85-xp4q-5gp9
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gw85-xp4q-5gp9

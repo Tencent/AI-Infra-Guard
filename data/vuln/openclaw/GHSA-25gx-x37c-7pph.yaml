@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-25gx-x37c-7pph
+  summary: OpenClaw 沙箱浏览器 noVNC 观察器缺少 VNC 认证
+  details: >-
+    沙箱浏览器入口点在启动 x11vnc 时未设置认证（-nopw）用于 noVNC 观察器会话。
+
+
+    OpenClaw 管理的运行时流程仅将 noVNC 端口发布到主机回环地址（127.0.0.1），因此默认暴露范围仅限于主机本地，除非操作员显式地更广泛地暴露端口（或以广泛端口发布方式独立运行镜像）。
+
+
+    受影响的软件包/版本
+
+
+    - 软件包：docker/openclaw
+
+    - 受影响：<= 2026.2.19-2
+
+    - 已修复：>= 2026.2.21
+
+
+    技术细节
+
+
+    - scripts/sandbox-browser-entrypoint.sh 对 noVNC 观察器流程使用了 x11vnc ... -nopw。
+
+    - websockify 为容器监听器暴露了 noVNC。
+
+    - OpenClaw 运行时（src/agents/sandbox/browser.ts）已将主机发布映射到回环地址，但观察器认证缺失。
+
+
+    修复
+
+
+    - 在沙箱浏览器入口点中要求 VNC 密码认证（x11vnc -rfbauth），替换 -nopw。
+
+    - 在运行时生成每容器 noVNC 密码并注入 OPENCLAW_BROWSER_NOVNC_PASSWORD。
+
+    - 发出短期有效的 noVNC 观察器令牌 URL，而非在共享 URL 中分享原始 noVNC 密码。
+
+    - 保持回环地址仅主机端口发布并更新沙箱浏览器安全哈希纪元。
+
+    - 为在非回环接口上发布端口的沙箱浏览器容器添加安全审计发现。
+
+
+    操作说明：重建沙箱浏览器镜像并重建浏览器容器，使现有容器应用修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。在沙箱浏览器入口点中要求 VNC 密码认证，生成每容器 noVNC 密码，发出短期有效的观察器令牌 URL。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-25gx-x37c-7pph
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-25gx-x37c-7pph

@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r65x-2hqr-j5hf
+  summary: OpenClaw Node reconnect metadata spoofing could bypass platform-based node command policy
+  details: >-
+    Summary
+
+
+    A paired node device could reconnect with spoofed platform/deviceFamily metadata and broaden node command policy eligibility
+    because reconnect metadata was accepted from the client while these fields were not bound into the device-auth signature.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.25
+
+    - Latest published version at update time: 2026.2.25
+
+    - Patched version (pre-set for next release): 2026.2.26
+
+
+    Impact
+
+
+    In configurations where node command policy differs by platform, an attacker with an already paired node identity on the
+    trusted network could spoof reconnect metadata and gain access to commands that should remain blocked for the originally
+    paired platform.
+
+
+    Fix
+
+
+    - Add device-auth payload v3 that signs normalized platform and deviceFamily.
+
+    - Verify v3 first (fallback to v2 for compatibility), while pinning paired metadata server-side.
+
+    - Reject reconnect metadata mismatches and require explicit repair pairing to change pinned metadata.
+
+    - Add regression coverage for reconnect spoof attempts.
+  cvss: CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. - Add device-auth payload v3 that signs normalized platform
+    and deviceFamily. - Verify v3 first (fallback to v2 for compatibility), while pinning paired metadata server-side. - Reject
+    reconnect metadata mismatches and require explicit repair pairing to change pinned metadata.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r65x-2hqr-j5hf
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r65x-2hqr-j5hf

@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p7gr-f84w-hqg5
+  summary: OpenClaw 沙箱化的 sessions_spawn 现在对跨代理生成执行沙箱继承
+  details: >-
+    概述
+
+    沙箱化的会话可以使用跨代理 sessions_spawn 在配置为 sandbox.mode="off" 的代理下创建子进程，从而降级运行时隔离。
+
+
+    影响
+
+    在允许跨代理生成的混合代理配置中，沙箱化的请求者可以逃逸到非沙箱化的子运行时中。
+
+
+    修复
+
+    现在执行生成时沙箱继承：如果请求者是沙箱化的而解析的子运行时将是非沙箱化的，则生成被拒绝。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 修复：2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >= 2026.3.1 或更高版本。现在执行生成时沙箱继承：如果请求者是沙箱化的而解析的子运行时将是非沙箱化的，则生成被拒绝。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p7gr-f84w-hqg5
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p7gr-f84w-hqg5

@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qrq5-wjgg-rvqw
+  summary: OpenClaw 插件安装中的路径遍历
+  details: >-
+    概述
+
+
+    OpenClaw 插件安装中的路径遍历问题可能允许恶意插件包名逃逸预期的扩展目录并在其外部写入文件。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：>= 2026.1.29-beta.1, < 2026.2.1
+
+    - 修复：>= 2026.2.1
+
+
+    详情
+
+
+    安装插件时，OpenClaw 从插件的 package.json 名称派生安装目录名。在受影响版本中，精心构造的作用域名称可能产生 .. 等路径段，这允许计算的安装目标解析到扩展目录之外。
+
+
+    利用此漏洞需要受害者对攻击者控制的插件内容运行 openclaw plugins install。
+
+
+    修复
+
+
+    安装路径现在经过验证，保留/遍历类的插件 ID 将被拒绝。
+
+
+    缓解措施
+
+
+    升级到 openclaw >= 2026.2.1。
+
+
+    感谢 @logicx24 报告此问题。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:H
+  severity: CRITICAL
+  security_advise: 升级 openclaw 到 >= 2026.2.1 或更高版本。安装路径现在经过验证，保留/遍历类的插件 ID 将被拒绝。升级到
+    openclaw >= 2026.2.1。感谢 @logicx24 报告此问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qrq5-wjgg-rvqw
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qrq5-wjgg-rvqw

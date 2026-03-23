@@ -1,0 +1,59 @@
+info:
+  name: OpenClaw
+  cve: GHSA-25pw-4h6w-qwvm
+  summary: OpenClaw BlueBubbles 群组白名单通过私信配对存储回退出现不匹配
+  details: >-
+    概述
+
+    在 openclaw@2026.2.25 中，当 dmPolicy=pairing 且 groupPolicy=allowlist 时，BlueBubbles 群组授权可能错误地将私信配对存储身份视为群组白名单身份。
+
+
+    仅通过私信配对（未明确出现在 groupAllowFrom 中）的发送者可以通过消息和回应入口的群组发送者检查。
+
+
+    根据 OpenClaw 的 SECURITY.md 信任模型，这是一个受限的授权一致性问题，而非多租户边界绕过或主机权限提升。
+
+
+    严重性：低。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.25
+
+    - 已修复版本：>= 2026.2.26
+
+
+    技术细节
+
+    根本原因是私信/群组白名单组合中，私信配对存储身份可能流入群组授权决策。
+
+
+    修复方案：
+
+    - 通过共享解析器集中私信/群组授权组合
+
+    - 移除频道调用点的本地私信/群组列表重组
+
+    - 为消息和回应入口添加跨频道回归覆盖
+
+    - 添加 CI 守卫以阻止未来配对存储泄露到群组认证组合中
+
+
+    影响
+
+    - 影响使用 BlueBubbles 且 groupPolicy=allowlist 和 dmPolicy=pairing 且存在配对存储条目的部署。
+
+    - 可能允许私信授权的身份被视为群组授权而无需明确的 groupAllowFrom 成员资格。
+
+    - 不会绕过 gateway 认证、沙箱边界，也不会在现有私信授权之外创建新的主机级权限。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。修复提交 - 051fdcc428129446e7c084260f837b7284279ce9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-25pw-4h6w-qwvm
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-25pw-4h6w-qwvm

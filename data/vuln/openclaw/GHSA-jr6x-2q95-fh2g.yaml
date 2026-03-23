@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jr6x-2q95-fh2g
+  summary: OpenClaw 授权不匹配允许写入范围的代理运行访问仅所有者工具
+  details: >-
+    概述
+
+    授权不匹配允许具有 operator.write 访问权限的经过认证的调用方在使用限定范围令牌的部署中，通过代理运行调用仅所有者工具接口（gateway、cron）。
+
+
+    影响
+
+    在受影响的部署中，写入范围的调用方可以执行超出预期写入范围的控制平面操作。
+
+
+    修复
+
+    现在在代理执行期间对仅所有者工具接口一致地执行仅所有者权限检查，并收紧了工具范围分类以消除权限不匹配。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 修复：2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.3.1 或更高版本。现在在代理执行期间对仅所有者工具接口一致地执行仅所有者权限检查，并收紧了工具范围分类以消除权限不匹配。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jr6x-2q95-fh2g
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jr6x-2q95-fh2g

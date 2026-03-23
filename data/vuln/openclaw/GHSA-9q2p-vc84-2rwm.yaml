@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9q2p-vc84-2rwm
+  summary: OpenClaw system.run 的 allow-always 持久化包含了 shell 注释载荷尾部
+  details: >-
+    OpenClaw 的 system.run 允许列表分析在推导 allow-always 持久化条目时未遵循 POSIX shell 注释语义。
+
+
+    在 security=allowlist 模式下，收到 allow-always 决策的调用者可以提交一个 shell 命令，其尾部在运行时被注释掉，例如在链式载荷前
+    使用未加引号的 #。运行时 shell 仅执行注释前的部分，但允许列表持久化仍可能分析并存储未执行的尾部作为可信的后续命令。
+
+
+    npm 最新发布版本: 2026.3.2
+
+
+    于 2026 年 3 月 7 日在主分支修复，提交 939b18475d734ed75173f59507e3ebbdfe1992b7，通过教会 shell 分词和链/管道分析在未加引号的
+    shell 注释处停止，使 allow-always 持久化现在仅跟踪 shell 实际可以执行的命令。正常的真实链式命令和引号内的 # 字面量继续正常工作。
+
+
+    受影响的包/版本
+
+
+    - 包名: openclaw (npm)
+
+    - 受影响版本: <= 2026.3.2
+
+    - 修复版本: >= 2026.3.7
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 939b18475d734ed75173f59507e3ebbdfe1992b7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9q2p-vc84-2rwm
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9q2p-vc84-2rwm

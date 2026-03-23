@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hfpr-jhpq-x4rm
+  summary: OpenClaw `operator.write` 权限的 chat.send 可达管理员专属配置写入
+  details: >-
+    摘要
+
+    通过 operator.write 认证的网关客户端可以通过 chat.send 路由 /config set 或 /config unset 命令，达到持久化配置修改的目的，
+    尽管直接的配置 RPC 方法被限定为管理员范围。
+
+
+    受影响的包/版本
+
+    - 包名: openclaw (npm)
+
+    - 存在漏洞的最新发布版本: 2026.3.2
+
+    - 受影响范围: <= 2026.3.2
+
+    - 修复版本: 2026.3.7
+
+
+    详情
+
+    修复前，chat.send 在内部网关聊天上下文中以 CommandAuthorized: true 执行斜杠命令，而 /config 写入路径仅检查命令授权以及
+    commands.config / channels.<provider>.configWrites 开关。这使得经过认证的 operator.write 网关客户端能够桥接到持久化配置写入，
+    尽管直接的 config.* RPC 方法仍限定为 operator.admin 范围。
+
+
+    修复方案在保持命令功能完整的同时恢复了预期的范围边界：
+
+    - 通过网关 chat.send 路由的持久化 /config set|unset 写入现在需要 operator.admin 权限
+
+    - 只读的 /config show 仍可供普通写入范围的网关客户端使用
+
+    - 普通消息频道的 /config 行为保持不变
+
+
+    影响
+
+    这是一个真实的授权不匹配问题，但利用该漏洞需要一个已通过认证的、具有 operator.write 权限、chat.send 访问权限并启用了 /config
+    命令支持的网关客户端。维护者将严重程度设为中等，因为该漏洞是一个有范围的控制面权限不匹配问题，而非广泛的未认证或通用远程入侵。
+    主要后果是意外的持久化配置修改。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 5f8f58ae25e2a78f31b06edcf26532d634ca554e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hfpr-jhpq-x4rm
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hfpr-jhpq-x4rm

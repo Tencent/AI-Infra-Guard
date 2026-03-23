@@ -1,0 +1,34 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q399-23r3-hfx4
+  summary: OpenClaw system.run 审批未绑定 PATH 令牌可执行身份，允许审批后可执行文件重绑定
+  details: >-
+    概述
+
+    对于 host=node 运行，审批验证了命令上下文但未固定非路径类 argv[0] 令牌（例如 tr）的可执行身份。如果 PATH 解析在审批后发生变化，执行可能运行不同的二进制文件。
+
+
+    影响
+
+    先前已批准的操作可能执行与操作员批准的不同的可执行文件。
+
+
+    修复
+
+    Node system.run 审批现在要求不可变的 systemRunPlan 数据，路径令牌命令在审批和执行过程中被固定到规范的可执行身份（realpath）。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 修复：2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.3.1 或更高版本。Node system.run 审批现在要求不可变的 systemRunPlan
+    数据，路径令牌命令在审批和执行过程中被固定到规范的可执行身份（realpath）。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q399-23r3-hfx4
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q399-23r3-hfx4

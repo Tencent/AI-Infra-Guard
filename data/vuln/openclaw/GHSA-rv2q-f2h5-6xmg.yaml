@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rv2q-f2h5-6xmg
+  summary: OpenClaw Node 角色设备身份绕过允许未授权的 node.event 注入
+  details: >-
+    概述
+
+    使用共享网关令牌认证的客户端可以无需设备身份/配对即可作为 role=node 连接，然后调用 node.event 触发 agent.request 和 voice.transcript 流程。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 修复版本：2026.2.22（计划的下一个版本）
+
+
+    详情
+
+    WebSocket 连接路径在共享认证成功时允许无设备绕过。该绕过未限制角色，因此客户端可以在没有设备身份的情况下声明 role=node 并仍通过握手认证。因为 node.event 对 node 角色是允许的，这使得未授权的节点事件注入到代理触发流程成为可能。
+
+
+    影响
+
+    未授权的 node.event 注入可以为仅持有共享网关令牌、无节点设备配对的客户端触发代理执行和语音转录流程。
+
+
+    修复措施
+
+    升级到 2026.2.22（或更新版本）。修复要求 role=node 连接必须提供设备身份，即使共享令牌认证成功。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - ddcb2d79b17bf2a42c5037d8aeff1537a12b931e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rv2q-f2h5-6xmg
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rv2q-f2h5-6xmg

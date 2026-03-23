@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wpph-cjgr-7c39
+  summary: OpenClaw 类型化的 sender-key 匹配用于 toolsBySender 防止身份碰撞策略绕过
+  details: >-
+    概述
+
+    当部署使用非类型化键时，channels.*.groups.*.toolsBySender 可能使用碰撞的可变身份值（例如 senderName
+    或 senderUsername）匹配特权发送者策略。
+
+
+    修复引入了显式的类型化发送者键（id:、e164:、username:、name:），将旧版非类型化键保留在已弃用的仅 ID
+    路径上，并添加了回归覆盖以防止跨标识符碰撞。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 分类时的最新 npm 发布版本（2026 年 2 月 22 日）：2026.2.21-2
+
+    - 修复版本（计划下一版本发布）：2026.2.22
+
+
+    影响
+
+    这是使用带有非类型化键的 toolsBySender 部署中的发送者授权绕过。在这些条件下，如果攻击者能够强制标识符碰撞，
+    则可以继承为另一个发送者设定的更强工具权限。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.2.22 或更高版本。提交记录 - 5547a2275cb69413af3b62c795b93214fe913b57
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpph-cjgr-7c39
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wpph-cjgr-7c39

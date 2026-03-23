@@ -1,0 +1,30 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j425-whc4-4jgc
+  summary: OpenClaw `system.run` env override filtering allowed dangerous helper-command pivots
+  details: "Summary\r\nsystem.run env override sanitization allowed dangerous override-only helper-command pivots to reach\
+    \ subprocesses. A caller who could invoke system.run with env overrides could bypass allowlist/approval intent by steering\
+    \ an allowlisted tool through helper-command or config-loading environment variables such as GIT_SSH_COMMAND, editor/pager\
+    \ hooks, and GIT_CONFIG_* / NPM_CONFIG_*.\r\n\r\nAffected Packages / Versions\r\n- Package: openclaw (npm)\r\n- Latest\
+    \ published vulnerable version: 2026.3.2\r\n- Affected range: <= 2026.3.2\r\n- Patched in: 2026.3.7\r\n\r\nDetails\r\n\
+    Before the fix, src/infra/host-env-security.ts blocked only a narrow set of override-only environment variables. Dangerous\
+    \ request-scoped overrides such as GIT_SSH_COMMAND and prefix families such as GIT_CONFIG_* and NPM_CONFIG_* could still\
+    \ survive sanitizeSystemRunEnvOverrides(...) / sanitizeHostExecEnv(...) and reach the spawned process.\r\n\r\nThat mattered\
+    \ for system.run allowlist and approval flows because approval evaluation was tied to the reviewed binary/argv, while\
+    \ the launched process could still inherit attacker-controlled env overrides that changed helper-command execution or\
+    \ config resolution. For allowlisted tools such as git, this allowed behavior outside the reviewed command semantics.\r\
+    \n\r\nThe fix extends the shared TypeScript and macOS policy to block dangerous override-only exact keys and prefixes\
+    \ while preserving trusted inherited base-environment behavior.\r\n\r\nImpact\r\nThis is a real protection-bypass issue,\
+    \ but exploitation requires an already tool-enabled caller who can invoke system.run and supply env overrides. In affected\
+    \ deployments, that caller could bypass allowlist/approval intent and trigger helper-command execution or config-loading\
+    \ behavior that is not represented by the approved command line. Maintainer severity is set to medium because the bug\
+    \ still requires that existing execution capability; the vulnerability is the mismatch between reviewed command semantics\
+    \ and the actual spawned..."
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.7 or later. Commit(s) - e27bbe4982439da6864160fd1b66445058f74801
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc

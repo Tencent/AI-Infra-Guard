@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-m8v2-6wwh-r4gc
+  summary: OpenClaw 沙箱绑定验证可通过符号链接父目录加缺失叶节点路径绕过允许根目录和阻止路径检查
+  details: >-
+    概述
+
+    在 openclaw 2026.2.23 及之前版本（截至 2026 年 2 月 24 日最新 npm 发布版本）中，当绑定源使用符号链接父目录加不存在的叶节点路径时，沙箱绑定源验证可被绕过。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.23
+
+    - 修复：>= 2026.2.24（计划的下一个版本）
+
+
+    根本原因
+
+    validateBindMounts 此前仅在完整源路径已存在时才依赖完整路径的 realpath。对于缺失叶节点的路径，在允许根目录和阻止路径检查之前未完全规范化父目录符号链接遍历。
+
+
+    安全影响
+
+    看起来位于允许根目录内的源路径在缺失叶节点被创建后可能解析到该根目录之外（包括被阻止的运行时路径），削弱了沙箱绑定源边界执行。
+
+
+    修复
+
+    验证路径现在通过最近存在的祖先进行规范化，然后始终将规范路径重新检查：
+
+    - 允许的源根目录
+
+    - 被阻止的运行时路径
+
+
+    验证
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+
+    - 添加了针对符号链接父目录 + 缺失叶节点绕过模式的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 到 >= 2026.2.24 或更高版本。验证路径现在通过最近存在的祖先进行规范化，然后始终将规范路径重新检查：-
+    允许的源根目录 - 被阻止的运行时路径'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc

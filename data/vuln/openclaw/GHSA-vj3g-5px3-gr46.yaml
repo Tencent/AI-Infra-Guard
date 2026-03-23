@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vj3g-5px3-gr46
+  summary: OpenClaw 飞书媒体临时文件命名中的路径遍历允许写入 os.tmpdir() 之外
+  details: >-
+    概述
+
+
+    OpenClaw 的飞书媒体下载流程在 extensions/feishu/src/media.ts 中构建临时文件路径时使用了不受信任的飞书媒体键（imageKey / fileKey）。
+
+    由于这些键被直接插值到临时文件路径中，遍历段可逃逸临时目录并将写入重定向到 os.tmpdir() 之外。
+
+
+    影响
+
+
+    这是一个任意文件写入问题（在 OpenClaw 进程文件权限范围内）。
+
+    如果攻击者能控制返回给客户端的飞书媒体键值（例如通过被入侵的上游响应路径），他们可以影响下载的字节被写入的位置。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 分类时最新发布的 npm 版本：2026.2.17
+
+    - 受影响版本：<= 2026.2.17
+
+    - 修复版本：2026.2.19
+
+
+    修复措施
+
+
+    修复移除了基于键的临时文件命名，将下载保持在安全的临时位置。额外加固将 SDK writeFile 调用隔离在每次下载的临时目录中（mkdtemp），带有确定性清理，执行飞书键信任边界验证，并添加了仓库防护测试以防止运行时代码中的动态 path.join(os.tmpdir(), \...${...}\) 模式。
+
+
+    感谢 @allsmog 报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.19 或更高版本。提交 - c821099157a9767d4df208c6b12f214946507871
+    - cdb00fe2428000e7a08f9b7848784a0049176705
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vj3g-5px3-gr46
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vj3g-5px3-gr46

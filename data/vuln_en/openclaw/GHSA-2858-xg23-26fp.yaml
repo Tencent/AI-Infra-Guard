@@ -1,0 +1,63 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2858-xg23-26fp
+  summary: OpenClaw Node camera URL payload host-binding bypass allowed gateway fetch pivots
+  details: >-
+    Summary
+
+    OpenClaw accepted camera.snap / camera.clip node payload url fields and downloaded them on the gateway/agent host without
+    binding downloads to the resolved node host.
+
+
+    In OpenClaw's documented trust model, paired nodes are in the same operator trust boundary, so this is scoped as medium-severity
+    hardening. A malicious or compromised paired node could still steer gateway-host fetches during camera URL retrieval.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.2.13 <= 2026.3.1
+
+    - Latest vulnerable published version at time of update: 2026.3.1
+
+    - Patched versions: >= 2026.3.2 (released)
+
+
+    Technical Details
+
+    Vulnerable flows accepted URL payloads and downloaded directly from the provided URL:
+
+    - src/cli/nodes-camera.ts (writeUrlToFile) fetched URL payloads without node-host binding.
+
+    - src/cli/nodes-cli/register.camera.ts passed camera.snap / camera.clip payload URLs into that downloader.
+
+    - src/agents/tools/nodes-tool.ts did the same for camera_snap / camera_clip tool actions.
+
+
+    Impact
+
+    A malicious/compromised paired node could cause gateway-host URL fetches to off-node destinations reachable from the host
+    network. This could be used for internal network probing/fetch pivots in deployments where paired nodes are not fully
+    trusted.
+
+
+    Remediation
+
+    The fix introduces fail-closed node-host binding and guarded fetch for camera URL payload downloads:
+
+    - Require resolved node host metadata for URL payload downloads.
+
+    - Enforce hostname match between payload URL and resolved node host.
+
+    - Use SSRF-guarded fetch with redirect host/protocol checks.
+
+    - Apply the same enforcement across CLI and agent tool camera paths.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.2 or later. Commit(s) - 3bf19d6f40a0aaa55818b96eede3d05130c02533
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp
+rule: version >= "2026.2.13" && version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp

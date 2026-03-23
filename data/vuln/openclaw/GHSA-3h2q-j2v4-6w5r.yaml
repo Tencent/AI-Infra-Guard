@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3h2q-j2v4-6w5r
+  summary: OpenClaw system.run 允许列表审批解析遗漏 PowerShell 编码命令包装器
+  details: >-
+    OpenClaw 的 system.run shell 包装器检测未将 PowerShell -EncodedCommand 形式识别为内联命令包装器。
+
+
+    在允许列表模式下，具有 system.run 访问权限的调用者可以使用 -EncodedCommand、-enc 或 -e 调用 pwsh 或 powershell，请求将回退到
+    普通的 argv 分析而非正常的 shell 包装器审批路径。这可能允许 PowerShell 内联载荷在不经过等效 -Command 调用所需的审批步骤的情况下
+    执行。
+
+
+    npm 最新发布版本: 2026.3.2
+
+
+    于 2026 年 3 月 7 日在主分支修复，提交 1d1757b16f48f1a93cd16ab0ad7e2c3c63ce727d，通过在 shell 包装器解析期间识别 PowerShell
+    编码命令别名，使允许列表模式继续对这些载荷要求审批。正常的已审批 PowerShell 包装器流程继续正常工作。
+
+
+    受影响的包/版本
+
+
+    - 包名: openclaw (npm)
+
+    - 受影响版本: <= 2026.3.2
+
+    - 修复版本: >= 2026.3.7
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 1d1757b16f48f1a93cd16ab0ad7e2c3c63ce727d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r

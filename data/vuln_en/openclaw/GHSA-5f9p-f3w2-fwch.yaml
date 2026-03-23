@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5f9p-f3w2-fwch
+  summary: 'OpenClaw macOS companion app (beta): allowlist parsing mismatch for system.run shell chains'
+  details: >-
+    Summary
+
+    In the macOS companion app (currently beta), a parsing mismatch in exec approvals could let shell-chain payloads pass
+    allowlist checks in system.run under specific settings.
+
+
+    Impact
+
+    This path requires all of the following:
+
+    - authenticated caller with operator.write
+
+    - paired macOS beta node host
+
+    - exec approvals set to security=allowlist and ask=on-miss
+
+
+    Under those conditions, a shell-chain command could be approved from an incomplete command view and then executed on the
+    paired macOS host.
+
+
+    Default Install Status
+
+    Default installs are not affected.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.21-2
+
+    - Patched (planned next release): >= 2026.2.22
+
+
+    Technical Details
+
+    The fix hardens macOS allowlist resolution by evaluating shell chains per segment and failing closed on unsafe shell-substitution
+    parsing in allowlist mode.
+
+
+    Product Status Note
+
+    The affected macOS companion app path is currently in beta.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 5da03e622119fa012285cdb590fcf4264c965cb5 - e371da38aab99521c4e076cd3d95fd775e00b784
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5f9p-f3w2-fwch
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5f9p-f3w2-fwch

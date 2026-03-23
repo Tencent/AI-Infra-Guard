@@ -1,0 +1,63 @@
+info:
+  name: OpenClaw
+  cve: GHSA-796m-2973-wc5q
+  summary: OpenClaw exec allowlist/safeBins policy-runtime mismatch via env -S wrapper interpretation
+  details: >-
+    Summary
+
+    tools.exec allowlist/safe-bins evaluation could diverge from runtime execution for wrapper commands using GNU env -S/--split-string
+    semantics. This allowed policy checks to treat a command as a benign safe-bin invocation while runtime executed a different
+    payload.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.22-2 (latest currently published npm version)
+
+    - Patched version (released): 2026.2.23
+
+
+    Impact
+
+    An attacker able to influence tool command text (for example via untrusted prompt/content injection reaching an exec-capable
+    flow) could bypass allowlist/safe-bins intent and execute unexpected commands.
+
+
+    Technical Details
+
+    Root cause was policy/runtime interpretation mismatch for dispatch wrappers:
+
+    - analysis resolved an effective executable from wrapper-unwrapped argv,
+
+    - execution could still run original wrapper argv semantics,
+
+    - safe-bin short-flag handling also allowed unknown short options in clusters.
+
+
+    Remediation
+
+    The fix hardens exec approvals to fail closed and enforce analysis/runtime parity:
+
+    - introduce wrapper execution planning with semantic-wrapper blocking,
+
+    - carry planned effectiveArgv + policyBlocked metadata through resolution,
+
+    - evaluate allowlist/safe-bins against planned argv,
+
+    - enforce canonical rebuilt shell command from planned argv for allowlist auto-paths,
+
+    - use planned argv for node-host/mac exec-host invocation paths,
+
+    - reject unknown short safe-bin flags,
+
+    - add regression tests for semantic env wrappers and parity fixtures.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Commit(s) - a1c4bf07c6baad3ef87a0e710fe9aef127b1f606
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q

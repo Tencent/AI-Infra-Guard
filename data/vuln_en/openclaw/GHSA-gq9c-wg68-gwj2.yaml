@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gq9c-wg68-gwj2
+  summary: OpenClaw Path traversal in browser trace/download output paths may allow arbitrary file writes outside OpenClaw temp directories
+  details: >-
+    Summary
+
+    OpenClaw’s browser control API accepted user-supplied output paths for trace/download files without consistently
+    constraining writes to OpenClaw-managed temporary directories.
+
+    Impact
+
+    If an attacker can access the browser control API, they could attempt to write trace/download output files outside
+    intended temp roots, depending on process filesystem permissions.
+
+    Affected versions
+
+    openclaw < 2026.2.13
+
+    Fixed versions
+
+    openclaw >= 2026.2.13
+
+    Remediation
+
+    Upgrade to 2026.2.13 or later.
+
+    What changed
+
+    The fix constrains output paths for:
+
+    - POST /trace/stop
+    - POST /wait/download
+    - POST /download
+
+    All three now enforce OpenClaw temp-root boundaries and reject traversal/escape paths.
+
+    Credits
+
+    Thanks to Adnan Jakati (@jackhax) of Praetorian for responsible disclosure.
+
+    Fix shipped in PR 15652 and merged to main on February 13, 2026 (7f0489e4731c8d965d78d6eac4a60312e46a9426).
+
+    ---
+
+    Fix commit 7f0489e4731c8d965d78d6eac4a60312e46a9426 confirmed on main and in v2026.2.14. Upgrade to openclaw >= 2026.2.13.
+  cvss: 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N'
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.13 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gq9c-wg68-gwj2
+rule: version < "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gq9c-wg68-gwj2

@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g8p2-7wf7-98mq
+  summary: OpenClaw 通过从 gatewayUrl 窃取认证令牌实现一键 RCE
+  details: >-
+    概述
+
+
+    Control UI 信任来自查询字符串的 gatewayUrl 而不进行验证，并在加载时自动连接，在 WebSocket 连接载荷中发送存储的网关令牌。
+
+
+    点击构造的链接或访问恶意网站可以将令牌发送到攻击者控制的服务器。攻击者随后可以连接到受害者的本地网关，修改配置（沙箱、工具策略），并调用特权操作，实现一键 RCE。即使在配置为仅监听回环地址的实例上，此漏洞也可被利用，因为受害者的浏览器发起出站连接。
+
+
+    详细信息
+
+
+    根本原因是缺少对 gatewayUrl 的验证，结合页面加载时的自动连接行为。通过修改，用户现在需要在 UI 中确认新的网关 URL。
+
+
+    影响
+
+
+    这是一个令牌窃取漏洞，可导致完全的网关入侵。它影响任何用户已通过 Control UI 认证的 Moltbot 部署。攻击者获得对网关 API 的操作员级别访问权限，可以进行任意配置更改和在网关主机上执行代码。即使网关绑定到回环地址，攻击也能奏效，因为受害者的浏览器充当桥梁。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 v2026.1.29 或更高版本。修复提交 - a7534dc22382c42465f3676724536a014ce0cbf7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g8p2-7wf7-98mq
+rule: version <= "v2026.1.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g8p2-7wf7-98mq

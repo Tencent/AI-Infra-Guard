@@ -1,0 +1,63 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pj5x-38rw-6fph
+  summary: OpenClaw Command Injection via unescaped environment assignments in Windows Scheduled Task script generation
+  details: >-
+    Summary
+
+    A command injection vulnerability existed in Windows Scheduled Task script generation for OpenClaw. Environment values
+    were written into gateway.cmd using unquoted set KEY=VALUE, which allowed Windows shell metacharacters in config-provided
+    environment variables to break out of assignment context.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.17
+
+    - Patched version: >= 2026.2.18
+
+    - Latest published vulnerable version at review time (2026-02-19): 2026.2.17
+
+
+    Practical Risk Context
+
+    For a single-user, localhost-only setup on a personally controlled machine, practical risk is typically low.
+
+
+    This issue becomes materially relevant when configuration or environment values are sourced from less-trusted inputs,
+    for example:
+
+    - shared/team config templates,
+
+    - copied config snippets,
+
+    - setup scripts, automation, or repos that write config,
+
+    - any workflow where another party can influence env values before gateway install/reinstall.
+
+
+    In those scenarios, it provides a reliable config-to-command-execution path when the scheduled task script is generated
+    and run.
+
+
+    Details
+
+    On Windows, gateway service installation writes a helper batch script and then registers it via Scheduled Task (schtasks).
+
+    Before the fix, env lines were rendered as set KEY=VALUE in src/daemon/schtasks.ts, so values containing metacharacters
+    (for example &, |, ^, %, !) could alter command behavior in cmd.exe.
+
+
+    The fix now renders quoted assignments (set "KEY=VALUE") with explicit escaping for cmd metacharacters, updates parser
+    compatibility for quoted assignments, and adds regression tests for metacharacter handling and round-trip parsing.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - dafe52e8cf1a041d898cfb304a485fa05e5f58fb Thanks
+    @tdjackey for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pj5x-38rw-6fph
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pj5x-38rw-6fph

@@ -1,0 +1,78 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3m3q-x3gj-f79x
+  summary: OpenClaw 可选 voice-call 插件：webhook 验证在某些代理配置下可被绕过
+  details: >-
+    受影响的包/版本
+
+
+    此问题仅影响可选的 voice-call 插件。默认未启用；仅适用于安装并启用了该插件的安装。
+
+
+    - 包：@openclaw/voice-call
+
+    - 受影响版本：< 2026.2.3
+
+    - 已修复版本：>= 2026.2.3
+
+
+    遗留包名（如果您仍在使用）：
+
+
+    - 包：@clawdbot/voice-call
+
+    - 受影响版本：<= 2026.1.24
+
+    - 已修复版本：此包名下未发布；请迁移至 @openclaw/voice-call
+
+
+    摘要
+
+
+    在某些反向代理/转发设置中，如果接受了不受信任的转发头，则 webhook 验证可被绕过。
+
+
+    影响
+
+
+    外部方可能能够发送被接受为有效的 voice-call webhook 请求，导致伪造的 webhook 事件被处理。
+
+
+    根本原因
+
+
+    某些部署在确定 webhook 验证期间使用的请求属性时隐式信任了转发头（例如 Forwarded / X-Forwarded-*）。如果这些头未被受信任的
+    代理覆盖，客户端可以直接提供它们并影响验证。
+
+
+    解决方案
+
+
+    除非在配置中明确信任和允许，否则默认忽略转发头。将任何仅回环开发绕过限制为仅限本地开发。升级至已修复版本。
+
+
+    如果无法立即升级，请在边缘剥离 Forwarded 和 X-Forwarded-* 头，以防客户端直接提供它们。
+
+
+    严重性
+
+
+    - 严重性：中
+
+    - CVSS v3.1：CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+
+    - CWE：CWE-287（不当认证）
+
+
+    致谢
+
+
+    感谢 @0x5t 的报告。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.3 或更高版本。提交记录 - a749db9820eb6d6224032a5a34223d286d2dcc2f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x
+rule: version < "2026.2.3"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x

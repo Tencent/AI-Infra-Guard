@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rq6g-px6m-c248
+  summary: OpenClaw Google Chat shared-path webhook target ambiguity allowed cross-account policy-context misrouting
+  details: >-
+    Summary
+
+    When multiple Google Chat webhook targets are registered on the same HTTP path, and request verification succeeds for
+    more than one target, inbound webhook events could be routed by first-match semantics. This can cause cross-account policy/context
+    misrouting.
+
+
+    Affected Packages / Versions
+
+    - npm: openclaw <= 2026.2.13
+
+    - npm: clawdbot <= 2026.1.24-3
+
+
+    Details
+
+    Affected component: extensions/googlechat/src/monitor.ts.
+
+
+    Baseline behavior allowed multiple webhook targets per path and selected the first target that passed verifyGoogleChatRequest(...).
+    In shared-path deployments where multiple targets can verify successfully (for example, equivalent audience validation),
+    inbound events could be processed under the wrong account context (wrong allowlist/session/policy).
+
+
+    Fix
+
+    - Fix commit (merged to main): 61d59a802869177d9cef52204767cd83357ab79e
+
+    - openclaw is patched in: 2026.2.14.
+
+
+    clawdbot is a legacy/deprecated package name; no patched version is currently planned. Migrate to openclaw and upgrade
+    to openclaw >= 2026.2.14.
+
+
+    Workaround
+
+    Ensure each Google Chat webhook target uses a unique webhook path so routing is never ambiguous.
+
+
+    Thanks @vincentkoc for reporting.
+
+
+    ---
+
+
+    Fix commit 61d59a802869177d9cef52204767cd83357ab79e confirmed on main and in v2026.2.14. Upgrade to openclaw >= 2026.2.14.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >=2026.2.14, >=2026.2.14 or later. - Fix commit (merged to main): 61d59a802869177d9cef52204767cd83357ab79e
+    - openclaw is patched in: 2026.2.14. clawdbot is a legacy/deprecated package name; no patched version is currently planned.
+    Migrate to openclaw and upgrade to openclaw >= 2026.2.14.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rq6g-px6m-c248
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rq6g-px6m-c248

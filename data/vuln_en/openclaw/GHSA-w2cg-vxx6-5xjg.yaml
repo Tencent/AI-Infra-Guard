@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w2cg-vxx6-5xjg
+  summary: OpenClaw Denial of service through large base64 media files allocating large buffers before limit checks
+  details: >-
+    Summary
+
+
+    Base64-backed media inputs could be decoded into Buffers before enforcing decoded-size budgets. An attacker supplying
+    oversized base64 payloads can force large allocations, causing memory pressure and denial of service.
+
+
+    Attack Scenario Notes
+
+
+    - Recommended deployments bind the gateway to loopback by default and require gateway auth for HTTP endpoints. In that
+    configuration, this is best modeled as a local/authorized DoS.
+
+    - If an operator exposes the gateway to untrusted networks (or disables/weakens auth and rate limits), treat this as a
+    higher-severity network DoS risk.
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): <= 2026.2.13
+
+    - clawdbot (npm): <= 2026.1.24-3
+
+
+    Fixed In
+
+
+    - openclaw (npm): 2026.2.14
+
+    - clawdbot (npm): no patched release planned; migrate to openclaw
+
+
+    Credits
+
+    Thanks @vincentkoc for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.14 or later. Commit(s) - 31791233d60495725fa012745dde8d6ee69e9595
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w2cg-vxx6-5xjg
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w2cg-vxx6-5xjg

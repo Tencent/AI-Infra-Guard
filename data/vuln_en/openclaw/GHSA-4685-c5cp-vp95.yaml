@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4685-c5cp-vp95
+  summary: OpenClaw safeBins stdin-only bypass via sort output and recursive grep flags
+  details: >-
+    Summary
+    tools.exec.safeBins could be bypassed for filesystem access when sort output flags (-o / --output) or recursive grep flags were allowed through safe-bin execution paths.
+
+    Affected Packages / Versions
+    - Package: openclaw (npm)
+    - Affected versions: <= 2026.2.17
+    - Patched versions: >= 2026.2.18
+    - Latest published version at triage time: 2026.2.17
+
+    Impact
+    In deployments that enabled tools.exec.safeBins, an attacker with access to command execution flows could turn intended stdin-only safe-bin usage into file writes (sort -o) or recursive file reads (grep -R).
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.18 or later. Commit(s) - cfe8457a0f067c89cb8f0a3684f619bc2b73d680 Found using MCPwner
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4685-c5cp-vp95
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4685-c5cp-vp95

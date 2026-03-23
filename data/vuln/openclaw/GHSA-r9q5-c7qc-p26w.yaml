@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r9q5-c7qc-p26w
+  summary: OpenClaw Nextcloud Talk Webhook 重放可触发重复的入站处理
+  details: >-
+    概述
+
+    当 Nextcloud Talk Webhook 签名有效时，重放请求可在没有持久化重放抑制的情况下被接受，允许在重放窗口过期或进程重启后进行重复的入站处理。
+
+
+    详情
+
+    OpenClaw 的 Nextcloud Talk Webhook 路径验证了 HMAC(secret, random + body)，但此前缺少与 Webhook 事件绑定的持久化重放状态。这允许在某些运行条件下重放先前有效的签名请求。
+
+
+    main 分支上的修复添加了：
+
+    - Nextcloud Talk Webhook 事件的持久化按账户重放去重，
+
+    - Webhook 副作用（onMessage）之前的重放检查，
+
+    - 针对配置的账户基础 URL 的后端来源验证（当已配置时）。
+
+
+    影响
+
+    捕获的有效签名 Webhook 请求可被重放以触发重复的入站处理。这是一个完整性/可用性问题（重复操作/干扰），范围限于使用 Nextcloud Talk Webhook 集成的部署。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.24
+
+    - 修复版本：2026.2.25
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - d512163d686ad6741783e7119ddb3437f493dbbc
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r9q5-c7qc-p26w
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r9q5-c7qc-p26w

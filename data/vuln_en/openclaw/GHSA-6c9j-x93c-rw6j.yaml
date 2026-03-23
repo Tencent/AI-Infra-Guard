@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6c9j-x93c-rw6j
+  summary: OpenClaw OpenClaw safeBins file-existence oracle information disclosure
+  details: >-
+    An information disclosure vulnerability in OpenClaw's tools.exec.safeBins approval flow allowed a file-existence oracle.
+
+    When safe-bin validation examined candidate file paths, command allow/deny behavior could differ based on whether a path already existed on the host filesystem. An attacker could probe for file presence by comparing outcomes for existing vs non-existing filenames.
+
+    Affected Packages / Versions
+    - Package: openclaw (npm)
+    - Affected versions: <= 2026.2.17
+    - Latest published vulnerable version at triage time: 2026.2.17
+    - Planned patched version: 2026.2.18
+
+    Impact
+    Attackers with access to this execution surface could infer whether specific files exist (for example secrets/config files), enabling filesystem enumeration and improving follow-on attack planning.
+
+    Fix
+    The safe-bin policy was changed to deterministic argv-only validation without host file-existence checks. File-oriented flags are blocked for safe-bin mode (for example sort -o, jq -f, grep -f), and trusted-path checks remain enforced.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.18 or later. The safe-bin policy was changed to deterministic argv-only validation without host file-existence checks. File-oriented flags are blocked for safe-bin mode (for example sort -o, jq -f, grep -f), and trusted-path checks remain enforced.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6c9j-x93c-rw6j
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6c9j-x93c-rw6j

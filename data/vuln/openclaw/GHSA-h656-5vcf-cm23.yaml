@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h656-5vcf-cm23
+  summary: OpenClaw Telegram：未授权发送者在访问检查前触发媒体下载和磁盘写入
+  details: >-
+    影响
+
+
+    在 Telegram DM 模式下，入站媒体在发送者授权检查完成之前就被下载并写入磁盘。即使应拒绝 DM 访问，未经授权的发送者仍可触发入站媒体下载/写入活动（包括媒体组）。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 当前受影响的最新发布版本：2026.2.23
+
+    - 受影响范围：<= 2026.2.23
+
+    - 在计划的下一个发布版本中修复：2026.2.24
+
+
+    技术细节
+
+
+    Telegram 处理器流程现在在媒体下载/写入路径执行之前强制执行 DM 授权，包括媒体组处理。入站频道活动跟踪也被移至在 Telegram 消息上下文路径中 DM 授权之后运行。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。修复提交 - 9514201fb9b51de5d0b23151110d0ff5d9c8bd67
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h656-5vcf-cm23
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h656-5vcf-cm23

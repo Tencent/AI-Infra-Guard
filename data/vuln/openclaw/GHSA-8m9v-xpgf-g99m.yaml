@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8m9v-xpgf-g99m
+  summary: OpenClaw 未授权发送者绕过停止触发器和 /models 命令授权
+  details: >-
+    概述
+
+    未经授权的发送者可以在没有发送者授权检查的情况下触发两个命令路径：
+
+    1. 类似停止的自然语言中止触发器
+
+    2. /models 命令输出
+
+
+    影响
+
+    未经授权的发送者可以中断活动会话并查看本应受授权保护的模型/认证元数据。
+
+
+    修复
+
+    现在对类似停止的中止触发器和 /models 列表强制执行发送者授权。
+
+
+    受影响和已修复版本
+
+    - 受影响版本：<= 2026.2.26
+
+    - 已修复版本：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。现在对类似停止的中止触发器和 /models 列表强制执行发送者授权。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8m9v-xpgf-g99m
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8m9v-xpgf-g99m

@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gq83-8q7q-9hfx
+  summary: OpenClaw 序列化沙箱注册表写入以防止竞争条件和删除回滚损坏
+  details: >-
+    影响
+
+
+    沙箱容器和浏览器的并发 updateRegistry/removeRegistryEntry 操作可能在竞争条件下丢失更新或恢复已删除的条目。
+
+
+    注册表写入是在没有锁定和宽松回退解析的窗口中进行读-修改-写操作，因此并发注册表更新可能产生过时快照并相互覆盖。
+
+
+    这会导致沙箱状态不同步，并可能影响 sandbox list、sandbox prune 和 sandbox recreate --all 行为。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.17
+
+    - 已修复版本：2026.2.18
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。修复提交 - cc29be8c9。感谢 @kexinoh 的报告。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gq83-8q7q-9hfx
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gq83-8q7q-9hfx

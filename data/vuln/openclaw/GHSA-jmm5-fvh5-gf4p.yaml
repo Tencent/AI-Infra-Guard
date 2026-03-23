@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jmm5-fvh5-gf4p
+  summary: OpenClaw Hooks 认证中使用非常量时间的令牌比较
+  details: >-
+    概述
+
+
+    OpenClaw Hooks 此前使用普通字符串比较来验证提供的 Hook 令牌。由于此比较不是常量时间的，具有 Hooks 端点网络访问权限的攻击者可能通过大量请求的时间测量来逐步推断令牌。
+
+
+    在实践中，这通常需要 Hooks 暴露在不受信任的网络中并进行大量请求；实际的网络延迟和抖动可能使可靠测量变得困难。
+
+
+    受影响的包/版本
+
+
+    - openclaw (npm): < 2026.2.12
+
+
+    修复版本
+
+
+    - openclaw (npm): >= 2026.2.12
+
+
+    缓解措施
+
+
+    - 升级到 openclaw >= 2026.2.12。
+
+    - 如果无法立即升级：限制对 Hooks 端点的网络访问，并在更新后轮换 Hooks 令牌。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: '升级 openclaw 到 >= 2026.2.12 或更高版本。提交 - 113ebfd6a23c4beb8a575d48f7482593254506ec。感谢
+    @akhmittra 报告此问题。- 升级到 openclaw >= 2026.2.12。- 如果无法立即升级：限制对 Hooks 端点的网络访问，并在更新后轮换
+    Hooks 令牌。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jmm5-fvh5-gf4p
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jmm5-fvh5-gf4p

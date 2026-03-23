@@ -1,0 +1,67 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gv46-4xfq-jv58
+  summary: OpenClaw 通过网关节点调用审批绕过实现远程代码执行
+  details: >-
+    概述
+
+
+    网关到节点调用路径中存在远程代码执行（RCE）漏洞，允许经过认证的网关客户端通过向 node.invoke 参数注入内部控制字段来绕过节点主机执行审批。
+
+
+    受影响的组件
+
+
+    - 网关方法：node.invoke（用于节点命令 system.run）
+
+    - 节点主机运行器：system.run 的执行审批门控
+
+
+    影响
+
+
+    如果攻击者能向网关进行认证（例如通过泄露/共享的网关令牌或具有 operator.write 权限的已配对设备令牌），他们可以在支持 system.run 的已连接节点主机上执行任意命令。这可能导致开发者工作站、CI 运行器和运行节点主机的服务器被完全入侵。
+
+
+    技术细节
+
+
+    网关将用户控制的参数转发到节点主机时未净化内部审批字段。节点主机将 params.approved === true 和/或 params.approvalDecision 视为跳过审批工作流的充分条件。
+
+
+    修复
+
+
+    在 OpenClaw 2026.2.14 中修复。
+
+
+    - 提交：
+      - 318379cdb8d045da0009b0051bd0e712e5c65e2d
+      - a7af646fdab124a7536998db6bd6ad567d2b06b0
+      - c1594627421f95b6bc4ad7c606657dc75b5ad0ce
+      - 0af76f5f0e93540efbdf054895216c398692afcd
+    - 网关从 system.run 用户输入中剥离不受信任的审批控制字段。
+
+    - 网关仅在 params.runId 引用有效的 exec.approval.request 记录且请求上下文匹配时才重新附加审批标志。审批 ID 绑定到请求设备身份（跨重连稳定），防止其他客户端重放。
+
+    - 网关仅转发允许列表中的 system.run 参数集，防止未来的控制字段夹带。
+
+
+    缓解措施
+
+
+    - 升级至 2026.2.14 或更高版本。
+
+    - 限制网关访问（不要将其暴露给不受信任的网络/用户）。
+
+    - 如果怀疑令牌/密码泄露，轮换网关凭证。
+
+    - 通过在网关阻止 system.run（gateway.nodes.denyCommands）和/或将节点执行安全设置为 deny 来禁用节点上的远程命令执行。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: 升级 openclaw 至 >= 2026.2.14 或更高版本。在 OpenClaw 2026.2.14 中修复。- 升级至 2026.2.14 或更高版本。- 限制网关访问（不要暴露给不受信任的网络/用户）。- 如果怀疑令牌/密码泄露，轮换网关凭证。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gv46-4xfq-jv58
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gv46-4xfq-jv58

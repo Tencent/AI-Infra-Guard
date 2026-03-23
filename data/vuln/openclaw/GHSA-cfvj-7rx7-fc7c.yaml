@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cfvj-7rx7-fc7c
+  summary: OpenClaw stageSandboxMedia 目标符号链接遍历可覆盖沙箱工作区外的文件
+  details: >-
+    概述
+
+    stageSandboxMedia 在媒体暂存期间允许目标符号链接遍历，可能覆盖沙箱工作区根目录外的文件。
+
+
+    影响
+
+    当沙箱媒体暂存处理入站文件时，media/inbound 下的目标写入不具备目标别名安全性。如果该目标路径中存在符号链接，写入可能跟随它并覆盖预期沙箱工作区边界外的宿主文件。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 检查的最新发布版本：2026.3.1
+
+    - 受影响版本：<= 2026.3.1
+
+    - 已修复版本：>= 2026.3.2（已发布）
+
+
+    根本原因
+
+    stageSandboxMedia 验证了源路径，但使用不强制目标边界/别名检查的直接复制路径写入目标文件。
+
+
+    修复措施
+
+    修复将暂存写入路由通过根目录范围的安全写入原语，适用于本地和 SCP 暂存的附件，防止目标符号链接遍历逃逸。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - 17ede52a4be3034f6ec4b883ac6b81ad0101558a
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cfvj-7rx7-fc7c
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cfvj-7rx7-fc7c

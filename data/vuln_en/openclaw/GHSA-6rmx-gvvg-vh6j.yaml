@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6rmx-gvvg-vh6j
+  summary: OpenClaw hooks count non-POST requests toward auth lockout
+  details: >-
+    OpenClaw's hooks HTTP handler counted hook authentication failures before rejecting unsupported HTTP methods. An unauthenticated
+    client could send repeated non-POST requests (for example GET) with an invalid token to consume the hook auth failure
+    budget and trigger the temporary lockout window for that client key.
+
+
+    The fix moves the hook method gate ahead of auth-failure accounting so unsupported methods return 405 Method Not Allowed
+    without incrementing the hook auth limiter.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.3.2
+
+    - Patched version: 2026.3.7
+
+    - Latest published npm version at patch time: 2026.3.2
+
+
+    Impact
+
+
+    An unauthenticated network client that could reach /hooks/* could temporarily lock out legitimate webhook delivery when
+    requests collapsed to the same hook auth client key, such as shared proxy or NAT topologies. Impact is limited to temporary
+    availability loss for hook-triggered wake or automation delivery.
+
+
+    Verification
+
+
+    - pnpm check passed
+
+    - pnpm test:fast passed
+
+    - focused hook regression tests passed
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts still has unrelated current-main failures in src/gateway/server-channels.test.ts
+    and src/gateway/server-methods/agents-mutate.test.ts
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.7 or later. Commit(s) - 44820dceadac65ac7c0ce8fc0ffba8c2bd9fae89
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j

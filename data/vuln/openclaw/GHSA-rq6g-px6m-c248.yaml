@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rq6g-px6m-c248
+  summary: OpenClaw Google Chat 共享路径 Webhook 目标歧义允许跨账户策略上下文误路由
+  details: >-
+    概述
+
+    当多个 Google Chat Webhook 目标注册在相同的 HTTP 路径上，且请求验证对多个目标成功时，入站 Webhook 事件可能按首次匹配语义路由。这可导致跨账户策略/上下文误路由。
+
+
+    受影响的包/版本
+
+    - npm: openclaw <= 2026.2.13
+
+    - npm: clawdbot <= 2026.1.24-3
+
+
+    详情
+
+    受影响组件：extensions/googlechat/src/monitor.ts。
+
+
+    基线行为允许每个路径有多个 Webhook 目标，并选择第一个通过 verifyGoogleChatRequest(...) 的目标。在多个目标可成功验证的共享路径部署中（例如等效的受众验证），入站事件可能在错误的账户上下文（错误的白名单/会话/策略）下处理。
+
+
+    修复
+
+    - 修复提交（已合并到 main）：61d59a802869177d9cef52204767cd83357ab79e
+
+    - openclaw 修复于：2026.2.14。
+
+
+    clawdbot 是旧版/已弃用的包名；目前不计划发布修复版本。请迁移到 openclaw 并升级到 openclaw >= 2026.2.14。
+
+
+    变通方法
+
+    确保每个 Google Chat Webhook 目标使用唯一的 Webhook 路径，以避免路由歧义。
+
+
+    感谢 @vincentkoc 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >=2026.2.14 或更高版本。- 修复提交（已合并到 main）：61d59a802869177d9cef52204767cd83357ab79e。-
+    openclaw 修复于：2026.2.14。clawdbot 是旧版/已弃用的包名；请迁移到 openclaw 并升级到 openclaw >= 2026.2.14。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rq6g-px6m-c248
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rq6g-px6m-c248

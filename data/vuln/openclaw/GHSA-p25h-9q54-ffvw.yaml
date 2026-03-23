@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p25h-9q54-ffvw
+  summary: OpenClaw tar 归档解压中的 Zip Slip 路径遍历
+  details: >-
+    概述
+
+    2026.2.14 之前的 OpenClaw 版本未充分验证 TAR 归档解压期间的条目路径。精心构造的归档可使用路径遍历序列（例如 ../../...）将文件写入预期目标目录之外（Zip Slip）。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：< 2026.2.14
+
+    - 修复：>= 2026.2.14
+
+
+    详情
+
+    受影响的代码路径是 src/infra/archive.ts 中的 extractArchive()。在 2026.2.14 之前，TAR 解压使用 tar.x({ cwd: destDir }) 而未拒绝遍历和绝对条目路径。
+
+
+    此解压功能被以下安装流程使用：
+
+    - openclaw plugins install …
+
+    - openclaw hooks install …
+
+
+    影响
+
+    如果用户安装不受信任的 .tar / .tgz 归档，攻击者可在解压目录之外写入文件（在 OpenClaw 进程权限范围内）。这可导致配置篡改和潜在的代码执行。
+
+
+    缓解措施
+
+    升级到 openclaw >= 2026.2.14。避免安装不受信任的插件/钩子归档。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >=2026.2.14 或更高版本。提交 - 3aa94afcfd12104c683c9cad81faf434d0dadf87。感谢
+    @xuemian168 报告此问题。升级到 openclaw >= 2026.2.14。避免安装不受信任的插件/钩子归档。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p25h-9q54-ffvw
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p25h-9q54-ffvw

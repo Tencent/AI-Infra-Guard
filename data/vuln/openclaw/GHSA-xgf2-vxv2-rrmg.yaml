@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xgf2-vxv2-rrmg
+  summary: OpenClaw Shell 启动环境注入绕过 system.run 允许列表意图（RCE 级别）
+  details: >-
+    概述
+
+    system.run 环境清理允许 shell 启动环境覆盖（HOME、ZDOTDIR），这些覆盖可以在允许列表评估的命令体
+    之前执行攻击者控制的启动文件。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.21-2（最新发布的漏洞版本）
+
+    - 计划修复版本：>= 2026.2.22
+
+
+    技术细节
+
+    在受影响版本中：
+
+    - 环境清理阻止了许多危险键，但未阻止主机执行环境路径中的启动敏感覆盖键（HOME、ZDOTDIR）。
+
+    - 允许列表模式的 shell 包装器分析对命令体建模，但不对 shell 启动副作用建模。
+
+    - 运行时执行使用清理后的环境，因此攻击者提供的启动键覆盖可以先运行隐藏的启动载荷。
+
+
+    已观察到的利用向量：
+
+    - HOME + bash -lc + 恶意 .bash_profile
+
+    - ZDOTDIR + zsh -c + 恶意 .zshenv
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - c2c7114ed39a547ab6276e1e933029b9530ee906
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xgf2-vxv2-rrmg
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xgf2-vxv2-rrmg

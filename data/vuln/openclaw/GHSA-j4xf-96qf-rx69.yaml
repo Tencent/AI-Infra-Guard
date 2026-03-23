@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j4xf-96qf-rx69
+  summary: OpenClaw 飞书 allowFrom 授权通过显示名称冲突被绕过
+  details: >-
+    概述
+
+
+    飞书白名单授权可通过显示名称冲突被绕过。
+
+
+    详情
+
+
+    channels.feishu.allowFrom 文档记录为基于 ID 的白名单（open_id 列表），但飞书策略匹配在相同命名空间中接受可变的发送者显示名称。攻击者可以将显示名称设置为与白名单中某个 ID 字符串相同的值，从而通过授权检查。
+
+
+    修复对飞书白名单检查执行仅 ID 匹配，在比较期间规范化飞书 ID 前缀，并忽略可变的显示名称用于授权。
+
+
+    影响
+
+
+    使用飞书白名单授权的部署在使用冲突的显示名称时可能错误地授权非白名单发送者。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 分类时最新发布版本：2026.2.21-2
+
+    - 受影响范围：<= 2026.2.21-2
+
+    - 计划修复版本：>= 2026.2.22
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 4ed87a667263ed2d422b9d5d5a5d326e099f92c7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j4xf-96qf-rx69
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j4xf-96qf-rx69

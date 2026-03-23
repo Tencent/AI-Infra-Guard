@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8fmp-37rc-p5g7
+  summary: OpenClaw 配置环境变量允许启动环境注入到服务运行时
+  details: >-
+    概述
+
+    OpenClaw 允许来自 env.vars 的危险进程控制环境变量（例如 NODE_OPTIONS、LD_*、DYLD_*）流入网关服务运行时环境，从而在 OpenClaw 进程上下文中实现启动时代码执行。
+
+
+    详细信息
+
+    collectConfigEnvVars() 接受来自配置的未过滤键，这些值在 buildGatewayInstallPlan() 中被合并到守护进程安装环境中。在修复之前，启动控制变量在此路径中未被阻止。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 最新发布的受影响版本：2026.2.19-2（发布于2026年2月19日）
+
+    - 受影响范围（结构化）：<=2026.2.19-2 || =2026.2.19
+
+    - 已修复版本（预设的下一个发布版本）：>= 2026.2.21
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。修复提交 - 2cdbadee1f8fcaa93302d7debbfc529e19868ea4
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7
+rule: version <= "2026.2.19-2" || version = "2026.2.19"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7

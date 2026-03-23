@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mmpf-jwf4-h3qv
+  summary: OpenClaw Option injection in pre-commit hook can stage ignored files
+  details: >-
+    Summary
+
+
+    A maliciously-named file (for example, --force) can trigger option injection in the repository's git-hooks/pre-commit
+    hook when a contributor uses the built-in git hook setup (git config core.hooksPath git-hooks). This can cause unintended
+    staging of ignored files.
+
+
+    Details
+
+
+    The hook collected staged filenames and piped them through xargs into git add without a -- separator. Filenames beginning
+    with - could be interpreted as flags.
+
+
+    This issue only affects contributors who:
+
+
+    - use the repo's git-hooks/ hook mechanism (not the pre-commit framework), and
+
+    - run commits in a working directory that contains sensitive ignored files.
+
+
+    Impact
+
+
+    Under specific circumstances, ignored files (for example .env) can be added to git history.
+
+
+    Affected Packages / Versions
+
+
+    - Repository versions: <= 2026.2.14
+
+    - Fixed in: 2026.2.15
+
+
+    Note: the npm package does not ship git-hooks/; the impact is on contributors working from the repository checkout/source
+    release.
+
+
+    Fix
+
+
+    The hook now:
+
+
+    - uses NUL-delimited file lists (git diff ... -z) to safely handle whitespace, and
+
+    - passes paths to git add after -- to prevent option injection.
+  cvss: ''
+  severity: LOW
+  security_advise: 'Upgrade openclaw to >=2026.2.15 or later. The hook now: - uses NUL-delimited file lists (git diff ...
+    -z) to safely handle whitespace, and - passes paths to git add after -- to prevent option injection.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mmpf-jwf4-h3qv
+rule: version <= "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mmpf-jwf4-h3qv

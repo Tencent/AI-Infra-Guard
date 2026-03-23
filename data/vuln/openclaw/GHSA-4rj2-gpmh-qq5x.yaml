@@ -1,0 +1,77 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4rj2-gpmh-qq5x
+  summary: OpenClaw voice-call 扩展中入站允许列表策略绕过（空来电 ID + 后缀匹配）
+  details: >-
+    摘要
+
+
+    可选 voice-call 扩展/插件中的认证绕过允许未批准或匿名来电者在入站策略设置为 allowlist 或 pairing 时到达 voice-call 代理。
+
+
+    未安装/启用 voice-call 扩展的部署不受影响。
+
+
+    受影响的包/版本
+
+
+    - openclaw（npm）：<= 2026.2.1
+
+    - 已修复：>= 2026.2.2
+
+
+    详情
+
+
+    在受影响的版本（例如 2026.2.1）中，extensions/voice-call/src/manager.ts 中的入站允许列表检查使用基于后缀的匹配，
+    并在规范化后接受空来电 ID。
+
+
+    这允许两种绕过：
+
+
+    1. 缺失/空的 from 值规范化为空字符串，导致允许列表谓词评估为允许。
+
+    2. 基于后缀的匹配意味着任何数字以允许列表中号码结尾的来电号码都会被接受。
+
+
+    概念验证
+
+
+    1. 使用 inboundPolicy: allowlist 和 allowFrom: ["+15550001234"] 配置 voice-call 扩展。
+
+    2. 使用缺失/空来电 ID 发起入站呼叫（取决于提供商；例如匿名/受限来电者）。呼叫被接受。
+
+    3. 从 E.164 数字以 15550001234 结尾的号码发起呼叫（例如 +99915550001234）。呼叫被接受。
+
+
+    影响
+
+
+    仅安装/启用了可选 voice-call 扩展并使用 inboundPolicy=allowlist 或 pairing 的操作员可能遭遇入站访问控制绕过，
+    可能允许未授权的来电者到达自动响应和工具执行。
+
+
+    修复
+
+
+    修复加固了入站策略处理：
+
+
+    - 当来电 ID 缺失时拒绝入站呼叫。
+
+    - 在将规范化的来电 ID 与允许列表比较时要求严格相等（无后缀/前缀匹配）。
+
+    - 为缺失来电 ID、匿名来电 ID 和后缀碰撞情况添加回归测试。
+
+
+    感谢 @simecek 和 @MegaManSec 的报告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L
+  severity: CRITICAL
+  security_advise: 升级 openclaw 至 >= 2026.2.2 或更高版本。修复加固了入站策略处理：- 当来电 ID 缺失时拒绝入站呼叫。- 在将规范化的来电
+    ID 与允许列表比较时要求严格相等（无后缀/前缀匹配）。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4rj2-gpmh-qq5x
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4rj2-gpmh-qq5x

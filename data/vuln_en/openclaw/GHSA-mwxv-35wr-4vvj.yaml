@@ -1,0 +1,34 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mwxv-35wr-4vvj
+  summary: OpenClaw Gateway plugin auth bypass via encoded dot-segment traversal in protected /api/channels paths
+  details: >-
+    Summary
+
+    Gateway plugin route auth protection for /api/channels could be bypassed using encoded dot-segment traversal (for example
+    ..%2f) in path variants that plugin handlers normalize.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Latest published vulnerable version: 2026.2.25
+
+    - Vulnerable version range: <= 2026.2.25
+
+    - Patched version: 2026.2.26 (planned next release)
+
+
+    Impact
+
+    Under affected versions, crafted alternate paths could bypass gateway auth checks for protected plugin channel routes
+    when plugin handlers decode/canonicalize the incoming path and then route to /api/channels/... handlers.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. Commit(s) - 258d615c45527ffda37cecd08cd268f97461bde0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mwxv-35wr-4vvj
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mwxv-35wr-4vvj

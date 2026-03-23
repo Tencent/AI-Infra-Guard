@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7fcc-cw49-xm78
+  summary: OpenClaw Command injection via Windows shell fallback in Lobster tool execution
+  details: >-
+    Summary
+
+
+    The Lobster extension tool execution path used a Windows shell fallback (shell: true) after spawn failures (EINVAL/ENOENT).
+    In that fallback path, shell metacharacters in command arguments can be interpreted by the shell, enabling command injection.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.17
+
+    - Latest confirmed affected published version: 2026.2.17
+
+    - Patched version: 2026.2.19
+
+
+    Technical Details
+
+
+    In affected releases (including v2026.2.17), extensions/lobster/src/lobster-tool.ts retried subprocess launch with shell:
+    true on Windows for EINVAL/ENOENT spawn errors. The fix removes shell fallback and resolves Windows wrappers to explicit
+    executable/script argv execution.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - ba7be018da354ea9f803ed356d20464df0437916 Thanks
+    @allsmog for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7fcc-cw49-xm78
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7fcc-cw49-xm78

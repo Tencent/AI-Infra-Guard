@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-48wf-g7cp-gr3m
+  summary: OpenClaw 通过 env -S 绕过允许列表 exec 防护
+  details: >-
+    摘要
+
+    在允许列表模式下，system.run 防护可通过 env -S 绕过，导致 shell 包装器负载的策略分析/运行时执行不匹配。
+
+
+    严重性理由（中）
+
+    此问题被评为中等，因为它是 OpenClaw 受信任操作员模型中的防护/策略绕过，而非认证边界突破。
+
+
+    - 已认证的 Gateway 调用者按设计是受信任的操作员。
+
+    - exec 审批/允许列表是操作员安全控制。
+
+    - 该缺陷仍然削弱了预期的安全行为，当不受信任的内容影响工具输入时可以启用意外的命令执行。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 已修复版本：>= 2026.2.23
+
+
+    分类期间检查的最新发布 npm 版本：2026.2.22-2。
+
+
+    技术影响
+
+    当 /usr/bin/env 在允许列表中时，env -S 'sh -c ...' 可被视为允许的非包装器 argv，而运行时仍执行 shell 包装器语义。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.23 或更高版本。提交记录 - a1c4bf07c6baad3ef87a0e710fe9aef127b1f606（核心允许列表/运行时一致性加固）-
+    3f923e831364d83d0f23499ee49961de334cf58b（显式 env -S 回归）
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-48wf-g7cp-gr3m
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-48wf-g7cp-gr3m

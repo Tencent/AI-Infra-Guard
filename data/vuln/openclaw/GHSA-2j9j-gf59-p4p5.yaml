@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2j9j-gf59-p4p5
+  summary: OpenClaw iOS 深度链接 (openclaw://agent) 可在无本地确认的情况下触发 gateway 代理请求
+  details: >-
+    概述
+
+    精心构造的 openclaw://agent 深度链接可导致 OpenClaw iOS 在 iOS 上无需本地确认即向已连接的 Gateway 转发 agent.request 事件。
+
+
+    受影响的软件包/版本
+
+    - 公告软件包元数据：openclaw（swift 生态系统）。
+
+    - 受影响的实际范围：仅内部预览 iOS 构建（未公开分发）。
+
+    - 受影响范围：<= 2026.2.22-2，已修复版本：2026.2.23。
+
+
+    影响
+
+    - 外部深度链接触发可能在已连接的 iOS 节点上下文中导致非预期的代理操作启动。
+
+    - 这是一个用户交互深度链接滥用问题，而非未认证的服务器接管。
+
+    - 严重性设置为低，因为 iOS 分发仅为内部预览/超早期测试版，非公开/TestFlight 发布。
+
+
+    修复方案
+
+    iOS 深度链接路径现在要求本地确认，除非提供了受信任的深度链接密钥，且无密钥的深度链接在提交前会去除传递路由字段。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 2026.2.23 或更高版本。修复提交 - ff4e6ca0d942ef52330dcbe116321ae4fed21749
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2j9j-gf59-p4p5
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2j9j-gf59-p4p5

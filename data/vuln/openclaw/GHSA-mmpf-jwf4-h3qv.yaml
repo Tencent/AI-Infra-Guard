@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mmpf-jwf4-h3qv
+  summary: OpenClaw pre-commit 钩子中的选项注入可暂存被忽略的文件
+  details: >-
+    概述
+
+
+    恶意命名的文件（例如 --force）可在贡献者使用内置 git 钩子设置（git config core.hooksPath git-hooks）时，在仓库的 git-hooks/pre-commit 钩子中触发选项注入。这可导致被忽略的文件被意外暂存。
+
+
+    详情
+
+
+    该钩子收集暂存文件名并通过 xargs 管道传递给 git add，但未使用 -- 分隔符。以 - 开头的文件名可能被解释为命令行标志。
+
+
+    此问题仅影响以下贡献者：
+
+
+    - 使用仓库的 git-hooks/ 钩子机制（而非 pre-commit 框架），且
+
+    - 在包含敏感被忽略文件的工作目录中运行提交。
+
+
+    影响
+
+
+    在特定情况下，被忽略的文件（例如 .env）可被添加到 git 历史记录中。
+
+
+    受影响的包/版本
+
+
+    - 仓库版本：<= 2026.2.14
+
+    - 修复于：2026.2.15
+
+
+    注意：npm 包不包含 git-hooks/；影响范围为从仓库签出/源码发布工作的贡献者。
+
+
+    修复
+
+
+    该钩子现在：
+
+
+    - 使用 NUL 分隔的文件列表（git diff ... -z）安全处理空白字符，且
+
+    - 在 -- 之后传递路径给 git add 以防止选项注入。
+  cvss: ''
+  severity: LOW
+  security_advise: '升级 openclaw 到 >=2026.2.15 或更高版本。该钩子现在：- 使用 NUL 分隔的文件列表（git diff
+    ... -z）安全处理空白字符，且 - 在 -- 之后传递路径给 git add 以防止选项注入。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mmpf-jwf4-h3qv
+rule: version <= "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mmpf-jwf4-h3qv

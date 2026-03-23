@@ -1,0 +1,89 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q447-rj3r-2cgh
+  summary: OpenClaw Denial of service via unbounded webhook request body buffering
+  details: >-
+    Summary
+
+    Multiple webhook handlers accepted and buffered request bodies without a strict unified byte/time limit. A remote unauthenticated
+    attacker could send oversized payloads and cause memory pressure, degrading availability.
+
+
+    Details
+
+    Affected packages:
+
+    - openclaw (npm): <2026.2.12
+
+    - clawdbot (npm): <=2026.1.24-3
+
+
+    Root cause:
+
+    - Webhook code paths buffered request payloads without consistent maxBytes + timeoutMs enforcement.
+
+    - Some SDK-backed handlers parse request bodies internally and needed stream-level guards.
+
+
+    Attack shape:
+
+    - Send very large JSON payloads or slow/incomplete uploads to webhook endpoints.
+
+    - Observe elevated memory usage and request handler pressure.
+
+
+    Impact
+
+    Remote unauthenticated availability impact (DoS) via request body amplification/memory pressure.
+
+
+    Patch details (implemented)
+
+    - Added shared bounded request-body helper in src/infra/http-body.ts.
+
+    - Exported helper in src/plugin-sdk/index.ts for extension reuse.
+
+    - Migrated webhook body readers to shared helper for:
+      - LINE
+      - Nextcloud Talk
+      - Google Chat
+      - Zalo
+      - BlueBubbles
+      - Nostr profile HTTP
+      - Voice-call
+      - Gateway hooks
+    - Added stream guards for SDK handlers that parse request bodies internally:
+      - Slack
+      - Telegram
+      - Feishu
+    - Added explicit Express JSON body limit handling for MS Teams webhook path.
+
+    - Standardized failure responses:
+      - 413 Payload Too Large
+      - 408 Request Timeout
+
+    Tests
+
+    - Added regression tests:
+      - src/infra/http-body.test.ts
+      - src/line/monitor.read-body.test.ts
+      - extensions/nextcloud-talk/src/monitor.read-body.test.ts
+    - Focused webhook/security test suite passes for patched paths.
+
+
+    Remediation
+
+    Upgrade to the first release containing this patch.
+
+
+    Credits
+
+    Thanks @vincentkoc for reporting.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to >=2026.2.13 or later. Commit(s) - 3cbcba10cf30c2ffb898f0d8c7dfb929f15f8930
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh

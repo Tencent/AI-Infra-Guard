@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-392f-ggf5-fp3c
+  summary: OpenClaw 节点元数据策略分类中的 Unicode 规范化偏差可能扩大节点白名单
+  details: >-
+    概述
+
+    配对节点可以提供 Unicode 易混淆的 platform 或 deviceFamily 元数据，这些数据通过了元数据固定但在命令策略解析时被不同地分类，从而扩大了默认节点命令白名单。
+
+
+    影响
+
+    这是配对节点信任边界内的策略绕过问题，可以将节点命令可用性扩展到超出预期默认值。
+
+
+    修复
+
+    节点元数据规范化已针对易混淆字符进行加固，未知平台默认值已变为保守（除非明确加入白名单，否则排除 system.run 和 system.which）。
+
+
+    受影响和已修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 已修复：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。节点元数据规范化已针对易混淆字符加固，未知平台默认值已变为保守。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-392f-ggf5-fp3c
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-392f-ggf5-fp3c

@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x82f-27x3-q89c
+  summary: OpenClaw TOCTOU symlink race in writeFileWithinRoot could create or truncate files outside root boundaries
+  details: >-
+    Summary
+
+    A symlink-retarget TOCTOU race in writeFileWithinRoot could point an attacker-controlled path alias outside the configured
+    root between resolution and write operations.
+
+
+    Impact
+
+    Affected versions could cause out-of-root write side effects (including file creation or truncation) before final boundary
+    validation.
+
+
+    Fix
+
+    Root-scoped write flow now opens existing files without pre-truncation, creates missing files with exclusive create semantics,
+    truncates only after post-open identity/boundary checks, and removes out-of-root artifacts when a race is detected.
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.1 or later. Root-scoped write flow now opens existing files without pre-truncation,
+    creates missing files with exclusive create semantics, truncates only after post-open identity/boundary checks, and removes
+    out-of-root artifacts when a race is detected.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x82f-27x3-q89c
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x82f-27x3-q89c

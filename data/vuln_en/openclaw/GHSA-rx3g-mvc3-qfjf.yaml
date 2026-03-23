@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rx3g-mvc3-qfjf
+  summary: OpenClaw Avatar symlink traversal can expose out-of-workspace local files
+  details: >-
+    Summary
+
+    OpenClaw avatar handling allowed a symlink traversal path that could expose local files outside an agent workspace through
+    gateway avatar surfaces.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21, plus prereleases 2026.2.21-1 and 2026.2.21-2
+
+    - Latest published version at triage time (2026-02-22): 2026.2.21-2 (affected)
+
+    - Planned patched version (pre-set for release workflow): 2026.2.22
+
+
+    Details
+
+    In vulnerable builds, local avatar resolution could follow symlinks and return file bytes from outside the configured
+    workspace boundary.
+
+
+    The issue was hardened in two paths:
+
+    1. Gateway avatar metadata resolution now enforces canonical containment, O_NOFOLLOW, and fd/file-identity checks.
+
+    2. Control UI avatar serving now rejects symlink paths and enforces fd/file-identity and size checks before reads.
+
+
+    Impact
+
+    Confidentiality impact only: local files readable by the OpenClaw process could be disclosed via avatar response surfaces.
+
+
+    Thanks @tdjackey for reporting.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 3d0337504349954237d09e4d957df5cb844d5e77 - 6970c2c2db3ee069ef0fff0ade5cfbdd0134f9d2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rx3g-mvc3-qfjf
+rule: version <= "2026.2.21" || version = "2026.2.21-1" || version = "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rx3g-mvc3-qfjf

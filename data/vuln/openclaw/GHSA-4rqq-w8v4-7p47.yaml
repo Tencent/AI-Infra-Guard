@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4rqq-w8v4-7p47
+  summary: OpenClaw Web fetch 防护中不完整的 IPv4 特殊用途 SSRF 阻止
+  details: >-
+    摘要
+
+    内置 SSRF 防护代码中的 isPrivateIpv4() 遗漏了多个 IPv4 特殊用途/非全局范围，因此 web_fetch 可能允许本应被 SSRF 策略阻止的目标。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 最新发布的受影响版本：2026.2.21-2（发布于 2026-02-21）
+
+    - 结构化受影响范围：<= 2026.2.21-2
+
+    - 计划修复版本（预设）：>= 2026.2.22
+
+
+    影响
+
+    低严重性。利用需要对相关特殊用途范围的网络可达性以及到达 web_fetch URL 获取的请求路径。
+
+
+    技术详情
+
+    受影响版本使用了窄范围的 IPv4 私有范围检查，遗漏了多个 RFC 特殊用途/非全局范围。这允许类似 http://198.18.0.1/... 的请求在受影响版本中通过 SSRF 验证。后续加固整合了本地主机/tailnet 范围检查，使网关/浏览器/tailnet 路径共享一个规范的 IP 分类流。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - 71bd15bb4294d3d1b54386064d69cd0f5f731bd8 -
+    44dfbd23df453e51b71ef79a148c28c53e89168c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4rqq-w8v4-7p47
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4rqq-w8v4-7p47

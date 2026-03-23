@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6x2m-hqfw-hvpj
+  summary: OpenClaw Node exec approvals could be replayed across nodes
+  details: >-
+    Summary
+
+    exec.approval requests for host=node were not explicitly bound to the target nodeId, so an approval intended for one node
+    could be replayed for a different node under the same operator-controlled gateway fleet.
+
+
+    Impact
+
+    An operator approval for a system.run request could be reused across nodes if the request payload did not carry node identity
+    through approval and execution checks.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.22-2
+
+    - Fixed: 2026.2.23 (released)
+
+
+    Mitigation
+
+    Upgrade to 2026.2.23 or later once published.
+
+
+    Fix Details
+
+    The fix requires and persists nodeId for host=node approval requests and rejects execution when the approving node binding
+    does not match the invoking node.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Details The fix requires and persists nodeId for host=node approval
+    requests and rejects execution when the approving node binding does not match the invoking node. Upgrade to 2026.2.23
+    or later once published.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6x2m-hqfw-hvpj
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6x2m-hqfw-hvpj

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x4vp-4235-65hg
+  summary: OpenClaw Pre-auth webhook body parsing can enable unauthenticated slow-request DoS
+  details: >-
+    Impact
+
+
+    OpenClaw webhook handlers for BlueBubbles and Google Chat accepted and parsed request bodies before authentication and
+    signature checks on vulnerable releases. This allowed unauthenticated clients to hold parser work open with slow/oversized
+    request bodies and degrade availability (slow-request DoS).
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected releases: <= 2026.3.1
+
+    - Latest published vulnerable version at triage time: 2026.3.1 (npm)
+
+    - Fixed release: 2026.3.2 (released)
+
+
+    Mitigation
+
+
+    Upgrade to 2026.3.2 (or newer). The fix enforces auth-before-body for affected webhook paths, adds strict pre-auth body/time
+    budgets, and introduces shared in-flight/request guardrails with regression coverage.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.2 or later. Commit(s) - d3e8b17aa6432536806b4853edc7939d891d0f25 Upgrade
+    to 2026.3.2 (or newer). The fix enforces auth-before-body for affected webhook paths, adds strict pre-auth body/time budgets,
+    and introduces shared in-flight/request guardrails with regression coverage.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg

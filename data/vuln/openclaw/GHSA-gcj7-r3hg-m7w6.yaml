@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gcj7-r3hg-m7w6
+  summary: OpenClaw 语音通话 Twilio 重放去重现绑定到已认证的 Webhook 身份
+  details: >-
+    概述
+
+    语音通话 Twilio webhook 路径从未签名的请求元数据（i-twilio-idempotency-token）接受重放/去重身份，使得重放的已签名请求能通过仅变更该头来绕过重放检测和管理器去重。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.25（分类时最新发布的 npm 版本）
+
+    - 已在主线修复：提交 1aadf26f9acc399affabd859937a09468a9c5cb4
+
+    - 计划的已修复 npm 版本：2026.2.26
+
+
+    影响
+
+    使用可选语音通话 Twilio webhook 路径的部署，当攻击者拥有一个有效的已签名请求并仅更改未签名的幂等性头时，可能将重放的 webhook 事件接受为新事件。
+
+
+    技术细节
+
+    修复从 Twilio 重放/去重身份中移除了对未签名头的信任，并将重放/管理器去重绑定到已认证的请求材料。还将验证的请求身份贯穿提供者解析，使去重使用验证派生的身份而非可变头。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。修复提交 - 1aadf26f9acc399affabd859937a09468a9c5cb4
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gcj7-r3hg-m7w6
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gcj7-r3hg-m7w6

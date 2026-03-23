@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5xfq-5mr7-426q
+  summary: OpenClaw Unsanitized session ID enables path traversal in transcript file operations
+  details: >-
+    Description
+
+
+    OpenClaw versions <= 2026.2.9 construct transcript file paths using an unsanitized sessionId and also accept sessionFile
+    paths without enforcing that they stay within the agent sessions directory.
+
+
+    A crafted sessionId and/or sessionFile (example: ../../etc/passwd) can cause path traversal when the gateway performs
+    transcript file read/write operations.
+
+
+    Preconditions: an attacker must be able to authenticate to the gateway (gateway token/password). By default the gateway
+    binds to loopback (local-only); configurations that expose the gateway widen the attack surface.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.9
+
+    - Fixed: >= 2026.2.12
+
+
+    Fix
+
+
+    Fixed by validating session IDs (rejecting path separators / traversal sequences) and enforcing sessions-directory containment
+    for session transcript file operations.
+
+
+    Additional Hardening
+
+
+    - cab0abf52ac91e12ea7a0cf04fff315cf0c94d64
+
+
+    Mitigation
+
+
+    Upgrade to openclaw >= 2026.2.12.
+
+
+    Thanks @akhmittra for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.12 or later. Fixed by validating session IDs (rejecting path separators /
+    traversal sequences) and enforcing sessions-directory containment for session transcript file operations. Upgrade to openclaw
+    >= 2026.2.12. Thanks @akhmittra for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5xfq-5mr7-426q
+rule: version <= "2026.2.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5xfq-5mr7-426q

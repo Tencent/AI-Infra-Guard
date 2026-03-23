@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2ww6-868g-2c56
+  summary: OpenClaw 通过未验证的图像 MIME 类型在 data-URL 插值中实现 HTML 注入
+  details: >-
+    摘要
+
+
+    HTML 会话导出器（src/auto-reply/reply/export-html/template.js）将 img.mimeType 直接插入到 <img src="data:..."> 属性中，
+    而未进行验证或转义。精心构造的 mimeType 值（例如 x" onerror="alert(1)）可以跳出属性上下文并执行任意 JavaScript。
+
+
+    影响
+
+
+    能够控制会话数据中图像条目的攻击者（通过精心构造的工具结果或会话操纵）可以在导出的 HTML 打开时实现 XSS。前提条件比主要 XSS
+    发现更严格（需要具有恶意 mimeType 的图像内容块），但利用过程直接明了。
+
+
+    受影响组件
+
+
+    - src/auto-reply/reply/export-html/template.js — 第 1032 行（工具结果图像）、第 1306 行（用户消息图像）
+
+
+    复现步骤
+
+
+    1. 构造一个带有图像内容块的会话条目，其中 mimeType 设置为 image/png" onerror="alert(document.domain)
+
+    2. 将会话导出为 HTML
+
+    3. 打开导出的 HTML — 注入的 onerror 触发
+
+
+    修复措施
+
+
+    - 添加了 sanitizeImageMimeType() 辅助函数，根据已知图像 MIME 类型白名单验证 mimeType
+
+    - 对无法识别的值回退到 application/octet-stream，防止属性逃逸
+
+
+    修复
+
+
+    https://github.com/openclaw/openclaw/pull/24140
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.23 或更高版本。https://github.com/openclaw/openclaw/pull/24140
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2ww6-868g-2c56
+rule: version <= "2026.2.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2ww6-868g-2c56

@@ -1,0 +1,67 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r294-2894-92j3
+  summary: OpenClaw Stored XSS in exported session HTML viewer via markdown/raw-HTML rendering
+  details: >-
+    Summary
+
+
+    The exported session HTML viewer allowed stored XSS when untrusted session content included raw HTML markdown tokens or
+    unescaped metadata fields.
+
+
+    Impact
+
+
+    Opening a crafted exported HTML session could execute attacker-controlled JavaScript in the viewer context. This can expose
+    session content in the page and enable phishing or UI spoofing in the trusted export view.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.22-2
+
+    - Patched version (released): >= 2026.2.23
+
+
+    Technical Details
+
+
+    The exporter rendered markdown with marked.parse(...) and inserted HTML via innerHTML, but did not override the html renderer
+    token path. Raw HTML (for example <img ... onerror=...>) was passed through. Additional tree/header metadata fields were
+    interpolated without escaping in the export template.
+
+
+    Reproduction
+
+
+    1. Create a session containing content like <img src=x onerror=alert(1)>.
+
+    2. Export the session to HTML.
+
+    3. Open the exported file.
+
+    4. Observe script execution from injected content.
+
+
+    Remediation
+
+
+    - Added a marked html(token) renderer override that escapes raw HTML tokens.
+
+    - Escaped previously unescaped tree/header metadata fields in the export template.
+
+    - Added image MIME sanitization for exported data-URL image rendering.
+
+    - Added regression tests for markdown/token and metadata escaping paths.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Commit(s) - f8524ec77a3999d573e6c6b8a5055bf35c49a2e6
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r294-2894-92j3
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r294-2894-92j3

@@ -1,0 +1,75 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q447-rj3r-2cgh
+  summary: OpenClaw 通过无限制的 Webhook 请求体缓冲导致拒绝服务
+  details: >-
+    概述
+
+    多个 Webhook 处理器在没有严格统一的字节/时间限制的情况下接受并缓冲请求体。远程未认证的攻击者可以发送超大有效载荷并造成内存压力，降低可用性。
+
+
+    详情
+
+    受影响的包：
+
+    - openclaw (npm): <2026.2.12
+
+    - clawdbot (npm): <=2026.1.24-3
+
+
+    根本原因：
+
+    - Webhook 代码路径在缓冲请求有效载荷时缺少一致的 maxBytes + timeoutMs 执行。
+
+    - 一些基于 SDK 的处理器在内部解析请求体，需要流级别防护。
+
+
+    攻击形态：
+
+    - 向 Webhook 端点发送超大 JSON 有效载荷或慢速/不完整的上传。
+
+    - 观察到内存使用升高和请求处理器压力。
+
+
+    影响
+
+    通过请求体放大/内存压力导致远程未认证的可用性影响（DoS）。
+
+
+    补丁详情（已实现）
+
+    - 在 src/infra/http-body.ts 中添加共享的有界请求体辅助函数。
+
+    - 在 src/plugin-sdk/index.ts 中导出辅助函数供扩展重用。
+
+    - 将 Webhook 请求体读取器迁移到共享辅助函数：LINE、Nextcloud Talk、Google Chat、Zalo、BlueBubbles、Nostr profile HTTP、Voice-call、Gateway hooks。
+
+    - 为内部解析请求体的 SDK 处理器添加流防护：Slack、Telegram、Feishu。
+
+    - 为 MS Teams Webhook 路径添加显式的 Express JSON body 大小限制处理。
+
+    - 标准化失败响应：413 Payload Too Large、408 Request Timeout。
+
+    测试
+
+    - 添加回归测试：src/infra/http-body.test.ts、src/line/monitor.read-body.test.ts、extensions/nextcloud-talk/src/monitor.read-body.test.ts。
+
+    - 针对已修复路径的 Webhook/安全测试套件通过。
+
+
+    修复措施
+
+    升级到包含此补丁的第一个版本。
+
+
+    致谢
+
+    感谢 @vincentkoc 报告此问题。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >=2026.2.13 或更高版本。提交 - 3cbcba10cf30c2ffb898f0d8c7dfb929f15f8930
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh

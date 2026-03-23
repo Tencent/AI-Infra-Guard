@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5v6x-rfc3-7qfr
+  summary: OpenClaw Windows system.run 审批不匹配导致 cmd.exe /c 尾部参数执行
+  details: >-
+    概述
+
+    Windows system.run 中 cmd.exe /c 路径存在审批完整性不匹配问题，可能允许尾部参数在审批/审计文本仅反映良性命令字符串的情况下被执行。
+
+
+    这需要在使用审批流程的已认证操作员上下文和可信的 Windows 节点上进行。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 最新发布的受影响版本（截至 2026-02-21）：2026.2.19-2
+
+    - 受影响范围：<=2026.2.19-2
+
+    - 已修复版本（计划的下一个发布版本）：2026.2.21
+
+
+    攻击场景
+
+    1. 为良性命令文本（例如 echo）创建已认证的操作员审批。
+
+    2. system.run 请求使用带有额外尾部参数的 cmd.exe /c。
+
+    3. 此前的行为可能将审批/审计文本绑定到良性命令，同时仍在节点上执行完整的参数尾部。
+
+
+    影响
+
+    - 在可信 Windows 节点进程账户上的本地命令执行。
+
+    - 审批/审计命令文本完整性不匹配。
+
+
+    修复
+
+    - 对 cmd.exe /c 之后的完整命令尾部进行规范化。
+
+    - 对验证、审批匹配和执行/审计文本复用一个共享的命令规范化/验证路径。
+
+    - 添加尾部参数夹带和审批绑定的回归测试覆盖。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。- 对 cmd.exe /c 之后的完整命令尾部进行规范化。- 对验证、审批匹配和执行/审计文本复用一个共享的命令规范化/验证路径。- 添加尾部参数夹带和审批绑定的回归测试覆盖。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5v6x-rfc3-7qfr
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5v6x-rfc3-7qfr

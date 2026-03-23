@@ -1,0 +1,77 @@
+info:
+  name: OpenClaw
+  cve: GHSA-45cg-2683-gfmq
+  summary: OpenClaw Browser navigation guard allowed non-network URL schemes, enabling authenticated browser-tool users to
+    access file:// local files.
+  details: >-
+    Severity Assessment
+
+
+    Medium (CVSS v3.1: AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+
+
+    CWE-610: Externally Controlled Reference to a Resource in Another Sphere
+
+
+    Impact
+
+
+    assertBrowserNavigationAllowed() validated only http:/https: network targets but implicitly allowed other schemes. An
+    authenticated gateway user could navigate browser sessions to file:// URLs and read local files via browser snapshot/extraction
+    flows.
+
+
+    Affected Component
+
+
+    - src/browser/navigation-guard.ts
+
+
+    Technical Reproduction
+
+
+    1. Authenticate to a gateway that has browser tooling enabled.
+
+    2. Invoke browser navigation with a file:// URL (for example file:///etc/passwd).
+
+    3. Read page content through browser snapshot/extract actions.
+
+
+    Demonstrated Impact
+
+
+    An attacker with valid gateway credentials and browser-tool access can exfiltrate local files readable by the OpenClaw
+    process user (for example config/secrets in that user context).
+
+
+    Environment
+
+
+    - OpenClaw browser tool enabled
+
+    - Attacker has authenticated access capable of invoking browser actions
+
+
+    Remediation Advice
+
+
+    Reject unsupported navigation schemes and allow only explicitly safe non-network URLs. OpenClaw now blocks non-network
+    schemes (such as file:, data:, and javascript:) while preserving about:blank.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.19-2
+
+    - Patched in planned next release: 2026.2.21
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. Commit(s) - 220bd95eff6838234e8b4b711f86d4565e16e401
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-45cg-2683-gfmq
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-45cg-2683-gfmq

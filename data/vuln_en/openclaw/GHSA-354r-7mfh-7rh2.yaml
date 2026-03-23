@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-354r-7mfh-7rh2
+  summary: OpenClaw Discord DM reaction ingress missed dmPolicy/allowFrom checks in restricted setups
+  details: >-
+    Summary
+
+    In OpenClaw <= 2026.2.24, Discord direct-message reaction notifications did not consistently apply the same DM authorization
+    checks (dmPolicy / allowFrom) that are enforced for normal DM message ingress.
+
+
+    In restrictive DM setups, a non-allowlisted Discord user who can react to a bot-authored DM message could still enqueue
+    a reaction-derived system event in the session.
+
+
+    This is a reaction-only ingress inconsistency. By itself it does not directly execute commands; practical impact depends
+    on downstream automation/tool policy.
+
+
+    Details
+
+    The DM message path already enforces dmPolicy/allowFrom authorization, but the DM reaction-notification path previously
+    allowed event enqueue under reaction mode checks without that same authorization gate.
+
+
+    Fix in main aligns reaction ingress with normal message preflight for Discord DM/group-DM/guild policy boundaries and
+    applies equivalent DM reaction authorization hardening for Slack to keep channel behavior consistent.
+
+
+    Affected Packages / Versions
+
+    - npm package: openclaw
+
+    - Affected: <= 2026.2.24
+
+    - Patched: >= 2026.2.25
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - aedf62ac7e669a89c7b299201bf6537dc6b12e0e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-354r-7mfh-7rh2
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-354r-7mfh-7rh2

@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hff7-ccv5-52f8
+  summary: OpenClaw 网关无令牌 Tailscale 认证应用于 HTTP 路由
+  details: >-
+    概述
+
+    当启用无令牌 Tailscale 认证时，OpenClaw 应仅允许在受信任主机上对控制台 UI WebSocket 认证使用转发头认证。在受影响版本中，该无令牌路径也可被 HTTP 网关认证调用点使用，从而在受信任网络部署中绕过 HTTP 路由的令牌/密码要求。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响范围：<= 2026.2.19-2（截至 2026 年 2 月 21 日最新发布的 npm 版本）
+
+    - 修复版本：计划在 2026.2.21 版本发布
+
+
+    影响
+
+    依赖令牌/密码进行 HTTP 网关路由认证的部署，在启用 Tailscale 头部认证时可能被降级为无令牌行为。这削弱了即使在受信任主机网络配置中预期的 HTTP 路由认证边界。
+
+
+    根据 SECURITY.md，此问题不影响推荐的配置方式：保持网关仅限回环访问（或在受信任主机/网络边界内），使用 Tailscale serve/funnel 进行远程访问，并将无令牌 Tailscale 认证范围限制在控制台 UI WebSocket 登录。
+
+
+    修复
+
+    - 在网关认证中添加了显式的认证范围控制（allowTailscaleHeaderAuth，默认为 false）。
+
+    - 仅对控制台 UI WebSocket 认证启用无令牌 Tailscale 头部认证。
+
+    - HTTP 网关认证调用点保持使用令牌/密码认证路径。
+
+    - 添加了 HTTP 与 WebSocket 行为及 Tailscale 头部处理的回归测试覆盖。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >=2026.2.21 或更高版本。- 在网关认证中添加了显式的认证范围控制（allowTailscaleHeaderAuth，默认为
+    false）。- 仅对控制台 UI WebSocket 认证启用无令牌 Tailscale 头部认证。- HTTP 网关认证调用点保持使用令牌/密码认证路径。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hff7-ccv5-52f8
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hff7-ccv5-52f8

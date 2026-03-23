@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vvgp-4c28-m3jm
+  summary: OpenClaw Trusted-proxy Control UI pairing bypass allowed unpaired node sessions
+  details: >-
+    Summary
+
+    A trusted-proxy Control UI pairing bypass accepted client.id=control-ui without device identity checks. The bypass did
+    not require operator role, so an authenticated node role session could connect unpaired and reach node event methods.
+
+
+    Impact
+
+    With trusted-proxy authentication enabled, a node role websocket client could skip pairing by using client.id=control-ui.
+    That created an authorization boundary bypass from a node-scoped connection into node event execution flows.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected range: <= 2026.2.24
+
+    - Latest published vulnerable version: 2026.2.24
+
+    - Patched in next release: 2026.2.25 (pre-set below so this advisory is ready to publish after npm release)
+
+
+    Fix
+
+    The trusted-proxy Control UI bypass now additionally requires role === "operator".
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. The trusted-proxy Control UI bypass now additionally requires
+    role === "operator".
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vvgp-4c28-m3jm
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vvgp-4c28-m3jm

@@ -1,0 +1,59 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v6c6-vqqg-w888
+  summary: OpenClaw Potential code execution via unsafe hook module path handling in Gateway
+  details: >-
+    Summary
+
+
+    OpenClaw Gateway supports hook mappings with optional JavaScript/TypeScript transform modules. In affected versions, the
+    gateway did not sufficiently constrain configured module paths before passing them to dynamic import(). Under some configurations,
+    a user who can modify gateway configuration could cause the gateway process to load and execute an unintended local module.
+
+
+    Impact
+
+
+    Potential code execution in the OpenClaw gateway Node.js process.
+
+
+    This requires access that can modify gateway configuration (for example via the gateway config endpoints). Treat such
+    access as high privilege.
+
+
+    Affected Packages / Versions
+
+
+    - npm package: openclaw
+
+    - Affected: >= 2026.1.5 and <= 2026.2.13
+
+
+    Patched Versions
+
+
+    - >= 2026.2.14
+
+
+    Mitigation
+
+
+    - Upgrade to 2026.2.14 or newer.
+
+    - Avoid exposing gateway configuration endpoints to untrusted networks.
+
+    - Review config for unsafe values:
+      - hooks.mappings[].transform.module
+      - hooks.internal.handlers[].module
+
+    Thanks @222n5 for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >=2026.2.14 or later. Commit(s) - a0361b8ba959e8506dc79d638b6e6a00d12887e4 (restrict
+    hook transform module loading) - 35c0e66ed057f1a9f7ad2515fdcef516bd6584ce (harden hooks module loading) - Upgrade to 2026.2.14
+    or newer. - Avoid exposing gateway configuration endpoints to untrusted networks. - Review config for unsafe values:'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v6c6-vqqg-w888
+rule: version >= "2026.1.5" && version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v6c6-vqqg-w888

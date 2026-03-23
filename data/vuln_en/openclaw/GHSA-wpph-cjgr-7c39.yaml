@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wpph-cjgr-7c39
+  summary: OpenClaw Typed sender-key matching for toolsBySender prevents identity-collision policy bypass
+  details: >-
+    Summary
+
+    channels.*.groups.*.toolsBySender could match a privileged sender policy using a colliding mutable identity value (for
+    example senderName or senderUsername) when deployments used untyped keys.
+
+
+    The fix introduces explicit typed sender keys (id:, e164:, username:, name:), keeps legacy untyped keys on a deprecated
+    ID-only path, and adds regression coverage to prevent cross-identifier collisions.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Latest published npm version at triage time (February 22, 2026): 2026.2.21-2
+
+    - Patched version (planned next release): 2026.2.22
+
+
+    Impact
+
+    This is a sender-authorization bypass in group tool policy matching for deployments that use toolsBySender with untyped
+    keys. Under those conditions, an attacker could inherit stronger tool permissions intended for another sender if they
+    can force an identifier collision.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.2.22 or later. Commit(s) - 5547a2275cb69413af3b62c795b93214fe913b57
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpph-cjgr-7c39
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wpph-cjgr-7c39

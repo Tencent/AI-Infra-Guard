@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-392f-ggf5-fp3c
+  summary: OpenClaw Unicode canonicalization drift in node metadata policy classification could broaden node allowlists
+  details: >-
+    Summary
+
+    A paired node could supply Unicode-confusable platform or deviceFamily metadata that passed metadata pinning but classified
+    differently for command policy resolution, broadening default node command allowlists.
+
+
+    Impact
+
+    This is a policy-bypass issue within the paired-node trust boundary and can expand node command availability beyond intended
+    defaults.
+
+
+    Fix
+
+    Node metadata canonicalization was hardened against confusables, and unknown platform defaults were made conservative
+    (excluding system.run and system.which unless explicitly allowlisted).
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.1 or later. Node metadata canonicalization was hardened against confusables,
+    and unknown platform defaults were made conservative (excluding system.run and system.which unless explicitly allowlisted).
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-392f-ggf5-fp3c
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-392f-ggf5-fp3c

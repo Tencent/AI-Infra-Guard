@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fgvx-58p6-gjwc
+  summary: OpenClaw 网关 agents.files 符号链接逃逸允许工作区外文件读写
+  details: >-
+    影响
+
+    网关 agents.files.get 和 agents.files.set 方法允许对允许列表中的工作区文件进行符号链接遍历。允许列表中的符号链接文件（例如 AGENTS.md）可以解析到代理工作区外并被网关进程读写。
+
+    这可能在网关进程权限范围内实现任意宿主文件读写，根据被覆盖的文件不同，链式影响可达代码执行。
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.24
+
+    - 修补时最新发布的受影响版本：2026.2.24
+
+    - 已修复版本：>= 2026.2.25
+
+    修复措施
+
+    agents.files 现在解析真实工作区路径，对已解析目标强制执行包含检查，拒绝工作区外的符号链接目标，并保持对工作区内符号链接目标的支持。补丁还添加了针对被阻止逃逸和有效工作区内符号链接行为的网关回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。修复提交 - 125f4071bcbc0de32e769940d07967db47f09d3d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fgvx-58p6-gjwc
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fgvx-58p6-gjwc

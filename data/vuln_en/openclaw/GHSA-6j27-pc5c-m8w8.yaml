@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6j27-pc5c-m8w8
+  summary: OpenClaw allow-always wrapper persistence could bypass future approvals and enable command execution
+  details: >-
+    Summary
+
+    In openclaw npm releases up to and including 2026.2.21-2, approving wrapped system.run commands with allow-always in security=allowlist
+    mode could persist wrapper-level allowlist entries and enable later approval-bypass execution of different inner payloads.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Planned patched version: 2026.2.22
+
+
+    Details
+
+    allow-always persistence was based on wrapper-level resolution instead of stable inner executable intent. A benign approved
+    wrapper invocation could therefore broaden future trust boundaries.
+
+
+    Affected paths included gateway and node-host execution approval persistence flows. The fix now persists inner executable
+    paths for known dispatch-wrapper chains (env, nice, nohup, stdbuf, timeout) and fails closed when safe unwrapping cannot
+    be derived.
+
+
+    Impact
+
+    Authorization boundary bypass in allowlist mode, potentially leading to approval-free command execution (RCE class) on
+    subsequent wrapped invocations.
+
+
+    Mitigation
+
+    Upgrade to 2026.2.22 (planned next release) or run with stricter exec policy (ask=always / security=deny) until upgraded.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:H/UI:R/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.2.22 or later. Commit(s) - 24c954d972400f508814532dea0e4dcb38418bb0 Upgrade to
+    2026.2.22 (planned next release) or run with stricter exec policy (ask=always / security=deny) until upgraded.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6j27-pc5c-m8w8
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6j27-pc5c-m8w8

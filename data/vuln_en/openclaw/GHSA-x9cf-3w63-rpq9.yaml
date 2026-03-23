@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x9cf-3w63-rpq9
+  summary: OpenClaw Sensitive file disclosure via stageSandboxMedia
+  details: >-
+    Summary
+
+    When iMessage remote attachment fetching is enabled (channels.imessage.remoteHost), stageSandboxMedia accepted arbitrary
+    absolute paths and used SCP to copy them into local staging.
+
+
+    If a non-attachment path reaches this flow, files outside expected iMessage attachment directories on the remote host
+    can be staged.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw
+
+    - Affected: up to and including 2026.2.17 (latest npm version as of February 19, 2026)
+
+    - Fixed: pending next release with remote attachment path validation
+
+
+    Impact
+
+    Confidentiality impact. An attacker who can influence inbound attachment path metadata may disclose files readable by
+    the OpenClaw process on the configured remote host.
+
+
+    Attack Preconditions
+
+    1. iMessage attachments enabled (channels.imessage.includeAttachments=true), and
+
+    2. remote attachment mode active (channels.imessage.remoteHost configured or auto-detected), and
+
+    3. attacker can inject/tamper with attachment path metadata.
+
+
+    Given these preconditions, this advisory is assessed as medium severity.
+
+
+    Mitigation
+
+    - Upgrade to the first release that includes remote attachment path validation.
+
+    - If remote attachments are not required, disable iMessage attachment ingestion.
+
+    - Run OpenClaw under least privilege on the remote host.
+
+
+    Thanks @zpbrent for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - 1316e5740382926e45a42097b4bfe0aef7d63e8e - Upgrade
+    to the first release that includes remote attachment path validation. - If remote attachments are not required, disable
+    iMessage attachment ingestion. - Run OpenClaw under least privilege on the remote host.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x9cf-3w63-rpq9
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x9cf-3w63-rpq9

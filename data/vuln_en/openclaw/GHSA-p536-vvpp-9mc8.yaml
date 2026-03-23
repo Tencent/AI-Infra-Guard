@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p536-vvpp-9mc8
+  summary: OpenClaw Web Fetch DoS via unbounded response parsing
+  details: >-
+    Summary
+
+    The web_fetch tool could be used to crash the OpenClaw Gateway process (OOM / resource exhaustion) by fetching and attempting
+    to parse attacker-controlled web pages with oversized response bodies or pathological HTML nesting.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.14
+
+    - Fixed versions: >= 2026.2.15
+
+
+    Impact
+
+    An attacker can social-engineer a user (or any automation that uses web_fetch) into fetching a malicious URL that returns
+    extremely large or deeply nested HTML. The Gateway may exhaust memory or become unresponsive, causing a denial of service.
+
+
+    Fix
+
+    The Gateway now caps the downloaded response body size before any HTML parsing and adds additional guards to avoid running
+    Readability/DOM parsing on pathological HTML.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.15 or later. The Gateway now caps the downloaded response body size before
+    any HTML parsing and adds additional guards to avoid running Readability/DOM parsing on pathological HTML.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p536-vvpp-9mc8
+rule: version <= "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p536-vvpp-9mc8

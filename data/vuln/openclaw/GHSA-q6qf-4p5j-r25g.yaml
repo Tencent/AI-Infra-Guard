@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q6qf-4p5j-r25g
+  summary: OpenClaw image 工具绕过沙箱挂载路径上的 tools.fs.workspaceOnly 并窃取工作区外图像
+  details: >-
+    概述
+
+    在 OpenClaw 中，沙箱化的 image 工具未对沙箱 FS 桥接解析的挂载路径遵守 tools.fs.workspaceOnly=true。这允许读取工作区外的已挂载图像（例如 /agent/*）并将这些字节转发给视觉模型提供者。
+
+
+    影响
+
+    具有机密性影响的沙箱边界绕过。在受影响版本中，read/write/edit 遵守仅工作区保护，但 image 仍可加载挂载的工作区外文件并通过模型请求窃取它们。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 修复版本：>= 2026.2.23（已发布）
+
+    - 分类时最新发布的 npm：2026.2.22-2
+
+
+    技术详情
+
+    workspaceOnly 在沙箱文件工具和 apply_patch 中被执行，但未传播/执行到 image 沙箱路径解析。修复将 workspaceOnly 线程化到 image 工具构造中，并在加载媒体字节之前断言沙箱根目录包含性。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.23 或更高版本。提交 - dd9d9c1c609dcb4579f9e57bd7b5c879d0146b53
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q6qf-4p5j-r25g
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q6qf-4p5j-r25g

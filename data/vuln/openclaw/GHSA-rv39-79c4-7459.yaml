@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rv39-79c4-7459
+  summary: OpenClaw 网关连接在 auth.token 存在但未验证时可跳过设备身份检查
+  details: >-
+    概述
+
+
+    网关 WebSocket 连接握手可能在 auth.token 存在但未验证时允许跳过设备身份检查。
+
+
+    详情
+
+
+    在 src/gateway/server/ws-connection/message-handler.ts 中，设备身份要求可基于非空 connectParams.auth.token 的存在而非已验证的共享密钥认证结果被绕过。
+
+
+    影响
+
+
+    在网关 WebSocket 可达且连接可通过 Tailscale 认证而无需验证共享密钥的部署中，客户端可以在不提供设备身份/配对的情况下连接。根据版本和配置，这可能导致操作员级别访问。
+
+
+    部署指南
+
+
+    根据 OpenClaw 安全指南，网关应仅从受信任网络和受信任用户可达（例如，使用 Tailscale Serve 时限制 Tailnet 用户/ACL）。
+
+
+    如果网关 WebSocket 仅对受信任用户可达，通常没有不受信任方具有网络访问权限来利用此问题。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.1
+
+    - 修复：>= 2026.2.2
+
+
+    修复
+
+
+    跳过设备身份现在需要已验证的共享密钥认证（令牌/密码）。未验证共享密钥的 Tailscale 认证连接需要设备身份。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >=2026.2.2 或更高版本。跳过设备身份现在需要已验证的共享密钥认证（令牌/密码）。未验证共享密钥的
+    Tailscale 认证连接需要设备身份。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rv39-79c4-7459
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rv39-79c4-7459

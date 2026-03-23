@@ -1,0 +1,75 @@
+info:
+  name: OpenClaw
+  cve: GHSA-ww6v-v748-x7g9
+  summary: OpenClaw 沙箱网络隔离绕过漏洞（通过 docker.network=container:<id>）
+  details: >-
+    概述
+
+    在 openclaw@2026.2.23 中，沙箱网络加固阻止了 network=host 但仍允许 network=container:<id>。
+
+
+    这可以让沙箱加入另一个容器的网络命名空间并访问该命名空间中可用的服务。
+
+
+    前提条件和信任模型上下文
+
+    此问题需要受信任操作员的配置路径（例如在网关配置中设置 agents.defaults.sandbox.docker.network）。
+    它本身不是未认证的远程漏洞。
+
+
+    详情
+
+    当前验证仅阻止 host，同时将其他值转发给 Docker create 参数：
+
+
+    - validateNetworkMode(network) 仅拒绝 BLOCKED_NETWORK_MODES = {"host"} 中的值。
+
+    - buildSandboxCreateArgs(...) 验证后将 cfg.network 转发到 --network。
+
+    - 浏览器沙箱辅助程序也在网络准备中将 container: 视为可接受的模式。
+
+
+    实际行为：
+
+
+    - host -> 已阻止
+
+    - container:<id> -> 已接受并转发
+
+
+    影响
+
+    类型：沙箱网络隔离加固绕过。
+
+
+    实际影响取决于部署：
+
+
+    - 需要能够影响受信任的沙箱网络配置。
+
+    - 当目标容器暴露特权/内部网络可达性时影响更大。
+
+
+    修复措施
+
+    阻止沙箱容器的命名空间加入式网络模式（包括 container:<id>），并对安全网络模式保持严格的允许列表。
+
+
+    补丁状态
+
+    在主分支提交 14b6eea6e 中已修复：
+
+    https://github.com/openclaw/openclaw/commit/14b6eea6e
+
+
+    后续重构/清理（无策略回退）：
+
+    https://github.com/openclaw/openclaw/commit/5552f9073
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-ww6v-v748-x7g9
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-ww6v-v748-x7g9

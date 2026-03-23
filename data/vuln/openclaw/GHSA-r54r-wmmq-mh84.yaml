@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r54r-wmmq-mh84
+  summary: OpenClaw ZIP 解压竞争可通过父目录符号链接重绑定写入目标目录之外
+  details: >-
+    概述
+
+    OpenClaw 中的 ZIP 解压可通过验证与写入之间的父目录符号链接重绑定竞争条件，被利用写入预期目标目录之外。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.1
+
+    - 确认的最新发布受影响版本：2026.3.1（截至 2026-03-02 的 npm）
+
+    - 修复版本：2026.3.2（已发布）
+
+
+    技术详情
+
+    在 src/infra/archive.ts 中，ZIP 解压此前验证输出路径，然后在单独步骤中打开/截断目标路径。对父目录符号链接状态的本地竞争可将最终写入重定向到解压根目录之外。
+
+
+    修复通过将写入绑定到已打开的文件句柄身份并避免写入前截断竞争路径来加固 ZIP 写入，使用 src/infra/fs-safe.ts 中的共享 fd realpath 验证和 src/infra/archive.test.ts 中的回归测试覆盖。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.3.2 或更高版本。提交 - 7dac9b05dd9d38dd3929637f26fa356fd8bdd107
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r54r-wmmq-mh84
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r54r-wmmq-mh84

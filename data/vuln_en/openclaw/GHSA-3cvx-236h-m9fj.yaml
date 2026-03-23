@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3cvx-236h-m9fj
+  summary: OpenClaw Opt-in insecure Control UI auth over plaintext HTTP could allow privileged access in affected releases
+  details: >-
+    Description
+
+
+    In affected releases, when an operator explicitly enabled gateway.controlUi.allowInsecureAuth: true and exposed the gateway
+    over plaintext HTTP, Control UI authentication could permit privileged operator access without the intended device identity
+    + pairing guarantees.
+
+
+    This required an insecure deployment choice and credential exposure risk (for example, plaintext transit or prior token
+    leak). It was fixed on main in commit 40a292619e1f2be3a3b1db663d7494c9c2dc0abf (PR 20684).
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected published versions: <= 2026.2.19-2
+
+    - Planned patched version: 2026.2.21
+
+
+    Impact
+
+
+    In these explicitly insecure deployments, an attacker with leaked/intercepted credentials could obtain high-privilege
+    Control UI access.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. Commit(s) - 40a292619e1f2be3a3b1db663d7494c9c2dc0abf (merged
+    2026-02-20)
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3cvx-236h-m9fj
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3cvx-236h-m9fj

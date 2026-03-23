@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qhrr-grqp-6x2g
+  summary: OpenClaw tools.exec.safeBins 受信任 PATH 目录允许在白名单模式下进行二进制覆盖
+  details: >-
+    概述
+
+    在 openclaw 白名单模式下，tools.exec.safeBins 信任 PATH 派生的目录进行安全二进制文件解析。在受信任 PATH 目录中放置的同名二进制文件可通过安全二进制文件检查并执行。
+
+
+    影响
+
+    这是执行策略中的白名单绕过，当白名单模式依赖安全二进制文件且攻击者能够影响受信任二进制文件位置时，可在 OpenClaw 运行时上下文中导致命令执行。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 修复版本：>= 2026.2.22（计划的下一个版本）
+
+    - 分类时最新发布的 npm 版本（2026-02-22）：2026.2.21-2
+
+
+    根本原因
+
+    - 安全二进制文件信任接受 PATH 派生的目录而非显式受信任目录。
+
+    - 安全二进制文件执行使用可解析为被覆盖二进制文件的 shell 命令令牌。
+
+
+    修复措施
+
+    - 停止信任 PATH 派生的目录用于安全二进制文件信任。
+
+    - 添加显式的 tools.exec.safeBinTrustedDirs 用于可选的额外受信任路径。
+
+    - 将安全二进制文件 shell 执行固定到已解析的绝对可执行路径。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 64b273a71cf0b2f2419c974832cede1fc2158729
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qhrr-grqp-6x2g
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qhrr-grqp-6x2g

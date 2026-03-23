@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-82g8-464f-2mv7
+  summary: OpenClaw 技能环境变量覆盖导致宿主环境变量注入
+  details: >-
+    概述
+
+    applySkillConfigEnvOverrides 此前将 skills.entries.*.env 的值复制到宿主 process.env 中，而未应用宿主环境变量安全策略。
+
+    影响
+
+    在受影响的版本中，当未设置时，危险的进程级变量（如 NODE_OPTIONS）可以被注入，从而影响运行时/子进程行为。
+
+    所需攻击者能力
+
+    攻击者必须能够修改 OpenClaw 本地状态/配置（例如 ~/.openclaw/openclaw.json）来设置 skills.entries.<skill>.env 或相关技能配置值。
+
+    修复措施
+
+    在 2026.2.21 中修复，通过在应用覆盖之前净化技能环境变量覆盖并阻止危险的宿主环境变量键（包括 NODE_OPTIONS），并提供覆盖被阻止的危险键的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.21 或更高版本。修复提交 - 8c9f35cdb51692b650ddf05b259ccdd75cc9a83c。由 MCPwner 发现。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7

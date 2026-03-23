@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2ww6-868g-2c56
+  summary: OpenClaw HTML injection via unvalidated image MIME type in data-URL interpolation
+  details: >-
+    Summary
+
+
+    The HTML session exporter (src/auto-reply/reply/export-html/template.js) interpolates img.mimeType directly into <img
+    src="data:..."> attributes without validation or escaping. A crafted mimeType value (e.g., x" onerror="alert(1)) can break
+    out of the attribute context and execute arbitrary JavaScript.
+
+
+    Impact
+
+
+    An attacker who can control image entries in session data (via crafted tool results or session manipulation) can achieve
+    XSS when the exported HTML is opened. The precondition is tighter than the main XSS finding (requires image content blocks
+    with a malicious mimeType), but exploitation is straightforward.
+
+
+    Affected components
+
+
+    - src/auto-reply/reply/export-html/template.js — line 1032 (tool result images), line 1306 (user message images)
+
+
+    Reproduction
+
+
+    1. Craft a session entry with an image content block where mimeType is set to image/png" onerror="alert(document.domain)
+
+    2. Export the session to HTML
+
+    3. Open the exported HTML — the injected onerror fires
+
+
+    Remediation
+
+
+    - Added sanitizeImageMimeType() helper that validates mimeType against a whitelist of known image MIME types
+
+    - Falls back to application/octet-stream for unrecognized values, preventing attribute breakout
+
+
+    Fix
+
+
+    https://github.com/openclaw/openclaw/pull/24140
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. https://github.com/openclaw/openclaw/pull/24140
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2ww6-868g-2c56
+rule: version <= "2026.2.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2ww6-868g-2c56

@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-82g8-464f-2mv7
+  summary: OpenClaw Skill env override host env injection
+  details: >-
+    Summary
+    applySkillConfigEnvOverrides previously copied skills.entries.*.env values into the host process.env without applying the host env safety policy.
+
+    Impact
+    In affected versions, dangerous process-level variables such as NODE_OPTIONS could be injected when unset, which can influence runtime/child-process behavior.
+
+    Required attacker capability
+    An attacker must be able to modify OpenClaw local state/config (for example ~/.openclaw/openclaw.json) to set skills.entries.<skill>.env or related skill config values.
+
+    Remediation
+    Fixed in 2026.2.21 by sanitizing skill env overrides and blocking dangerous host env keys (including NODE_OPTIONS) before applying overrides, with regression tests covering blocked dangerous keys.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.21 or later. Commit(s) - 8c9f35cdb51692b650ddf05b259ccdd75cc9a83c Found using MCPwner
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7

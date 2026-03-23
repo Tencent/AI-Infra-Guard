@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3cvx-236h-m9fj
+  summary: OpenClaw 选择启用的不安全控制 UI 明文 HTTP 认证可能在受影响版本中允许特权访问
+  details: >-
+    描述
+
+
+    在受影响的版本中，当操作员显式启用 gateway.controlUi.allowInsecureAuth: true 并通过明文 HTTP 暴露网关时，控制 UI 认证可能
+    在没有预期设备身份 + 配对保证的情况下允许特权操作员访问。
+
+
+    这需要不安全的部署选择和凭据暴露风险（例如明文传输或先前的令牌泄露）。已在 main 分支的提交 40a292619e1f2be3a3b1db663d7494c9c2dc0abf
+    （PR 20684）中修复。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw（npm）
+
+    - 受影响的已发布版本：<= 2026.2.19-2
+
+    - 计划修复版本：2026.2.21
+
+
+    影响
+
+
+    在这些显式不安全的部署中，拥有泄露/截获凭据的攻击者可以获得高权限控制 UI 访问。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。提交记录 - 40a292619e1f2be3a3b1db663d7494c9c2dc0abf（合并于
+    2026-02-20）
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3cvx-236h-m9fj
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3cvx-236h-m9fj

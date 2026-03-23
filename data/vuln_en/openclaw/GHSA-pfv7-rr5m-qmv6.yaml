@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pfv7-rr5m-qmv6
+  summary: OpenClaw Auth inconsistency on local Browser Extension Relay /extension endpoint
+  details: >-
+    Summary
+
+
+    When the optional Chrome extension relay is enabled, /extension accepted unauthenticated WebSocket upgrades while /json/*
+    and /cdp required auth.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.17
+
+    - Latest published npm version at triage time: 2026.2.17
+
+
+    Impact
+
+
+    This is a local-only issue on loopback (127.0.0.1) and only applies when the extension relay feature is in use. A local
+    process on the same machine could connect to /extension without the token and interfere with extension-relay behavior.
+
+
+    No remote network exploit path is involved.
+
+
+    Fix
+
+
+    - Require gateway-token auth on both /extension and /cdp relay WebSocket endpoints.
+
+    - Keep loopback/origin checks as defense-in-depth, not as authentication.
+
+    - Use one token path in setup: gateway.auth.token / OPENCLAW_GATEWAY_TOKEN.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.19 or later. - Require gateway-token auth on both /extension and /cdp relay
+    WebSocket endpoints. - Keep loopback/origin checks as defense-in-depth, not as authentication. - Use one token path in
+    setup: gateway.auth.token / OPENCLAW_GATEWAY_TOKEN.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pfv7-rr5m-qmv6
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pfv7-rr5m-qmv6

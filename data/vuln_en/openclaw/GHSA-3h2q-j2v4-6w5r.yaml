@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3h2q-j2v4-6w5r
+  summary: OpenClaw system.run allowlist approval parsing missed PowerShell encoded-command wrappers
+  details: >-
+    OpenClaw's system.run shell-wrapper detection did not recognize PowerShell -EncodedCommand forms as inline-command wrappers.
+
+
+    In allowlist mode, a caller with access to system.run could invoke pwsh or powershell using -EncodedCommand, -enc, or
+    -e, and the request would fall back to plain argv analysis instead of the normal shell-wrapper approval path. This could
+    allow a PowerShell inline payload to execute without the approval step that equivalent -Command invocations would require.
+
+
+    Latest published npm version: 2026.3.2
+
+
+    Fixed on main on March 7, 2026 in 1d1757b16f48f1a93cd16ab0ad7e2c3c63ce727d by recognizing PowerShell encoded-command aliases
+    during shell-wrapper parsing, so allowlist mode continues to require approval for those payloads. Normal approved PowerShell
+    wrapper flows continue to work.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.3.2
+
+    - Patched version: >= 2026.3.7
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.7 or later. Commit(s) - 1d1757b16f48f1a93cd16ab0ad7e2c3c63ce727d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r

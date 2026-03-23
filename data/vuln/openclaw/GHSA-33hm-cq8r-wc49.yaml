@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-33hm-cq8r-wc49
+  summary: OpenClaw 临时路径处理可写入到 OpenClaw 临时目录边界之外
+  details: >-
+    摘要
+
+    沙箱媒体本地路径验证接受了主机 tmp 下的绝对路径，即使这些路径在活动沙箱根目录之外。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 分类期间最新发布的已验证版本：2026.2.23
+
+    - 受影响版本：<= 2026.2.23
+
+    - 已修复版本（计划下一版本）：>= 2026.2.24
+
+
+    详情
+
+    在受影响的版本中，沙箱媒体路径解析允许 os.tmpdir() 下的绝对主机 tmp 路径作为受信任的媒体输入，而不要求路径保持在活动
+    sandboxRoot 内。
+
+    由于出站附件填充将这些路径视为已验证，这使得通过附件传递实现沙箱外主机 tmp 文件读取和窃取成为可能。
+
+
+    影响
+
+    - 机密性影响：对于依赖 sandboxRoot 作为严格本地文件系统边界的部署而言为高。
+
+    - 实际影响：攻击者控制的媒体引用可以读取并附加沙箱工作区边界之外的主机 tmp 文件。
+
+
+    修复措施
+
+    - 将沙箱 tmp 路径接受限制为仅限 OpenClaw 管理的临时根目录。
+
+    - 将默认 SDK/扩展临时辅助程序设为 OpenClaw 管理的临时根目录。
+
+    - 添加 CI 防护措施以防止消息/通道代码路径中的广泛 tmp 根回归。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。提交记录 - d3da67c7a9b463edc1a9b1c1f7af107a34ca32f5 -
+    79a7b3d22ef92e36a4031093d80a0acb0d82f351
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-33hm-cq8r-wc49
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-33hm-cq8r-wc49

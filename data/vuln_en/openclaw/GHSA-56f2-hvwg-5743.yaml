@@ -1,0 +1,78 @@
+info:
+  name: OpenClaw
+  cve: GHSA-56f2-hvwg-5743
+  summary: OpenClaw SSRF in Image Tool Remote Fetch
+  details: >-
+    Summary
+
+
+    A server-side request forgery (SSRF) vulnerability in the Image tool allowed attackers to force OpenClaw to make HTTP
+    requests to arbitrary internal or restricted network targets.
+
+
+    Affected Versions
+
+
+    - npm: openclaw <= 2026.2.1
+
+
+    Patched Versions
+
+
+    - npm: openclaw 2026.2.2 and later
+
+
+    Fix Commits
+
+
+    - 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae (guard remote media fetches with SSRF checks)
+
+    - 9bd64c8a1f91dda602afc1d5246a2ff2be164647 (expand SSRF guard coverage)
+
+
+    Details
+
+
+    The Image tool accepts file paths, file:// URLs, data: URLs, and http(s) URLs. In vulnerable versions, http(s) URLs were
+    fetched without SSRF protections, enabling requests to localhost, RFC1918, link-local, and cloud metadata targets.
+
+
+    This was fixed by routing remote media fetching through the SSRF guard (private/internal IP + hostname blocking, redirect
+    hardening, DNS pinning).
+
+
+    Exploitability Notes
+
+
+    - Requires attacker-controlled invocation of the Image tool (direct tool access, or a gateway/channel surface that forwards
+    untrusted image arguments into tool calls).
+
+    - The image tool expects the fetched content to be an image. Many high-value SSRF targets return text/JSON (for example
+    cloud metadata endpoints), which will typically fail media-type validation. In practice, the most direct confidentiality
+    impact comes from internal endpoints that actually return images (screenshots/renderers, camera snapshots, chart exports,
+    etc.).
+
+    - Remote fetches are GET-only with no custom headers. Some metadata services require special headers or session tokens
+    (for example GCP Metadata-Flavor, AWS IMDSv2 token), which can further reduce the likelihood of direct credential theft
+    in some environments.
+
+    - Despite the above constraints, SSRF remains a powerful primitive: it can enable internal network probing and access
+    to unauthenticated/internal HTTP endpoints, and can chain with other weaknesses if present.
+
+
+    Related
+
+
+    - Duplicate / broader writeup: GHSA-9vf6-3vcv-rpj2 (closed).
+
+
+    Thanks @p80n-sec for reporting.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.2.2 or later. Commits - 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae (guard remote
+    media fetches with SSRF checks) - 9bd64c8a1f91dda602afc1d5246a2ff2be164647 (expand SSRF guard coverage)
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-56f2-hvwg-5743
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-56f2-hvwg-5743

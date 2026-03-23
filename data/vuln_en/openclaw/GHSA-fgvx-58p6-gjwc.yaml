@@ -1,0 +1,20 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fgvx-58p6-gjwc
+  summary: OpenClaw Gateway agents.files symlink escape allowed out-of-workspace file read/write
+  details: "Impact\n\nThe gateway agents.files.get and agents.files.set methods allowed symlink traversal for allowlisted\
+    \ workspace files. A symlinked allowlisted file (for example AGENTS.md) could resolve outside the agent workspace and\
+    \ be read/written by the gateway process.\n\nThis could enable arbitrary host file read/write within the gateway process\
+    \ permissions, and chained impact up to code execution depending on which files are overwritten.\n\nAffected Packages\
+    \ / Versions\n\n- Package: openclaw (npm)\n- Affected versions: <= 2026.2.24\n- Latest published vulnerable version at\
+    \ patch time: 2026.2.24\n- Patched versions: >= 2026.2.25 \n\nRemediation\n\nagents.files now resolves real workspace\
+    \ paths, enforces containment for resolved targets, rejects out-of-workspace symlink targets, and keeps in-workspace symlink\
+    \ targets supported. The patch also adds gateway regression tests for blocked escapes and valid in-workspace symlink behavior."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 125f4071bcbc0de32e769940d07967db47f09d3d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fgvx-58p6-gjwc
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fgvx-58p6-gjwc

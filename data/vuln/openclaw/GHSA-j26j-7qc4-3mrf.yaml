@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j26j-7qc4-3mrf
+  summary: OpenClaw MS Teams fileConsent/invoke 缺少会话绑定导致跨会话待上传消费
+  details: >-
+    概述
+
+    在 openclaw MS Teams 文件同意流程中，待上传操作仅通过 uploadId 进行授权。fileConsent/invoke 未验证调用会话与创建待上传的会话是否一致。
+
+
+    影响
+
+    在 TTL 有效期内获取有效 uploadId 的攻击者可以触发跨会话上传完成（接受路径）或取消受害者的待上传操作（拒绝路径）。
+
+
+    技术详情
+
+    - 待上传记录存储了 conversationId，但调用处理仅通过 uploadId 进行消费。
+
+    - 调用路径在执行 uploadToConsentUrl(...) 和移除待上传状态之前未执行会话绑定。
+
+    - 修复在消费待上传状态之前绑定接受/拒绝处理到规范化的会话 ID 匹配。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 最新发布的 npm 版本（截至 2026 年 2 月 26 日）：2026.2.24
+
+    - 受影响范围：<= 2026.2.24
+
+    - 修复版本：2026.2.25
+
+
+    修复措施
+
+    升级到 openclaw 2026.2.25（或更高版本）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - 347f7b9550064f5f5b33c6e07f64e85b9657b6f1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j26j-7qc4-3mrf
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j26j-7qc4-3mrf

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-354r-7mfh-7rh2
+  summary: OpenClaw Discord DM 表情回应入站在受限设置中遗漏了 dmPolicy/allowFrom 检查
+  details: >-
+    摘要
+
+    在 OpenClaw <= 2026.2.24 中，Discord 私信表情回应通知未一致应用与正常 DM 消息入站相同的 DM 授权检查（dmPolicy / allowFrom）。
+
+
+    在限制性 DM 设置中，不在允许列表中的 Discord 用户如果能对机器人发送的 DM 消息进行表情回应，仍然可以在会话中入队一个基于表情回应的系统事件。
+
+
+    这是一个仅限表情回应的入站不一致性。它本身不直接执行命令；实际影响取决于下游自动化/工具策略。
+
+
+    详情
+
+    DM 消息路径已强制执行 dmPolicy/allowFrom 授权，但 DM 表情回应通知路径此前允许在表情回应模式检查下入队事件，而未经过相同的授权门控。
+
+
+    main 分支中的修复将表情回应入站与 Discord DM/群组 DM/公会策略边界的正常消息预检对齐，并对 Slack 应用等效的 DM 表情回应授权加固
+    以保持通道行为一致。
+
+
+    受影响的包/版本
+
+    - npm 包：openclaw
+
+    - 受影响：<= 2026.2.24
+
+    - 已修复：>= 2026.2.25
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。提交记录 - aedf62ac7e669a89c7b299201bf6537dc6b12e0e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-354r-7mfh-7rh2
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-354r-7mfh-7rh2

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vjp8-wprm-2jw9
+  summary: OpenClaw 跨账户 DM 配对授权绕过漏洞（配对存储访问未限定账户范围）
+  details: >-
+    概述
+
+    OpenClaw 的 DM 配对策略中，配对存储访问存在账户范围缺失问题，在多账户部署场景下，一个账户的配对批准可能会
+    授权同一发送者在另一个账户上的访问权限。
+
+
+    影响
+
+    这是一个多账户通道部署中的授权边界弱点。在一个账户中被批准的发送者可能在未经另一账户明确批准的情况下被接受。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响的最新发布版本：2026.2.25
+
+    - 漏洞范围：<= 2026.2.25
+
+    - 修复版本（计划下一版本发布）：>= 2026.2.26
+
+
+    修复
+
+    OpenClaw 现在在核心和扩展消息通道中统一强制执行账户范围内的配对读写操作，并通过更严格的运行时/SDK 辅助工具
+    和共享策略连线防止跨账户配对泄露。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。OpenClaw 现在在核心和扩展消息通道中统一强制执行账户范围内的配对读写操作，
+    并通过更严格的运行时/SDK 辅助工具和共享策略连线防止跨账户配对泄露。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vjp8-wprm-2jw9
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vjp8-wprm-2jw9

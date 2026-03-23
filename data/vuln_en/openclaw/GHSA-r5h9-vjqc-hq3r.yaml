@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r5h9-vjqc-hq3r
+  summary: OpenClaw Nextcloud Talk allowlist bypass via actor.name display name spoofing
+  details: >-
+    Summary
+
+
+    In affected versions of the optional Nextcloud Talk plugin (installed separately; not bundled with the core OpenClaw install),
+    an untrusted webhook field (actor.name, display name) could be treated as an allowlist identifier. An attacker could change
+    their Nextcloud display name to match an allowlisted user ID and bypass DM or room allowlists.
+
+
+    Details
+
+
+    Nextcloud Talk webhook payloads provide a stable sender identifier (actor.id) and a mutable display name (actor.name).
+    In affected versions, the plugin’s allowlist matching accepted equality on the display name, which is attacker-controlled.
+
+
+    Affected Packages / Versions
+
+
+    - Package: @openclaw/nextcloud-talk (npm)
+
+    - Affected: <= 2026.2.2
+
+    - Fixed: >= 2026.2.6
+
+
+    Note: This advisory applies to the optional Nextcloud Talk plugin package. Core openclaw is not impacted unless you installed
+    and use @openclaw/nextcloud-talk.
+
+
+    Timeline
+
+
+    - Introduced: 660f87278c9f292061e097441e0b10c20d62b31b (2026-01-20)
+
+    - Fixed in repo: 6b4b6049b47c3329a7014509594647826669892d (2026-02-04 UTC)
+
+    - First fixed tag containing the change: v2026.2.3
+
+    - First fixed npm release of @openclaw/nextcloud-talk: 2026.2.6 (published 2026-02-07 UTC)
+
+
+    Mitigation
+
+
+    Upgrade @openclaw/nextcloud-talk to >= 2026.2.6.
+
+
+    Thanks @MegaManSec (https://joshua.hu) of AISLE Research Team for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >=2026.2.6 or later. Commit(s) - 6b4b6049b47c3329a7014509594647826669892d Upgrade @openclaw/nextcloud-talk
+    to >= 2026.2.6. Thanks @MegaManSec (https://joshua.hu) of [AISLE Research Team](https://aisle.com/) for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r
+rule: version <= "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r

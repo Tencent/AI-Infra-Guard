@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5ghc-98wh-gwwf
+  summary: OpenClaw Control UI Static File Handler Follows Symlinks and Allows Out-of-Root File Read
+  details: >-
+    Summary
+
+    The Control UI static file handler previously validated asset paths lexically and then served files with APIs that follow
+    symbolic links. A symlink placed under the Control UI root could cause out-of-root file reads.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published version observed: 2026.2.21-2
+
+    - Affected versions: <=2026.2.21-2
+
+    - Planned fixed release version: 2026.2.22
+
+
+    Technical Details
+
+    The vulnerable flow was in src/gateway/control-ui.ts, where path.join(...) + string-prefix checks were followed by file
+    reads that resolved symlinks. This allowed directory-confinement bypasses when symlinks existed inside the Control UI
+    root.
+
+
+    The fix now enforces realpath containment and verifies file identity before serving Control UI assets and SPA fallback
+    index.html.
+
+
+    Impact
+
+    - Vulnerability type: path traversal / external file exposure via symlink following.
+
+    - Primary impact: confidentiality (out-of-root file read).
+
+    - Severity guidance: low in supported trusted-operator deployments; can be higher in unsupported shared-writable setups.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 7c500ff6236fa087ec1ec88696ca9f6881e90dc5
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5ghc-98wh-gwwf
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5ghc-98wh-gwwf

@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p536-vvpp-9mc8
+  summary: OpenClaw 通过无限制的响应解析导致 Web Fetch 拒绝服务
+  details: >-
+    概述
+
+    web_fetch 工具可通过获取并尝试解析攻击者控制的超大响应体或病态 HTML 嵌套的网页，导致 OpenClaw 网关进程崩溃（OOM / 资源耗尽）。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.14
+
+    - 修复版本：>= 2026.2.15
+
+
+    影响
+
+    攻击者可以通过社会工程诱导用户（或任何使用 web_fetch 的自动化程序）获取一个返回极大或深度嵌套 HTML 的恶意 URL。网关可能耗尽内存或变得无响应，导致拒绝服务。
+
+
+    修复
+
+    网关现在在任何 HTML 解析之前限制下载的响应体大小，并添加了额外防护以避免对病态 HTML 运行 Readability/DOM 解析。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >=2026.2.15 或更高版本。网关现在在任何 HTML 解析之前限制下载的响应体大小，并添加了额外防护以避免对病态
+    HTML 运行 Readability/DOM 解析。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p536-vvpp-9mc8
+rule: version <= "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p536-vvpp-9mc8

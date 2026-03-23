@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-33rq-m5x2-fvgf
+  summary: OpenClaw Twitch allowFrom not enforced in optional plugin, unauthorized chat users can trigger agent pipeline
+  details: >-
+    Summary
+
+    In the optional Twitch channel plugin (extensions/twitch), allowFrom is documented as a hard allowlist of Twitch user IDs, but it was not enforced as a hard gate. If allowedRoles is unset or empty, the access control path defaulted to allow, so any Twitch user who could mention the bot could reach the agent dispatch pipeline.
+
+    Scope note: This only affects deployments that installed and enabled the Twitch plugin. Core OpenClaw installs that do not install/enable the Twitch plugin are not impacted.
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+    - Affected: >= 2026.1.29, < 2026.2.1
+    - Fixed: >= 2026.2.1
+
+    Details
+
+    Affected component: Twitch plugin access control (extensions/twitch/src/access-control.ts).
+
+    Problematic logic in checkTwitchAccessControl():
+
+    - When allowFrom was configured, the code returned allowed: true for members but did not return allowed: false for non-members, so execution fell through.
+    - If allowedRoles was unset or empty, the function returned allowed: true by default, even when allowFrom was configured.
+
+    Proof of Concept (PoC)
+
+    1. Install and enable the Twitch plugin.
+    2. Configure an allowFrom list, but do not set allowedRoles (or set it to an empty list).
+    3. From a different Twitch account whose user ID is NOT in allowFrom, send a message that mentions the bot (for example @<botname> hello).
+    4. Observe the message is processed and can trigger agent dispatch/replies despite not being allowlisted.
+
+    Impact
+
+    Authorization bypass for operators who relied on allowFrom to restrict who can invoke the bot in Twitch chat. Depending on configuration (tools, routing, model costs), this could lead to unintended actions/responses and resource or cost exhaustion.
+
+    Workaround
+
+    Upgrade to openclaw >= 2026.2.1.
+
+    Thanks @MegaManSec (https://joshua.hu) of AISLE Research Team for reporting.
+  cvss: 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L'
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.1 or later. Commit(s) - 8c7901c984866a776eb59662dc9d8b028de4f0d0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf

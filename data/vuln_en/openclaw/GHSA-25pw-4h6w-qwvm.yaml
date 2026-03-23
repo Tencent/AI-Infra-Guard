@@ -1,0 +1,65 @@
+info:
+  name: OpenClaw
+  cve: GHSA-25pw-4h6w-qwvm
+  summary: OpenClaw BlueBubbles group allowlist mismatch via DM pairing-store fallback
+  details: >-
+    Summary
+
+    In openclaw@2026.2.25, BlueBubbles group authorization could incorrectly treat DM pairing-store identities as group allowlist
+    identities when dmPolicy=pairing and groupPolicy=allowlist.
+
+
+    A sender that was only DM-paired (not explicitly present in groupAllowFrom) could pass group sender checks for message
+    and reaction ingress.
+
+
+    Per OpenClaw's SECURITY.md trust model, this is a constrained authorization-consistency issue, not a multi-tenant boundary
+    bypass or host-privilege escalation.
+
+
+    Severity: Low.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version at triage time: 2026.2.25
+
+    - Affected versions: <= 2026.2.25
+
+    - Patched versions: >= 2026.2.26 (planned next release)
+
+
+    Technical Details
+
+    Root cause was DM/group allowlist composition where DM pairing-store identities could flow into group authorization decisions.
+
+
+    Fix approach:
+
+    - centralize DM/group authorization composition via shared resolvers
+
+    - remove local DM/group list recomposition at channel callsites
+
+    - add cross-channel regression coverage for message + reaction ingress
+
+    - add CI guard to block future pairing-store leakage into group auth composition
+
+
+    Impact
+
+    - Affects deployments using BlueBubbles with groupPolicy=allowlist and dmPolicy=pairing when pairing-store entries are
+    present.
+
+    - Could allow DM-authorized identities to be treated as group-authorized without explicit groupAllowFrom membership.
+
+    - Does not bypass gateway auth, sandbox boundaries, or create new host-level privilege beyond existing DM authorization.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. Commit(s) - 051fdcc428129446e7c084260f837b7284279ce9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-25pw-4h6w-qwvm
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-25pw-4h6w-qwvm

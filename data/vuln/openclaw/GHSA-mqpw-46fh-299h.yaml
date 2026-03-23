@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mqpw-46fh-299h
+  summary: OpenClaw 授权绕过：`operator.write` 可通过 `chat.send` -> `/approve` 解决执行审批
+  details: >-
+    概述
+
+
+    简明说明
+
+
+    如果你给客户端授予网关的"chat/write"访问权限（operator.write），但不打算让该客户端批准执行请求（operator.approvals），受影响版本仍然可能允许该客户端通过发送 /approve 聊天命令来批准/拒绝待处理的执行审批。
+
+
+    这主要与共享或多客户端配置相关，其中不同的令牌被有意设置为不同的权限范围。单操作员安装通常受影响较小。
+
+
+    技术概述
+
+
+    使用仅限 operator.write 范围（不含 operator.approvals）的设备令牌认证的网关客户端，可以通过发送包含内置 /approve 命令的聊天消息来批准/拒绝待处理的执行审批请求。
+
+
+    exec.approval.resolve 对直接 RPC 调用正确地限定为 operator.approvals，但 /approve 命令路径通过内部特权网关客户端调用它。
+
+
+    受影响的包/版本
+
+
+    - openclaw (npm): < 2026.2.2
+
+
+    修复
+
+
+    - 修复于 openclaw 2026.2.2。
+
+    - 修复提交：efe2a464afcff55bb5a95b959e6bd9ec0fef086e。
+
+    - 更改：当 /approve 从网关客户端（webchat/内部通道）调用时，现在要求请求客户端具有 operator.approvals（或 operator.admin）权限。
+
+
+    变通方法
+
+
+    - 升级到 openclaw >= 2026.2.2。
+
+    - 如果无法升级：避免向不受信任的客户端发放仅写权限的设备令牌；禁用文本命令（commands.text=false）或限制对 webchat/控制台 UI 的访问。
+
+
+    参考
+
+
+    - 修复：src/auto-reply/reply/commands-approve.ts
+
+    - 覆盖：src/auto-reply/reply/commands-approve.test.ts
+
+
+    感谢 @yueyueL 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >= 2026.2.2 或更高版本。- 修复于 openclaw 2026.2.2。- 修复提交：efe2a464afcff55bb5a95b959e6bd9ec0fef086e。-
+    更改：当 /approve 从网关客户端（webchat/内部通道）调用时，现在要求请求客户端具有 operator.approvals（或 operator.admin）权限。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mqpw-46fh-299h
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mqpw-46fh-299h

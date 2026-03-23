@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5xfq-5mr7-426q
+  summary: OpenClaw 未净化的会话 ID 导致会话记录文件操作中的路径遍历
+  details: >-
+    描述
+
+
+    OpenClaw 版本 <= 2026.2.9 使用未净化的 sessionId 构建会话记录文件路径，并且接受 sessionFile 路径时未强制确保其位于代理会话目录内。
+
+
+    构造的 sessionId 和/或 sessionFile（例如：../../etc/passwd）可能在网关执行会话记录文件读写操作时导致路径遍历。
+
+
+    前提条件：攻击者必须能够向网关进行身份验证（网关令牌/密码）。默认情况下网关绑定到回环地址（仅本地）；暴露网关的配置会扩大攻击面。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.9
+
+    - 已修复版本：>= 2026.2.12
+
+
+    修复
+
+
+    通过验证会话 ID（拒绝路径分隔符/遍历序列）和对会话记录文件操作强制执行会话目录包含检查来修复。
+
+
+    额外加固
+
+
+    - cab0abf52ac91e12ea7a0cf04fff315cf0c94d64
+
+
+    缓解措施
+
+
+    升级至 openclaw >= 2026.2.12。
+
+
+    感谢 @akhmittra 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.12 或更高版本。通过验证会话 ID（拒绝路径分隔符/遍历序列）和对会话记录文件操作强制执行会话目录包含检查来修复。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5xfq-5mr7-426q
+rule: version <= "2026.2.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5xfq-5mr7-426q

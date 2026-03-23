@@ -1,0 +1,71 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xc7w-v5x6-cc87
+  summary: OpenClaw 当网关位于反向代理后方时 Webhook 认证绕过（回环 remoteAddress 信任）
+  details: >-
+    概述
+
+
+    BlueBubbles webhook 处理程序之前将任何 socket remoteAddress 为回环地址（127.0.0.1、::1、::ffff:127.0.0.1）
+    的请求视为已认证。当 OpenClaw 网关位于反向代理（Tailscale Serve/Funnel、nginx、Cloudflare Tunnel、ngrok）
+    后方时，代理通常通过回环地址连接到网关，使得未认证的远程请求能够绕过已配置的 webhook 密码。
+
+
+    这可能允许能够到达代理端点的攻击者注入任意入站 BlueBubbles 消息/反应事件。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：< 2026.2.12
+
+    - 修复版本：>= 2026.2.12
+
+
+    暴露/配置
+
+
+    - BlueBubbles 是一个可选通道插件（旨在最终取代同样可选的旧版 iMessage 插件）。它默认未启用，
+    不是标准 OpenClaw 配置的一部分。
+
+    - 仅通过反向代理暴露 BlueBubbles webhook 端点的部署受到影响。
+
+
+    详情
+
+
+    BlueBubbles webhook 处理程序通过已配置的 BlueBubbles webhook 路径下的 HTTP POST 端点接受入站事件。
+
+
+    在漏洞版本中，如果 req.socket.remoteAddress 为回环地址，处理程序会接受请求为已认证，而不验证转发头。
+    在常见的反向代理设置中，网关将代理视为直接客户端（回环地址），即使原始请求来自远程。
+
+
+    修复
+
+
+    - 主要修复（2026.2.12 版本发布）：移除基于回环地址的认证绕过，要求已配置的 webhook 密钥。
+
+    - 纵深防御后续（下一版本提交后）：将带有转发头的请求视为代理请求，永不通过代理接受无密码 webhook。
+
+
+    缓解措施
+
+
+    - 确保已配置 BlueBubbles webhook 密码。
+
+    - 不要在没有认证的情况下公开暴露网关 webhook 端点。
+
+
+    感谢 @simecek 的报告。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.2.12 或更高版本。主要修复（2026.2.12 版本发布）：移除基于回环地址的认证绕过，要求已配置的
+    webhook 密钥。确保已配置 BlueBubbles webhook 密码。不要在没有认证的情况下公开暴露网关 webhook 端点。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xc7w-v5x6-cc87
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xc7w-v5x6-cc87

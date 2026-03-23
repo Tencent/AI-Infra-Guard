@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v773-r54f-q32w
+  summary: 'OpenClaw Slack: dmPolicy=open 允许任何 DM 发送者运行特权斜杠命令'
+  details: >-
+    概述
+
+
+    当 Slack DM 配置为 dmPolicy=open 时，Slack 斜杠命令处理器错误地将任何 DM 发送者视为命令授权。这允许任何能向机器人发送 DM 的 Slack 用户通过 DM 执行特权斜杠命令，绕过预期的白名单/访问组限制。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.13
+
+    - 受影响配置：Slack DM 启用且 channels.slack.dm.policy: open（即 dmPolicy=open）
+
+
+    影响
+
+
+    工作区中任何能向机器人发送 DM 的 Slack 用户都可以通过 DM 调用特权斜杠命令。
+
+
+    修复
+
+
+    斜杠命令路径现在使用与其他入站路径相同的白名单/访问组控制逻辑为 DM 计算 CommandAuthorized。
+
+
+    修复提交：
+
+    - f19eabee54c49e9a2e264b4965edf28a2f92e657
+
+
+    感谢 @christos-eth 报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 到 2026.2.14 或更高版本。斜杠命令路径现在使用与其他入站路径相同的白名单/访问组控制逻辑为
+    DM 计算 CommandAuthorized。修复提交：- f19eabee54c49e9a2e264b4965edf28a2f92e657'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v773-r54f-q32w
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v773-r54f-q32w

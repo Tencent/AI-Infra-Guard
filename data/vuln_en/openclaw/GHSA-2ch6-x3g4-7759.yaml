@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2ch6-x3g4-7759
+  summary: OpenClaw commands.allowFrom sender authorization accepted conversation identifiers via ctx.From
+  details: >-
+    Summary
+
+    commands.allowFrom is documented as a sender authorization allowlist for commands/directives, but command authorization
+    could include ctx.From (conversation identity) as a sender candidate.
+
+
+    When commands.allowFrom contained conversation-like identifiers (for example Discord channel:<id> or WhatsApp group JIDs),
+    command/directive authorization could be granted to participants in that conversation instead of only the intended sender
+    identity.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.22-2
+
+    - Patched version: 2026.2.23 (released)
+
+
+    Details
+
+    Root cause: resolveSenderCandidates() in src/auto-reply/command-auth.ts always included ctx.From in candidate evaluation
+    used by commands.allowFrom authorization checks.
+
+
+    ctx.From is sender-like in some direct-message contexts, but conversation-like in channel/group/thread contexts. This
+    mixed principal handling allowed conversation identifiers to satisfy sender-only authorization.
+
+
+    Impact
+
+    In affected versions, command/directive authorization could become broader than intended when operators configured commands.allowFrom
+    with conversation identifiers, allowing unintended users in that conversation to run command-only/directive-only flows.
+
+
+    Fix
+
+    Main branch now treats commands.allowFrom as sender-only:
+
+    - ctx.From is no longer included as a general sender candidate.
+
+    - ctx.From is only used as fallback when sender fields are absent and the value is not conversation-shaped.
+
+    - Regression tests were added for conversation-id denial and direct-message fallback preservation.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to 2026.2.23 or later. Main branch now treats commands.allowFrom as sender-only: - ctx.From
+    is no longer included as a general sender candidate. - ctx.From is only used as fallback when sender fields are absent
+    and the value is not conversation-shaped.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2ch6-x3g4-7759
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2ch6-x3g4-7759

@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h9xm-j4qg-fvpg
+  summary: OpenClaw 实验性 apply_patch 可能在可选沙箱挂载中绕过仅工作区检查（默认关闭）
+  details: >-
+    概述
+
+    在某些可选沙箱配置中，实验性 apply_patch 工具未对挂载路径（例如 /agent/...）始终一致地应用仅工作区检查。
+
+
+    影响
+
+    此问题不影响默认安装。
+
+
+    默认配置：
+
+    - agents.defaults.sandbox.mode=off（沙箱默认禁用）
+
+    - tools.exec.applyPatch.enabled=false（实验性工具默认禁用）
+
+
+    此行为仅在以下所有条件同时启用/配置时适用：
+
+    - 沙箱模式，
+
+    - 实验性 apply_patch，
+
+    - 仅工作区限制（tools.fs.workspaceOnly=true 和/或 tools.exec.applyPatch.workspaceOnly=true），
+
+    - 以及工作区外的可写挂载。
+
+
+    在上述可选配置下，apply_patch 操作可以针对工作区根目录之外的挂载路径。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响的已发布版本：<= 2026.2.22-2
+
+    - 在 main 分支上已修复：提交 6634030be31e1a1842967df046c2f2e47490e6bf
+
+    - 修复版本：2026.2.23
+
+
+    技术详情
+
+    在沙箱路径流程中，apply_patch 使用 sandbox.bridge.resolvePath(...) 但未应用其他文件系统工具所使用的相同工作区根目录断言。修复使 apply_patch 对沙箱解析的路径执行相同的仅工作区限制（除非通过 tools.exec.applyPatch.workspaceOnly=false 显式禁用）。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.23 或更高版本。提交 - 6634030be31e1a1842967df046c2f2e47490e6bf
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h9xm-j4qg-fvpg
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h9xm-j4qg-fvpg

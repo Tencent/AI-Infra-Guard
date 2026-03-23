@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f6h3-846h-2r8w
+  summary: OpenClaw 提升的 allowFrom 匹配收紧为发送者范围授权
+  details: >-
+    概述
+
+    在某些提升模式配置中，tools.elevated.allowFrom 接受了比预期更广泛的身份信号。修复将匹配默认收紧为发送者范围身份，并使可变元数据匹配变为显式。
+
+
+    上下文
+
+    OpenClaw 通常用于一对一聊天或可信群聊。在该预期模型中，此问题最适合被视为提升发送者审批的授权加固/纵深防御。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布的 npm 版本：2026.2.21-2
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 计划的已修复版本（为发布就绪公告预设）：2026.2.22
+
+
+    详细信息
+
+    提升的发送者授权现在默认仅匹配发送者范围的身份值（SenderId、From、SenderE164），不再考虑接收者路由字段（如 ctx.To）。
+
+
+    可变发送者元数据（SenderName、SenderUsername、SenderTag）现在需要显式的允许列表前缀（name:、username:、tag:）。也支持显式的身份前缀（id:、from:、e164:）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 6817c0ec7b4fa830123d4f5c340f075a4bd04ee2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f6h3-846h-2r8w
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f6h3-846h-2r8w

@@ -1,0 +1,59 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8cp7-rp8r-mg77
+  summary: OpenClaw SSRF guard bypass via IPv6 transition over ISATAP
+  details: >-
+    Summary
+
+    OpenClaw's SSRF hostname/IP guard did not detect ISATAP embedded IPv4 addresses (...:5efe:w.x.y.z). A crafted URL containing
+    an ISATAP IPv6 literal could embed a private IPv4 target (for example loopback) and bypass private-address filtering in
+    URL-fetching paths.
+
+
+    Severity Assessment
+
+    Rated medium: the bug weakens SSRF protections in URL fetch flows, but impact depends on reaching a URL-fetching path
+    with attacker-controlled input and is generally constrained to internal network access attempts.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: >=2026.1.20 <=2026.2.17
+
+    - Latest published at patch time: 2026.2.17
+
+    - Patched release: 2026.2.19
+
+
+    Security Policy Context
+
+    Per SECURITY.md, OpenClaw's web/gateway surface is intended for local use by default, public internet exposure is out-of-scope,
+    and prompt-injection reports are out-of-scope for bounty handling. This advisory tracks a core SSRF-guard bypass in fetch
+    protections.
+
+
+    Impact
+
+    This can permit SSRF-style access attempts to internal/private network targets through URL ingestion/fetch paths that
+    rely on shared hostname/IP blocking.
+
+
+    Fix
+
+    - Added RFC 5214 ISATAP embedded-IPv4 detection to the shared SSRF classifier.
+
+    - Centralized hostname/IP blocking through isBlockedHostnameOrIp and routed relevant validators to that shared path.
+
+    - Added regression tests for ISATAP private vs public embedded IPv4 handling.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. - Added RFC 5214 ISATAP embedded-IPv4 detection to the shared
+    SSRF classifier. - Centralized hostname/IP blocking through isBlockedHostnameOrIp and routed relevant validators to that
+    shared path. - Added regression tests for ISATAP private vs public embedded IPv4 handling.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8cp7-rp8r-mg77
+rule: version >= "2026.1.20" && version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8cp7-rp8r-mg77

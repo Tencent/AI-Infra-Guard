@@ -1,0 +1,61 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mv9j-6xhh-g383
+  summary: OpenClaw 未认证的 Nostr 个人资料 HTTP 端点允许远程资料/配置篡改
+  details: >-
+    概述
+
+    OpenClaw Nostr 通道插件（可选，默认禁用，需单独安装）在 /api/channels/nostr/:accountId/profile (GET/PUT) 和 /api/channels/nostr/:accountId/profile/import (POST) 下暴露个人资料管理 HTTP 端点。在受影响版本中，这些路由通过网关插件 HTTP 层分发，无需网关认证，允许未认证的远程调用方读取或修改 Nostr 个人资料并将更改持久化到网关配置中。个人资料更新还会使用机器人的私钥作为签名的 Nostr kind:0 事件发布。
+
+
+    未安装和启用 Nostr 插件的部署不受影响。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.9
+
+    - 修复版本：>= 2026.2.12
+
+    - 范围说明：仅影响安装并启用了可选 @openclaw/nostr 插件的部署
+
+
+    详情
+
+    当网关 HTTP 端口在 localhost 之外可达时可被利用（例如：绑定到 0.0.0.0、暴露在局域网、位于反向代理后或通过 Tailscale Funnel/Serve 访问）。
+
+
+    未认证的调用方可以更新 Nostr 个人资料并在网关配置中持久化新资料。
+
+
+    缓解措施
+
+    升级到 openclaw 2026.2.12 或更高版本。
+
+
+    作为临时缓解措施，在升级之前限制网关 HTTP 暴露（仅绑定回环和/或实施网络层访问控制）。
+
+
+    修复
+
+    网关现在在分发到插件处理器之前，对 /api/channels/* 下的插件 HTTP 请求要求网关认证。
+
+
+    修复提交：
+
+    - 647d929c9d0fd114249230d939a5cb3b36dc70e7
+
+
+    感谢 @simecek 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >=2026.2.12 或更高版本。网关现在在分发到插件处理器之前，对 /api/channels/*
+    下的插件 HTTP 请求要求网关认证。修复提交：- 647d929c9d0fd114249230d939a5cb3b36dc70e7。升级到 openclaw 2026.2.12
+    或更高版本。作为临时缓解措施，在升级之前限制网关 HTTP 暴露（仅绑定回环和/或实施网络层访问控制）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mv9j-6xhh-g383
+rule: version <= "2026.2.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mv9j-6xhh-g383

@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2rgf-hm63-5qph
+  summary: OpenClaw 在受信任代理后端不正确的 X-Forwarded-For 解析允许客户端 IP 欺骗影响安全决策
+  details: >-
+    概述
+
+
+    当请求来自配置的受信任代理时，OpenClaw 使用最左侧的 X-Forwarded-For 值。在追加/保留头值的代理链中，这可能让攻击者控制的头内容影响与客户端 IP 相关的安全决策。
+
+
+    受影响的软件包/版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响：<= 2026.2.19-2
+
+    - 已修复：2026.2.21
+
+
+    影响
+
+
+    在使用非推荐转发行为的受信任代理后方部署中，安全敏感路径（例如认证速率限制身份和本地/私有分类）可能存在客户端 IP 欺骗。
+
+
+    范围说明
+
+
+    OpenClaw 文档建议反向代理覆写（而非追加/保留）入站转发头。此条件降低了严重性。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。修复提交 - 07039dc089e51589a213ec0d16f8d6f2cd871fa1 - 8877bfd11ec7760b115b2d0d7500a45da2749747
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2rgf-hm63-5qph
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2rgf-hm63-5qph

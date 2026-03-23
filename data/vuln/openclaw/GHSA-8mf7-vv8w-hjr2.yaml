@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8mf7-vv8w-hjr2
+  summary: OpenClaw tools.exec.safeBins 通用回退允许在允许列表模式下执行解释器风格的内联载荷
+  details: >-
+    概述
+
+    当 tools.exec.safeBins 包含没有显式 safe-bin 配置文件的二进制文件时，OpenClaw 使用宽松的通用回退配置文件。在允许列表模式下，这可能允许解释器风格的二进制文件（例如 python3、node、ruby）通过 -c 等标志执行内联载荷。
+
+
+    这需要操作员显式配置将此类二进制文件添加到 safeBins 中，因此影响仅限于非默认/配置错误的部署。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 已在代码中修复：>= 2026.2.22（计划的下一个 npm 发布版本）
+
+
+    修复
+
+    - 在允许列表评估期间移除通用 safe-bin 回退。
+
+    - 要求 safeBins 条目有显式的 safe-bin 配置文件。
+
+    - 添加可配置的 tools.exec.safeBinProfiles（全局 + 每个代理）用于安全的自定义二进制文件。
+
+    - 更新文档以清楚区分 safeBins 和命令允许列表语义。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。- 在允许列表评估期间移除通用 safe-bin 回退。- 要求 safeBins 条目有显式的 safe-bin 配置文件。- 添加可配置的 tools.exec.safeBinProfiles 用于安全的自定义二进制文件。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8mf7-vv8w-hjr2
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8mf7-vv8w-hjr2

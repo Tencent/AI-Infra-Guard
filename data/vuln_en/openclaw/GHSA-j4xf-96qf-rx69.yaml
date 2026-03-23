@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j4xf-96qf-rx69
+  summary: OpenClaw Feishu allowFrom authorization bypass via display-name collision
+  details: >-
+    Summary
+
+
+    Feishu allowlist authorization could be bypassed by display-name collision.
+
+
+    Details
+
+
+    channels.feishu.allowFrom is documented as an ID-based allowlist (open_id list), but Feishu policy matching accepted mutable
+    sender display names in the same namespace. An attacker could set a display name equal to an allowlisted ID string and
+    pass authorization checks.
+
+
+    The fix enforces ID-only matching for Feishu allowlist checks, normalizes Feishu ID prefixes during comparison, and ignores
+    mutable display names for authorization.
+
+
+    Impact
+
+
+    Deployments using Feishu allowlist-based authorization could incorrectly authorize non-allowlisted senders when a colliding
+    display name was used.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Latest published version at triage time: 2026.2.21-2
+
+    - Affected range: <= 2026.2.21-2
+
+    - Planned patched version: >= 2026.2.22
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 4ed87a667263ed2d422b9d5d5a5d326e099f92c7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j4xf-96qf-rx69
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j4xf-96qf-rx69

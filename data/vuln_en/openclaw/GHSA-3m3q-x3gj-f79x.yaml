@@ -1,0 +1,84 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3m3q-x3gj-f79x
+  summary: 'OpenClaw Optional voice-call plugin: webhook verification may be bypassed behind certain proxy configurations'
+  details: >-
+    Affected Packages / Versions
+
+
+    This issue affects the optional voice-call plugin only. It is not enabled by default; it only applies to installations
+    where the plugin is installed and enabled.
+
+
+    - Package: @openclaw/voice-call
+
+    - Vulnerable versions: < 2026.2.3
+
+    - Patched versions: >= 2026.2.3
+
+
+    Legacy package name (if you are still using it):
+
+
+    - Package: @clawdbot/voice-call
+
+    - Vulnerable versions: <= 2026.1.24
+
+    - Patched versions: none published under this package name; migrate to @openclaw/voice-call
+
+
+    Summary
+
+
+    In certain reverse-proxy / forwarding setups, webhook verification can be bypassed if untrusted forwarded headers are
+    accepted.
+
+
+    Impact
+
+
+    An external party may be able to send voice-call webhook requests that are accepted as valid, which can result in spoofed
+    webhook events being processed.
+
+
+    Root Cause
+
+
+    Some deployments implicitly trusted forwarded headers (for example Forwarded / X-Forwarded-*) when determining request
+    properties used during webhook verification. If those headers are not overwritten by a trusted proxy, a client can supply
+    them directly and influence verification.
+
+
+    Resolution
+
+
+    Ignore forwarded headers by default unless explicitly trusted and allowlisted in configuration. Keep any loopback-only
+    development bypass restricted to local development only. Upgrade to a patched version.
+
+
+    If you cannot upgrade immediately, strip Forwarded and X-Forwarded-* headers at the edge so clients cannot supply them
+    directly.
+
+
+    Severity
+
+
+    - Severity: Medium
+
+    - CVSS v3.1: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+
+    - CWE: CWE-287 (Improper Authentication)
+
+
+    Credits
+
+
+    Thanks @0x5t for reporting.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.3 or later. Commit(s) - a749db9820eb6d6224032a5a34223d286d2dcc2f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x
+rule: version < "2026.2.3"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x

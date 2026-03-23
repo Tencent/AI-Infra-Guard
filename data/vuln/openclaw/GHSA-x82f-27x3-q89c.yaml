@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x82f-27x3-q89c
+  summary: OpenClaw writeFileWithinRoot 中的 TOCTOU 符号链接竞争可在根边界外创建或截断文件
+  details: >-
+    概述
+
+    writeFileWithinRoot 中的符号链接重定向 TOCTOU 竞争可能使攻击者控制的路径别名在解析和写入操作之间
+    指向配置根目录之外。
+
+
+    影响
+
+    受影响版本可能在最终边界验证之前导致根目录外的写入副作用（包括文件创建或截断）。
+
+
+    修复
+
+    根范围写入流现在在不预截断的情况下打开现有文件，使用独占创建语义创建缺失文件，仅在打开后的身份/边界检查
+    之后才截断，并在检测到竞争时移除根目录外的工件。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 已修复：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。根范围写入流现在在不预截断的情况下打开现有文件，使用独占创建语义创建缺失文件，
+    仅在打开后的身份/边界检查之后才截断，并在检测到竞争时移除根目录外的工件。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x82f-27x3-q89c
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x82f-27x3-q89c

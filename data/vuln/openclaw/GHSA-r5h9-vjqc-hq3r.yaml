@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r5h9-vjqc-hq3r
+  summary: OpenClaw Nextcloud Talk 通过 actor.name 显示名称欺骗绕过白名单
+  details: >-
+    概述
+
+
+    在受影响版本的可选 Nextcloud Talk 插件（单独安装；不与核心 OpenClaw 捆绑）中，不受信任的 Webhook 字段（actor.name，显示名称）可被视为白名单标识符。攻击者可以将其 Nextcloud 显示名称更改为与白名单用户 ID 匹配并绕过 DM 或房间白名单。
+
+
+    详情
+
+
+    Nextcloud Talk Webhook 有效载荷提供稳定的发送者标识符（actor.id）和可变的显示名称（actor.name）。在受影响版本中，插件的白名单匹配接受对显示名称的相等匹配，而显示名称是攻击者可控的。
+
+
+    受影响的包/版本
+
+
+    - 包：@openclaw/nextcloud-talk (npm)
+
+    - 受影响：<= 2026.2.2
+
+    - 修复：>= 2026.2.6
+
+
+    注意：此公告适用于可选的 Nextcloud Talk 插件包。核心 openclaw 不受影响，除非你安装并使用了 @openclaw/nextcloud-talk。
+
+
+    时间线
+
+
+    - 引入：660f87278c9f292061e097441e0b10c20d62b31b（2026-01-20）
+
+    - 在仓库中修复：6b4b6049b47c3329a7014509594647826669892d（2026-02-04 UTC）
+
+    - 包含此更改的首个修复标签：v2026.2.3
+
+    - @openclaw/nextcloud-talk 首个修复 npm 发布：2026.2.6（2026-02-07 UTC 发布）
+
+
+    缓解措施
+
+
+    升级 @openclaw/nextcloud-talk 到 >= 2026.2.6。
+
+
+    感谢 AISLE Research Team 的 @MegaManSec (https://joshua.hu) 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >=2026.2.6 或更高版本。提交 - 6b4b6049b47c3329a7014509594647826669892d。升级
+    @openclaw/nextcloud-talk 到 >= 2026.2.6。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r
+rule: version <= "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r

@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x22m-j5qq-j49m
+  summary: OpenClaw 飞书扩展中 sendMediaFeishu 和 markdown 图片获取存在两处 SSRF 漏洞
+  details: >-
+    概述
+
+    飞书扩展在两个路径中可以在没有 SSRF 保护的情况下获取攻击者控制的远程 URL：
+
+
+    - sendMediaFeishu(mediaUrl)
+
+    - 飞书 DocX markdown 图片 URL（写入/追加 -> 图片处理）
+
+
+    受影响版本
+
+    - < 2026.2.14
+
+
+    修复版本
+
+    - >= 2026.2.14
+
+
+    影响
+
+    如果攻击者能够影响工具调用（直接或通过提示注入），他们可能能够触发对内部服务的请求并将响应作为飞书媒体重新上传。
+
+
+    修复措施
+
+    升级到 OpenClaw 2026.2.14 或更新版本。
+
+
+    说明
+
+    修复将飞书远程媒体获取路由通过加固的运行时辅助工具，这些工具强制执行 SSRF 策略和大小限制。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.14 或更高版本。提交记录 - 5b4121d6011a48c71e747e3c18197f180b872c5d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x22m-j5qq-j49m
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x22m-j5qq-j49m

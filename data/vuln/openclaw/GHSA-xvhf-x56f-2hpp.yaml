@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xvhf-x56f-2hpp
+  summary: 'OpenClaw 执行审批：safeBins 可通过 shell 展开绕过仅 stdin 约束'
+  details: >-
+    概述
+
+
+    OpenClaw 的 exec-approvals 允许列表支持一小组旨在仅限 stdin（无位置文件参数）的"安全二进制文件"，
+    适用于以 security=allowlist 运行 tools.exec.host=gateway|node 时。
+
+
+    在受影响的配置中，允许列表验证检查的是展开前的 argv 令牌，但执行使用了真实 shell（sh -c），
+    它会展开通配符和环境变量。这允许 head、tail 或 grep 等安全二进制文件通过 * 或 $HOME/... 等令牌
+    读取任意本地文件，而不会触发审批。
+
+
+    此问题依赖于配置，默认设置不会触发（默认 tools.exec.host 为 sandbox）。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.13
+
+    - 已修复：>= 2026.2.14（计划中；在 npm 发布后发布公告）
+
+
+    影响
+
+
+    已授权但不受信任的调用者（或提示注入）可能导致网关/节点进程在允许列表模式下启用主机执行时
+    泄露该进程可读的文件。
+
+
+    修复
+
+
+    安全二进制文件执行现在强制 argv 令牌在执行时被视为字面文本（单引号引用），防止通配符展开和
+    $VARS 展开将"安全"令牌转变为文件路径。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.14 或更高版本。安全二进制文件执行现在强制 argv 令牌在执行时被视为字面文本（单引号引用），
+    防止通配符展开和 $VARS 展开将"安全"令牌转变为文件路径。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xvhf-x56f-2hpp
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xvhf-x56f-2hpp

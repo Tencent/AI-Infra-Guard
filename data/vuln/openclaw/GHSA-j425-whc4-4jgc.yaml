@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j425-whc4-4jgc
+  summary: OpenClaw `system.run` 环境变量覆盖过滤允许危险的辅助命令转向
+  details: >-
+    摘要
+
+    system.run 环境变量覆盖清理机制允许危险的仅覆盖型辅助命令转向到达子进程。能够使用环境变量覆盖调用 system.run 的调用者可以通过
+    辅助命令或配置加载环境变量（如 GIT_SSH_COMMAND、编辑器/分页器钩子、GIT_CONFIG_* / NPM_CONFIG_*）来绕过允许列表/审批意图，
+    操纵一个已列入允许列表的工具。
+
+
+    受影响的包/版本
+
+    - 包名: openclaw (npm)
+
+    - 存在漏洞的最新发布版本: 2026.3.2
+
+    - 受影响范围: <= 2026.3.2
+
+    - 修复版本: 2026.3.7
+
+
+    详情
+
+    修复前，src/infra/host-env-security.ts 仅阻止了一个狭窄的仅覆盖型环境变量集合。危险的请求范围覆盖（如 GIT_SSH_COMMAND）
+    和前缀族（如 GIT_CONFIG_* 和 NPM_CONFIG_*）仍然可以通过 sanitizeSystemRunEnvOverrides(...) / sanitizeHostExecEnv(...)
+    到达生成的进程。
+
+
+    这对 system.run 允许列表和审批流程至关重要，因为审批评估绑定的是被审查的二进制文件/参数，而启动的进程仍然可以继承攻击者控制的环境
+    变量覆盖，从而改变辅助命令执行或配置解析。对于 git 等已列入允许列表的工具，这允许了超出审查命令语义的行为。
+
+
+    修复方案扩展了共享的 TypeScript 和 macOS 策略，阻止危险的仅覆盖型精确键和前缀，同时保留可信的继承基础环境行为。
+
+
+    影响
+
+    这是一个真实的保护绕过问题，但利用该漏洞需要一个已启用工具的调用者，能够调用 system.run 并提供环境变量覆盖。在受影响的部署中，
+    该调用者可以绕过允许列表/审批意图，触发未在审批命令行中体现的辅助命令执行或配置加载行为。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - e27bbe4982439da6864160fd1b66445058f74801
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc

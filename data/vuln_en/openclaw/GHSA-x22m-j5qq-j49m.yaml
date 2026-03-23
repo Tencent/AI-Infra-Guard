@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x22m-j5qq-j49m
+  summary: OpenClaw Two SSRF via sendMediaFeishu and markdown image fetching in Feishu extension
+  details: >-
+    Summary
+
+    The Feishu extension could fetch attacker-controlled remote URLs in two paths without SSRF protections:
+
+
+    - sendMediaFeishu(mediaUrl)
+
+    - Feishu DocX markdown image URLs (write/append -> image processing)
+
+
+    Affected versions
+
+    - < 2026.2.14
+
+
+    Patched versions
+
+    - >= 2026.2.14
+
+
+    Impact
+
+    If an attacker can influence tool calls (directly or via prompt injection), they may be able to trigger requests to internal
+    services and re-upload the response as Feishu media.
+
+
+    Remediation
+
+    Upgrade to OpenClaw 2026.2.14 or newer.
+
+
+    Notes
+
+    The fix routes Feishu remote media fetching through hardened runtime helpers that enforce SSRF policies and size limits.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.14 or later. Commit(s) - 5b4121d6011a48c71e747e3c18197f180b872c5d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x22m-j5qq-j49m
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x22m-j5qq-j49m

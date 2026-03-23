@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mj5r-hh7j-4gxf
+  summary: OpenClaw Telegram 白名单授权接受可变用户名
+  details: >-
+    概述
+
+    Telegram 白名单授权可以匹配 @username（可变/可回收）而非不可变的数字发送者 ID。
+
+
+    影响
+
+    将 Telegram 白名单视为严格身份控制的操作员，在用户名转手时可能无意中授予访问权限（身份重绑定/欺骗风险）。这可允许未授权的发送者在白名单模式下与机器人交互。
+
+
+    受影响的包/版本
+
+    - npm openclaw: <= 2026.2.13
+
+    - npm clawdbot: <= 2026.1.24-3
+
+
+    修复
+
+    Telegram 白名单授权现在仅要求数字 Telegram 发送者 ID。@username 白名单主体将被拒绝。
+
+
+    添加了安全审计警告，用于标记仍包含非数字 Telegram 白名单条目的旧配置。
+
+
+    openclaw doctor --fix 现在尝试将 @username allowFrom 条目解析为数字 ID（尽力而为；需要 Telegram bot 令牌）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >=2026.2.14 或更高版本。Telegram 白名单授权现在仅要求数字 Telegram 发送者
+    ID。@username 白名单主体将被拒绝。添加了安全审计警告，用于标记仍包含非数字 Telegram 白名单条目的旧配置。openclaw doctor
+    --fix 现在尝试将 @username allowFrom 条目解析为数字 ID（尽力而为；需要 Telegram bot 令牌）。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mj5r-hh7j-4gxf
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mj5r-hh7j-4gxf

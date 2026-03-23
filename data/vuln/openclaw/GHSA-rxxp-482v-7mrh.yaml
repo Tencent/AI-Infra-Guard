@@ -1,0 +1,30 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rxxp-482v-7mrh
+  summary: OpenClaw 多个通道的入站媒体下载在拒绝前可能超过配置的字节限制
+  details: >-
+    概述
+
+    OpenClaw 在多个通道摄取路径中未在缓冲远程媒体之前一致地执行配置的入站媒体字节限制。远程发送者可在拒绝前触发超大下载和内存压力。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2（分类时最新发布版本）
+
+    - 修复于：2026.2.22（计划的下一个版本）
+
+
+    影响
+
+    攻击者可通过发送超大媒体有效载荷导致内存使用升高和潜在的进程不稳定（拒绝服务）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 73d93dee64127a26f1acd09d0403b794cdeb4f5c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rxxp-482v-7mrh
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rxxp-482v-7mrh

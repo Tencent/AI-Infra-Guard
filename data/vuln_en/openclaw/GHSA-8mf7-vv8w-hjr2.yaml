@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8mf7-vv8w-hjr2
+  summary: OpenClaw tools.exec.safeBins generic fallback allowed interpreter-style inline payload execution in allowlist mode
+  details: >-
+    Summary
+
+    When tools.exec.safeBins contained a binary without an explicit safe-bin profile, OpenClaw used a permissive generic fallback
+    profile. In allowlist mode, that could let interpreter-style binaries (for example python3, node, ruby) execute inline
+    payloads via flags like -c.
+
+
+    This requires explicit operator configuration to add such binaries to safeBins, so impact is limited to non-default/misconfigured
+    deployments.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Patched in code: >= 2026.2.22 (planned next npm release)
+
+
+    Fix
+
+    - Remove generic safe-bin fallback during allowlist evaluation.
+
+    - Require explicit safe-bin profiles for safeBins entries.
+
+    - Add configurable tools.exec.safeBinProfiles (global + per-agent) for safe custom binaries.
+
+    - Update docs to clearly separate safeBins from command allowlist semantics.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. - Remove generic safe-bin fallback during allowlist evaluation.
+    - Require explicit safe-bin profiles for safeBins entries. - Add configurable tools.exec.safeBinProfiles (global + per-agent)
+    for safe custom binaries.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8mf7-vv8w-hjr2
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8mf7-vv8w-hjr2

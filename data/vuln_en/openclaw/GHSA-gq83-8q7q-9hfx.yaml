@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gq83-8q7q-9hfx
+  summary: OpenClaw Serialize sandbox registry writes to prevent races and delete-rollback corruption
+  details: >-
+    Impact
+
+
+    Concurrent updateRegistry/removeRegistryEntry operations for sandbox containers and browsers could lose updates or resurrect
+    removed entries under race conditions.
+
+
+    The registry writes were read-modify-write in a window with no locking and permissive fallback parsing, so concurrent
+    registry updates could produce stale snapshots and overwrite each other.
+
+
+    That desyncs sandbox state and can affect sandbox list, sandbox prune, and sandbox recreate --all behavior.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.17
+
+    - Patched versions: 2026.2.18
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - cc29be8c9 Thanks @kexinoh for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gq83-8q7q-9hfx
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gq83-8q7q-9hfx

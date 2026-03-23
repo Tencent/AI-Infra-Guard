@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r6qf-8968-wj9q
+  summary: OpenClaw system.run 包装器深度边界可绕过 shell 审批门控
+  details: >-
+    OpenClaw 的 system.run 分发包装器处理对 shell 包装器审批检测和执行规划应用了不同的深度边界规则。
+
+
+    当恰好有四个透明分发包装器（如在 /bin/sh -c 之前重复调用 env）时，审批分类器可能在深度边界处停止将命令视为 shell 包装器，而执行
+    规划仍然解包到 shell 载荷。在 security=allowlist 模式下，这种不匹配可能跳过 shell 包装器调用预期的审批必需路径。
+
+
+    npm 最新发布版本: 2026.3.2
+
+
+    于 2026 年 3 月 7 日在主分支修复，提交 2fc95a7cfc1eb9306356510b0251b6d51fb1c0b0，通过在配置的分发深度边界处保持 shell 包装器
+    分类活跃，并仅在超出该边界时采用关闭失败策略。这使审批门控与执行计划保持一致。合法的浅层分发包装器用法继续正常工作。
+
+
+    受影响的包/版本
+
+
+    - 包名: openclaw (npm)
+
+    - 受影响版本: <= 2026.3.2
+
+    - 修复版本: >= 2026.3.7
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 2fc95a7cfc1eb9306356510b0251b6d51fb1c0b0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q

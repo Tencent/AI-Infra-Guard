@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-64qx-vpxx-mvqf
+  summary: OpenClaw 通过网关 sessionFile 实现任意会话记录路径文件写入
+  details: >-
+    概述
+
+
+    在 OpenClaw 2026.2.12 之前的版本中，网关在解析会话记录文件时接受不受信任的 sessionFile 路径。这可能允许经过认证的网关客户端在网关主机上的任意路径创建和追加 OpenClaw 会话记录。
+
+
+    受影响的版本
+
+
+    - 受影响版本：openclaw < 2026.2.12
+
+    - 已修复版本：openclaw >= 2026.2.12（建议 >= 2026.2.13）
+
+
+    影响
+
+
+    经过认证的网关客户端可以通过提供会话目录之外的 sessionFile 来影响网关写入会话记录数据的位置。根据部署和文件系统权限，这可能导致任意文件创建和重复追加，从而造成配置损坏和/或拒绝服务。
+
+
+    此问题本身不提供已证实的远程代码执行路径。
+
+
+    修复
+
+
+    会话记录路径现在通过 resolveSessionFilePath(...) 包含检查限制在会话目录内。
+
+
+    修复提交：
+
+    - 4199f9889f0c307b77096a229b9e085b8d856c26
+
+    - （兼容）25950bcbb8ba4d8cde002557f6e27c219ae4deda
+
+
+    致谢
+
+
+    感谢 @tubadeligoz 的报告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.12 或更高版本。会话记录路径现在通过 resolveSessionFilePath(...) 包含检查限制在会话目录内。修复提交 - 4199f9889f0c307b77096a229b9e085b8d856c26
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-64qx-vpxx-mvqf
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-64qx-vpxx-mvqf

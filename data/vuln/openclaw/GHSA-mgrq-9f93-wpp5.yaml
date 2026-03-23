@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mgrq-9f93-wpp5
+  summary: OpenClaw 工作区路径保护在根目录外不存在的符号链接叶节点上被绕过
+  details: >-
+    概述
+
+    openclaw 在仅工作区路径验证中存在工作区边界绕过：当工作区内的符号链接指向工作区外不存在的叶节点时，首次写入可以通过验证并在工作区外创建文件。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.25
+
+    - 修复版本：>= 2026.2.26（为下一个计划版本预设）
+
+    - 更新时最新发布的 npm 版本：2026.2.25
+
+
+    详情
+
+    边界检查路径以一种允许不存在的根目录外符号链接目标通过初始验证窗口的方式解析别名。因此，通过受保护的工作区路径进行的首次写入可以逃逸工作区边界。
+
+
+    修复加固了规范边界解析，使缺失叶节点的别名路径根据规范包含性进行评估，同时保留有效的根目录内别名。这关闭了首次写入逃逸条件，且不会影响有效的根目录内别名使用。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.26 或更高版本。提交 - 46eba86b45e9db05b7b792e914c4fe0de1b40a23
+    - 1aef45bc060b28a0af45a67dc66acd36aef763c9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mgrq-9f93-wpp5
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mgrq-9f93-wpp5

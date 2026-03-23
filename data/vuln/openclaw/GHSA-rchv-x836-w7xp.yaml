@@ -1,0 +1,70 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rchv-x836-w7xp
+  summary: OpenClaw Dashboard 通过浏览器 URL/查询参数和 localStorage 泄露网关认证凭据
+  details: >-
+    OpenClaw 的 macOS Dashboard 流程将网关认证凭据暴露到浏览器可控的界面上。
+
+
+    修复前，macOS 应用在浏览器中打开控制界面时，会将共享的网关 Token 和密码追加到 Dashboard URL 的查询字符串中。控制界面随后导入该
+    Token 并将其持久化存储到浏览器 localStorage 的 openclaw.control.settings.v1 键下。
+
+
+    这导致可复用的网关管理员凭据扩展暴露到浏览器地址栏/查询参数界面和持久化的脚本可读存储中。
+
+
+    受影响的包/版本
+
+
+    - 包名: openclaw (npm)
+
+    - 已验证存在漏洞的最新发布版本: 2026.3.2
+
+    - 受影响范围: <= 2026.3.2
+
+    - 修复版本: >= 2026.3.7
+
+
+    影响
+
+
+    能够访问浏览器可控界面或持久化浏览器存储的攻击者可以恢复有效的网关管理员 Token，并将其重新用于攻击 OpenClaw 管理接口。
+
+
+    暴露链路如下：
+
+
+    1. macOS Open Dashboard 构造了包含认证凭据的 URL。
+
+    2. 浏览器接收到该携带凭据的 URL。
+
+    3. 控制界面从 URL 中导入 Token。
+
+    4. 控制界面将 Token 持久化存储到 localStorage。
+
+
+    修复方案
+
+
+    修复方案将 macOS Dashboard 流程与更安全的现有 CLI/bootstrap 模式对齐，并移除持久化的浏览器 Token 存储：
+
+
+    - macOS Dashboard 现在通过 URL fragment 而非查询参数传递网关 Token。
+
+    - macOS Dashboard 不再将共享网关密码传播到浏览器 URL 中。
+
+    - 控制界面仅在当前标签页内存中保留网关 Token。
+
+    - 控制界面在加载时清除 openclaw.control.settings.v1 中遗留的持久化 Token。
+
+    - 回归测试覆盖了 fragment 传输、密码省略和 Token 清除行为。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: '升级 openclaw 至 >= 2026.3.7 或更高版本。修复方案将 macOS Dashboard 流程与更安全的现有
+    CLI/bootstrap 模式对齐，并移除持久化的浏览器 Token 存储：- macOS Dashboard 现在通过 URL fragment 而非查询参数传递网关
+    Token。- macOS Dashboard 不再将共享网关密码传播到浏览器 URL 中。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rchv-x836-w7xp
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rchv-x836-w7xp

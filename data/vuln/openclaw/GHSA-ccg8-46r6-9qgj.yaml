@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-ccg8-46r6-9qgj
+  summary: OpenClaw 分发包装器深度上限不匹配可在 system.run 允许列表模式下绕过 Shell 包装器审批门控
+  details: >-
+    概述
+
+    system.run 中的包装器深度解析不匹配允许嵌套的透明分发包装器（例如重复的 /usr/bin/env）在仍然匹配允许列表解析的同时抑制 Shell 包装器检测。在 security=allowlist + ask=on-miss 模式下，这可能绕过预期的 Shell 执行审批提示。
+
+
+    严重性/信任模型
+
+    OpenClaw 的文档模型将已认证的网关调用者视为可信操作员，执行审批作为操作员防护措施。此问题仍然是真正的审批边界绕过，在该模型中被归类为中等。
+
+
+    技术细节
+
+    - 分发包装器解包在 MAX_DISPATCH_WRAPPER_DEPTH 处停止。
+
+    - 当深度耗尽时，Shell 包装器提取可能返回非包装器。
+
+    - 允许列表解析仍可在以 /usr/bin/env 开头的部分解包 argv 上成功。
+
+    - 结果：嵌套包装器链可以在 allowlist + ask=on-miss 模式下无需新审批即可执行 /bin/sh -c ...。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布版本：2026.2.23
+
+    - 受影响版本：<= 2026.2.23
+
+    - 已修复版本（计划的下一个发布版本）：>= 2026.2.24
+
+
+    验证
+
+    - 为解析和 system.run 调用层的深度溢出包装器链添加回归测试覆盖。
+
+    - 修复前重现了先前的 PoC 行为，然后确认修复后以 SYSTEM_RUN_DENIED: approval required 拒绝。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。修复提交 - 57c9a18180c8b14885bbd95474cbb17ff2d03f0b
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-ccg8-46r6-9qgj
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-ccg8-46r6-9qgj

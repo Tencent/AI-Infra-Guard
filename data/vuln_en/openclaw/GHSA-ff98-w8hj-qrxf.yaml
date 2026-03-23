@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-ff98-w8hj-qrxf
+  summary: OpenClaw Plugin runtime command execution is part of trusted plugin boundary
+  details: >-
+    Summary
+
+    OpenClaw plugins/extensions run in-process and are treated as trusted code. This advisory tracks trust-boundary clarification
+    around plugin runtime command execution (runtime.system.runCommandWithTimeout).
+
+
+    Impact
+
+    Plugins already execute with the same OS privileges as the OpenClaw process. Exposing runtime command helpers does not
+    cross an additional sandbox boundary.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published version reviewed: 2026.2.17
+
+    - Affected range for this advisory record: <= 2026.2.17
+
+    - Planned patched version metadata: 2026.2.19 (next release line)
+
+
+    Remediation
+
+    - Install only trusted plugins.
+
+    - Use plugins.allow to pin explicit trusted plugin IDs.
+
+    - SECURITY.md now explicitly documents that plugin runtime helpers are convenience APIs, not a sandbox boundary.
+
+
+    Thanks @markmusson for reporting.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - 2e421f32dfc589c02706265fd3c3137ffc06c4b1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-ff98-w8hj-qrxf
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-ff98-w8hj-qrxf

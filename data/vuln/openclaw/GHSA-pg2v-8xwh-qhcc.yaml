@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pg2v-8xwh-qhcc
+  summary: OpenClaw 可选 Tlon (Urbit) 扩展认证中的 SSRF
+  details: >-
+    概述
+
+    可选的 Tlon (Urbit) 扩展此前接受用户提供的基础 URL 进行认证，并用其构造出站 HTTP 请求，在受影响的部署中启用服务器端请求伪造（SSRF）。
+
+
+    影响
+
+    此问题仅影响已安装并配置 Tlon (Urbit) 扩展，且攻击者能够影响配置的 Urbit URL 的部署。在这些条件下，网关可被诱导向攻击者选择的主机（包括内部地址）发起 HTTP 请求。
+
+
+    未使用 Tlon 扩展或不受信任用户无法更改 Urbit URL 的部署不受影响。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.13
+
+
+    修复版本
+
+    - 2026.2.14
+
+
+    详情
+
+    Urbit 认证现在验证和规范化基础 URL，并使用默认阻止私有/内部主机的 SSRF 防护（可选启用：channels.tlon.allowPrivateNetwork）。
+
+
+    感谢 @p80n-sec 报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 2026.2.14 或更高版本。提交 - bfa7d21e997baa8e3437657d59b1e296815cc1b1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pg2v-8xwh-qhcc
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pg2v-8xwh-qhcc

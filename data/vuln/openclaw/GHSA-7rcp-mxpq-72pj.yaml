@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7rcp-mxpq-72pj
+  summary: OpenClaw Chutes 手动 OAuth state 验证绕过可导致凭证替换
+  details: >-
+    概述
+
+
+    手动 Chutes OAuth 登录流程可能以绕过 OAuth CSRF state 验证的方式接受攻击者控制的回调输入，可能导致凭证替换。
+
+
+    影响
+
+
+    如果攻击者能说服用户在手动登录提示中粘贴攻击者提供的 OAuth 回调数据，OpenClaw 可能交换攻击者获取的授权码并持久化错误 Chutes 账户的令牌。
+
+
+    自动本地回调流程不受影响（它在本地 HTTP 回调处理器中验证 state）。
+
+
+    受影响的包/版本
+
+
+    - openclaw (npm)：使用手动 Chutes OAuth 登录流程时 <= 2026.2.13。
+
+
+    修复
+
+
+    手动流程现在要求完整的重定向 URL（必须包含 code 和 state），根据预期值验证返回的 state，并拒绝仅包含 code 的粘贴。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.14 或更高版本。手动流程现在要求完整的重定向 URL（必须包含 code 和 state），根据预期值验证返回的 state，并拒绝仅包含 code 的粘贴。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7rcp-mxpq-72pj
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7rcp-mxpq-72pj

@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h89v-j3x9-8wqj
+  summary: OpenClaw Denial of service through unguarded archive extraction allowing high expansion/resource abuse (ZIP/TAR)
+  details: >-
+    Summary
+
+    Archive extraction lacked strict resource budgets, allowing high-expansion ZIP/TAR archives to consume excessive CPU/memory/disk
+    during install/update flows.
+
+
+    Affected Packages / Versions
+
+    - openclaw (npm): <= 2026.2.13
+
+    - clawdbot (npm): <= 2026.1.24-3
+
+
+    Details
+
+    Affected component: src/infra/archive.ts (extractArchive).
+
+
+    The extractor now enforces resource budgets (entry count and extracted byte limits; ZIP also enforces a compressed archive
+    size limit) and rejects over-budget archives.
+
+
+    Credits
+
+    Thanks @vincentkoc for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.14 or later. Commit(s) - openclaw/openclaw@d3ee5deb87ee2ad0ab83c92c365611165423cb71
+    - openclaw/openclaw@5f4b29145c236d124524c2c9af0f8acd048fbdea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h89v-j3x9-8wqj
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h89v-j3x9-8wqj

@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rx3g-mvc3-qfjf
+  summary: OpenClaw 头像符号链接遍历可暴露工作区外的本地文件
+  details: >-
+    概述
+
+    OpenClaw 头像处理允许符号链接遍历路径，可通过网关头像接口暴露代理工作区外的本地文件。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21，加上预发布版本 2026.2.21-1 和 2026.2.21-2
+
+    - 分类时最新发布版本（2026-02-22）：2026.2.21-2（受影响）
+
+    - 计划修复版本（为发布流程预设）：2026.2.22
+
+
+    详情
+
+    在受影响的版本中，本地头像解析可能跟随符号链接并返回配置的工作区边界之外的文件字节。
+
+
+    该问题在两个路径中被加固：
+
+    1. 网关头像元数据解析现在执行规范包含性检查、O_NOFOLLOW 和 fd/文件身份检查。
+
+    2. 控制台 UI 头像服务现在拒绝符号链接路径，并在读取前执行 fd/文件身份和大小检查。
+
+
+    影响
+
+    仅机密性影响：OpenClaw 进程可读的本地文件可通过头像响应接口泄露。
+
+
+    感谢 @tdjackey 报告此问题。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 3d0337504349954237d09e4d957df5cb844d5e77
+    - 6970c2c2db3ee069ef0fff0ade5cfbdd0134f9d2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rx3g-mvc3-qfjf
+rule: version <= "2026.2.21" || version = "2026.2.21-1" || version = "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rx3g-mvc3-qfjf

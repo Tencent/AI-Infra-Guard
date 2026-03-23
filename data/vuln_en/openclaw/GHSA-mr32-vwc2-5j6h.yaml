@@ -1,0 +1,79 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mr32-vwc2-5j6h
+  summary: OpenClaw Browser Relay /cdp websocket missing auth could allow cross-tab cookie access
+  details: >-
+    Summary
+
+    In affected versions, the Browser Relay /cdp WebSocket endpoint did not require an authentication token. As a result,
+    a website running in the browser could potentially connect to the local relay (via loopback WebSocket) and use CDP to
+    access cookies from other open tabs and run JavaScript in the context of other tabs.
+
+
+    Affected Packages / Versions
+
+    - npm: openclaw >= 2026.1.20, < 2026.2.1
+
+    - npm: moltbot <= 0.1.0
+
+
+    Details
+
+    The Chrome extension Browser Relay service exposes a local WebSocket endpoint at ws://127.0.0.1:18792/cdp (default port)
+    for forwarding Chrome DevTools Protocol (CDP) messages.
+
+
+    In affected versions, the /cdp upgrade path verified the TCP peer was loopback but did not require a shared secret and
+    did not block browser-initiated cross-origin requests.
+
+
+    Impact
+
+    - Potential disclosure of sensitive information (for example, session cookies from other open tabs)
+
+    - Potential JavaScript execution in the context of other open tabs
+
+
+    Users must have the Browser Relay extension installed and active, and must visit an untrusted site.
+
+
+    Fix
+
+    openclaw now requires a per-instance shared secret header for Browser Relay access:
+
+    - HTTP header: x-openclaw-relay-token
+
+
+    It also rejects /cdp WebSocket upgrades when the Origin header is present but is not chrome-extension://..., and refuses
+    /cdp connections unless the extension is connected.
+
+
+    Releases
+
+    - openclaw@2026.2.1 includes the fix.
+
+    - moltbot has no patched release published under this legacy package name; migrate to openclaw >= 2026.2.1.
+
+    - Latest published openclaw at time of writing: 2026.2.13.
+
+
+    Mitigation
+
+    - Update to openclaw@>= 2026.2.1.
+
+    - If you cannot update immediately, disable the Browser Relay extension / relay server and avoid visiting untrusted sites.
+
+
+    Thanks @johnatzeropath, @LeftenantZero, and @yueyueL for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.2.1 or later. openclaw now requires a per-instance shared secret header for
+    Browser Relay access: - HTTP header: x-openclaw-relay-token It also rejects /cdp WebSocket upgrades when the Origin header
+    is present but is not chrome-extension://..., and refuses /cdp connections unless the extension is connected. - Update
+    to openclaw@>= 2026.2.1. - If you cannot update immediately, disable the Browser Relay extension / relay server and avoid
+    visiting untrusted sites. Thanks @johnatzeropath, @LeftenantZero, and @yueyueL for reporting.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mr32-vwc2-5j6h
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mr32-vwc2-5j6h

@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jxrq-8fm4-9p58
+  summary: OpenClaw Zip extraction symlink traversal could write outside destination
+  details: >-
+    Summary
+
+    A path confinement bypass in OpenClaw ZIP extraction allowed writes outside the intended destination when a pre-existing
+    symlink was present under the extraction root.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version at triage time: 2026.2.21-2
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Planned patched version for next release: 2026.2.22
+
+
+    Technical Details
+
+    The vulnerable path was in src/infra/archive.ts ZIP extraction logic. Output-path checks were lexical, but writes could
+    still traverse an existing symlink in destination path segments.
+
+
+    The fix blocks this by:
+
+    - rejecting symlink traversal in destination path segments,
+
+    - validating resolved destination paths remain inside the extraction root,
+
+    - using no-follow file opens for ZIP output writes where supported,
+
+    - adding a regression test for pre-seeded destination symlink traversal.
+
+
+    Impact
+
+    - Type: Arbitrary file write outside extraction root via symlink traversal during ZIP extraction.
+
+    - Preconditions: attacker-controlled archive extraction plus pre-existing symlink in destination path.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 4b226b74f5fd3b106a83a6347fd404172e2fd246
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58

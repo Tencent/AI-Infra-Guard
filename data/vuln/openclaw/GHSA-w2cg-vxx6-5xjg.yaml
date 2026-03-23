@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w2cg-vxx6-5xjg
+  summary: OpenClaw 通过大型 base64 媒体文件在限制检查前分配大量缓冲区导致拒绝服务
+  details: >-
+    概述
+
+
+    Base64 编码的媒体输入可能在强制执行解码大小预算之前被解码为 Buffer。攻击者提供超大的 base64 载荷
+    可以强制进行大量内存分配，导致内存压力和拒绝服务。
+
+
+    攻击场景说明
+
+
+    - 推荐部署默认将网关绑定到回环地址，并要求 HTTP 端点进行网关认证。在该配置下，此问题最好被建模为
+    本地/已授权的拒绝服务。
+
+    - 如果操作员将网关暴露给不受信任的网络（或禁用/弱化认证和速率限制），则应将此视为更高严重性的网络拒绝服务风险。
+
+
+    受影响的包/版本
+
+
+    - openclaw (npm)：<= 2026.2.13
+
+    - clawdbot (npm)：<= 2026.1.24-3
+
+
+    修复版本
+
+
+    - openclaw (npm)：2026.2.14
+
+    - clawdbot (npm)：无计划修补版本；请迁移到 openclaw
+
+
+    致谢
+
+    感谢 @vincentkoc 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.14 或更高版本。提交记录 - 31791233d60495725fa012745dde8d6ee69e9595
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w2cg-vxx6-5xjg
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w2cg-vxx6-5xjg

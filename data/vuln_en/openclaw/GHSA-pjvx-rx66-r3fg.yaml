@@ -1,0 +1,65 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pjvx-rx66-r3fg
+  summary: OpenClaw Cross-account sender authorization expansion in `/allowlist ... --store` account scoping
+  details: >-
+    Summary
+
+    /allowlist ... --store resolved the selected channel accountId for reads, but store writes still dropped that accountId
+    and wrote into the legacy unscoped pairing allowlist store.
+
+
+    Because default-account reads still merge legacy unscoped entries, a store entry intended for one account could silently
+    authorize the same sender on the default account.
+
+
+    This is a real cross-account sender-authorization scoping bug. Severity is set to medium because exploitation requires
+    an already-authorized user who can run /allowlist edits.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published version checked: 2026.3.2
+
+    - Affected versions: <= 2026.3.2
+
+    - Fixed on main: March 7, 2026 in 70da80bcb5574a10925469048d2ebb2abf882e73
+
+    - Patched release: 2026.3.7
+
+
+    Details
+
+    The affected path was:
+
+    - src/auto-reply/reply/commands-allowlist.ts:386-393 resolved accountId and read store state with it
+
+    - src/auto-reply/reply/commands-allowlist.ts:697-702 and src/auto-reply/reply/commands-allowlist.ts:730-733 wrote store
+    state without passing accountId
+
+    - src/pairing/pairing-store.ts:231-234 and src/pairing/pairing-store.ts:534-554 still merged legacy unscoped allowlist
+    entries into the default account
+
+
+    The fix scopes /allowlist ... --store writes to the resolved account and clears legacy default-account store entries on
+    removal so legacy reads no longer create cross-account authorization bleed-through.
+
+
+    Impact
+
+    - Vulnerability class: improper authorization scoping / incorrect authorization
+
+    - Exploitation requires: an already-authorized sender who can run /allowlist edits
+
+    - Security effect: unintended authorization expansion from one channel account into default
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.7 or later. Commit(s) - 70da80bcb5574a10925469048d2ebb2abf882e73 — scope
+    /allowlist ... --store writes by account and clean up legacy default-account removals
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg

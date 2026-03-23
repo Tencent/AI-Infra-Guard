@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jv6r-27ww-4gw4
+  summary: OpenClaw DM 配对存储身份可满足群组白名单授权
+  details: >-
+    概述
+
+    DM 配对存储的身份被错误地纳入群组白名单授权检查，导致在群组消息路径中出现跨上下文授权。
+
+
+    详情
+
+    在受影响版本中，群组白名单评估可能继承 DM 配对存储中的身份。通过 DM 配对获得批准的发送者可以满足群组发送者白名单检查，而无需明确出现在 groupAllowFrom 中。
+
+
+    这是 DM 配对与群组白名单之间的授权策略边界问题。
+
+
+    受影响的包/版本
+
+    - openclaw (npm)：受影响 <= 2026.2.25（分类时最新发布的 npm 版本）
+
+    - openclaw (npm)：修复 >= 2026.2.26（计划的下一个版本）
+
+
+    维护者时间线说明
+
+    维护者在此报告提交之前已合并了初始修复；此报告仍然提供了有价值的独立确认，验证了此类问题和利用路径。
+
+
+    感谢 @tdjackey 报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.26 或更高版本。提交 - openclaw/openclaw@8bdda7a651c21e98faccdbbd73081e79cffe8be0
+    - openclaw/openclaw@051fdcc428129446e7c084260f837b7284279ce9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jv6r-27ww-4gw4
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jv6r-27ww-4gw4

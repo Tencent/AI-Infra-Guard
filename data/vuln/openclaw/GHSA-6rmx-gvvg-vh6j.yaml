@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6rmx-gvvg-vh6j
+  summary: OpenClaw hooks 将非 POST 请求计入认证锁定计数
+  details: >-
+    OpenClaw 的 hooks HTTP 处理程序在拒绝不支持的 HTTP 方法之前就计入了 hook 认证失败次数。未经认证的客户端可以使用无效 Token
+    反复发送非 POST 请求（例如 GET），以消耗 hook 认证失败预算，并触发该客户端密钥的临时锁定窗口。
+
+
+    修复方案将 hook 方法检查移到认证失败计数之前，使不支持的方法直接返回 405 Method Not Allowed，而不会增加 hook 认证限制器的计数。
+
+
+    受影响的包/版本
+
+
+    - 包名: openclaw (npm)
+
+    - 受影响版本: <= 2026.3.2
+
+    - 修复版本: 2026.3.7
+
+    - 补丁发布时 npm 最新发布版本: 2026.3.2
+
+
+    影响
+
+
+    能够访问 /hooks/* 的未经认证的网络客户端，当请求使用相同的 hook 认证客户端密钥（如共享代理或 NAT 拓扑）时，可以临时锁定合法的
+    webhook 投递。影响仅限于 hook 触发的唤醒或自动化投递的临时可用性丧失。
+
+
+    验证
+
+
+    - pnpm check 通过
+
+    - pnpm test:fast 通过
+
+    - 专项 hook 回归测试通过
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts 在 src/gateway/server-channels.test.ts 和
+    src/gateway/server-methods/agents-mutate.test.ts 中仍存在无关的主分支已有失败
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 44820dceadac65ac7c0ce8fc0ffba8c2bd9fae89
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j

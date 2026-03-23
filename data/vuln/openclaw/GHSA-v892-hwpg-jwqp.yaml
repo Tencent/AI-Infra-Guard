@@ -1,0 +1,66 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v892-hwpg-jwqp
+  summary: OpenClaw 显式安装命令期间归档解压中的路径遍历（Zip Slip）
+  details: >-
+    概述
+
+
+    显式安装命令期间归档解压中的路径遍历（Zip Slip）问题可能允许精心构造的归档将文件写入预期解压目录之外。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：>=2026.1.16-2 <2026.2.14
+
+    - 修复版本：2026.2.14
+
+
+    受影响的命令/流程
+
+
+    此问题仅影响对不受信任归档（本地文件或下载 URL）运行安装命令的用户，例如：
+
+
+    - openclaw skills install（下载+解压安装器）
+
+    - openclaw hooks install（归档安装）
+
+    - openclaw plugins install（归档安装）
+
+    - openclaw signal install（signal-cli 资产解压）
+
+
+    不会由接收消息或正常网关操作触发。
+
+
+    影响
+
+
+    以当前用户权限进行任意文件写入。在最坏情况下，如果攻击者能说服用户安装精心构造的归档，可用于持久化或代码执行。
+
+
+    修复
+
+
+    - 修复提交：3aa94afcfd12104c683c9cad81faf434d0dadf87
+
+    - 发布于：2026.2.14
+
+
+    致谢
+
+
+    感谢 @markmusson 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >=2026.2.14 或更高版本。- 修复提交：3aa94afcfd12104c683c9cad81faf434d0dadf87
+    - 发布于：2026.2.14'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v892-hwpg-jwqp
+rule: version >= "2026.1.16-2" && version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v892-hwpg-jwqp

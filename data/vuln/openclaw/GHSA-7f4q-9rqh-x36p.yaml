@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7f4q-9rqh-x36p
+  summary: OpenClaw macOS 可选允许列表基名匹配可绕过基于路径的策略
+  details: >-
+    概述
+
+    在 macOS node-host 上，可选的执行审批允许列表模式此前将仅基名条目（例如 echo）视为可信命令匹配。
+
+    这可能允许同名的本地二进制文件（例如 ./echo）在 security=allowlist + ask=on-miss 配置下无需审批即可运行。
+
+
+    范围/前提条件
+
+    - macOS node-host 路径。
+
+    - 启用了可选的执行审批功能且 security=allowlist。
+
+    - 配置了仅基名的允许列表条目。
+
+
+    默认安装态势不受影响：默认 security=deny。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布的 npm 版本：2026.2.21-2
+
+    - 受影响范围：<=2026.2.21-2
+
+    - 计划的已修复版本（下一个发布版本）：>= 2026.2.22
+
+
+    修复措施
+
+    - 在 macOS node-host 上强制仅路径的允许列表匹配（移除基名回退）。
+
+    - 为旧版基名允许列表条目添加到最后解析路径的迁移（如可用）。
+
+    - UI/存储验证现在拒绝非路径的允许列表模式。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - dd41fadcaf58fd9deb963d6e163c56161e7b35dd
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7f4q-9rqh-x36p
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7f4q-9rqh-x36p

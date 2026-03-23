@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-27cr-4p5m-74rj
+  summary: OpenClaw Workspace-only sandbox guard mismatch for @-prefixed absolute paths
+  details: >-
+    A workspace-only file-system guard mismatch allowed @-prefixed absolute paths to bypass boundary validation in some tool
+    path checks.
+
+
+    Impact
+
+    When tools.fs.workspaceOnly=true, certain @-prefixed absolute paths (for example @/etc/passwd) could be validated before
+    canonicalization while runtime path handling normalized the prefix differently. In affected code paths this could permit
+    reads outside the intended workspace boundary.
+
+
+    Per SECURITY.md, OpenClaw is primarily a personal-assistant runtime with trusted-user assumptions, and this path is gated
+    behind non-default sandbox/tooling configuration. That reduces practical exposure, but the bypass is still a security
+    bug and is fixed.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published at triage time: 2026.2.23
+
+    - Affected versions: <= 2026.2.23
+
+    - Patched versions: >= 2026.2.24
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - 9ef0fc2ff8fa7b145d1e746d6eb030b1bf692260
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-27cr-4p5m-74rj
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-27cr-4p5m-74rj

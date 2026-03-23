@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v865-p3gq-hw6m
+  summary: OpenClaw Encoded-path auth bypass in plugin `/api/channels` route classification
+  details: >-
+    Summary (Updated March 2, 2026)
+
+    Encoded alternate-path requests could bypass plugin route auth checks for /api/channels/* due to canonicalization depth
+    mismatch in vulnerable builds.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published vulnerable version: 2026.3.1
+
+    - Affected range: <= 2026.3.1
+
+    - Patched release: 2026.3.2 (patched_versions: >= 2026.3.2)
+
+
+    Technical Details
+
+    In affected versions, plugin auth-path classification and route-path canonicalization could diverge for deeply encoded
+    slash variants (for example multi-encoded %2f). That mismatch allowed alternate encoded paths to evade protected-prefix
+    auth checks while still resolving to /api/channels/... in plugin route handling.
+
+
+    The fix set hardens this class of issue by:
+
+    - canonicalizing route paths to a bounded fixpoint,
+
+    - failing closed on malformed or unresolved canonicalization depth,
+
+    - requiring explicit plugin-route auth contracts (no implicit auth default),
+
+    - enforcing route ownership/conflict guards for duplicate route registrations, and
+
+    - using shared webhook route lifecycle registration to avoid stale/conflicting route surfaces.
+
+
+    Affected Deployments
+
+    Deployments exposing plugin HTTP routes and relying on gateway auth for /api/channels/* protection.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.2 or later. Commit(s) - 93b07240257919f770d1e263e1f22753937b80ea - 2fd8264ab03bd178e62a5f0c50d1c8556c17f12d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v865-p3gq-hw6m
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v865-p3gq-hw6m

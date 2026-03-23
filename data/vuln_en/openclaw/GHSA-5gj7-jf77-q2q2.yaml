@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5gj7-jf77-q2q2
+  summary: OpenClaw safeBins static default trusted dirs allow writable-dir binary hijack (`jq`)
+  details: >-
+    Summary
+
+    In openclaw<=2026.2.23, safe-bin trust in allowlist mode relied on static default trusted directories that included package-manager
+    paths (notably /opt/homebrew/bin and /usr/local/bin).
+
+    When a same-name binary (for example jq) is placed in one of those trusted default directories, safe-bin evaluation can
+    be satisfied and execute the attacker-controlled binary.
+
+
+    Impact
+
+    This is an exec allowlist safeBins policy bypass that can lead to command execution in the OpenClaw runtime context.
+
+    Severity is set to Medium given the required ability to write into trusted host binary directories.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.23
+
+    - Patched versions: >= 2026.2.24 (planned next npm release)
+
+    - Latest published npm version at triage time (2026-02-24): 2026.2.23
+
+
+    Root Cause
+
+    - Default safe-bin trusted directories included package-manager/user-managed paths.
+
+    - Trust decision was directory-membership only for resolved executable paths.
+
+
+    Remediation
+
+    - Restrict default safe-bin trusted directories to immutable system paths: /bin, /usr/bin.
+
+    - Require explicit operator opt-in for package-manager/user paths via tools.exec.safeBinTrustedDirs.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - b67e600bff696ff2ed9b470826590c0ce6b3bb0a
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5gj7-jf77-q2q2
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5gj7-jf77-q2q2

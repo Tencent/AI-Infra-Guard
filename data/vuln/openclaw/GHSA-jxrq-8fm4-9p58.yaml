@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jxrq-8fm4-9p58
+  summary: OpenClaw Zip 解压符号链接遍历可写入目标目录之外
+  details: >-
+    概述
+
+    OpenClaw ZIP 解压中的路径限制绕过，当解压根目录下存在预先创建的符号链接时，允许写入预期目标目录之外。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 分类时最新发布的 npm 版本：2026.2.21-2
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 下一版本计划修复版本：2026.2.22
+
+
+    技术详情
+
+    受影响的路径位于 src/infra/archive.ts 的 ZIP 解压逻辑中。输出路径检查是词法层面的，但写入操作仍可通过目标路径段中已有的符号链接进行遍历。
+
+
+    修复通过以下方式阻止此问题：
+
+    - 拒绝目标路径段中的符号链接遍历，
+
+    - 验证解析后的目标路径仍在解压根目录内，
+
+    - 在支持的情况下对 ZIP 输出写入使用不跟随符号链接的文件打开方式，
+
+    - 添加了针对预置目标符号链接遍历的回归测试。
+
+
+    影响
+
+    - 类型：通过 ZIP 解压期间的符号链接遍历在解压根目录外进行任意文件写入。
+
+    - 前提条件：攻击者控制的归档文件解压，加上目标路径中预先存在的符号链接。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.22 或更高版本。提交 - 4b226b74f5fd3b106a83a6347fd404172e2fd246
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58

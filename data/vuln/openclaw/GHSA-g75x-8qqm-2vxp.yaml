@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g75x-8qqm-2vxp
+  summary: OpenClaw tools.exec.safeBins PATH 劫持允许特洛伊木马二进制文件绕过允许列表检查
+  details: >-
+    概述
+
+
+    tools.exec.safeBins 允许列表检查可被 PATH 劫持的二进制文件绕过，允许在允许列表的可执行文件名下执行攻击者控制的特洛伊木马二进制文件。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布版本：2026.2.17
+
+    - 受影响范围：>= 2026.1.21 < 2026.2.18
+
+    - 已修复版本：2026.2.19
+
+
+    影响
+
+
+    在允许列表模式下，safeBins 验证此前基于可执行文件名称和参数形状接受已解析的可执行文件路径，而未强制执行可信的可执行文件目录。如果攻击者能在网关启动前影响进程 PATH 解析（或以其他方式控制网关启动环境），则具有允许列表名称（例如 jq）的特洛伊木马二进制文件可被执行。
+
+
+    严重性理由
+
+
+    此问题被评为中等，因为利用需要额外的前提条件：影响网关进程 PATH / 启动环境。请求范围的 PATH 注入对宿主执行是被阻止的。
+
+
+    修复
+
+
+    safeBins 现在要求已解析的可执行文件路径来自可信的 bin 目录（系统默认值加上网关启动 PATH），关闭了该绕过。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。safeBins 现在要求已解析的可执行文件路径来自可信的 bin 目录（系统默认值加上网关启动 PATH），关闭了该绕过。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g75x-8qqm-2vxp
+rule: version >= "2026.1.21" && version < "2026.2.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g75x-8qqm-2vxp

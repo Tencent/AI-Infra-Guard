@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mqr9-vqhq-3jxw
+  summary: OpenClaw Windows 计划任务脚本生成允许通过不安全的 cmd 参数处理进行本地命令注入
+  details: >-
+    概述
+
+    OpenClaw Windows 计划任务脚本生成在生成的 gateway.cmd 文件中允许不安全的参数处理。在受影响版本中，仅含 cmd 元字符的值可能在没有安全引用/转义的情况下输出，当计划任务运行时可能导致意外命令执行。
+
+
+    详情
+
+    此问题影响 src/daemon/schtasks.ts 中的 Windows 守护进程启动脚本生成。
+
+
+    受影响的行为包括：
+
+    - 对仅含元字符值的 cmd 参数引用不完整。
+
+    - 对脚本参数中 cmd 扩展敏感字符的处理不完整。
+
+    - 脚本渲染字段缺少 CR/LF 防护。
+
+
+    修复通过以下方式加固 Windows 脚本生成：
+
+    - 将 schtasks 参数引用与批处理脚本参数引用分离。
+
+    - 引用 cmd 元字符参数并转义 % / ! 扩展情况。
+
+    - 拒绝命令参数、任务描述和渲染的环境赋值中的 CR/LF。
+
+    - 添加元字符和换行注入路径的回归测试。
+
+
+    影响
+
+    此问题仅限于 Windows 部署，需要控制输入到服务脚本生成的值（例如安装时/运行时参数或环境派生值）。可导致在计划任务上下文中执行意外命令。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.17
+
+    - 修复版本：>= 2026.2.19（计划的下一个 npm 发布）
+
+    - 更新时最新发布的 npm 版本（2026-02-19）：2026.2.17
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.19 或更高版本。提交 - 280c6b117b2f0e24f398e5219048cd4cc3b82396。感谢
+    @tdjackey 报告此问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mqr9-vqhq-3jxw
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mqr9-vqhq-3jxw

@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9f72-qcpw-2hxc
+  summary: OpenClaw 原生提示图片自动加载在沙箱运行中未遵守 tools.fs.workspaceOnly
+  details: >-
+    概述
+
+    在沙箱运行中，原生提示图片自动加载未遵守 tools.fs.workspaceOnly=true。
+
+
+    此可选加固设置默认未启用。当操作员启用后，提示文本仍可引用已挂载的工作区外图片路径（例如 /agent/secret.png）并为具有视觉能力的模型输入加载这些图片字节。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布的 npm 版本：2026.2.23
+
+    - 受影响版本范围：<= 2026.2.23
+
+    - 已修复版本（计划的下一个发布版本）：2026.2.24
+
+
+    所需条件
+
+    此问题需要以下所有条件：
+
+    - 启用沙箱模式，
+
+    - 配置 tools.fs.workspaceOnly=true，
+
+    - 可从沙箱访问的工作区外挂载路径（例如 /agent），
+
+    - 原生提示图片加载的视觉能力模型路径处于活动状态。
+
+
+    技术细节
+
+    原生提示图片摄入（detectAndLoadPromptImages / loadImageFromRef）解析并读取沙箱路径，但在设置 tools.fs.workspaceOnly 时未应用文件工具使用的相同工作区根断言。
+
+
+    验证
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。修复提交 - 370d115549c0dadace0902775eea0d5094aedfdc
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9f72-qcpw-2hxc
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9f72-qcpw-2hxc

@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jmm5-fvh5-gf4p
+  summary: OpenClaw Non-constant-time token comparison in hooks authentication
+  details: >-
+    Summary
+
+
+    OpenClaw hooks previously compared the provided hook token using a regular string comparison. Because this comparison
+    is not constant-time, an attacker with network access to the hooks endpoint could potentially use timing measurements
+    across many requests to gradually infer the token.
+
+
+    In practice, this typically requires hooks to be exposed to an untrusted network and a large number of requests; real-world
+    latency and jitter can make reliable measurement difficult.
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): < 2026.2.12
+
+
+    Patched Versions
+
+
+    - openclaw (npm): >= 2026.2.12
+
+
+    Mitigations
+
+
+    - Upgrade to openclaw >= 2026.2.12.
+
+    - If you cannot upgrade immediately: restrict network access to the hooks endpoint and rotate the hooks token after updating.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.12 or later. Commit(s) - 113ebfd6a23c4beb8a575d48f7482593254506ec Thanks
+    @akhmittra for reporting. - Upgrade to openclaw >= 2026.2.12. - If you cannot upgrade immediately: restrict network access
+    to the hooks endpoint and rotate the hooks token after updating.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jmm5-fvh5-gf4p
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jmm5-fvh5-gf4p

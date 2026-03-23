@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-25gx-x37c-7pph
+  summary: OpenClaw Sandbox browser noVNC observer lacked VNC authentication
+  details: >-
+    The sandbox browser entrypoint launched x11vnc without authentication (-nopw) for noVNC observer sessions.
+
+
+    OpenClaw-managed runtime flow publishes the noVNC port to host loopback only (127.0.0.1), so default exposure is local
+    to the host unless operators explicitly expose the port more broadly (or run the image standalone with broad port publishing).
+
+
+    Affected Packages / Versions
+
+
+    - Package: docker/openclaw
+
+    - Affected: <= 2026.2.19-2
+
+    - Patched: >= 2026.2.21
+
+
+    Technical details
+
+
+    - scripts/sandbox-browser-entrypoint.sh used x11vnc ... -nopw for noVNC observer flow.
+
+    - websockify exposed noVNC for the container listener.
+
+    - OpenClaw runtime (src/agents/sandbox/browser.ts) already mapped host publish to loopback, but observer auth was missing.
+
+
+    Fix
+
+
+    - Require VNC password auth in the sandbox browser entrypoint (x11vnc -rfbauth), replacing -nopw.
+
+    - Generate per-container noVNC password in runtime and inject OPENCLAW_BROWSER_NOVNC_PASSWORD.
+
+    - Emit short-lived noVNC observer token URLs instead of sharing raw noVNC passwords in shared URLs.
+
+    - Keep loopback-only host port publish and bump sandbox browser security hash epoch.
+
+    - Add security audit findings for sandbox browser containers that publish ports on non-loopback interfaces.
+
+
+    Operational note: rebuild the sandbox browser image and recreate browser containers so existing containers pick up the
+    fix.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. - Require VNC password auth in the sandbox browser entrypoint
+    (x11vnc -rfbauth), replacing -nopw. - Generate per-container noVNC password in runtime and inject OPENCLAW_BROWSER_NOVNC_PASSWORD.
+    - Emit short-lived noVNC observer token URLs instead of sharing raw noVNC passwords in shared URLs.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-25gx-x37c-7pph
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-25gx-x37c-7pph

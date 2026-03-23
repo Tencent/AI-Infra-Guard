@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8mvx-p2r9-r375
+  summary: OpenClaw Web 工具严格 URL 防护在配置环境代理时可能丢失 DNS 固定
+  details: >-
+    概述
+
+    当配置了环境代理变量（HTTP_PROXY/HTTPS_PROXY/ALL_PROXY，包括小写变体）时，openclaw Web 工具严格 URL fetch 路径可能丢失 DNS 固定。
+
+
+    在受影响的构建中，严格 URL 检查（例如 web_fetch 和引用重定向解析）在 SSRF 防护检查期间验证一个目标，但运行时连接路由可能通过环境代理分发器进行。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本范围：<= 2026.3.1
+
+    - 分类时最新发布的 npm 版本（2026-03-02）：2026.3.1
+
+    - 已修复版本：>= 2026.3.2（已发布）
+
+
+    技术细节
+
+    SSRF 防护执行主机名解析和策略检查，然后选择请求分发器。
+
+
+    当存在环境代理设置时，严格的 Web 工具流程可能使用 EnvHttpProxyAgent 而非 DNS 固定的分发器。这在检查时解析和连接时路由之间创建了目标绑定间隙。
+
+
+    修复在严格/不受信任的 Web 工具 URL 路径上保持 DNS 固定，并通过显式的危险选择加入将环境代理绕过行为限制到受信任/操作员控制的端点。
+
+
+    影响
+
+    在配置了环境代理变量的部署中，来自 Web 工具的攻击者影响的 URL 可能通过代理行为而非严格的固定目标路由进行路由，这可能允许访问该代理环境中可达的内部/私有目标。
+
+
+    缓解措施
+
+    在升级之前，操作员可以通过清除 OpenClaw 运行时进程的代理环境变量或在可能有不受信任 URL 输入的地方禁用 web_fetch / web_search 来降低暴露。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - 345abf0b2e0f43b0f229e96f252ebf56f1e5549e。在升级之前，操作员可以通过清除 OpenClaw 运行时进程的代理环境变量或在可能有不受信任 URL 输入的地方禁用 web_fetch / web_search 来降低暴露。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8mvx-p2r9-r375
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8mvx-p2r9-r375

@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f8mp-vj46-cq8v
+  summary: OpenClaw Shell 环境回退信任来自宿主环境的未验证 SHELL 路径
+  details: >-
+    当 SHELL 从不受信任的宿主环境继承时，Shell 环境回退路径可能调用攻击者控制的 Shell。在受影响的构建中，shell-env 加载使用 $SHELL -l -c 'env -0' 而未验证 SHELL 是否指向可信的可执行文件。
+
+
+    在威胁模型方面，这首先需要本地环境入侵或不受信任的启动环境注入；这不是远程预认证路径。加固补丁将 SHELL 验证为绝对规范化的可执行文件，优先使用 /etc/shells，应用可信前缀回退检查，并在验证失败时安全回退到 /bin/sh。危险环境变量策略现在也阻止 SHELL 覆盖。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 最新发布的受影响版本：2026.2.21-2
+
+    - 已修复版本（计划的下一个发布版本）：>= 2026.2.22
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 25e89cc86338ef475d26be043aa541dfdb95e52a
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f8mp-vj46-cq8v
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f8mp-vj46-cq8v

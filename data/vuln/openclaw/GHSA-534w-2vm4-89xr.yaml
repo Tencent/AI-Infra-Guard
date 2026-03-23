@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-534w-2vm4-89xr
+  summary: OpenClaw Zalo 群组发送者允许列表绕过允许未授权的 GROUP 分发
+  details: >-
+    Zalo 插件中缺少群组发送者授权检查，允许未授权的 GROUP 消息在预期限制群组流量的配置中进入代理分发路径。
+
+
+    影响
+
+    当 Zalo 群组处理配置了允许列表样式的控制时，不在预期群组允许列表中的发送者仍可通过 GROUP 消息路径触发代理处理。
+
+
+    根本原因
+
+    对于 Zalo GROUP 消息，群组访问检查在分发之前未一致强制执行。修复为 Zalo GROUP 消息添加了显式运行时群组策略评估
+    （groupPolicy、groupAllowFrom、回退到 allowFrom）和缺失提供商配置时的失败关闭行为。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 最新发布的受影响版本：2026.2.23（截至 2026-02-24）
+
+    - 受影响范围：<= 2026.2.23
+
+    - 计划修复版本：2026.2.24
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。提交记录 - b4010a0b627025c809c0e5dbdbd4770f3bc59ef8
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-534w-2vm4-89xr
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-534w-2vm4-89xr

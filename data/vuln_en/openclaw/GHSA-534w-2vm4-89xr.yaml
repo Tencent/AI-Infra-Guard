@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-534w-2vm4-89xr
+  summary: OpenClaw Zalo group sender allowlist bypass permits unauthorized GROUP dispatch
+  details: >-
+    A missing group-sender authorization check in the Zalo plugin allowed unauthorized GROUP messages to enter agent dispatch
+    paths in configurations intended to restrict group traffic.
+
+
+    Impact
+
+    When Zalo group handling was configured with allowlist-style controls, a sender not present in the intended group allowlist
+    could still trigger agent processing through the GROUP message path.
+
+
+    Root Cause
+
+    Group access checks were not consistently enforced before dispatch for Zalo GROUP messages. The fix adds explicit runtime
+    group-policy evaluation (groupPolicy, groupAllowFrom, fallback to allowFrom) and fail-closed behavior for missing provider
+    config.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published vulnerable version: 2026.2.23 (as of 2026-02-24)
+
+    - Affected range: <= 2026.2.23
+
+    - Planned patched version: 2026.2.24
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - b4010a0b627025c809c0e5dbdbd4770f3bc59ef8
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-534w-2vm4-89xr
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-534w-2vm4-89xr

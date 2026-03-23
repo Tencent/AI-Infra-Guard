@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-659f-22xc-98f2
+  summary: OpenClaw Hook 转换路径包含检查遗漏了符号链接解析逃逸
+  details: >-
+    漏洞
+
+
+    Webhook 转换模块仅通过词法路径检查进行验证。在允许的 hooks 转换树下的符号链接可能解析到预期目录之外并被动态导入。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 已修复版本（计划的下一个发布版本）：2026.2.22
+
+
+    影响
+
+
+    当攻击者能使转换模块路径引用一个解析到可信转换目录之外的符号链接条目时，网关可能导入并执行具有网关进程权限的非预期 JavaScript 代码。
+
+
+    攻击前提条件
+
+
+    - Hook 转换已启用且可达。
+
+    - 攻击者能够影响转换路径解析（例如通过特权配置访问和/或转换树中的可写文件系统路径）。
+
+    - 存在指向攻击者控制代码的符号链接逃逸。
+
+
+    修复措施
+
+
+    - 在动态导入前对现有路径祖先强制执行 realpath 感知的包含检查。
+
+    - 保留词法包含检查以防止遍历和绝对路径逃逸。
+
+    - 添加回归测试覆盖：
+      - 转换模块符号链接逃逸拒绝，
+      - hooks.transformsDir 符号链接逃逸拒绝，
+      - 根目录内符号链接允许案例。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.2.22 或更高版本。修复提交 - f4dd0577b055f77af783105bd65eae32f3d5e6a1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-659f-22xc-98f2
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-659f-22xc-98f2

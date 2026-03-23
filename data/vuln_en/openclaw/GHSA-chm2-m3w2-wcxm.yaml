@@ -1,0 +1,83 @@
+info:
+  name: OpenClaw
+  cve: GHSA-chm2-m3w2-wcxm
+  summary: OpenClaw Google Chat spoofing access with allowlist authorized mutable email principal despite sender-ID mismatch
+  details: >-
+    Summary
+
+    Google Chat allowlisting supports matching by sender email in addition to immutable sender resource name (users/<id>).
+    This weakens identity binding if a deployment assumes allowlists are strictly keyed by immutable principals.
+
+
+    Affected Packages / Versions
+
+    (As of 2026-02-14; based on latest published npm versions)
+
+    - openclaw (npm): <= 2026.2.13
+
+    - clawdbot (npm): <= 2026.1.24-3
+
+
+    Details
+
+    Affected component:
+
+    - extensions/googlechat/src/monitor.ts
+
+
+    The allowFrom checks accept:
+
+    - Immutable sender id (users/<id>)
+
+    - Raw email (alice@example.com) for usability
+
+
+    Historically, users/<email> was also treated as an email allowlist entry. This is now deprecated because it looks like
+    an immutable ID but is actually a mutable principal.
+
+
+    Security Triage (2026-02-14)
+
+    Severity: Low
+
+
+    Rationale:
+
+    - Requests are authenticated as coming from Google Chat (token verification), so this is not a generic unauthenticated
+    spoofing vector.
+
+    - A realistic exploit generally requires Google Workspace / IdP administrative control over identity lifecycle (e.g. reassigning
+    an email address to a different underlying account) to obtain the same email with a different users/<id>.
+
+    - With that level of access, the attacker typically has broader compromise paths.
+
+
+    We still treat it as a valid defense-in-depth report because accepting mutable principals in authorization decisions can
+    increase risk in chained-failure scenarios.
+
+
+    Remediation / Behavior Changes
+
+    Goal: preserve usability while reducing footguns.
+
+    - Raw email allowlists remain supported.
+
+    - users/<email> is deprecated and treated as a user id, not as an email allowlist.
+
+    - Documentation recommends users/<id> when strict immutable binding is required.
+
+
+    Fixed In
+
+    - openclaw (npm): >= 2026.2.14
+
+    - clawdbot (npm): no patched release is published under this legacy package name; migrate to openclaw >= 2026.2.14.
+  cvss: ''
+  severity: LOW
+  security_advise: 'Upgrade openclaw to >=2026.2.14 or later. Commit(s) - c8424bf29a921e25663b29f308640b3d91a49432 (PR #16243)
+    Thanks @vincentkoc for reporting.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-chm2-m3w2-wcxm
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-chm2-m3w2-wcxm

@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8j2w-6fmm-m587
+  summary: OpenClaw /api/channels 通过路径规范化不匹配绕过网关认证边界
+  details: >-
+    概述
+
+    当路径规范化在网关防护和插件处理器路由之间存在差异时，插件频道端点的网关认证可被绕过。
+
+
+    详细信息
+
+    在受影响的版本中，server-http 仅在原始 requestPath 精确匹配以下路径时才应用网关认证：
+
+    - /api/channels
+
+    - /api/channels/*
+
+
+    如果插件处理器规范化路径输入（例如 decodeURIComponent(pathname).toLowerCase()），类似以下的请求：
+
+    - /API/channels/nostr/default/profile
+
+    - /api/channels%2Fnostr%2Fdefault%2Fprofile
+
+    可以被插件解释为 /api/channels/*，而网关认证防护被跳过。
+
+
+    影响
+
+    在路径规范化不匹配条件下，插件频道 HTTP 路由的认证边界绕过。未经授权的调用者可能访问预期需要网关认证的插件频道 API。
+
+
+    CWE：CWE-288（使用备用路径或通道的认证绕过）
+
+    CVSS：CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N（基础 5.3，中等）
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: 关注官方安全公告并升级到最新的已修复版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8j2w-6fmm-m587
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8j2w-6fmm-m587

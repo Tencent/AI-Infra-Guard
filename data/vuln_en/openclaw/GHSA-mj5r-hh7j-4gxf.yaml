@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mj5r-hh7j-4gxf
+  summary: OpenClaw Telegram allowlist authorization accepted mutable usernames
+  details: >-
+    Summary
+
+    Telegram allowlist authorization could match on @username (mutable/recyclable) instead of immutable numeric sender IDs.
+
+
+    Impact
+
+    Operators who treat Telegram allowlists as strict identity controls could unintentionally grant access if a username changes
+    hands (identity rebinding/spoof risk). This can allow an unauthorized sender to interact with the bot in allowlist mode.
+
+
+    Affected Packages / Versions
+
+    - npm openclaw: <= 2026.2.13
+
+    - npm clawdbot: <= 2026.1.24-3
+
+
+    Fix
+
+    Telegram allowlist authorization now requires numeric Telegram sender IDs only. @username allowlist principals are rejected.
+
+
+    A security audit warning was added to flag legacy configs that still contain non-numeric Telegram allowlist entries.
+
+
+    openclaw doctor --fix now attempts to resolve @username allowFrom entries to numeric IDs (best-effort; requires a Telegram
+    bot token).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.14 or later. Telegram allowlist authorization now requires numeric Telegram
+    sender IDs only. @username allowlist principals are rejected. A security audit warning was added to flag legacy configs
+    that still contain non-numeric Telegram allowlist entries. openclaw doctor --fix now attempts to resolve @username allowFrom
+    entries to numeric IDs (best-effort; requires a Telegram bot token).
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mj5r-hh7j-4gxf
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mj5r-hh7j-4gxf

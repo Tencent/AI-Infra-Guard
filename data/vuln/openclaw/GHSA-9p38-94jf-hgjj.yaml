@@ -1,0 +1,73 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9p38-94jf-hgjj
+  summary: OpenClaw macOS system.run 通过带引号的命令替换绕过允许列表
+  details: >-
+    概述
+
+    在 OpenClaw 的 macOS node-host 路径中，security=allowlist 模式下的 system.run 允许列表解析未能拒绝出现在双引号 Shell 文本内的命令替换令牌。
+
+
+    由于这个缺口，类似 echo "ok $(id)" 的载荷可以被视为允许列表命中（第一个可执行令牌 echo），同时仍通过 Shell 替换执行不在允许列表中的子命令。
+
+
+    受影响的包/版本
+
+    - 包名：npm openclaw
+
+    - 最新发布的受影响版本：2026.2.21-2
+
+    - 受影响范围：<= 2026.2.21-2
+
+    - 已修复版本（计划的下一个发布版本）：2026.2.22
+
+
+    注意：
+
+    - 默认安装不受影响（默认 security=deny）。
+
+    - 此问题需要在 macOS node-host 路径上选择加入 security=allowlist。
+
+
+    影响
+
+    允许列表模式下的审批/授权绕过，可导致在节点主机上执行意外命令。
+
+
+    前提条件
+
+    - 目标使用 macOS node-host / 伴侣应用执行路径。
+
+    - 执行审批设置为 security=allowlist。
+
+    - 询问模式为 on-miss 或 off。
+
+    - 允许列表包含在 Shell 包装器流程中使用的良性可执行文件（例如 /bin/echo）。
+
+
+    复现（示例）
+
+    使用一个 Shell 包装器命令，其中可见的可执行文件在允许列表中，但带引号的载荷包含替换：
+
+
+    - 命令 argv：/bin/sh -lc 'echo "ok $(/usr/bin/id > /tmp/openclaw-poc-rce)"'
+
+    - 允许列表模式包含 /bin/echo
+
+
+    修复前，允许列表分析可能将此解析为允许的，而 Shell 替换仍然执行。
+
+
+    修复措施
+
+    - 升级至 2026.2.22（或更新版本）。
+
+    - 临时缓解：将询问模式设置为 always 或将安全模式设置为 deny。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 90a378ca3a9ecbf1634cd247f17a35f4612c6ca6
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj

@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-943q-mwmv-hhvh
+  summary: OpenClaw OC-02：网关 /tools/invoke 工具提权 + ACP 权限自动审批
+  details: >-
+    概述
+
+
+    OpenClaw 网关暴露了一个已认证的 HTTP 端点（POST /tools/invoke），用于调用受限的工具集。两个问题可能组合在一起，在配置错误或暴露的部署中显著增加影响范围：
+
+
+    - HTTP 网关层默认未拒绝高风险会话编排工具，允许具有网关认证的调用者调用 sessions_spawn / sessions_send 等工具，并转向创建或控制代理会话。
+
+    - ACP 客户端可能在用户交互/防护不足的情况下自动审批危险工具的权限请求，降低了本应防止静默执行或变更的阻力。
+
+
+    影响
+
+
+    如果网关可被攻击者访问且他们获得了有效的网关令牌，他们可能能够：
+
+
+    - 从单工具调用升级到生成/控制会话，并根据工具策略和运行时环境到达命令执行能力。
+
+    - 通过 sessions_send 执行跨会话消息注入。
+
+    - 在 ACP 集成场景中，获得非读取/搜索工具权限的意外审批。
+
+
+    CVSS
+
+
+    - CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H (8.8)
+
+
+    受影响的版本
+
+
+    - openclaw < 2026.2.14
+
+
+    修复版本
+
+
+    - openclaw >= 2026.2.14
+
+
+    修复措施
+
+
+    默认行为现在已加固：
+
+
+    - PR 15390：默认拒绝 HTTP /tools/invoke 上的高风险工具（可通过 gateway.tools.{allow,deny} 覆盖），并加固 ACP 权限处理。
+
+    - 提交 bb1c3dfe1：ACP 客户端现在为任何非读取/搜索权限请求进行提示（对变更/执行/获取操作执行失败关闭）。
+
+    - 提交 539689a2f：当 gateway.tools.allow 重新启用默认拒绝的 HTTP 工具时，安全审计发出警告，因为如果网关可达，这可能增加 RCE 影响范围。
+
+    - 提交 153a7644e：ACP safe-kind 推断更严格，避免因子字符串匹配导致的意外自动审批（仍仅自动审批可信的读取/搜索）。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >=2026.2.14 或更高版本。部署指导 - 除非有充分理由，否则保持网关仅绑定回环地址：gateway.bind="loopback" / openclaw gateway run --bind loopback。- 避免将网关直接暴露到公共互联网。使用 SSH 隧道或 Tailscale 访问绑定回环地址的网关。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-943q-mwmv-hhvh
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-943q-mwmv-hhvh

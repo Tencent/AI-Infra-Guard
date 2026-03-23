@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v6c6-vqqg-w888
+  summary: OpenClaw 网关中不安全的 Hook 模块路径处理可导致潜在代码执行
+  details: >-
+    概述
+
+
+    OpenClaw 网关支持带有可选 JavaScript/TypeScript 转换模块的 Hook 映射。在受影响版本中，网关在将配置的模块路径传递给动态 import() 之前未充分约束这些路径。在某些配置下，能够修改网关配置的用户可能导致网关进程加载和执行非预期的本地模块。
+
+
+    影响
+
+
+    OpenClaw 网关 Node.js 进程中的潜在代码执行。
+
+
+    这需要能够修改网关配置的访问权限（例如通过网关配置端点）。应将此类访问视为高权限。
+
+
+    受影响的包/版本
+
+
+    - npm 包：openclaw
+
+    - 受影响：>= 2026.1.5 且 <= 2026.2.13
+
+
+    修复版本
+
+
+    - >= 2026.2.14
+
+
+    缓解措施
+
+
+    - 升级到 2026.2.14 或更新版本。
+
+    - 避免将网关配置端点暴露到不受信任的网络。
+
+    - 检查配置中的不安全值：
+      - hooks.mappings[].transform.module
+      - hooks.internal.handlers[].module
+
+    感谢 @222n5 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >=2026.2.14 或更高版本。提交 - a0361b8ba959e8506dc79d638b6e6a00d12887e4（限制
+    Hook 转换模块加载）- 35c0e66ed057f1a9f7ad2515fdcef516bd6584ce（加固 Hooks 模块加载）- 升级到 2026.2.14
+    或更新版本。- 避免将网关配置端点暴露到不受信任的网络。- 检查配置中的不安全值。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v6c6-vqqg-w888
+rule: version >= "2026.1.5" && version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v6c6-vqqg-w888

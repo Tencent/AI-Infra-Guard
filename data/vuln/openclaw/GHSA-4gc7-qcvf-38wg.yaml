@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4gc7-qcvf-38wg
+  summary: OpenClaw 非默认配置：手动将 sort 添加到 tools.exec.safeBins 可通过 --compress-program 绕过允许列表审批
+  details: >-
+    摘要
+
+    此问题仅适用于非默认配置。
+
+    如果手动将 sort 添加到 tools.exec.safeBins，OpenClaw 可能将 sort --compress-program=<prog> 视为有效的安全二进制使用。
+
+    在 security=allowlist + ask=on-miss 下，这可以满足允许列表检查并跳过操作员审批，而 GNU sort 可能通过 --compress-program 调用外部程序。
+
+
+    受影响的包/版本
+
+    - 生态系统：npm
+
+    - 包：openclaw
+
+    - 受影响：<= 2026.2.21-2
+
+    - 已修复（计划下一版本）：>= 2026.2.22
+
+
+    默认安装
+
+    默认安装不受此特定路径影响，因为 sort 不包含在默认 tools.exec.safeBins 中。
+
+
+    影响
+
+    - 类型：可选安全二进制配置中的审批/允许列表绕过
+
+    - 范围：显式将 sort 包含在 tools.exec.safeBins 中并使用 allowlist + ask=on-miss 的部署
+
+    - 后果：外部程序可能在未经预期审批的情况下在 OpenClaw 进程上下文中运行
+
+
+    技术详情
+
+    - sort 安全二进制配置文件允许 --compress-program 作为值标志。
+
+    - 安全二进制满足因此可以标记允许列表检查为已满足。
+
+    - 在 ask=on-miss 下，已满足的允许列表检查会跳过审批提示。
+
+
+    修复
+
+    - 在安全二进制 sort 策略中阻止 --compress-program。
+
+    - 为安全二进制模式下 sort --compress-program 拒绝添加单元和端到端回归覆盖。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。- 在安全二进制 sort 策略中阻止 --compress-program。- 为安全二进制模式下
+    sort --compress-program 拒绝添加单元和端到端回归覆盖。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg

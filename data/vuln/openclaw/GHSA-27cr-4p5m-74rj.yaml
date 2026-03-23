@@ -1,0 +1,31 @@
+info:
+  name: OpenClaw
+  cve: GHSA-27cr-4p5m-74rj
+  summary: OpenClaw 仅工作区沙箱防护对 @前缀绝对路径存在匹配不一致
+  details: >-
+    仅工作区文件系统防护的匹配不一致，允许 @前缀绝对路径在某些工具路径检查中绕过边界验证。
+
+
+    影响
+
+    当 tools.fs.workspaceOnly=true 时，某些 @前缀绝对路径（例如 @/etc/passwd）可能在规范化之前被验证，而运行时路径处理以不同方式规范化前缀。在受影响的代码路径中，这可能允许读取预期工作区边界之外的内容。
+
+
+    根据 SECURITY.md，OpenClaw 主要是一个个人助手运行时，基于受信任用户假设，且此路径位于非默认沙箱/工具配置之后。这降低了实际暴露范围，但该绕过仍然是一个安全缺陷并已修复。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.23
+
+    - 已修复版本：>= 2026.2.24
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。修复提交 - 9ef0fc2ff8fa7b145d1e746d6eb030b1bf692260
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-27cr-4p5m-74rj
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-27cr-4p5m-74rj

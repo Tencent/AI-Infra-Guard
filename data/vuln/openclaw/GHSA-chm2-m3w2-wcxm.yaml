@@ -1,0 +1,77 @@
+info:
+  name: OpenClaw
+  cve: GHSA-chm2-m3w2-wcxm
+  summary: OpenClaw Google Chat 通过允许列表中可变的电子邮件主体伪造访问（尽管发送者 ID 不匹配）
+  details: >-
+    概述
+
+    Google Chat 允许列表支持除不可变发送者资源名称（users/<id>）外还通过发送者电子邮件进行匹配。如果部署假定允许列表严格按不可变主体进行键控，这会削弱身份绑定。
+
+
+    受影响的包/版本
+
+    （截至 2026-02-14；基于最新发布的 npm 版本）
+
+    - openclaw (npm)：<= 2026.2.13
+
+    - clawdbot (npm)：<= 2026.1.24-3
+
+
+    详细信息
+
+    受影响的组件：
+
+    - extensions/googlechat/src/monitor.ts
+
+
+    allowFrom 检查接受：
+
+    - 不可变发送者 id (users/<id>)
+
+    - 原始电子邮件 (alice@example.com) 用于易用性
+
+
+    历史上，users/<email> 也被视为电子邮件允许列表条目。现在已弃用，因为它看起来像不可变 ID，但实际上是可变主体。
+
+
+    安全分类（2026-02-14）
+
+    严重性：低
+
+
+    理由：
+
+    - 请求经过 Google Chat 认证（令牌验证），因此这不是通用的未经认证伪造向量。
+
+    - 现实的利用通常需要 Google Workspace / IdP 管理员对身份生命周期的控制（例如将电子邮件地址重新分配给不同的底层账户）以获取具有不同 users/<id> 的相同电子邮件。
+
+    - 具有该级别访问权限的攻击者通常有更广泛的入侵路径。
+
+
+    我们仍将其视为有效的纵深防御报告，因为在授权决策中接受可变主体可能在链式故障场景中增加风险。
+
+
+    修复措施/行为变更
+
+    目标：在降低误用风险的同时保持易用性。
+
+    - 原始电子邮件允许列表仍然受支持。
+
+    - users/<email> 已弃用，被视为用户 id，而非电子邮件允许列表。
+
+    - 文档建议在需要严格不可变绑定时使用 users/<id>。
+
+
+    修复版本
+
+    - openclaw (npm)：>= 2026.2.14
+
+    - clawdbot (npm)：此旧版包名下未发布已修复版本；请迁移到 openclaw >= 2026.2.14。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >=2026.2.14 或更高版本。修复提交 - c8424bf29a921e25663b29f308640b3d91a49432 (PR #16243)。感谢 @vincentkoc 的报告。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-chm2-m3w2-wcxm
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-chm2-m3w2-wcxm

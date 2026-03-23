@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x2ff-j5c2-ggpr
+  summary: OpenClaw Slack interactive callbacks could skip configured sender checks in some shared-workspace flows
+  details: >-
+    Impact
+
+
+    In shared Slack workspace deployments that rely on sender restrictions (allowFrom, DM policy, or channel user allowlists),
+    some interactive callbacks (block_action, view_submission, view_closed) could be accepted before full sender authorization
+    checks.
+
+
+    In that scenario, an unauthorized workspace member could enqueue system-event text into an active session. This issue
+    did not provide unauthenticated access, cross-gateway isolation bypass, or host-level privilege escalation by itself.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.24
+
+    - Patched version: 2026.2.25 (planned next npm release)
+
+
+    Trust Model Scope Note
+
+
+    OpenClaw does not support adversarial multi-user isolation on a single shared gateway instance. The supported model is
+    one trust boundary per gateway (separate gateways/hosts for mutually untrusted users). See: https://docs.openclaw.ai/gateway/security
+
+
+    Thanks @tdjackey for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - ce8c67c314b93f570f53c2a9abc124e1e3a54715
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x2ff-j5c2-ggpr
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x2ff-j5c2-ggpr

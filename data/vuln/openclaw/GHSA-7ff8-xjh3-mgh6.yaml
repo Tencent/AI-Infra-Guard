@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7ff8-xjh3-mgh6
+  summary: OpenClaw 非默认 autoAllowSkills 设置可绕过 on-miss 执行提示
+  details: >-
+    概述
+
+    在 openclaw 截至并包含 2026.2.22-2 的版本中，非默认的执行审批配置可能允许技能名称冲突绕过 ask=on-miss 提示。
+
+
+    当 autoAllowSkills=true 时，路径范围的可执行文件（如 ./skill-bin）可能解析为基名 skill-bin，满足技能允许列表段，并在不提示审批的情况下运行。
+
+
+    受影响的包/版本
+
+    - 包名：npm openclaw
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 已修复版本：>= 2026.2.23（已发布）
+
+
+    配置范围（非默认）
+
+    此行为需要非默认设置，不影响默认安装。
+
+
+    所需条件：
+
+    - autoAllowSkills=true（默认为 false）
+
+    - system.run 使用 security=allowlist
+
+    - ask=on-miss
+
+
+    技术细节
+
+    允许列表评估器通过 bin 名称匹配接受技能满足，因此 ./skill-bin 在解析后可以匹配 skillBins.has("skill-bin")。
+
+
+    修复通过以下要求加固技能自动允许匹配：
+
+    - 无路径的调用令牌（不包含 / 或 \\），以及
+
+    - 在技能运行的机器上该技能 bin 的可信已解析可执行文件路径。
+
+
+    这保留了正常的 skill-bin ... 行为，同时防止 ./<skill-bin> 和绝对路径基名冲突自动满足技能。
+
+
+    影响
+
+    在受影响的非默认配置中，本应需要操作员确认的命令可能跳过审批提示。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >=2026.2.23 或更高版本。修复提交 - ffd63b7a2c4c6d5aeb4710ef951d5794ad7ad77b (fix(security): trust resolved skill-bin paths in allowlist auto-allow)'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7ff8-xjh3-mgh6
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7ff8-xjh3-mgh6

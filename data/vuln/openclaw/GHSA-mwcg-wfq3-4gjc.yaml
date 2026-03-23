@@ -1,0 +1,16 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mwcg-wfq3-4gjc
+  summary: OpenClaw system.run 审批在 node host 上通过可变符号链接 cwd 目标存在 TOCTOU 竞争
+  details: "概述\n在 openclaw@2026.2.24 中，node host 上审批绑定的 system.run 可能受到审批与执行之间可变符号链接\
+    \ cwd 目标的影响。\n\n详情\n网关上的审批匹配验证了命令/argv 和绑定字段，包括以文本形式提供的 cwd。Node 执行后续使用运行时\
+    \ cwd 解析。因此，符号链接的 cwd 可以在审批之后、spawn 之前被重新指向。\n\nOpenClaw 的信任模型不将单一共享网关视为多租户对抗性边界，但审批完整性仍然是操作员审查命令执行的安全边界。\n\n受影响的包/版本\n- 包：openclaw (npm)\n- 受影响：<= 2026.2.24\n- 修复：>= 2026.2.25\
+    \ \n\n修复措施\n修复为审批绑定的 node 执行添加了纵深防御加固：\n- 拒绝审批绑定 system.run 的符号链接 cwd 路径\n- 在 spawn 之前规范化类路径可执行 argv\n- 将 CLI 审批请求绑定到精确的 commandArgv"
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - f789f880c934caa8be25b38832f27f90f37903db
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mwcg-wfq3-4gjc
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mwcg-wfq3-4gjc

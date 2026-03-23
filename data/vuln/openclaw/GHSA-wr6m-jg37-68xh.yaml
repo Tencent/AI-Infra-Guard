@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wr6m-jg37-68xh
+  summary: OpenClaw 通过查询字符串键变换导致 Zalo webhook 无界内存增长（未认证拒绝服务）
+  details: >-
+    概述
+
+    对可达的 Zalo webhook 端点发送未认证请求，可以通过在同一有效 webhook 路由上变换查询字符串来触发
+    无界的内存中键增长。
+
+
+    影响
+
+    攻击者可以导致内存压力和潜在的进程不稳定或 OOM，降低可用性。
+
+
+    修复
+
+    Webhook 安全追踪现在将键规范化为匹配的 webhook 路径语义（排除查询参数），并对追踪状态进行限制/清理
+    以防止无界增长。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 已修复：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。Webhook 安全追踪现在将键规范化为匹配的 webhook 路径语义（排除查询参数），
+    并对追踪状态进行限制/清理以防止无界增长。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wr6m-jg37-68xh
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wr6m-jg37-68xh

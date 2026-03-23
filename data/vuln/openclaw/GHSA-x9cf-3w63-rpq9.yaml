@@ -1,0 +1,59 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x9cf-3w63-rpq9
+  summary: OpenClaw 通过 stageSandboxMedia 导致敏感文件泄露
+  details: >-
+    概述
+
+    当启用 iMessage 远程附件获取（channels.imessage.remoteHost）时，stageSandboxMedia 接受任意绝对路径
+    并使用 SCP 将其复制到本地暂存区。
+
+
+    如果非附件路径到达此流程，远程主机上预期 iMessage 附件目录之外的文件可以被暂存。
+
+
+    受影响的包/版本
+
+    - 包：openclaw
+
+    - 受影响：截至 2026.2.17（截至 2026 年 2 月 19 日的最新 npm 版本）及之前版本
+
+    - 已修复：包含远程附件路径验证的下一个版本
+
+
+    影响
+
+    机密性影响。能够影响入站附件路径元数据的攻击者可能泄露配置的远程主机上 OpenClaw 进程可读的文件。
+
+
+    攻击前提条件
+
+    1. 启用了 iMessage 附件（channels.imessage.includeAttachments=true），且
+
+    2. 远程附件模式处于活动状态（channels.imessage.remoteHost 已配置或自动检测），且
+
+    3. 攻击者可以注入/篡改附件路径元数据。
+
+
+    鉴于这些前提条件，此公告评估为中等严重性。
+
+
+    缓解措施
+
+    - 升级到包含远程附件路径验证的首个版本。
+
+    - 如果不需要远程附件，请禁用 iMessage 附件摄取。
+
+    - 在远程主机上以最小权限运行 OpenClaw。
+
+
+    感谢 @zpbrent 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。升级到包含远程附件路径验证的首个版本。如果不需要远程附件，请禁用 iMessage
+    附件摄取。在远程主机上以最小权限运行 OpenClaw。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x9cf-3w63-rpq9
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x9cf-3w63-rpq9

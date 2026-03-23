@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f8mp-vj46-cq8v
+  summary: OpenClaw Shell env fallback trusts unvalidated SHELL path from host environment
+  details: >-
+    The shell environment fallback path could invoke an attacker-controlled shell when SHELL was inherited from an untrusted
+    host environment. In affected builds, shell-env loading used $SHELL -l -c 'env -0' without validating that SHELL points
+    to a trusted executable.
+
+
+    In threat-model terms, this requires local environment compromise or untrusted startup environment injection first; it
+    is not a remote pre-auth path. The hardening patch validates SHELL as an absolute normalized executable, prefers /etc/shells,
+    applies trusted-prefix fallback checks, and falls back safely to /bin/sh when validation fails. The dangerous env-var
+    policy now also blocks SHELL overrides.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Latest published vulnerable version: 2026.2.21-2
+
+    - Patched versions (planned next release): >= 2026.2.22
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 25e89cc86338ef475d26be043aa541dfdb95e52a
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f8mp-vj46-cq8v
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f8mp-vj46-cq8v

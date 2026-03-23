@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x4vp-4235-65hg
+  summary: OpenClaw 认证前 webhook 请求体解析可导致未认证慢请求拒绝服务
+  details: >-
+    影响
+
+
+    OpenClaw 的 BlueBubbles 和 Google Chat webhook 处理程序在漏洞版本中在认证和签名检查之前接受并解析
+    请求体。这允许未认证的客户端通过慢速/超大请求体保持解析器工作打开状态，降低可用性（慢请求拒绝服务）。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.1
+
+    - 分类时的最新已发布漏洞版本：2026.3.1 (npm)
+
+    - 修复版本：2026.3.2（已发布）
+
+
+    缓解措施
+
+
+    升级到 2026.3.2（或更新版本）。修复对受影响的 webhook 路径强制执行认证先于请求体解析，添加了严格的
+    认证前请求体/时间预算，并引入了带有回归覆盖的共享进行中/请求防护措施。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复对受影响的 webhook 路径强制执行认证先于请求体解析，添加了严格的认证前请求体/时间预算，
+    并引入了带有回归覆盖的共享进行中/请求防护措施。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg

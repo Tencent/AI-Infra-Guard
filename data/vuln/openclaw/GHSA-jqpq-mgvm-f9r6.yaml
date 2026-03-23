@@ -1,0 +1,78 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jqpq-mgvm-f9r6
+  summary: OpenClaw 通过不安全的 PATH 处理实现命令劫持（引导加载 + node-host PATH 覆盖）
+  details: >-
+    通过 PATH 处理的命令劫持
+
+
+    发现时间：2026-02-04
+
+    报告者：@akhmittra
+
+
+    概述
+
+
+    OpenClaw 此前在有限情况下接受不受信任的 PATH 来源。在受影响版本中，这可能导致 OpenClaw 在运行主机命令时解析并执行非预期的二进制文件（"命令劫持"）。
+
+
+    此问题主要在 OpenClaw 依赖白名单/安全二进制文件保护且期望 PATH 可信的场景下产生影响。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：< 2026.2.14
+
+    - 修复：>= 2026.2.14
+
+
+    触发条件
+
+
+    A) Node Host PATH 覆盖（远程命令劫持）
+
+
+    攻击者需要满足以下所有条件：
+
+
+    - 对能够调用 node-host 执行的执行接口具有经过认证/授权的访问权限（例如被入侵的网关或能够发出 system.run 的调用方）。
+
+    - 已连接并暴露 system.run 的 node host。
+
+    - 配置中期望通过白名单/安全二进制文件限制执行（如果已允许完全任意执行则无意义）。
+
+    - 能够将请求范围的环境覆盖（特别是 PATH）传递到 system.run。
+
+    - 能够在 PATH 中较早位置放置攻击者控制的可执行文件（例如 node host 上的可写目录），其名称与 OpenClaw 将运行的白名单/安全二进制命令匹配。
+
+
+    说明：
+
+
+    - OpenClaw 部署通常需要网关令牌/密码（或等效的传输认证）。这不应被视为未认证的互联网 RCE。
+
+    - 此场景通常依赖于非标准/错误配置的部署（例如授予不受信任方调用 node-host 执行的访问权限，或以其他方式将特权执行接口暴露到预期信任边界之外）。
+
+
+    B) 项目本地 PATH 引导加载（本地命令劫持）
+
+
+    攻击者需要满足以下所有条件：
+
+
+    - 受害者从攻击者控制的工作目录中运行 OpenClaw（例如克隆并在恶意仓库中运行）。
+
+    ...
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.14 或更高版本。- 项目本地 node_modules/.bin PATH 引导加载现在默认禁用。如果显式启用，则仅追加（不会前置），通过
+    OPENCLAW_ALLOW_PROJECT_LOCAL_BIN=1 配置。- Node Host 现在忽略请求范围的 PATH 覆盖。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jqpq-mgvm-f9r6
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jqpq-mgvm-f9r6

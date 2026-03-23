@@ -1,0 +1,74 @@
+info:
+  name: OpenClaw
+  cve: GHSA-45cg-2683-gfmq
+  summary: OpenClaw 浏览器导航防护允许非网络 URL 方案，使已认证的浏览器工具用户能够通过 file:// 访问本地文件
+  details: >-
+    严重性评估
+
+
+    中（CVSS v3.1：AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N）
+
+
+    CWE-610：外部控制的对另一领域资源的引用
+
+
+    影响
+
+
+    assertBrowserNavigationAllowed() 仅验证 http:/https: 网络目标但隐式允许了其他方案。已认证的网关用户可以将浏览器会话导航到
+    file:// URL，并通过浏览器快照/提取流读取本地文件。
+
+
+    受影响组件
+
+
+    - src/browser/navigation-guard.ts
+
+
+    技术复现
+
+
+    1. 认证到已启用浏览器工具的网关。
+
+    2. 使用 file:// URL 调用浏览器导航（例如 file:///etc/passwd）。
+
+    3. 通过浏览器快照/提取操作读取页面内容。
+
+
+    已证实影响
+
+
+    拥有有效网关凭据和浏览器工具访问权限的攻击者可以窃取 OpenClaw 进程用户可读的本地文件（例如该用户上下文中的配置/密钥）。
+
+
+    环境
+
+
+    - OpenClaw 浏览器工具已启用
+
+    - 攻击者拥有能够调用浏览器操作的已认证访问
+
+
+    修复建议
+
+
+    拒绝不支持的导航方案，仅允许显式安全的非网络 URL。OpenClaw 现在阻止非网络方案（如 file:、data: 和 javascript:），
+    同时保留 about:blank。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.19-2
+
+    - 计划在下一版本修复：2026.2.21
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。提交记录 - 220bd95eff6838234e8b4b711f86d4565e16e401
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-45cg-2683-gfmq
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-45cg-2683-gfmq

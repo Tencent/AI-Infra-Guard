@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5847-rm3g-23mw
+  summary: OpenClaw Hook 认证速率限制器通过 IPv4 映射 IPv6 客户端密钥变体绕过
+  details: >-
+    漏洞
+
+
+    hook 认证节流通过原始 socket remoteAddress 文本来标记失败尝试。
+
+
+    同一客户端的 IPv4 和 IPv4 映射 IPv6 形式（例如 1.2.3.4 和 ::ffff:1.2.3.4）被视为不同客户端，允许使用单独的速率限制桶。
+
+
+    影响
+
+
+    攻击者可以将失败的 hook 认证尝试分配到两种地址形式上，有效地将暴力破解预算从每 60 秒窗口 20 次增加到 40 次。
+
+
+    受影响组件
+
+
+    - src/gateway/server-http.ts
+
+    - src/gateway/auth-rate-limit.ts
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.21-2
+
+    - 已修复版本（计划下一版本）：2026.2.22
+
+
+    修复措施
+
+
+    集中并复用规范的客户端 IP 规范化用于认证速率限制，并使用该规范密钥进行 hook 认证节流。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - 3284d2eb227e7b6536d543bcf5c3e320bc9d13c5
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5847-rm3g-23mw
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5847-rm3g-23mw

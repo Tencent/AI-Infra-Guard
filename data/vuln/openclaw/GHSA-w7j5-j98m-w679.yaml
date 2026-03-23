@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w7j5-j98m-w679
+  summary: OpenClaw 多个 E2E/测试 Dockerfile 以 root 身份运行所有进程
+  details: "scripts/docker/ 和 scripts/e2e/ 中的三个 Dockerfile 缺少 USER 指令，意味着所有进程以 uid\
+    \ 0 (root) 运行。如果任何进程被攻击，攻击者将拥有容器内的 root 权限，使容器逃逸变得更加容易。\r\n部分修复（2026-02-08）：提交\
+    \ 28e1a65e 为 Dockerfile.sandbox 和 Dockerfile.sandbox-browser 添加了 USER sandbox。下面列出的 E2E/测试\
+    \ Dockerfile 仍未修补。\r\n受影响组件：\r\n- scripts/e2e/Dockerfile\r\n- scripts/e2e/Dockerfile.qr-import\r\
+    \n- scripts/docker/install-sh-e2e/Dockerfile\r\n- scripts/docker/install-sh-nonroot/Dockerfile（以\
+    \ app 用户运行但具有 NOPASSWD sudo——参见相关公告）\r\n技术复现：\r\n1. 打开上述每个 Dockerfile 并搜索 USER\
+    \ 指令——未找到。\r\n2. 运行这些容器中的任何一个：docker run --rm -it <image> id\r\n3. 观察：返回 uid=0(root)。\r\
+    \n已展示的影响：\r\n- 容器内的 root 权限可进行内核漏洞利用尝试、卷挂载滥用和特权系统调用访问。\r\n- 测试镜像与生产环境共享相同的基础镜像\
+    （node:22-bookworm），存在意外部署以 root 运行的镜像的风险。\r\n环境：基础镜像 node:22-bookworm 和\
+    \ node:22-bookworm-slim 默认以 root 运行。Dockerfile.sandbox 和 Dockerfile.sandbox-browser\
+    \ 已在提交 28e1a65e 中修复；仅上述 E2E/测试镜像仍受影响。\r\n修复措施：在每个剩余的 Dockerfile 中 CMD/ENTRYPOINT\
+    \ 之前添加 USER 指令：\r\n  RUN useradd --create-home --shell /bin/bash appuser\r\n  USER appuser"
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.21 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w7j5-j98m-w679
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w7j5-j98m-w679

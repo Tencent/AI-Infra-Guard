@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qcc4-p59m-p54m
+  summary: OpenClaw 沙箱悬空符号链接别名处理可绕过仅工作区写入边界
+  details: >-
+    概述
+
+    符号链接别名处理中的沙箱边界验证缺陷允许某些仅工作区写入路径被视为在边界内，即使它们可能解析到工作区/沙箱根目录之外。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 受影响版本：<= 2026.2.25
+
+    - 受影响范围内最新发布的 npm 版本：2026.2.25（2026 年 2 月 26 日检查）
+
+    - 修复版本（预设发布）：2026.2.26
+
+
+    技术详情
+
+    在受影响版本中，悬空符号链接跳转可在目标缺失条件下通过边界检查被接受。对于仅工作区写入流程（包括 apply_patch），这可能允许写入解析到配置的工作区/沙箱边界之外。
+
+
+    修复通过现有祖先解析符号链接目标，当规范解析逃逸配置边界时执行关闭失败。
+
+
+    影响
+
+    - 受边界限制的写入操作可被重定向到配置的工作区/沙箱根目录之外。
+
+    - 主要影响是从该路径解析可达的主机端文件的完整性。
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.26 或更高版本。提交 - 4fd29a35bb85a1898ebff518364c467058b50e14
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qcc4-p59m-p54m
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qcc4-p59m-p54m

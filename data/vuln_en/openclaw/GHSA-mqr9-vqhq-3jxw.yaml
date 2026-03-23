@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mqr9-vqhq-3jxw
+  summary: OpenClaw Windows Scheduled Task script generation allowed local command injection via unsafe cmd argument handling
+  details: >-
+    Summary
+
+    OpenClaw Windows Scheduled Task script generation allowed unsafe argument handling in generated gateway.cmd files. In
+    vulnerable versions, cmd metacharacter-only values could be emitted without safe quoting/escaping, which could lead to
+    unintended command execution when the scheduled task runs.
+
+
+    Details
+
+    The issue affected Windows daemon startup script generation in src/daemon/schtasks.ts.
+
+
+    Vulnerable behavior included:
+
+    - Incomplete cmd argument quoting for metacharacter-only values.
+
+    - Incomplete handling of cmd expansion-sensitive characters in script arguments.
+
+    - Missing CR/LF guards for script-rendered fields.
+
+
+    The fix hardens Windows script generation by:
+
+    - Separating schtasks argument quoting from batch script argument quoting.
+
+    - Quoting cmd metacharacter arguments and escaping % / ! expansion cases.
+
+    - Rejecting CR/LF in command arguments, task descriptions, and rendered environment assignments.
+
+    - Adding regression tests for metacharacter and line-break injection paths.
+
+
+    Impact
+
+    This issue is local to Windows deployments and requires control over values that feed service script generation (for example
+    install-time/runtime arguments or environment-derived values). It can result in unintended command execution in the scheduled
+    task context.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.17
+
+    - Patched version: >= 2026.2.19 (planned next npm release)
+
+    - Latest published npm version at update time (2026-02-19): 2026.2.17
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - 280c6b117b2f0e24f398e5219048cd4cc3b82396 Thanks
+    @tdjackey for reporting.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mqr9-vqhq-3jxw
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mqr9-vqhq-3jxw

@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wm8r-w8pf-2v6w
+  summary: OpenClaw Signal 群组允许列表授权绕过（DM 配对存储泄露）
+  details: >-
+    概述
+
+    在 OpenClaw 2026.2.25 中，groupPolicy=allowlist 下的 Signal 群组授权可能接受来自 DM 配对存储批准的
+    发送者身份。这允许 DM 配对批准泄露到群组允许列表评估中。
+
+
+    影响
+
+    这是 DM 配对和群组允许列表控制之间的授权边界弱点。经过 DM 配对批准的发送者可以在未经显式群组允许列表
+    授权的情况下通过群组检查。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响的最新发布版本：2026.2.25
+
+    - 漏洞范围：<= 2026.2.25
+
+    - 修复版本（计划下一版本发布）：>= 2026.2.26
+
+
+    修复
+
+    OpenClaw 现在将 DM 配对存储条目保持为仅限 DM，并在 Signal 和其他通道使用的共享 DM/群组策略解析中
+    强制执行显式群组允许列表边界。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。OpenClaw 现在将 DM 配对存储条目保持为仅限 DM，并在 Signal 和其他通道使用的共享
+    DM/群组策略解析中强制执行显式群组允许列表边界。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wm8r-w8pf-2v6w
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wm8r-w8pf-2v6w

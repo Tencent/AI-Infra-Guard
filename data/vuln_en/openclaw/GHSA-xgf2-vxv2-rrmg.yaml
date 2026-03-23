@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xgf2-vxv2-rrmg
+  summary: OpenClaw Shell startup env injection bypasses system.run allowlist intent (RCE class)
+  details: >-
+    Summary
+
+    system.run environment sanitization allowed shell-startup env overrides (HOME, ZDOTDIR) that can execute attacker-controlled
+    startup files before allowlist-evaluated command bodies.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.21-2 (latest published vulnerable version)
+
+    - Planned patched version: >= 2026.2.22
+
+
+    Technical Details
+
+    In affected versions:
+
+    - Env sanitization blocked many dangerous keys, but not startup-sensitive override keys (HOME, ZDOTDIR) in host exec env
+    paths.
+
+    - Shell-wrapper analysis for allowlist mode models command bodies, but not shell startup side effects.
+
+    - Runtime execution used sanitized env, so attacker-provided startup-key overrides could run hidden startup payloads first.
+
+
+    Observed exploit vectors:
+
+    - HOME + bash -lc + malicious .bash_profile
+
+    - ZDOTDIR + zsh -c + malicious .zshenv
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - c2c7114ed39a547ab6276e1e933029b9530ee906
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xgf2-vxv2-rrmg
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xgf2-vxv2-rrmg

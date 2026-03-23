@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9868-vxmx-w862
+  summary: OpenClaw system.run 通过 Shell 行续接命令替换绕过允许列表
+  details: >-
+    概述
+
+    在 OpenClaw system.run 允许列表模式下，Shell 包装器分析可通过在双引号内将命令替换拆分为 $\ + 换行符 + ( 来绕过。分析将载荷视为允许列表中的项目（例如 /bin/echo），而 Shell 运行时将行续接折叠为 $(...) 并执行不在允许列表中的子命令。
+
+
+    受影响的包/版本
+
+    - 包名：npm openclaw
+
+    - 最新发布的受影响版本：2026.2.21-2
+
+    - 受影响范围：<=2026.2.21-2
+
+    - 已修复版本（计划的下一个发布版本）：2026.2.22
+
+
+    影响
+
+    在选择加入 tools.exec.security=allowlist（ask=on-miss 或 off）的部署中，这可以绕过审批边界并导致意外的命令执行。
+
+
+    修复措施
+
+    - 升级至 2026.2.22（或更新版本）。
+
+    - 临时缓解：设置 tools.exec.ask=always 或 tools.exec.security=deny。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 3f0b9dbb36c86e308267924c0d3d4a4e1fc4d1e9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9868-vxmx-w862
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9868-vxmx-w862

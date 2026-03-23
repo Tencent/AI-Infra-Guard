@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2858-xg23-26fp
+  summary: OpenClaw Node 摄像头 URL 载荷主机绑定绕过允许 gateway 获取重定向
+  details: >-
+    概述
+
+    OpenClaw 接受 camera.snap / camera.clip 节点载荷的 url 字段，并在 gateway/代理主机上下载它们，但未将下载绑定到已解析的节点主机。
+
+
+    在 OpenClaw 的文档信任模型中，配对节点处于同一操作员信任边界内，因此这被归类为中等严重性加固。恶意或被入侵的配对节点仍可在摄像头 URL 检索期间引导 gateway 主机的获取操作。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：>= 2026.2.13 <= 2026.3.1
+
+    - 已修复版本：>= 2026.3.2
+
+
+    技术细节
+
+    存在漏洞的流程接受 URL 载荷并直接从提供的 URL 下载。修复将 camera URL 下载限制为仅从已解析的节点主机获取。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - 3bf19d6f40a0aaa55818b96eede3d05130c02533
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp
+rule: version >= "2026.2.13" && version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp

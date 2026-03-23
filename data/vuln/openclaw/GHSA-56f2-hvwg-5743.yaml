@@ -1,0 +1,66 @@
+info:
+  name: OpenClaw
+  cve: GHSA-56f2-hvwg-5743
+  summary: OpenClaw 图像工具远程获取中的 SSRF
+  details: >-
+    摘要
+
+
+    图像工具中的服务器端请求伪造（SSRF）漏洞允许攻击者强制 OpenClaw 向任意内部或受限网络目标发起 HTTP 请求。
+
+
+    受影响版本
+
+
+    - npm：openclaw <= 2026.2.1
+
+
+    已修复版本
+
+
+    - npm：openclaw 2026.2.2 及更高版本
+
+
+    修复提交
+
+
+    - 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae（使用 SSRF 检查保护远程媒体获取）
+
+    - 9bd64c8a1f91dda602afc1d5246a2ff2be164647（扩展 SSRF 防护覆盖范围）
+
+
+    详情
+
+
+    图像工具接受文件路径、file:// URL、data: URL 和 http(s) URL。在受影响版本中，http(s) URL 在获取时未经 SSRF 保护，
+    允许向 localhost、RFC1918、链路本地和云元数据目标发起请求。
+
+
+    修复通过将远程媒体获取路由到 SSRF 防护（私有/内部 IP + 主机名阻止、重定向加固、DNS 固定）来解决此问题。
+
+
+    可利用性说明
+
+
+    - 需要攻击者控制的图像工具调用（直接工具访问，或将不受信任的图像参数转发到工具调用的网关/通道接口）。
+
+    - 图像工具预期获取的内容为图像。许多高价值 SSRF 目标返回 text/JSON（例如云元数据端点），通常会导致媒体类型验证失败。
+    在实际中，最直接的机密性影响来自实际返回图像的内部端点（截图/渲染器、摄像头快照、图表导出等）。
+
+    - 远程获取仅为 GET 且无自定义头。某些元数据服务需要特殊头或会话令牌（例如 GCP Metadata-Flavor、AWS IMDSv2 令牌），
+    这可以进一步降低某些环境中直接凭据窃取的可能性。
+
+    - 尽管存在上述限制，SSRF 仍然是一个强大的原语：它可以实现内部网络探测和对未认证/内部 HTTP 端点的访问，
+    并且如果存在其他弱点，可以与之链式利用。
+
+
+    感谢 @p80n-sec 的报告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.2.2 或更高版本。提交记录 - 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae（使用 SSRF
+    检查保护远程媒体获取）- 9bd64c8a1f91dda602afc1d5246a2ff2be164647（扩展 SSRF 防护覆盖范围）
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-56f2-hvwg-5743
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-56f2-hvwg-5743

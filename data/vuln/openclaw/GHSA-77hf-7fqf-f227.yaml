@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-77hf-7fqf-f227
+  summary: OpenClaw skills-install-download：tar.bz2 解压绕过归档安全一致性检查（本地 DoS）
+  details: >-
+    概述
+
+    src/agents/skills-install-download.ts 中的 tar.bz2 安装路径使用的 Shell tar 预检/解压逻辑未与集中式归档提取器共享相同的加固保障。
+
+
+    这允许构造的 .tar.bz2 归档文件绕过在其他归档路径上强制执行的特殊条目阻止和解压大小限制，在技能安装期间造成本地可用性影响。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类时最新发布版本：2026.3.1
+
+    - 受影响范围：<= 2026.3.1
+
+    - 已在 2026.3.2 中修复（已发布）
+
+
+    影响
+
+    处理不受信任的 .tar.bz2 技能归档文件时的本地 DoS / 可用性影响。
+
+
+    相关公告
+
+    - 规范重叠（已关闭）：GHSA-3pj7-x8jr-jvj8
+
+    - 重复变体（已关闭）：GHSA-rgr7-g85h-6v82
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.2 或更高版本。修复提交 - 0dbb92dd2bcf9a32379d11c0f11ed016669dae3e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-77hf-7fqf-f227
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-77hf-7fqf-f227

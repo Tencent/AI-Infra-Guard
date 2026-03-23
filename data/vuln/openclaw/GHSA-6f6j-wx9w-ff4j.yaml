@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6f6j-wx9w-ff4j
+  summary: OpenClaw ACPX Windows 包装器 Shell 回退允许在特定路径中进行 cwd 注入
+  details: >-
+    概述
+
+    在 Windows ACPX 路径上，.cmd/.bat 的包装器解析可能回退到 Shell 执行，这种方式允许 cwd 影响改变执行行为。
+
+
+    影响
+
+    在受影响的 Windows ACPX 配置中，这可能通过 cwd 影响的包装器解析导致命令执行完整性丧失。
+
+
+    修复
+
+    包装器解析现在优先使用显式的 PATH/PATHEXT 入口点解析和非包装的 Node/EXE 执行，默认启用严格的失败关闭处理以应对无法解析的包装器情况。
+
+
+    受影响和已修复版本
+
+    - 受影响版本：>= 2026.2.26，< 2026.3.1
+
+    - 已修复版本：2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。包装器解析现在优先使用显式的 PATH/PATHEXT 入口点解析和非包装的 Node/EXE 执行，默认启用严格的失败关闭处理以应对无法解析的包装器情况。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6f6j-wx9w-ff4j
+rule: version < "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6f6j-wx9w-ff4j

@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-47q7-97xp-m272
+  summary: OpenClaw 配置写入可将解析后的 ${VAR} 密钥持久化到磁盘
+  details: >-
+    摘要
+
+
+    OpenClaw hooks 此前使用常规字符串比较来比对提供的 hook 令牌。由于此比较不是常量时间的，拥有 hooks 端点网络访问权限的攻击者
+    可能通过大量请求的计时测量来逐步推断令牌。
+
+
+    在实际中，这通常需要 hooks 暴露到不受信任的网络且需要大量请求；现实世界的延迟和抖动可能使可靠测量变得困难。
+
+
+    受影响的包/版本
+
+
+    - openclaw（npm）：< 2026.2.12
+
+
+    已修复版本
+
+
+    - openclaw（npm）：>= 2026.2.12
+
+
+    缓解措施
+
+
+    - 升级至 openclaw >= 2026.2.12。
+
+    - 如果无法立即升级：限制对 hooks 端点的网络访问，并在更新后轮换 hooks 令牌。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.13 或更高版本。提交记录 - 113ebfd6a23c4beb8a575d48f7482593254506ec。感谢
+    @akhmittra 的报告。如果无法立即升级：限制对 hooks 端点的网络访问，并在更新后轮换 hooks 令牌。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-47q7-97xp-m272
+rule: version < "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-47q7-97xp-m272

@@ -1,0 +1,86 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jqpq-mgvm-f9r6
+  summary: OpenClaw Command hijacking via unsafe PATH handling (bootstrapping + node-host PATH overrides)
+  details: >-
+    Command hijacking via PATH handling
+
+
+    Discovered: 2026-02-04
+
+    Reporter: @akhmittra
+
+
+    Summary
+
+
+    OpenClaw previously accepted untrusted PATH sources in limited situations. In affected versions, this could cause OpenClaw
+    to resolve and execute an unintended binary ("command hijacking") when running host commands.
+
+
+    This issue primarily matters when OpenClaw is relying on allowlist/safe-bin protections and expects PATH to be trustworthy.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.2.14
+
+    - Patched: >= 2026.2.14
+
+
+    What Is Required To Trigger This
+
+
+    A) Node Host PATH override (remote command hijack)
+
+
+    An attacker needs all of the following:
+
+
+    - Authenticated/authorized access to an execution surface that can invoke node-host execution (for example, a compromised
+    gateway or a caller that can issue system.run).
+
+    - A node host connected and exposing system.run.
+
+    - A configuration where allowlist/safe-bins are expected to restrict execution (this is not meaningful if full arbitrary
+    exec is already allowed).
+
+    - The ability to pass request-scoped environment overrides (specifically PATH) into system.run.
+
+    - A way to place an attacker-controlled executable earlier in PATH (for example, a writable directory on the node host),
+    with a name that matches an allowlisted/safe-bin command that OpenClaw will run.
+
+
+    Notes:
+
+
+    - OpenClaw deployments commonly require a gateway token/password (or equivalent transport authentication). This should
+    not be treated as unauthenticated Internet RCE.
+
+    - This scenario typically depends on non-standard / misconfigured deployments (for example, granting untrusted parties
+    access to invoke node-host execution or otherwise exposing a privileged execution surface beyond the intended trust boundary).
+
+
+    B) Project-local PATH bootstrapping (local command hijack)
+
+
+    An attacker needs all of the following:
+
+
+    - The victim runs OpenClaw from within an attacker-controlled working directory (for example, cloning and running inside
+    a malicious repository).
+
+    ...
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.14 or later. - Project-local node_modules/.bin PATH bootstrapping is now
+    **disabled by default**. If explicitly enabled, it is **append-only** (never prepended) via OPENCLAW_ALLOW_PROJECT_LOCAL_BIN=1.
+    - Node Host now ignores request-scoped PATH overrides.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jqpq-mgvm-f9r6
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jqpq-mgvm-f9r6

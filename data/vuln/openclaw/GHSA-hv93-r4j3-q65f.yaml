@@ -1,0 +1,91 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hv93-r4j3-q65f
+  summary: OpenClaw Hook 会话密钥覆盖实现定向跨会话路由
+  details: >-
+    概述
+
+    问题本身不在于确定性会话密钥。可利用的路径是在经过认证的 Hook 入口上接受外部提供的 sessionKey 值，允许 Hook 令牌持有者将消息路由到指定的会话。
+
+
+    受影响的行为
+
+    - POST /hooks/agent 接受有效载荷中的 sessionKey 并直接用于会话路由。
+
+    - 常见的会话密钥格式（例如 agent:main:dm:<peerId>）通常可从已知元数据推导，当启用请求级别覆盖时，定向路由变得可行。
+
+
+    攻击前提条件
+
+    - 攻击者能够使用有效的 Hook 令牌调用 Hook 端点。
+
+    - Hook 入口允许请求指定 sessionKey 值。
+
+    - 目标会话密钥可被推导或猜测。
+
+
+    若不满足上述前提条件，仅凭确定性密钥格式本身不能提供访问权限。
+
+
+    影响
+
+    - 完整性：向指定会话进行定向消息/提示注入。
+
+    - 持久性：在相同会话密钥被重用时，被污染的上下文可影响后续对话轮次。
+
+    - 机密性影响是次要的，取决于其他额外弱点。
+
+
+    受影响版本
+
+    - openclaw >= 2.0.0-beta3 且 < 2026.2.12
+
+
+    修复版本
+
+    - openclaw >= 2026.2.12
+
+
+    修复
+
+    OpenClaw 现在对 Hook 会话路由使用安全默认值：
+
+    - POST /hooks/agent 拒绝有效载荷中的 sessionKey，除非设置 hooks.allowRequestSessionKey=true。
+
+    - 添加了 hooks.defaultSessionKey 用于固定入口路由。
+
+    - 添加了 hooks.allowedSessionKeyPrefixes 以约束显式路由密钥。
+
+    - 安全审计对不安全的 Hook 会话路由设置发出警告。
+
+
+    推荐配置
+
+    ``json
+
+    {
+      "hooks": {
+        "enabled": true,
+        "token": "${OPENCLAW_HOOKS_TOKEN}",
+        "defaultSessionKey": "hook:ingress",
+        "allowRequestSessionKey": false,
+        "allowedSessionKeyPrefixes": ["hook:"]
+      }
+    }
+
+    ``
+
+
+    致谢
+
+    感谢 @alpernae 进行负责任的漏洞报告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >= 2026.2.12 或更高版本。OpenClaw 现在对 Hook 会话路由使用安全默认值：-
+    POST /hooks/agent 拒绝有效载荷中的 sessionKey，除非设置 hooks.allowRequestSessionKey=true。- 添加了
+    hooks.defaultSessionKey 用于固定入口路由。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hv93-r4j3-q65f
+rule: version < "2026.2.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hv93-r4j3-q65f

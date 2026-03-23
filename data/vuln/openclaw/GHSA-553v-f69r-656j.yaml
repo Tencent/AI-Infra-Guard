@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-553v-f69r-656j
+  summary: OpenClaw 未配对的设备身份可绕过操作员配对并在共享认证下自行分配操作员范围
+  details: >-
+    摘要
+
+    使用共享网关认证的客户端可以附加未配对的设备身份并在配对审批之前请求提升的操作员范围（包括 operator.admin），从而实现权限提升。
+
+
+    影响
+
+    拥有有效共享网关认证的攻击者可以通过呈现自签名的未配对设备身份来自行分配更高的操作员范围。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 受影响：>= 2026.2.22 <= 2026.2.24
+
+    - 分类时最新发布的 npm 版本：2026.2.24
+
+    - 计划修复版本：2026.2.25
+
+
+    修复措施
+
+    对使用共享令牌/密码认证的操作员设备身份会话要求配对（现有控制 UI 受信任代理/控制 UI 绕过策略路径除外）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。提交记录 - 8d1481cb4a9d31bd617e52dc8c392c35689d9dea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-553v-f69r-656j
+rule: version >= "2026.2.22" && version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-553v-f69r-656j

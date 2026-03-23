@@ -1,0 +1,87 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wfp2-v9c7-fh79
+  summary: OpenClaw SSRF via attachment/media URL hydration
+  details: >-
+    Summary
+
+
+    Versions of the openclaw npm package prior to 2026.2.2 could be coerced into fetching arbitrary http(s) URLs during attachment/media
+    hydration. An attacker who can influence the media URL (for example via model-controlled sendAttachment or auto-reply
+    media URLs) could trigger SSRF to internal resources and exfiltrate the fetched bytes as an outbound attachment.
+
+
+    Plain-English Explanation
+
+
+    OpenClaw can send files by downloading them first.
+
+
+    On vulnerable versions (< 2026.2.2), if an attacker could get OpenClaw to treat a URL as the “file to attach”, OpenClaw
+    would download that URL from the gateway machine and then send the downloaded bytes back out as an attachment.
+
+
+    That matters because the gateway can often reach internal-only endpoints that an attacker cannot (for example 127.0.0.1
+    services, private RFC1918 addresses, or cloud metadata endpoints). This is a data-leak risk.
+
+
+    This does not directly grant code execution or shell access; it is about making the gateway perform HTTP requests and
+    returning the response bytes.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.2.2
+
+    - Fixed: >= 2026.2.2
+
+
+    Release timeline (npm):
+
+
+    - 2026.2.1 published 2026-02-02T11:45:27Z
+
+    - 2026.2.2 published 2026-02-04T00:56:41Z
+
+    - This advisory was created 2026-02-05T10:42:26Z
+
+
+    Details
+
+
+    In affected versions, remote media fetching performed a raw fetch(url) without SSRF protections.
+
+
+    Starting in 2026.2.2, remote media fetching is guarded by SSRF checks (private/loopback/link-local blocking, DNS pinning,
+    and redirect handling), so attempts to fetch 127.0.0.1, private RFC1918 space, or cloud metadata hostnames are rejected.
+
+
+    Proof of Concept
+
+
+    From any context where an attacker can influence an attachment/media URL, provide a media URL targeting an internal endpoint
+    (example: http://127.0.0.1:9999/secret.txt).
+
+
+    On vulnerable versions (< 2026.2.2), the gateway fetches the URL and uses the response bytes as the attachment payload.
+
+
+    Fix
+
+
+    Fix commits:
+
+
+    - 81c68f582d...
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.2 or later. Fix commits: - 81c68f582d4a9a20d9cca9f367d2da9edc5a65ae - 9bd64c8a1f91dda602afc1d5246a2ff2be164647
+    Upgrade to openclaw >= 2026.2.2. Thanks @simecek for reporting.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79

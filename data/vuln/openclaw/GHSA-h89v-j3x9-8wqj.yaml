@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h89v-j3x9-8wqj
+  summary: OpenClaw 通过无防护的归档提取导致拒绝服务，允许高膨胀/资源滥用（ZIP/TAR）
+  details: >-
+    概述
+
+    归档提取缺乏严格的资源预算，允许高膨胀的 ZIP/TAR 归档在安装/更新流程中消耗过多的 CPU/内存/磁盘。
+
+
+    受影响的包/版本
+
+    - openclaw (npm)：<= 2026.2.13
+
+    - clawdbot (npm)：<= 2026.1.24-3
+
+
+    详细信息
+
+    受影响的组件：src/infra/archive.ts (extractArchive)。
+
+
+    提取器现在强制执行资源预算（条目计数和提取字节限制；ZIP 还强制执行压缩归档大小限制），并拒绝超出预算的归档。
+
+
+    致谢
+
+    感谢 @vincentkoc 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.14 或更高版本。修复提交 - openclaw/openclaw@d3ee5deb87ee2ad0ab83c92c365611165423cb71 - openclaw/openclaw@5f4b29145c236d124524c2c9af0f8acd048fbdea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h89v-j3x9-8wqj
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h89v-j3x9-8wqj

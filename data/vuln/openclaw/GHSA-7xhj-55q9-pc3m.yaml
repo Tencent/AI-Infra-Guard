@@ -1,0 +1,77 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7xhj-55q9-pc3m
+  summary: OpenClaw Hook 转换模块路径允许遍历和任意 JavaScript 模块加载
+  details: >-
+    概述
+
+
+    OpenClaw hook 映射转换可以通过绝对路径或 .. 遍历加载，当攻击者能修改 hooks 配置时，允许在网关进程中加载/执行任意 JavaScript 模块。
+
+
+    受影响的版本
+
+
+    - 受影响版本：>= 2.0.0-beta3 且 <= 2026.2.13
+
+    - 已修复版本：2026.2.14
+
+
+    详细信息
+
+
+    hooks.mappings[].transform.module 在 webhook 处理期间被动态导入和执行。路径解析此前接受绝对路径且未对相对路径强制执行包含限制，因此配置控制的转换可以解析到预期转换目录之外。
+
+
+    影响
+
+
+    如果攻击者能写入 OpenClaw 配置（或通过已认证的配置机制更新 hooks 配置），他们可以将 hook 映射转换指向磁盘上的任意模块，并以网关进程权限执行代码。
+
+
+    复现（配置控制的模块加载）
+
+
+    1. 配置一个 hook 映射，指向一个逃逸转换目录的转换路径（例如通过 .. 遍历）。
+
+    2. 在解析的位置放置一个恶意 ESM 模块，该模块在网关进程中执行任意代码。
+
+    3. 使用正确的 hook 令牌触发 hook 端点。
+
+
+    修复
+
+
+    转换加载现在限制在 OpenClaw 转换根目录内：
+
+
+    - 根目录：~/.openclaw/hooks/transforms
+
+    - hooks.transformsDir 必须位于该目录内
+
+    - transform.module 必须位于所选转换目录内
+
+
+    尝试逃逸根目录（外部绝对路径、.. 遍历）将被拒绝。
+
+
+    修复提交：
+
+
+    - a0361b8ba959e8506dc79d638b6e6a00d12887e4
+
+    - 18e8bd68c5015a894f999c6d5e6e32468965bfb5
+
+
+    致谢
+
+
+    感谢 @akhmittra 的报告。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.2.14 或更高版本。转换加载现在限制在 OpenClaw 转换根目录内：- 根目录：~/.openclaw/hooks/transforms - hooks.transformsDir 必须位于该目录内。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7xhj-55q9-pc3m
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7xhj-55q9-pc3m

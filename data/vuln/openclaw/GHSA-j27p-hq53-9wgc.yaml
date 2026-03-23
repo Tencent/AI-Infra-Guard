@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j27p-hq53-9wgc
+  summary: OpenClaw 通过无限制的 URL 媒体获取导致拒绝服务
+  details: "概述\r\nURL 媒体获取处理在执行 maxBytes 限制之前将整个响应有效载荷分配到内存中（arrayBuffer），允许超大响应导致内存耗尽。\r\n\r\n受影响版本\r\n- openclaw\
+    \ (npm): < 2026.2.14\r\n- clawdbot (npm): <= 2026.1.24-3\r\n\r\n修复版本\r\n- openclaw (npm): 2026.2.14\r\n\r\n\
+    修复提交\r\n- openclaw/openclaw main: 00a08908892d1743d1fc52e5cbd9499dd5da2fe0\r\n\r\n详情\r\n受影响组件：\r\
+    \n- src/media/input-files.ts (fetchWithGuard)\r\n\r\n当 content-length 缺失或不正确时，通过\
+    \ response.arrayBuffer() 读取响应体会在大小检查运行之前缓冲完整的有效载荷。\r\n\r\n概念验证\r\n1. 配置\
+    基于 URL 的媒体输入。\r\n2. 提供大于 maxBytes 的响应（分块传输/无 content-length）。\r\n3. 触发\
+    \ fetchWithGuard URL 获取路径。\r\n\r\n示例本地服务器（大响应）：\r\n``bash\r\nnode -e 'require(\"http\"\
+    ).createServer((_,res)=>{res.writeHead(200,{\"content-type\":\"application/octet-stream\"});for(let i=0;i<1024;i++)res.write(Buffer.alloc(1024*64));res.end();}).listen(18888)'\r\
+    \n`\r\n\r\n影响\r\n通过攻击者控制的远程媒体响应造成内存压力导致可用性丧失。\r\n\r\n缓解措施\r\n在修复版本发布之前，禁用基于 URL 的媒体输入（或限制为严格的主机名白名单）并\
+    使用保守的 maxBytes` 限制。\r\n\r\n致谢\r\n由 @vincentkoc 报告。"
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: HIGH
+  security_advise: '升级 openclaw 到 >=2026.2.14 或更高版本。提交 - openclaw/openclaw main: 00a08908892d1743d1fc52e5cbd9499dd5da2fe0。在修复版本发布之前，禁用基于
+    URL 的媒体输入（或限制为严格的主机名白名单）并使用保守的 maxBytes 限制。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j27p-hq53-9wgc
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j27p-hq53-9wgc

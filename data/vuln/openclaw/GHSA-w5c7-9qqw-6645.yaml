@@ -1,0 +1,83 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w5c7-9qqw-6645
+  summary: OpenClaw 跨会话提示可能被视为直接用户指令
+  details: >-
+    概述
+
+
+    通过 sessions_send 发送的跨会话消息可能被解释为直接终端用户指令，因为它们以 role: "user" 持久化存储
+    且没有来源元数据。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.12（即 < 2026.2.13）
+
+    - 修复版本：2026.2.13（修补版本 >= 2026.2.13）
+
+
+    影响
+
+
+    委托或内部会话可以向另一个会话注入指令，这些指令看起来等同于外部发起的用户输入。
+
+
+    这是一个指令来源混淆问题（混淆代理风格），可能导致在将 role: "user" 作为唯一权限信号的工作流中
+    产生意外的特权行为。
+
+
+    技术细节
+
+
+    修复前，路由的跨会话提示被存储为常规用户轮次，没有可验证的来源标记。
+
+
+    因此，下游工作者和对话记录读取器无法区分：
+
+    - 外部用户输入
+
+    - 内部跨会话路由输入
+
+
+    修复
+
+
+    OpenClaw 现在为路由提示端到端携带显式输入来源信息。
+
+
+    关键变更：
+
+    - 添加了结构化来源模型（inputProvenance），包含 inter_session 等类型值。
+
+    - sessions_send 和代理间步骤在调用目标运行时现在设置跨会话来源。
+
+    - 来源以 message.provenance.kind = "inter_session" 持久化到用户消息上（role 保持 user 以兼容提供商）。
+
+    - 对话记录读取器和记忆辅助工具已更新以尊重来源信息，避免将跨会话提示视为外部用户发起的输入。
+
+    - 运行时上下文重建现在使用显式内存标记（[Inter-session message]）注释跨会话轮次，以便模型侧更清晰地消歧。
+
+    - 添加了针对对话记录解析、会话工具流、运行器清理和记忆钩子行为的回归测试。
+
+
+    临时解决方案
+
+
+    如果无法立即升级：
+
+    - 在受影响的环境中禁用或限制 sessions_send。
+
+    - 不要仅使用 role 作为权限边界；需要来源验证。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >=2026.2.13 或更高版本。OpenClaw 现在为路由提示端到端携带显式输入来源信息。关键变更：
+    - 添加了结构化来源模型（inputProvenance），包含 inter_session 等类型值。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w5c7-9qqw-6645
+rule: version < "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w5c7-9qqw-6645

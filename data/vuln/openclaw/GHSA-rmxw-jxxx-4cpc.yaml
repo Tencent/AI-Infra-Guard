@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rmxw-jxxx-4cpc
+  summary: OpenClaw Matrix 通过 displayName 和跨主服务器 localpart 匹配绕过白名单
+  details: >-
+    概述
+
+
+    OpenClaw Matrix DM 白名单匹配在某些配置中可被绕过。
+
+
+    Matrix 支持作为可选插件发布（不与核心安装捆绑），因此此问题仅影响已安装并启用 Matrix 插件的部署。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：>= 2026.1.14-1, < 2026.2.2
+
+    - 修复：>= 2026.2.2
+
+
+    详情
+
+
+    在受影响版本中，DM 白名单决策可通过将 channels.matrix.dm.allowFrom 条目与多个发送者派生候选项进行精确匹配来做出，包括：
+
+
+    - 发送者显示名称（攻击者可控且非唯一）
+
+    - 丢弃主服务器后的发送者 MXID localpart，因此 @alice:evil.example 和 @alice:trusted.example 都匹配 alice
+
+
+    如果操作员使用显示名称或裸 localpart 配置 channels.matrix.dm.allowFrom（例如 "Alice" 或 "alice"），远程 Matrix 用户可能能够冒充允许的身份用于白名单目的并到达路由/代理管道。
+
+
+    影响
+
+
+    Matrix DM 白名单身份混淆。实际影响取决于你的 Matrix 通道策略和下游启用了哪些能力。
+
+
+    缓解措施
+
+
+    - 升级到 openclaw >= 2026.2.2。
+
+    - 确保 Matrix 白名单仅包含完整的 Matrix 用户 ID (MXID)，如 @user:server（或 *）。不要使用显示名称或裸 localpart。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.2 或更高版本。提交 - 8f3bfbd1c4fb967a2ddb5b4b9a05784920814bcf。- 升级到
+    openclaw >= 2026.2.2。- 确保 Matrix 白名单仅包含完整的 Matrix 用户 ID (MXID)，如 @user:server（或 *）。不要使用显示名称或裸
+    localpart。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc
+rule: version < "2026.2.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc

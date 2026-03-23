@@ -1,0 +1,18 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h97f-6pqj-q452
+  summary: OpenClaw IPv6 multicast SSRF classifier bypass
+  details: "Summary\nOpenClaw's SSRF IP classifier did not treat IPv6 multicast literals (ff00::/8) as blocked/private-internal.\
+    \ This allowed literal multicast hosts to pass SSRF preflight checks.\n\nImpact\nA bypass in address classification existed\
+    \ for IPv6 multicast literals. OpenClaw's network fetch/navigation paths are constrained to HTTP/HTTPS and this was triaged\
+    \ as low-severity defense-in-depth hardening.\n\nAffected Packages / Versions\n- Package: openclaw (npm)\n- Affected versions:\
+    \ <= 2026.2.24\n- Patched versions: >= 2026.2.25 \n\nTechnical Details\nThe IPv6 private/internal range set omitted multicast,\
+    \ so addresses like ff02::1 and ff05::1:3 were not classified as blocked by the shared SSRF classifier."
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - baf656bc6fd7f83b6033e6dbc2548ec75028641f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h97f-6pqj-q452
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h97f-6pqj-q452

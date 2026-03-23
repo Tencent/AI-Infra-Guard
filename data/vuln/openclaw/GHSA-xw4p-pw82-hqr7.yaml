@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xw4p-pw82-hqr7
+  summary: OpenClaw 沙箱技能镜像路径遍历可在沙箱工作区外写入文件
+  details: >-
+    概述
+
+
+    在受影响版本中，OpenClaw 的沙箱技能镜像在将技能复制到沙箱工作区时使用技能的 frontmatter name
+    作为目标路径的一部分。包含遍历片段（例如 ../）或绝对路径的精心构造的技能名称可能导致复制操作
+    写入到 <sandbox_workspace>/skills/ 之外。
+
+
+    影响
+
+
+    - 文件可能被写入沙箱工作区根目录之外（在运行 OpenClaw 的用户权限范围内）。
+
+
+    攻击要求
+
+
+    - 攻击者可以提供技能包（控制 SKILL.md frontmatter）。
+
+    - 受害者在启用沙箱的情况下运行，并将技能镜像到沙箱工作区中。
+
+
+    受影响的包/版本
+
+
+    - openclaw (npm)：< 2026.2.14
+
+
+    修复版本
+
+
+    - openclaw (npm)：>= 2026.2.14
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.14 或更高版本。提交记录 - 3eb6a31b6fcf8268456988bfa8e3637d373438c2。感谢 @1seal 的报告。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw4p-pw82-hqr7
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xw4p-pw82-hqr7

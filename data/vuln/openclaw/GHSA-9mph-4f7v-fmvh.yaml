@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9mph-4f7v-fmvh
+  summary: OpenClaw 代理头像符号链接遍历导致网关会话元数据泄露
+  details: >-
+    概述
+
+    构造的本地头像路径可以跟随符号链接到代理工作区之外，并在网关响应中以 base64 data: URL 形式返回任意文件内容。
+
+
+    影响
+
+    - 机密性影响：在网关进程上下文中读取本地文件。
+
+    - 数据外泄路径：agents.list 可以返回结果中的 avatarUrl 载荷。
+
+
+    受影响的组件
+
+    - src/gateway/session-utils.ts (resolveIdentityAvatarUrl)
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 引入版本：v2026.1.21
+
+    - 受影响的已发布版本：<= 2026.2.21-2
+
+    - 计划的已修复版本：2026.2.22
+
+
+    修复措施
+
+    - 使用 realpath 解析工作区和头像路径，并强制执行 realpath 包含检查。
+
+    - 在可用时使用 O_NOFOLLOW 打开文件。
+
+    - 比较打开前和打开后的文件身份（dev/ino）以阻止交换竞争。
+
+    - 添加工作区外符号链接拒绝和工作区内符号链接允许的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。修复提交 - 3d0337504349954237d09e4d957df5cb844d5e77
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9mph-4f7v-fmvh
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9mph-4f7v-fmvh

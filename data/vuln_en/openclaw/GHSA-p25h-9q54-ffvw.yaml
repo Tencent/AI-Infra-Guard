@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p25h-9q54-ffvw
+  summary: OpenClaw Zip Slip path traversal in tar archive extraction
+  details: >-
+    Summary
+
+    OpenClaw versions before 2026.2.14 did not sufficiently validate TAR archive entry paths during extraction. A crafted
+    archive could use path traversal sequences (for example ../../...) to write files outside the intended destination directory
+    (Zip Slip).
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.2.14
+
+    - Fixed: >= 2026.2.14
+
+
+    Details
+
+    The affected code path is extractArchive() in src/infra/archive.ts. Prior to 2026.2.14, TAR extraction used tar.x({ cwd:
+    destDir }) without rejecting traversal and absolute entry paths.
+
+
+    This extraction is used by installation flows such as:
+
+    - openclaw plugins install …
+
+    - openclaw hooks install …
+
+
+    Impact
+
+    If a user installs an untrusted .tar / .tgz archive, an attacker can write files outside the extraction directory (within
+    the permissions of the OpenClaw process). This can lead to configuration tampering and potentially code execution.
+
+
+    Mitigation
+
+    Upgrade to openclaw >= 2026.2.14. Avoid installing untrusted plugin/hook archives.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: Upgrade openclaw to >=2026.2.14 or later. Commit(s) - 3aa94afcfd12104c683c9cad81faf434d0dadf87 Thanks @xuemian168
+    for reporting. Upgrade to openclaw >= 2026.2.14. Avoid installing untrusted plugin/hook archives.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p25h-9q54-ffvw
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p25h-9q54-ffvw

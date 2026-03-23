@@ -1,0 +1,65 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4gc7-qcvf-38wg
+  summary: 'OpenClaw non-default configuration: manually adding sort to tools.exec.safeBins could bypass allowlist approval
+    via --compress-program'
+  details: >-
+    Summary
+
+    This issue applies to a non-default configuration only.
+
+    If sort is manually added to tools.exec.safeBins, OpenClaw could treat sort --compress-program=<prog> as valid safe-bin
+    usage.
+
+    In security=allowlist + ask=on-miss, this could satisfy allowlist checks and skip operator approval, while GNU sort may
+    invoke an external program via --compress-program.
+
+
+    Affected Packages / Versions
+
+    - Ecosystem: npm
+
+    - Package: openclaw
+
+    - Affected: <= 2026.2.21-2
+
+    - Patched (planned next release): >= 2026.2.22
+
+
+    Default Installations
+
+    Default installs are not impacted by this specific path because sort is not included in default tools.exec.safeBins.
+
+
+    Impact
+
+    - Type: approval/allowlist bypass in optional safe-bin configuration
+
+    - Scope: deployments that explicitly include sort in tools.exec.safeBins and use allowlist + ask=on-miss
+
+    - Consequence: an external program may run under the OpenClaw process context without expected approval
+
+
+    Technical Details
+
+    - sort safe-bin profile allowed --compress-program as a value flag.
+
+    - Safe-bin satisfaction could therefore mark allowlist checks as satisfied.
+
+    - In ask=on-miss, satisfied allowlist checks skip approval prompts.
+
+
+    Fix
+
+    - Block --compress-program in safe-bin sort policy.
+
+    - Add unit and e2e regression coverage for sort --compress-program denial in safe-bin mode.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. - Block --compress-program in safe-bin sort policy. - Add unit
+    and e2e regression coverage for sort --compress-program denial in safe-bin mode.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg

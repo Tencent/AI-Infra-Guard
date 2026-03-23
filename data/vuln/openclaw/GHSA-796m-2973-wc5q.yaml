@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-796m-2973-wc5q
+  summary: OpenClaw 执行允许列表/safeBins 策略运行时不匹配（通过 env -S 包装器解释）
+  details: >-
+    概述
+
+    tools.exec 允许列表/safe-bins 评估可能与使用 GNU env -S/--split-string 语义的包装器命令的运行时执行产生分歧。这允许策略检查将命令视为良性的 safe-bin 调用，而运行时执行了不同的载荷。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.22-2（当前最新发布的 npm 版本）
+
+    - 已修复版本（已发布）：2026.2.23
+
+
+    影响
+
+    能够影响工具命令文本的攻击者（例如通过不受信任的提示/内容注入到达具有执行能力的流程）可以绕过允许列表/safe-bins 意图并执行意外命令。
+
+
+    技术细节
+
+    根本原因是分发包装器的策略/运行时解释不匹配：
+
+    - 分析从包装器解包的 argv 中解析有效可执行文件，
+
+    - 执行仍可运行原始包装器 argv 语义，
+
+    - safe-bin 短标志处理也允许集群中的未知短选项。
+
+
+    修复措施
+
+    修复加固了执行审批以实现失败关闭并强制分析/运行时一致性：
+
+    - 引入带有语义包装器阻止的包装器执行规划，
+
+    - 在解析过程中携带已规划的 effectiveArgv + policyBlocked 元数据，
+
+    - 根据已规划的 argv 评估允许列表/safe-bins，
+
+    - 对允许列表自动路径从已规划的 argv 强制执行规范重建的 Shell 命令，
+
+    - 对 node-host/mac exec-host 调用路径使用已规划的 argv，
+
+    - 拒绝未知的 safe-bin 短标志，
+
+    - 为语义 env 包装器和一致性测试用例添加回归测试。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.23 或更高版本。修复提交 - a1c4bf07c6baad3ef87a0e710fe9aef127b1f606
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q

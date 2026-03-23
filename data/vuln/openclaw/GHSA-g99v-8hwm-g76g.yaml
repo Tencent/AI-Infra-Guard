@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g99v-8hwm-g76g
+  summary: OpenClaw web_search 引用重定向通过允许私有网络的策略导致 SSRF
+  details: >-
+    概述
+
+    Gemini web_search 引用重定向解析使用了允许私有网络的 SSRF 策略。引用 URL 重定向可以目标为回环/私有/内部目的地，并被网关获取。
+
+
+    影响
+
+    能够影响引用重定向目标的攻击者可以从 OpenClaw 主机触发内部网络请求。
+
+
+    修复
+
+    引用重定向解析现在使用严格/默认 SSRF 策略（无私有网络覆盖），阻止 localhost/私有/内部重定向目标。
+
+
+    受影响和已修复版本
+
+    - 受影响版本：<= 2026.2.26
+
+    - 已修复版本：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.1 或更高版本。引用重定向解析现在使用严格/默认 SSRF 策略，阻止 localhost/私有/内部重定向目标。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g99v-8hwm-g76g
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g99v-8hwm-g76g

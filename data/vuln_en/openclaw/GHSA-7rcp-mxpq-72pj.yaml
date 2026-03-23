@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7rcp-mxpq-72pj
+  summary: OpenClaw Chutes manual OAuth state validation bypass can cause credential substitution
+  details: >-
+    Summary
+
+
+    The manual Chutes OAuth login flow could accept attacker-controlled callback input in a way that bypassed OAuth CSRF state
+    validation, potentially resulting in credential substitution.
+
+
+    Impact
+
+
+    If an attacker can convince a user to paste attacker-provided OAuth callback data during the manual login prompt, OpenClaw
+    may exchange an attacker-obtained authorization code and persist tokens for the wrong Chutes account.
+
+
+    The automatic local callback flow is not affected (it validates state in the local HTTP callback handler).
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): <= 2026.2.13 when using the manual Chutes OAuth login flow.
+
+
+    Fix
+
+
+    The manual flow now requires the full redirect URL (must include code and state), validates the returned state against
+    the expected value, and rejects code-only pastes.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.14 or later. The manual flow now requires the full redirect URL (must include
+    code and state), validates the returned state against the expected value, and rejects code-only pastes.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7rcp-mxpq-72pj
+rule: version <= "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7rcp-mxpq-72pj

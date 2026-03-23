@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pj5x-38rw-6fph
+  summary: OpenClaw Windows 计划任务脚本生成中通过未转义的环境赋值进行命令注入
+  details: >-
+    概述
+
+    OpenClaw 的 Windows 计划任务脚本生成中存在命令注入漏洞。环境值使用未引用的 set KEY=VALUE 写入 gateway.cmd，这允许配置提供的环境变量中的 Windows shell 元字符突破赋值上下文。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.17
+
+    - 修复版本：>= 2026.2.18
+
+    - 审查时最新发布的受影响版本（2026-02-19）：2026.2.17
+
+
+    实际风险背景
+
+    对于个人控制机器上的单用户、仅限本地配置，实际风险通常较低。
+
+
+    当配置或环境值来自不太受信任的输入时，此问题变得实质性相关，例如：
+
+    - 共享/团队配置模板，
+
+    - 复制的配置片段，
+
+    - 配置脚本、自动化或写入配置的仓库，
+
+    - 任何其他方可在网关安装/重新安装前影响环境值的工作流。
+
+
+    在这些场景中，当计划任务脚本被生成和运行时，它提供了一条可靠的配置到命令执行路径。
+
+
+    详情
+
+    在 Windows 上，网关服务安装会写入辅助批处理脚本，然后通过计划任务（schtasks）注册它。
+
+    修复前，环境行在 src/daemon/schtasks.ts 中渲染为 set KEY=VALUE，因此包含元字符（例如 &、|、^、%、!）的值可以改变 cmd.exe 中的命令行为。
+
+
+    修复现在渲染引用赋值（set "KEY=VALUE"）并对 cmd 元字符进行显式转义，更新了引用赋值的解析器兼容性，并添加了元字符处理和往返解析的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.19 或更高版本。提交 - dafe52e8cf1a041d898cfb304a485fa05e5f58fb。感谢
+    @tdjackey 报告此问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pj5x-38rw-6fph
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pj5x-38rw-6fph

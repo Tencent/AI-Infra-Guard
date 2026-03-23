@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pfv7-rr5m-qmv6
+  summary: OpenClaw 本地浏览器扩展中继 /extension 端点认证不一致
+  details: >-
+    概述
+
+
+    当启用可选的 Chrome 扩展中继时，/extension 接受未认证的 WebSocket 升级，而 /json/* 和 /cdp 要求认证。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响：<= 2026.2.17
+
+    - 分类时最新发布的 npm 版本：2026.2.17
+
+
+    影响
+
+
+    这是一个仅限本地回环（127.0.0.1）的问题，仅在使用扩展中继功能时适用。同一机器上的本地进程可以在没有令牌的情况下连接到 /extension 并干扰扩展中继行为。
+
+
+    不涉及远程网络利用路径。
+
+
+    修复
+
+
+    - 对 /extension 和 /cdp 中继 WebSocket 端点都要求网关令牌认证。
+
+    - 保留回环/来源检查作为纵深防御，而非作为认证手段。
+
+    - 在配置中使用统一的令牌路径：gateway.auth.token / OPENCLAW_GATEWAY_TOKEN。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 到 >= 2026.2.19 或更高版本。- 对 /extension 和 /cdp 中继 WebSocket
+    端点都要求网关令牌认证。- 保留回环/来源检查作为纵深防御，而非作为认证手段。- 在配置中使用统一的令牌路径：gateway.auth.token
+    / OPENCLAW_GATEWAY_TOKEN。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pfv7-rr5m-qmv6
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pfv7-rr5m-qmv6

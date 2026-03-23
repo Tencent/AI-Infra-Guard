@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gwqp-86q6-w47g
+  summary: OpenClaw exec allow-always 可通过未识别的多路复用 Shell 包装器（busybox/toybox sh -c）绕过
+  details: >-
+    概述
+
+    在允许列表模式下，当通过未识别的多路复用 Shell 包装器（特别是 busybox sh -c 和 toybox sh -c）授予 allow-always 时，OpenClaw 执行审批可被绕过。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 分类时最新发布的受影响版本：2026.2.22-2（2026年2月24日检查）
+
+    - 已在主线修复：是
+
+    - 已修复版本：2026.2.23
+
+
+    详细信息
+
+    包装器分析在此路径中将 busybox/toybox 调用视为非包装器命令，因此 allow-always 持久化了包装器二进制路径而非内部可执行文件。这允许后续在同一多路复用器包装器下的任意载荷满足存储的允许列表规则。
+
+
+    修复加固了这些多路复用 Shell 小程序的包装器检测和持久化行为，使审批绑定到预期的内部可执行文件，并在解包安全性不确定时执行失败关闭。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.23 或更高版本。修复提交 - a67689a7e3ad494b6637c76235a664322d526f9e
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gwqp-86q6-w47g
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gwqp-86q6-w47g

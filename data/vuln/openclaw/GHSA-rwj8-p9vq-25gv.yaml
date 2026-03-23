@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rwj8-p9vq-25gv
+  summary: OpenClaw BlueBubbles 媒体路径处理中的本地文件包含（LFI）
+  details: >-
+    概述
+
+    BlueBubbles 扩展通过 mediaPath 接受攻击者控制的本地文件系统路径，可在将其作为媒体附件发送之前从磁盘读取任意本地文件。
+
+
+    详情
+
+    当 sendBlueBubblesMedia 收到非 HTTP 媒体源时，先前的实现将其解析为本地路径并直接从磁盘读取。没有要求安全目录白名单，因此 /etc/passwd 等值（或其他平台上等效的敏感路径）可被请求和窃取。
+
+
+    修复通过要求显式配置的根目录（channels.bluebubbles.mediaLocalRoots）并在读取本地文件之前执行规范路径包含性检查来加固本地媒体加载。允许根目录之外的路径将被拒绝。
+
+
+    修复 PR: https://github.com/openclaw/openclaw/pull/16322
+
+    修复提交: https://github.com/openclaw/openclaw/commit/71f357d9498cebb0efe016b0496d5fbe807539fc
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响：< v2026.2.14
+
+    - 修复：>= v2026.2.14（计划中）
+
+
+    影响
+
+    能够触发 BlueBubbles 媒体发送的攻击者可窃取 OpenClaw 进程可读的本地文件。
+
+
+    修复措施
+
+    升级到包含提交 71f357d9498cebb0efe016b0496d5fbe807539fc 的版本，并将 channels.bluebubbles.mediaLocalRoots 配置为显式的受信任目录。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >=v2026.2.14 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rwj8-p9vq-25gv
+rule: version < "v2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rwj8-p9vq-25gv

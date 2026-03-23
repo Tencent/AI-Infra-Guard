@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x2ff-j5c2-ggpr
+  summary: OpenClaw Slack 交互回调在某些共享工作区流程中可跳过已配置的发送者检查
+  details: >-
+    影响
+
+
+    在依赖发送者限制（allowFrom、DM 策略或通道用户允许列表）的共享 Slack 工作区部署中，某些交互回调
+    （block_action、view_submission、view_closed）可能在完整的发送者授权检查之前被接受。
+
+
+    在该场景中，未授权的工作区成员可以将系统事件文本排入活动会话队列。此问题本身不提供未认证访问、
+    跨网关隔离绕过或主机级别权限提升。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 漏洞版本：<= 2026.2.24
+
+    - 修复版本：2026.2.25（计划下一次 npm 发布）
+
+
+    信任模型范围说明
+
+
+    OpenClaw 不支持在单个共享网关实例上进行对抗性多用户隔离。支持的模型是每个网关一个信任边界
+    （互不信任的用户使用单独的网关/主机）。参见：https://docs.openclaw.ai/gateway/security
+
+
+    感谢 @tdjackey 的报告。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。提交记录 - ce8c67c314b93f570f53c2a9abc124e1e3a54715
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x2ff-j5c2-ggpr
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x2ff-j5c2-ggpr

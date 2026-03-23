@@ -1,0 +1,63 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r294-2894-92j3
+  summary: OpenClaw 导出会话 HTML 查看器中通过 markdown/原始 HTML 渲染的存储型 XSS
+  details: >-
+    概述
+
+
+    导出的会话 HTML 查看器在不受信任的会话内容包含原始 HTML markdown 令牌或未转义的元数据字段时允许存储型 XSS。
+
+
+    影响
+
+
+    打开精心构造的导出 HTML 会话可在查看器上下文中执行攻击者控制的 JavaScript。这可能暴露页面中的会话内容，并在受信任的导出视图中实现钓鱼或 UI 欺骗。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 修复版本（已发布）：>= 2026.2.23
+
+
+    技术详情
+
+
+    导出器使用 marked.parse(...) 渲染 markdown 并通过 innerHTML 插入 HTML，但未覆盖 html 渲染器令牌路径。原始 HTML（例如 <img ... onerror=...>）被直接传递。导出模板中的附加树/头部元数据字段在插值时未进行转义。
+
+
+    复现步骤
+
+
+    1. 创建包含 <img src=x onerror=alert(1)> 等内容的会话。
+
+    2. 将会话导出为 HTML。
+
+    3. 打开导出的文件。
+
+    4. 观察注入内容触发的脚本执行。
+
+
+    修复措施
+
+
+    - 添加 marked html(token) 渲染器覆盖以转义原始 HTML 令牌。
+
+    - 转义导出模板中此前未转义的树/头部元数据字段。
+
+    - 为导出的 data-URL 图像渲染添加图像 MIME 清理。
+
+    - 添加 markdown/令牌和元数据转义路径的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.23 或更高版本。提交 - f8524ec77a3999d573e6c6b8a5055bf35c49a2e6
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r294-2894-92j3
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r294-2894-92j3

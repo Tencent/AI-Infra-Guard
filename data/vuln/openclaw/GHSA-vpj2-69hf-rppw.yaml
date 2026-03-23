@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vpj2-69hf-rppw
+  summary: OpenClaw 浏览器控制启动在认证引导失败后可能以未认证状态继续运行
+  details: >-
+    概述
+
+    当浏览器控制在未提供显式认证凭据的情况下启动时，OpenClaw 会尝试自动引导认证。在受影响的版本中，如果引导步骤
+    抛出错误，启动过程可能继续进行，导致浏览器控制路由在未经认证的情况下暴露。
+
+
+    影响
+
+    在受影响的部署中，本地进程（或可通过回环地址访问的 SSRF 路径）可以在未经认证的情况下访问浏览器控制路由，
+    包括具有 evaluate 能力的操作。
+
+
+    修复
+
+    启动现在采用失败关闭策略：如果引导认证失败且未配置显式令牌/密码，浏览器控制启动将中止。
+
+
+    受影响和修复版本
+
+    - 受影响：<= 2026.2.26
+
+    - 已修复：2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.3.1 或更高版本。启动现在采用失败关闭策略：如果引导认证失败且未配置显式令牌/密码，
+    浏览器控制启动将中止。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vpj2-69hf-rppw
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vpj2-69hf-rppw

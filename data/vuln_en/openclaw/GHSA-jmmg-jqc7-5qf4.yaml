@@ -1,0 +1,70 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jmmg-jqc7-5qf4
+  summary: OpenClaw Browser-origin WebSocket auth hardening gap could enable loopback password brute-force chains
+  details: >-
+    This issue is a browser-origin WebSocket auth chain on local loopback deployments using password auth. It is serious,
+    but conditional: an attacker must get the user to open a malicious page and then successfully guess the gateway password.
+
+
+    Context and Preconditions
+
+
+    OpenClaw’s web/gateway surface is designed for local use and trusted-operator workflows. In affected versions, a browser-origin
+    client could combine three behaviors:
+
+
+    - Origin checks not enforced for some non-Control-UI WebSocket client IDs.
+
+    - Loopback auth attempts exempt from password-failure throttling.
+
+    - Silent local pairing path available to browser-origin non-Control-UI clients.
+
+
+    Successful exploitation requires all of the following:
+
+
+    - Gateway reachable on loopback (default).
+
+    - Password auth mode in use.
+
+    - Victim opens attacker-controlled web content.
+
+    - Password is guessable within feasible brute-force/dictionary attempts.
+
+
+    Practical Impact
+
+
+    If the password is guessed, an attacker can establish an authenticated operator WebSocket session and invoke control-plane
+    methods available to that role. This is not an unauthenticated internet-exposed RCE class issue by itself; it is a local
+    browser-origin auth-hardening gap with meaningful impact under the conditions above.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <=2026.2.24 (latest published npm version as of February 26, 2026)
+
+    - Patched versions : >=2026.2.25
+
+
+    Fix Details
+
+
+    - Enforce browser-origin checks for direct browser WebSocket clients beyond Control UI/Webchat (trusted-proxy forwarded
+    flows remain supported).
+
+    - Apply browser-origin auth failure throttling with loopback exemption disabled.
+
+    - Block silent auto-pairing for non-Control-UI browser-origin clients.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - c736f11a16d6bc27ea62a0fe40fffae4cb071fdb
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jmmg-jqc7-5qf4
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jmmg-jqc7-5qf4

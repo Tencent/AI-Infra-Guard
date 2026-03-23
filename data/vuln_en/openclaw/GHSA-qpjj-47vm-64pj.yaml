@@ -1,0 +1,73 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qpjj-47vm-64pj
+  summary: OpenClaw missing authentication for local browser-control endpoints
+  details: >-
+    Summary
+
+
+    The local browser-control HTTP interface allowed sensitive browser actions without mandatory authentication in some configurations.
+    This could allow unauthorized local callers to invoke privileged browser-control operations against managed sessions.
+
+
+    Affected Components
+
+
+    - src/browser/routes/agent.act.ts
+
+    - src/browser/pw-tools-core.interactions.ts
+
+    - Browser control HTTP route: /agent/act
+
+
+    Affected Versions
+
+
+    - >= 2026.1.5, <= 2026.2.9
+
+
+    Patched Versions
+
+
+    - >= 2026.2.12
+
+
+    Technical Details (sanitized)
+
+
+    The browser-control route accepted high-privilege action requests that can execute browser-context logic. Authentication
+    was not consistently enforced for these HTTP routes when auth was not configured. Given the route is loopback-bound, exposure
+    is primarily local-process and local-proxy boundary related.
+
+
+    Impact
+
+
+    Potential unauthorized access to managed browser session capabilities, including access to sensitive in-session data and
+    privileged browser actions.
+
+
+    Remediation
+
+
+    - Enforce gateway auth on browser-control HTTP routes (token/password).
+
+    - Auto-generate and persist a strong gateway.auth.token when browser control is enabled without existing auth.
+
+    - Add security-audit detection for browser control without auth.
+
+    - Add regression tests for auth enforcement and audit coverage.
+
+
+    Credit
+
+
+    Thanks @tcusolle for the responsible report.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.12 or later. Commit(s) - 9230a2ae14307740a13ada7afd6dcfab34e0287f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qpjj-47vm-64pj
+rule: version <= "2026.2.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qpjj-47vm-64pj

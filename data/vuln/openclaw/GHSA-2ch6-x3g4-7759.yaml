@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2ch6-x3g4-7759
+  summary: OpenClaw commands.allowFrom 发送者授权通过 ctx.From 接受了会话标识符
+  details: >-
+    概述
+
+    commands.allowFrom 被文档记录为命令/指令的发送者授权白名单，但命令授权可能将 ctx.From（会话身份）作为发送者候选项。
+
+
+    当 commands.allowFrom 包含类似会话的标识符（例如 Discord channel:<id> 或 WhatsApp 群组 JID）时，命令/指令授权可能被授予该会话中的参与者，而非仅限于预期的发送者身份。
+
+
+    受影响的软件包/版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 已修复版本：2026.2.23
+
+
+    详情
+
+    根本原因：src/auto-reply/command-auth.ts 中的 resolveSenderCandidates() 始终将 ctx.From 包含在 commands.allowFrom 授权检查使用的候选评估中。
+
+
+    ctx.From 在某些私信上下文中类似发送者，但在频道/群组/线程上下文中类似会话。这种混合主体处理允许会话标识符满足仅限发送者的授权。
+
+
+    影响
+
+    在受影响版本中，当操作员使用会话标识符配置 commands.allowFrom 时，命令/指令授权可能比预期更广泛，允许该会话中的非预期用户运行仅限命令/指令的流程。
+
+
+    修复
+
+    主分支现在将 commands.allowFrom 视为仅限发送者：
+
+    - ctx.From 不再作为通用发送者候选项。
+
+    - ctx.From 仅在发送者字段缺失且值非会话形式时用作回退。
+
+    - 添加了会话 ID 拒绝和私信回退保留的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.2.23 或更高版本。主分支现在将 commands.allowFrom 视为仅限发送者，ctx.From 不再作为通用发送者候选项。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2ch6-x3g4-7759
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2ch6-x3g4-7759

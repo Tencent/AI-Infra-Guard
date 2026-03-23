@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3hcm-ggvf-rch5
+  summary: OpenClaw Exec allowlist bypass via command substitution/backticks inside double quotes
+  details: >-
+    Summary
+
+
+    Exec approvals allowlist bypass via command substitution/backticks inside double quotes.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.1
+
+    - Fixed: >= 2026.2.2
+
+
+    Impact
+
+
+    Only affects setups that explicitly enable the optional exec approvals allowlist feature. Default installs are unaffected.
+
+
+    Fix
+
+
+    Reject unescaped $() and backticks inside double quotes during allowlist analysis.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.2 or later. Reject unescaped $() and backticks inside double quotes during
+    allowlist analysis.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3hcm-ggvf-rch5
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3hcm-ggvf-rch5

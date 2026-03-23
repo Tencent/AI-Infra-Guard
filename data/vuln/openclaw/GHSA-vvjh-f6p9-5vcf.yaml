@@ -1,0 +1,70 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vvjh-f6p9-5vcf
+  summary: 'OpenClaw ZDI-CAN-29311: OpenClaw Canvas 认证绕过漏洞'
+  details: >-
+    ZDI-CAN-29311: OpenClaw Canvas 认证绕过漏洞
+
+
+    -- CVSS -----------------------------------------
+
+
+    7.4: AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N
+
+
+    -- 摘要 -------------------------------------
+
+
+    趋势科技零日计划（Zero Day Initiative）已识别出影响以下产品的漏洞：
+
+    OpenClaw - OpenClaw
+
+
+    -- 漏洞详情 ------------------------
+
+
+    * 测试版本：openclaw 2026.2.17
+
+    * 测试平台：macOS 26.3
+
+
+    ---
+
+
+    分析
+
+
+    描述
+
+
+    OpenClaw 网关的 authorizeCanvasRequest() 函数为 canvas 端点（/__openclaw__/a2ui/、/__openclaw__/canvas/、
+    /__openclaw__/ws）实现了基于 IP 的认证回退机制。当 WebSocket 客户端从私有 IP 地址认证时，来自同一 IP 的
+    所有后续 HTTP 请求都会被授予 canvas 访问权限，而无需自身的认证令牌。
+
+
+    在多个客户端共享单一 IP 地址的环境中——企业 NAT、VPN 集中器、Kubernetes 集群、Docker 主机模式网络——
+    同一网络上的未认证攻击者可以凭借与合法已认证客户端共享 IP 而获得完整的 canvas 访问权限。
+
+
+    根因
+
+
+    src/gateway/server-http.ts 中的三个函数导致了此漏洞：
+
+
+    1. IP 匹配函数（约第 100 行）
+
+
+    此函数检查是否有任何已连接的 WebSocket 客户端共享相同 IP。它不会验证 HTTP 请求是否属于与 WS 客户端
+    相同的用户、会话或浏览器。
+
+
+    2. authorizeCanvasRequest 中的基于 IP 的回退（约第 109 行）
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。提交记录 - c45f3c5b004c8d63dc0e282e2176f8c9355d24f1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf

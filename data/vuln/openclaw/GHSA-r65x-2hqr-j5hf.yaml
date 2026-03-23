@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r65x-2hqr-j5hf
+  summary: OpenClaw Node 重连元数据欺骗可绕过基于平台的节点命令策略
+  details: >-
+    概述
+
+
+    已配对的节点设备可使用欺骗的 platform/deviceFamily 元数据重连，并扩大节点命令策略资格，因为重连元数据从客户端接受而这些字段未绑定到设备认证签名中。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.25
+
+    - 更新时最新发布版本：2026.2.25
+
+    - 修复版本（为下一个版本预设）：2026.2.26
+
+
+    影响
+
+
+    在节点命令策略因平台而异的配置中，在受信任网络上拥有已配对节点身份的攻击者可以欺骗重连元数据，获取对原本应被其最初配对平台阻止的命令的访问权限。
+
+
+    修复
+
+
+    - 添加签名规范化 platform 和 deviceFamily 的设备认证有效载荷 v3。
+
+    - 首先验证 v3（回退到 v2 以保持兼容性），同时在服务器端固定已配对的元数据。
+
+    - 拒绝重连元数据不匹配，并要求显式修复配对以更改固定的元数据。
+
+    - 添加重连欺骗尝试的回归测试覆盖。
+  cvss: CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.26 或更高版本。- 添加签名规范化 platform 和 deviceFamily
+    的设备认证有效载荷 v3。- 首先验证 v3（回退到 v2 以保持兼容性），同时在服务器端固定已配对的元数据。- 拒绝重连元数据不匹配，并要求显式修复配对以更改固定的元数据。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r65x-2hqr-j5hf
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r65x-2hqr-j5hf

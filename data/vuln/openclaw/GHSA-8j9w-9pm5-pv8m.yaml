@@ -1,0 +1,70 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8j9w-9pm5-pv8m
+  summary: OpenClaw GHSA-3c6h-g97w-fg78 的重复公告：safeBins 拒绝标志可通过 GNU 长选项缩写绕过
+  details: >-
+    重复通知
+
+    此草案公告与 GHSA-3c6h-g97w-fg78 重复。
+
+    规范公告：https://github.com/openclaw/openclaw/security/advisories/GHSA-3c6h-g97w-fg78
+
+    请使用 GHSA-3c6h-g97w-fg78 进行跟踪/发布。此公告作为重复通知发布。
+
+
+    概述
+
+    OpenClaw safeBins 参数验证允许通过 GNU 长选项缩写绕过拒绝标志。
+
+
+    验证器通过精确字符串匹配拒绝长标志，并将未知长选项视为允许，造成策略/运行时不匹配：命令可以作为 safe-bin 用法被审批，而运行时行为到达了被拒绝的选项。
+
+
+    影响
+
+    - 默认 safe-bin wc：通过缩写的 --files0-fro（运行时解析为 --files0-from）实现未授权的文件读取行为。
+
+    - 配置的 safe-bin sort：通过缩写的 --compress-prog（运行时解析为 --compress-program）实现外部程序调用。
+
+    - 额外的加固缺口：safe-bin 模式中未知或模糊的长选项未被失败关闭拒绝。
+
+
+    技术细节
+
+    受影响的路径包括 safe-bin argv 验证和允许列表评估：
+
+    - src/infra/exec-safe-bin-policy.ts
+
+    - src/infra/exec-approvals-allowlist.ts
+
+
+    受影响的包/版本
+
+    - 生态系统：npm
+
+    - 包名：openclaw
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 已在主线代码中修复：2026.2.23（已发布）
+
+
+    修复措施
+
+    - 使用 GNU 风格的唯一前缀匹配规范化长选项。
+
+    - 在 safe-bin 模式中拒绝未知和模糊的长选项（失败关闭）。
+
+    - 拒绝非值长标志的内联值。
+
+    - 在 safe-bin 模式中拒绝额外的 sort 文件系统依赖标志：--random-source、--temporary-directory、-T。
+
+    - 添加拒绝标志缩写和失败关闭长选项处理的回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.23 或更高版本。修复提交 - 3b8e33037ae2e12af7beb56fcf0346f1f8cbde6f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m

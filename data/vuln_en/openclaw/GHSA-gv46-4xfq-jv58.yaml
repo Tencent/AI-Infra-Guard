@@ -1,0 +1,79 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gv46-4xfq-jv58
+  summary: OpenClaw Remote Code Execution via Node Invoke Approval Bypass in Gateway
+  details: >-
+    Summary
+
+
+    A remote code execution (RCE) vulnerability in the gateway-to-node invocation path allowed an authenticated gateway client
+    to bypass node-host exec approvals by injecting internal control fields into node.invoke parameters.
+
+
+    Affected Component
+
+
+    - Gateway method: node.invoke for node command system.run
+
+    - Node host runner: exec approval gating for system.run
+
+
+    Impact
+
+
+    If an attacker can authenticate to a gateway (for example via a leaked/shared gateway token or a paired device token with
+    operator.write), they could execute arbitrary commands on connected node hosts that support system.run. This can lead
+    to full compromise of developer workstations, CI runners, and servers running the node host.
+
+
+    Technical Details
+
+
+    The gateway forwarded user-controlled params to node hosts without sanitizing internal approval fields. The node host
+    treated params.approved === true and/or params.approvalDecision as sufficient to skip the approval workflow.
+
+
+    Fix
+
+
+    Patched in OpenClaw 2026.2.14.
+
+
+    - Commits:
+      - 318379cdb8d045da0009b0051bd0e712e5c65e2d
+      - a7af646fdab124a7536998db6bd6ad567d2b06b0
+      - c1594627421f95b6bc4ad7c606657dc75b5ad0ce
+      - 0af76f5f0e93540efbdf054895216c398692afcd
+    - Gateway strips untrusted approval control fields from system.run user input.
+
+    - Gateway only re-attaches approval flags when params.runId references a valid exec.approval.request record and the request
+    context matches. Approval IDs are bound to the requesting device identity (stable across reconnects), preventing replay
+    by other clients.
+
+    - Gateway forwards only an allowlisted set of system.run parameters, preventing future control-field smuggling.
+
+
+    Mitigations
+
+
+    - Upgrade to 2026.2.14 or later.
+
+    - Restrict access to the gateway (do not expose it to untrusted networks/users).
+
+    - Rotate gateway credentials if you suspect token/password exposure.
+
+    - Disable remote command execution on nodes by blocking system.run at the gateway (gateway.nodes.denyCommands) and/or
+    by configuring node exec security to deny.
+
+
+    Cr...
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: 'Upgrade openclaw to >= 2026.2.14 or later. Patched in **OpenClaw 2026.2.14**. - Commits: - 318379cdb8d045da0009b0051bd0e712e5c65e2d
+    - Upgrade to 2026.2.14 or later. - Restrict access to the gateway (do not expose it to untrusted networks/users). - Rotate
+    gateway credentials if you suspect token/password exposure.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gv46-4xfq-jv58
+rule: version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gv46-4xfq-jv58

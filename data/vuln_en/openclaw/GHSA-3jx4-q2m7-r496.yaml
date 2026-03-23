@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3jx4-q2m7-r496
+  summary: OpenClaw Hardlink alias checks could bypass workspace-only file boundaries in specific configurations
+  details: >-
+    Summary
+
+    In certain workspace-restricted configurations, OpenClaw could follow hardlink aliases inside the workspace that reference
+    files outside the workspace boundary.
+
+
+    By default, tools.fs.workspaceOnly is off. This primarily affects deployments that intentionally enable workspace-only
+    filesystem restrictions (and workspace-only apply_patch checks).
+
+
+    Impact
+
+    - Confidentiality: out-of-workspace files could be read through in-workspace hardlink aliases.
+
+    - Integrity: out-of-workspace files could be modified through in-workspace hardlink aliases.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published version at triage time: 2026.2.24
+
+    - Affected range: <= 2026.2.24
+
+    - Planned patched version: 2026.2.25
+
+
+    Remediation
+
+    OpenClaw now rejects hardlinked final-file aliases during workspace boundary validation for:
+
+    - workspace-only path checks (read / write / edit)
+
+    - workspace-only apply_patch read/write paths
+
+    - sandbox mount-root path-safety checks
+
+
+    Regression tests were added for apply_patch, workspace fs tools, and sandbox fs bridge hardlink alias escapes.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 04d91d0319b82fd4de91ed05e9fc5219ff2ab64e (main)
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3jx4-q2m7-r496
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3jx4-q2m7-r496

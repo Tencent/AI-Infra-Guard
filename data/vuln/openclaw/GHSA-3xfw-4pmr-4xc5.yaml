@@ -1,0 +1,72 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3xfw-4pmr-4xc5
+  summary: OpenClaw safeBins grep -e 文件读取绕过（仅标准输入策略绕过）
+  details: >-
+    摘要
+
+
+    OpenClaw tools.exec.safeBins 对 grep 存在仅标准输入策略绕过。
+
+    如果通过 -e / --regexp 提供模式输入，验证器将模式作为标志值消费，并仍允许一个位置操作数。该位置操作数可以是裸文件名，如 .env。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw（npm）
+
+    - 最新发布的受影响版本：2026.2.19-2
+
+    - 结构化受影响范围：<= 2026.2.19-2
+
+    - 下一版本计划修复范围：>= 2026.2.21
+
+
+    利用前提条件
+
+
+    - tools.exec.safeBins 必须包含 grep（这是选择启用的；grep 不在默认安全二进制列表中）。
+
+    - 执行者必须能够在该配置文件下调用 exec 工具。
+
+
+    技术详情
+
+
+    src/infra/exec-safe-bin-policy.ts 为 grep 配置了 maxPositional: 1 并允许 -e / --regexp 值标志。
+
+    因为 -e 在标志值位置消费了模式，剩余的位置预算可用于文件操作数。
+
+    受影响构建中接受的示例输入：
+
+
+    grep -e SECRET .env
+
+
+    这违反了安全二进制的预期仅标准输入保证。
+
+
+    影响
+
+
+    启用 grep 选择后，调用者可以在预期为仅标准输入的流中从工作目录读取裸相对文件（例如 .env、credentials.txt）。
+
+
+    严重性理由
+
+
+    CVSS v3.1 设置为：
+
+    CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N（5.3，中）
+
+
+    使用 AC:H 是因为利用依赖于非默认配置（必须显式将 grep 添加到安全二进制中），以及正常的低权限工具调用能力。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.21 或更高版本。提交记录 - c6ee14d60e4cbd6a82f9b2d74ebeb1e8ee814964
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3xfw-4pmr-4xc5
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3xfw-4pmr-4xc5

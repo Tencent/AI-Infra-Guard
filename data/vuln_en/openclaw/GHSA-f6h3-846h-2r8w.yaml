@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f6h3-846h-2r8w
+  summary: OpenClaw Elevated allowFrom matching tightened for sender-scoped authorization
+  details: >-
+    Summary
+
+    In certain elevated-mode configurations, tools.elevated.allowFrom accepted broader identity signals than intended. The
+    fix tightens matching to sender-scoped identity by default and makes mutable metadata matching explicit.
+
+
+    Context
+
+    OpenClaw is commonly used in 1:1 chats or trusted group chats. In that intended model, this issue is best treated as authorization
+    hardening / defense-in-depth for elevated sender approval.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version at triage: 2026.2.21-2
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Planned patched version (pre-set for publish-ready advisory): 2026.2.22
+
+
+    Details
+
+    Elevated sender authorization now matches sender-scoped identity values only by default (SenderId, From, SenderE164) and
+    no longer considers recipient routing fields such as ctx.To.
+
+
+    Mutable sender metadata (SenderName, SenderUsername, SenderTag) now requires explicit allowlist prefixes (name:, username:,
+    tag:). Explicit identity prefixes are also supported (id:, from:, e164:).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 6817c0ec7b4fa830123d4f5c340f075a4bd04ee2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f6h3-846h-2r8w
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f6h3-846h-2r8w

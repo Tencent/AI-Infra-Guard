@@ -1,0 +1,34 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qj22-xqjr-v83v
+  summary: OpenClaw Telegram message_reaction 授权绕过允许未授权的系统事件注入
+  details: >-
+    Telegram message_reaction 处理中缺少发送者授权检查，允许未授权用户触发反应派生的系统事件。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 引入版本：2026.2.17
+
+    - 受影响：>= 2026.2.17 且 <= 2026.2.24
+
+    - 修复时最新发布版本：2026.2.24
+
+    - 修复版本：2026.2.25
+
+
+    影响
+
+
+    当启用反应通知时，未授权的 Telegram 发送者可以绕过配置的 DM/群组授权控制（dmPolicy、allowFrom、groupPolicy、groupAllowFrom）注入反应系统事件。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - e56b0cf1a04f992ac6ebc775899f48ea31687640
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qj22-xqjr-v83v
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qj22-xqjr-v83v

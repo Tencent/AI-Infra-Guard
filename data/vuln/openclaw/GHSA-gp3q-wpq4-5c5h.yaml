@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gp3q-wpq4-5c5h
+  summary: OpenClaw LINE 群组允许列表范围与 DM 配对存储条目不匹配
+  details: >-
+    概述
+
+    在特定的 LINE 配置中，通过 DM 配对批准的发送者 ID 也可能满足群组允许列表检查，而操作员期望群组发送者访问仅限于显式的群组允许列表。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 分类/更新时最新发布版本：2026.2.25
+
+    - 受影响版本：<= 2026.2.25
+
+    - 已修复版本：>= 2026.2.26（计划的下一个发布版本）
+
+
+    影响
+
+    这是一个群组授权范围不匹配。DM 配对存储条目可能在允许列表模式下影响群组发送者授权。
+
+
+    技术细节
+
+    根本原因：群组允许列表组合继承了用于 DM 审批的配对存储条目。在默认 DM 配对策略下，DM 配对的发送者可能匹配群组允许列表检查。
+
+
+    主线修复：
+
+    - 将群组允许列表组合与配对存储条目隔离
+
+    - 集中共享的 DM/群组允许列表组合以保持仅 DM 的配对行为
+
+    - 为 LINE 和 Mattermost 策略路径添加回归测试覆盖
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。修复提交 - 8bdda7a651c21e98faccdbbd73081e79cffe8be0 - 892a9c24b0f6118729ab5b5f5499b1a7e792dd15（后续重构加固）
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gp3q-wpq4-5c5h
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gp3q-wpq4-5c5h

@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gcj7-r3hg-m7w6
+  summary: OpenClaw voice-call Twilio replay dedupe now bound to authenticated webhook identity
+  details: >-
+    Summary
+
+    The voice-call Twilio webhook path accepted replay/dedupe identity from unsigned request metadata (i-twilio-idempotency-token),
+    enabling replayed signed requests to bypass replay detection and manager dedupe by mutating only that header.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.25 (latest published npm version at triage time)
+
+    - Fixed on main: commit 1aadf26f9acc399affabd859937a09468a9c5cb4
+
+    - Planned patched npm version: 2026.2.26
+
+
+    Impact
+
+    Deployments using the optional voice-call Twilio webhook path could accept replayed webhook events as fresh events when
+    an attacker had one valid signed request and changed only the unsigned idempotency header.
+
+
+    Technical Details
+
+    The fix removes unsigned-header trust from Twilio replay/dedupe identity and binds replay/manager dedupe to authenticated
+    request material. It also threads a verified request identity through provider parsing so dedupe uses verification-derived
+    identity rather than mutable headers.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. Commit(s) - 1aadf26f9acc399affabd859937a09468a9c5cb4
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gcj7-r3hg-m7w6
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gcj7-r3hg-m7w6

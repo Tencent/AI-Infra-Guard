@@ -1,0 +1,26 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h9g4-589h-68xv
+  summary: OpenClaw 沙箱浏览器桥接服务器身份验证绕过
+  details: "概述\r\n\r\nopenclaw 可能在未进行身份验证的情况下启动沙箱浏览器桥接服务器。\r\n\r\n当启用沙箱浏览器时，openclaw\
+    \ 会运行一个本地（回环地址）HTTP 桥接器，暴露浏览器控制端点（例如 /profiles、/tabs、/tabs/open、/agent/*）。由于沙箱初始化路径中缺少身份验证配置，该桥接服务器在未要求网关身份验证的情况下接受请求。\r\n\r\nCVSS\r\n\r\n- CVSS v3.1: 7.1\r\n- 向量: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N\r\
+    \n\r\n影响\r\n\r\n本地攻击者（同一机器上的任意进程）可以访问桥接服务器端口并：\r\n\r\n\
+    - 枚举已打开的标签页并获取 CDP WebSocket URL\r\n- 打开/关闭/导航标签页\r\n- 通过 CDP 在页面上下文中执行 JavaScript\
+    \r\n- 从已认证会话中窃取 Cookie/会话数据和页面内容\r\n\r\n这是一个仅限本地访问的暴露（CVSS AV:L），但可对沙箱浏览器的使用实现完整的浏览器会话劫持。\r\
+    \n\r\n受影响版本\r\n\r\n- 引入版本：2026.1.29-beta.1（首个包含沙箱浏览器桥接的 npm 发布版本）\r\n- 受影响范围：\
+    \ >=2026.1.29-beta.1 <2026.2.14\r\n\r\n修复版本\r\n\r\n- 2026.2.14\r\n\r\n缓解措施\r\n\r\n- 升级到 2026.2.14\
+    （推荐）。\r\n- 或禁用沙箱浏览器（agents.defaults.sandbox.browser.enabled=false）。\r\n\r\n修复详情\r\
+    \n\r\n- 沙箱浏览器桥接服务器现在始终要求身份验证，并执行与回环浏览器客户端已使用的相同网关浏览器控制认证\
+    （令牌/密码）。\r\n- 额外加固：桥接服务器拒绝非回环绑定；本地辅助服务器绑定到回环地址。\r\n- 添加了回归测试（包括每端口\
+    桥接身份验证回退的单元测试覆盖）。\r\n\r\n修复提交：\r\n\r\n- openclaw/openclaw@4711a943e30bc58016247152ba06472dab09d0b0\r\n-\
+    \ openclaw/openclaw@6dd6bce997c48752134f2d6ed89b27de01ced7e3\r\n- openclaw/openclaw@cd84885a4ac78eadb7bf321aae98db9519426d67\r\
+    \n致谢\r\n\r\n感谢 Praetorian 的 Adnan Jakati (@jackhax) 报告此问题。"
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 到 2026.2.14 或更高版本。详情 - 沙箱浏览器桥接服务器现在始终要求身份验证，并执行与回环浏览器客户端已使用的相同网关浏览器控制认证（令牌/密码）。-
+    额外加固：桥接服务器拒绝非回环绑定；本地辅助服务器绑定到回环地址。- 升级到 2026.2.14（推荐）。- 或禁用沙箱浏览器（agents.defaults.sandbox.browser.enabled=false）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h9g4-589h-68xv
+rule: version >= "2026.1.29-beta.1" && version < "2026.2.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h9g4-589h-68xv

@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pjvx-rx66-r3fg
+  summary: OpenClaw `/allowlist ... --store` 账户范围界定中的跨账户发送者授权扩展
+  details: >-
+    摘要
+
+    /allowlist ... --store 在读取时正确解析了所选频道的 accountId，但存储写入时仍然丢弃了该 accountId，写入了遗留的无范围配对允许
+    列表存储。
+
+
+    由于默认账户读取仍会合并遗留的无范围条目，原本针对某个账户的存储条目可能会在默认账户上静默授权同一发送者。
+
+
+    这是一个真实的跨账户发送者授权范围界定漏洞。严重程度设为中等，因为利用该漏洞需要一个已获授权且能执行 /allowlist 编辑的用户。
+
+
+    受影响的包/版本
+
+    - 包名: openclaw (npm)
+
+    - 已检查的最新发布版本: 2026.3.2
+
+    - 受影响版本: <= 2026.3.2
+
+    - 在主分支修复: 2026年3月7日，提交 70da80bcb5574a10925469048d2ebb2abf882e73
+
+    - 修复版本: 2026.3.7
+
+
+    详情
+
+    受影响的代码路径为：
+
+    - src/auto-reply/reply/commands-allowlist.ts:386-393 解析 accountId 并以此读取存储状态
+
+    - src/auto-reply/reply/commands-allowlist.ts:697-702 和 src/auto-reply/reply/commands-allowlist.ts:730-733 写入存储状态时未传递 accountId
+
+    - src/pairing/pairing-store.ts:231-234 和 src/pairing/pairing-store.ts:534-554 仍将遗留的无范围允许列表条目合并到默认账户
+
+
+    修复方案将 /allowlist ... --store 写入范围限定到已解析的账户，并在移除时清除遗留的默认账户存储条目，使遗留读取不再产生跨账户授权渗透。
+
+
+    影响
+
+    - 漏洞类型: 不当的授权范围界定 / 不正确的授权
+
+    - 利用前提: 已获授权且能执行 /allowlist 编辑的发送者
+
+    - 安全影响: 从一个频道账户到默认账户的意外授权扩展
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 70da80bcb5574a10925469048d2ebb2abf882e73 — 将
+    /allowlist ... --store 写入按账户范围界定，并清理遗留的默认账户移除操作
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg

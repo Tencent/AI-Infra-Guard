@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v865-p3gq-hw6m
+  summary: OpenClaw 插件 `/api/channels` 路由分类中的编码路径认证绕过
+  details: >-
+    概述（2026 年 3 月 2 日更新）
+
+    编码的替代路径请求可因受影响版本中的规范化深度不匹配而绕过 /api/channels/* 的插件路由认证检查。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 最新发布的受影响版本：2026.3.1
+
+    - 受影响范围：<= 2026.3.1
+
+    - 修复版本：2026.3.2（patched_versions: >= 2026.3.2）
+
+
+    技术详情
+
+    在受影响版本中，插件认证路径分类和路由路径规范化可能因深度编码的斜杠变体（例如多重编码的 %2f）而产生分歧。该不匹配允许编码的替代路径在插件路由处理中仍解析为 /api/channels/... 的同时规避受保护前缀的认证检查。
+
+
+    修复集通过以下方式加固了这类问题：
+
+    - 将路由路径规范化到有界不动点，
+
+    - 对畸形或未解析的规范化深度执行关闭失败，
+
+    - 要求显式的插件路由认证契约（无隐式认证默认值），
+
+    - 对重复路由注册执行路由所有权/冲突防护，
+
+    - 使用共享的 Webhook 路由生命周期注册以避免过时/冲突的路由接口。
+
+
+    受影响的部署
+
+    暴露插件 HTTP 路由并依赖网关认证保护 /api/channels/* 的部署。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.3.2 或更高版本。提交 - 93b07240257919f770d1e263e1f22753937b80ea
+    - 2fd8264ab03bd178e62a5f0c50d1c8556c17f12d
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v865-p3gq-hw6m
+rule: version <= "2026.3.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v865-p3gq-hw6m

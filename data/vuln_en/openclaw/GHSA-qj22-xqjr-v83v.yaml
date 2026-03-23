@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qj22-xqjr-v83v
+  summary: OpenClaw Telegram message_reaction authorization bypass allows unauthorized system-event injection
+  details: >-
+    A missing sender-authorization check in Telegram message_reaction handling allowed unauthorized users to trigger reaction-derived
+    system events.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Introduced: 2026.2.17
+
+    - Affected: >= 2026.2.17 and <= 2026.2.24
+
+    - Latest published at patch time: 2026.2.24
+
+    - Patched in release: 2026.2.25
+
+
+    Impact
+
+
+    When reaction notifications are enabled, unauthorized Telegram senders could inject reaction system events despite configured
+    DM/group authorization controls (dmPolicy, allowFrom, groupPolicy, groupAllowFrom).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - e56b0cf1a04f992ac6ebc775899f48ea31687640
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qj22-xqjr-v83v
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qj22-xqjr-v83v

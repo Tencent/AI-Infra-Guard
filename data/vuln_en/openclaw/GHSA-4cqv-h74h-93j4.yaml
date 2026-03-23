@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4cqv-h74h-93j4
+  summary: OpenClaw Discord `allowFrom` slug-collision authorization bypass
+  details: >-
+    OpenClaw supports Discord allowlists using either user IDs or names/tags. Name/tag matching depends on slug normalization,
+    so different user tags can collide to the same slug and unintentionally satisfy a name-based allowlist entry.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21-2
+
+    - Patched versions: >= 2026.2.22
+
+
+    What Changed
+
+    - openclaw security audit now warns on Discord name/tag allowlist entries (DM allowlists, guild/channel users, and pairing-store
+    entries).
+
+    - Runtime authorization now prefers resolved user IDs when a configured name/tag can be resolved, without rewriting config
+    files on disk.
+
+    - Name-based entries remain supported for compatibility.
+
+
+    Recommendations
+
+    - Prefer stable Discord user IDs for security-sensitive allowlists.
+
+    - Run openclaw security audit and address warnings where practical.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - f97c45c5b5e0698b6667bb5f6badc0cac7dabd12 - 747bb581b3f2264495e1fec5a0727d9f2ca1b6f1
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4

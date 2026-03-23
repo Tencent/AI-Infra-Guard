@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wm8r-w8pf-2v6w
+  summary: OpenClaw Signal group allowlist authorization bypass via DM pairing-store leakage
+  details: >-
+    Summary
+
+    In OpenClaw 2026.2.25, Signal group authorization under groupPolicy=allowlist could accept sender identities sourced from
+    DM pairing-store approvals. This allowed DM pairing approvals to leak into group allowlist evaluation.
+
+
+    Impact
+
+    This is an authorization-boundary weakness between DM pairing and group allowlist controls. A sender approved for DM pairing
+    could pass group checks without explicit group allowlisting.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published version affected: 2026.2.25
+
+    - Vulnerable range: <= 2026.2.25
+
+    - Patched version (planned next release): >= 2026.2.26
+
+
+    Fix
+
+    OpenClaw now keeps DM pairing-store entries DM-only and enforces explicit group allowlist boundaries in shared DM/group
+    policy resolution used by Signal and other channels.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. OpenClaw now keeps DM pairing-store entries DM-only and enforces
+    explicit group allowlist boundaries in shared DM/group policy resolution used by Signal and other channels.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wm8r-w8pf-2v6w
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wm8r-w8pf-2v6w

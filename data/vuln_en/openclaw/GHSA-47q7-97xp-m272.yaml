@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-47q7-97xp-m272
+  summary: OpenClaw Config writes could persist resolved ${VAR} secrets to disk
+  details: >-
+    Summary
+
+
+    OpenClaw hooks previously compared the provided hook token using a regular string comparison. Because this comparison
+    is not constant-time, an attacker with network access to the hooks endpoint could potentially use timing measurements
+    across many requests to gradually infer the token.
+
+
+    In practice, this typically requires hooks to be exposed to an untrusted network and a large number of requests; real-world
+    latency and jitter can make reliable measurement difficult.
+
+
+    Affected Packages / Versions
+
+
+    - openclaw (npm): < 2026.2.12
+
+
+    Patched Versions
+
+
+    - openclaw (npm): >= 2026.2.12
+
+
+    Mitigations
+
+
+    - Upgrade to openclaw >= 2026.2.12.
+
+    - If you cannot upgrade immediately: restrict network access to the hooks endpoint and rotate the hooks token after updating.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.13 or later. Commit(s) - 113ebfd6a23c4beb8a575d48f7482593254506ec Thanks
+    @akhmittra for reporting. - Upgrade to openclaw >= 2026.2.12. - If you cannot upgrade immediately: restrict network access
+    to the hooks endpoint and rotate the hooks token after updating.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-47q7-97xp-m272
+rule: version < "2026.2.13"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-47q7-97xp-m272

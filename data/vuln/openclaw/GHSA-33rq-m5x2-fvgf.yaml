@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-33rq-m5x2-fvgf
+  summary: OpenClaw 可选 Twitch 插件中 allowFrom 未强制执行，未授权的聊天用户可触发代理管道
+  details: "摘要\r\n\r\n在可选的 Twitch 通道插件（extensions/twitch）中，allowFrom 被记录为 Twitch 用户 ID 的硬允许列表，但未作为硬性\
+    门控强制执行。如果 allowedRoles 未设置或为空，访问控制路径默认为允许，因此任何能够提及机器人的 Twitch 用户都可以到达代理分发管道。\r\
+    \n\r\n范围说明：此问题仅影响安装并启用了 Twitch 插件的部署。未安装/启用 Twitch 插件的核心 OpenClaw 安装不受影响。\r\n\r\n受影响的包/版本\r\
+    \n\r\n- 包：openclaw（npm）\r\n- 受影响：>= 2026.1.29, < 2026.2.1\r\n- 已修复：>= 2026.2.1\r\n\r\n详情\r\n\r\n受影响组件：\
+    Twitch 插件访问控制（extensions/twitch/src/access-control.ts）。\r\n\r\ncheckTwitchAccessControl() 中的问题逻辑：\r\n\r\n\
+    - 当配置了 allowFrom 时，代码对成员返回 allowed: true，但未对非成员返回 allowed: false，导致执行继续通过。\r\n- 如果 allowedRoles\
+    \ 未设置或为空，即使配置了 allowFrom，函数也默认返回 allowed: true。\r\n\r\n概念验证（PoC）\r\n\r\n1. 安装并启用 Twitch 插件。\r\
+    \n2. 配置 allowFrom 列表，但不设置 allowedRoles（或将其设为空列表）。\r\n3. 从用户 ID 不在 allowFrom 中的另一个 Twitch 账户发送提及机器人的消息（例如\
+    \ @<botname> hello）。\r\n4. 观察消息被处理并可触发代理分发/回复，尽管未在允许列表中。\r\n\r\n影响\r\n\r\n对于依赖 allowFrom 限制谁可以在\
+    \ Twitch 聊天中调用机器人的操作员而言，这是授权绕过。根据配置（工具、路由、模型成本），这可能导致意外操作/响应以及资源或成本耗尽。\r\
+    \n\r\n变通方案\r\n\r\n升级至 openclaw >= 2026.2.1。\r\n\r\n感谢 AISLE Research Team 的 @MegaManSec (https://joshua.hu) 的报告。"
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.2.1 或更高版本。提交记录 - 8c7901c984866a776eb59662dc9d8b028de4f0d0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf
+rule: version < "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf

@@ -1,0 +1,70 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5h2c-8v84-qpvr
+  summary: OpenClaw Shell-env 回退信任启动环境变量，可能执行攻击者控制的登录 Shell 路径
+  details: >-
+    概述
+
+    OpenClaw shell-env 回退信任启动环境变量值，并可能在加载环境变量键之前执行攻击者控制的登录 Shell 启动路径。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：>= 2026.1.5 且 <= 2026.2.21-2
+
+    - 主线修复：9363c320d8ffe29290906752fab92621da02c3f7
+
+    - 计划的修复版本（预设）：2026.2.22
+
+
+    详细信息
+
+    漏洞链位于 shell-env 回退路径中：
+
+
+    1. src/infra/shell-env.ts
+
+    - resolveShell(env) 在设置时信任 env.SHELL。
+
+    - execLoginShellEnvZero(...) 使用继承的运行时环境执行 ${SHELL} -l -c "env -0"。
+
+
+    2. src/config/io.ts
+
+    - 配置环境变量值在 Shell 回退执行之前被应用。
+
+
+    3. src/config/env-vars.ts / 环境策略覆盖范围
+
+    - SHELL 处理已被加固，但启动路径选择器（HOME、ZDOTDIR）仍需在配置环境变量摄入和 Shell 回退执行的净化过程中进行显式阻止。
+
+
+    通过环境变量/配置影响，这可能在 OpenClaw 宿主进程上下文中的 Shell 启动处理过程中触发意外的命令执行。
+
+
+    修复
+
+    主线加固现在：
+
+    - 在运行时回退使用的配置环境变量摄入期间阻止 SHELL、HOME 和 ZDOTDIR，
+
+    - 净化 Shell 回退执行环境，将 HOME 固定为真实用户主目录并丢弃 ZDOTDIR + 危险的启动变量，
+
+    - 为配置环境变量摄入和 Shell 回退/路径探测净化添加回归测试。
+
+
+    影响
+
+    - 在攻击者控制的环境变量/配置输入可以到达 shell-env 回退的环境中存在本地代码执行风险。
+
+    - 在 OpenClaw 信任假设（SECURITY.md）下，这不是公共远程问题，取决于是否跨越本地可信操作员边界。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。主线加固现在：- 在运行时回退使用的配置环境变量摄入期间阻止 SHELL、HOME 和 ZDOTDIR，- 净化 Shell 回退执行环境，将 HOME 固定为真实用户主目录并丢弃 ZDOTDIR + 危险的启动变量。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5h2c-8v84-qpvr
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5h2c-8v84-qpvr

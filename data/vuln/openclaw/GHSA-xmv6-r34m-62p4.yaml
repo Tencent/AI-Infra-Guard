@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xmv6-r34m-62p4
+  summary: OpenClaw 沙箱媒体回退 tmp 符号链接别名绕过允许读取 sandboxRoot 外的主机文件
+  details: >-
+    概述
+
+    openclaw 中的沙箱路径验证绕过允许在回退 tmp 根目录为符号链接别名时，通过媒体路径回退 tmp 流程
+    读取 sandboxRoot 之外的主机文件。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 受影响版本：<= 2026.2.24
+
+    - 分类时的最新 npm 发布版本（2026 年 2 月 26 日）：2026.2.24
+
+    - 修复版本：2026.2.25
+
+
+    详情
+
+    当 /tmp/openclaw 不可用或不安全时，src/infra/tmp-openclaw-dir.ts 中的 resolvePreferredOpenClawTmpDir()
+    回退到 os.tmpdir()/openclaw-<uid>，但未验证该回退路径是否为受信任的非符号链接目录。
+
+
+    src/agents/sandbox-paths.ts 中的 resolveSandboxedMediaSource() 使用词法包含和别名检查允许
+    OpenClaw tmp 根目录下的绝对 tmp 媒体路径。如果回退 tmp 根目录是符号链接别名（例如指向 /），
+    则 $TMPDIR/openclaw-<uid>/etc/passwd 等输入可以通过验证并解析为 sandboxRoot 外的主机文件。
+
+
+    影响
+
+    这可以打破沙箱媒体路径限制并允许未授权的主机文件读取（机密性影响）。
+
+
+    复现（概述）
+
+    1. 强制解析器回退（使 /tmp/openclaw 不可用/无效）。
+
+    2. 使回退根目录（$TMPDIR/openclaw-<uid>）成为指向 / 的符号链接别名。
+
+    3. 提交回退根目录下的媒体路径（例如 $TMPDIR/openclaw-<uid>/etc/passwd）。
+
+    4. 观察路径被接受并读取 sandboxRoot 之外的内容。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。提交记录 - 496a76c03ba85e15ea715e5a583e498ae04d36e3
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xmv6-r34m-62p4
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xmv6-r34m-62p4

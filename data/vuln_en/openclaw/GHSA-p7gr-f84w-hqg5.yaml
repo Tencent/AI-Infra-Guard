@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p7gr-f84w-hqg5
+  summary: OpenClaw Sandboxed sessions_spawn now enforces sandbox inheritance for cross-agent spawns
+  details: >-
+    Summary
+
+    A sandboxed session could use cross-agent sessions_spawn to create a child under an agent configured with sandbox.mode="off",
+    downgrading runtime confinement.
+
+
+    Impact
+
+    In mixed-agent setups that allow cross-agent spawning, a sandboxed requester could escape into an unsandboxed child runtime.
+
+
+    Fix
+
+    Spawn-time sandbox inheritance is now enforced: if the requester is sandboxed and the resolved child runtime would be
+    unsandboxed, spawn is rejected.
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.1 or later. Spawn-time sandbox inheritance is now enforced: if the requester
+    is sandboxed and the resolved child runtime would be unsandboxed, spawn is rejected.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p7gr-f84w-hqg5
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p7gr-f84w-hqg5

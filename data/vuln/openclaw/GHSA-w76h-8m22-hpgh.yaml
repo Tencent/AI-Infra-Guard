@@ -1,0 +1,31 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w76h-8m22-hpgh
+  summary: OpenClaw MSTeams 附件重定向处理可绕过已配置的媒体主机允许列表
+  details: >-
+    概述
+
+    在 OpenClaw MSTeams 媒体下载流程中，重定向处理在特定附件路径中可以绕过已配置的 mediaAllowHosts 检查。
+    重定向链在接受获取的内容之前没有被一致地约束到允许列表目标。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.21-2（分类时的最新发布版本）
+
+    - 修复版本：2026.2.22（计划下一版本发布）
+
+
+    影响
+
+    能够提供或影响附件 URL 的攻击者可以强制重定向链到非允许列表目标，削弱 MSTeams 媒体摄取的 SSRF 边界控制。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - 73d93dee64127a26f1acd09d0403b794cdeb4f5c - b34097f62df9d1960cc22600269cd3f3284e2124
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w76h-8m22-hpgh
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w76h-8m22-hpgh

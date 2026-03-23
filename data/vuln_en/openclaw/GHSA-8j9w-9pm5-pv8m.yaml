@@ -1,0 +1,71 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8j9w-9pm5-pv8m
+  summary: 'OpenClaw DUPLICATE of GHSA-3c6h-g97w-fg78: safeBins denied flags can be bypassed via GNU long-option abbreviations'
+  details: >-
+    Duplicate Notice
+
+    This draft advisory duplicates GHSA-3c6h-g97w-fg78.
+
+    Canonical advisory: https://github.com/openclaw/openclaw/security/advisories/GHSA-3c6h-g97w-fg78
+
+    Use GHSA-3c6h-g97w-fg78 for tracking/publication. This advisory is published as a duplicate notice.
+
+
+    Summary
+
+    OpenClaw safeBins argument validation allowed denied flags to be bypassed via GNU long-option abbreviations.
+
+
+    The validator matched denied long flags by exact string and treated unknown long options as allowed, creating a policy/runtime
+    mismatch: commands could be approved as safe-bin usage while runtime behavior reached denied options.
+
+
+    Impact
+
+    - Default safe-bin wc: unauthorized file-read behavior via abbreviated --files0-fro (runtime resolves to --files0-from).
+
+    - Configured safe-bin sort: external program invocation via abbreviated --compress-prog (runtime resolves to --compress-program).
+
+    - Additional hardening gap: unknown or ambiguous long options in safe-bin mode were not rejected fail-closed.
+
+
+    Technical Details
+
+    Affected paths included safe-bin argv validation and allowlist evaluation:
+
+    - src/infra/exec-safe-bin-policy.ts
+
+    - src/infra/exec-approvals-allowlist.ts
+
+
+    Affected Packages / Versions
+
+    - Ecosystem: npm
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.2.22-2
+
+    - Fixed in code on main: 2026.2.23 (released)
+
+
+    Remediation
+
+    - Canonicalize long options using GNU-style unique-prefix matching.
+
+    - Reject unknown and ambiguous long options in safe-bin mode (fail-closed).
+
+    - Reject inline values for non-value long flags.
+
+    - Deny additional sort filesystem-dependent flags in safe-bin mode: --random-source, --temporary-directory, -T.
+
+    - Add regression tests for denied-flag abbreviations and fail-closed long-option handling.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.23 or later. Commit(s) - 3b8e33037ae2e12af7beb56fcf0346f1f8cbde6f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m

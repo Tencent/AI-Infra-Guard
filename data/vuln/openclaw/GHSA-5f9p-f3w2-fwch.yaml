@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5f9p-f3w2-fwch
+  summary: OpenClaw macOS 伴侣应用（测试版）：system.run shell 链的允许列表解析不匹配
+  details: >-
+    摘要
+
+    在 macOS 伴侣应用（目前为测试版）中，exec 审批中的解析不匹配可能让 shell 链负载在特定设置下通过 system.run 的允许列表检查。
+
+
+    影响
+
+    此路径需要以下所有条件：
+
+    - 具有 operator.write 的已认证调用者
+
+    - 已配对的 macOS 测试版节点主机
+
+    - exec 审批设置为 security=allowlist 和 ask=on-miss
+
+
+    在这些条件下，shell 链命令可能从不完整的命令视图获得审批，然后在配对的 macOS 主机上执行。
+
+
+    默认安装状态
+
+    默认安装不受影响。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 受影响：<= 2026.2.21-2
+
+    - 已修复（计划下一版本）：>= 2026.2.22
+
+
+    技术详情
+
+    修复通过在允许列表模式下按段评估 shell 链并在不安全的 shell 替换解析上失败关闭来加固 macOS 允许列表解析。
+
+
+    产品状态说明
+
+    受影响的 macOS 伴侣应用路径目前处于测试阶段。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.2.22 或更高版本。提交记录 - 5da03e622119fa012285cdb590fcf4264c965cb5 -
+    e371da38aab99521c4e076cd3d95fd775e00b784
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5f9p-f3w2-fwch
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5f9p-f3w2-fwch

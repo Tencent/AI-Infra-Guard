@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-48wf-g7cp-gr3m
+  summary: OpenClaw allowlist exec-guard bypass via env -S
+  details: >-
+    Summary
+
+    In allowlist mode, system.run guardrails could be bypassed through env -S, causing policy-analysis/runtime-execution mismatch
+    for shell wrapper payloads.
+
+
+    Severity Rationale (Medium)
+
+    This issue is rated medium because it is a guardrail/policy bypass in OpenClaw's trusted-operator model, not an authentication
+    boundary break.
+
+
+    - Authenticated Gateway callers are trusted operators by design.
+
+    - exec approvals/allowlists are operator safety controls.
+
+    - The bug still weakens expected safety behavior and can enable unintended command execution when untrusted content influences
+    tool input.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.22-2
+
+    - Patched versions: >= 2026.2.23
+
+
+    Latest published npm version checked during triage: 2026.2.22-2.
+
+
+    Technical Impact
+
+    When /usr/bin/env is allowlisted, env -S 'sh -c ...' could be treated as allowed non-wrapper argv while runtime still
+    executes shell-wrapper semantics.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Commit(s) - a1c4bf07c6baad3ef87a0e710fe9aef127b1f606 (core allowlist/runtime
+    parity hardening) - 3f923e831364d83d0f23499ee49961de334cf58b (explicit env -S regressions)
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-48wf-g7cp-gr3m
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-48wf-g7cp-gr3m

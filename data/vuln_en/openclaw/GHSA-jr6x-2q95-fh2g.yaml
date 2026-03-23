@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jr6x-2q95-fh2g
+  summary: OpenClaw Authorization mismatch allowed write-scope agent runs to reach owner-only tools
+  details: >-
+    Summary
+
+    An authorization mismatch allowed authenticated callers with operator.write access to invoke owner-only tool surfaces
+    (gateway, cron) through agent runs in scoped-token deployments.
+
+
+    Impact
+
+    On affected deployments, write-scoped callers could perform control-plane actions beyond intended write scope.
+
+
+    Fix
+
+    Owner-only gating is now enforced consistently for owner-only tool surfaces during agent execution, and tool scope classification
+    was tightened to remove the privilege mismatch.
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.1 or later. Owner-only gating is now enforced consistently for owner-only
+    tool surfaces during agent execution, and tool scope classification was tightened to remove the privilege mismatch.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jr6x-2q95-fh2g
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jr6x-2q95-fh2g

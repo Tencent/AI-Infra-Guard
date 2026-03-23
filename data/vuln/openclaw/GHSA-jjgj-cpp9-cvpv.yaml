@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jjgj-cpp9-cvpv
+  summary: 'OpenClaw 通过 MCP 工具结果 MEDIA: 指令注入实现本地文件窃取'
+  details: "概述\r\n\r\n恶意或被入侵的 MCP（模型上下文协议）工具服务器可以通过在工具结果文本内容中注入 MEDIA: 指令来窃取主机系统上的任意本地文件。OpenClaw\
+    \ 的工具结果处理管道从 MEDIA: 令牌中提取文件路径，未进行来源级别验证，将路径传递通过默认包含 os.tmpdir() 的 localRoots\
+    \ 白名单检查（覆盖 Linux/macOS 上的 /tmp 和 Windows 上的 %TEMP%），然后读取文件内容并将其发送到\
+    \ Discord、Slack、Telegram 和 WhatsApp 等外部消息通道。\r\n\r\n受影响组件\r\n\r\nOpenClaw（截至 2026-02-19 的所有版本，包括最新版本）\r\n\r\n漏洞详情\r\n\
+    \r\n根本原因\r\n\r\n此漏洞存在于媒体处理管道的多个文件中：\r\n\r\n1. 未验证的提取（src/agents/pi-embedded-subscribe.tools.ts，第 143-202 行）：extractToolResultMediaPaths()\
+    \ 使用正则表达式从 MCP 工具结果文本内容块中解析 MEDIA: 令牌。它接受任何文件路径（绝对路径、相对路径、Windows 驱动器路径、UNC 路径、file:// URI），未验证来源是否受信或路径是否在预期范围内。\r\n\r\n2.\
+    \ 过度宽泛的默认白名单（src/media/local-roots.ts，第 7-16 行）：buildMediaLocalRoots() 在默认允许的目录列表中包含 os.tmpdir()。在 Linux/macOS 上这是\
+    \ /tmp（全局可读，通常包含应用密钥、数据库转储、SSH 密钥、会话令牌），在 Windows 上是 %TEMP%（用户临时目录，包含应用缓存、凭据和临时密钥）。\r\n\r\n3.\
+    \ 传递到外部通道（src/agents/pi-embedded-subscribe.handlers.tools.ts，第 380-392 行）：提取后，媒体路径通过\
+    \ ctx.params.onToolResult({ mediaUrls: mediaPaths }) 传递，流经出站传递管道将文件内容作为附件发送到 Discord、Slack、Telegram\
+    \ 和其他已配置的消息通道。\r\n\r\n攻击流程\r\n\r\n``\r\n恶意 MCP 工具服务器\r\n        │\r\n\
+    \        ▼\r\n返回..."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 到 >= 2026.2.21 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jjgj-cpp9-cvpv
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jjgj-cpp9-cvpv

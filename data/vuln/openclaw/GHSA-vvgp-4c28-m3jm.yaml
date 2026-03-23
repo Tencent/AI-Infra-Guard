@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vvgp-4c28-m3jm
+  summary: OpenClaw 可信代理控制 UI 配对绕过允许未配对的节点会话
+  details: >-
+    概述
+
+    可信代理控制 UI 配对绕过漏洞接受 client.id=control-ui 而不进行设备身份检查。该绕过不需要操作员角色，
+    因此已认证的节点角色会话可以在未配对的情况下连接并访问节点事件方法。
+
+
+    影响
+
+    在启用可信代理认证的情况下，节点角色的 WebSocket 客户端可以通过使用 client.id=control-ui 跳过配对。
+    这导致了从节点范围连接到节点事件执行流的授权边界绕过。
+
+
+    受影响的包/版本
+
+    - 包：openclaw (npm)
+
+    - 受影响范围：<= 2026.2.24
+
+    - 最新发布的漏洞版本：2026.2.24
+
+    - 计划下一版本修复：2026.2.25（预设如下，以便在 npm 发布后发布此公告）
+
+
+    修复
+
+    可信代理控制 UI 绕过现在额外要求 role === "operator"。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。可信代理控制 UI 绕过现在额外要求 role === "operator"。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vvgp-4c28-m3jm
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vvgp-4c28-m3jm

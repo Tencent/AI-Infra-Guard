@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9f72-qcpw-2hxc
+  summary: OpenClaw Native prompt image auto-load did not honor tools.fs.workspaceOnly in sandboxed runs
+  details: >-
+    Summary
+
+    In sandboxed runs, native prompt image auto-load did not honor tools.fs.workspaceOnly=true.
+
+
+    This optional hardening setting is not enabled by default. When operators enabled it, prompt text could still reference
+    mounted out-of-workspace image paths (for example /agent/secret.png) and load those image bytes for vision-capable model
+    input.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version at triage time: 2026.2.23
+
+    - Vulnerable version range: <= 2026.2.23
+
+    - Patched version (planned next release): 2026.2.24
+
+
+    Conditions Required
+
+    This issue required all of the following:
+
+    - sandbox mode enabled,
+
+    - tools.fs.workspaceOnly=true configured,
+
+    - an out-of-workspace mount path reachable from the sandbox (for example /agent),
+
+    - vision-capable model path active for native prompt image loading.
+
+
+    Technical Details
+
+    Native prompt image ingestion (detectAndLoadPromptImages / loadImageFromRef) resolved and read sandbox paths but did not
+    apply the same workspace-root assertion used by file tools when tools.fs.workspaceOnly was set.
+
+
+    Verification
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. Commit(s) - 370d115549c0dadace0902775eea0d5094aedfdc
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9f72-qcpw-2hxc
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9f72-qcpw-2hxc

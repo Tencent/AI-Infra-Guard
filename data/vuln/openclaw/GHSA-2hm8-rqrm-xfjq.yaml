@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2hm8-rqrm-xfjq
+  summary: OpenClaw 仅所有者 gateway 工具访问检查在特定已认证私信流程中不完整
+  details: >-
+    概述
+
+
+    在已认证的非所有者私信会话中，一条较窄的工具调用路径可以访问比预期更广泛的仅所有者 gateway 操作。
+
+
+    影响
+
+
+    这需要在私信会话中有已认证的非所有者发送者和特定的工具调用路径。不涉及未认证访问，且这本身不提供直接代码执行。
+
+
+    根本原因
+
+
+    - 某些 gateway 调用路径仍然使用更广泛的默认范围，而非方法级最小权限范围。
+
+    - 仅所有者强制依赖工具名称检查，在所有调用路径中未一致地使用元数据驱动。
+
+
+    受影响的软件包/版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响：<= 2026.2.17
+
+    - 已修复：2026.2.19
+
+
+    修复方案
+
+
+    - 重构 gateway 方法范围分配为每方法最小权限。
+
+    - 将仅所有者工具检查统一为元数据驱动的访问控制。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。修复提交 - a40c10d3e24568b1e2947c104484be74bf66b8d2 - 2777d8ad91ef1e8a7c6f5b4b18f8507be7d02914
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2hm8-rqrm-xfjq
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2hm8-rqrm-xfjq

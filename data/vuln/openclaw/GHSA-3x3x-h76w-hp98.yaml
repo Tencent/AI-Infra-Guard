@@ -1,0 +1,35 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3x3x-h76w-hp98
+  summary: OpenClaw exec 允许列表 safeBins 短选项绕过可允许任意文件写入
+  details: >-
+    摘要
+
+    OpenClaw exec 允许列表/safeBins 策略可通过附加的短选项负载被绕过（例如 sort -o/tmp/poc），在仍满足 safeBins 检查的同时启用
+    文件写入操作。
+
+
+    受影响的包/版本
+
+    - 包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.17
+
+    - 最新发布的受影响版本：2026.2.17
+
+    - 已修复：2026.2.19
+
+
+    影响
+
+    当 tools.exec.security=allowlist 且 tools.exec.safeBins 包含受影响的二进制文件时，附加的短选项负载可以绕过 safeBins 参数验证，
+    允许本应被拒绝的文件写入行为。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.19 或更高版本。提交记录 - cfe8457a0f4aae5324daec261d3b0aad1461a4bc -
+    bafdbb6f112409a65decd3d4e7350fbd637c7754
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3x3x-h76w-hp98
+rule: version <= "2026.2.17"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3x3x-h76w-hp98

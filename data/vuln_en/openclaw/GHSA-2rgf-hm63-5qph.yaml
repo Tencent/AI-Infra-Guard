@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2rgf-hm63-5qph
+  summary: OpenClaw Improper X-Forwarded-For parsing behind trusted proxies allows client IP spoofing in security decisions
+  details: >-
+    Summary
+
+
+    OpenClaw used left-most X-Forwarded-For values when requests came from configured trusted proxies. In proxy chains that
+    append/preserve header values, this could let attacker-controlled header content influence security decisions tied to
+    client IP.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.19-2
+
+    - Patched: 2026.2.21 (planned next release)
+
+
+    Impact
+
+
+    Possible client-IP spoofing in security-sensitive paths (for example auth rate-limit identity and local/private classification)
+    for deployments behind trusted proxies with non-recommended forwarding behavior.
+
+
+    Scope Note
+
+
+    OpenClaw docs recommend reverse proxies overwrite (not append/preserve) inbound forwarding headers. This condition reduces
+    severity.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. Commit(s) - 07039dc089e51589a213ec0d16f8d6f2cd871fa1 - 8877bfd11ec7760b115b2d0d7500a45da2749747
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2rgf-hm63-5qph
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2rgf-hm63-5qph

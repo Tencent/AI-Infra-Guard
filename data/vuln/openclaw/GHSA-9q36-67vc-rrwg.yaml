@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9q36-67vc-rrwg
+  summary: OpenClaw 沙箱化的 /acp spawn 请求可初始化宿主 ACP 会话
+  details: >-
+    摘要
+
+    沙箱化的请求者会话可以通过 /acp spawn 到达宿主端 ACP 会话初始化。
+
+
+    OpenClaw 已经阻止了来自沙箱会话的 sessions_spawn({ runtime: "acp" })，但斜杠命令路径在未先应用相同的宿主运行时检查的情况下
+    直接初始化了 ACP。
+
+
+    受影响的包/版本
+
+    - npm 包名: openclaw
+
+    - 受影响版本: <= 2026.3.2
+
+    - 修复版本: >= 2026.3.7
+
+
+    详情
+
+    ACP 会话运行在宿主上，而非 OpenClaw 沙箱内部。src/agents/acp-spawn.ts 中的直接 ACP spawn 路径已经拒绝了沙箱请求者，但
+    src/auto-reply/reply/commands-acp/lifecycle.ts 中的 /acp spawn 在未先应用相同限制的情况下调用了 initializeSession(...)。
+
+
+    在受影响的版本中，沙箱会话中已获授权的发送者可以使用 /acp spawn 从沙箱聊天上下文跨越到宿主端 ACP 运行时初始化（前提是 ACP 已启用
+    且后端可用）。
+
+
+    修复详情
+
+    修复方案在 src/agents/acp-spawn.ts 中引入了共享的 ACP 运行时策略守卫，并在 src/auto-reply/reply/commands-acp/lifecycle.ts
+    中的 /acp spawn 处理程序在任何 ACP 后端初始化之前复用该守卫。在 src/auto-reply/reply/commands-acp.test.ts 中添加了回归测试
+    覆盖，以验证沙箱化的 /acp spawn 请求被提前拒绝，同时非沙箱会话的现有 ACP spawn 行为保持不变。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.7 或更高版本。提交记录 - 61000b8e4ded919ca1a825d4700db4cb3fdc56e3
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9q36-67vc-rrwg
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9q36-67vc-rrwg

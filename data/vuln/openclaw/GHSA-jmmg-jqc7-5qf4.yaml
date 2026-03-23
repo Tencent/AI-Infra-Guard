@@ -1,0 +1,65 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jmmg-jqc7-5qf4
+  summary: OpenClaw 浏览器来源 WebSocket 认证加固缺陷可导致回环密码暴力破解链
+  details: >-
+    此问题是在使用密码认证的本地回环部署上的浏览器来源 WebSocket 认证链。问题严重但有条件限制：攻击者必须诱导用户打开恶意页面，然后成功猜测网关密码。
+
+
+    背景和前提条件
+
+
+    OpenClaw 的 Web/网关接口设计用于本地使用和受信任操作员工作流。在受影响版本中，浏览器来源的客户端可以组合三种行为：
+
+
+    - 某些非控制台 UI WebSocket 客户端 ID 未执行来源检查。
+
+    - 回环认证尝试免于密码失败限流。
+
+    - 浏览器来源的非控制台 UI 客户端可使用静默本地配对路径。
+
+
+    成功利用需要满足以下所有条件：
+
+
+    - 网关在回环地址上可达（默认配置）。
+
+    - 使用密码认证模式。
+
+    - 受害者打开攻击者控制的 Web 内容。
+
+    - 密码在可行的暴力破解/字典攻击范围内可被猜测。
+
+
+    实际影响
+
+
+    如果密码被猜测成功，攻击者可以建立经过认证的操作员 WebSocket 会话，并调用该角色可用的控制平面方法。这本身不是未认证的互联网暴露 RCE 级别问题；它是在上述条件下具有重大影响的本地浏览器来源认证加固缺陷。
+
+
+    受影响的包/版本
+
+
+    - 包：openclaw (npm)
+
+    - 受影响版本：<=2026.2.24（截至 2026 年 2 月 26 日最新发布的 npm 版本）
+
+    - 修复版本：>=2026.2.25
+
+
+    修复详情
+
+
+    - 对控制台 UI/Webchat 之外的直接浏览器 WebSocket 客户端执行浏览器来源检查（受信任代理转发流程仍受支持）。
+
+    - 禁用回环豁免，应用浏览器来源认证失败限流。
+
+    - 阻止非控制台 UI 浏览器来源客户端的静默自动配对。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - c736f11a16d6bc27ea62a0fe40fffae4cb071fdb
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jmmg-jqc7-5qf4
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jmmg-jqc7-5qf4

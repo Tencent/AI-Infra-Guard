@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jv6r-27ww-4gw4
+  summary: OpenClaw DM pairing-store identities could satisfy group allowlist authorization
+  details: >-
+    Summary
+
+    DM pairing-store identities were incorrectly eligible for group allowlist authorization checks, enabling cross-context
+    authorization in group message paths.
+
+
+    Details
+
+    In affected versions, group allowlist evaluation could inherit identities from the DM pairing store. A sender approved
+    via DM pairing could satisfy group sender allowlist checks without being explicitly present in groupAllowFrom.
+
+
+    This is an authorization-policy boundary issue between DM pairing and group allowlists.
+
+
+    Affected Packages / Versions
+
+    - openclaw (npm): affected <= 2026.2.25 (latest published npm version at triage time)
+
+    - openclaw (npm): patched >= 2026.2.26 (planned next release)
+
+
+    Maintainer Timeline Note
+
+    Maintainers landed the initial fix before this report was filed; this report still provided useful independent confirmation
+    of the issue class and exploit path.
+
+
+    Thanks @tdjackey for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. Commit(s) - openclaw/openclaw@8bdda7a651c21e98faccdbbd73081e79cffe8be0
+    - openclaw/openclaw@051fdcc428129446e7c084260f837b7284279ce9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jv6r-27ww-4gw4
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jv6r-27ww-4gw4

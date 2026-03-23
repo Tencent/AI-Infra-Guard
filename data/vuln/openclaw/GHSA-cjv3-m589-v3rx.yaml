@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cjv3-m589-v3rx
+  summary: OpenClaw Canvas 路由加固（针对混合信任部署）
+  details: >-
+    概述
+
+    此公告跟踪 canvas 路由的纵深防御加固。在混合信任或网络可见的部署中，先前的 canvas 认证/回退行为可能将访问扩展到预期边界之外。
+
+
+    部署上下文
+
+    OpenClaw 的默认模型是可信主机 + 回环优先访问。部分操作员有意在 LAN/tailnet 上暴露 canvas 路由。此更新针对这些更广泛的部署模式。
+
+
+    变更内容
+
+    - 要求 canvas 路由具有显式的令牌或会话能力授权。
+
+    - 移除 canvas 访问的共享 IP 回退路径。
+
+    - 收紧绑定/回退行为以实现失败关闭。
+
+
+    影响
+
+    风险在非回环或混合信任环境中最高。在严格的单操作员可信主机设置中，实际暴露较低。
+
+
+    受影响的包/版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.19-2
+
+    - 已修复版本：2026.2.21（下一个发布目标）
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >=2026.2.21 或更高版本。修复提交 - c45f3c5b004c8d63dc0e282e2176f8c9355d24f1 - 08a7967936cfc0b2af6b27ec1f9272542648ad6c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cjv3-m589-v3rx
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cjv3-m589-v3rx

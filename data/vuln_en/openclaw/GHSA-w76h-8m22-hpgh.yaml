@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w76h-8m22-hpgh
+  summary: OpenClaw MSTeams attachment redirect handling could bypass configured media host allowlists
+  details: >-
+    Summary
+
+    In OpenClaw MSTeams media download flows, redirect handling could bypass configured mediaAllowHosts checks in specific
+    attachment paths. Redirect chains were not consistently constrained to allowlisted targets before accepting fetched content.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.21-2 (latest published at triage time)
+
+    - Fixed in: 2026.2.22 (planned next release)
+
+
+    Impact
+
+    Attackers able to supply or influence attachment URLs could force redirect chains to non-allowlisted targets, weakening
+    SSRF boundary controls for MSTeams media ingestion.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 73d93dee64127a26f1acd09d0403b794cdeb4f5c - b34097f62df9d1960cc22600269cd3f3284e2124
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w76h-8m22-hpgh
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w76h-8m22-hpgh

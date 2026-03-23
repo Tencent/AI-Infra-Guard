@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fhvm-j76f-qmjv
+  summary: OpenClaw 通道类型查找失败时潜在的访问组授权绕过
+  details: >-
+    概述
+
+
+    当启用 Telegram webhook 模式但未配置 webhook 密钥时，OpenClaw 可能在 Telegram webhook 端点接受未经认证的 HTTP POST 请求并信任攻击者控制的更新 JSON。这可能允许伪造的 Telegram 更新伪装 message.from.id / chat.id，从而可能绕过发送者允许列表并执行特权机器人命令。
+
+
+    受影响的包/版本
+
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：<= 2026.1.30
+
+    - 已修复版本：>= 2026.2.1
+
+
+    影响
+
+
+    能够访问 webhook 端点的攻击者可以通过在 webhook 载荷中伪造字段（例如 message.from.id）来伪造 Telegram 更新并冒充允许列表/已配对的发送者。影响取决于启用的命令/工具和部署的网络暴露程度。
+
+
+    缓解措施/变通方案
+
+
+    - 配置强密钥 channels.telegram.webhookSecret，确保反向代理不变地转发 X-Telegram-Bot-Api-Secret-Token 头。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >=2026.2.2 或更高版本。修复提交 - ca92597e1f9593236ad86810b66633144b69314d（配置验证：webhookUrl 要求 webhookSecret）。变通方案 - 配置强密钥 channels.telegram.webhookSecret，确保反向代理不变地转发 X-Telegram-Bot-Api-Secret-Token 头。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv
+rule: version <= "2026.2.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv

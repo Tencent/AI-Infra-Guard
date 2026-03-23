@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rm2p-j3r7-4x4j
+  summary: OpenClaw Slack 反应/固定消息在非消息入站中的发送者策略一致性问题
+  details: >-
+    概述
+
+    OpenClaw Slack 监视器在一致应用发送者策略检查之前处理了 reaction_* 和 pin_* 非消息事件。
+
+
+    在受影响版本中，这些事件可能被添加到系统事件上下文中，即使发送者策略通常不允许。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 确认的最新发布受影响版本：2026.2.24（截至 2026 年 2 月 26 日的 npm 最新版本）
+
+    - 受影响范围：<= 2026.2.24
+
+    - 修复版本：2026.2.25
+
+
+    技术详情
+
+    - reaction_* 和 pin_* 处理器现在通过共享的发送者授权（authorizeSlackSystemEventSender）路由。
+
+    - 现在执行的检查包括：
+      - DM dmPolicy / allowFrom
+      - 非 DM 频道的频道用户白名单执行
+      - 系统事件入队前的频道级别允许检查
+    - 添加了 DM 允许/拒绝和频道用户白名单拒绝路径的回归测试覆盖。
+
+
+    影响
+
+    Slack 非消息事件入站中的低严重性策略一致性问题。
+
+    这可能引入来自配置策略之外发送者的意外反应/固定消息上下文信号。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 到 >= 2026.2.25 或更高版本。提交 - aedf62ac7e669a89c7b299201bf6537dc6b12e0e
+    - 75dfb71e4e8b7c2feba5a8ca662f92ea840e0147
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rm2p-j3r7-4x4j
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rm2p-j3r7-4x4j

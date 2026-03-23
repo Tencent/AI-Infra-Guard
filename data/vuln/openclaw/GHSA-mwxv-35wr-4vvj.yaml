@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mwxv-35wr-4vvj
+  summary: OpenClaw 网关插件认证通过受保护的 /api/channels 路径中的编码点段遍历被绕过
+  details: >-
+    概述
+
+    网关插件路由对 /api/channels 的认证保护可通过编码点段遍历（例如 ..%2f）在插件处理器规范化的路径变体中被绕过。
+
+
+    受影响的包/版本
+
+    - 包：npm openclaw
+
+    - 最新发布的受影响版本：2026.2.25
+
+    - 受影响版本范围：<= 2026.2.25
+
+    - 修复版本：2026.2.26（计划的下一个版本）
+
+
+    影响
+
+    在受影响版本下，精心构造的替代路径可以绕过受保护插件通道路由的网关认证检查，当插件处理器解码/规范化传入路径并路由到 /api/channels/... 处理器时。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 到 >= 2026.2.26 或更高版本。提交 - 258d615c45527ffda37cecd08cd268f97461bde0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mwxv-35wr-4vvj
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mwxv-35wr-4vvj

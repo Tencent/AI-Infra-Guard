@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7xmq-g46g-f8pv
+  summary: OpenClaw Sandbox media TOCTOU could read files outside sandbox root
+  details: >-
+    Summary
+
+    Sandbox media handling had a time-of-check/time-of-use gap: media paths could be validated first and read later through
+    a separate path. A symlink retarget between those steps could cause reads outside sandboxRoot.
+
+
+    Impact
+
+    Affected versions could permit host file reads outside the intended sandbox root in media attachment/image flows.
+
+
+    Fix
+
+    Media reads now use consolidated root-scoped, boundary-safe read paths at use time, removing check/use drift across call
+    sites.
+
+
+    Affected and Patched Versions
+
+    - Affected: <= 2026.2.26
+
+    - Patched: 2026.3.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.1 or later. Media reads now use consolidated root-scoped, boundary-safe read
+    paths at use time, removing check/use drift across call sites.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7xmq-g46g-f8pv
+rule: version <= "2026.2.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7xmq-g46g-f8pv

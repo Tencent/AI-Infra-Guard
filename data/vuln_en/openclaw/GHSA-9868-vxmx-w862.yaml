@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9868-vxmx-w862
+  summary: OpenClaw system.run allowlist bypass via shell line-continuation command substitution
+  details: >-
+    Summary
+
+    In OpenClaw system.run allowlist mode, shell-wrapper analysis could be bypassed by splitting command substitution as $\\
+    + newline + ( inside double quotes. Analysis treated the payload as allowlisted (for example /bin/echo), while shell runtime
+    folded the line continuation into $(...) and executed non-allowlisted subcommands.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Latest published affected version: 2026.2.21-2
+
+    - Affected range: <=2026.2.21-2
+
+    - Patched version (planned next release): 2026.2.22
+
+
+    Impact
+
+    In deployments that opt into tools.exec.security=allowlist (with ask=on-miss or off), this can bypass approval boundaries
+    and lead to unintended command execution.
+
+
+    Remediation
+
+    - Upgrade to 2026.2.22 (or newer) when published.
+
+    - Temporary mitigation: set tools.exec.ask=always or tools.exec.security=deny.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 3f0b9dbb36c86e308267924c0d3d4a4e1fc4d1e9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9868-vxmx-w862
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9868-vxmx-w862
