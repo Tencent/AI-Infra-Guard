@@ -1,0 +1,25 @@
+info:
+  name: new-api
+  author: A.I.G bot
+  severity: info
+  desc: |
+    New API is a unified AI model hub and LLM gateway supporting aggregation and distribution of
+    100+ LLM providers. It converts various LLMs into OpenAI/Claude/Gemini compatible formats
+    and provides centralized model management for personal and enterprise use.
+  metadata:
+    product: new-api
+    vendor: quantumnous
+
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body='"system_name":"New API"' || body="New API</title>"
+
+version:
+  - method: GET
+    path: '/api/status'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"(v[0-9]+\.[0-9]+\.[0-9]+[^"]*)"'
