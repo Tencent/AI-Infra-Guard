@@ -47,10 +47,21 @@
   </a>
 </p>
 
-## 🚀 A.I.G v4.1：检测覆盖扩展与效率优化
+## 🚀 A.I.G v4.1.1：LiteLLM 供应链攻击检测
+
+- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：可检测针对 LiteLLM v1.82.7/v1.82.8 的 TeamPCP 供应链攻击——恶意包通过后门 `.pth` 文件在每次 Python 进程启动时静默窃取 SSH 密钥、云凭证（AWS/GCP/Azure）、Kubernetes 机密、API Key 等敏感数据。[查看详情 →](./data/vuln/LiteLLM/SUPPLY-CHAIN-2025-LITELLM.yaml)
+- 🔍 **新增组件覆盖**：新增 Blinko、New-API 的指纹识别和漏洞检测规则
+- 🐛 **安全修复**：GetTaskDetail 接口响应中对 token 字段做脱敏处理，防止凭证泄露
+
+<details>
+<summary>📌 v4.1 核心亮点</summary>
 
 - 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目
 - ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
+
+👉 [v4.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
+
+</details>
 
 <details>
 <summary>📌 v4.0 核心亮点</summary>
@@ -62,7 +73,7 @@
 
 </details>
 
-👉 [查看完整 v4.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [查看完整 v4.1.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
