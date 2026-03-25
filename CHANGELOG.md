@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.1] - 2026-03-25
+
+### Added
+- **New Vulnerability Rules**: Added AIG rules batch [2026-03-25], expanding AI component vulnerability detection coverage
+- **Fingerprint Enhancement**: Added correct new-api fingerprint matcher syntax (FOFA 100%)
+
+### Fixed
+- **Security**: Mask token fields in GetTaskDetail response to prevent credential leakage (#226)
+- **MCP Scan**: Fix missing imports and mcp_tool alias in mcp_tool module
+- **Documentation**: Fix incorrect license name in README.md; fix MIT license reference in README_ZH Features section
+
+### Changed
+- **CI**: Optimize yaml-lint workflow with Go cache and failure artifact upload
+- **Docs**: Update README What's New section to reflect v4.1 features accurately
+
+### Contributors
+Special thanks to @feiyang666, @zhuque, @aigsec
+
+---
+
 ## [v4.1] - 2026-03-23
 
 ### Added
