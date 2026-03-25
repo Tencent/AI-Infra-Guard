@@ -47,18 +47,22 @@
   </a>
 </p>
 
-## 🚀 A.I.G v4.1 发布：检测覆盖扩展、效率优化与开源合规
+## 🚀 A.I.G v4.1 更新
 
-- 🔍 **OpenClaw 检测能力增强**：优化对 OpenClaw 组件的指纹识别能力，漏洞库新增 **281 条 CVE/GHSA 条目**，覆盖 OpenClaw 相关组件安全通告
-- ⚡ **任务生命周期优化**：删除运行中的任务时，立即终止底层 Agent 执行，有效节省 Token 消耗
-- 🔐 **开源协议升级至 Apache 2.0**：完成从 MIT 到 Apache 2.0 的迁移，所有源文件已添加许可证头，并新增 NOTICE 文件包含署名要求
-- 🛠️ **稳定性与安全加固**：修复 Agent Scan 并发日志错乱问题；完成 CodeQL 路径注入加固及其他安全优化
+- 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目，进一步覆盖 OpenClaw 相关组件安全通告
+- ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
+- 🔐 **开源协议升级至 Apache 2.0**：完成从 MIT 迁移，所有源文件已添加许可证头，并附 NOTICE 署名要求
+- 🛠️ **问题修复与安全加固**：修复 Agent Scan 并发日志错乱；完成 CodeQL 路径注入加固
 
 <details>
-<summary>📌 v4.0 核心亮点</summary>
+<summary>📌 v4.0 核心亮点 — 全面迈入 Agent 安全时代</summary>
 
-- 🤖 **Agent 安全扫描**：基于多智能体架构的自动化扫描框架，针对运行于 Dify、Coze 等平台的 AI Agent 工作流，提供符合 OWASP Top 10 for Agentic Apps 2026 的安全评估
+**AI-Infra-Guard v4.0** 将安全边界从 AI 基础设施扩展至**自主 Agent 生态**，重磅推出两大独立模块：
+
+- 🤖 **Agent 安全扫描**：基于多智能体架构的自动化扫描框架，针对运行于 Dify、Coze 等平台的 AI Agent 工作流，覆盖间接提示注入、SSRF、System Prompt 泄露等风险，基于 OWASP Top 10 for Agentic Apps 2026
 - 🛡️ **OpenClaw 安全体检（EdgeOne ClawScan）**：一键评估 OpenClaw 部署安全风险，涵盖不安全配置、Skill 风险、CVE 漏洞与隐私泄露检测，由腾讯朱雀实验室提供核心安全引擎支持
+
+👉 [v4.0 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
 
 </details>
 
