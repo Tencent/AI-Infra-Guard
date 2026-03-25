@@ -59,8 +59,8 @@
 <details>
 <summary>📌 v4.0 Highlights</summary>
 
-- 🤖 **Agent-Scan**: Multi-agent autonomous scanning framework for evaluating AI agent workflows (Dify, Coze, etc.) against OWASP Top 10 for Agentic Apps 2026
-- 🛡️ **OpenClaw Security Scan (EdgeOne ClawScan)**: One-click security assessment for OpenClaw deployments — detects insecure configs, Skill risks, CVE vulnerabilities, and privacy leakage, powered by Tencent Zhuque Lab
+- 🛡️ **OpenClaw Security Scan (EdgeOne ClawScan)**: One-click security assessment for OpenClaw deployments — detects insecure configs, Skill risks, CVE vulnerabilities, and privacy leakage, powered by Tencent Zhuque Lab with Skill security intelligence co-built by Tencent Keen Security Lab
+- 🤖 **Agent-Scan**: A brand-new multi-agent automated scanning framework for evaluating the security of AI agent workflows (Dify, Coze, etc.), covering indirect prompt injection, SSRF, System Prompt leakage, and more — based on OWASP Top 10 for Agentic Apps 2026
 
 👉 [v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
 

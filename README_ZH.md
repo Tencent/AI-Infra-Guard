@@ -57,8 +57,8 @@
 <details>
 <summary>📌 v4.0 核心亮点</summary>
 
-- 🤖 **Agent 安全扫描**：基于多智能体架构的自动化扫描框架，针对运行于 Dify、Coze 等平台的 AI Agent 工作流，提供符合 OWASP Top 10 for Agentic Apps 2026 的安全评估
-- 🛡️ **OpenClaw 安全体检（EdgeOne ClawScan）**：一键评估 OpenClaw 部署安全风险，涵盖不安全配置、Skill 风险、CVE 漏洞与隐私泄露检测，由腾讯朱雀实验室提供核心安全引擎支持
+- 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建 Skill 安全情报数据。
+- 🤖 **Agent安全扫描**：基于多个 AI 红队智能体驱动的 Agent 安全风险自动化扫描框架，旨在全面评估各类 Agent 平台（如Dify、Coze 等）上运行的智能体工作流的安全性，提供间接提示注入、SSRF、System Prompt泄露等安全风险检测能力（基于 OWASP Top 10 for Agentic Apps 2026）。
 
 👉 [v4.0 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
 
