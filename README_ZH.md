@@ -52,8 +52,6 @@
 - 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目
 - ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
 
-👉 [查看完整 v4.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
-
 <details>
 <summary>📌 v4.0 核心亮点</summary>
 

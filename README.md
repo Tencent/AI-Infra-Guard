@@ -54,8 +54,6 @@
 - 🔍 **Enhanced OpenClaw Detection**: 281 new CVE/GHSA entries added to the vulnerability database
 - ⚡ **Task Efficiency**: Deleting a running task now immediately stops the underlying agent execution
 
-👉 [Full v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
-
 <details>
 <summary>📌 v4.0 Highlights</summary>
 
