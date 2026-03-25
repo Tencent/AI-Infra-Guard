@@ -47,11 +47,12 @@
   </a>
 </p>
 
-## 🚀 A.I.G v4.1 更新
+## 🚀 A.I.G v4.1：检测覆盖扩展、效率优化与开源合规
 
-- 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目，进一步覆盖 OpenClaw 相关组件安全通告
+- 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目
 - ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
-- 🔐 **开源协议升级至 Apache 2.0**：完成从 MIT 迁移，所有源文件已添加许可证头，并附 NOTICE 署名要求
+- 🔐 **Apache 2.0**：完成从 MIT 迁移，所有源文件已添加许可证头并附 NOTICE 署名要求
+- 🛠️ **修复与加固**：修复 Agent Scan 并发日志错乱；完成 CodeQL 路径注入加固
 
 <details>
 <summary>📌 v4.0 核心亮点</summary>

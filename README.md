@@ -49,11 +49,12 @@
 
 <br>
 
-## 🚀 What's New in v4.1
+## 🚀 What's New in v4.1: Expanded Coverage, Efficiency & Open-Source Compliance
 
-- 🔍 **Enhanced OpenClaw Detection**: Expanded vulnerability coverage with 281 new CVE/GHSA entries for OpenClaw components
-- ⚡ **Task Efficiency**: Running tasks now terminate immediately upon deletion, reducing unnecessary token consumption
-- 🔐 **Apache 2.0 License**: Migrated from MIT to Apache 2.0 with full source headers and NOTICE attribution
+- 🔍 **Enhanced OpenClaw Detection**: 281 new CVE/GHSA entries added to the vulnerability database
+- ⚡ **Task Efficiency**: Deleting a running task now immediately stops the underlying agent execution
+- 🔐 **Apache 2.0**: Migrated from MIT; all source files include license headers with NOTICE attribution
+- 🛠️ **Fixes & Hardening**: Resolved concurrent log corruption in Agent Scan; completed CodeQL path-injection remediation
 
 <details>
 <summary>📌 v4.0 Highlights</summary>
