@@ -51,13 +51,12 @@
 
 ## 🚀 What's New in v4.1
 
-**AI-Infra-Guard v4.1** focuses on operational control, security coverage expansion, and open-source compliance:
+**AI-Infra-Guard v4.1** brings expanded detection coverage, improved efficiency, and open-source compliance:
 
-- ⏸️ **Task Pause & Resume**: Agent scan tasks now support mid-run pause and resume, enabling full lifecycle control over long-running security assessments
-- 🛡️ **281 New Vulnerability Entries**: Expanded the OpenClaw vulnerability database with 281 new CVE/GHSA entries covering a broad range of AI infrastructure components
-- 🔌 **Extended Port Coverage**: Added port 18789 to the default scan port list for broader AI component discovery
-- 📋 **YAML CI/CD Validation**: Introduced automated YAML format validation in the CI pipeline, enforced on every PR and push to maintain rule integrity
-- 🔐 **Apache 2.0 Migration**: Migrated from MIT to Apache 2.0; all source files now include license headers and a NOTICE file with attribution requirements
+- 🔍 **Enhanced OpenClaw Detection**: Improved fingerprint recognition for OpenClaw components; vulnerability database now covers **281 CVE/GHSA entries** for OpenClaw-related components
+- ⚡ **Smarter Task Lifecycle**: Deleting a running task now immediately terminates the underlying agent execution, reducing unnecessary token consumption
+- 🔐 **Apache 2.0 License**: Migrated from MIT to Apache 2.0; all source files include license headers with a NOTICE file for attribution requirements
+- 🛠️ **Stability & Security**: Fixed concurrent log corruption in Agent Scan; completed CodeQL path-injection hardening and other security improvements
 
 <details>
 <summary>📌 v4.0 Highlights</summary>
