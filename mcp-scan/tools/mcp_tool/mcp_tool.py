@@ -16,11 +16,12 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-from typing import Any
+from typing import Any, Optional, Literal
 
 from utils.tool_context import ToolContext
 from tools.registry import register_tool
 from utils.tool_context import ToolContext
+from utils.mcp_tools import MCPTools
 
 
 async def _get_mcp_manager(url: Optional[str], transport: str, context: Optional[ToolContext]) -> MCPTools:
