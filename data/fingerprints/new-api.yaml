@@ -14,7 +14,7 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body='"system_name":"New API"' || body="New API</title>"
+      - body="<title>New API</title>" && body="content=\"new-api\""
 
 version:
   - method: GET
