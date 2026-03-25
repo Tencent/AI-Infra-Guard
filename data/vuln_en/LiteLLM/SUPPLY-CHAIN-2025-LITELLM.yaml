@@ -1,5 +1,5 @@
 info:
-  name: litellm
+  name: LiteLLM
   cve: SUPPLY-CHAIN-2025-LITELLM
   summary: LiteLLM PyPI Supply Chain Attack - Malicious Package Injection (v1.82.7/v1.82.8)
   details: >-
