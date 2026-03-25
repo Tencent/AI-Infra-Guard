@@ -1405,6 +1405,8 @@ func (tm *TaskManager) GetTaskDetail(sessionId string, username string, traceID 
 	} else {
 		params = make(map[string]interface{})
 	}
+	// Mask token fields in params to avoid leaking sensitive credentials
+	maskParamsToken(params)
 
 	// 构建返回数据
 	source, sourceLabel := resolveTaskSource(session)
@@ -1515,3 +1517,30 @@ func (tm *TaskManager) DownloadFile(sessionId string, fileUrl string, username s
 		traceID, sessionId, filePath, fileInfo.Size(), written)
 	return nil
 }
+
+// maskParamsToken masks sensitive token fields in task params before returning to the client.
+// It handles both single model object and list of model objects under the "model" key.
+func maskParamsToken(params map[string]interface{}) {
+	const masked = "********"
+	maskModel := func(m interface{}) {
+		if obj, ok := m.(map[string]interface{}); ok {
+			if _, has := obj["token"]; has {
+				obj["token"] = masked
+			}
+		}
+	}
+	if v, ok := params["model"]; ok {
+		switch val := v.(type) {
+		case map[string]interface{}:
+			maskModel(val)
+		case []interface{}:
+			for _, item := range val {
+				maskModel(item)
+			}
+		}
+	}
+	if v, ok := params["eval_model"]; ok {
+		maskModel(v)
+	}
+}
+
