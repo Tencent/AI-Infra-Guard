@@ -49,7 +49,7 @@
 
 ## 🚀 A.I.G v4.1.1：LiteLLM 供应链攻击检测
 
-- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：AIG 现可检测受感染的 LiteLLM v1.82.7/v1.82.8——若已安装，视该机器上所有凭证已泄露。[查看发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：A.I.G 现可检测受感染的 LiteLLM v1.82.7/v1.82.8——若已安装，视该机器上所有凭证已泄露。[查看发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **新增组件覆盖**：新增 Blinko、New-API 的指纹识别和漏洞检测规则
 - 🐛 **安全修复**：GetTaskDetail 接口响应中对 token 字段做脱敏处理，防止凭证泄露
 
@@ -163,7 +163,7 @@ docker-compose up -d
 ## 🖼️ 功能展示
 
 ### A.I.G 主界面
-![AIG主界面](img/aig-zh.gif)
+![A.I.G主界面](img/aig-zh.gif)
 
 ![插件管理](img/plugin-zh.gif)
 

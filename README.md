@@ -51,7 +51,7 @@
 
 ## 🚀 What's New in v4.1.1: LiteLLM Supply Chain Attack Detection
 
-- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: AIG now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: A.I.G now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **New Component Coverage**: Added fingerprints and vulnerability rules for Blinko and New-API
 - 🐛 **Bug Fix**: Mask token fields in GetTaskDetail API response to prevent credential leakage
 
@@ -168,7 +168,7 @@ Experience the Pro version with advanced features and improved performance. The 
 ## 🖼️ Showcase
 
 ### A.I.G Main Interface
-![AIG Main Page](img/aig.gif)
+![A.I.G Main Page](img/aig.gif)
 
 ### Plugin Management
 ![Plugin Management](img/plugin-gif.gif)
