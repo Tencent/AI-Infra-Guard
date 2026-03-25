@@ -49,10 +49,21 @@
 
 <br>
 
-## 🚀 What's New in v4.1: Expanded Detection & Task Efficiency
+## 🚀 What's New in v4.1.1: LiteLLM Supply Chain Attack Detection
+
+- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: AIG now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+- 🔍 **New Component Coverage**: Added fingerprints and vulnerability rules for Blinko and New-API
+- 🐛 **Bug Fix**: Mask token fields in GetTaskDetail API response to prevent credential leakage
+
+<details>
+<summary>📌 v4.1 Highlights</summary>
 
 - 🔍 **Enhanced OpenClaw Detection**: 281 new CVE/GHSA entries added to the vulnerability database
 - ⚡ **Task Efficiency**: Deleting a running task now immediately stops the underlying agent execution
+
+👉 [v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
+
+</details>
 
 <details>
 <summary>📌 v4.0 Highlights</summary>
@@ -64,7 +75,7 @@
 
 </details>
 
-👉 [Full v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Full v4.1.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
