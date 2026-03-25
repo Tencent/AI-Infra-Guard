@@ -49,14 +49,24 @@
 
 <br>
 
-## 🚀 What's New in v4.0: The Era of Agent Security
+## 🚀 What's New in v4.1: Expanded Detection & Task Efficiency
 
-We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security boundaries from AI infrastructure to the **Autonomous Agent Ecosystem**. This release introduces two major independent modules:
+- 🔍 **Enhanced OpenClaw Detection**: 281 new CVE/GHSA entries added to the vulnerability database
+- ⚡ **Task Efficiency**: Deleting a running task now immediately stops the underlying agent execution
 
-- 🛡️ **OpenClaw Security Scan**: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
-- 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agent workflows running across various platforms (Dify, Coze, etc.).
+👉 [Full v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
-👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+<details>
+<summary>📌 v4.0 Highlights</summary>
+
+- 🛡️ **OpenClaw Security Scan (EdgeOne ClawScan)**: One-click security assessment for OpenClaw deployments — detects insecure configs, Skill risks, CVE vulnerabilities, and privacy leakage, powered by Tencent Zhuque Lab with Skill security intelligence co-built by Tencent Keen Security Lab
+- 🤖 **Agent-Scan**: A brand-new multi-agent automated scanning framework for evaluating the security of AI agent workflows (Dify, Coze, etc.), covering indirect prompt injection, SSRF, System Prompt leakage, and more — based on OWASP Top 10 for Agentic Apps 2026
+
+👉 [v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
+
+</details>
+
+👉 [Full v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
