@@ -140,7 +140,7 @@ Experience the Pro version with advanced features and improved performance. The 
 - 🔌 **Complete API**: Full interface documentation and Swagger specifications for easy integration
 - 🌐 **Multi-Language**: Chinese and English interfaces with localized documentation
 - 🐳 **Cross-Platform**: Linux, macOS, and Windows support with Docker-based deployment
-- 🆓 **Free & Open Source**: Completely free under the MIT license
+- 🆓 **Free & Open Source**: Completely free under the Apache 2.0 license
 </details>
 
 <br />
