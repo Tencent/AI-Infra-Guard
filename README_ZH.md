@@ -47,12 +47,12 @@
   </a>
 </p>
 
-## 🚀 A.I.G v4.1：检测覆盖扩展、效率优化与开源合规
+## 🚀 A.I.G v4.1：检测覆盖扩展与效率优化
 
 - 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目
 - ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
-- 🔐 **Apache 2.0**：完成从 MIT 迁移，所有源文件已添加许可证头并附 NOTICE 署名要求
-- 🛠️ **修复与加固**：修复 Agent Scan 并发日志错乱；完成 CodeQL 路径注入加固
+
+👉 [查看完整 v4.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 <details>
 <summary>📌 v4.0 核心亮点</summary>
