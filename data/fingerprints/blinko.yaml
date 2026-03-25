@@ -1,0 +1,13 @@
+info:
+  name: blinko
+  author: A.I.G bot
+  severity: info
+  desc: Blinko is an open-source AI-powered note-taking application with MCP (Model Context Protocol) integration support.
+  metadata:
+    product: blinko
+    vendor: blinkospace
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Blinko</title>"

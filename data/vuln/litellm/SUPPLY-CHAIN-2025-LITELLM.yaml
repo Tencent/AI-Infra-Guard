@@ -1,0 +1,30 @@
+info:
+  name: litellm
+  cve: SUPPLY-CHAIN-2025-LITELLM
+  summary: LiteLLM PyPI 供应链投毒攻击 - 恶意包注入（v1.82.7/v1.82.8）
+  details: >-
+    2025年3月24日，威胁组织 TeamPCP 在攻陷安全扫描工具 Trivy 的 CI/CD 流程并窃取 litellm 的 PyPI 发布令牌后，
+    向 PyPI 发布了 litellm 的恶意版本（v1.82.7 和 v1.82.8）。恶意包中植入了后门文件 'litellm_init.pth'，
+    该文件会在每次 Python 进程启动时自动执行（无需显式导入）。恶意代码系统性地窃取敏感数据，
+    包括：SSH 密钥、AWS/GCP/Azure 云凭证、Kubernetes 密钥、环境变量（所有 API Key）、
+    数据库配置、加密货币钱包、SSL 私钥、CI/CD 密钥、git 凭证和 shell 历史记录，
+    并将数据加密后发送至攻击者控制的服务器。在 Kubernetes 环境中，
+    恶意代码还会利用服务账户令牌在集群每个节点上部署特权 Pod 进行横向扩散。
+    因攻击者代码存在 bug（.pth 文件触发子进程指数级 fork bomb 导致内存耗尽）事件才被发现。
+    最后一个干净版本为 v1.82.6。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: >-
+    立即执行 'pip show litellm' 检查已安装版本。
+    若版本为 1.82.7 或 1.82.8，应视该主机上所有凭证已泄露并立即轮换：
+    SSH 密钥、云凭证（AWS/GCP/Azure）、API 密钥（环境变量）、数据库密码、git token、CI/CD 密钥。
+    升级到 litellm >= 1.82.9 或最新稳定版本。同时排查可能自动安装了受影响版本的依赖包。
+  references:
+    - https://github.com/BerriAI/litellm
+    - https://pypi.org/project/litellm/
+    - https://x.com/karpathy/status/1904178715882086741
+rule: version >= "1.82.7" && version <= "1.82.8"
+references:
+  - https://github.com/BerriAI/litellm
+  - https://pypi.org/project/litellm/
+  - https://x.com/karpathy/status/1904178715882086741
