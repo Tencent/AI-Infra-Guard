@@ -49,7 +49,7 @@
 
 ## 🚀 A.I.G v4.1.1：LiteLLM 供应链攻击检测
 
-- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：可检测针对 LiteLLM v1.82.7/v1.82.8 的 TeamPCP 供应链攻击——恶意包通过后门 `.pth` 文件在每次 Python 进程启动时静默窃取 SSH 密钥、云凭证（AWS/GCP/Azure）、Kubernetes 机密、API Key 等敏感数据。[查看详情 →](./data/vuln/LiteLLM/SUPPLY-CHAIN-2025-LITELLM.yaml)
+- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：AIG 现可检测受感染的 LiteLLM v1.82.7/v1.82.8——若已安装，视该机器上所有凭证已泄露。[查看发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **新增组件覆盖**：新增 Blinko、New-API 的指纹识别和漏洞检测规则
 - 🐛 **安全修复**：GetTaskDetail 接口响应中对 token 字段做脱敏处理，防止凭证泄露
 

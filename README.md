@@ -51,7 +51,7 @@
 
 ## 🚀 What's New in v4.1.1: LiteLLM Supply Chain Attack Detection
 
-- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: Detects the TeamPCP supply chain attack targeting LiteLLM v1.82.7/v1.82.8 — malicious packages silently exfiltrate SSH keys, cloud credentials (AWS/GCP/Azure), Kubernetes secrets, API keys, and more on every Python process startup via a backdoor `.pth` file. [Details →](./data/vuln_en/LiteLLM/SUPPLY-CHAIN-2025-LITELLM.yaml)
+- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: AIG now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **New Component Coverage**: Added fingerprints and vulnerability rules for Blinko and New-API
 - 🐛 **Bug Fix**: Mask token fields in GetTaskDetail API response to prevent credential leakage
 
