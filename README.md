@@ -49,14 +49,25 @@
 
 <br>
 
-## 🚀 What's New in v4.0: The Era of Agent Security
+## 🚀 What's New in v4.1
 
-We are thrilled to announce **AI-Infra-Guard v4.0**, which expands our security boundaries from AI infrastructure to the **Autonomous Agent Ecosystem**. This release introduces two major independent modules:
+**AI-Infra-Guard v4.1** focuses on operational control, security coverage expansion, and open-source compliance:
 
-- 🛡️ **OpenClaw Security Scan**: Supports one-click evaluation of OpenClaw security risks, featuring detection for insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage. It is officially powered by the core security engine from Tencent Zhuque Lab, with Skill security intelligence data co-built in collaboration with Tencent Keen Security Lab.
-- 🤖 **Agent-Scan**: A brand-new, independent multi-agent automated scanning framework designed to evaluate the security of AI agent workflows running across various platforms (Dify, Coze, etc.).
+- ⏸️ **Task Pause & Resume**: Agent scan tasks now support mid-run pause and resume, enabling full lifecycle control over long-running security assessments
+- 🛡️ **281 New Vulnerability Entries**: Expanded the OpenClaw vulnerability database with 281 new CVE/GHSA entries covering a broad range of AI infrastructure components
+- 🔌 **Extended Port Coverage**: Added port 18789 to the default scan port list for broader AI component discovery
+- 📋 **YAML CI/CD Validation**: Introduced automated YAML format validation in the CI pipeline, enforced on every PR and push to maintain rule integrity
+- 🔐 **Apache 2.0 Migration**: Migrated from MIT to Apache 2.0; all source files now include license headers and a NOTICE file with attribution requirements
 
-👉  [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+<details>
+<summary>📌 v4.0 Highlights</summary>
+
+- 🤖 **Agent-Scan**: Multi-agent autonomous scanning framework for evaluating AI agent workflows (Dify, Coze, etc.) against OWASP Top 10 for Agentic Apps 2026
+- 🛡️ **OpenClaw Security Scan (EdgeOne ClawScan)**: One-click security assessment for OpenClaw deployments — detects insecure configs, Skill risks, CVE vulnerabilities, and privacy leakage, powered by Tencent Zhuque Lab
+
+</details>
+
+👉 [Full v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
