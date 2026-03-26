@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qc36-x95h-7j53
+  summary: OpenClaw 未识别的脚本运行器可绕过 system.run 审批完整性检查
+  details: >-
+    OpenClaw 受影响版本中，system.run 审批流程未对未识别的解释器/运行时命令（非白名单脚本运行器）施加绑定约束。攻击者可利用未知运行器类型的命令绕过审批完整性机制，以已审批的命令外壳执行不同内容。修复版本为所有 system.run 调用统一施加操作数绑定，包括未识别的脚本运行器。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，确保所有 system.run 调用（含未识别运行器）均受审批绑定约束。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qc36-x95h-7j53
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qc36-x95h-7j53

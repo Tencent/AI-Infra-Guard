@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h3x4-hc5v-v2gm
+  summary: OpenClaw Windows media loaders accepted remote-host file URLs before local path validation
+  details: >-
+    Summary
+
+    Windows local-media handling accepted remote-host file URLs and UNC-style paths before local-path validation, so network-hosted
+    file targets could be treated as local content.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - src/infra/local-file-access.ts now rejects remote-host file: URLs and UNC/network paths as non-local input.
+
+    - src/media/web-media.ts, src/media-understanding/attachments.normalize.ts, and src/agents/sandbox-paths.ts all route
+    through the shared local-file guard.
+
+
+    Thanks @RacerZ-fighting, @Fushuling for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 4fd7feb0fd4ec16c48ed983980dba79a09b3aaf5 - 93880717f1cd34feaa45e74e939b7a5256288901
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h3x4-hc5v-v2gm
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h3x4-hc5v-v2gm

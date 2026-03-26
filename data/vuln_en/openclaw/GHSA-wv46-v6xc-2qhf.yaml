@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wv46-v6xc-2qhf
+  summary: OpenClaw Synology Chat reply delivery could be rebound through username-based user resolution.
+  details: >-
+    Summary
+
+    Synology Chat reply delivery could rebind to a mutable username match instead of the stable numeric user_id recorded by
+    the webhook event.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - extensions/synology-chat/src/webhook-handler.ts now keeps replies bound to the stable webhook user identifier unless
+    an explicit dangerous opt-in is enabled.
+
+    - extensions/synology-chat/src/config-schema.ts contains the explicit dangerous opt-in seam instead of silent username
+    rebinding.
+
+
+    Thanks @nexrin for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7ade3553b74ee3f461c4acd216653d5ba411f455
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wv46-v6xc-2qhf
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wv46-v6xc-2qhf

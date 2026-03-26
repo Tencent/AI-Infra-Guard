@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x2cm-hg9c-mf5w
+  summary: OpenClaw sessions send 操作缺少 controlScope 强制执行，允许叶子子代理向受控子代理发送消息
+  details: >-
+    漏洞概述
+
+    sessions send 操作缺少 controlScope 强制执行检查，导致叶子子代理可向受控子代理发送未经授权的消息。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w

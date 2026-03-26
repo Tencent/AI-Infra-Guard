@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g353-mgv3-8pcj
+  summary: OpenClaw Feishu webhook mode accepted forged events when only `verificationToken` was configured
+  details: >-
+    Summary
+
+
+    Feishu webhook mode allowed deployments that configured only verificationToken without encryptKey. In that state, forged
+    inbound events could be accepted because the weaker configuration did not provide the required cryptographic verification
+    boundary.
+
+
+    Impact
+
+
+    An unauthenticated network attacker who could reach the webhook endpoint could inject forged Feishu events, impersonate
+    senders, and potentially trigger downstream tool execution subject to the local agent policy.
+
+
+    Affected versions
+
+
+    openclaw <= 2026.3.11
+
+
+    Patch
+
+
+    Fixed in openclaw 2026.3.12. Feishu webhook mode now fails closed unless encryptKey is configured, and the webhook transport
+    rejects missing or invalid signatures before dispatch. Update to 2026.3.12 or later and configure encryptKey for webhook
+    deployments.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:L
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.3.12 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g353-mgv3-8pcj
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g353-mgv3-8pcj

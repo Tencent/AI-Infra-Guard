@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-65h8-27jh-q8wv
+  summary: OpenClaw Nostr 入站私信在发件人策略执行前可触发未经认证的密码学运算
+  details: >-
+    漏洞概述
+
+    Nostr 入站私信处理在发件人和配对策略执行前即进行密码学运算和消息分发，导致可被利用执行未授权的预认证计算。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。修复提交 - 1ee9611079e81b9122f4bed01abb3d9f56206c77
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-65h8-27jh-q8wv
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-65h8-27jh-q8wv

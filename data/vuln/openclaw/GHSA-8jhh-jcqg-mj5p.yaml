@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8jhh-jcqg-mj5p
+  summary: OpenClaw 频道命令可绕过账户范围的 configWrites 限制
+  details: >-
+    OpenClaw 受影响版本中，通过频道（channel）发起的命令可绕过账户级别的 configWrites 权限限制，执行原本需要配置写权限的操作。这允许仅持有普通频道访问权限的调用者修改账户配置，违反最小权限原则。修复版本在频道命令处理路径上正确应用 configWrites 权限检查。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，确保频道命令路径正确执行账户级 configWrites 权限检查。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8jhh-jcqg-mj5p
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8jhh-jcqg-mj5p

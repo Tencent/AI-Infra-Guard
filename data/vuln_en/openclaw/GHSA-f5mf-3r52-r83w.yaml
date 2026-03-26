@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f5mf-3r52-r83w
+  summary: OpenClaw Zalouser allowlist authorization matched mutable group names by default
+  details: >-
+    Summary
+
+
+    OpenClaw's Zalouser allowlist mode accepted mutable group names and normalized slugs as authorization matches instead
+    of requiring stable group IDs. In deployments that used name-based channels.zalouser.groups entries together with permissive
+    sender allowlists, a different group could be accepted by reusing the same display name as an allowlisted group.
+
+
+    Impact
+
+
+    This weakened channel authorization for Zalouser group routing and could allow messages from an unintended group to reach
+    the agent when operators relied on group names instead of stable IDs.
+
+
+    Affected versions
+
+
+    openclaw <= 2026.3.11
+
+
+    Patch
+
+
+    Fixed in openclaw 2026.3.12. Allowlist authorization now matches stable group identifiers, and users should update to
+    2026.3.12 or later.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.12 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f5mf-3r52-r83w
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f5mf-3r52-r83w

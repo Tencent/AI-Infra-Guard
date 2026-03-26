@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-844j-xrrq-wgh4
+  summary: OpenClaw XFF 回环地址欺骗在配置 trustedProxies 时可绕过 canvas 认证和速率限制
+  details: >-
+    漏洞概述
+
+    当配置了 trustedProxies 时，XFF（X-Forwarded-For）回环地址欺骗可绕过 canvas 认证及速率限制器。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4

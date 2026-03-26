@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4jpw-hj22-2xmc
+  summary: OpenClaw Pairing-scoped device tokens could mint `operator.admin` and reach node RCE
+  details: >-
+    Summary
+
+    In affected versions of openclaw, a caller holding only operator.pairing could use device.token.rotate to mint a new token
+    with broader scopes for an already paired device. If the target device was approved for operator.admin, the attacker could
+    obtain an administrative token without already holding administrative scope.
+
+
+    Impact
+
+    This is a critical authorization flaw. On deployments with connected node hosts or companion apps that expose system.run,
+    the escalated token could then modify node execution approvals and reach real remote code execution on the node. Even
+    without nodes, the flaw still granted unauthorized gateway-admin access.
+
+
+    Affected Packages and Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.3.8
+
+    - Fixed in: 2026.3.11
+
+
+    Technical Details
+
+    device.token.rotate accepted caller-supplied target scopes and validated them against the target device's approved scopes,
+    but it did not constrain the newly minted scopes to the caller's own current scope set. That allowed a pairing-scoped
+    caller to mint a broader token for an already paired administrative device.
+
+
+    Fix
+
+    OpenClaw now enforces caller-scope subsetting in device.token.rotate, preventing callers from minting device tokens broader
+    than the scopes they already hold. The fix shipped in openclaw@2026.3.11.
+
+
+    Workarounds
+
+    Upgrade to 2026.3.11 or later.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: Upgrade openclaw to 2026.3.11 or later. OpenClaw now enforces caller-scope subsetting in device.token.rotate,
+    preventing callers from minting device tokens broader than the scopes they already hold. The fix shipped in openclaw@2026.3.11.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4jpw-hj22-2xmc
+rule: version <= "2026.3.8"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4jpw-hj22-2xmc

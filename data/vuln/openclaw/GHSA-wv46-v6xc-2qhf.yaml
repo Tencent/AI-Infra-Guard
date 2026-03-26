@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wv46-v6xc-2qhf
+  summary: OpenClaw Synology Chat 回复投递可通过基于用户名的用户解析被重定向
+  details: >-
+    漏洞概述
+
+    Synology Chat 回复消息的投递可通过基于用户名的用户解析被恶意重定向，导致消息被投递给非预期接收方。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wv46-v6xc-2qhf
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wv46-v6xc-2qhf

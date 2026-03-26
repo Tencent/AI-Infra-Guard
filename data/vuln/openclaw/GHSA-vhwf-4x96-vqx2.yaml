@@ -1,0 +1,44 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vhwf-4x96-vqx2
+  summary: OpenClaw skills-install-download 可通过重新绑定已验证的基础路径被重定向至工具根目录以外
+  details: >-
+    OpenClaw 的技能下载安装器在词法层面验证了预期的每技能工具根目录，但随后在下载和复制归档文件时复用了该可变路径。
+    如果本地攻击者能够在验证与最终写入之间重新绑定该工具根路径，安装器可能被重定向，将文件写入预期工具目录之外。
+
+
+    修复方案在验证完成后立即固定规范化的每技能工具根目录，并从该规范化根目录派生后续的下载/复制路径，
+    从而使词法路径重绑定操作失败关闭，而非重定向写入。
+
+
+    受影响的软件包 / 版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 最新已发布的受影响版本：2026.3.7
+
+    - 受影响范围：<= 2026.3.7
+
+    - 已修复版本：2026.3.8
+
+
+    发布验证
+
+
+    - 已验证 GitHub 发布版本 v2026.3.8（发布于 2026 年 3 月 9 日）中包含修复。
+
+    - 已验证 npm view openclaw version 解析为 2026.3.8。
+
+    - 已验证该发布版本包含覆盖工具根路径重绑定场景的回归测试，且该测试在 v2026.3.8 代码树上通过。
+
+
+    感谢 @tdjackey 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.8 或更高版本。相关提交 - 9abf014f3502009faf9c73df5ca2cff719e54639
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vhwf-4x96-vqx2
+rule: version <= "2026.3.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vhwf-4x96-vqx2

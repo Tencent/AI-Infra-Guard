@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xf99-j42q-5w5p
+  summary: OpenClaw 未绑定的解释器和运行时命令可绕过节点主机审批完整性检查
+  details: >-
+    OpenClaw 受影响版本中，解释器风格的脚本命令（如 sh script.sh）在审批流程中未将可变的脚本操作数绑定到审批记录。攻击者可先获得对某命令形态的审批，然后在执行前修改脚本内容，以已批准的命令形态执行不同内容，绕过节点主机审批完整性。修复版本在审批和执行之间对可变解释器脚本操作数进行绑定，防止内容在审批后被篡改。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，修复审批流程中解释器脚本操作数未绑定的问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xf99-j42q-5w5p
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xf99-j42q-5w5p

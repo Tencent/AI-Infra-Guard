@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g7cr-9h7q-4qxq
+  summary: OpenClaw MS Teams 发送者白名单在配置了路由白名单但发送者白名单为空时可被绕过
+  details: >-
+    当配置了团队/频道路由白名单但 groupAllowFrom 为空时，OpenClaw 的 Microsoft Teams 插件会放宽群组发送者授权。
+    在修复之前，匹配的路由白名单条目可能导致消息处理器为该路由合成通配符发送者授权，
+    允许匹配团队/频道中的任意发送者绕过预期的 groupPolicy: "allowlist" 发送者检查。
+
+
+    此问题不影响默认的未认证访问，但它削弱了已记录的 Teams 群组授权边界，
+    可能允许未经授权的群组发送者在已加入白名单的 Teams 路由中触发回复。
+
+
+    受影响的软件包 / 版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 最新已发布的受影响版本：2026.3.7
+
+    - 受影响范围：<= 2026.3.7
+
+    - 已修复版本：2026.3.8
+
+
+    发布验证
+
+
+    - 已验证 GitHub 发布版本 v2026.3.8（发布于 2026 年 3 月 9 日）中包含修复。
+
+    - 已验证 npm view openclaw version 解析为 2026.3.8。
+
+    - 已验证该发布版本包含覆盖 Teams 路由白名单发送者绕过场景的回归测试，且该测试在 v2026.3.8 代码树上通过。
+
+
+    感谢 @zpbrent 的报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.8 或更高版本。相关提交 - 88aee9161e0e6d32e810a25711e32a808a1777b2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g7cr-9h7q-4qxq
+rule: version <= "2026.3.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g7cr-9h7q-4qxq

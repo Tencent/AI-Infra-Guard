@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-39pp-xp36-q6mg
+  summary: OpenClaw Gateway host exec env override handling did not consistently apply the shared host env policy.
+  details: >-
+    Summary
+
+    Gateway host exec env override handling did not consistently apply the shared host environment policy, so blocked or malformed
+    override keys could slip through inconsistent sanitization paths.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - src/infra/host-env-security.ts now provides one shared sanitizer and fail-closed diagnostics for blocked or malformed
+    override keys.
+
+    - src/agents/bash-tools.exec.ts and src/node-host/invoke-system-run.ts both route env overrides through the shared sanitizer
+    before execution.
+
+
+    Thanks @zpbrent for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7abfff756d6c68d17e21d1657bbacbaec86de232
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-39pp-xp36-q6mg
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-39pp-xp36-q6mg

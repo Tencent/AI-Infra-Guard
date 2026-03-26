@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5m9r-p9g7-679c
+  summary: OpenClaw Zalo Webhook 速率限制可在密钥验证前被绕过
+  details: >-
+    摘要
+
+
+    Zalo Webhook 处理程序仅在 Webhook 认证成功后才应用请求速率限制。
+    使用无效密钥的请求会返回 401，但不计入速率限制器，
+    允许攻击者反复猜测密钥而不会触发 429 限制。
+
+
+    影响
+
+
+    此问题使针对弱但符合策略要求的 Webhook 密钥的暴力破解变得更加容易。
+    一旦密钥被猜中，攻击者即可提交伪造的 Zalo Webhook 流量。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。速率限制现在在认证成功之前即开始生效，
+    关闭了认证前暴力破解的漏洞。请升级至 2026.3.12 或更高版本，并优先使用强 Webhook 密钥。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5m9r-p9g7-679c
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5m9r-p9g7-679c
