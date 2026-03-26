@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mp66-rf4f-mhh8
+  summary: OpenClaw Google Chat app-url webhook auth accepted non-deployment add-on principals.
+  details: >-
+    Summary
+
+    Google Chat app-url webhook verification accepted add-on principals outside the intended deployment binding.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - extensions/googlechat/src/auth.ts now requires expectedAddOnPrincipal matching for add-on principals and rejects unexpected
+    issuers.
+
+    - extensions/googlechat/src/monitor-webhook.ts passes the configured appPrincipal into auth verification for the shipped
+    webhook path.
+
+
+    Thanks @ijxpwastaken for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8

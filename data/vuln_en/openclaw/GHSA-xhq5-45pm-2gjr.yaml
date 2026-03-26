@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xhq5-45pm-2gjr
+  summary: OpenClaw Nextcloud Talk room allowlist matched colliding room names instead of stable room tokens.
+  details: >-
+    Summary
+
+    Nextcloud Talk room authorization matched on collidable room names instead of the stable room token, allowing policy confusion
+    across similarly named rooms.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - extensions/nextcloud-talk/src/inbound.ts now resolves allowlist policy from roomToken-backed room identity.
+
+    - extensions/nextcloud-talk/src/policy.ts now keys room authorization on stable room tokens instead of display names.
+
+
+    Thanks @zpbrent for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xhq5-45pm-2gjr
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xhq5-45pm-2gjr

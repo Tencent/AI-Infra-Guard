@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qvr7-g57c-mrc7
+  summary: OpenClaw 本地模式下不可用的本地认证 SecretRef 可能回退到远程凭证
+  details: >-
+    OpenClaw 受影响版本中，在配置为 local 模式时，若本地认证的 SecretRef 不可用（如密钥文件缺失或读取失败），系统可能静默回退到远程凭证，违反本地认证的安全隔离预期。攻击者可通过干扰本地密钥可用性，迫使系统使用可控或较弱的远程凭证。修复版本在本地模式下明确要求本地 SecretRef 必须可用，不允许回退。
+  cvss: CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:L/I:L/A:N
+  severity: LOW
+  security_advise: 将 OpenClaw 升级至 2026.3.11 或更高版本，确保本地模式下本地认证 SecretRef 不可用时不会回退到远程凭证。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qvr7-g57c-mrc7
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qvr7-g57c-mrc7

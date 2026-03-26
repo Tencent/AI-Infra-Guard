@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cg6c-q2hx-69h7
+  summary: OpenClaw Plivo V2 已验证重放身份在仅查询变体中发生漂移
+  details: >-
+    漏洞概述
+
+    Plivo V2 已验证的重放身份在仅查询参数变体中会发生身份漂移，导致身份验证校验失效。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cg6c-q2hx-69h7
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cg6c-q2hx-69h7

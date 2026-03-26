@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qc36-x95h-7j53
+  summary: OpenClaw Unrecognized script runners could bypass `system.run` approval integrity
+  details: >-
+    Summary
+
+    In affected versions of openclaw, node-host system.run approvals did not bind a mutable file operand for some script runners,
+    including forms such as tsx and jiti. An attacker could obtain approval for a benign script-runner command, rewrite the
+    referenced script on disk, and have the modified code execute under the already approved run context.
+
+
+    Impact
+
+    Deployments that rely on node-host system.run approvals for script integrity could execute rewritten local code after
+    operator approval. This can lead to unintended local code execution as the OpenClaw runtime user.
+
+
+    Affected Packages and Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.3.11
+
+    - Fixed in: 2026.3.11
+
+
+    Technical Details
+
+    The approval planner only tracked mutable script operands for a hardcoded set of interpreters and runtime forms. Commands
+    such as tsx ./run.ts and jiti ./run.ts fell through without a bound file snapshot, so the final pre-execution revalidation
+    step was skipped.
+
+
+    Fix
+
+    OpenClaw now fails closed for approval-backed interpreter and runtime commands unless it can bind exactly one concrete
+    local file operand, and it extends direct-file binding coverage for additional runtime forms. The fix shipped in openclaw@2026.3.11.
+
+
+    Workarounds
+
+    Upgrade to 2026.3.11 or later.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.3.11 or later. OpenClaw now fails closed for approval-backed interpreter and runtime
+    commands unless it can bind exactly one concrete local file operand, and it extends direct-file binding coverage for additional
+    runtime forms. The fix shipped in openclaw@2026.3.11.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qc36-x95h-7j53
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qc36-x95h-7j53

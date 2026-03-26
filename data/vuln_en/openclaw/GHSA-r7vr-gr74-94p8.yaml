@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r7vr-gr74-94p8
+  summary: OpenClaw Command-authorized non-owners could reach owner-only `/config` and `/debug` surfaces
+  details: >-
+    Summary
+
+
+    OpenClaw documented /config and /debug as owner-only commands, but the command handlers checked only whether the sender
+    was command-authorized. A lower-trust sender who was intentionally allowed to run commands could still reach privileged
+    configuration and debugging surfaces.
+
+
+    Impact
+
+
+    This allowed a non-owner sender to read or change privileged configuration that should have remained restricted to owners.
+
+
+    Affected versions
+
+
+    openclaw <= 2026.3.11
+
+
+    Patch
+
+
+    Fixed in openclaw 2026.3.12. Owner checks are now enforced for privileged command surfaces, and regression tests cover
+    /config and /debug access control.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.3.12 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r7vr-gr74-94p8
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r7vr-gr74-94p8

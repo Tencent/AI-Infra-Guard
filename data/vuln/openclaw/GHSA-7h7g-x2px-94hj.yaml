@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7h7g-x2px-94hj
+  summary: OpenClaw 配对设置码暴露了长期有效的共享网关凭据，而非短期引导令牌
+  details: >-
+    摘要
+
+
+    OpenClaw 的 /pair 命令和 openclaw qr 生成的配对设置码，将已配置的共享网关令牌或密码直接嵌入到设置载荷中。
+    任何通过聊天记录、日志、截图或复制二维码载荷获取该设置码的人，
+    均可恢复长期有效的共享凭据。
+
+
+    影响
+
+
+    攻击者一旦获取泄露的设置码，即可在预定的一次性配对流程之外复用共享网关凭据。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。设置码现在携带短期引导令牌，仅在初始设备引导交换期间有效。
+    请升级至 2026.3.12 或更高版本，如果设置码可能已泄露，还需轮换之前暴露的共享网关凭据。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7h7g-x2px-94hj
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7h7g-x2px-94hj

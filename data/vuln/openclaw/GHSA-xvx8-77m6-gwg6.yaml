@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xvx8-77m6-gwg6
+  summary: OpenClaw 沙箱 writeFile 提交操作可能在路径验证后逃逸到父目录之外
+  details: >-
+    OpenClaw 受影响版本中，沙箱 writeFile 操作在校验目标路径后、执行提交前存在竞态条件。攻击者可通过精确时序操作在路径验证完成后修改目标路径，导致文件写入到已验证父目录之外的位置，形成路径逃逸。修复版本在整个提交流程中固定了验证后的规范路径，消除了竞态窗口。
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: MEDIUM
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，修复沙箱 writeFile 提交阶段的路径竞态条件。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xvx8-77m6-gwg6
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xvx8-77m6-gwg6

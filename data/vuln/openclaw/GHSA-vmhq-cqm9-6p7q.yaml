@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vmhq-cqm9-6p7q
+  summary: OpenClaw browser.request 允许 operator.write 权限持久化仅限管理员的浏览器配置文件更改
+  details: >-
+    摘要
+
+
+    网关存在授权不匹配问题，允许仅持有 operator.write 权限的经认证调用者，
+    通过 browser.request 访问将配置持久化到磁盘的浏览器配置文件管理路由。
+    实际上，这通过 /profiles/create 暴露了仅限管理员的配置写入接口。
+
+
+    影响
+
+
+    持有写权限的运营者可以创建或修改浏览器配置文件，
+    并在未持有 operator.admin 权限的情况下存储攻击者指定的远程 CDP 端点。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.8
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.11 中修复，并包含在 2026.3.12 等后续版本中。
+    浏览器配置文件创建现在需要正确的管理员边界权限，
+    并针对写权限与管理员权限的授权拆分添加了回归测试。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.11 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vmhq-cqm9-6p7q
+rule: version <= "2026.3.8"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vmhq-cqm9-6p7q

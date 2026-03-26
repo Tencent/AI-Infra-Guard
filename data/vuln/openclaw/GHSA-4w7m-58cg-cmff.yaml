@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4w7m-58cg-cmff
+  summary: OpenClaw 叶子子代理可跨沙箱边界操控同级会话
+  details: >-
+    OpenClaw 受影响版本中，叶子子代理（leaf subagents）可通过跨沙箱边界的会话操控能力影响同级会话（sibling sessions）。正常情况下沙箱应隔离不同会话，但该漏洞允许一个会话内的子代理影响同一沙箱内其他独立会话的执行状态或数据。修复版本加固了沙箱边界，防止叶子子代理越界操控同级会话。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，加固沙箱边界防止叶子子代理越界操控同级会话。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4w7m-58cg-cmff
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4w7m-58cg-cmff
