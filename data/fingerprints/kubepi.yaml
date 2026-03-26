@@ -1,5 +1,5 @@
 info:
-  name: kubepi
+  name: KubePi
   author: 腾讯朱雀实验室
   severity: info
   desc: 一个CLI工具，简化在Raspberry Pi设备上设置和管理Kubeflow的环境。
