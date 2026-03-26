@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cfp9-w5v9-3q4h
+  summary: OpenClaw Image 工具绕过 tools.fs.workspaceOnly 限制，可读取工作区外的挂载文件
+  details: >-
+    漏洞概述
+
+    Image 工具绕过了 tools.fs.workspaceOnly 安全限制，可读取工作区目录之外的挂载文件，导致敏感文件泄露风险。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cfp9-w5v9-3q4h
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cfp9-w5v9-3q4h

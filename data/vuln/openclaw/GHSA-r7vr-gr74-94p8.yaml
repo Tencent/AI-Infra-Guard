@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r7vr-gr74-94p8
+  summary: OpenClaw 被授权执行命令的非所有者可访问仅限所有者的 /config 和 /debug 接口
+  details: >-
+    摘要
+
+
+    OpenClaw 将 /config 和 /debug 记录为仅限所有者使用的命令，但命令处理程序仅检查发送者是否获得了命令授权。
+    被有意允许执行命令的低信任度发送者，仍然可以访问特权配置和调试接口。
+
+
+    影响
+
+
+    此问题允许非所有者发送者读取或更改本应仅限所有者访问的特权配置。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。特权命令接口现在强制执行所有者检查，
+    并针对 /config 和 /debug 访问控制添加了回归测试。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r7vr-gr74-94p8
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r7vr-gr74-94p8

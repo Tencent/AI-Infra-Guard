@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vr7j-g7jv-h5mp
+  summary: OpenClaw Session transcript files were created without forced user-only permissions
+  details: >-
+    openclaw created new session transcript JSONL files with overly broad default permissions in affected releases. On multi-user
+    hosts, other local users or processes could read transcript contents, including secrets that might appear in tool output.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.15
+
+    - First fixed version: 2026.2.17
+
+    - Current latest npm release checked during verification: 2026.3.13 (not affected)
+
+
+    Impact
+
+
+    Session transcript JSONL files are created under the local OpenClaw session store. In affected releases, newly created
+    transcript files did not force user-only permissions, so transcript contents could be readable by other local users depending
+    on the host environment and umask behavior.
+
+
+    Fix
+
+
+    New transcript files are now created with 0o600 permissions. Existing transcript permission drift is also remediated by
+    the security audit fix flow.
+
+
+    Verified in code:
+
+
+    - src/config/sessions/transcript.ts:82 writes new transcript files with mode: 0o600
+
+    - src/config/sessions/sessions.test.ts:303 includes regression coverage asserting 0o600
+
+
+    Release Note
+
+
+    This fix first shipped in 2026.2.17 and is present in the current npm release 2026.3.13.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.17 or later. New transcript files are now created with 0o600 permissions.
+    Existing transcript permission drift is also remediated by the security audit fix flow. Verified in code: - src/config/sessions/transcript.ts:82
+    writes new transcript files with mode: 0o600'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp
+rule: version <= "2026.2.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp

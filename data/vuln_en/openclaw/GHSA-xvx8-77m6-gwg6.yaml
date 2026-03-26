@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xvx8-77m6-gwg6
+  summary: OpenClaw Sandbox `writeFile` commit could race outside the validated path
+  details: >-
+    Summary
+
+    In affected versions of openclaw, the sandbox fs-bridge writeFile commit step used an unanchored container path during
+    the final move into place. An attacker racing parent-path changes inside the sandbox could redirect the committed file
+    outside the validated sandbox path.
+
+
+    Impact
+
+    This is a sandbox boundary bypass. In-sandbox code could win a time-of-check-time-of-use race and cause host-approved
+    writeFile operations to land outside the validated writable path within the container mount namespace.
+
+
+    Affected Packages and Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.3.11
+
+    - Fixed in: 2026.3.11
+
+
+    Technical Details
+
+    The hardening work for anchored remove, rename, and mkdir operations did not fully cover the writeFile commit path. The
+    final mv still used the raw target path, leaving a race window between safety revalidation and the in-container commit
+    step.
+
+
+    Fix
+
+    OpenClaw now anchors the writeFile commit path to the canonical parent directory before the final move. The fix shipped
+    in openclaw@2026.3.11.
+
+
+    Workarounds
+
+    Upgrade to 2026.3.11 or later.
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.11 or later. OpenClaw now anchors the writeFile commit path to the canonical
+    parent directory before the final move. The fix shipped in openclaw@2026.3.11.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xvx8-77m6-gwg6
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xvx8-77m6-gwg6

@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jf6w-m8jw-jfxc
+  summary: OpenClaw 写权限调用者可通过 agent 访问仅限管理员的会话重置逻辑
+  details: >-
+    OpenClaw 受影响版本中，仅持有写权限（write-scoped）的调用者可通过 agent 接口触达原本仅限管理员访问的会话重置逻辑（session reset logic），绕过权限边界实现越权操作。修复版本在会话重置路径上增加了严格的权限检查，确保仅管理员可访问。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: MEDIUM
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，修复 agent 接口会话重置逻辑的权限越界问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jf6w-m8jw-jfxc
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jf6w-m8jw-jfxc

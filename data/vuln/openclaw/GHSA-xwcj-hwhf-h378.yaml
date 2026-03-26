@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xwcj-hwhf-h378
+  summary: OpenClaw Telegram 媒体获取错误在日志文件 URL 中暴露了机器人令牌
+  details: >-
+    摘要
+
+    openclaw <= 2026.3.12 版本在 Telegram 媒体下载失败时，可能将原始的 Telegram 机器人令牌包含在媒体获取错误字符串中。
+
+
+    受影响软件包 / 版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.12
+
+    - 修复版本：2026.3.13
+
+
+    详情
+
+    漏洞路径位于 src/media/fetch.ts 中的 fetchRemoteMedia() 函数。在受影响版本中，fetch 及 HTTP 错误路径会将原始 Telegram 文件 URL 嵌入 MediaFetchError 消息中。对于 Telegram 媒体，这些 URL 可能包含 /file/bot<TOKEN>/... 格式，导致机器人令牌通过错误字符串泄漏至日志、控制台输出或任何渲染异常文本的下游错误界面。
+
+
+    此问题属于 OpenClaw 信任模型的覆盖范围，因为泄露的密钥是 OpenClaw 运营的集成凭证，而非用户提供的第三方密钥。
+
+
+    修复方案
+
+    openclaw@2026.3.13 在构建 fetch 错误消息之前对敏感媒体 URL 进行脱敏处理。当前代码通过 redactMediaUrl() / redactSensitiveText() 对源 URL 及后续错误路径进行处理，确保 Telegram 机器人令牌不再出现在这些错误字符串中。
+
+
+    回归测试覆盖位于 src/media/fetch.test.ts（从获取失败消息中脱敏 Telegram 机器人令牌，以及从 HTTP 错误消息中脱敏 Telegram 机器人令牌）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.13 或更高版本。openclaw@2026.3.13 在构建 fetch 错误消息之前对敏感媒体 URL 进行脱敏处理。当前代码通过 redactMediaUrl() / redactSensitiveText() 对源 URL 及后续错误路径进行处理，确保 Telegram 机器人令牌不再出现在这些错误字符串中。回归测试覆盖位于 src/media/fetch.test.ts。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcj-hwhf-h378
+rule: version <= "2026.3.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcj-hwhf-h378

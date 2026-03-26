@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g353-mgv3-8pcj
+  summary: OpenClaw Feishu Webhook 模式在仅配置 verificationToken 时接受伪造事件
+  details: >-
+    摘要
+
+
+    Feishu Webhook 模式允许仅配置了 verificationToken 而未配置 encryptKey 的部署。
+    在此配置下，由于缺乏必要的密码学验证边界，伪造的入站事件可能被接受。
+
+
+    影响
+
+
+    能够访问 Webhook 端点的未认证网络攻击者，可以注入伪造的 Feishu 事件、冒充发送者，
+    并可能触发受本地 Agent 策略约束的下游工具执行。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。Feishu Webhook 模式现在在未配置 encryptKey 时默认拒绝连接，
+    并且 Webhook 传输层在分发前会拒绝缺失或无效的签名。
+    请升级至 2026.3.12 或更高版本，并为 Webhook 部署配置 encryptKey。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:L
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g353-mgv3-8pcj
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g353-mgv3-8pcj

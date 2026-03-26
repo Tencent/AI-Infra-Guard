@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vr7j-g7jv-h5mp
+  summary: OpenClaw 会话记录文件创建时未强制设置仅限用户访问的权限
+  details: >-
+    openclaw 在受影响版本中创建新的会话记录 JSONL 文件时，使用了过于宽松的默认权限。在多用户主机上，其他本地用户或进程可能读取记录内容，包括工具输出中可能出现的敏感信息。
+
+
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.2.15
+
+    - 首个修复版本：2026.2.17
+
+    - 验证时 npm 最新发布版本：2026.3.13（不受影响）
+
+
+    影响
+
+
+    会话记录 JSONL 文件存储于本地 OpenClaw 会话目录下。在受影响版本中，新建的记录文件未强制设置仅限用户访问的权限，因此在特定主机环境和 umask 配置下，其他本地用户可能读取记录内容。
+
+
+    修复方案
+
+
+    新建记录文件现已以 0o600 权限创建。现有记录文件的权限漂移问题也通过安全审计修复流程得到了纠正。
+
+
+    代码验证：
+
+
+    - src/config/sessions/transcript.ts:82 以 mode: 0o600 写入新记录文件
+
+    - src/config/sessions/sessions.test.ts:303 包含断言 0o600 权限的回归测试覆盖
+
+
+    发布说明
+
+
+    此修复首次随 2026.2.17 版本发布，并已包含在当前 npm 发布版本 2026.3.13 中。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.2.17 或更高版本。新建记录文件现已以 0o600 权限创建。现有记录文件的权限漂移问题也通过安全审计修复流程得到了纠正。代码验证：- src/config/sessions/transcript.ts:82
+    以 mode: 0o600 写入新记录文件'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp
+rule: version <= "2026.2.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp

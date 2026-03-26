@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mj4p-rc52-m843
+  summary: OpenClaw 沙箱暂存写入在提交前可能逃逸到已验证父目录之外
+  details: >-
+    OpenClaw 受影响版本中，沙箱的分阶段写入操作（staged writes）在最终提交前未严格锁定写入目标范围。攻击者可通过在暂存阶段操纵路径，使实际提交的文件落到已验证父目录之外，造成任意文件写入。修复版本在整个暂存和提交流程中始终以已验证的规范父目录为基准，防止路径逃逸。
+  cvss: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，修复沙箱暂存写入的路径验证缺失问题。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mj4p-rc52-m843
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mj4p-rc52-m843

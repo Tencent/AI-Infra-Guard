@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rw39-5899-8mxp
+  summary: OpenClaw 节点主机审批流程可能展示误导性 shell 载荷而非实际执行的 argv
+  details: >-
+    OpenClaw 受影响版本中，节点主机审批 UI 在某些情况下展示的 shell 载荷字符串与实际传递给进程的 argv 参数不一致。攻击者可构造审批请求，使审批者看到无害的命令描述，但实际执行的是不同的参数，从而绕过人工审批意图。修复版本确保审批展示内容与实际执行参数严格一致。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本，确保节点主机审批展示内容与实际执行 argv 严格一致。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rw39-5899-8mxp
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rw39-5899-8mxp

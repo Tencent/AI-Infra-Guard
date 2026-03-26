@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4qwc-c7g9-4xcw
+  summary: OpenClaw 远程媒体错误响应在失败前可触发无限制内存分配
+  details: >-
+    漏洞概述
+
+    远程媒体 HTTP 错误响应体在失败处理前未设置硬性大小上限，导致错误响应时可能发生无限制内存分配。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。修复提交 - 81445a901091a5d27ef0b56fceedbe4724566438
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4qwc-c7g9-4xcw
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4qwc-c7g9-4xcw
