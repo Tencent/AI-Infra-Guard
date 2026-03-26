@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **43 mainstream AI frameworks**, covering **589 known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **49 mainstream AI frameworks**, covering **900+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -54,35 +54,57 @@ A.I.G includes **an extensive library of pre-configured AI component fingerprint
 
 A.I.G delivers comprehensive security coverage for critical AI infrastructure components. Current supported components and vulnerability statistics:
 
-| Category                   | Component Name          | Vulnerability Count | Risk Level |
-| -------------------------- | ----------------------- | ------------------- | ---------- |
-| **Model Serving**          | gradio                  | 42                  | High       |
-|                            | ollama                  | 7                   | Medium-High|
-|                            | triton-inference-server | 7                   | Medium-High|
-|                            | vllm                    | 4                   | Medium     |
-|                            | xinference              | 0                   | Low        |
-| **LLM App Frameworks**     | langchain               | 33                  | High       |
-|                            | dify                    | 11                  | High       |
-|                            | anythingllm             | 8                   | Medium-High|
-|                            | open-webui              | 8                   | Medium-High|
-|                            | ragflow                 | 2                   | Medium     |
-|                            | qanything               | 2                   | Medium     |
-| **Data Processing**        | clickhouse              | 22                  | High       |
-|                            | feast                   | 0                   | Low        |
-| **Visualization & UI**     | jupyter-server          | 13                  | Medium-High|
-|                            | jupyterlab              | 6                   | Medium     |
-|                            | jupyter-notebook        | 1                   | Low        |
-|                            | tensorboard             | 0                   | Low        |
-| **Workflow Orchestration** | kubeflow                | 4                   | Medium     |
-|                            | ray                     | 4                   | Medium     |
-| **Other AI Components**    | comfyui                 | 1                   | Low        |
-|                            | comfy_mtb               | 1                   | Low        |
-|                            | ComfyUI-Prompt-Preview  | 1                   | Low        |
-|                            | ComfyUI-Custom-Scripts  | 1                   | Low        |
-|                            | pyload-ng               | 18                  | Medium     |
-|                            | kubepi                  | 5                   | Medium     |
-|                            | llamafactory            | 1                   | Low        |
-| **Total**                  |                         | **200+**            |            |
+| Category                   | Component Name          | Vulnerability Count | Risk Level  |
+| -------------------------- | ----------------------- | ------------------- | ----------- |
+| **Model Serving**          | gradio                  | 50                  | High        |
+|                            | ollama                  | 25                  | Medium-High |
+|                            | triton-inference-server | 32                  | Medium-High |
+|                            | vllm                    | 41                  | Medium      |
+|                            | xinference              | 3                   | Low         |
+|                            | fastchat                | 7                   | Medium      |
+|                            | llama-cpp               | 1                   | Low         |
+|                            | llmstudio               | 1                   | Low         |
+|                            | ChatRTX                 | 1                   | Low         |
+| **LLM App Frameworks**     | langchain               | 51                  | High        |
+|                            | dify                    | 21                  | High        |
+|                            | anythingllm             | 16                  | Medium-High |
+|                            | open-webui              | 40                  | Medium-High |
+|                            | ragflow                 | 11                  | Medium      |
+|                            | qanything               | 8                   | Medium      |
+|                            | langflow                | 21                  | Medium      |
+|                            | litellm                 | 17                  | Medium      |
+|                            | mlflow                  | 59                  | High        |
+|                            | librechat               | 5                   | Medium      |
+|                            | nextchat                | 4                   | Medium      |
+|                            | lobechat                | 3                   | Medium      |
+|                            | flowise                 | 3                   | Medium      |
+|                            | langfuse                | 3                   | Low         |
+|                            | new-api                 | 2                   | Medium      |
+|                            | Chuanhugpt              | 27                  | Medium-High |
+| **Data Processing**        | clickhouse              | 25                  | High        |
+|                            | feast                   | 2                   | Low         |
+|                            | dask                    | 3                   | Low         |
+| **Visualization & UI**     | jupyter-server          | 14                  | Medium-High |
+|                            | jupyterlab              | 8                   | Medium      |
+|                            | jupyter-notebook        | 2                   | Low         |
+| **Workflow Orchestration** | kubeflow                | 4                   | Medium      |
+|                            | ray                     | 10                  | Medium      |
+|                            | n8n                     | 33                  | Medium-High |
+|                            | simstudioai             | 9                   | Medium      |
+| **Other AI Components**    | comfyui                 | 8                   | Low         |
+|                            | comfy_mtb               | 1                   | Low         |
+|                            | ComfyUI-Prompt-Preview  | 1                   | Low         |
+|                            | ComfyUI-Custom-Scripts  | 1                   | Low         |
+|                            | ComfyUI-Impact-Pack     | 1                   | Low         |
+|                            | ComfyUI-Manager         | 1                   | Low         |
+|                            | ComfyUI-Ace-Nodes       | 1                   | Low         |
+|                            | ComfyUI-Bmad-Nodes      | 1                   | Low         |
+|                            | pyload-ng               | 25                  | Medium      |
+|                            | kubepi                  | 5                   | Medium      |
+|                            | llamafactory            | 4                   | Low         |
+|                            | blinko                  | 1                   | Low         |
+|                            | weknora                 | 2                   | Low         |
+| **Total**                  |                         | **900+**            |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
@@ -107,7 +129,7 @@ http:
       - Matching Conditions
 ```
 
-### Example: Gradio Fingerprint Rule
+### Example: Dify Fingerprint Rule
 
 ```yaml
 info:
