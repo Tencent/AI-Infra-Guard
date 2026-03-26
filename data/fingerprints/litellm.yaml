@@ -1,20 +1,24 @@
 info:
   name: LiteLLM
-  author: 腾讯科恩实验室
+  author: A.I.G bot
   severity: info
-  desc: 一个开源的API代理，支持100多个LLM模型，提供OpenAI兼容格式API。
+  desc: |
+    LiteLLM is an open-source proxy and SDK for unified LLM API access, supporting 100+ providers
+    including OpenAI, Anthropic, Gemini, and Azure. Used as AI gateway infrastructure in enterprise environments.
   metadata:
-    product: LiteLLM
-    vendor: LiteLLM
+    product: litellm
+    vendor: berriai
+
 http:
   - method: GET
-    path: '/'
+    path: '/ui'
     matchers:
-      - body="LiteLLM API" || body="Proxy Server to call 100+ LLMs in the OpenAI format" || body="LiteLLM Admin Panel on /ui"
+      - body="<title>LiteLLM</title>" || body="litellm-dashboard"
+
 version:
   - method: GET
-    path: '/openapi.json'
+    path: '/health/readiness'
     extractor:
       part: body
       group: 1
-      regex: '"version":"([0-9]+\.[0-9]+\.[0-9]+)"'
+      regex: '"litellm_version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+[^"]*)"'
