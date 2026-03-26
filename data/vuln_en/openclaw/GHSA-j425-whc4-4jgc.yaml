@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j425-whc4-4jgc
   summary: OpenClaw `system.run` env override filtering allowed dangerous helper-command pivots
   details: "Summary\r\nsystem.run env override sanitization allowed dangerous override-only helper-command pivots to reach\

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hff7-ccv5-52f8
   summary: OpenClaw Gateway tokenless Tailscale auth applied to HTTP routes
   details: >-

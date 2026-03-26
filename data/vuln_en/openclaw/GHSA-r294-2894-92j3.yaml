@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r294-2894-92j3
   summary: OpenClaw Stored XSS in exported session HTML viewer via markdown/raw-HTML rendering
   details: >-

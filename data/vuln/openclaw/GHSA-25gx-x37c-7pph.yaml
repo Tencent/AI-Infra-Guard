@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-25gx-x37c-7pph
   summary: OpenClaw 沙箱浏览器 noVNC 观察器缺少 VNC 认证
   details: >-

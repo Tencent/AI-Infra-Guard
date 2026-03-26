@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9f72-qcpw-2hxc
   summary: OpenClaw Native prompt image auto-load did not honor tools.fs.workspaceOnly in sandboxed runs
   details: >-

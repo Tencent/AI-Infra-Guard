@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-33hm-cq8r-wc49
   summary: OpenClaw Temporary path handling could write outside OpenClaw temp boundary
   details: >-

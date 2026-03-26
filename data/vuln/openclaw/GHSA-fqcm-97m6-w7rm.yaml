@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fqcm-97m6-w7rm
   summary: OpenClaw 消息操作附件加载在 sandboxRoot 未设置时绕过本地媒体根检查
   details: >-

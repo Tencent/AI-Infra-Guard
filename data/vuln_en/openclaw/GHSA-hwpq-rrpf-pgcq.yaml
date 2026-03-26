@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hwpq-rrpf-pgcq
   summary: OpenClaw system.run approval identity mismatch could execute a different binary than displayed
   details: >-

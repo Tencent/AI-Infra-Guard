@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x4vp-4235-65hg
   summary: OpenClaw Pre-auth webhook body parsing can enable unauthenticated slow-request DoS
   details: >-

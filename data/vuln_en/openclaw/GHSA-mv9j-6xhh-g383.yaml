@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mv9j-6xhh-g383
   summary: OpenClaw Unauthenticated Nostr profile HTTP endpoints allow remote profile/config tampering
   details: >-

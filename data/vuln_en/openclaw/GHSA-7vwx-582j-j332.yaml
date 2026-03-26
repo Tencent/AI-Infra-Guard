@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7vwx-582j-j332
   summary: OpenClaw MS Teams inbound attachment downloader leaks bearer tokens to allowlisted suffix domains
   details: >-

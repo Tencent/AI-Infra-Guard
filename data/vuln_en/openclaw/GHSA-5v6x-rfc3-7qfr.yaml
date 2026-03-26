@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5v6x-rfc3-7qfr
   summary: OpenClaw Windows system.run approval mismatch on cmd.exe /c trailing arguments
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-796m-2973-wc5q
   summary: OpenClaw exec allowlist/safeBins policy-runtime mismatch via env -S wrapper interpretation
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-25pw-4h6w-qwvm
   summary: OpenClaw BlueBubbles group allowlist mismatch via DM pairing-store fallback
   details: >-

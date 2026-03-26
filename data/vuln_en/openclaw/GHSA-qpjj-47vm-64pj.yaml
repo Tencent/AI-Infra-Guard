@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qpjj-47vm-64pj
   summary: OpenClaw missing authentication for local browser-control endpoints
   details: >-

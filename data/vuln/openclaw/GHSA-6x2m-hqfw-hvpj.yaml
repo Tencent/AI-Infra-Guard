@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6x2m-hqfw-hvpj
   summary: OpenClaw 节点执行审批可在不同节点间重放
   details: >-

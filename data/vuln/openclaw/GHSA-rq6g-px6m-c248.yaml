@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rq6g-px6m-c248
   summary: OpenClaw Google Chat 共享路径 Webhook 目标歧义允许跨账户策略上下文误路由
   details: >-

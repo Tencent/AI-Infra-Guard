@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pjvx-rx66-r3fg
   summary: OpenClaw `/allowlist ... --store` 账户范围界定中的跨账户发送者授权扩展
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3pxq-f3cp-jmxp
   summary: OpenClaw 浏览器输出及相关路径边界流程的统一根目录绑定写入加固
   details: >-

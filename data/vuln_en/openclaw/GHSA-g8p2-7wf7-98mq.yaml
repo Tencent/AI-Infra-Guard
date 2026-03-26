@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g8p2-7wf7-98mq
   summary: OpenClaw 1-Click RCE via Authentication Token Exfiltration From gatewayUrl
   details: >-

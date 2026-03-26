@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-792q-qw95-f446
   summary: OpenClaw Signal 仅回应状态事件在有限情况下可在访问检查前入队
   details: >-

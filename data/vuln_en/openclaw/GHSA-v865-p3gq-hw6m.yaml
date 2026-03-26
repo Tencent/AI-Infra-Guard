@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v865-p3gq-hw6m
   summary: OpenClaw Encoded-path auth bypass in plugin `/api/channels` route classification
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hjvp-qhm6-wrh2
   summary: OpenClaw Node system.run approval context-binding weakness in approval-enabled host=node flows
   details: >-

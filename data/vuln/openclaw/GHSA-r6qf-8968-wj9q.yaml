@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r6qf-8968-wj9q
   summary: OpenClaw system.run 包装器深度边界可绕过 shell 审批门控
   details: >-

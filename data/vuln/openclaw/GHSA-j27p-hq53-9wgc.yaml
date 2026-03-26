@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j27p-hq53-9wgc
   summary: OpenClaw 通过无限制的 URL 媒体获取导致拒绝服务
   details: "概述\r\nURL 媒体获取处理在执行 maxBytes 限制之前将整个响应有效载荷分配到内存中（arrayBuffer），允许超大响应导致内存耗尽。\r\n\r\n受影响版本\r\n- openclaw\

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w2cg-vxx6-5xjg
   summary: OpenClaw Denial of service through large base64 media files allocating large buffers before limit checks
   details: >-

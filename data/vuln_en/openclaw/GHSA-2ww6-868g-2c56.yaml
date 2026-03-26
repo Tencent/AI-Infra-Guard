@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2ww6-868g-2c56
   summary: OpenClaw HTML injection via unvalidated image MIME type in data-URL interpolation
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-m8v2-6wwh-r4gc
   summary: OpenClaw 沙箱绑定验证可通过符号链接父目录加缺失叶节点路径绕过允许根目录和阻止路径检查
   details: >-

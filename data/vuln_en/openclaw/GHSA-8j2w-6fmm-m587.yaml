@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8j2w-6fmm-m587
   summary: OpenClaw /api/channels gateway-auth boundary bypass via path canonicalization mismatch
   details: >-

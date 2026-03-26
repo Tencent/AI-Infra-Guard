@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-796m-2973-wc5q
   summary: OpenClaw 执行允许列表/safeBins 策略运行时不匹配（通过 env -S 包装器解释）
   details: >-

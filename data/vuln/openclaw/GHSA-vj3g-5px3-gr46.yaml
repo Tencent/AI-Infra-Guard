@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vj3g-5px3-gr46
   summary: OpenClaw 飞书媒体临时文件命名中的路径遍历允许写入 os.tmpdir() 之外
   details: >-

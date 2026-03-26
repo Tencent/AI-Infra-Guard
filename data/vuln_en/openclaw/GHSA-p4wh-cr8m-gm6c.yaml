@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p4wh-cr8m-gm6c
   summary: OpenClaw shell-env trusted-prefix fallback allowed attacker-controlled binary execution via $SHELL
   details: >-

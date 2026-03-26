@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5847-rm3g-23mw
   summary: OpenClaw Hook auth rate limiter bypass via IPv4-mapped IPv6 client key variants
   details: >-

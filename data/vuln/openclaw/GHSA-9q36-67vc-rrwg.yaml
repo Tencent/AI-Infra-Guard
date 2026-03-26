@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9q36-67vc-rrwg
   summary: OpenClaw 沙箱化的 /acp spawn 请求可初始化宿主 ACP 会话
   details: >-

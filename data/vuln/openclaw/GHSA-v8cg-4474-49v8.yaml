@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v8cg-4474-49v8
   summary: OpenClaw Slack 系统事件在成员和消息子类型处理器中绕过发送者授权
   details: >-

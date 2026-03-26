@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r5h9-vjqc-hq3r
   summary: OpenClaw Nextcloud Talk 通过 actor.name 显示名称欺骗绕过白名单
   details: >-

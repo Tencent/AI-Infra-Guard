@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jv6r-27ww-4gw4
   summary: OpenClaw DM 配对存储身份可满足群组白名单授权
   details: >-

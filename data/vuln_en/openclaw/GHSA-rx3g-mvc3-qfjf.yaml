@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rx3g-mvc3-qfjf
   summary: OpenClaw Avatar symlink traversal can expose out-of-workspace local files
   details: >-

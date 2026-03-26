@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-392f-ggf5-fp3c
   summary: OpenClaw Unicode canonicalization drift in node metadata policy classification could broaden node allowlists
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5f9p-f3w2-fwch
   summary: OpenClaw macOS 伴侣应用（测试版）：system.run shell 链的允许列表解析不匹配
   details: >-

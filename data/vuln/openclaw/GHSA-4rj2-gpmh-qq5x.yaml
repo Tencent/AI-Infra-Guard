@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4rj2-gpmh-qq5x
   summary: OpenClaw voice-call 扩展中入站允许列表策略绕过（空来电 ID + 后缀匹配）
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wm8r-w8pf-2v6w
   summary: OpenClaw Signal group allowlist authorization bypass via DM pairing-store leakage
   details: >-

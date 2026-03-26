@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r6qf-8968-wj9q
   summary: OpenClaw system.run wrapper-depth boundary could skip shell approval gating
   details: >-

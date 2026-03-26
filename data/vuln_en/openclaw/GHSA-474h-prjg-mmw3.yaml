@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-474h-prjg-mmw3
   summary: OpenClaw Sandboxed sessions_spawn(runtime="acp") bypassed sandbox inheritance and allowed host ACP initialization
   details: >-

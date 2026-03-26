@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3m3q-x3gj-f79x
   summary: OpenClaw 可选 voice-call 插件：webhook 验证在某些代理配置下可被绕过
   details: >-

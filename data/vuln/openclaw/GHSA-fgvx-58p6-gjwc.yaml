@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fgvx-58p6-gjwc
   summary: OpenClaw 网关 agents.files 符号链接逃逸允许工作区外文件读写
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-chm2-m3w2-wcxm
   summary: OpenClaw Google Chat spoofing access with allowlist authorized mutable email principal despite sender-ID mismatch
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v773-r54f-q32w
   summary: 'OpenClaw Slack: dmPolicy=open allowed any DM sender to run privileged slash commands'
   details: >-

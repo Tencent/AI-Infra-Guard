@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5847-rm3g-23mw
   summary: OpenClaw Hook 认证速率限制器通过 IPv4 映射 IPv6 客户端密钥变体绕过
   details: >-

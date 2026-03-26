@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vvgp-4c28-m3jm
   summary: OpenClaw 可信代理控制 UI 配对绕过允许未配对的节点会话
   details: >-

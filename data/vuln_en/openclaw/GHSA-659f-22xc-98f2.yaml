@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-659f-22xc-98f2
   summary: OpenClaw Hook transform path containment missed symlink-resolved escapes
   details: >-

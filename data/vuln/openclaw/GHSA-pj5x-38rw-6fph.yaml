@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pj5x-38rw-6fph
   summary: OpenClaw Windows 计划任务脚本生成中通过未转义的环境赋值进行命令注入
   details: >-

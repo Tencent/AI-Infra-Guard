@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vvgp-4c28-m3jm
   summary: OpenClaw Trusted-proxy Control UI pairing bypass allowed unpaired node sessions
   details: >-

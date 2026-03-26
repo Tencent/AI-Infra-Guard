@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7ff8-xjh3-mgh6
   summary: OpenClaw 非默认 autoAllowSkills 设置可绕过 on-miss 执行提示
   details: >-

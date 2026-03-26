@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gcj7-r3hg-m7w6
   summary: OpenClaw voice-call Twilio replay dedupe now bound to authenticated webhook identity
   details: >-

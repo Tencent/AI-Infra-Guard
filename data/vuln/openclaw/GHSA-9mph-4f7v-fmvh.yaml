@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9mph-4f7v-fmvh
   summary: OpenClaw 代理头像符号链接遍历导致网关会话元数据泄露
   details: >-

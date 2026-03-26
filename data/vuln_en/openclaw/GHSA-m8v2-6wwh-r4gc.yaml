@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-m8v2-6wwh-r4gc
   summary: OpenClaw Sandbox bind validation could bypass allowed-root and blocked-path checks via symlink-parent missing-leaf
     paths

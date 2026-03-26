@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vjp8-wprm-2jw9
   summary: OpenClaw Cross-account DM pairing authorization bypass via unscoped pairing store access
   details: >-

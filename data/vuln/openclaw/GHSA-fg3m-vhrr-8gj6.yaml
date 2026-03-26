@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fg3m-vhrr-8gj6
   summary: OpenClaw Windows Lobster 受限回退路径中的 Shell 回退命令注入
   details: >-

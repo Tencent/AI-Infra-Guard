@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mgrq-9f93-wpp5
   summary: OpenClaw 工作区路径保护在根目录外不存在的符号链接叶节点上被绕过
   details: >-

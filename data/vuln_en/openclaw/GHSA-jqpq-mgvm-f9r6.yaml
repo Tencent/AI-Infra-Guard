@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jqpq-mgvm-f9r6
   summary: OpenClaw Command hijacking via unsafe PATH handling (bootstrapping + node-host PATH overrides)
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jmm5-fvh5-gf4p
   summary: OpenClaw Non-constant-time token comparison in hooks authentication
   details: >-

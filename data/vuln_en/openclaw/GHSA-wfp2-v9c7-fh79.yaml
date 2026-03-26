@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wfp2-v9c7-fh79
   summary: OpenClaw SSRF via attachment/media URL hydration
   details: >-

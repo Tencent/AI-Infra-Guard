@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p7gr-f84w-hqg5
   summary: OpenClaw Sandboxed sessions_spawn now enforces sandbox inheritance for cross-agent spawns
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5f9p-f3w2-fwch
   summary: 'OpenClaw macOS companion app (beta): allowlist parsing mismatch for system.run shell chains'
   details: >-

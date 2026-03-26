@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mqpw-46fh-299h
   summary: 'OpenClaw Authorization bypass: `operator.write` can resolve exec approvals via `chat.send` -> `/approve`'
   details: >-

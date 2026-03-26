@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mmpf-jwf4-h3qv
   summary: OpenClaw pre-commit 钩子中的选项注入可暂存被忽略的文件
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v865-p3gq-hw6m
   summary: OpenClaw 插件 `/api/channels` 路由分类中的编码路径认证绕过
   details: >-

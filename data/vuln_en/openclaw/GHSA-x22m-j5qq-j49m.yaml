@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x22m-j5qq-j49m
   summary: OpenClaw Two SSRF via sendMediaFeishu and markdown image fetching in Feishu extension
   details: >-

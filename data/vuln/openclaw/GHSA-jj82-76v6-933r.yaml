@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jj82-76v6-933r
   summary: OpenClaw 执行白名单包装器分析未展开 env/shell 调度链
   details: >-

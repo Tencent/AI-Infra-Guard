@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rm2p-j3r7-4x4j
   summary: OpenClaw Slack reaction/pin sender-policy consistency issue in non-message ingress
   details: >-

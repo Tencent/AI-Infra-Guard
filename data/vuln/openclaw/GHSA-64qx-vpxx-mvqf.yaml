@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-64qx-vpxx-mvqf
   summary: OpenClaw 通过网关 sessionFile 实现任意会话记录路径文件写入
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h9xm-j4qg-fvpg
   summary: OpenClaw Experimental apply_patch may bypass workspace-only checks in opt-in sandbox mounts (off by default)
   details: >-

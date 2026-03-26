@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jxrq-8fm4-9p58
   summary: OpenClaw Zip extraction symlink traversal could write outside destination
   details: >-

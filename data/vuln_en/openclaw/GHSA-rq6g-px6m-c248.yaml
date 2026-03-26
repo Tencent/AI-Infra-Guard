@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rq6g-px6m-c248
   summary: OpenClaw Google Chat shared-path webhook target ambiguity allowed cross-account policy-context misrouting
   details: >-

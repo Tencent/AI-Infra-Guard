@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hv93-r4j3-q65f
   summary: OpenClaw Hook Session Key Override Enables Targeted Cross-Session Routing
   details: >-

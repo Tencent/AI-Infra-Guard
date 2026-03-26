@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9868-vxmx-w862
   summary: OpenClaw system.run allowlist bypass via shell line-continuation command substitution
   details: >-

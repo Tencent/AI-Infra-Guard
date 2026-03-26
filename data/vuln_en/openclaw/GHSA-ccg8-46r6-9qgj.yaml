@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ccg8-46r6-9qgj
   summary: OpenClaw Dispatch-wrapper depth-cap mismatch can bypass shell-wrapper approval gating in system.run allowlist mode
   details: >-

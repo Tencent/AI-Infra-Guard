@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qhrr-grqp-6x2g
   summary: OpenClaw tools.exec.safeBins 受信任 PATH 目录允许在白名单模式下进行二进制覆盖
   details: >-

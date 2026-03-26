@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-c6hr-w26q-c636
   summary: OpenClaw 通过 RegExp 构造中未转义的飞书提及元数据导致 ReDoS 和正则注入
   details: >-

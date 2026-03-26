@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rxxp-482v-7mrh
   summary: OpenClaw 多个通道的入站媒体下载在拒绝前可能超过配置的字节限制
   details: >-

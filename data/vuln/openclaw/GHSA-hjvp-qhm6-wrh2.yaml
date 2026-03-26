@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hjvp-qhm6-wrh2
   summary: OpenClaw Node system.run 审批在启用审批的 host=node 流程中存在上下文绑定弱点
   details: >-

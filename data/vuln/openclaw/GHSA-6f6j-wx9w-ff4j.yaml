@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6f6j-wx9w-ff4j
   summary: OpenClaw ACPX Windows 包装器 Shell 回退允许在特定路径中进行 cwd 注入
   details: >-

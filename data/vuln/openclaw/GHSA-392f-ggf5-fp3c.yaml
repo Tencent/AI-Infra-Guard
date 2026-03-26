@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-392f-ggf5-fp3c
   summary: OpenClaw 节点元数据策略分类中的 Unicode 规范化偏差可能扩大节点白名单
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-45cg-2683-gfmq
   summary: OpenClaw 浏览器导航防护允许非网络 URL 方案，使已认证的浏览器工具用户能够通过 file:// 访问本地文件
   details: >-

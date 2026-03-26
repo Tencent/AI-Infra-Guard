@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v6c6-vqqg-w888
   summary: OpenClaw 网关中不安全的 Hook 模块路径处理可导致潜在代码执行
   details: >-

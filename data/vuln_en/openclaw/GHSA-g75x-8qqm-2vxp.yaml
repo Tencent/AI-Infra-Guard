@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g75x-8qqm-2vxp
   summary: OpenClaw `tools.exec.safeBins` PATH-hijack allowed trojan binaries to bypass allowlist checks
   details: >-

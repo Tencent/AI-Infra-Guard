@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mv9j-6xhh-g383
   summary: OpenClaw 未认证的 Nostr 个人资料 HTTP 端点允许远程资料/配置篡改
   details: >-

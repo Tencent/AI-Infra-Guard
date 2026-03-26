@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pg2v-8xwh-qhcc
   summary: OpenClaw SSRF in optional Tlon (Urbit) extension authentication
   details: >-

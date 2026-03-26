@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j4xf-96qf-rx69
   summary: OpenClaw Feishu allowFrom authorization bypass via display-name collision
   details: >-

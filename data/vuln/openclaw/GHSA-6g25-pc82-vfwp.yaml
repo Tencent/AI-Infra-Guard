@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6g25-pc82-vfwp
   summary: OpenClaw macOS 测试版入门引导流程通过 OAuth state 暴露 PKCE verifier
   details: >-

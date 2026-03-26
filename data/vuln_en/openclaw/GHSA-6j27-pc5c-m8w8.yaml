@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6j27-pc5c-m8w8
   summary: OpenClaw allow-always wrapper persistence could bypass future approvals and enable command execution
   details: >-

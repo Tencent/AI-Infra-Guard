@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v6c6-vqqg-w888
   summary: OpenClaw Potential code execution via unsafe hook module path handling in Gateway
   details: >-

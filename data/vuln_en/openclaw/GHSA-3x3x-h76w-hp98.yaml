@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3x3x-h76w-hp98
   summary: OpenClaw OpenClaw exec allowlist safeBins short-option bypass could permit arbitrary file write
   details: >-

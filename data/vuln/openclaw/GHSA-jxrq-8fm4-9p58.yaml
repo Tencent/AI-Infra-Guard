@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jxrq-8fm4-9p58
   summary: OpenClaw Zip 解压符号链接遍历可写入目标目录之外
   details: >-

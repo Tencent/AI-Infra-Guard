@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4gc7-qcvf-38wg
   summary: OpenClaw 非默认配置：手动将 sort 添加到 tools.exec.safeBins 可通过 --compress-program 绕过允许列表审批
   details: >-

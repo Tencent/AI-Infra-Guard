@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8cp7-rp8r-mg77
   summary: OpenClaw 通过 ISATAP IPv6 转换绕过 SSRF 防护
   details: >-

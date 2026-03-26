@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qcc4-p59m-p54m
   summary: OpenClaw Sandbox dangling-symlink alias handling could bypass workspace-only write boundary
   details: >-

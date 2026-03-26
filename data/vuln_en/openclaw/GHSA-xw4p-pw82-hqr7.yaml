@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xw4p-pw82-hqr7
   summary: OpenClaw Sandbox skill mirroring path traversal could write outside the sandbox workspace
   details: >-

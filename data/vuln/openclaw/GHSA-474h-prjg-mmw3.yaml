@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-474h-prjg-mmw3
   summary: OpenClaw 沙箱化的 sessions_spawn(runtime="acp") 绕过沙箱继承并允许主机 ACP 初始化
   details: >-

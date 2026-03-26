@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-c37p-4qqg-3p76
   summary: OpenClaw 启用 ngrok 回环兼容性时 Twilio 语音通话 Webhook 认证绕过
   details: >-

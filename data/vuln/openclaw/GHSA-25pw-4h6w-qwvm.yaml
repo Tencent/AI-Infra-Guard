@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-25pw-4h6w-qwvm
   summary: OpenClaw BlueBubbles 群组白名单通过私信配对存储回退出现不匹配
   details: >-

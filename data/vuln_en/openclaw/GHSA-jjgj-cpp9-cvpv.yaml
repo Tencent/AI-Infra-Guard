@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jjgj-cpp9-cvpv
   summary: 'OpenClaw Local File Exfiltration via MCP Tool Result MEDIA: Directive Injection'
   details: >-

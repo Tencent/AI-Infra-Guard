@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8m9v-xpgf-g99m
   summary: OpenClaw Unauthorized sender bypass in stop triggers and /models command authorization
   details: >-

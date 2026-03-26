@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-534w-2vm4-89xr
   summary: OpenClaw Zalo 群组发送者允许列表绕过允许未授权的 GROUP 分发
   details: >-

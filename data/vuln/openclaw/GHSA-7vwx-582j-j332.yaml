@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7vwx-582j-j332
   summary: OpenClaw MS Teams 入站附件下载器向允许列表后缀域名泄露 Bearer 令牌
   details: >-

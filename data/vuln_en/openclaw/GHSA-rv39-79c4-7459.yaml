@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rv39-79c4-7459
   summary: OpenClaw Gateway connect could skip device identity checks when auth.token was present but not yet validated
   details: >-

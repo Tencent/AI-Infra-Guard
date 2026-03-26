@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3hcm-ggvf-rch5
   summary: OpenClaw 通过双引号内的命令替换/反引号绕过 Exec 允许列表
   details: >-

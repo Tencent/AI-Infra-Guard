@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9p38-94jf-hgjj
   summary: OpenClaw macOS `system.run` allowlist bypass via quoted command substitution
   details: >-

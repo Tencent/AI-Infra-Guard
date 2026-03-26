@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4685-c5cp-vp95
   summary: OpenClaw safeBins 通过 sort 输出和递归 grep 标志绕过仅标准输入限制
   details: "摘要\r\n当 sort 输出标志（-o / --output）或递归 grep 标志通过安全二进制执行路径被允许时，tools.exec.safeBins\

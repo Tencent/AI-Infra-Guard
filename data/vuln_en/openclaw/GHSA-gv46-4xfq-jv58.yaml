@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gv46-4xfq-jv58
   summary: OpenClaw Remote Code Execution via Node Invoke Approval Bypass in Gateway
   details: >-

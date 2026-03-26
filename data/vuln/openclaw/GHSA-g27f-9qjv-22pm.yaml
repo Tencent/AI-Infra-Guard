@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g27f-9qjv-22pm
   summary: OpenClaw 通过 WebSocket 头实现日志投毒（间接提示注入）
   details: >-

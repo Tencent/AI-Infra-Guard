@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5xfq-5mr7-426q
   summary: OpenClaw Unsanitized session ID enables path traversal in transcript file operations
   details: >-

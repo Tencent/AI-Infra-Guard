@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5h2c-8v84-qpvr
   summary: OpenClaw Shell-env fallback trusted startup env and could execute attacker-influenced login-shell paths
   details: >-

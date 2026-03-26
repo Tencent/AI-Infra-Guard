@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7xhj-55q9-pc3m
   summary: OpenClaw Hook 转换模块路径允许遍历和任意 JavaScript 模块加载
   details: >-

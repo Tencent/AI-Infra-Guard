@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-553v-f69r-656j
   summary: OpenClaw Unpaired device identity can bypass operator pairing and self-assign operator scopes with shared auth
   details: >-

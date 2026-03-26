@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4rj2-gpmh-qq5x
   summary: OpenClaw Inbound allowlist policy bypass in voice-call extension (empty caller ID + suffix matching)
   details: >-

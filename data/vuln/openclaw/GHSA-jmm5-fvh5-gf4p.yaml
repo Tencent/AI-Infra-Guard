@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jmm5-fvh5-gf4p
   summary: OpenClaw Hooks 认证中使用非常量时间的令牌比较
   details: >-

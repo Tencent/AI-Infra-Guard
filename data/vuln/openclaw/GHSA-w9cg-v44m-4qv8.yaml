@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w9cg-v44m-4qv8
   summary: OpenClaw BASH_ENV / ENV 启动文件注入到生成的 shell 命令中
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-56pc-6hvp-4gv4
   summary: 'OpenClaw OC-06: Arbitrary file read via $include directive'
   details: >-

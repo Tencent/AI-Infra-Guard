@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mmpf-jwf4-h3qv
   summary: OpenClaw Option injection in pre-commit hook can stage ignored files
   details: >-

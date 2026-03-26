@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r65x-2hqr-j5hf
   summary: OpenClaw Node reconnect metadata spoofing could bypass platform-based node command policy
   details: >-

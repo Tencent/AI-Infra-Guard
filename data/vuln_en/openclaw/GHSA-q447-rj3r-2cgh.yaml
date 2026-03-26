@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-q447-rj3r-2cgh
   summary: OpenClaw Denial of service via unbounded webhook request body buffering
   details: >-

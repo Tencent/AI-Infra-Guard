@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-33rq-m5x2-fvgf
   summary: OpenClaw 可选 Twitch 插件中 allowFrom 未强制执行，未授权的聊天用户可触发代理管道
   details: "摘要\r\n\r\n在可选的 Twitch 通道插件（extensions/twitch）中，allowFrom 被记录为 Twitch 用户 ID 的硬允许列表，但未作为硬性\

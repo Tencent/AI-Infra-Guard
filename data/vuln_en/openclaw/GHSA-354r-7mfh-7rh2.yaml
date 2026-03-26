@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-354r-7mfh-7rh2
   summary: OpenClaw Discord DM reaction ingress missed dmPolicy/allowFrom checks in restricted setups
   details: >-

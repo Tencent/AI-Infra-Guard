@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9q2p-vc84-2rwm
   summary: OpenClaw system.run 的 allow-always 持久化包含了 shell 注释载荷尾部
   details: >-

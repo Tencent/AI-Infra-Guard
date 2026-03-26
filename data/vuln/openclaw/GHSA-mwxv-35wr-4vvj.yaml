@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mwxv-35wr-4vvj
   summary: OpenClaw 网关插件认证通过受保护的 /api/channels 路径中的编码点段遍历被绕过
   details: >-

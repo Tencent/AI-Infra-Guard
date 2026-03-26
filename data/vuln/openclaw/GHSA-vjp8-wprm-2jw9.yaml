@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vjp8-wprm-2jw9
   summary: OpenClaw 跨账户 DM 配对授权绕过漏洞（配对存储访问未限定账户范围）
   details: >-

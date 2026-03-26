@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7xmq-g46g-f8pv
   summary: OpenClaw Sandbox media TOCTOU could read files outside sandbox root
   details: >-

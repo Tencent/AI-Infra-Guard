@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hwpq-rrpf-pgcq
   summary: OpenClaw system.run 审批身份不匹配可能执行与显示不同的二进制文件
   details: >-

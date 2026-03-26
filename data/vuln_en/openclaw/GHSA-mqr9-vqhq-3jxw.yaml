@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mqr9-vqhq-3jxw
   summary: OpenClaw Windows Scheduled Task script generation allowed local command injection via unsafe cmd argument handling
   details: >-

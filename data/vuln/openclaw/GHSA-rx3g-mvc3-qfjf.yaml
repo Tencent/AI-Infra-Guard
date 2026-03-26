@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rx3g-mvc3-qfjf
   summary: OpenClaw 头像符号链接遍历可暴露工作区外的本地文件
   details: >-

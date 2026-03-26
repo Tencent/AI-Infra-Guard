@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gq9c-wg68-gwj2
   summary: OpenClaw 浏览器 trace/download 输出路径中的路径遍历可能允许在 OpenClaw 临时目录外进行任意文件写入
   details: >-

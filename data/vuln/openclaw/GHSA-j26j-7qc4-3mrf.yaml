@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j26j-7qc4-3mrf
   summary: OpenClaw MS Teams fileConsent/invoke 缺少会话绑定导致跨会话待上传消费
   details: >-

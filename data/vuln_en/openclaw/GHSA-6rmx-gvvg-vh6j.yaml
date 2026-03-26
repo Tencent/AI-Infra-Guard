@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6rmx-gvvg-vh6j
   summary: OpenClaw hooks count non-POST requests toward auth lockout
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qpjj-47vm-64pj
   summary: OpenClaw 本地浏览器控制端点缺少认证
   details: >-

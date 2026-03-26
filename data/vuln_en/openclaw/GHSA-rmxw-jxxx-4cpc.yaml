@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rmxw-jxxx-4cpc
   summary: OpenClaw Matrix allowlist bypass via displayName and cross-homeserver localpart matching
   details: >-

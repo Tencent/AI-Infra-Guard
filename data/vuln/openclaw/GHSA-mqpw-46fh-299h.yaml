@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mqpw-46fh-299h
   summary: OpenClaw 授权绕过：`operator.write` 可通过 `chat.send` -> `/approve` 解决执行审批
   details: >-

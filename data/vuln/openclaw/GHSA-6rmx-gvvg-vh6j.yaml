@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6rmx-gvvg-vh6j
   summary: OpenClaw hooks 将非 POST 请求计入认证锁定计数
   details: >-

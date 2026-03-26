@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-43x4-g22p-3hrq
   summary: OpenClaw Chrome --no-sandbox 在沙箱浏览器容器中禁用了操作系统级浏览器沙箱
   details: >-

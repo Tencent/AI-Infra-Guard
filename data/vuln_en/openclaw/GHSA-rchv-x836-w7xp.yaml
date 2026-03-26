@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rchv-x836-w7xp
   summary: OpenClaw Dashboard leaked gateway auth material via browser URL/query and localStorage
   details: >-

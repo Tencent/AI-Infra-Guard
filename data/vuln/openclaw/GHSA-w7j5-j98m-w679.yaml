@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w7j5-j98m-w679
   summary: OpenClaw 多个 E2E/测试 Dockerfile 以 root 身份运行所有进程
   details: "scripts/docker/ 和 scripts/e2e/ 中的三个 Dockerfile 缺少 USER 指令，意味着所有进程以 uid\

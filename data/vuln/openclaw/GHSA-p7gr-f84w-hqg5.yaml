@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p7gr-f84w-hqg5
   summary: OpenClaw 沙箱化的 sessions_spawn 现在对跨代理生成执行沙箱继承
   details: >-

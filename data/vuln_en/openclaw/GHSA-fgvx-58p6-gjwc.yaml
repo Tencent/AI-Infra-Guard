@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fgvx-58p6-gjwc
   summary: OpenClaw Gateway agents.files symlink escape allowed out-of-workspace file read/write
   details: "Impact\n\nThe gateway agents.files.get and agents.files.set methods allowed symlink traversal for allowlisted\

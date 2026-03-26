@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3jx4-q2m7-r496
   summary: OpenClaw Hardlink alias checks could bypass workspace-only file boundaries in specific configurations
   details: >-

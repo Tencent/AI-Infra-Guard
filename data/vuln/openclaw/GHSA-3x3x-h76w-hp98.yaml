@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3x3x-h76w-hp98
   summary: OpenClaw exec 允许列表 safeBins 短选项绕过可允许任意文件写入
   details: >-

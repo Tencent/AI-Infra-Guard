@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7rcp-mxpq-72pj
   summary: OpenClaw Chutes 手动 OAuth state 验证绕过可导致凭证替换
   details: >-

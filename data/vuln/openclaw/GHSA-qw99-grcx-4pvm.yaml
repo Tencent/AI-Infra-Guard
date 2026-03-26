@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qw99-grcx-4pvm
   summary: OpenClaw Chrome 扩展中继因通配符被视为回环而公开绑定
   details: >-

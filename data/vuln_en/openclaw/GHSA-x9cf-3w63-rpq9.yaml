@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x9cf-3w63-rpq9
   summary: OpenClaw Sensitive file disclosure via stageSandboxMedia
   details: >-

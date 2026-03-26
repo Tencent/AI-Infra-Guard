@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qw99-grcx-4pvm
   summary: OpenClaw Chrome extension relay binds publicly due to wildcard treated as loopback
   details: >-

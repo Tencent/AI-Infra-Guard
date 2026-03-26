@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r294-2894-92j3
   summary: OpenClaw 导出会话 HTML 查看器中通过 markdown/原始 HTML 渲染的存储型 XSS
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2rgf-hm63-5qph
   summary: OpenClaw 在受信任代理后端不正确的 X-Forwarded-For 解析允许客户端 IP 欺骗影响安全决策
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xw4p-pw82-hqr7
   summary: OpenClaw 沙箱技能镜像路径遍历可在沙箱工作区外写入文件
   details: >-

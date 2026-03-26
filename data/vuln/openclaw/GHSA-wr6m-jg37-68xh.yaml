@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wr6m-jg37-68xh
   summary: OpenClaw 通过查询字符串键变换导致 Zalo webhook 无界内存增长（未认证拒绝服务）
   details: >-

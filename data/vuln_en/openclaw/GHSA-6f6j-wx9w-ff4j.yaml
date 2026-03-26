@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6f6j-wx9w-ff4j
   summary: OpenClaw ACPX Windows wrapper shell fallback allowed cwd injection in specific paths
   details: >-

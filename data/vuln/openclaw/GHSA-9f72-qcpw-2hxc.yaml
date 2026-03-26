@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9f72-qcpw-2hxc
   summary: OpenClaw 原生提示图片自动加载在沙箱运行中未遵守 tools.fs.workspaceOnly
   details: >-

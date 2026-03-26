@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hfpr-jhpq-x4rm
   summary: OpenClaw `operator.write` chat.send could reach admin-only config writes
   details: >-

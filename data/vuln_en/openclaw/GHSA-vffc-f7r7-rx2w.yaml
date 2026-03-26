@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vffc-f7r7-rx2w
   summary: OpenClaw Improper Neutralization of Line Breaks in systemd Unit Generation Enables Local Command Execution (Linux)
   details: >-

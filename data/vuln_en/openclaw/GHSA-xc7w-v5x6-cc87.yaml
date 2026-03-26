@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xc7w-v5x6-cc87
   summary: OpenClaw Webhook auth bypass when gateway is behind a reverse proxy (loopback remoteAddress trust)
   details: >-

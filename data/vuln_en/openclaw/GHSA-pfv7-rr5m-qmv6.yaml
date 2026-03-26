@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pfv7-rr5m-qmv6
   summary: OpenClaw Auth inconsistency on local Browser Extension Relay /extension endpoint
   details: >-

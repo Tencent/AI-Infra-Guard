@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gp3q-wpq4-5c5h
   summary: OpenClaw LINE group allowlist scope mismatch with DM pairing-store entries
   details: >-

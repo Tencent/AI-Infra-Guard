@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-c6hr-w26q-c636
   summary: OpenClaw ReDoS and regex injection via unescaped Feishu mention metadata in RegExp construction
   details: >-

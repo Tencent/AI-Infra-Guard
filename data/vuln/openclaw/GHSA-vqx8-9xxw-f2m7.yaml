@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vqx8-9xxw-f2m7
   summary: OpenClaw 语音通话 Twilio webhook 重放可绕过管理器去重（因规范化事件 ID 每次解析时随机生成）
   details: >-

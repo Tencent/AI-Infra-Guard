@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w76h-8m22-hpgh
   summary: OpenClaw MSTeams attachment redirect handling could bypass configured media host allowlists
   details: >-

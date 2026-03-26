@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-943q-mwmv-hhvh
   summary: OpenClaw OC-02：网关 /tools/invoke 工具提权 + ACP 权限自动审批
   details: >-

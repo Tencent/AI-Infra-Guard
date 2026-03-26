@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fh3f-q9qw-93j9
   summary: OpenClaw 替换已弃用的沙箱哈希算法
   details: >-

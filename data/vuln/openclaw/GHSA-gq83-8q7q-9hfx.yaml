@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gq83-8q7q-9hfx
   summary: OpenClaw 序列化沙箱注册表写入以防止竞争条件和删除回滚损坏
   details: >-

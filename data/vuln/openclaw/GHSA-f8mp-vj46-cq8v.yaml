@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-f8mp-vj46-cq8v
   summary: OpenClaw Shell 环境回退信任来自宿主环境的未验证 SHELL 路径
   details: >-

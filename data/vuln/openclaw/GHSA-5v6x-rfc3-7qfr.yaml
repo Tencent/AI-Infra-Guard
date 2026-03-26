@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5v6x-rfc3-7qfr
   summary: OpenClaw Windows system.run 审批不匹配导致 cmd.exe /c 尾部参数执行
   details: >-

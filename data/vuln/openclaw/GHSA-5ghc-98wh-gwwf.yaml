@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5ghc-98wh-gwwf
   summary: OpenClaw Control UI 静态文件处理器跟随符号链接导致根目录外文件读取
   details: >-

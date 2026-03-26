@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9q36-67vc-rrwg
   summary: OpenClaw Sandboxed /acp spawn requests could initialize host ACP sessions
   details: >-

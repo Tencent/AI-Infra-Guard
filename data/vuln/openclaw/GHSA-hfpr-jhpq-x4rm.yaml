@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hfpr-jhpq-x4rm
   summary: OpenClaw `operator.write` 权限的 chat.send 可达管理员专属配置写入
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5ghc-98wh-gwwf
   summary: OpenClaw Control UI Static File Handler Follows Symlinks and Allows Out-of-Root File Read
   details: >-

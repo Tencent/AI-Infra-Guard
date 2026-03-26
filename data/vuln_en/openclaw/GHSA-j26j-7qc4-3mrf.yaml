@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j26j-7qc4-3mrf
   summary: OpenClaw MS Teams fileConsent/invoke missing conversation binding allowed cross-conversation pending-upload consumption
   details: >-

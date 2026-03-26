@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jq4x-98m3-ggq6
   summary: 'OpenClaw ZDI-CAN-29312: OpenClaw Canvas 路径遍历信息泄露漏洞'
   details: >-

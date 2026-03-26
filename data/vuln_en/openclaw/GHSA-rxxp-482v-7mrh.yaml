@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rxxp-482v-7mrh
   summary: OpenClaw Inbound media downloads could exceed configured byte limits before rejection across multiple channels
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4cqv-h74h-93j4
   summary: OpenClaw Discord allowFrom slug 碰撞授权绕过
   details: >-

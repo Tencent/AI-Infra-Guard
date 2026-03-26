@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fqcm-97m6-w7rm
   summary: OpenClaw Message action attachment hydration bypasses local media root checks when sandboxRoot is unset
   details: >-

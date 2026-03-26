@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r5fq-947m-xm57
   summary: OpenClaw apply_patch 路径遍历可在工作区外写入/删除文件
   details: "概述\r\n\r\n在受影响版本中，当 apply_patch 已启用且代理在无文件系统沙箱隔离的情况下运行时，精心构造的路径可导致在配置的工作区目录之外进行文件写入/删除。\r\n\r\n受影响的包/版本\r\n\r\n- 包：openclaw (npm)\r\n- 受影响：<= 2026.2.13\r\n- 修复：>= 2026.2.14\r\n\r\n详情\r\

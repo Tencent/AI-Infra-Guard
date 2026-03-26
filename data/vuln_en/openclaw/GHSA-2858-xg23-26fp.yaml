@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2858-xg23-26fp
   summary: OpenClaw Node camera URL payload host-binding bypass allowed gateway fetch pivots
   details: >-

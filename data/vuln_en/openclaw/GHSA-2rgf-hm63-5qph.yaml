@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2rgf-hm63-5qph
   summary: OpenClaw Improper X-Forwarded-For parsing behind trusted proxies allows client IP spoofing in security decisions
   details: >-

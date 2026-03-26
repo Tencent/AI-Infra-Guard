@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7xhj-55q9-pc3m
   summary: OpenClaw Hook transform module path allows traversal and arbitrary JavaScript module loading
   details: >-

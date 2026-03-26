@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h3rm-6x7g-882f
   summary: OpenClaw 节点 system.run 审批加固包装器语义漂移可执行意外的本地脚本
   details: >-

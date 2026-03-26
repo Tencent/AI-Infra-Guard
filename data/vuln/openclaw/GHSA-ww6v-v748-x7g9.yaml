@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ww6v-v748-x7g9
   summary: OpenClaw 沙箱网络隔离绕过漏洞（通过 docker.network=container:<id>）
   details: >-

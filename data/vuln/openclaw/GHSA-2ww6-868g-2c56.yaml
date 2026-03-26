@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2ww6-868g-2c56
   summary: OpenClaw 通过未验证的图像 MIME 类型在 data-URL 插值中实现 HTML 注入
   details: >-

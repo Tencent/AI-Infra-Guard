@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g75x-8qqm-2vxp
   summary: OpenClaw tools.exec.safeBins PATH 劫持允许特洛伊木马二进制文件绕过允许列表检查
   details: >-

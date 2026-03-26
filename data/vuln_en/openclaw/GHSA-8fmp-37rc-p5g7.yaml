@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8fmp-37rc-p5g7
   summary: OpenClaw Config env vars allowed startup env injection into service runtime
   details: >-

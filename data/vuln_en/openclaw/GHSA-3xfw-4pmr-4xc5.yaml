@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3xfw-4pmr-4xc5
   summary: OpenClaw OpenClaw safeBins grep -e File Read Bypass (stdin-only policy bypass)
   details: >-

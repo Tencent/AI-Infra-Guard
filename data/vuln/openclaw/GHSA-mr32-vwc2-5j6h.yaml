@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mr32-vwc2-5j6h
   summary: OpenClaw 浏览器中继 /cdp WebSocket 缺少认证可允许跨标签页 Cookie 访问
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mfg5-7q5g-f37j
   summary: OpenClaw voice-call media stream validated streams after upgrade, which could allow pre-start unauthenticated sockets
     to increase resource pressure

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ff98-w8hj-qrxf
   summary: OpenClaw Plugin runtime command execution is part of trusted plugin boundary
   details: >-

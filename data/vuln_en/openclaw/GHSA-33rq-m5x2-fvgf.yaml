@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-33rq-m5x2-fvgf
   summary: OpenClaw Twitch allowFrom not enforced in optional plugin, unauthorized chat users can trigger agent pipeline
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7jx5-9fjg-hp4m
   summary: OpenClaw ACP permission auto-approval bypass via untrusted tool metadata
   details: >-

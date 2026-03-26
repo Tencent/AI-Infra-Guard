@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-q399-23r3-hfx4
   summary: OpenClaw system.run 审批未绑定 PATH 令牌可执行身份，允许审批后可执行文件重绑定
   details: >-

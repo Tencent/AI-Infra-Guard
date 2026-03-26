@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qrq5-wjgg-rvqw
   summary: OpenClaw 插件安装中的路径遍历
   details: >-

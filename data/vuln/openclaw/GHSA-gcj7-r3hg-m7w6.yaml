@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gcj7-r3hg-m7w6
   summary: OpenClaw 语音通话 Twilio 重放去重现绑定到已认证的 Webhook 身份
   details: >-

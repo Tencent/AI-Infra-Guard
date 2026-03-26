@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6rcp-vxwf-3mfp
   summary: OpenClaw system.run Shell 包装器位置参数载体可在误导性审批文本下执行隐藏命令
   details: >-

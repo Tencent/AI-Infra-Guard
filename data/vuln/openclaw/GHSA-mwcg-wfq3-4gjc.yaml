@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mwcg-wfq3-4gjc
   summary: OpenClaw system.run 审批在 node host 上通过可变符号链接 cwd 目标存在 TOCTOU 竞争
   details: "概述\n在 openclaw@2026.2.24 中，node host 上审批绑定的 system.run 可能受到审批与执行之间可变符号链接\

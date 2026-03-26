@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xvhf-x56f-2hpp
   summary: 'OpenClaw Exec approvals: safeBins could bypass stdin-only constraints via shell expansion'
   details: >-

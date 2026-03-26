@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pg2v-8xwh-qhcc
   summary: OpenClaw 可选 Tlon (Urbit) 扩展认证中的 SSRF
   details: >-

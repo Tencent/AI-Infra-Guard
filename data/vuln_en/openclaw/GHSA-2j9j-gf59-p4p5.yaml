@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2j9j-gf59-p4p5
   summary: OpenClaw iOS deep link (openclaw://agent) can trigger gateway agent requests without local confirmation
   details: >-

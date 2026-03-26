@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8mvx-p2r9-r375
   summary: OpenClaw Web 工具严格 URL 防护在配置环境代理时可能丢失 DNS 固定
   details: >-

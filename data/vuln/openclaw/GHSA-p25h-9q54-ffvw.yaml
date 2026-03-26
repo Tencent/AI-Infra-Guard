@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p25h-9q54-ffvw
   summary: OpenClaw tar 归档解压中的 Zip Slip 路径遍历
   details: >-

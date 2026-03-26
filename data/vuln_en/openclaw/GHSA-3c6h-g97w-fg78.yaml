@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3c6h-g97w-fg78
   summary: OpenClaw tools.exec.safeBins sort long-option abbreviation bypass can skip exec approval in allowlist mode
   details: >-

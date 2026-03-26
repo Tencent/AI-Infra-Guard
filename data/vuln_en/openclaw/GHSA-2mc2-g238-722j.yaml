@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2mc2-g238-722j
   summary: OpenClaw iMessage remote attachment SCP hardening (strict host-key checks and remoteHost validation)
   details: >-

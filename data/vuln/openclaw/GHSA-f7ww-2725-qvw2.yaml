@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-f7ww-2725-qvw2
   summary: OpenClaw 节点 system.run 通过父符号链接 cwd 重绑定绕过审批
   details: >-

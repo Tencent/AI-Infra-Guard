@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ww6v-v748-x7g9
   summary: OpenClaw sandbox network isolation bypass via docker.network=container:<id>
   details: >-

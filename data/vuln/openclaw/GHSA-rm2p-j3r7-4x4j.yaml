@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rm2p-j3r7-4x4j
   summary: OpenClaw Slack 反应/固定消息在非消息入站中的发送者策略一致性问题
   details: >-

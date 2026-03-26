@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x82f-27x3-q89c
   summary: OpenClaw TOCTOU symlink race in writeFileWithinRoot could create or truncate files outside root boundaries
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h9g4-589h-68xv
   summary: OpenClaw 沙箱浏览器桥接服务器身份验证绕过
   details: "概述\r\n\r\nopenclaw 可能在未进行身份验证的情况下启动沙箱浏览器桥接服务器。\r\n\r\n当启用沙箱浏览器时，openclaw\

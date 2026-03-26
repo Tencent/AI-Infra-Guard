@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-36h3-7c54-j27r
   summary: OpenClaw Browser trace/download path symlink escape in temp output handling
   details: >-

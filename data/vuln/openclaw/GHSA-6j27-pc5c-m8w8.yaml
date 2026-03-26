@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6j27-pc5c-m8w8
   summary: OpenClaw allow-always 包装器持久化可绕过后续审批并实现命令执行
   details: >-

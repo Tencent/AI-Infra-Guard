@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-cfvj-7rx7-fc7c
   summary: OpenClaw stageSandboxMedia destination symlink traversal can overwrite files outside sandbox workspace
   details: >-

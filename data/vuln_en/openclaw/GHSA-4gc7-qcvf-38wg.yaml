@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4gc7-qcvf-38wg
   summary: 'OpenClaw non-default configuration: manually adding sort to tools.exec.safeBins could bypass allowlist approval
     via --compress-program'

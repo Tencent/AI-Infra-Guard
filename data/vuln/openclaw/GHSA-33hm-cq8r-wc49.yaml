@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-33hm-cq8r-wc49
   summary: OpenClaw 临时路径处理可写入到 OpenClaw 临时目录边界之外
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3cvx-236h-m9fj
   summary: OpenClaw Opt-in insecure Control UI auth over plaintext HTTP could allow privileged access in affected releases
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xc7w-v5x6-cc87
   summary: OpenClaw 当网关位于反向代理后方时 Webhook 认证绕过（回环 remoteAddress 信任）
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-27cr-4p5m-74rj
   summary: OpenClaw Workspace-only sandbox guard mismatch for @-prefixed absolute paths
   details: >-

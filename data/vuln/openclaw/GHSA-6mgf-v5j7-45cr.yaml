@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6mgf-v5j7-45cr
   summary: OpenClaw fetch-guard 在跨域重定向时转发自定义授权请求头
   details: >-

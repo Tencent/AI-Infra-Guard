@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6c9j-x93c-rw6j
   summary: OpenClaw safeBins 文件存在性探测信息泄露漏洞
   details: >-

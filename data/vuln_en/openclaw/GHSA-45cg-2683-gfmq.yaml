@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-45cg-2683-gfmq
   summary: OpenClaw Browser navigation guard allowed non-network URL schemes, enabling authenticated browser-tool users to
     access file:// local files.

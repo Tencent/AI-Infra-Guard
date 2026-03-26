@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r54r-wmmq-mh84
   summary: OpenClaw ZIP extraction race could write outside destination via parent symlink rebind
   details: >-

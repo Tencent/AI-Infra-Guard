@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-q447-rj3r-2cgh
   summary: OpenClaw 通过无限制的 Webhook 请求体缓冲导致拒绝服务
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2fgq-7j6h-9rm4
   summary: OpenClaw system.run shell 包装器通过 SHELLOPTS/PS4 的环境变量注入可绕过白名单意图（远程代码执行）
   details: >-

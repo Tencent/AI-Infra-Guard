@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jwf4-8wf4-jf2m
   summary: OpenClaw BlueBubbles（可选插件）在 allowFrom 为空时的配对/白名单不匹配
   details: >-

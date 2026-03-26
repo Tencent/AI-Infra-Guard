@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2hm8-rqrm-xfjq
   summary: OpenClaw Owner-only gateway tool access checks were incomplete in specific authenticated DM flows
   details: >-

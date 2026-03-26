@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gwqp-86q6-w47g
   summary: OpenClaw exec allow-always 可通过未识别的多路复用 Shell 包装器（busybox/toybox sh -c）绕过
   details: >-

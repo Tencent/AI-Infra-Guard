@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2j9j-gf59-p4p5
   summary: OpenClaw iOS 深度链接 (openclaw://agent) 可在无本地确认的情况下触发 gateway 代理请求
   details: >-

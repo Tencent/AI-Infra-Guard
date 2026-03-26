@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wr6m-jg37-68xh
   summary: OpenClaw Unbounded memory growth in Zalo webhook via query-string key churn (unauthenticated DoS)
   details: >-

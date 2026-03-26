@@ -3,7 +3,7 @@ info:
   author: 腾讯朱雀实验室
   severity: info
   metadata:
-    product: feast-webui
+    product: feast
     vendor: feast
 http:
   - method: GET

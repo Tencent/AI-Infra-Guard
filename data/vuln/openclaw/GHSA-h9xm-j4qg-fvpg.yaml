@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h9xm-j4qg-fvpg
   summary: OpenClaw 实验性 apply_patch 可能在可选沙箱挂载中绕过仅工作区检查（默认关闭）
   details: >-

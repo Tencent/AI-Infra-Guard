@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j4xf-96qf-rx69
   summary: OpenClaw 飞书 allowFrom 授权通过显示名称冲突被绕过
   details: >-

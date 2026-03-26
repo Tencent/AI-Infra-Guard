@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gv46-4xfq-jv58
   summary: OpenClaw 通过网关节点调用审批绕过实现远程代码执行
   details: >-

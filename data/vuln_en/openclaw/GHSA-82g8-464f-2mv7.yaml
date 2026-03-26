@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-82g8-464f-2mv7
   summary: OpenClaw Skill env override host env injection
   details: >-

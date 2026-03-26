@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6g25-pc82-vfwp
   summary: OpenClaw macOS beta onboarding exposed PKCE verifier via OAuth state
   details: >-

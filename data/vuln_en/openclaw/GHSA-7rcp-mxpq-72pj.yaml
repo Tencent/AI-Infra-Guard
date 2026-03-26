@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7rcp-mxpq-72pj
   summary: OpenClaw Chutes manual OAuth state validation bypass can cause credential substitution
   details: >-

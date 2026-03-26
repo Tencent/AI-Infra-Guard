@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-q399-23r3-hfx4
   summary: OpenClaw system.run approvals did not bind PATH-token executable identity, enabling post-approval executable rebind
   details: >-

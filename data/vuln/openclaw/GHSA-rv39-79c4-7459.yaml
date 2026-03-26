@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rv39-79c4-7459
   summary: OpenClaw 网关连接在 auth.token 存在但未验证时可跳过设备身份检查
   details: >-

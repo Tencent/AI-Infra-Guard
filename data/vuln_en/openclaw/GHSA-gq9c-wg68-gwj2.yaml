@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gq9c-wg68-gwj2
   summary: OpenClaw Path traversal in browser trace/download output paths may allow arbitrary file writes outside OpenClaw temp directories
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rmxw-jxxx-4cpc
   summary: OpenClaw Matrix 通过 displayName 和跨主服务器 localpart 匹配绕过白名单
   details: >-

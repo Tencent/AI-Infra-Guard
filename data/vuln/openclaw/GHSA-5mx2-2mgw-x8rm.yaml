@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5mx2-2mgw-x8rm
   summary: OpenClaw BlueBubbles 测试版插件 Webhook 认证加固（移除免密回退路径）
   details: >-

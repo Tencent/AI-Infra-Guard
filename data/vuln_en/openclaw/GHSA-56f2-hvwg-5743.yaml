@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-56f2-hvwg-5743
   summary: OpenClaw SSRF in Image Tool Remote Fetch
   details: >-

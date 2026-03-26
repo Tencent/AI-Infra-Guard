@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4685-c5cp-vp95
   summary: OpenClaw safeBins stdin-only bypass via sort output and recursive grep flags
   details: >-

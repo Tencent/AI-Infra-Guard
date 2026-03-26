@@ -3,7 +3,7 @@ info:
   author: 腾讯朱雀实验室
   severity: info
   metadata:
-    product: vercel
+    product: ai-chatbot
     vendor: ai-chatbot
 http:
   - method: GET

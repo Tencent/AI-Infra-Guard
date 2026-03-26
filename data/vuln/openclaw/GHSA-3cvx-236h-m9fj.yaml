@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3cvx-236h-m9fj
   summary: OpenClaw 选择启用的不安全控制 UI 明文 HTTP 认证可能在受影响版本中允许特权访问
   details: >-

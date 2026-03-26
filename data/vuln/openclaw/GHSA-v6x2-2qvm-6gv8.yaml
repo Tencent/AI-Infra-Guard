@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v6x2-2qvm-6gv8
   summary: OpenClaw 网关认证令牌在所有者 ID 提示哈希回退中被重用
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3h2q-j2v4-6w5r
   summary: OpenClaw system.run 允许列表审批解析遗漏 PowerShell 编码命令包装器
   details: >-

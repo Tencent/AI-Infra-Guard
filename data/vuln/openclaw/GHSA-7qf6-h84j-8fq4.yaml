@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7qf6-h84j-8fq4
   summary: OpenClaw Microsoft Teams 媒体获取 SSRF 加固：统一 Graph 和附件路径的受保护 fetch
   details: >-

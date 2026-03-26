@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rv2q-f2h5-6xmg
   summary: OpenClaw Node role device-identity bypass allows unauthorized node.event injection
   details: >-

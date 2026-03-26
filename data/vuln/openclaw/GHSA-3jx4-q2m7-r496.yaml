@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3jx4-q2m7-r496
   summary: OpenClaw 硬链接别名检查在特定配置下可绕过仅工作区文件边界
   details: >-

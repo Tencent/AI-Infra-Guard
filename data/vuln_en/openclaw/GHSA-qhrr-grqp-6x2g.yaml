@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qhrr-grqp-6x2g
   summary: OpenClaw tools.exec.safeBins trusted PATH directories allowed binary shadowing in allowlist mode
   details: >-

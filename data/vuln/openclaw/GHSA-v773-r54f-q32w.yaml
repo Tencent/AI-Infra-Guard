@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v773-r54f-q32w
   summary: 'OpenClaw Slack: dmPolicy=open 允许任何 DM 发送者运行特权斜杠命令'
   details: >-

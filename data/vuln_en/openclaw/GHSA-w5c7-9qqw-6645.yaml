@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w5c7-9qqw-6645
   summary: OpenClaw Inter-session prompts could be treated as direct user instructions
   details: >-

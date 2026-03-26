@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h9g4-589h-68xv
   summary: OpenClaw Authentication bypass in sandbox browser bridge server
   details: >-

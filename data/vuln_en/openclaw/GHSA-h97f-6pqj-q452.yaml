@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h97f-6pqj-q452
   summary: OpenClaw IPv6 multicast SSRF classifier bypass
   details: "Summary\nOpenClaw's SSRF IP classifier did not treat IPv6 multicast literals (ff00::/8) as blocked/private-internal.\

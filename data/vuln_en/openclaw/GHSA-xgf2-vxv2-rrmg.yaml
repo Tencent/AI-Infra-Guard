@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xgf2-vxv2-rrmg
   summary: OpenClaw Shell startup env injection bypasses system.run allowlist intent (RCE class)
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-f7ww-2725-qvw2
   summary: OpenClaw Node system.run approval bypass via parent-symlink cwd rebind
   details: >-

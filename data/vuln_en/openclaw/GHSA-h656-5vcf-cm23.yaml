@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h656-5vcf-cm23
   summary: 'OpenClaw Telegram: Unauthorized Senders Trigger Media Download and Disk Write Before Access Check'
   details: >-

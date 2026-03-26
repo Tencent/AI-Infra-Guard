@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9p38-94jf-hgjj
   summary: OpenClaw macOS system.run 通过带引号的命令替换绕过允许列表
   details: >-

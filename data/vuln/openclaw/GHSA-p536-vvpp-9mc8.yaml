@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p536-vvpp-9mc8
   summary: OpenClaw 通过无限制的响应解析导致 Web Fetch 拒绝服务
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7f4q-9rqh-x36p
   summary: OpenClaw macOS optional allowlist basename matching could bypass path-based policy
   details: >-

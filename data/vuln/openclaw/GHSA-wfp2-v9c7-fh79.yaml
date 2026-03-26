@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wfp2-v9c7-fh79
   summary: OpenClaw 通过附件/媒体 URL 水合导致 SSRF
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ff98-w8hj-qrxf
   summary: OpenClaw 插件运行时命令执行属于可信插件边界
   details: >-

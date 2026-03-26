@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-6x2m-hqfw-hvpj
   summary: OpenClaw Node exec approvals could be replayed across nodes
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x22m-j5qq-j49m
   summary: OpenClaw 飞书扩展中 sendMediaFeishu 和 markdown 图片获取存在两处 SSRF 漏洞
   details: >-

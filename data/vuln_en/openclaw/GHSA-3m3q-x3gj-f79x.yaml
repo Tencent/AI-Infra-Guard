@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3m3q-x3gj-f79x
   summary: 'OpenClaw Optional voice-call plugin: webhook verification may be bypassed behind certain proxy configurations'
   details: >-

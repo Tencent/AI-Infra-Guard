@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-f6h3-846h-2r8w
   summary: OpenClaw 提升的 allowFrom 匹配收紧为发送者范围授权
   details: >-

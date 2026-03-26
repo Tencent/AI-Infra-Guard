@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2fgq-7j6h-9rm4
   summary: OpenClaw system.run shell-wrapper env injection via SHELLOPTS/PS4 can bypass allowlist intent (RCE)
   details: >-

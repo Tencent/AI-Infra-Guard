@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wpg9-4g4v-f9rc
   summary: OpenClaw Discord voice transcript owner-flag omission could expose owner-only tools in mixed-trust channels
   details: >-

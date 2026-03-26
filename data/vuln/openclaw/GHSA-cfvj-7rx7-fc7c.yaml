@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-cfvj-7rx7-fc7c
   summary: OpenClaw stageSandboxMedia 目标符号链接遍历可覆盖沙箱工作区外的文件
   details: >-

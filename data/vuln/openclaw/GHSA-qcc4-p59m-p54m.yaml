@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qcc4-p59m-p54m
   summary: OpenClaw 沙箱悬空符号链接别名处理可绕过仅工作区写入边界
   details: >-

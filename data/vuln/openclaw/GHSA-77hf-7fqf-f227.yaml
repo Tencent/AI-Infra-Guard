@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-77hf-7fqf-f227
   summary: OpenClaw skills-install-download：tar.bz2 解压绕过归档安全一致性检查（本地 DoS）
   details: >-

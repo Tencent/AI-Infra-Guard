@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5h2c-8v84-qpvr
   summary: OpenClaw Shell-env 回退信任启动环境变量，可能执行攻击者控制的登录 Shell 路径
   details: >-

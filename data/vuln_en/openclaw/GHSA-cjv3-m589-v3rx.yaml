@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-cjv3-m589-v3rx
   summary: OpenClaw Canvas route hardening for mixed-trust deployments
   details: >-

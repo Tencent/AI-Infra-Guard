@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g27f-9qjv-22pm
   summary: OpenClaw OpenClaw log poisoning (indirect prompt injection) via WebSocket headers
   details: >-

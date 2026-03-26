@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jr6x-2q95-fh2g
   summary: OpenClaw Authorization mismatch allowed write-scope agent runs to reach owner-only tools
   details: >-

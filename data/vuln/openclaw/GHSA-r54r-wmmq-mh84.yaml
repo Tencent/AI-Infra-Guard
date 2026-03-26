@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r54r-wmmq-mh84
   summary: OpenClaw ZIP 解压竞争可通过父目录符号链接重绑定写入目标目录之外
   details: >-

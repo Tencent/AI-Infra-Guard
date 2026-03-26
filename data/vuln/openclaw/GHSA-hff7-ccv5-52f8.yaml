@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-hff7-ccv5-52f8
   summary: OpenClaw 网关无令牌 Tailscale 认证应用于 HTTP 路由
   details: >-

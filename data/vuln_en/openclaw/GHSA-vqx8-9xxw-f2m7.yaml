@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vqx8-9xxw-f2m7
   summary: OpenClaw voice-call Twilio webhook replay could bypass manager dedupe because normalized event IDs were randomized
     per parse

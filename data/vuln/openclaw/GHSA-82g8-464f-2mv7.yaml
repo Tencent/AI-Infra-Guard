@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-82g8-464f-2mv7
   summary: OpenClaw 技能环境变量覆盖导致宿主环境变量注入
   details: >-

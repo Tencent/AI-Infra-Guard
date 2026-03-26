@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w7j5-j98m-w679
   summary: OpenClaw Multiple E2E/test Dockerfiles run all processes as root
   details: >-

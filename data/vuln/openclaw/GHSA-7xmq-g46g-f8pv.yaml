@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7xmq-g46g-f8pv
   summary: OpenClaw 沙箱媒体 TOCTOU 可读取沙箱根目录外的文件
   details: >-

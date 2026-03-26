@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r65x-2hqr-j5hf
   summary: OpenClaw Node 重连元数据欺骗可绕过基于平台的节点命令策略
   details: >-

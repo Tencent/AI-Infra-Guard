@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7fcc-cw49-xm78
   summary: OpenClaw Command injection via Windows shell fallback in Lobster tool execution
   details: >-

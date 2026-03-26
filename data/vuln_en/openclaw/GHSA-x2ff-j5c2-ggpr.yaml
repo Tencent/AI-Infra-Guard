@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x2ff-j5c2-ggpr
   summary: OpenClaw Slack interactive callbacks could skip configured sender checks in some shared-workspace flows
   details: >-

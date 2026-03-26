@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fg3m-vhrr-8gj6
   summary: OpenClaw Windows Lobster shell fallback command injection in constrained fallback path
   details: >-

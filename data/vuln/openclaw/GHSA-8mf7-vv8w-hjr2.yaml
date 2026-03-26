@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8mf7-vv8w-hjr2
   summary: OpenClaw tools.exec.safeBins 通用回退允许在允许列表模式下执行解释器风格的内联载荷
   details: >-

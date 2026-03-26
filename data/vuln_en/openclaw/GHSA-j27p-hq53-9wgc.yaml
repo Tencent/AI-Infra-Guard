@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j27p-hq53-9wgc
   summary: OpenClaw Denial of service via unbounded URL-backed media fetch
   details: >-

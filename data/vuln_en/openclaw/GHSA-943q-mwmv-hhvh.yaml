@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-943q-mwmv-hhvh
   summary: 'OpenClaw OC-02: Gateway /tools/invoke tool escalation + ACP permission auto-approval'
   details: >-

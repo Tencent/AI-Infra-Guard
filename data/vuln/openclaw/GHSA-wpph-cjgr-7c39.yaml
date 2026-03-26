@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wpph-cjgr-7c39
   summary: OpenClaw 类型化的 sender-key 匹配用于 toolsBySender 防止身份碰撞策略绕过
   details: >-

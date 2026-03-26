@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v3j7-34xh-6g3w
   summary: OpenClaw 回环 CDP 探测可将网关令牌泄露给本地监听者
   details: >-

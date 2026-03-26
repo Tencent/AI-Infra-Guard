@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-ccg8-46r6-9qgj
   summary: OpenClaw 分发包装器深度上限不匹配可在 system.run 允许列表模式下绕过 Shell 包装器审批门控
   details: >-

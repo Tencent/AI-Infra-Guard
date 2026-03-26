@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3h2q-j2v4-6w5r
   summary: OpenClaw system.run allowlist approval parsing missed PowerShell encoded-command wrappers
   details: >-

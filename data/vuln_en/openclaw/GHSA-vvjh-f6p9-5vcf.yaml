@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vvjh-f6p9-5vcf
   summary: 'OpenClaw ZDI-CAN-29311: OpenClaw Canvas Authentication Bypass Vulnerability'
   details: >-

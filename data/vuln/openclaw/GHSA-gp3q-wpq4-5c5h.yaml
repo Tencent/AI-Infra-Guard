@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gp3q-wpq4-5c5h
   summary: OpenClaw LINE 群组允许列表范围与 DM 配对存储条目不匹配
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h89v-j3x9-8wqj
   summary: OpenClaw 通过无防护的归档提取导致拒绝服务，允许高膨胀/资源滥用（ZIP/TAR）
   details: >-

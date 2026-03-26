@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x2ff-j5c2-ggpr
   summary: OpenClaw Slack 交互回调在某些共享工作区流程中可跳过已配置的发送者检查
   details: >-

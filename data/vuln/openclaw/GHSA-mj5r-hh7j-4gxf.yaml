@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mj5r-hh7j-4gxf
   summary: OpenClaw Telegram 白名单授权接受可变用户名
   details: >-

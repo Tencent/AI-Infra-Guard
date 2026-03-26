@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x9cf-3w63-rpq9
   summary: OpenClaw 通过 stageSandboxMedia 导致敏感文件泄露
   details: >-

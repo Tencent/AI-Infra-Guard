@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v3j7-34xh-6g3w
   summary: OpenClaw Loopback CDP probe can leak Gateway token to local listener
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-j425-whc4-4jgc
   summary: OpenClaw `system.run` 环境变量覆盖过滤允许危险的辅助命令转向
   details: >-

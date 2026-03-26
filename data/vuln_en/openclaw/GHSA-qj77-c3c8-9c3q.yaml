@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qj77-c3c8-9c3q
   summary: OpenClaw Windows cmd.exe parsing may bypass exec allowlist/approval gating
   details: >-

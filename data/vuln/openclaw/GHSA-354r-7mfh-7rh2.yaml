@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-354r-7mfh-7rh2
   summary: OpenClaw Discord DM 表情回应入站在受限设置中遗漏了 dmPolicy/allowFrom 检查
   details: >-

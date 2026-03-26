@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3xfw-4pmr-4xc5
   summary: OpenClaw safeBins grep -e 文件读取绕过（仅标准输入策略绕过）
   details: >-

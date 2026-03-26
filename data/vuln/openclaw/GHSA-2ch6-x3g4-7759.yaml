@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2ch6-x3g4-7759
   summary: OpenClaw commands.allowFrom 发送者授权通过 ctx.From 接受了会话标识符
   details: >-

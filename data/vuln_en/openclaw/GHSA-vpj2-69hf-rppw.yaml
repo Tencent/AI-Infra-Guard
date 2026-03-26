@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vpj2-69hf-rppw
   summary: OpenClaw Browser control startup could continue unauthenticated after auth bootstrap failure
   details: >-

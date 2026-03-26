@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gq83-8q7q-9hfx
   summary: OpenClaw Serialize sandbox registry writes to prevent races and delete-rollback corruption
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2hm8-rqrm-xfjq
   summary: OpenClaw 仅所有者 gateway 工具访问检查在特定已认证私信流程中不完整
   details: >-

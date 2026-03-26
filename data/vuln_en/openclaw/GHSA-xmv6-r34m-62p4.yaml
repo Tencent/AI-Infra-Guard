@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xmv6-r34m-62p4
   summary: OpenClaw Sandbox media fallback tmp symlink alias bypass allows host file reads outside sandboxRoot
   details: >-

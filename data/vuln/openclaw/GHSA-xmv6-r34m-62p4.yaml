@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xmv6-r34m-62p4
   summary: OpenClaw 沙箱媒体回退 tmp 符号链接别名绕过允许读取 sandboxRoot 外的主机文件
   details: >-

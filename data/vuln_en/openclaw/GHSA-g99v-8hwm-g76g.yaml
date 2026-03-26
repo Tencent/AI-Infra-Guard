@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g99v-8hwm-g76g
   summary: OpenClaw web_search citation redirect SSRF via private-network-allowing policy
   details: >-

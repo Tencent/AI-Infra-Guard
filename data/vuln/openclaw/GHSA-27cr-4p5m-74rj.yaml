@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-27cr-4p5m-74rj
   summary: OpenClaw 仅工作区沙箱防护对 @前缀绝对路径存在匹配不一致
   details: >-

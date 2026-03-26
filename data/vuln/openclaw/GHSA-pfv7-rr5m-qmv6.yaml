@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pfv7-rr5m-qmv6
   summary: OpenClaw 本地浏览器扩展中继 /extension 端点认证不一致
   details: >-

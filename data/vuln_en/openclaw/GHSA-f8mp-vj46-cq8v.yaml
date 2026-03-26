@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-f8mp-vj46-cq8v
   summary: OpenClaw Shell env fallback trusts unvalidated SHELL path from host environment
   details: >-

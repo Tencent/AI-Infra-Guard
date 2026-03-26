@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-62f6-mrcj-v8h5
   summary: OpenClaw Runtime /debug override path accepted prototype-reserved keys
   details: >-

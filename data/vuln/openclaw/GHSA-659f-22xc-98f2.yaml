@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-659f-22xc-98f2
   summary: OpenClaw Hook 转换路径包含检查遗漏了符号链接解析逃逸
   details: >-

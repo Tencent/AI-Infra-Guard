@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-25gx-x37c-7pph
   summary: OpenClaw Sandbox browser noVNC observer lacked VNC authentication
   details: >-

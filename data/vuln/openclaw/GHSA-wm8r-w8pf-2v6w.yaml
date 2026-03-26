@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wm8r-w8pf-2v6w
   summary: OpenClaw Signal 群组允许列表授权绕过（DM 配对存储泄露）
   details: >-

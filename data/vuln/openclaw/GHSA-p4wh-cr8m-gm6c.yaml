@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p4wh-cr8m-gm6c
   summary: OpenClaw shell-env 受信任前缀回退允许通过 $SHELL 执行攻击者控制的二进制文件
   details: >-

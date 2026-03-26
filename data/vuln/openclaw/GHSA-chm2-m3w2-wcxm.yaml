@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-chm2-m3w2-wcxm
   summary: OpenClaw Google Chat 通过允许列表中可变的电子邮件主体伪造访问（尽管发送者 ID 不匹配）
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5xfq-5mr7-426q
   summary: OpenClaw 未净化的会话 ID 导致会话记录文件操作中的路径遍历
   details: >-

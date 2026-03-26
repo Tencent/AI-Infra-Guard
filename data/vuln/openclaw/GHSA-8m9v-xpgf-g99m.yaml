@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8m9v-xpgf-g99m
   summary: OpenClaw 未授权发送者绕过停止触发器和 /models 命令授权
   details: >-

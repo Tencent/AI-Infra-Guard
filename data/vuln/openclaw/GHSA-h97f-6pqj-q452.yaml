@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h97f-6pqj-q452
   summary: OpenClaw IPv6 多播 SSRF 分类器绕过
   details: >-

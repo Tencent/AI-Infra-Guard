@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rv2q-f2h5-6xmg
   summary: OpenClaw Node 角色设备身份绕过允许未授权的 node.event 注入
   details: >-

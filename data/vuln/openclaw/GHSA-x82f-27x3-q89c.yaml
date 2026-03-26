@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x82f-27x3-q89c
   summary: OpenClaw writeFileWithinRoot 中的 TOCTOU 符号链接竞争可在根边界外创建或截断文件
   details: >-

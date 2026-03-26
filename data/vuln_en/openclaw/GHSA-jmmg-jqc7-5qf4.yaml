@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jmmg-jqc7-5qf4
   summary: OpenClaw Browser-origin WebSocket auth hardening gap could enable loopback password brute-force chains
   details: >-

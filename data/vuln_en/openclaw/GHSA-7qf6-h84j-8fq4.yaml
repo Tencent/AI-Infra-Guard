@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7qf6-h84j-8fq4
   summary: 'OpenClaw Microsoft Teams media fetch SSRF hardening: unified guarded fetch across Graph and attachment paths'
   details: >-

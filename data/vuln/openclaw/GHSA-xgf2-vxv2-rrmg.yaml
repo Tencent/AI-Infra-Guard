@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-xgf2-vxv2-rrmg
   summary: OpenClaw Shell 启动环境注入绕过 system.run 允许列表意图（RCE 级别）
   details: >-

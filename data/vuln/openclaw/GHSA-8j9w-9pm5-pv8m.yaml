@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8j9w-9pm5-pv8m
   summary: OpenClaw GHSA-3c6h-g97w-fg78 的重复公告：safeBins 拒绝标志可通过 GNU 长选项缩写绕过
   details: >-

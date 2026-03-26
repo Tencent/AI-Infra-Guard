@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jqpq-mgvm-f9r6
   summary: OpenClaw 通过不安全的 PATH 处理实现命令劫持（引导加载 + node-host PATH 覆盖）
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-48wf-g7cp-gr3m
   summary: OpenClaw allowlist exec-guard bypass via env -S
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-r5fq-947m-xm57
   summary: OpenClaw Path traversal in apply_patch could write/delete files outside the workspace
   details: >-

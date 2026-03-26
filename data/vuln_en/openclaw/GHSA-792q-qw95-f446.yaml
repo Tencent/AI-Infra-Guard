@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-792q-qw95-f446
   summary: OpenClaw Signal reaction-only status events could, in limited cases, be enqueued before access checks
   details: "Summary\nIn a narrow Signal reaction-notification path, reaction-only inbound events could enqueue a status event\

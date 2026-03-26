@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2858-xg23-26fp
   summary: OpenClaw Node 摄像头 URL 载荷主机绑定绕过允许 gateway 获取重定向
   details: >-

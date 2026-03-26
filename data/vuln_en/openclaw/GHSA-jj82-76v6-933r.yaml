@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jj82-76v6-933r
   summary: OpenClaw Exec allowlist wrapper analysis did not unwrap env/shell dispatch chains
   details: >-

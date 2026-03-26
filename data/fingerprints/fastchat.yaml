@@ -4,7 +4,7 @@ info:
   severity: info
   desc: 一个开源平台，用于训练、服务和评估大语言模型。
   metadata:
-    product: fastchat-controller
+    product: fastchat
     vendor: lm-sys
 http:
   - method: POST

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mr32-vwc2-5j6h
   summary: OpenClaw Browser Relay /cdp websocket missing auth could allow cross-tab cookie access
   details: >-

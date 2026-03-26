@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-9mph-4f7v-fmvh
   summary: OpenClaw Agent avatar symlink traversal in gateway session metadata
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-q6qf-4p5j-r25g
   summary: OpenClaw image 工具绕过沙箱挂载路径上的 tools.fs.workspaceOnly 并窃取工作区外图像
   details: >-

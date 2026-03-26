@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3hcm-ggvf-rch5
   summary: OpenClaw Exec allowlist bypass via command substitution/backticks inside double quotes
   details: >-

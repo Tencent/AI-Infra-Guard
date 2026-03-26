@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v6x2-2qvm-6gv8
   summary: OpenClaw Gateway auth token reuse in owner ID prompt hashing fallback
   details: >-

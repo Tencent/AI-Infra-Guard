@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jr6x-2q95-fh2g
   summary: OpenClaw 授权不匹配允许写入范围的代理运行访问仅所有者工具
   details: >-

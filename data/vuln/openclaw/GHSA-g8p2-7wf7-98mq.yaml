@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g8p2-7wf7-98mq
   summary: OpenClaw 通过从 gatewayUrl 窃取认证令牌实现一键 RCE
   details: >-

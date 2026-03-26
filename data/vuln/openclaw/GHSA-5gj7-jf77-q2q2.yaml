@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5gj7-jf77-q2q2
   summary: OpenClaw safeBins 静态默认可信目录允许可写目录二进制文件劫持（`jq`）
   details: >-

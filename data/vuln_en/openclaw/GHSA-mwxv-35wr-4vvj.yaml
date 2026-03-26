@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mwxv-35wr-4vvj
   summary: OpenClaw Gateway plugin auth bypass via encoded dot-segment traversal in protected /api/channels paths
   details: >-

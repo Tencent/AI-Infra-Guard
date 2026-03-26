@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qj77-c3c8-9c3q
   summary: OpenClaw Windows cmd.exe 解析可绕过执行白名单/审批控制
   details: >-

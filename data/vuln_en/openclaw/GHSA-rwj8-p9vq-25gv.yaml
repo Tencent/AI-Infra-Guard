@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rwj8-p9vq-25gv
   summary: OpenClaw LFI in BlueBubbles media path handling
   details: >-

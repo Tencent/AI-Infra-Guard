@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wpph-cjgr-7c39
   summary: OpenClaw Typed sender-key matching for toolsBySender prevents identity-collision policy bypass
   details: >-

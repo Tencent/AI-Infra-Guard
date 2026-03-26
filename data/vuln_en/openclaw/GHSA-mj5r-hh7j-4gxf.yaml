@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mj5r-hh7j-4gxf
   summary: OpenClaw Telegram allowlist authorization accepted mutable usernames
   details: >-

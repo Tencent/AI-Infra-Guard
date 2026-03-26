@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mfg5-7q5g-f37j
   summary: OpenClaw 语音通话媒体流在升级后才验证流，可能允许预启动未认证套接字增加资源压力
   details: >-

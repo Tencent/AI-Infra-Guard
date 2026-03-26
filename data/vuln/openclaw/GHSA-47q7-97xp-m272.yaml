@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-47q7-97xp-m272
   summary: OpenClaw 配置写入可将解析后的 ${VAR} 密钥持久化到磁盘
   details: >-

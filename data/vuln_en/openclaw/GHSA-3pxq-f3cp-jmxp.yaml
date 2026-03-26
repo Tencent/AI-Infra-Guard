@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3pxq-f3cp-jmxp
   summary: OpenClaw Unified root-bound write hardening for browser output and related path-boundary flows
   details: >-

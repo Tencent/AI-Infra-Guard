@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-8fmp-37rc-p5g7
   summary: OpenClaw 配置环境变量允许启动环境注入到服务运行时
   details: >-

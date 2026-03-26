@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w2cg-vxx6-5xjg
   summary: OpenClaw 通过大型 base64 媒体文件在限制检查前分配大量缓冲区导致拒绝服务
   details: >-

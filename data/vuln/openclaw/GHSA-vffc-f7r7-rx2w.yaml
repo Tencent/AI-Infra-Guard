@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vffc-f7r7-rx2w
   summary: OpenClaw systemd 单元生成中换行符的不当中和导致本地命令执行（Linux）
   details: >-

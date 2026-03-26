@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-553v-f69r-656j
   summary: OpenClaw 未配对的设备身份可绕过操作员配对并在共享认证下自行分配操作员范围
   details: >-

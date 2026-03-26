@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-wpg9-4g4v-f9rc
   summary: OpenClaw Discord 语音转录所有者标志遗漏可能在混合信任通道中暴露仅限所有者的工具
   details: >-

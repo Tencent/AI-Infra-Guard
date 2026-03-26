@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v892-hwpg-jwqp
   summary: OpenClaw Path traversal (Zip Slip) in archive extraction during explicit installation commands
   details: >-

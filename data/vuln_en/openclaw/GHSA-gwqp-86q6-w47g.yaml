@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-gwqp-86q6-w47g
   summary: OpenClaw exec allow-always can be bypassed via unrecognized multiplexer shell wrappers (busybox/toybox sh -c)
   details: >-

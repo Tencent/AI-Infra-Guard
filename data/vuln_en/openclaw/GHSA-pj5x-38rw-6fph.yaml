@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-pj5x-38rw-6fph
   summary: OpenClaw Command Injection via unescaped environment assignments in Windows Scheduled Task script generation
   details: >-

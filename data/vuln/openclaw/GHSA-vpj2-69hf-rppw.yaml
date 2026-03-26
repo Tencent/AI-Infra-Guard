@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vpj2-69hf-rppw
   summary: OpenClaw 浏览器控制启动在认证引导失败后可能以未认证状态继续运行
   details: >-

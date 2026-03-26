@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7fcc-cw49-xm78
   summary: OpenClaw 通过 Lobster 工具执行中的 Windows Shell 回退实现命令注入
   details: >-

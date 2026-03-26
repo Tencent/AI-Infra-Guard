@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jmmg-jqc7-5qf4
   summary: OpenClaw 浏览器来源 WebSocket 认证加固缺陷可导致回环密码暴力破解链
   details: >-

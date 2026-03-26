@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2mc2-g238-722j
   summary: OpenClaw iMessage 远程附件 SCP 加固（严格主机密钥检查和 remoteHost 验证）
   details: >-

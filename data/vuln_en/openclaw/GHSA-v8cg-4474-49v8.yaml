@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v8cg-4474-49v8
   summary: OpenClaw Slack system events bypass sender authorization in member and message subtype handlers
   details: >-

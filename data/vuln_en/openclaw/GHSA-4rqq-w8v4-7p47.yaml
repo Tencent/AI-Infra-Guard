@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-4rqq-w8v4-7p47
   summary: OpenClaw Incomplete IPv4 special-use SSRF blocking in web fetch guard
   details: >-

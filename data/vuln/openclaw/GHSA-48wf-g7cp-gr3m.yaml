@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-48wf-g7cp-gr3m
   summary: OpenClaw 通过 env -S 绕过允许列表 exec 防护
   details: >-

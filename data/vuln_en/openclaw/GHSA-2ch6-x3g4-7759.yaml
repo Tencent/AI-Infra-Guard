@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-2ch6-x3g4-7759
   summary: OpenClaw commands.allowFrom sender authorization accepted conversation identifiers via ctx.From
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-64qx-vpxx-mvqf
   summary: OpenClaw Arbitrary transcript path file write via gateway sessionFile
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-g99v-8hwm-g76g
   summary: OpenClaw web_search 引用重定向通过允许私有网络的策略导致 SSRF
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-47q7-97xp-m272
   summary: OpenClaw Config writes could persist resolved ${VAR} secrets to disk
   details: >-

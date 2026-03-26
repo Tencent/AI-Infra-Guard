@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-h3rm-6x7g-882f
   summary: OpenClaw Node system.run approval hardening wrapper semantic drift can execute unintended local scripts
   details: >-

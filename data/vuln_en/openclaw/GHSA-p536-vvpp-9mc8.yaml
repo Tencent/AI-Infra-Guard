@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-p536-vvpp-9mc8
   summary: OpenClaw Web Fetch DoS via unbounded response parsing
   details: >-

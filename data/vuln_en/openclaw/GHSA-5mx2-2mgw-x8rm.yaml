@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-5mx2-2mgw-x8rm
   summary: OpenClaw BlueBubbles beta plugin webhook auth hardening (remove passwordless fallback)
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fhvm-j76f-qmjv
   summary: OpenClaw 通道类型查找失败时潜在的访问组授权绕过
   details: >-

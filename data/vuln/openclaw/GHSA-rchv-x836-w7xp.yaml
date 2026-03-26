@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-rchv-x836-w7xp
   summary: OpenClaw Dashboard 通过浏览器 URL/查询参数和 localStorage 泄露网关认证凭据
   details: >-

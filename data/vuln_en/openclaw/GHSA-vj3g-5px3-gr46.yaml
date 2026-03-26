@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vj3g-5px3-gr46
   summary: OpenClaw Path traversal in Feishu media temp-file naming allows writes outside os.tmpdir()
   details: >-

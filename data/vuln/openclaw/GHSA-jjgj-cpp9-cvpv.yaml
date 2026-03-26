@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-jjgj-cpp9-cvpv
   summary: 'OpenClaw 通过 MCP 工具结果 MEDIA: 指令注入实现本地文件窃取'
   details: "概述\r\n\r\n恶意或被入侵的 MCP（模型上下文协议）工具服务器可以通过在工具结果文本内容中注入 MEDIA: 指令来窃取主机系统上的任意本地文件。OpenClaw\

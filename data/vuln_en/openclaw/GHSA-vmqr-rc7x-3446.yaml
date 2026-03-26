@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-vmqr-rc7x-3446
   summary: OpenClaw Non-default safeBins sort configuration can bypass intended allowlist approval constraints
   details: >-

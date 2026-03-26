@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-w5c7-9qqw-6645
   summary: OpenClaw 跨会话提示可能被视为直接用户指令
   details: >-

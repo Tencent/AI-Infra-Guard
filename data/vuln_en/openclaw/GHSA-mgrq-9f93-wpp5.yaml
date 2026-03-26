@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mgrq-9f93-wpp5
   summary: OpenClaw workspace path guard bypass on non-existent out-of-root symlink leaf
   details: >-

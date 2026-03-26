@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-c37p-4qqg-3p76
   summary: OpenClaw Twilio voice-call webhook auth bypass when ngrok loopback compatibility is enabled
   details: >-

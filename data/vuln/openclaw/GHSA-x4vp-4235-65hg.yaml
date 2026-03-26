@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-x4vp-4235-65hg
   summary: OpenClaw 认证前 webhook 请求体解析可导致未认证慢请求拒绝服务
   details: >-

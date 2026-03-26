@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-mqr9-vqhq-3jxw
   summary: OpenClaw Windows 计划任务脚本生成允许通过不安全的 cmd 参数处理进行本地命令注入
   details: >-

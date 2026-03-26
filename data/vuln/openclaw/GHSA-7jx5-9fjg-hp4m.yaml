@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-7jx5-9fjg-hp4m
   summary: OpenClaw ACP 权限通过不受信任的工具元数据实现自动审批绕过
   details: >-

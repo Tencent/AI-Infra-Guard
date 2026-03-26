@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-36h3-7c54-j27r
   summary: OpenClaw 浏览器跟踪/下载路径在临时输出处理中的符号链接逃逸
   details: >-

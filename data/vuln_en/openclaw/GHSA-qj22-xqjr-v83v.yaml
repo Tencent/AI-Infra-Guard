@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-qj22-xqjr-v83v
   summary: OpenClaw Telegram message_reaction authorization bypass allows unauthorized system-event injection
   details: >-

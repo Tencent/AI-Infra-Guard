@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-v892-hwpg-jwqp
   summary: OpenClaw 显式安装命令期间归档解压中的路径遍历（Zip Slip）
   details: >-

@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-3c6h-g97w-fg78
   summary: OpenClaw tools.exec.safeBins sort 的 GNU 长选项缩写绕过可在白名单模式下跳过执行审批
   details: >-

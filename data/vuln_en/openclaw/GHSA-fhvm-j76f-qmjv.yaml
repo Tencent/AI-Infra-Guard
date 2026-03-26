@@ -1,5 +1,5 @@
 info:
-  name: OpenClaw
+  name: openclaw
   cve: GHSA-fhvm-j76f-qmjv
   summary: OpenClaw Potential access-group authorization bypass if channel type lookup fails
   details: >-
