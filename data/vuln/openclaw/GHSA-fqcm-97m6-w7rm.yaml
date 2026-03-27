@@ -1,0 +1,30 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fqcm-97m6-w7rm
+  summary: OpenClaw Message action attachment hydration bypasses local media root checks when sandboxRoot is unset
+  details: >-
+    漏洞概述
+
+    OpenClaw 安全绕过漏洞。OpenClaw Message action attachment hydration bypasses local media root checks when sandboxRoot is unset。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+
+    安全影响
+
+    sendAttachment and setGroupIcon message actions could hydrate media from local absolute paths when sandboxRoot was unset, bypassing intended local media root checks. This could allow reads of arbitrary host files reachable by the runtime user when an authorized message-action path was triggered. Affected Packages / Versions
+
+    修复建议
+
+    建议升级到 openclaw 2026
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.24 或更高版本。 修复提交 - 270ab03e379f9653e15f7033c9830399b66b7e51'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqcm-97m6-w7rm
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fqcm-97m6-w7rm

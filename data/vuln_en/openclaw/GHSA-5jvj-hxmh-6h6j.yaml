@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5jvj-hxmh-6h6j
+  summary: OpenClaw Gateway HTTP Session History Route Bypasses Operator Read Scope
+  details: >-
+    Summary
+
+
+    Gateway HTTP Session History Route Bypasses Operator Read Scope
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    The HTTP /sessions/:sessionKey/history route previously authenticated bearer tokens but skipped the same operator.read
+    check used by chat.history over WebSocket. Commit 1c45123231516fa50f8cf8522ba5ff2fb2ca7aea makes HTTP callers declare
+    operator scopes and rejects history reads that do not include operator.read.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit 1c45123231516fa50f8cf8522ba5ff2fb2ca7aea.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 1c45123231516fa50f8cf8522ba5ff2fb2ca7aea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5jvj-hxmh-6h6j
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5jvj-hxmh-6h6j

@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3h52-cx59-c456
+  summary: OpenClaw 飞书 Webhook 在签名校验前即读取并解析未认证的请求体
+  details: >-
+    漏洞概述
+
+
+    飞书 Webhook 在签名校验前即读取并解析未认证的请求体
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    飞书 Webhook 处理逻辑此前在签名校验之前即解析 JSON 请求体，
+    使未认证调用方能在被拒绝前强制触发完整的 JSON 解析开销（DoS 风险）。
+    提交 5e8cb22176e9235e224be0bc530699261eb60e53 改为先读取原始请求体、
+    验证签名，通过后再解析 JSON。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 5e8cb22176e9235e224be0bc530699261eb60e53 在 main 分支修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：5e8cb22176e9235e224be0bc530699261eb60e53
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3h52-cx59-c456
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3h52-cx59-c456

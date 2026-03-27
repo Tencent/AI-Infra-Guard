@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4hmj-39m8-jwc7
+  summary: OpenClaw ACP CLI 审批提示存在 ANSI 转义序列注入漏洞
+  details: >-
+    漏洞概述
+
+
+    ACP CLI 审批提示存在 ANSI 转义序列注入漏洞
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：>= 2026.2.13，<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    ACP 工具标题此前可携带 ANSI 控制序列注入审批提示和权限日志，
+    使不受信任的工具元数据得以伪造终端输出内容。
+    提交 464e2c10a5edceb380d815adb6ff56e1a4c50f60 在源头对工具标题进行净化处理，
+    并将 ANSI 过滤范围扩展至完整的 CSI 序列。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 464e2c10a5edceb380d815adb6ff56e1a4c50f60 在 main 分支修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：464e2c10a5edceb380d815adb6ff56e1a4c50f60
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4hmj-39m8-jwc7
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4hmj-39m8-jwc7
