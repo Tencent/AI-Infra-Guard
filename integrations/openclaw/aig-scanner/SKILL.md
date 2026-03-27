@@ -1,7 +1,7 @@
 ---
 name: aig-scanner
-version: 2.0.0
-author: Tencent Zhuque Lab
+version: 1.0.2
+author: aigsec/Tencent Zhuque Lab
 license: MIT
 description: >
   A.I.G Scanner — AI security scanning for infrastructure, AI tools / skills, AI Agents,

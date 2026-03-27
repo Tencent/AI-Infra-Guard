@@ -8,19 +8,20 @@ Invoke all [A.I.G (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard/) 
 
 ### Install
 
-```
-# Recommended: install from GitHub Releases
-Install and enable A.I.G Scanner
-Download:
-https://github.com/Tencent/AI-Infra-Guard/releases/download/aig-scanner-v2.0.0/aig-scanner-2.0.0.zip
+In OpenClaw chat, say:
+
+```text
+Install A.I.G Scanner from ClawHub
 ```
 
 Alternative:
 
-```bash
-# Install from ClawHub
-clawhub install aig-scanner
+```text
+Install this skill from source:
+https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
 ```
+
+Manual fallback path: `~/.openclaw/skills/aig-scanner/`
 
 ### Usage
 
@@ -54,8 +55,8 @@ Use A.I.G to run a safety check on DeepSeek3.2
 
 ### Notes
 
-- **Recommended install path**: use the versioned GitHub Release `zip` package. Do not rely on branch raw files or the repository-wide `latest` release pointer for installation.
-- **ClawHub**: can be used as an alternative install source. In Mainland China it may fail with `Rate limit exceeded`; if that happens, use the GitHub `zip` package instead.
+- **Recommended install path**: use ClawHub.
+- **Mainland China fallback**: if ClawHub fails with `Rate limit exceeded`, install from the source directory in this repository.
 - **A.I.G URL**: configure `AIG_BASE_URL` on first install. This is required. Examples:
   - `http://127.0.0.1:8088/`
   - `https://aig.example.com/`
@@ -68,14 +69,8 @@ Use A.I.G to run a safety check on DeepSeek3.2
 ### Maintainer Notes
 
 - Keep the source skill in `integrations/openclaw/aig-scanner/`.
-- Build the release package with:
-
-```bash
-./integrations/openclaw/build-release.sh
-```
-
-- Upload the generated `dist/aig-scanner-<version>.zip` asset to GitHub Releases.
-- Publish ClawHub from the source directory, not from the zip archive.
+- Publish ClawHub from the source directory.
+- Keep the repository source-first; do not commit packaged archives.
 
 ---
 
