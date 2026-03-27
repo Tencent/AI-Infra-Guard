@@ -27,6 +27,15 @@ from utils.logging import logger
 LLM_ERROR_PREFIX = "[LLM Error:"
 
 
+def is_llm_error_response(response: str) -> bool:
+    return isinstance(response, str) and response.startswith(LLM_ERROR_PREFIX)
+
+
+def format_llm_error_message(language: str, zh_message: str, en_message: str) -> str:
+    message = en_message if language == "en" else zh_message
+    return f"{LLM_ERROR_PREFIX} {message}]"
+
+
 class LLM:
     def __init__(self, model, api_key, base_url):
         self.model = model
@@ -63,9 +72,9 @@ class LLM:
         Returns:
             The model's response text, or an error string prefixed with LLM_ERROR_PREFIX.
         """
-        ret = ''
         retry = 0
         while True:
+            ret = ''
             try:
                 for word in self.chat_stream(message):
                     ret += word
@@ -78,25 +87,32 @@ class LLM:
                     time.sleep(1.3)
                     if retry > 3:
                         logger.error('LLM chat error, retry 3 times, exit')
-                        if language == "en":
-                            return f'{LLM_ERROR_PREFIX} Failed to connect to LLM, retried 3 times, model output is empty, please try again after 1 minute]'
-                        return f'{LLM_ERROR_PREFIX} 连接LLM失败，已重试3次，模型输出为空，请等待1分钟后再试]'
+                        return format_llm_error_message(
+                            language,
+                            "连接LLM失败，已重试3次，模型输出为空，请等待1分钟后再试",
+                            "Failed to connect to LLM, retried 3 times, model output is empty, please try again after 1 minute",
+                        )
+                    continue
             except openai.BadRequestError as e:
                 # 400 error (e.g. DataInspectionFailed): content issue, retry is meaningless, return immediately
                 error_msg = str(e)
                 logger.warning(f"LLM BadRequestError (400), no retry: {error_msg}")
-                if language == "en":
-                    return f'{LLM_ERROR_PREFIX} Input content triggered safety filter (400)]'
-                return f'{LLM_ERROR_PREFIX} 输入内容触发安全过滤 (400)]'
+                return format_llm_error_message(
+                    language,
+                    "输入内容触发安全过滤 (400)",
+                    "Input content triggered safety filter (400)",
+                )
             except (openai.APIConnectionError, openai.APITimeoutError) as e:
                 # Network/timeout error: can retry
                 retry += 1
                 logger.warning(f'LLM connection/timeout error, retry {retry}: {e}')
                 if retry > 5:
                     logger.error('LLM connection error, retry 5 times, exit')
-                    if language == "en":
-                        return f'{LLM_ERROR_PREFIX} Unable to connect to LLM service, retried 5 times]'
-                    return f'{LLM_ERROR_PREFIX} 无法连接到LLM服务，已重试5次]'
+                    return format_llm_error_message(
+                        language,
+                        "无法连接到LLM服务，已重试5次",
+                        "Unable to connect to LLM service, retried 5 times",
+                    )
                 time.sleep(2)
                 continue
             except openai.APIError as e:
@@ -105,17 +121,21 @@ class LLM:
                 logger.warning(f'LLM API error, retry {retry}: {e}')
                 if retry > 3:
                     logger.error('LLM API error, retry 3 times, exit')
-                    if language == "en":
-                        return f'{LLM_ERROR_PREFIX} Unable to connect to LLM service, retried 3 times]'
-                    return f'{LLM_ERROR_PREFIX} 无法连接到LLM服务，已重试3次]'
+                    return format_llm_error_message(
+                        language,
+                        "无法连接到LLM服务，已重试3次",
+                        "Unable to connect to LLM service, retried 3 times",
+                    )
                 time.sleep(1)
                 continue
             except Exception as e:
                 # Unexpected exception: return immediately, do not retry
                 logger.error(f'Unexpected LLM error: {e}', exc_info=True)
-                if language == "en":
-                    return f'{LLM_ERROR_PREFIX} Unexpected error occurred - {str(e)[:100]}]'
-                return f'{LLM_ERROR_PREFIX} 发生未预期的错误 - {str(e)[:100]}]'
+                return format_llm_error_message(
+                    language,
+                    f"发生未预期的错误 - {str(e)[:100]}",
+                    f"Unexpected error occurred - {str(e)[:100]}",
+                )
 
         if p:
             print(ret)
