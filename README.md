@@ -111,6 +111,18 @@ Once the service is running, you can access the A.I.G web interface at:
 `http://localhost:8088`
 <br>
 
+### Use from OpenClaw
+
+You can also call A.I.G directly from OpenClaw chat via the `aig-scanner` skill.
+
+```bash
+clawhub install aig-scanner
+```
+
+Then configure `AIG_BASE_URL` to point to your running A.I.G service.
+
+For more details, see [OpenClaw integration](./integrations/openclaw/README.md).
+
 <details>
 <summary><strong>📦 More installation options</strong></summary>
 

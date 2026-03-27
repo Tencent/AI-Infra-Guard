@@ -107,6 +107,18 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
+### 在 OpenClaw 中使用
+
+你也可以通过 OpenClaw 的 `aig-scanner` skill 直接调用 A.I.G 服务。
+
+```bash
+clawhub install aig-scanner
+```
+
+然后将 `AIG_BASE_URL` 配置为正在运行的 A.I.G 服务地址。
+
+更多说明见：[OpenClaw 集成文档](./integrations/openclaw/README.zh-CN.md)
+
 <details>
 <summary><strong>📦 更多安装方式</strong></summary>
 
