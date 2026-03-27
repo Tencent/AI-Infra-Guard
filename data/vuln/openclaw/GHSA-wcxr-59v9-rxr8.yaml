@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wcxr-59v9-rxr8
+  summary: OpenClaw session_status 允许沙箱子 Agent 访问父会话或兄弟会话的状态
+  details: >-
+    摘要
+
+
+    内置的 session_status 工具未强制执行预期的会话可见性边界。
+    沙箱子 Agent 可以提供另一个会话的 sessionKey，
+    从而在其自身沙箱范围之外检查或修改状态。
+
+
+    影响
+
+
+    此问题允许沙箱子会话读取父会话或兄弟会话的数据，
+    并且在受影响的版本中，还可以更新目标会话持久化的模型覆盖配置。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.8
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.11 中修复，并包含在 2026.3.12 等后续版本中。
+    会话可见性检查现在在读取或修改会话状态之前强制执行沙箱边界。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.11 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8
+rule: version <= "2026.3.8"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8

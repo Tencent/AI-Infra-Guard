@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wcxr-59v9-rxr8
+  summary: OpenClaw `session_status` let sandboxed subagents access parent or sibling session state
+  details: >-
+    Summary
+
+
+    The built-in session_status tool did not enforce the intended session-visibility boundary. A sandboxed subagent could
+    supply another session's sessionKey and inspect or modify state outside its own sandbox scope.
+
+
+    Impact
+
+
+    This allowed a sandboxed child session to read parent or sibling session data and, in affected releases, update the target
+    session's persisted model override.
+
+
+    Affected versions
+
+
+    openclaw <= 2026.3.8
+
+
+    Patch
+
+
+    Fixed in openclaw 2026.3.11 and included in later releases such as 2026.3.12. Session visibility checks now enforce the
+    sandbox boundary before reading or mutating session state.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.3.11 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8
+rule: version <= "2026.3.8"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8

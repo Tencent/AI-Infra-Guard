@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jq3f-vjww-8rq7
+  summary: OpenClaw Telegram webhook 在密钥验证前读取请求体，导致未认证资源耗尽
+  details: >-
+    摘要
+
+    openclaw <= 2026.3.12 版本在验证 x-telegram-bot-api-secret-token 之前即读取并缓冲了 Telegram webhook 请求体。这使得未认证的调用方能够迫使服务器在认证前执行最多达到配置限制的请求体 I/O 及 JSON 解析工作。
+
+
+    受影响软件包 / 版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.12
+
+    - 修复版本：2026.3.13
+
+
+    详情
+
+    漏洞路径位于 src/telegram/webhook.ts 中的独立 Telegram webhook 监听器。在受影响版本中，请求处理程序接受 POST 请求后，先调用 readJsonBodyWithLimit(...) 读取请求体，随后才检查 Telegram 密钥请求头。由于密钥验证发生在请求体读取之后，未认证的调用方可迫使服务器在应被拒绝的请求上消耗内存、套接字时间及 JSON 解析资源。
+
+
+    此问题属于 OpenClaw 信任模型的覆盖范围，因为 Telegram webhook 端点接受来自不受信任网络的流量，而密钥请求头是该入口路径的认证边界。
+
+
+    修复方案
+
+    openclaw@2026.3.13 在任何请求体 I/O 之前即验证 Telegram webhook 密钥。当前代码先读取请求头，对无效请求立即返回 401，仅在 hasValidTelegramWebhookSecret(...) 成功后才调用 readJsonBodyWithLimit(...)。
+
+
+    回归测试覆盖位于 src/telegram/webhook.test.ts（在读取请求体之前拒绝未认证的请求）。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.13 或更高版本。openclaw@2026.3.13 在任何请求体 I/O 之前即验证 Telegram webhook 密钥。当前代码先读取请求头，对无效请求立即返回 401，仅在 hasValidTelegramWebhookSecret(...) 成功后才调用 readJsonBodyWithLimit(...)。回归测试覆盖位于 src/telegram/webhook.test.ts（在读取请求体之前拒绝未认证的请求）。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jq3f-vjww-8rq7
+rule: version <= "2026.3.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jq3f-vjww-8rq7

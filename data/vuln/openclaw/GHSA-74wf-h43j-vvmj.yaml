@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-74wf-h43j-vvmj
+  summary: OpenClaw ACP rawInput 工具身份伪造可抑制危险工具提示
+  details: >-
+    漏洞概述
+
+    ACP rawInput 工具身份伪造漏洞可抑制危险工具的安全提示，导致用户在不知情的情况下执行高风险操作。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-74wf-h43j-vvmj
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-74wf-h43j-vvmj

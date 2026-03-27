@@ -1,0 +1,14 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xw77-45gv-p728
+  summary: OpenClaw 插件子代理路由可绕过网关授权并获取合成管理员权限
+  details: >-
+    OpenClaw 受影响版本中，插件子代理运行时通过始终携带宽泛管理员权限的合成 operator 客户端来分发网关方法。因此，使用 auth: "plugin" 的插件托管 HTTP 路由在调用 runtime.subagent.* 时，可无需正常网关授权即触发仅限管理员的操作。 该漏洞允许远程未认证请求访问特权子代理运行时方法，执行管理员专属网关操作，如删除会话、读取会话数据或触发 agent 执行。修复版本将真实网关客户端传入插件子代理运行时，并将未认证插件路由访问权限限制在非管理员范围内。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: 立即将 OpenClaw 升级至 2026.3.11 或更高版本。修复版本将真实网关客户端传入插件子代理运行时，并限制未认证插件路由的访问范围。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728

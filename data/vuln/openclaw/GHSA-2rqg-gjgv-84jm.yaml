@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2rqg-gjgv-84jm
+  summary: OpenClaw 网关 agent 调用可绕过工作区边界限制
+  details: >-
+    摘要
+
+
+    公共网关 agent RPC 允许持有 operator.write 权限的经认证运营者，
+    提供攻击者控制的 spawnedBy 和 workspaceDir 参数值，
+    从而使调用者能够在已配置的工作区边界之外重新设置 Agent 运行的根目录。
+
+
+    影响
+
+
+    非所有者运营者可以逃脱预期的工作区边界，
+    并从进程可访问的任意目录运行普通文件和 exec 工具。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.8
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.11 中修复，并包含在 2026.3.12 等后续版本中。
+    无论调用者提供何种覆盖参数，网关现在都会为 Agent 运行强制执行已配置的工作区边界。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.11 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2rqg-gjgv-84jm
+rule: version <= "2026.3.8"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2rqg-gjgv-84jm

@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8g75-q649-6pv6
+  summary: OpenClaw system.run 审批流程未在审批与执行之间绑定可变脚本操作数
+  details: >-
+    OpenClaw 的 system.run 审批流程未在审批与执行之间绑定可变的解释器型脚本操作数。
+
+
+    攻击者可先获得对某一执行命令（如 sh ./script.sh）的审批，在执行前修改已审批的脚本内容，
+    从而在先前审批的命令形式下执行不同的内容。已审批的 argv 参数值保持不变，
+    但可变的脚本操作数内容可在审批后发生漂移。
+
+
+    npm 最新已验证受影响版本：2026.3.7
+
+
+    2026 年 3 月 7 日的初始修复（提交 c76d29208bf6a7f058d2cf582519d28069e42240）为 shell 脚本和有限的解释器集添加了审批绑定，
+    但维护者于 2026 年 3 月 8 日在后续审查中发现，bun 和 deno 的脚本操作数仍未生成 mutableFileOperand 快照。
+
+
+    完整修复于 2026 年 3 月 9 日随提交 cf3a479bd1204f62eef7dd82b4aa328749ae6c91 发布，
+    该修复将已审批的 bun 和 deno run 脚本操作数绑定到磁盘上的文件快照，并在执行前拒绝审批后的脚本漂移。
+
+
+    受影响的软件包 / 版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.7
+
+    - 已修复版本：2026.3.8
+
+
+    发布验证
+
+
+    - npm 2026.3.7 仍存在漏洞。
+
+    - npm 2026.3.8 包含完整修复。
+
+
+    感谢 @tdjackey 的报告。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.8 或更高版本。相关提交 - c76d29208bf6a7f058d2cf582519d28069e42240 - cf3a479bd1204f62eef7dd82b4aa328749ae6c91
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8g75-q649-6pv6
+rule: version <= "2026.3.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8g75-q649-6pv6

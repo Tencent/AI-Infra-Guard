@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-63f5-hhc7-cx6p
+  summary: OpenClaw Bootstrap 配置码可被重放，在审批前提升待处理配对请求的权限范围
+  details: >-
+    摘要
+
+    openclaw <= 2026.3.12 版本允许在审批前重放 bootstrap 配置码，从而扩大待处理设备配对请求的权限范围。
+
+
+    受影响软件包 / 版本
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：<= 2026.3.12
+
+    - 修复版本：2026.3.13
+
+
+    详情
+
+    漏洞路径位于 src/infra/device-bootstrap.ts 中的 bootstrap 令牌验证逻辑。在受影响版本中，有效的 bootstrap 配置码可在配对请求获批前被多次验证。这使得第二次验证尝试能够修改待处理的设备配对请求并申请更宽泛的权限范围，包括在审批者最终确认配对前将较低的 operator 范围提升至 operator.admin。
+
+
+    此问题属于 OpenClaw 信任模型的覆盖范围，因为 bootstrap 配置码是设备配对的认证原语，而重放行为改变了授予待处理设备的权限。
+
+
+    修复方案
+
+    openclaw@2026.3.13 将 bootstrap 配置码设为一次性使用。当前代码在首次成功验证时即消耗 bootstrap 令牌记录，使重放尝试在待处理权限范围被扩大前即告失败。
+
+
+    回归测试覆盖位于 src/infra/device-pairing.test.ts（在待处理权限范围提升被审批前拒绝 bootstrap 令牌重放）。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.13 或更高版本。openclaw@2026.3.13 将 bootstrap 配置码设为一次性使用。当前代码在首次成功验证时即消耗 bootstrap 令牌记录，使重放尝试在待处理权限范围被扩大前即告失败。回归测试覆盖位于 src/infra/device-pairing.test.ts。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-63f5-hhc7-cx6p
+rule: version <= "2026.3.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-63f5-hhc7-cx6p

@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h3x4-hc5v-v2gm
+  summary: OpenClaw Windows 媒体加载器在本地路径验证前接受远程主机文件 URL
+  details: >-
+    漏洞概述
+
+    Windows 媒体加载器在执行本地路径验证之前即接受远程主机文件 URL，可能导致路径绕过和未授权文件访问。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h3x4-hc5v-v2gm
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h3x4-hc5v-v2gm

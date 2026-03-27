@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-m69h-jm2f-2pv8
+  summary: OpenClaw Feishu reaction events could bypass group authorization and mention gating
+  details: >-
+    Summary
+
+
+    A Feishu reaction-originated synthetic event could misclassify a group conversation as p2p when the inbound reaction payload
+    omitted chat_type. Authorization and mention-gating logic keyed off that incorrect chat type and evaluated the event as
+    a direct message instead of a group message.
+
+
+    Impact
+
+
+    This could bypass groupAllowFrom and requireMention protections for reaction-derived events in Feishu group chats.
+
+
+    Affected versions
+
+
+    openclaw <= 2026.3.11
+
+
+    Patch
+
+
+    Fixed in openclaw 2026.3.12. Reaction events now preserve the correct group context before authorization and mention-gate
+    evaluation. Users should update to 2026.3.12 or later.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.12 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-m69h-jm2f-2pv8
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-m69h-jm2f-2pv8

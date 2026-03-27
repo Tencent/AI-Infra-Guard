@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9vvh-2768-c8vp
+  summary: OpenClaw Discord 服务器反应接收可能绕过用户和角色允许列表
+  details: >-
+    摘要
+
+    受影响版本的 openclaw 中，Discord 服务器频道反应接收未强制执行与正常入站服务器消息相同的成员用户和角色允许列表检查。
+    非允许列表的服务器成员仍可能触发反应事件，这些事件会被接受并作为可信系统事件排队到目标会话中。
+
+
+    影响
+
+    这是 Discord 允许列表路径的权限绕过。即使反应的服务器成员未获配置的用户或角色允许列表许可，
+    反应文本仍可能注入到下游会话上下文中。
+
+
+    受影响包和版本
+
+    - 包名：openclaw (npm)
+
+    - 受影响版本：< 2026.3.11
+
+    - 修复版本：2026.3.11
+
+
+    技术细节
+
+    反应接收授权路径强制执行了私聊、群组、服务器和频道策略检查，但未应用成员级别的用户和角色允许列表网关，
+    而这是正常服务器消息预检所使用的。被接受的反应随后会作为可信系统事件排入路由会话的队列中。
+
+
+    修复方案
+
+    OpenClaw 现在对服务器反应接收应用了与正常入站服务器消息相同的用户和角色允许列表强制执行。
+    该修复已在 openclaw@2026.3.11 中发布。
+
+
+    临时缓解措施
+
+    升级到 2026.3.11 或更新版本。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级到 2026.3.11 或更新版本。OpenClaw 现在对服务器反应接收应用了与正常入站服务器消息相同的
+    用户和角色允许列表强制执行。该修复已在 openclaw@2026.3.11 中发布。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9vvh-2768-c8vp
+rule: version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9vvh-2768-c8vp

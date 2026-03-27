@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-99qw-6mr3-36qr
+  summary: OpenClaw 工作区插件自动发现允许从克隆的代码仓库执行任意代码
+  details: >-
+    摘要
+
+
+    OpenClaw 会自动发现并加载当前工作区 .openclaw/extensions/ 目录下的插件，无需显式的信任或安装步骤。
+    恶意代码仓库可以包含精心构造的工作区插件，一旦用户在该克隆目录下运行 OpenClaw，
+    插件便会立即执行。
+
+
+    影响
+
+
+    在不受信任的代码仓库中打开或运行 OpenClaw，可能导致在用户账户下执行任意代码。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。工作区插件加载现在需要在执行前进行显式信任授权。
+    请升级至 2026.3.12 或更高版本，并避免在旧版本中于不受信任的代码仓库内运行 OpenClaw。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-99qw-6mr3-36qr
+rule: version <= "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-99qw-6mr3-36qr
