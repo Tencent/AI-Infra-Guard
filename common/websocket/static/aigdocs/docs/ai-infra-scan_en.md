@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **49 mainstream AI frameworks**, covering **900+ known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **50 mainstream AI frameworks**, covering **1000+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -58,8 +58,8 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | -------------------------- | ----------------------- | ------------------- | ----------- |
 | **Model Serving**          | gradio                  | 50                  | High        |
 |                            | ollama                  | 25                  | Medium-High |
-|                            | triton-inference-server | 32                  | Medium-High |
-|                            | vllm                    | 41                  | Medium      |
+|                            | triton-inference-server | 33                  | Medium-High |
+|                            | vllm                    | 42                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 7                   | Medium      |
 |                            | llama-cpp               | 1                   | Low         |
@@ -71,7 +71,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | open-webui              | 40                  | Medium-High |
 |                            | ragflow                 | 11                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 21                  | Medium      |
+|                            | langflow                | 23                  | Medium      |
 |                            | litellm                 | 17                  | Medium      |
 |                            | mlflow                  | 59                  | High        |
 |                            | librechat               | 5                   | Medium      |
@@ -102,9 +102,10 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | pyload-ng               | 25                  | Medium      |
 |                            | kubepi                  | 5                   | Medium      |
 |                            | llamafactory            | 4                   | Low         |
+|                            | bentoml                 | 1                   | Medium      |
 |                            | blinko                  | 1                   | Low         |
 |                            | weknora                 | 2                   | Low         |
-| **Total**                  |                         | **900+**            |             |
+| **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 

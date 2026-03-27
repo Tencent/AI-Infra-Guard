@@ -2,9 +2,9 @@
 
 [English](./README.md)
 
-通过 OpenClaw 对话直接调用 [AIG (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard/) 的全部扫描能力，无需打开 AIG Web UI。
+通过 OpenClaw 对话直接调用 [A.I.G (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard/) 的全部扫描能力，无需打开 A.I.G Web UI。
 
-> **前提**：已部署 AIG 服务（本机或远程均可）。
+> **前提**：已部署 A.I.G 服务（本机或远程均可）。
 
 ### 安装（在 OpenClaw 对话中说）
 
@@ -38,9 +38,9 @@ clawhub install aig-scanner
 用AIG扫描 https://github.com/org/repo 的 AI 工具安全
 ```
 
-**AI Agent 安全扫描** — 检测 AIG 平台已配置的 Agent 的授权绕过、提示注入等风险
+**AI Agent 安全扫描** — 检测 A.I.G 平台已配置的 Agent 的授权绕过、提示注入等风险
 
-> 建议在AIG Web UI提前配置好 Agent
+> 建议在 A.I.G Web UI 提前配置好 Agent
 
 ```
 用AIG扫描 agent demo-agent-id
@@ -56,13 +56,13 @@ clawhub install aig-scanner
 
 - **推荐安装方式**：优先使用带版本号的 GitHub Release `zip` 安装包，不要依赖分支 raw 文件，也不要使用仓库级 `latest` release 指针。
 - **ClawHub**：可作为备选安装来源。在中国大陆环境下可能会遇到 `Rate limit exceeded`；如果出现这个问题，直接改用 GitHub `zip` 包。
-- **AIG 地址**：首次安装时请配置 `AIG_BASE_URL`，这是必填项。例如：
+- **A.I.G 地址**：首次安装时请配置 `AIG_BASE_URL`，这是必填项。例如：
   - `http://127.0.0.1:8088/`
   - `https://aig.example.com/`
-- **认证**：AIG 开启认证时需配置 API Key，默认为空。
+- **认证**：A.I.G 开启认证时需配置 API Key，默认为空。
 - **AI Tool / Skills Scan**：需要配置分析模型（model name、API key、base URL），首次使用时在对话中告知即可。
 - **大模型安全体检**：需要同时提供目标模型和评估模型配置，包括 model name、API key、base URL。
-- **Agent Scan**：扫描的是 AIG 平台上已配置的 Agent，暂不支持参数提交。
+- **Agent Scan**：扫描的是 A.I.G 平台上已配置的 Agent，暂不支持参数提交。
 - **插件版**：已从主交付路径移出，备份保存在 `.artifacts/disabled-plugins/aig-scan-plugin/`。
 
 ### 维护说明
