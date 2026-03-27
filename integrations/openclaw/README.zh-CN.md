@@ -6,21 +6,22 @@
 
 > **前提**：已部署 A.I.G 服务（本机或远程均可）。
 
-### 安装（在 OpenClaw 对话中说）
+### 安装
 
-```
-# 推荐：从 GitHub Releases 安装
-帮我安装并启用 A.I.G Scanner
-下载地址：
-https://github.com/Tencent/AI-Infra-Guard/releases/download/aig-scanner-v2.0.0/aig-scanner-2.0.0.zip
+在 OpenClaw 对话里直接说：
+
+```text
+从 ClawHub 安装 A.I.G Scanner
 ```
 
 备选方案：
 
-```bash
-# 从 ClawHub 安装
-clawhub install aig-scanner
+```text
+从这个源码目录安装 skill：
+https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
 ```
+
+手动回退目录：`~/.openclaw/skills/aig-scanner/`
 
 ### 使用
 
@@ -54,8 +55,8 @@ clawhub install aig-scanner
 
 ### 注意事项
 
-- **推荐安装方式**：优先使用带版本号的 GitHub Release `zip` 安装包，不要依赖分支 raw 文件，也不要使用仓库级 `latest` release 指针。
-- **ClawHub**：可作为备选安装来源。在中国大陆环境下可能会遇到 `Rate limit exceeded`；如果出现这个问题，直接改用 GitHub `zip` 包。
+- **推荐安装方式**：优先使用 ClawHub。
+- **中国大陆环境回退方案**：如果 ClawHub 遇到 `Rate limit exceeded`，直接使用本仓库中的源码目录安装。
 - **A.I.G 地址**：首次安装时请配置 `AIG_BASE_URL`，这是必填项。例如：
   - `http://127.0.0.1:8088/`
   - `https://aig.example.com/`
@@ -68,14 +69,8 @@ clawhub install aig-scanner
 ### 维护说明
 
 - Skill 源码放在 `integrations/openclaw/aig-scanner/`。
-- 使用下面的脚本生成发布包：
-
-```bash
-./integrations/openclaw/build-release.sh
-```
-
-- 将生成的 `dist/aig-scanner-<version>.zip` 上传到 GitHub Releases。
-- 发布到 ClawHub 时，使用源码目录，不要上传 zip 包。
+- 发布到 ClawHub 时，使用源码目录。
+- 保持仓库源码优先，不要提交打包压缩文件。
 
 ---
 

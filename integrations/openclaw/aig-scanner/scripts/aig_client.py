@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AIG Client — CLI wrapper for AI-Infra-Guard taskapi.
+A.I.G Client — CLI wrapper for AI-Infra-Guard taskapi.
 
 Usage:
     python3 aig_client.py scan-infra      --targets URL [URL ...]
@@ -12,7 +12,7 @@ Usage:
     python3 aig_client.py list-agents
 
 Environment:
-    AIG_BASE_URL   (required) AIG server root, e.g. http://127.0.0.1:8088/
+    AIG_BASE_URL   (required) A.I.G server root, e.g. http://127.0.0.1:8088/
     AIG_API_KEY    (optional) API key for taskapi auth
     AIG_USERNAME   (optional) defaults to "openclaw"
 
@@ -53,11 +53,11 @@ def _headers(content_type: str = "application/json") -> dict[str, str]:
 
 
 def _request(method: str, path: str, body: Any | None = None) -> Any:
-    """Make an HTTP request to AIG and return parsed data."""
+    """Make an HTTP request to A.I.G and return parsed data."""
     if not BASE_URL:
         _die(
             "AIG_BASE_URL is not configured.\n"
-            "Please set the AIG service address first, for example:\n"
+            "Please set the A.I.G service address first, for example:\n"
             "  http://127.0.0.1:8088/\n"
             "  https://aig.example.com/"
         )
@@ -71,16 +71,16 @@ def _request(method: str, path: str, body: Any | None = None) -> Any:
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read())
     except urllib.error.HTTPError as e:
-        _die(f"AIG API {method} {path} -> HTTP {e.code}")
+        _die(f"A.I.G API {method} {path} -> HTTP {e.code}")
     except urllib.error.URLError as e:
         _die(
-            f"Cannot connect to AIG server at {BASE_URL}.\n"
-            f"Make sure AIG is running (docker compose up -d).\n"
+            f"Cannot connect to A.I.G server at {BASE_URL}.\n"
+            f"Make sure A.I.G is running (docker compose up -d).\n"
             f"Error: {e.reason}"
         )
 
     if result.get("status") != 0:
-        _die(f"AIG API error: {result.get('message', 'unknown error')}")
+        _die(f"A.I.G API error: {result.get('message', 'unknown error')}")
 
     return result.get("data")
 
@@ -90,7 +90,7 @@ def _upload_file(file_path: str) -> dict:
     if not BASE_URL:
         _die(
             "AIG_BASE_URL is not configured.\n"
-            "Please set the AIG service address first, for example:\n"
+            "Please set the A.I.G service address first, for example:\n"
             "  http://127.0.0.1:8088/\n"
             "  https://aig.example.com/"
         )
@@ -153,7 +153,7 @@ def _print_json(data: Any) -> None:
 
 
 def _print_submission(session_id: str, task_type: str) -> None:
-    print(f"✅ AIG 任务已提交")
+    print(f"✅ A.I.G 任务已提交")
     print(f"Session ID: {session_id}")
     print(f"类型: {task_type}")
 
@@ -228,7 +228,7 @@ def _submit_and_poll(task_type: str, content: dict) -> None:
     else:
         print(f"\n⏳ 任务仍在执行中 (状态: {st})")
         print(f"Session ID: {session_id}")
-        print(f"说明: AIG 后台继续执行，稍后可用以下命令查询:")
+        print(f"说明: A.I.G 后台继续执行，稍后可用以下命令查询:")
         print(f"  python3 aig_client.py check-result --session-id {session_id}")
 
 
@@ -303,7 +303,7 @@ def _format_result(result: Any, task_type: str) -> None:
             url = img if isinstance(img, str) else img.get("url", img.get("screenshot", ""))
             if url:
                 if url.startswith("https://"):
-                    print(f"  ![AIG screenshot {i}]({url})")
+                    print(f"  ![A.I.G screenshot {i}]({url})")
                 else:
                     print(f"  [📸 查看截图 {i}]({url})")
 
@@ -461,7 +461,7 @@ def cmd_list_agents(args: argparse.Namespace) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="AIG Client - AI-Infra-Guard security scanning CLI",
+        description="A.I.G Client - AI-Infra-Guard security scanning CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     sub = parser.add_subparsers(dest="command", required=True)
@@ -491,7 +491,7 @@ def main() -> None:
 
     # scan-agent
     p = sub.add_parser("scan-agent", help="Agent Scan (Dify/Coze/custom agents)")
-    p.add_argument("--agent-id", required=True, help="Agent config name in AIG Web UI")
+    p.add_argument("--agent-id", required=True, help="Agent config name in A.I.G Web UI")
     p.add_argument("--language", default="zh", choices=["zh", "en"], help="Report language")
     p.add_argument("--eval-model", help="Eval model name")
     p.add_argument("--eval-token", help="Eval model token")
