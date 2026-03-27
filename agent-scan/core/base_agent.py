@@ -23,7 +23,7 @@ from typing import Optional
 from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
 from utils.aig_logger import scanLogger
-from utils.llm import LLM, LLM_ERROR_PREFIX
+from utils.llm import LLM, is_llm_error_response
 from utils.logging import logger
 from utils.parse import parse_tool_invocations, clean_content
 from utils.prompt_manager import prompt_manager
@@ -73,19 +73,23 @@ class BaseAgent:
     def set_repo_dir(self, repo_dir: str):
         self.repo_dir = repo_dir
 
-    async def compact_history(self):
+    async def compact_history(self) -> bool:
         if len(self.history) < 3:
-            return
+            return False
 
         prompt = prompt_manager.load_template("compact")
         history = self.history[1:]
         history.append({"role": "user", "content": prompt})
-        response = await self.llm.chat_async(history)
+        response = await self.llm.chat_async(history, language=self.language)
+        if is_llm_error_response(response):
+            logger.warning(f"History compaction skipped due to LLM error response: {response}")
+            return False
 
         system_prompt = self.history[0]
         original_task = self.history[1]['content']
         user_messages = f"I want you to complete: {original_task}\n\nThe following context is provided for reference:\n{response}"
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
+        return True
 
     async def generate_system_prompt(self):
 
@@ -102,6 +106,25 @@ class BaseAgent:
 
     def next_prompt(self):
         return prompt_manager.format_prompt("next_prompt", round=self.iter)
+
+    def _latest_assistant_fallback(self) -> str:
+        for message in reversed(self.history):
+            if message.get("role") != "assistant":
+                continue
+            content = clean_content(message.get("content", ""))
+            if content and not is_llm_error_response(content):
+                return content
+        return ""
+
+    def _append_model_error_recovery_message(self, response: str):
+        self.history.append({"role": "assistant", "content": response})
+        self.history.append({
+            "role": "user",
+            "content": (
+                "The previous request could not be completed due to a model-side error. "
+                "Please continue with the next step in your plan."
+            )
+        })
 
     async def run(self):
         await self.initialize()
@@ -123,8 +146,7 @@ class BaseAgent:
             # with a condensed context rather than hitting the hard limit cold.
             if not compacted and self.iter >= compact_threshold:
                 logger.warning(f"Compacting history at iteration {self.iter} (threshold={compact_threshold})")
-                await self.compact_history()
-                compacted = True
+                compacted = await self.compact_history()
 
             # Use the non-blocking async wrapper so the event loop is free to
             # schedule other coroutines (e.g. parallel skill workers in
@@ -135,7 +157,7 @@ class BaseAgent:
 
                 # Check if the response is an error (degraded string returned by llm.chat)
                 # Use the constant LLM_ERROR_PREFIX for consistent error detection
-                if response.startswith(LLM_ERROR_PREFIX):
+                if is_llm_error_response(response):
                     consecutive_failures += 1
                     logger.warning(
                         f"LLM error response: {response}. "
@@ -154,20 +176,12 @@ class BaseAgent:
                     # Write error message as assistant + user pair to history,
                     # ensuring history always ends with a user message,
                     # while letting LLM know the previous step failed.
-                    self.history.append({"role": "assistant", "content": response})
-                    # Use neutral wording to avoid LLM skipping valid security checks
-                    self.history.append({
-                        "role": "user",
-                        "content": (
-                            "The previous request could not be completed due to a model-side error. "
-                            "Please continue with the next step in your plan."
-                        )
-                    })
+                    self._append_model_error_recovery_message(response)
                     self.iter += 1
                     continue
-                else:
-                    # Successful response, reset error count
-                    consecutive_failures = 0
+
+                # Successful response, reset error count
+                consecutive_failures = 0
 
                 self.history.append({"role": "assistant", "content": response})
                 res = await self.handle_response(response)
@@ -307,7 +321,12 @@ class BaseAgent:
             output_format=self.instruction
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
-        final_output = await self.llm.chat_async(recent_history)
+        final_output = await self.llm.chat_async(recent_history, language=self.language)
+        if is_llm_error_response(final_output):
+            logger.warning(f"Final output formatting skipped due to LLM error response: {final_output}")
+            fallback = self._latest_assistant_fallback()
+            if fallback:
+                return fallback
         logger.info(f"Final Output: {final_output}")
         return final_output
 
