@@ -8,10 +8,8 @@ Invoke all [A.I.G (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard/) 
 
 ### Install
 
-In OpenClaw chat, say:
-
-```text
-Install A.I.G Scanner from ClawHub
+```bash
+clawhub install aig-scanner
 ```
 
 Alternative:
@@ -20,8 +18,6 @@ Alternative:
 Install this skill from source:
 https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
 ```
-
-Manual fallback path: `~/.openclaw/skills/aig-scanner/`
 
 ### Usage
 

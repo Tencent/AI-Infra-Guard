@@ -8,10 +8,8 @@
 
 ### 安装
 
-在 OpenClaw 对话里直接说：
-
-```text
-从 ClawHub 安装 A.I.G Scanner
+```bash
+clawhub install aig-scanner
 ```
 
 备选方案：
@@ -20,8 +18,6 @@
 从这个源码目录安装 skill：
 https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
 ```
-
-手动回退目录：`~/.openclaw/skills/aig-scanner/`
 
 ### 使用
 
