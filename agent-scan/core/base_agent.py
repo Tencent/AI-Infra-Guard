@@ -23,7 +23,7 @@ from typing import Optional
 from core.agent_adapter.adapter import ProviderOptions
 from tools.dispatcher import ToolDispatcher
 from utils.aig_logger import scanLogger
-from utils.llm import LLM
+from utils.llm import LLM, LLM_ERROR_PREFIX
 from utils.logging import logger
 from utils.parse import parse_tool_invocations, clean_content
 from utils.prompt_manager import prompt_manager
@@ -113,6 +113,9 @@ class BaseAgent:
         compact_threshold = int(self.max_iter * 0.7)
         compacted = False
         result = ""
+        consecutive_failures = 0
+        max_consecutive_failures = 3
+        
         while not self.is_finished and self.iter < self.max_iter:
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
 
@@ -126,13 +129,79 @@ class BaseAgent:
             # Use the non-blocking async wrapper so the event loop is free to
             # schedule other coroutines (e.g. parallel skill workers in
             # ScanPipeline.run_parallel_detection) while awaiting the response.
-            response = await self.llm.chat_async(self.history)
-            logger.debug(f"LLM Response: {response}")
-            self.history.append({"role": "assistant", "content": response})
-            res = await self.handle_response(response)
-            if res is not None:
-                result = res
-            self.iter += 1
+            try:
+                response = await self.llm.chat_async(self.history, language=self.language)
+                logger.debug(f"LLM Response: {response}")
+
+                # Check if the response is an error (degraded string returned by llm.chat)
+                # Use the constant LLM_ERROR_PREFIX for consistent error detection
+                if response.startswith(LLM_ERROR_PREFIX):
+                    consecutive_failures += 1
+                    logger.warning(
+                        f"LLM error response: {response}. "
+                        f"Consecutive failures: {consecutive_failures}/{max_consecutive_failures}"
+                    )
+
+                    # Terminate agent if too many consecutive errors
+                    if consecutive_failures >= max_consecutive_failures:
+                        logger.error(
+                            f"Max consecutive LLM failures ({max_consecutive_failures}) reached. "
+                            f"Terminating agent."
+                        )
+                        self.is_finished = True
+                        break
+
+                    # Write error message as assistant + user pair to history,
+                    # ensuring history always ends with a user message,
+                    # while letting LLM know the previous step failed.
+                    self.history.append({"role": "assistant", "content": response})
+                    # Use neutral wording to avoid LLM skipping valid security checks
+                    self.history.append({
+                        "role": "user",
+                        "content": (
+                            "The previous request could not be completed due to a model-side error. "
+                            "Please continue with the next step in your plan."
+                        )
+                    })
+                    self.iter += 1
+                    continue
+                else:
+                    # Successful response, reset error count
+                    consecutive_failures = 0
+
+                self.history.append({"role": "assistant", "content": response})
+                res = await self.handle_response(response)
+                if res is not None:
+                    result = res
+                self.iter += 1
+
+            except Exception as e:
+                # Catch unexpected exceptions (llm.chat should degrade to string, this is a fallback)
+                consecutive_failures += 1
+                logger.error(
+                    f"Unexpected error in agent iteration {self.iter}: {e}. "
+                    f"Consecutive failures: {consecutive_failures}/{max_consecutive_failures}"
+                )
+
+                if consecutive_failures >= max_consecutive_failures:
+                    logger.error(
+                        f"Max consecutive exceptions ({max_consecutive_failures}) reached. "
+                        f"Terminating agent."
+                    )
+                    self.is_finished = True
+                    break
+
+                # Write as valid assistant + user pair to avoid invalid role sequence
+                self.history.append({
+                    "role": "assistant",
+                    "content": f"[System Error: {str(e)[:200]}]"
+                })
+                self.history.append({
+                    "role": "user",
+                    "content": "An unexpected error occurred. Please continue with the next step."
+                })
+                self.iter += 1
+                continue
 
         if self.iter >= self.max_iter:
             logger.warning(f"Max iterations ({self.max_iter}) reached without finish signal")
