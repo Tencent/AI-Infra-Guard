@@ -1,4 +1,4 @@
-# AIG × OpenClaw — 一句话完成 AI 安全扫描
+# A.I.G × OpenClaw — 一句话完成 AI 安全扫描
 
 [English](./README.md)
 
@@ -10,7 +10,7 @@
 
 ```
 # 推荐：从 GitHub Releases 安装
-帮我安装并启用 AIG Scanner
+帮我安装并启用 A.I.G Scanner
 下载地址：
 https://github.com/Tencent/AI-Infra-Guard/releases/download/aig-scanner-v2.0.0/aig-scanner-2.0.0.zip
 ```
@@ -29,13 +29,13 @@ clawhub install aig-scanner
 **AI 基础设施扫描** — 检测 AI 服务漏洞与配置风险（Ollama、vLLM、Dify 等）
 
 ```
-用AIG扫描 http://localhost:11434 的 AI 漏洞
+用A.I.G扫描 http://localhost:11434 的 AI 漏洞
 ```
 
 **AI 工具 / Skills 安全审计** — 审计 MCP Server、Agent Skills 等项目代码或服务
 
 ```
-用AIG扫描 https://github.com/org/repo 的 AI 工具安全
+用A.I.G扫描 https://github.com/org/repo 的 AI 工具安全
 ```
 
 **AI Agent 安全扫描** — 检测 A.I.G 平台已配置的 Agent 的授权绕过、提示注入等风险
@@ -43,13 +43,13 @@ clawhub install aig-scanner
 > 建议在 A.I.G Web UI 提前配置好 Agent
 
 ```
-用AIG扫描 agent demo-agent-id
+用A.I.G扫描 agent demo-agent-id
 ```
 
 **大模型安全体检** — 红队测试 LLM 的抗越狱能力
 
 ```
-用AIG扫描 给DeepSeek3.2做一次安全体检。
+用A.I.G扫描 给DeepSeek3.2做一次安全体检。
 ```
 
 ### 注意事项

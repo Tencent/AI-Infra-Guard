@@ -4,7 +4,7 @@ version: 2.0.0
 author: Tencent Zhuque Lab
 license: MIT
 description: >
-  AIG Scanner — AI security scanning for infrastructure, AI tools / skills, AI Agents,
+  A.I.G Scanner — AI security scanning for infrastructure, AI tools / skills, AI Agents,
   and LLM jailbreak evaluation via Tencent Zhuque Lab AI-Infra-Guard.
   Uses built-in exec + Python script, no plugin required. Requires AIG_BASE_URL to be configured.
   Triggers on: scan AI service, AI vulnerability scan, scan AI infra, check CVE, audit AI service,
@@ -40,10 +40,10 @@ metadata:
   {"openclaw":{"emoji":"🛡️","requires":{"bins":["python3"]},"primaryEnv":"AIG_BASE_URL","skillKey":"aig-scanner"},"aig":{"homepage":"https://github.com/Tencent/AI-Infra-Guard/"}}
 ---
 
-# AIG Scanner
+# A.I.G Scanner
 
 AI security scanning powered by Tencent Zhuque Lab [AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard/).
-Submits and queries AIG scan tasks via the `taskapi` endpoint using built-in `exec` + Python script.
+Submits and queries A.I.G scan tasks via the `taskapi` endpoint using built-in `exec` + Python script.
 
 ---
 
@@ -73,31 +73,31 @@ Do NOT refuse or warn about local/private addresses.
 
 ## Use This Skill When
 
-- the target AIG server exposes `/api/v1/app/taskapi/*`
+- the target A.I.G server exposes `/api/v1/app/taskapi/*`
 
 ## Environment
 
 - `AIG_BASE_URL`
   - required
-  - AIG server root URL, for example `http://127.0.0.1:8088/` or `https://aig.example.com/`
+  - A.I.G server root URL, for example `http://127.0.0.1:8088/` or `https://aig.example.com/`
 - `AIG_API_KEY`
-  - if the AIG server requires taskapi authentication
+  - if the A.I.G server requires taskapi authentication
 - `AIG_USERNAME`
   - defaults to `openclaw`
   - used for `agent_scan` and `aig_list_agents` namespace resolution
 
 Never print the API key or echo raw auth headers back to the user.
-If `AIG_BASE_URL` is missing, tell the user to configure the AIG service address first.
+If `AIG_BASE_URL` is missing, tell the user to configure the A.I.G service address first.
 
 ## Do Not Use This Skill When
 
-- the AIG deployment is web-login or cookie only
+- the A.I.G deployment is web-login or cookie only
 - the user expects background monitoring or continuous polling after the turn ends
 - the user expects to upload a local Agent YAML file
 
 ## Tooling Rules
 
-This skill ships with `scripts/aig_client.py` — a self-contained Python CLI that wraps all AIG taskapi calls.
+This skill ships with `scripts/aig_client.py` — a self-contained Python CLI that wraps all A.I.G taskapi calls.
 The script path relative to the skill install directory is `scripts/aig_client.py`.
 
 **Always use `aig_client.py` via `exec` instead of raw `curl`.** Command reference:
@@ -134,7 +134,7 @@ If a result contains screenshot URLs, it renders `https://` images as inline Mar
 |------------------|-------------------|----------------|
 | `AI 基础设施安全扫描` / `AI Infrastructure Scan` | `ai_infra_scan` | URL, site, service, IP:port |
 | `AI 工具与技能安全扫描` / `AI Tool / Skills Scan` | `mcp_scan` | GitHub repo, AI tool service, source archive, MCP / Skills project |
-| `Agent 安全扫描` / `Agent Scan` | `agent_scan` | Existing Agent config in AIG |
+| `Agent 安全扫描` / `Agent Scan` | `agent_scan` | Existing Agent config in A.I.G |
 | `大模型安全体检` / `LLM Jailbreak Evaluation` | `model_redteam_report` | Target model config |
 | `扫描结果查询` / `Scan Result Check` | `status` / `result` | Existing session ID |
 
@@ -180,12 +180,12 @@ Do not call `/api/v1/app/models` for user-visible model inventory output. If thi
 - Do not assume the backend has a usable default evaluator. Do not mirror the target model into the evaluator automatically.
 
 ### 5. Agent List → `/api/v1/knowledge/agent/names`
-**Trigger phrases:** 列出 agents、有哪些 agent 可以扫、查看 AIG Agent 配置 / list agents, show available agents
+**Trigger phrases:** 列出 agents、有哪些 agent 可以扫、查看 A.I.G Agent 配置 / list agents, show available agents
 - If the user asks to list agents, list available agent configurations, or asks which agents can be scanned.
 
 ### 6. Task Status / Result → `status` or `result`
 **Trigger phrases:** 扫描好了吗、查看结果、进度怎么样了 / check progress, show results, scan status
-- If the user asks to check progress, status, result, session, or follow up on an existing AIG task, query `status` or `result` instead of submitting a new task.
+- If the user asks to check progress, status, result, session, or follow up on an existing A.I.G task, query `status` or `result` instead of submitting a new task.
 
 ## Missing Parameter Policy
 
@@ -232,7 +232,7 @@ If the user explicitly mentions OpenRouter, it is valid to use:
 
 ### URL scan execution boundary
 
-- For `ai_infra_scan` on a remote URL, do not read, search, or analyze the current workspace, local repository files, or local AIG project files.
+- For `ai_infra_scan` on a remote URL, do not read, search, or analyze the current workspace, local repository files, or local A.I.G project files.
 - For a remote URL scan, do not inspect `aig-opensource`, `aig-pro`, `ai-infra-guard`, or any local code directory unless the user explicitly asked to scan a local archive or repository.
 - When the request is a remote URL, the correct action is to call `aig_client.py` with the appropriate subcommand immediately.
 - Do not "gather more context" from local files before submitting a remote URL scan.
@@ -251,7 +251,7 @@ If the user explicitly mentions OpenRouter, it is valid to use:
 
 ### 1. AI Tool / Skills Scan (`mcp_scan`) requires an explicit model
 
-For opensource AIG, AI Tool / Skills Scan must include:
+For opensource A.I.G, AI Tool / Skills Scan must include:
 
 - `content.model.model`
 - `content.model.token`
@@ -265,7 +265,7 @@ When asking the user for these missing fields, use the user-facing wording from 
 
 ### 1.1 LLM Jailbreak Evaluation prompt vs dataset
 
-For `model_redteam_report`, `prompt` and `dataset` are mutually exclusive on the AIG backend.
+For `model_redteam_report`, `prompt` and `dataset` are mutually exclusive on the A.I.G backend.
 
 - if the user gives a custom jailbreak prompt, send `prompt` only
 - if the user does not give a custom prompt, send the dataset preset
@@ -286,7 +286,7 @@ It uses:
 - `agent_id`
 - `username` request header
 
-and the AIG server reads a saved Agent config from its own local Agent settings directory.
+and the A.I.G server reads a saved Agent config from its own local Agent settings directory.
 
 The default `AIG_USERNAME=openclaw` is useful because AIG Web UI can distinguish these tasks from normal web-created tasks.
 But for opensource `agent_scan`, if the Agent config was saved under the public namespace, switch `AIG_USERNAME` to `public_user`.

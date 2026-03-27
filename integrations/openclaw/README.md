@@ -1,4 +1,4 @@
-# AIG × OpenClaw — AI Security Scanning in One Chat Message
+# A.I.G × OpenClaw — AI Security Scanning in One Chat Message
 
 [中文版](./README.zh-CN.md)
 
@@ -10,7 +10,7 @@ Invoke all [A.I.G (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard/) 
 
 ```
 # Recommended: install from GitHub Releases
-Install and enable AIG Scanner
+Install and enable A.I.G Scanner
 Download:
 https://github.com/Tencent/AI-Infra-Guard/releases/download/aig-scanner-v2.0.0/aig-scanner-2.0.0.zip
 ```
@@ -43,13 +43,13 @@ Scan https://github.com/org/repo for AI tool security issues
 > Recommend configuring the Agent in A.I.G Web UI beforehand
 
 ```
-Use AIG to scan agent demo-agent-id
+Use A.I.G to scan agent demo-agent-id
 ```
 
 **LLM Safety Check** — red-team test an LLM's jailbreak resistance
 
 ```
-Use AIG to run a safety check on DeepSeek3.2
+Use A.I.G to run a safety check on DeepSeek3.2
 ```
 
 ### Notes
@@ -59,7 +59,7 @@ Use AIG to run a safety check on DeepSeek3.2
 - **A.I.G URL**: configure `AIG_BASE_URL` on first install. This is required. Examples:
   - `http://127.0.0.1:8088/`
   - `https://aig.example.com/`
-- **Auth**: configure an API Key if AIG authentication is enabled; defaults to empty.
+- **Auth**: configure an API Key if A.I.G authentication is enabled; defaults to empty.
 - **AI Tool / Skills Scan**: requires an analysis model (model name, API key, base URL) — just tell OpenClaw on first use.
 - **LLM Safety Check**: requires both the target model and a separate evaluator model configuration. Provide target/eval model name, API key, and base URL.
 - **Agent Scan**: scans Agents already configured on the A.I.G platform; does not support parameter submission yet.
