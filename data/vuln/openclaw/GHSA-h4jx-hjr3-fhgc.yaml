@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h4jx-hjr3-fhgc
+  summary: OpenClaw Gateway 插件子代理回退 `deleteSession` 使用合成的 `operator.admin` 权限范围
+  details: >-
+    漏洞概述
+
+
+    Gateway 插件子代理回退 deleteSession 使用合成的 operator.admin 权限范围
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    Gateway 插件子代理回退 deleteSession 此前在无请求作用域客户端时，会以合成的 operator.admin 运行时权限范围
+    分发 sessions.delete 操作。提交 b5d785f1a59a56c3471f2cef328f7c9a6c15f3e7 将删除操作绑定到调用方权限范围，
+    而非临时授予管理员权限。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 b5d785f1a59a56c3471f2cef328f7c9a6c15f3e7 在 main 分支修复。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：b5d785f1a59a56c3471f2cef328f7c9a6c15f3e7
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h4jx-hjr3-fhgc
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h4jx-hjr3-fhgc

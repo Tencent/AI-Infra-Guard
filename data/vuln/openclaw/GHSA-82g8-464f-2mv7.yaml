@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-82g8-464f-2mv7
+  summary: OpenClaw Skill env override host env 注入
+  details: >-
+    漏洞概述
+
+    OpenClaw 注入漏洞。OpenClaw Skill env override host env 注入。
+
+    安全影响
+
+    In affected versions, dangerous process-level variables such as NODE_OPTIONS could be injected when unset, which can influence runtime/child-process behavior. Required attacker capability
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.21 或更高版本。 修复提交 - 8c9f35cdb51692b650ddf05b259ccdd75cc9a83c Found using MCPwner'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7

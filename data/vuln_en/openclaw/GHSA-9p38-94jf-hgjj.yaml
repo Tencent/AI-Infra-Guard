@@ -1,0 +1,75 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9p38-94jf-hgjj
+  summary: OpenClaw macOS `system.run` allowlist bypass via quoted command substitution
+  details: >-
+    Summary
+
+    In OpenClaw's macOS node-host path, system.run allowlist parsing in security=allowlist mode failed to reject command substitution
+    tokens when they appeared inside double-quoted shell text.
+
+
+    Because of that gap, payloads like echo "ok $(id)" could be treated as allowlist hits (first executable token echo) while
+    still executing non-allowlisted subcommands through shell substitution.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Latest published affected version: 2026.2.21-2
+
+    - Affected range: <= 2026.2.21-2
+
+    - Patched version (planned next release): 2026.2.22
+
+
+    Notes:
+
+    - Default installs are not affected (security=deny by default).
+
+    - The issue requires opting into security=allowlist on the macOS node-host path.
+
+
+    Impact
+
+    Approval/authorization bypass in allowlist mode that can lead to unintended command execution on the node host.
+
+
+    Preconditions
+
+    - Target uses macOS node-host / companion-app execution path.
+
+    - Exec approvals set to security=allowlist.
+
+    - Ask mode is on-miss or off.
+
+    - Allowlist contains a benign executable used in a shell wrapper flow (for example /bin/echo).
+
+
+    Reproduction (example)
+
+    Use a shell-wrapper command where the visible executable is allowlisted but the quoted payload contains substitution:
+
+
+    - command argv: /bin/sh -lc 'echo "ok $(/usr/bin/id > /tmp/openclaw-poc-rce)"'
+
+    - allowlist pattern includes /bin/echo
+
+
+    Before the fix, allowlist analysis could resolve this as allowlisted while shell substitution still executed.
+
+
+    Remediation
+
+    - Upgrade to 2026.2.22 (or newer) when released.
+
+    - Temporary mitigation: set ask mode to always or set security mode to deny.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.22 or later. Commit(s) - 90a378ca3a9ecbf1634cd247f17a35f4612c6ca6
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj

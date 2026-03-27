@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mfg5-7q5g-f37j
+  summary: 'OpenClaw voice-call media stream validated streams after 升级, which could allow pre-start 未认证 sockets to increase resource pressure'
+  details: >-
+    漏洞概述
+
+    OpenClaw 远程代码执行漏洞。OpenClaw voice-call media stream validated streams after 升级, which could allow pre-start 未认证 sockets to increase resource pressure。
+
+    安全影响
+
+    Availability risk in deployments where the media-stream endpoint is reachable and streaming is enabled. Under sustained abuse, this could consume connection-related resources and degrade service for legitimate streams.
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+  severity: 高危
+  security_advise: 建议将 OpenClaw 升级至 2026.2.22, 2026.2.22 或更高版本。 修复提交 - 1d8968c8a821ff1a05c294a1846b3bcb6f343794
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mfg5-7q5g-f37j
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mfg5-7q5g-f37j

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j4c9-w69r-cw33
+  summary: OpenClaw Telegram DM-Scoped Inline Button Callbacks Bypass DM Pairing and Mutate Session State
+  details: >-
+    Summary
+
+
+    Telegram DM-Scoped Inline Button Callbacks Bypass DM Pairing and Mutate Session State
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    Telegram callback queries from direct messages previously used weaker callback-only authorization and could mutate session
+    state without satisfying normal DM pairing. Commit 269282ac69ab6030d5f30d04822668f607f13065 enforces DM authorization
+    for callbacks.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit 269282ac69ab6030d5f30d04822668f607f13065.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 269282ac69ab6030d5f30d04822668f607f13065
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c9-w69r-cw33
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c9-w69r-cw33

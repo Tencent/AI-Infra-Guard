@@ -1,0 +1,13 @@
+info:
+  name: bentoml
+  author: A.I.G bot
+  severity: info
+  desc: BentoML is a Python library for building online serving systems optimized for AI apps and model inference.
+  metadata:
+    product: bentoml
+    vendor: bentoml
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="BentoML Prediction Service"

@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mw7w-g3mg-xqm7
+  summary: OpenClaw BlueBubbles Group Reactions Bypass requireMention and Still Enqueue Agent-Visible System Events
+  details: >-
+    Summary
+
+
+    BlueBubbles Group Reactions Bypass requireMention and Still Enqueue Agent-Visible System Events
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    BlueBubbles group reaction events previously bypassed requireMention and still enqueued agent-visible system events in
+    groups that were supposed to stay mention-gated. Commit f8c98630785288cc1f1d0893503ef3b653a3cede applies the reaction
+    path to the same mention gate as normal group messages.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit f8c98630785288cc1f1d0893503ef3b653a3cede.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - f8c98630785288cc1f1d0893503ef3b653a3cede
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mw7w-g3mg-xqm7
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mw7w-g3mg-xqm7

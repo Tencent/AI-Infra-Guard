@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-77w2-crqv-cmv3
+  summary: OpenClaw 飞书原始卡片发送面板可生成绕过 DM 配对的旧版卡片回调
+  details: >-
+    漏洞概述
+
+
+    飞书原始卡片发送面板可生成绕过 DM 配对的旧版卡片回调
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    飞书原始卡片发送操作此前可生成旧版回调载荷，绕过 DM 配对校验，
+    使未配对接收方能够触发回调处理逻辑。
+    提交 81c45976db532324b5a0918a70decc19520dc354 拒绝旧版原始卡片命令载荷，
+    确保回调保持在正常配对路径上。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 81c45976db532324b5a0918a70decc19520dc354 在 main 分支修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：81c45976db532324b5a0918a70decc19520dc354
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-77w2-crqv-cmv3
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-77w2-crqv-cmv3
