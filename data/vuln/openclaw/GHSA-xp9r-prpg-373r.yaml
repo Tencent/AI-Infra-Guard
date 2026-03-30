@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xp9r-prpg-373r
+  summary: OpenClaw `browser.request` 在 `operator.write` 接口仍允许调用 `POST /reset-profile`
+  details: "> 已在 OpenClaw 2026.3.24（当前正式发布版本）中修复。\n\n标题\r\n\r\nOpenClaw v2026.3.22 修复 GHSA-vmhq-cqm9-6p7q 后，browser.request\
+    \ 在 operator.write 接口仍允许调用 POST /reset-profile\r\n\r\n严重性评估\r\n\r\n高危\r\n\r\nCWE：\r\n\r\n- CWE-863：不正确授权\r\n\r\n建议 CVSS\
+    \ v3.1：\r\n\r\n- 8.1（CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H）\r\n\r\n仅持有 Gateway 方法 browser.request 在 operator.write\
+    \ 接口访问权限的已认证调用方，仍可触达具有破坏性的持久化配置文件管理路由。\r\n\r\n可能关联的公告系列：\r\n\r\n- GHSA-vmhq-cqm9-6p7q\r\n\r\n此问题应视为后续版本中的残余漏洞或不完整修复。早期修复已阻止\
+    \ POST /profiles/create 和配置文件删除操作，但最新发布的 v2026.3.22 代码仍未将 POST /reset-profile 纳入同一变更操作门控。\r\n\r\n安全影响\r\n\r\n持有 operator.write\
+    \ 访问权限的 browser.request 调用方仍可通过 POST /reset-profile 触发持久化配置文件重置。\r\n\r\n这跨越了浏览器配置文件管理的预期权限边界，因为该版本已尝试在同一接口上阻止相邻的持久化配置文件变更操作。\r\
+    \n\r\n实际上，该允许路由可触达具有破坏性的行为：\r\n\r\n- 停止该配置文件对应的运行中浏览器\r\n- 关闭该配置文件的 Playwright 浏览器连接\r\n- 将配置文件的本地 userDataDir 移至垃圾箱（若存在）\r\
+    \n\r\n这对持久化浏览器状态造成真实的完整性和可用性影响，而非仅为路由分类错误且无实际副作用的问题。\r\n\r\n受影响组件\r\n\r\n产品：\r\n\r\n- openclaw\r\n\r\n已测试的最新发布版本：\r\
+    \n\r\n- 发布标签：v2026.3.22\r\n- 发布标签目标提交（解引用后）：e7d11f6c33e223a0dd8a21cfe01076bd76cef87a\r\n\r\n该版本的发布产物：\r\n\r\n- 包名：openclaw-2026.3.22.tgz\r\
+    \n- 包构建信息提交：4dcc39c25c6cc63fedfd004f52d173716576fcf0\r\n- 包构建信息时间戳：2026-03-23T10:56:05.946Z\r\n\r\n已发布标签的确切漏洞路径..."
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xp9r-prpg-373r
+rule: version <= "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xp9r-prpg-373r

@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g86v-f9qv-rh6m
+  summary: OpenClaw SSRF 防护遗漏四个 IPv6 特殊用途地址段
+  details: >-
+    摘要
+
+
+    SSRF/IP 分类器将多个 IPv6 特殊用途地址段误判为公网地址，导致对这些地址的请求被放行。
+
+
+    影响
+
+
+    能够控制被抓取 URL 的攻击者可将请求指向本应被 SSRF 防护拦截的内网或不可路由 IPv6 地址。
+
+
+    受影响组件
+
+
+    src/shared/net/ip.ts, src/infra/net/ssrf.*
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 d61f8e5672 修复（Net：封锁遗漏的 IPv6 特殊用途地址段）。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:N/A:N
+  severity: LOW
+  security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 d61f8e5672 修复（Net：封锁遗漏的 IPv6 特殊用途地址段）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g86v-f9qv-rh6m
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g86v-f9qv-rh6m

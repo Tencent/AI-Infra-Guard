@@ -1,0 +1,32 @@
+info:
+  name: OpenClaw
+  cve: GHSA-36h3-7c54-j27r
+  summary: OpenClaw 浏览器追踪/下载路径临时输出处理中存在符号链接逃逸漏洞
+  details: >-
+    漏洞概述
+
+    浏览器追踪/下载输出路径处理逻辑允许通过符号链接根路径和符号链接父路径逃逸出受管理的临时目录根路径。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - 最新已发布 npm 版本：2026.2.24
+
+    - 受影响版本：<= 2026.2.24
+
+    - 计划修复版本：2026.2.25
+
+
+    安全影响
+
+    攻击者若已获取本地立足点并能影响输出路径，可通过符号链接遍历将写操作路由至预期临时目录根路径之外，从而导致任意文件覆写。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。相关提交 - 496a76c03ba85e15ea715e5a583e498ae04d36e3
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-36h3-7c54-j27r
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-36h3-7c54-j27r

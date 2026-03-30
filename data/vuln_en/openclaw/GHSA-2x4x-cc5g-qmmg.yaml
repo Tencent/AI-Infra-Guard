@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2x4x-cc5g-qmmg
+  summary: OpenClaw node.pair.approve missing callerScopes validation allows low-privilege operator to approve malicious nodes
+  details: >-
+    Summary
+
+
+    The node pairing approval path did not consistently enforce that the approving caller already held every scope requested
+    by the node.
+
+
+    Impact
+
+
+    A lower-privileged operator could approve a pending node request for broader scopes and extend privileges onto the paired
+    node.
+
+
+    Affected Component
+
+
+    src/infra/node-pairing.ts, src/gateway/server-methods/nodes.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 4d7cc6bb4f (gateway: restrict node pairing approvals).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 4d7cc6bb4f (gateway: restrict node pairing
+    approvals).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2x4x-cc5g-qmmg
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2x4x-cc5g-qmmg

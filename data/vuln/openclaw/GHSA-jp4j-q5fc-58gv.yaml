@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jp4j-q5fc-58gv
+  summary: OpenClaw Discord 组件交互入口绕过服务器/频道访问策略强制检查
+  details: >-
+    摘要
+
+
+    Discord 按钮及组件交互入口未能一致性地重新应用与普通入站消息相同的服务器（guild）和频道（channel）策略控制。
+
+
+    影响
+
+
+    用户可从本应被 Discord 频道策略拦截的上下文中触发特权组件操作。
+
+
+    受影响组件
+
+
+    extensions/discord/src/monitor/agent-components.ts
+
+
+    修复版本
+
+
+    - 受影响版本：>= 2026.2.14, <= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 511093d4b3 修复（Discord：对组件交互应用策略控制）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 511093d4b3 修复（Discord：对组件交互应用策略控制）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv

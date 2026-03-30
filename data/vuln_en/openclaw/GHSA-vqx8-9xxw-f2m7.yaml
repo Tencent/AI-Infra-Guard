@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vqx8-9xxw-f2m7
+  summary: OpenClaw voice-call Twilio webhook replay could bypass manager dedupe because normalized event IDs were randomized
+    per parse
+  details: >-
+    Impact
+
+    Twilio webhook replay events could bypass voice-call manager dedupe because normalized event IDs were randomized per parse.
+    A replayed event could be treated as new and trigger duplicate or stale call-state transitions.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <= 2026.2.22-2
+
+    - Patched version (released): >= 2026.2.23
+
+
+    Remediation
+
+    The fix preserves provider event IDs through normalization, adds bounded replay dedupe in webhook security validation,
+    and enforces per-call turn-token checks on call-state transitions.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Commit(s) - 1d28da55a5d0ff409e34999e0961157e9db0a2ab
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vqx8-9xxw-f2m7
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vqx8-9xxw-f2m7

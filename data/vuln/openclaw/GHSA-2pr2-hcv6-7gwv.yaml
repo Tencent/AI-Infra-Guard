@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2pr2-hcv6-7gwv
+  summary: OpenClaw 设备移除及令牌吊销操作未终止已建立的 WebSocket 活跃会话
+  details: >-
+    摘要
+
+
+    移除设备或吊销其令牌时，系统仅更新了存储的凭据，但未断开已通过身份验证的 WebSocket 活跃连接。
+
+
+    影响
+
+
+    已被吊销凭据的设备可继续利用其现有在线会话保持访问，直至下次重连，导致凭据吊销后访问权限未能及时终止。
+
+
+    受影响组件
+
+
+    src/gateway/server-methods/devices.ts, src/gateway/server.impl.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 7a801cc451 修复（Gateway：断开已吊销设备的活跃会话）。
+  cvss: ''
+  severity: HIGH
+  security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 7a801cc451 修复（Gateway：断开已吊销设备的活跃会话）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2pr2-hcv6-7gwv
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2pr2-hcv6-7gwv

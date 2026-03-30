@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8689-gm9g-jgr6
+  summary: OpenClaw 语音通话 Plivo V3 Webhook 重放缓存键使用未排序 URL，攻击者可通过重排查询参数实施重放攻击
+  details: >-
+    漏洞概述
+
+
+    Plivo V3 签名验证对查询参数顺序进行了规范化处理，但重放检测对原始验证 URL 进行哈希计算。重排查询参数后，原有签名仍然有效，但会生成新的重放缓存键，从而绕过重放防护机制。
+
+
+    影响
+
+
+    攻击者捕获一个有效的已签名 Plivo V3 Webhook 请求后，可通过调换查询参数顺序重放同一事件，触发重复的语音通话处理流程。
+
+
+    受影响组件
+
+
+    extensions/voice-call/src/webhook-security.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 85777e726c 修复（语音通话：规范化 Plivo V3 重放缓存键）。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。通过提交 85777e726c 修复（语音通话：规范化 Plivo V3 重放缓存键）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8689-gm9g-jgr6
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8689-gm9g-jgr6

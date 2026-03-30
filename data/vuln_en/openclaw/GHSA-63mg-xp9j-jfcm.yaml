@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-63mg-xp9j-jfcm
+  summary: OpenClaw Google Chat and Zalouser group sender allowlist bypass via policy downgrade
+  details: >-
+    Summary
+
+
+    When only a route-level group allowlist was configured, sender policy resolution silently downgraded from allowlist to
+    open instead of preserving the configured group policy.
+
+
+    Impact
+
+
+    Any member of an allowlisted Google Chat space or Zalouser group could interact with the bot even when the operator intended
+    sender-level restrictions.
+
+
+    Affected Component
+
+
+    extensions/googlechat/src/monitor-access.ts, extensions/zalouser/src/monitor.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit e64a881ae0 (Channels: preserve routed group policy).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit e64a881ae0 (Channels: preserve routed group
+    policy).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-63mg-xp9j-jfcm
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-63mg-xp9j-jfcm

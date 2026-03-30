@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-39mp-545q-w789
+  summary: OpenClaw 非所有者的命令授权发送方可篡改仅限所有者操作的 `/send` 会话投递策略
+  details: "> 已在 OpenClaw 2026.3.24（当前正式发布版本）中修复。\n\n标题\r\n非所有者的命令授权发送方可篡改仅限所有者操作的 /send 会话投递策略\r\n\r\nCWE\r\nCWE-285\
+    \ 不当授权\r\n\r\nCVSS v3.1\r\nCVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:L\r\n基础评分：5.4（中危）\r\n\r\n严重性评估\r\n中危。这是一个真实存在的仅限所有者操作授权绕过漏洞，但已验证的影响仅限于对当前会话投递策略的持久化篡改，不涉及直接代码执行、沙箱逃逸或跨主机攻击。\r\
+    \n\r\n安全影响\r\n允许执行命令的非所有者发送方可调用 /send on|off|inherit 并持久化修改当前会话的 sendPolicy，尽管 OpenClaw 文档明确将 /send 定义为仅限所有者操作。\r\n\r\n这使低信任级别的参与者能够：\r\
+    \n- 禁用当前会话的回复投递（/send off），抑制该会话中的后续回复；\r\n- 在所有者有意禁用后重新启用回复投递（/send on）；\r\n- 移除会话覆盖设置（/send inherit）。\r\n\r\n受影响组件\r\
+    \n已在最新发布的 GitHub 版本标签 v2026.3.23（ccfeecb6887cd97937e33a71877ad512741e82b2，发布于 2026-03-23T23:15:50Z）上验证。\r\n\r\n已发布标签的确切漏洞路径：\r\
+    \n- src/auto-reply/reply/commands-session.ts:212-239\r\n  - handleSendPolicyCommand(...) 仅校验 params.command.isAuthorizedSender。\r\
+    \n  - 当值为 true 时，直接修改 params.sessionEntry.sendPolicy 并持久化会话条目。\r\n\r\n导致漏洞可触达的授权行为：\r\n- src/auto-reply/command-auth.ts:401-407\r\
+    \n  - senderIsOwner 与通用命令授权分开计算。\r\n- src/auto-reply/command-auth.ts:420-429\r\n  - 即使 senderIsOwner === false，命令授权仍可成功。\r\
+    \n- src/auto-reply/command-auth.owner-default.test.ts:10-47\r\n  - 现有测试覆盖已确认，发送方可在非所有者身份下获得命令授权。\r\n\r\n文档化的仅限所有者约定：\r\n- docs/tools/slash-commands.md:112\r\
+    \n  - /send on|o..."
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-39mp-545q-w789
+rule: version <= "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-39mp-545q-w789
