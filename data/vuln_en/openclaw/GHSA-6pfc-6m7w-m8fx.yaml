@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6pfc-6m7w-m8fx
+  summary: OpenClaw Gateway exec allowlist allow-always bypass via unregistered /usr/bin/script wrapper
+  details: >-
+    Summary
+
+
+    Allow-always persistence did not unwrap /usr/bin/script and similar wrappers to the actual executed target before storing
+    trust decisions.
+
+
+    Impact
+
+
+    A user approval for one wrapped command could persist trust for a wrapper binary that later executed a different underlying
+    program.
+
+
+    Affected Component
+
+
+    src/infra/dispatch-wrapper-resolution.ts, src/infra/exec-wrapper-resolution.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 83da3cfe31 (infra: unwrap script wrapper approval targets).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 83da3cfe31 (infra: unwrap script wrapper approval
+    targets).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6pfc-6m7w-m8fx
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6pfc-6m7w-m8fx

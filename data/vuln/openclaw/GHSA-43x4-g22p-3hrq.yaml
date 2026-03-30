@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-43x4-g22p-3hrq
+  summary: OpenClaw Chrome --no-sandbox 参数在沙箱浏览器容器中禁用了操作系统级浏览器沙箱
+  details: >-
+    漏洞概述
+
+    沙箱浏览器容器默认以 --no-sandbox 参数启动 Chromium，从而禁用了 Chromium 的操作系统级沙箱保护机制。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm 生态系统）
+
+    - 分流时（2026-02-21）最新已发布 npm 版本：2026.2.19-2
+
+    - 受影响范围：<= 2026.2.19-2
+
+    - 下一版本计划修复版本：2026.2.21
+
+
+    安全影响
+
+    当 --no-sandbox 默认启用时，渲染进程遭受攻击后无需额外的沙箱逃逸步骤。这削弱了容器浏览器的隔离性，并放大了渲染端漏洞的危害程度。
+
+
+    修复方案
+
+    - 从沙箱浏览器入口点移除默认的 --no-sandbox 参数。
+
+    - 通过 OPENCLAW_BROWSER_NO_SANDBOX / CLAWDBOT_BROWSER_NO_SANDBOX 环境变量提供显式启用选项。
+
+    - 新增浏览器容器哈希迁移及安全审计检查机制，以便及时发现并重建过期容器。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.21 或更高版本。相关提交 - e7eba01efc4c3c400e9cfd3ce3d661cbc788a631 - 1835dec2004fe7a62c6a7ba46b8485f124ec6199
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-43x4-g22p-3hrq
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-43x4-g22p-3hrq

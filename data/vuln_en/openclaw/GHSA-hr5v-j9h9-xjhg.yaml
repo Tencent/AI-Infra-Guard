@@ -1,0 +1,81 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hr5v-j9h9-xjhg
+  summary: OpenClaw Sandbox Media Root Bypass via Unnormalized `mediaUrl` / `fileUrl` Parameter Keys (CWE-22)
+  details: >-
+    > Fixed in OpenClaw 2026.3.24, the current shipping release.
+
+
+    Advisory Details
+
+    Title: Sandbox Media Root Bypass via Unnormalized mediaUrl / fileUrl Parameter Keys (CWE-22)
+
+
+    Description:
+
+    Summary
+
+    A path traversal vulnerability in the agent sandbox enforcement allows a sandboxed agent to read arbitrary files from
+    other agents' workspaces by using the mediaUrl or fileUrl parameter key in message tool calls. The normalizeSandboxMediaParams
+    function only checks ["media", "path", "filePath"] keys, while mediaUrl and fileUrl escape normalization entirely. Combined
+    with handlePluginAction dropping mediaLocalRoots from the dispatch context, this enables a full sandbox escape where any
+    agent can read files outside its designated sandbox root.
+
+
+    Details
+
+    The vulnerability exists in two files within the messaging pipeline:
+
+
+    1. Incomplete parameter key coverage in normalizeSandboxMediaParams:
+
+
+    In src/infra/outbound/message-action-params.ts, the function iterates over a hardcoded allowlist of parameter keys to
+    validate:
+
+
+    ``typescript
+
+    // Line 212
+
+    const mediaKeys: Array<"media" | "path" | "filePath"> = ["media", "path", "filePath"];
+
+    `
+
+
+    The mediaUrl and fileUrl parameter keys are not included in this array. These keys are actively used by multiple channel
+    extensions (Discord, Telegram, Slack, Matrix, Twitch) for media attachment handling, but they completely bypass the sandbox
+    path validation performed by resolveSandboxedMediaSource.
+
+
+    2. Dropped mediaLocalRoots in handlePluginAction:
+
+
+    In src/infra/outbound/message-action-runner.ts, the handlePluginAction function dispatches actions to channel plugins
+    but omits mediaLocalRoots from the context:
+
+
+    `typescript
+
+    // Lines 684-697
+
+    const handled = await dispatchChannelMessageAction({
+        channel,
+        action,
+        cfg,
+        params,
+        accountId: accountId ?? undefined,
+        requesterSenderId: input.requesterSenderId ?? undefined,
+        sessionKey: input.sessionKey,
+        sessionId: input.sessionId,
+        agentId,
+        gateway,
+        toolContext: input.tool...
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hr5v-j9h9-xjhg
+rule: version <= "2026.3.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hr5v-j9h9-xjhg
