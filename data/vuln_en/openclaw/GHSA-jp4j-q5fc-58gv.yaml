@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jp4j-q5fc-58gv
+  summary: OpenClaw Discord component interaction ingress skips guild/channel policy enforcement
+  details: >-
+    Summary
+
+
+    Discord button and component interaction ingress did not consistently reapply the same guild and channel policy gates
+    used for normal inbound messages.
+
+
+    Impact
+
+
+    Users could trigger privileged component actions from contexts that should have been blocked by Discord channel policy.
+
+
+    Affected Component
+
+
+    extensions/discord/src/monitor/agent-components.ts
+
+
+    Fixed Versions
+
+
+    - Affected: >= 2026.2.14, <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 511093d4b3 (Discord: apply component interaction policy gates).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 511093d4b3 (Discord: apply component interaction
+    policy gates).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv

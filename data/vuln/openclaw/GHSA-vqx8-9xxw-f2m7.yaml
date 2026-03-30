@@ -1,0 +1,30 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vqx8-9xxw-f2m7
+  summary: OpenClaw 语音通话 Twilio Webhook 重放攻击可绕过管理器去重机制，原因为规范化事件 ID 每次解析时被随机化
+  details: >-
+    影响
+
+    Twilio Webhook 重放事件可绕过语音通话管理器的去重机制，因为规范化事件 ID 在每次解析时被随机化。重放的事件可能被当作新事件处理，从而触发重复或过时的通话状态转换。
+
+
+    受影响的软件包与版本
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.22-2
+
+    - 已修复版本（已发布）：>= 2026.2.23
+
+
+    修复方案
+
+    该修复通过规范化处理保留服务提供商事件 ID，在 Webhook 安全验证中新增有界重放去重机制，并对通话状态转换强制执行每通话轮次令牌检查。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.23 或更高版本。相关提交：1d28da55a5d0ff409e34999e0961157e9db0a2ab
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vqx8-9xxw-f2m7
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vqx8-9xxw-f2m7

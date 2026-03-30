@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2pr2-hcv6-7gwv
+  summary: OpenClaw Device removal and token revocation do not terminate active WebSocket sessions
+  details: >-
+    Summary
+
+
+    Removing a device or revoking its token updated stored credentials but did not disconnect already-authenticated WebSocket
+    sessions.
+
+
+    Impact
+
+
+    A revoked device could continue using its existing live session until reconnect, extending access beyond credential removal.
+
+
+    Affected Component
+
+
+    src/gateway/server-methods/devices.ts, src/gateway/server.impl.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 7a801cc451 (Gateway: disconnect revoked device sessions).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 7a801cc451 (Gateway: disconnect revoked device
+    sessions).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2pr2-hcv6-7gwv
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2pr2-hcv6-7gwv

@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6rcp-vxwf-3mfp
+  summary: OpenClaw system.run shell-wrapper positional argv carriers could execute hidden commands under misleading approval
+    text
+  details: >-
+    Summary
+
+    In openclaw up to and including 2026.2.23 (latest npm release as of February 25, 2026), system.run shell-wrapper inputs
+    could present misleading approval/display text while still carrying hidden positional argv payloads that execute at runtime.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.23
+
+    - Patched: >= 2026.2.24 (planned next release)
+
+
+    Root Cause
+
+    For shell-wrapper forms (for example /bin/sh -c ...), command-text binding could focus on inline shell payload text while
+    runtime execution still used the full argv vector. Positional argv carriers after the inline payload could therefore be
+    executed under incomplete display context.
+
+
+    Security Impact
+
+    Approval/display context could omit executed argv carriers, enabling hidden command execution under misleading operator-visible
+    text.
+
+
+    Fix
+
+    - Detect shell-wrapper inline-command forms that carry trailing positional argv values.
+
+    - Bind approval/display command text to full formatted argv for those carrier forms.
+
+    - Reject payload-only rawCommand values when they do not match the execution-bound argv context for those forms.
+
+    - Forward canonical command display text to the macOS companion exec host and validate rawCommand/argv consistency there
+    for carrier wrappers and env-modifier shell preludes.
+
+
+    Verification
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+
+    - pnpm vitest run src/infra/system-run-command.test.ts src/node-host/invoke-system-run.test.ts src/cli/nodes-cli.coverage.test.ts
+    src/gateway/node-invoke-system-run-approval.test.ts
+
+    - cd apps/macos && swift test --filter ExecSystemRunCommandValidatorTests
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.24 or later. - Detect shell-wrapper inline-command forms that carry trailing
+    positional argv values. - Bind approval/display command text to full formatted argv for those carrier forms. - Reject
+    payload-only rawCommand values when they do not match the execution-bound argv context for those forms.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6rcp-vxwf-3mfp
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6rcp-vxwf-3mfp

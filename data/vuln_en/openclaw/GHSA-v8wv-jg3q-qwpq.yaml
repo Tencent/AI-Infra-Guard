@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v8wv-jg3q-qwpq
+  summary: OpenClaw message tool media parameter bypasses tool policy filesystem isolation
+  details: >-
+    Summary
+
+
+    The message tool accepted mediaUrl and fileUrl aliases without applying the same sandbox localRoots validation as the
+    canonical media path handling.
+
+
+    Impact
+
+
+    A caller constrained to sandbox media roots could read arbitrary local files by routing them through the alias parameters.
+
+
+    Affected Component
+
+
+    src/infra/outbound/message-action-params.ts, src/infra/outbound/message-action-runner.ts
+
+
+    Fixed Versions
+
+
+    - Affected: < 2026.3.24
+
+    - Patched: >= 2026.3.24
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 1d7cb6fc03 (fix: close sandbox media root bypass for mediaUrl/fileUrl aliases).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.24 or later. Fixed by commit 1d7cb6fc03 (fix: close sandbox media root bypass
+    for mediaUrl/fileUrl aliases).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v8wv-jg3q-qwpq
+rule: version < "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v8wv-jg3q-qwpq

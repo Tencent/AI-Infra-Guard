@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v2v2-f783-358j
+  summary: OpenClaw Zalo channel downloads media before sender authorization
+  details: >-
+    Summary
+
+
+    The Zalo image path fetched and stored inbound media before the DM/pairing authorization checks ran.
+
+
+    Impact
+
+
+    Unauthorized senders could force network fetches and disk writes in the inbound media store even when the message itself
+    was rejected.
+
+
+    Affected Component
+
+
+    extensions/zalo/src/monitor.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 68ceaf7a5f (zalo: gate image downloads before DM auth).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 68ceaf7a5f (zalo: gate image downloads before
+    DM auth).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v2v2-f783-358j
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v2v2-f783-358j
