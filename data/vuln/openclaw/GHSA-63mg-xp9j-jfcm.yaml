@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-63mg-xp9j-jfcm
+  summary: OpenClaw Google Chat 与 Zalouser 群组发送方白名单可通过策略降级被绕过
+  details: >-
+    漏洞概述
+
+
+    当仅配置了路由级群组白名单时，发送方策略解析会静默地从白名单模式降级为开放模式，而非保留已配置的群组策略。
+
+
+    影响
+
+
+    即使运营方配置了发送方级别的访问限制，已加入白名单 Google Chat 空间或 Zalouser 群组的任意成员仍可与机器人交互。
+
+
+    受影响组件
+
+
+    extensions/googlechat/src/monitor-access.ts, extensions/zalouser/src/monitor.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 e64a881ae0 修复（渠道：保留路由群组策略）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。通过提交 e64a881ae0 修复（渠道：保留路由群组策略）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-63mg-xp9j-jfcm
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-63mg-xp9j-jfcm

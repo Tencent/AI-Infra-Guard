@@ -1,0 +1,20 @@
+info:
+  name: pinchtab
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: PinchTab is a standalone HTTP server that gives AI agents direct control over a Chrome browser via a REST API and built-in web dashboard.
+  metadata:
+    product: pinchtab
+    vendor: pinchtab
+http:
+  - method: GET
+    path: '/instances'
+    matchers:
+      - 'header="WWW-Authenticate: Bearer realm=\"pinchtab\""'
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"([^"]+)"'

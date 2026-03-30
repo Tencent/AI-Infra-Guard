@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-792q-qw95-f446
+  summary: OpenClaw Signal reaction-only status events could, in limited cases, be enqueued before access checks
+  details: "Summary\nIn a narrow Signal reaction-notification path, reaction-only inbound events could enqueue a status event\
+    \ before sender access checks were applied.\n\nAffected Packages / Versions\n- Package: openclaw (npm)\n- Affected: <=\
+    \ 2026.2.24 (latest published at patch time)\n- Fixed: 2026.2.25 \n\nDetails\nIn the affected flow (src/signal/monitor/event-handler.ts),\
+    \ reaction-only handling could return after enqueueSystemEvent(...) before DM/group authorization checks were evaluated\
+    \ for that sender.\n\nThis behavior was limited to reaction-only inbound events with reaction notifications enabled. In\
+    \ that case, a sender not authorized for normal DM flow could still queue a Signal reaction status line for that session.\n\
+    \nThe fix applies shared DM/group access checks before reaction notification enqueue. Pairing behavior for normal DM messages\
+    \ is unchanged.\n\nImpact\n- Limited to Signal reaction-only inbound events.\n- Could add an unauthorized reaction status\
+    \ line to agent context for affected sessions.\n- Did not directly enable normal DM delivery or direct host command execution."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 2aa7842adeedef423be7ce283a9144b9f1a0a669
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-792q-qw95-f446
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-792q-qw95-f446

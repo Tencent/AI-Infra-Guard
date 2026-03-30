@@ -1,0 +1,29 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vqvg-86cc-cg83
+  summary: OpenClaw Mutating internal `/allowlist` chat commands missed `operator.admin` scope enforcement
+  details: "> Fixed in OpenClaw 2026.3.24, the current shipping release.\n\nTitle  \r\nMutating internal /allowlist chat commands\
+    \ missed operator.admin scope enforcement\r\n\r\nCWE  \r\nCWE-862 Missing Authorization\r\n\r\nCVSS v3.1  \r\nCVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N\
+    \  \r\nBase score: 6.5 (Medium)\r\n\r\nSeverity Assessment  \r\nMedium. This is a real authorization flaw in OpenClaw’s\
+    \ internal control plane. The issue does not require host access, trusted local state tampering, or multi-tenant assumptions,\
+    \ but exploitation does require an already authenticated internal Gateway caller with operator.write.\r\n\r\nImpact  \r\
+    \nAn authenticated internal Gateway caller limited to operator.write can perform state-changing /allowlist actions without\
+    \ operator.admin, even though comparable mutating internal chat commands already require operator.admin. The reachable\
+    \ effects are persistent changes to config-backed allowFrom entries and pairing-store-backed allowlist entries.\r\n\r\n\
+    This is not a semantic-modeling complaint and not a generic “trusted operator can do things” claim. It is a missing authorization\
+    \ check inside OpenClaw’s own internal scope model, where peer mutating command surfaces already distinguish operator.write\
+    \ from operator.admin.\r\n\r\nAffected Component  \r\nVerified against the latest published GitHub release tag v2026.3.23\
+    \ (ccfeecb6887cd97937e33a71877ad512741e82b2), published 2026-03-23T23:15:50Z.\r\n\r\nExact vulnerable path on the shipped\
+    \ tag:\r\n- src/auto-reply/reply/commands-allowlist.ts:251-254\r\n  - /allowlist authorization uses only rejectUnauthorizedCommand(...).\r\
+    \n- src/auto-reply/reply/commands-allowlist.ts:386-524\r\n  - mutating config and pairing-store writes happen here, but\
+    \ there is no requireGatewayClientScopeForInternalChannel(..., operator.admin, ...).\r\n\r\nReachability and scope model:\r\
+    \n- src/gateway/method-scopes.ts:94-109\r\n  - chat.send is a write-scoped method.\r\n- src/gateway/server.chat.gateway-server-chat.test.ts:539-559\r\
+    \n  - existing runtime coverage proves chat.send routes sla..."
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83
+rule: version <= "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83
