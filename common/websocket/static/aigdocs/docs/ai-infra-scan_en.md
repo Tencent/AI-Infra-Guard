@@ -68,7 +68,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | **LLM App Frameworks**     | langchain               | 51                  | High        |
 |                            | dify                    | 21                  | High        |
 |                            | anythingllm             | 16                  | Medium-High |
-|                            | open-webui              | 40                  | Medium-High |
+|                            | open-webui              | 39                  | Medium-High |
 |                            | ragflow                 | 11                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
 |                            | langflow                | 24                  | Medium      |
