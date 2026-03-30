@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vqvg-86cc-cg83
+  summary: OpenClaw 变更性内部 `/allowlist` 聊天命令缺失 `operator.admin` 权限作用域强制校验
+  details: "> 已在 OpenClaw 2026.3.24（当前正式发布版本）中修复。\n\n标题\r\n变更性内部 /allowlist 聊天命令缺失 operator.admin 权限作用域强制校验\r\n\r\nCWE\r\
+    \nCWE-862 缺失授权\r\n\r\nCVSS v3.1\r\nCVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N\r\n基础评分：6.5（中危）\r\n\r\n严重性评估\r\n中危。这是\
+    \ OpenClaw 内部控制平面中真实存在的授权缺陷。该问题不需要主机访问权限、可信本地状态篡改或多租户假设，但利用该漏洞需要已完成认证且持有 operator.write 权限的内部 Gateway 调用方。\r\n\r\n安全影响\r\
+    \n仅持有 operator.write 权限的已认证内部 Gateway 调用方可在不具备 operator.admin 权限的情况下执行变更性 /allowlist 操作，尽管同类变更性内部聊天命令已要求 operator.admin\
+    \ 权限。可触达的影响包括：对基于配置存储的 allowFrom 条目和基于配对存储的白名单条目进行持久化修改。\r\n\r\n这不是语义建模层面的抱怨，也不是泛化的"受信任运营商可执行操作"声明。这是 OpenClaw\
+    \ 自身内部权限模型中缺失的授权校验——而同类变更性命令接口已区分了 operator.write 与 operator.admin 的权限边界。\r\n\r\n受影响组件\r\n已在最新发布的 GitHub 版本标签 v2026.3.23（ccfeecb6887cd97937e33a71877ad512741e82b2，发布于\
+    \ 2026-03-23T23:15:50Z）上验证。\r\n\r\n已发布标签的确切漏洞路径：\r\n- src/auto-reply/reply/commands-allowlist.ts:251-254\r\n\
+    \  - /allowlist 授权仅使用 rejectUnauthorizedCommand(...)。\r\n- src/auto-reply/reply/commands-allowlist.ts:386-524\r\n\
+    \  - 变更性配置和配对存储写入在此处发生，但缺少 requireGatewayClientScopeForInternalChannel(..., operator.admin, ...) 校验。\r\n\r\n可达性与权限模型：\r\
+    \n- src/gateway/method-scopes.ts:94-109\r\n  - chat.send 是写权限方法。\r\n- src/gateway/server.chat.gateway-server-chat.test.ts:539-559\r\
+    \n  - 现有运行时测试覆盖已证明 chat.send 路由了..."
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83
+rule: version <= "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83

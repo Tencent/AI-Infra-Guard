@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6rcp-vxwf-3mfp
+  summary: OpenClaw system.run shell 包装器位置参数载体可在误导性审批文本下执行隐藏命令
+  details: >-
+    漏洞概述
+
+    在 openclaw 2026.2.23 及以下版本（截至 2026 年 2 月 25 日的最新 npm 版本）中，system.run shell 包装器输入可展示具有误导性的审批/显示文本，同时在运行时仍携带隐藏的位置参数载体并予以执行。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.23
+
+    - 已修复版本：>= 2026.2.24（计划下次发布）
+
+
+    根本原因
+
+    对于 shell 包装器形式（例如 /bin/sh -c ...），命令文本绑定可能仅聚焦于内联 shell 载荷文本，而运行时执行仍使用完整的 argv 向量。内联载荷之后的位置参数载体因此可在不完整的显示上下文下被执行。
+
+
+    安全影响
+
+    审批/显示上下文可能遗漏已执行的 argv 载体，从而在具有误导性的操作员可见文本下实现隐藏命令执行。
+
+
+    修复方案
+
+    - 检测携带尾部位置 argv 值的 shell 包装器内联命令形式。
+
+    - 将审批/显示命令文本绑定到上述载体形式的完整格式化 argv。
+
+    - 对于上述形式，当仅有载荷的 rawCommand 值与执行绑定的 argv 上下文不匹配时，予以拒绝。
+
+    - 将规范化命令显示文本转发至 macOS 伴生 exec 宿主，并在载体包装器和环境变量修饰 shell 前导语场景下验证 rawCommand/argv 一致性。
+
+
+    验证方式
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+
+    - pnpm vitest run src/infra/system-run-command.test.ts src/node-host/invoke-system-run.test.ts src/cli/nodes-cli.coverage.test.ts
+    src/gateway/node-invoke-system-run-approval.test.ts
+
+    - cd apps/macos && swift test --filter ExecSystemRunCommandValidatorTests
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.24 或更高版本。- 检测携带尾部位置 argv 值的 shell 包装器内联命令形式。- 将审批/显示命令文本绑定到上述载体形式的完整格式化 argv。- 对于上述形式，当仅有载荷的 rawCommand 值与执行绑定的 argv 上下文不匹配时予以拒绝。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6rcp-vxwf-3mfp
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6rcp-vxwf-3mfp

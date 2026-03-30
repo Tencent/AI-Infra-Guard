@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rm2p-j3r7-4x4j
+  summary: OpenClaw Slack reaction/pin sender-policy consistency issue in non-message ingress
+  details: >-
+    Summary
+
+    OpenClaw Slack monitor handled reaction_* and pin_* non-message events before applying sender-policy checks consistently.
+
+
+    In affected versions, these events could be added to system-event context even when sender policy would not normally allow
+    them.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Latest published affected version confirmed: 2026.2.24 (npm latest as of February 26, 2026)
+
+    - Affected range: <= 2026.2.24
+
+    - Patched version : 2026.2.25
+
+
+    Technical Details
+
+    - reaction_* and pin_* handlers now route through shared sender authorization (authorizeSlackSystemEventSender).
+
+    - Enforced checks now include:
+      - DM dmPolicy / allowFrom
+      - channel users allowlist enforcement for non-DM channels
+      - channel-level allow checks before system-event enqueue
+    - Regression coverage added for DM allow/deny and channel-user allowlist deny paths.
+
+
+    Impact
+
+    Low-severity policy-consistency issue in Slack non-message event ingress.
+
+    This may introduce unexpected reaction/pin context signals from senders outside configured policy.
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - aedf62ac7e669a89c7b299201bf6537dc6b12e0e - 75dfb71e4e8b7c2feba5a8ca662f92ea840e0147
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rm2p-j3r7-4x4j
+rule: version <= "2026.2.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rm2p-j3r7-4x4j

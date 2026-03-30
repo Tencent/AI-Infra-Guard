@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9528-x887-j2fp
+  summary: OpenClaw Nextcloud Talk webhook missing rate limiting on shared secret authentication
+  details: >-
+    Summary
+
+
+    Nextcloud Talk webhook signature failures were not throttled even though the integration relies on an operator-configured
+    shared secret that may be weak.
+
+
+    Impact
+
+
+    An attacker who could reach the webhook endpoint could brute-force weak secrets online and then forge inbound webhook
+    events.
+
+
+    Affected Component
+
+
+    extensions/nextcloud-talk/src/monitor.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit e403decb6e (nextcloud-talk: throttle repeated webhook auth failures).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit e403decb6e (nextcloud-talk: throttle repeated
+    webhook auth failures).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9528-x887-j2fp
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9528-x887-j2fp

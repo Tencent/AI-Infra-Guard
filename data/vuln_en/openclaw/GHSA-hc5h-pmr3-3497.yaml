@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hc5h-pmr3-3497
+  summary: OpenClaw /pair approve command path omitted caller scope subsetting and reopened device pairing escalation
+  details: >-
+    Summary
+
+
+    The /pair approve command path called device approval without forwarding caller scopes into the core approval check.
+
+
+    Impact
+
+
+    A caller that held pairing privileges but not admin privileges could approve a pending device request asking for broader
+    scopes, including admin access.
+
+
+    Affected Component
+
+
+    extensions/device-pair/index.ts, src/infra/device-pairing.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 4ee4960de2 (Pairing: forward caller scopes during approval).
+  cvss: ''
+  severity: CRITICAL
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 4ee4960de2 (Pairing: forward caller scopes
+    during approval).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hc5h-pmr3-3497
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hc5h-pmr3-3497

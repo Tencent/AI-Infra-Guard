@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qxgf-hmcj-3xw3
+  summary: OpenClaw SSRF via unguarded image download in fal provider
+  details: >-
+    Summary
+
+
+    The fal provider used raw fetches for both provider API traffic and returned image download URLs instead of the existing
+    SSRF-guarded fetch path.
+
+
+    Impact
+
+
+    A malicious or compromised fal relay could make the gateway fetch internal URLs and expose metadata or internal service
+    responses through the image pipeline.
+
+
+    Affected Component
+
+
+    extensions/fal/image-generation-provider.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit 80d1e8a11a (fal: guard image fetches).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 80d1e8a11a (fal: guard image fetches).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qxgf-hmcj-3xw3
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qxgf-hmcj-3xw3

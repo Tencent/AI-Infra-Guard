@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v2v2-f783-358j
+  summary: OpenClaw Zalo 渠道在发送方授权校验前即下载媒体文件
+  details: >-
+    漏洞概述
+
+
+    Zalo 图片路径在私信/配对授权检查执行之前，已完成入站媒体文件的拉取与存储操作。
+
+
+    影响
+
+
+    未经授权的发送方即使消息本身被拒绝，也能强制触发网络请求并向入站媒体存储目录写入文件。
+
+
+    受影响组件
+
+
+    extensions/zalo/src/monitor.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 68ceaf7a5f 修复（zalo：在私信授权前拦截图片下载）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。通过提交 68ceaf7a5f 修复（zalo：在私信授权前拦截图片下载）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v2v2-f783-358j
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v2v2-f783-358j
