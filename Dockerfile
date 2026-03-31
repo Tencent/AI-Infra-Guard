@@ -38,8 +38,11 @@ COPY --from=builder /app/ai-infra-guard .
 COPY --from=builder /app/trpc_go.yaml .
 COPY --from=builder /app/CHANGELOG.md .
 
-# 复制数据文件到容器中
+# Copy data files into container
+# Also keep a bundled backup so start.sh can restore missing files
+# when the host volume mount (macOS/Windows Docker Desktop) overwrites /app/data
 COPY --from=builder /app/data ./data
+COPY --from=builder /app/data ./data_bundled
 
 # 复制agent-scan目录并安装Python依赖
 COPY ./agent-scan /app/agent-scan
