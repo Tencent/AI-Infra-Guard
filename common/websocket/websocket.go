@@ -55,7 +55,7 @@ func NewWSServer(options *options.Options) *WSServer {
 func (s *WSServer) HandleAIInfraWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		gologger.Errorln("升级WebSocket连接失败: %v\n", err)
+		gologger.Errorln("升级WebSocket连接失败:", err)
 		return
 	}
 	go s.handleMessages(conn)

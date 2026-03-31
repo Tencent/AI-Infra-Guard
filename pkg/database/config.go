@@ -63,7 +63,7 @@ func InitDB(config *Config) (*gorm.DB, error) {
 	//打开数据库连接 - 启用WAL模式和共享缓存以支持并发访问
 	db, err := gorm.Open(sqlite.Open(config.DBPath+"?_journal=WAL&_timeout=5000&cache=shared"), &gorm.Config{})
 	if err != nil {
-		gologger.WithError(err).Fatalln("无法打开数据库连接: %v", err)
+		gologger.WithError(err).Fatalln("无法打开数据库连接")
 	}
 	// 获取底层的SQL DB以配置连接池
 	sqlDB, err := db.DB()
