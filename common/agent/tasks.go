@@ -269,7 +269,7 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 
 	for _, file := range request.Attachments {
 		gologger.Infof(texts.downloadFileLog, file)
-		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d.%s", time.Now().UnixMicro(), filepath.Ext(file)))
+		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), filepath.Ext(file)))
 		// Verify the path is within tempDir to prevent path traversal
 		absTempDir, _ := filepath.Abs(tempDir)
 		absFileName, _ := filepath.Abs(fileName)
@@ -469,10 +469,16 @@ target count:%s
 	scanResults := make([]runner.CallbackScanResult, 0)
 	mu := sync.Mutex{}
 
-	processFunc := func(data interface{}) {
-		mu.Lock()
-		defer mu.Unlock()
+	// analysisWg waits for all concurrent AI-analysis / screenshot goroutines to finish
+	// before we compute the final score and report.
+	var analysisWg sync.WaitGroup
 
+	// analysisSem limits concurrent AI + screenshot goroutines to avoid overwhelming
+	// the model API or the screenshot service when there are many targets.
+	const maxConcurrentAnalysis = 5
+	analysisSem := make(chan struct{}, maxConcurrentAnalysis)
+
+	processFunc := func(data interface{}) {
 		switch v := data.(type) {
 		case runner.CallbackScanResult:
 			var log string
@@ -488,76 +494,89 @@ target count:%s
 
 			callbacks.ToolUseLogCallback(toolId02, texts.aiScannerTool, step02, log)
 
-			// AI模式下的额外分析
-			if model != nil {
-				status := uuid.NewString()
-				callbacks.StepStatusUpdateCallback(step02, status, AgentStatusRunning, texts.scanResult, "AI analysis")
+			// Run AI analysis and screenshot concurrently, outside the result mutex,
+			// so that multiple targets are processed in parallel instead of sequentially.
+			analysisWg.Add(1)
+			go func(result runner.CallbackScanResult, logMsg string) {
+				defer analysisWg.Done()
 
-				prompt := fmt.Sprintf("这是AI基础设施扫描的扫描结果，请你根据以下文本进行总结和归纳，你最后要补充一句(后面将调用未授权检测工具继续扫描,不需要一模一样的文字，大致意思是这样就可以):'我将进行截图分析,继续探索网页上可能的漏洞点'，扫描结果如下:\n%s\n", log)
-				if request.Language == "en" {
-					prompt += "## 返回使用全英文"
-				}
-				response, _ := model.ChatResponse(context.Background(), prompt)
-				callbacks.StepStatusUpdateCallback(step02, status, AgentStatusCompleted, texts.scanResult, response)
-			}
+				// Acquire semaphore slot
+				analysisSem <- struct{}{}
+				defer func() { <-analysisSem }()
 
-			// 截图和AI分析
-			newUuid := uuid.NewString()
-			func() {
-				callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusRunning, "A.I.G is Thinking", "")
-				defer callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusCompleted, "A.I.G Finished", "")
-
-				var screenshotData []byte
-				var vulInfo *vulstruct.Info
-				var summary string
-				var err error
-
+				// AI模式下的额外分析
 				if model != nil {
-					screenshotData, vulInfo, summary, err = runner.Analysis(v.TargetURL, v.Resp, request.Language, model)
-					if err != nil {
-						gologger.WithError(err).Errorf("AI分析失败: %v", err)
-						return
-					}
-					v.Reason = summary
-				} else {
-					screenshotData, err = runner.ScreenShot(v.TargetURL)
-					if err != nil {
-						gologger.WithError(err).Errorf("截图失败: %v", err)
-						return
-					}
-				}
+					status := uuid.NewString()
+					callbacks.StepStatusUpdateCallback(step02, status, AgentStatusRunning, texts.scanResult, "AI analysis")
 
-				if len(screenshotData) > 0 {
-					tmpPath := path.Join(os.TempDir(), fmt.Sprintf("%d.jpg", time.Now().UnixMicro()))
-					if err := os.WriteFile(tmpPath, screenshotData, 0644); err != nil {
-						gologger.WithError(err).Errorf("write file failed: %v", err)
-						return
-					}
-					info, err := utils.UploadFile(t.Server, tmpPath)
-					if err != nil {
-						gologger.WithError(err).Errorf("upload file failed: %v", err)
-						return
-					}
-					v.ScreenShot = "/api/v1/images/" + info.Data.FileUrl
-
-					if model != nil && vulInfo != nil && (vulInfo.Severity == "high" || vulInfo.Severity == "medium") {
-						v.Vulnerabilities = append(v.Vulnerabilities, *vulInfo)
-					}
-				}
-
-				// AI模式生成摘要
-				if model != nil {
-					vData, _ := json.Marshal(v.Vulnerabilities)
-					summaryPrompt := "根据以下我提供的漏洞信息，请总结一下发现x个漏洞，会导致xx业务风险，建议xx修复，几句简短的话概括，若未提供漏洞信息，就说目前暂时无漏洞发现。漏洞信息如下:\n" + string(vData)
+					prompt := fmt.Sprintf("这是AI基础设施扫描的扫描结果，请你根据以下文本进行总结和归纳，你最后要补充一句(后面将调用未授权检测工具继续扫描,不需要一模一样的文字，大致意思是这样就可以):'我将进行截图分析,继续探索网页上可能的漏洞点'，扫描结果如下:\n%s\n", logMsg)
 					if request.Language == "en" {
-						summaryPrompt += "## 返回使用全英文"
+						prompt += "## 返回使用全英文"
 					}
-					summary2, _ := model.ChatResponse(context.Background(), summaryPrompt)
-					v.Summary = summary2
+					response, _ := model.ChatResponse(context.Background(), prompt)
+					callbacks.StepStatusUpdateCallback(step02, status, AgentStatusCompleted, texts.scanResult, response)
 				}
-			}()
 
-			scanResults = append(scanResults, v)
+				// 截图和AI分析
+				newUuid := uuid.NewString()
+				func() {
+					callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusRunning, "A.I.G is Thinking", "")
+					defer callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusCompleted, "A.I.G Finished", "")
+
+					var screenshotData []byte
+					var vulInfo *vulstruct.Info
+					var summary string
+					var err error
+
+					if model != nil {
+						screenshotData, vulInfo, summary, err = runner.Analysis(result.TargetURL, result.Resp, request.Language, model)
+						if err != nil {
+							gologger.WithError(err).Errorf("AI分析失败: %v", err)
+							return
+						}
+						result.Reason = summary
+					} else {
+						screenshotData, err = runner.ScreenShot(result.TargetURL)
+						if err != nil {
+							gologger.WithError(err).Errorf("截图失败: %v", err)
+							return
+						}
+					}
+
+					if len(screenshotData) > 0 {
+						tmpPath := path.Join(os.TempDir(), fmt.Sprintf("%d.jpg", time.Now().UnixMicro()))
+						if err := os.WriteFile(tmpPath, screenshotData, 0644); err != nil {
+							gologger.WithError(err).Errorf("write file failed: %v", err)
+							return
+						}
+						info, err := utils.UploadFile(t.Server, tmpPath)
+						if err != nil {
+							gologger.WithError(err).Errorf("upload file failed: %v", err)
+							return
+						}
+						result.ScreenShot = "/api/v1/images/" + info.Data.FileUrl
+
+						if model != nil && vulInfo != nil && (vulInfo.Severity == "high" || vulInfo.Severity == "medium") {
+							result.Vulnerabilities = append(result.Vulnerabilities, *vulInfo)
+						}
+					}
+
+					// AI模式生成摘要
+					if model != nil {
+						vData, _ := json.Marshal(result.Vulnerabilities)
+						summaryPrompt := "根据以下我提供的漏洞信息，请总结一下发现x个漏洞，会导致xx业务风险，建议xx修复，几句简短的话概括，若未提供漏洞信息，就说目前暂时无漏洞发现。漏洞信息如下:\n" + string(vData)
+						if request.Language == "en" {
+							summaryPrompt += "## 返回使用全英文"
+						}
+						summary2, _ := model.ChatResponse(context.Background(), summaryPrompt)
+						result.Summary = summary2
+					}
+				}()
+
+				mu.Lock()
+				scanResults = append(scanResults, result)
+				mu.Unlock()
+			}(v, log)
 
 		case runner.CallbackErrorInfo:
 			callbacks.ToolUseLogCallback(toolId02, texts.aiScannerTool, step02, fmt.Sprintf(texts.errorTemplate, v.Target, v.Error))
@@ -577,6 +596,10 @@ target count:%s
 
 	// 执行扫描
 	r.RunEnumeration()
+
+	// Wait for all concurrent AI-analysis / screenshot goroutines to finish
+	// before computing the final score and generating the report.
+	analysisWg.Wait()
 
 	// 计算安全评分
 	advies := make([]vulstruct.Info, 0)
