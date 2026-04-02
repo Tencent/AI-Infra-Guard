@@ -39,6 +39,8 @@ from utils.loging import logger
 # 重要：导入 tools 包以触发工具注册
 import tools as _  # isort: skip
 
+_prompts = {"zh": "所有回复都应使用中文。", "en": "All responses should be in English."}
+
 
 def parse_args():
     """解析命令行参数"""
@@ -91,7 +93,7 @@ def parse_args():
         default=[],
     )
 
-    parser.add_argument("--language", default="zh", help="Output language (zh/en)")
+    parser.add_argument("--language", default="zh", choices=["zh", "en"], help="Output language")
 
     return parser.parse_args()
 
@@ -105,7 +107,7 @@ async def main():
     api_key = args.api_key or os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         logger.error(
-            "API Key not provided. Use --api-key or set OPENROUTER_API_KEY environment variable."
+            "API Key not provided. Use --api_key or set OPENROUTER_API_KEY environment variable."
         )
         sys.exit(1)
 
@@ -120,14 +122,9 @@ async def main():
     specialized_llms = llm_manager.get_specialized_llms(["thinking", "coding"])
     logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
 
-    # 创建 Agent 实例，传入专用模型
-
-    logger.info(f"Starting scan on: {args.repo}")
-    prompt = args.prompt
-    if args.language == "en":
-        prompt += "All responses should be in English."
-    elif args.language == "zh":
-        prompt += "所有回复都应使用中文。"
+    user_prompt = args.prompt.strip()
+    lang_prompt = _prompts.get(args.language, "")
+    prompt = f"{user_prompt}\n\n{lang_prompt}" if user_prompt else lang_prompt
     if prompt:
         logger.info(f"Custom prompt: {prompt}")
 
@@ -172,6 +169,8 @@ async def main():
             if not os.path.isdir(args.repo):
                 logger.error(f"Project path is not a directory: {args.repo}")
                 sys.exit(1)
+
+            logger.info(f"Starting scan on: {args.repo}")
             result = await agent.scan(args.repo, prompt)
             logger.info(f"Scan completed successfully:\n\n {result}")
     except KeyboardInterrupt:
@@ -182,9 +181,9 @@ async def main():
         logger.error(f"Error during execution: {e}")
         import traceback
 
-        traceback = traceback.format_exc()
-        mcpLogger.error_log(f"Execution failed: {e}\n{traceback}")
-        raise e
+        tb = traceback.format_exc()
+        mcpLogger.error_log(f"Execution failed: {e}\n{tb}")
+        raise
     finally:
         # 确保关闭资源
         if hasattr(agent, "dispatcher"):
@@ -192,7 +191,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    # 先解析参数以检查是否为 debug 模式
-    args = parse_args()
-    # 如果是 debug 模式，初始化 Laminar
     asyncio.run(main())
