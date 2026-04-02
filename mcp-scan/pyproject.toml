@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-scan"
+version = "0.1.0"
+description = "AI Agent based MCP code scanning and vulnerability detection tool."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Tencent Zhuque Lab" },
+]
+dependencies = [
+  "loguru==0.7.3",
+  "mcp>=1.23.0",
+  "openai==2.8.1",
+  "pydantic==2.12.4",
+  "python-dotenv==1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.11.5",
+]
+test = [
+  "requests>=2.32.0",
+  "starlette==0.50.0",
+  "uvicorn==0.38.0",
+]
+
+[tool.setuptools]
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+include = ["agent*", "tools*", "utils*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+  "prompt",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+]
+ignore = [
+  "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["F401"]
+"testcase/**/*.py" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
