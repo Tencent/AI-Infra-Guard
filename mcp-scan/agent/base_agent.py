@@ -17,37 +17,31 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import json
-import os.path
-import time
 import uuid
-from datetime import datetime
-from typing import List, Optional
+
 from tools.dispatcher import ToolDispatcher
-from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
-from utils.config import base_dir
+from utils.aig_logger import mcpLogger
 from utils.llm import LLM
 from utils.loging import logger
-from utils.parse import parse_tool_invocations, clean_content, parse_mcp_invocations
-from utils.tool_context import ToolContext
-from utils.aig_logger import mcpLogger
+from utils.parse import clean_content, parse_tool_invocations
 from utils.prompt_manager import prompt_manager
+from utils.tool_context import ToolContext
 
 
 class BaseAgent:
-
     def __init__(
-            self,
-            name: str,
-            instruction: str,
-            llm: LLM,
-            dispatcher: ToolDispatcher,
-            specialized_llms: dict = None,
-            log_step_id: str = None,
-            debug: bool = False,
-            capabilities: List[str] = None,
-            output_format: Optional[str] = None,
-            output_check_fn: callable = None,
-            language: str = "zh"
+        self,
+        name: str,
+        instruction: str,
+        llm: LLM,
+        dispatcher: ToolDispatcher,
+        specialized_llms: dict = None,
+        log_step_id: str = None,
+        debug: bool = False,
+        capabilities: list[str] = None,
+        output_format: str | None = None,
+        output_check_fn: callable = None,
+        language: str = "zh",
     ):
         self.llm = llm
         self.name = name
@@ -88,7 +82,9 @@ class BaseAgent:
         response = self.llm.chat(history)
 
         system_prompt = self.history[0]
-        user_messages = f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        user_messages = (
+            f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
+        )
         self.history = [system_prompt, {"role": "user", "content": user_messages}]
 
     async def generate_system_prompt(self):
@@ -99,7 +95,7 @@ class BaseAgent:
         format_kwargs = {
             "generate_tools": tools_prompt,
             "name": self.name,
-            "instruction": self.instruction
+            "instruction": self.instruction,
         }
 
         return prompt_manager.format_prompt(template_name, **format_kwargs)
@@ -155,8 +151,7 @@ class BaseAgent:
 
         if tool_name == "finish":
             self.is_finished = True
-            brief_content = tool_args.get("content", "")
-            logger.info(f"Finish tool called, final result formatted.")
+            logger.info("Finish tool called, final result formatted.")
             mcpLogger.status_update(self.step_id, description, "", "completed")
             # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
             result = await self._format_final_output()
@@ -171,7 +166,7 @@ class BaseAgent:
             iteration=self.iter,
             specialized_llms=self.specialized_llms,
             folder=self.repo_dir,
-            tool_dispatcher=self.dispatcher
+            tool_dispatcher=self.dispatcher,
         )
 
         # 通过 Dispatcher 调用工具
@@ -202,8 +197,7 @@ class BaseAgent:
         # 取最近的对话历史作为参考
         recent_history = self.history[1:]
         formatting_prompt = prompt_manager.format_prompt(
-            "format_report",
-            output_format=self.output_format
+            "format_report", output_format=self.output_format
         )
         recent_history.append({"role": "user", "content": formatting_prompt})
         final_output = ""

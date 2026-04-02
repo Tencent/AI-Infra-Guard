@@ -17,29 +17,30 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import inspect
-import copy
-from typing import Any, Dict, Optional, TYPE_CHECKING
-from tools.registry import get_tool_by_name, needs_context
-from utils.mcp_tools import MCPTools
+from typing import TYPE_CHECKING, Any, Optional
+
+from tools.registry import get_tool_by_name, get_tools_prompt, needs_context
 from utils.loging import logger
+from utils.mcp_tools import MCPTools
 from utils.prompt_manager import prompt_manager
-from tools.registry import get_tools_prompt
 
 if TYPE_CHECKING:  # pragma: no cover
     from utils.tool_context import ToolContext
 
 
 class ToolDispatcher:
-    def __init__(self, mcp_server_url: Optional[str] = None, mcp_headers: Optional[Dict[str, str]] = None):
+    def __init__(
+        self, mcp_server_url: str | None = None, mcp_headers: dict[str, str] | None = None
+    ):
         """
         NOTE: __init__ must be synchronous. We do lazy MCP connection on first remote usage.
         """
         self.mcp_server_url = mcp_server_url
-        self.mcp_tools_manager: Optional[MCPTools] = None
+        self.mcp_tools_manager: MCPTools | None = None
         self.mcp_transport = None
         self.mcp_headers = mcp_headers
 
-    async def _ensure_mcp_manager(self) -> Optional[MCPTools]:
+    async def _ensure_mcp_manager(self) -> MCPTools | None:
         if not self.mcp_server_url:
             return None
         if self.mcp_tools_manager:
@@ -54,7 +55,9 @@ class ToolDispatcher:
                 # verify connectivity
                 await manager.describe_mcp_tools()
                 self.mcp_tools_manager = manager
-                logger.info(f"ToolDispatcher: MCP tools manager initialized with transport: {transport}")
+                logger.info(
+                    f"ToolDispatcher: MCP tools manager initialized with transport: {transport}"
+                )
                 return self.mcp_tools_manager
             except Exception:
                 continue
@@ -77,7 +80,9 @@ class ToolDispatcher:
                 raise RuntimeError("Failed to connect to MCP server")
             try:
                 mcp_prompt = await manager.describe_mcp_tools()
-                mcp_remote_prompt = prompt_manager.format_prompt("dynamic/system_prompt", mcp_tools=mcp_prompt)
+                mcp_remote_prompt = prompt_manager.format_prompt(
+                    "dynamic/system_prompt", mcp_tools=mcp_prompt
+                )
                 prompt += f"\n\n{mcp_remote_prompt}"
             except Exception as e:
                 logger.error(f"Failed to fetch MCP tools description: {e}")
@@ -87,7 +92,9 @@ class ToolDispatcher:
 
         return prompt
 
-    async def call_tool(self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None) -> str:
+    async def call_tool(
+        self, tool_name: str, args: dict[str, Any], context: Optional["ToolContext"] = None
+    ) -> str:
         """统一调用入口：自动识别是本地还是远程工具"""
         # 1. 尝试作为本地工具调用
         tool_func = get_tool_by_name(tool_name)

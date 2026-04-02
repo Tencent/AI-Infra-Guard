@@ -17,13 +17,13 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import inspect
-import os
 import re
 from collections.abc import Callable
 from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import Any
+
 from utils.loging import logger
 
 tools: list[dict[str, Any]] = []
@@ -61,7 +61,7 @@ def _get_module_name(func: Callable[..., Any]) -> str:
 
 
 def register_tool(
-        func: Callable[..., Any] | None = None, *, sandbox_execution: bool = True
+    func: Callable[..., Any] | None = None, *, sandbox_execution: bool = True
 ) -> Callable[..., Any]:
     def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         func_dict = {
@@ -89,9 +89,7 @@ def register_tool(
         except (TypeError, FileNotFoundError) as e:
             logger.warning(f"Error loading schema for {f.__name__}: {e}")
             func_dict["xml_schema"] = (
-                f'<tool name="{f.__name__}">'
-                "<description>Error loading schema.</description>"
-                "</tool>"
+                f'<tool name="{f.__name__}"><description>Error loading schema.</description></tool>'
             )
 
         tools.append(func_dict)
@@ -144,7 +142,7 @@ def get_tools_prompt(tool_list: list = []) -> str:
     selected_tools = []
     if len(tool_list) != 0:
         for tool in tools:
-            name = tool.get('name')
+            name = tool.get("name")
             if name in tool_list:
                 selected_tools.append(tool)
     else:
@@ -160,7 +158,7 @@ def get_tools_prompt(tool_list: list = []) -> str:
 
     xml_sections = []
     for module, module_tools in sorted(tools_by_module.items()):
-        tag_name = f"tools"
+        tag_name = "tools"
         section_parts = [f"<{tag_name}>"]
         for tool in module_tools:
             tool_xml = tool.get("xml_schema", "")

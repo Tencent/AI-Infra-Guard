@@ -39,7 +39,7 @@ def read_file(file_path: str, context: ToolContext = None) -> dict[str, Any]:
         if not directory.startswith(context.folder):
             return {
                 "success": False,
-                "message": f"Path is not allowed: {file_path}, you can only access the given directory"
+                "message": f"Path is not allowed: {file_path}, you can only access the given directory",
             }
         if not os.path.exists(file_path):
             return {
@@ -53,14 +53,12 @@ def read_file(file_path: str, context: ToolContext = None) -> dict[str, Any]:
                 "message": f"Path is not a file: {file_path}",
             }
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         logger.info(f"Read file: {file_path} ({len(content)} chars)")
 
-        return {
-            "data": content
-        }
+        return {"data": content}
 
     except UnicodeDecodeError:
         return {

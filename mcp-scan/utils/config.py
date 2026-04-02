@@ -17,7 +17,6 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import os
-from typing import Optional
 from pathlib import Path
 
 # Configuration settings
@@ -27,6 +26,7 @@ base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 自动加载 .env 文件
 try:
     from dotenv import load_dotenv
+
     env_file = Path(base_dir) / ".env"
     if env_file.exists():
         load_dotenv(env_file)
@@ -35,7 +35,7 @@ except ImportError:
     pass
 
 
-def get_env(key: str, default: Optional[str] = None) -> Optional[str]:
+def get_env(key: str, default: str | None = None) -> str | None:
     """获取环境变量，如果不存在则返回默认值"""
     return os.environ.get(key, default)
 
