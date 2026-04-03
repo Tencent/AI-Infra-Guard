@@ -48,13 +48,22 @@
   </a>
 </p>
 
-## 🚀 最新动态：Agent Skill 安全扫描器
+## 🚀 v4.1.2 新功能
 
-- 🔐 **新增 Skill：`edgeone-skill-scanner`**：安装或使用任意 Agent Skill 前，先扫一遍——检测提示注入、权限提升、凭证泄露、供应链风险等，100% 本地静态分析，数据不离设备。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🛡️ **`edgeone-clawscan` 能力大幅增强**：OpenClaw 安全体检的检测规则显著扩充，覆盖更多风险场景。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🤖 **Skill：`aig-scanner`**：在 OpenClaw 对话里直接驱动 A.I.G 扫描，无需打开浏览器。配置好服务地址，随时随地发起扫描。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
+**🗄️ AI组件漏洞库更新**
+- 🔍 **新增 100+ 漏洞规则**：OpenClaw 覆盖提升至 474 条，覆盖官方所有公开 CVE；累计支持 52 个 AI 组件、1000+ 漏洞扫描。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
 
-👉 [浏览 A.I.G Skills 目录](./skills/) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+**🛠️ 三大 Skill 正式发布（均已发布至 ClawHub）**
+- 🛡️ **`edgeone-clawscan`**：一键评估 OpenClaw 安全风险，检测不安全配置、CVE 漏洞、恶意 Skill 与隐私泄露。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🔐 **`edgeone-skill-scanner`**：安装前先扫 Skill——覆盖后门指令、数据窃取等 10+ 常见风险，支持 OpenClaw、Cursor、Claude Code、Codex 等主流 Agent。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🤖 **`aig-scanner`**：在 Agent 对话里直接调用 A.I.G 四大核心能力——AI基础设施扫描、Skill扫描、Agent扫描、大模型安全体检，无需打开浏览器。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
+
+**🐛 细节功能优化**
+- ⏹️ **手动停止任务**：随时终止正在运行的扫描任务
+- 修复 AI 基础设施扫描大批量目标异常及"不使用模型"选项无法选中的问题
+- 修复 Agent 扫描中 LLM 异常响应导致程序崩溃的问题
+
+👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [浏览 A.I.G Skills 目录](./skills/) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 <details>
 <summary>📌 v4.1.1 核心亮点</summary>
@@ -87,7 +96,7 @@
 
 </details>
 
-👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
