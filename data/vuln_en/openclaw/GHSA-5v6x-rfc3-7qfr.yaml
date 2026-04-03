@@ -1,0 +1,59 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5v6x-rfc3-7qfr
+  summary: OpenClaw Windows system.run approval mismatch on cmd.exe /c trailing arguments
+  details: >-
+    Summary
+
+    A Windows system.run approval-integrity mismatch in the cmd.exe /c path could allow trailing arguments to execute while
+    approval/audit text reflected only a benign command string.
+
+
+    This requires an authenticated operator context using the approvals flow and a trusted Windows node.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published vulnerable version (as of 2026-02-21): 2026.2.19-2
+
+    - Vulnerable range: <=2026.2.19-2
+
+    - Patched version (planned next release): 2026.2.21
+
+
+    Attack Scenario
+
+    1. An authenticated operator approval is created for a benign command text (for example, echo).
+
+    2. A system.run request uses cmd.exe /c with extra trailing arguments.
+
+    3. Prior behavior could bind approval/audit text to the benign command while still executing the full argument tail on
+    the node.
+
+
+    Impact
+
+    - Local command execution on the trusted Windows node process account.
+
+    - Approval/audit command text integrity mismatch.
+
+
+    Fix
+
+    - Canonicalize the full command tail after cmd.exe /c.
+
+    - Reuse one shared command canonicalization/validation path for validation, approval matching, and execution/audit text.
+
+    - Add regression coverage for trailing-argument smuggling and approval binding.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. - Canonicalize the full command tail after cmd.exe /c. - Reuse
+    one shared command canonicalization/validation path for validation, approval matching, and execution/audit text. - Add
+    regression coverage for trailing-argument smuggling and approval binding.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5v6x-rfc3-7qfr
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5v6x-rfc3-7qfr

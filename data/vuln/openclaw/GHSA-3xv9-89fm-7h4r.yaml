@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3xv9-89fm-7h4r
+  summary: OpenClaw diffs 查看器在 `allowRemoteViewer` 禁用时将代理远程请求错误分类为本地回环请求
+  details: >-
+    漏洞摘要
+
+    diffs 查看器在 allowRemoteViewer 禁用时将代理远程请求错误分类为本地回环请求
+
+
+    当前维护者研判
+
+    - 状态：开放
+
+    - 标准化严重等级：低危
+
+    - 研判说明：已发布的 v2026.3.28 版本中，diff 查看器在某些情况下将代理请求错误识别为本地回环请求，构成真实存在但严重程度较低的访问控制缺陷。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw (npm)
+
+    - 最新已发布 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 首个包含修复的稳定标签：v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: 请将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - 30a1690323088fd291abd11643a264a6828a002c — 2026-03-30T14:17:27-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3xv9-89fm-7h4r
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3xv9-89fm-7h4r

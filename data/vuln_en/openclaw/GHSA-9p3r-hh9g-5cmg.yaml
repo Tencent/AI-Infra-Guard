@@ -1,0 +1,17 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9p3r-hh9g-5cmg
+  summary: OpenClaw Sandbox escape via TOCTOU race in remote FS bridge readFile
+  details: "Summary\r\nSandbox escape via TOCTOU race in remote FS bridge readFile\r\n\r\nCurrent Maintainer Triage\r\n- Status:\
+    \ open\r\n- Normalized severity: critical\r\n- Assessment: v2026.3.28 remote sandbox reads still do path-check then separate\
+    \ file read, so the TOCTOU sandbox escape remains present in the latest shipped tag.\r\n\r\nAffected Packages / Versions\r\
+    \n- Package: openclaw (npm)\r\n- Latest published npm version: 2026.3.31\r\n- Vulnerable version range: <=2026.3.28\r\n\
+    - Patched versions: >= 2026.3.31\r\n- First stable tag containing the fix: v2026.3.31"
+  cvss: ''
+  severity: CRITICAL
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 121870a08583033ed6a0ed73d9ffea32991252bb — 2026-03-31T09:55:51+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p3r-hh9g-5cmg
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9p3r-hh9g-5cmg

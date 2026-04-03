@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cwf8-44x6-32c2
+  summary: 'OpenClaw OpenShell 镜像同步沙箱逃逸：不受限文件同步结合符号链接遍历'
+  details: >-
+    摘要
+
+    OpenShell 镜像同步沙箱逃逸：不受限文件同步结合符号链接遍历
+
+
+    维护者风险评估
+
+    - 状态：范围受限
+
+    - 标准化严重等级：高危
+
+    - 评估：v2026.3.28 版本仍存在镜像边界绕过漏洞，因为已发布的提交 c02ee8 仅排除了 hooks 目录，而完整的符号链接安全上传和下载加固直到未发布的提交 3b9dab 才实现。
+
+
+    受影响的软件包 / 版本
+
+    - 软件包：openclaw (npm)
+
+    - 最新发布的 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 首个包含修复的稳定标签：v2026.3.31
+  cvss: ''
+  severity: HIGH
+  security_advise: 请将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - c02ee8a3a4cb390b23afdf21317aa8b2096854d1 — 2026-03-25T19:59:07Z
+    - 3b9dab0ece4643a9643e6a45459f5c709d3ce320 — 2026-03-30T14:51:44+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cwf8-44x6-32c2
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cwf8-44x6-32c2

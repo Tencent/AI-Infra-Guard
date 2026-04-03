@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rfqg-qgf8-xr9x
+  summary: OpenClaw Gateway `device.token.rotate` does not terminate active WebSocket sessions after credential rotation
+  details: >-
+    Summary
+
+    Gateway device.token.rotate does not terminate active WebSocket sessions after credential rotation
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: low
+
+    - Assessment: v2026.3.28 rotates device tokens without disconnecting already-authenticated WebSocket sessions, which is
+    a real but post-compromise revocation gap.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 91f7a6b0fd67b703897e6e307762d471ca09333d — 2026-03-31T09:05:34+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rfqg-qgf8-xr9x
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rfqg-qgf8-xr9x

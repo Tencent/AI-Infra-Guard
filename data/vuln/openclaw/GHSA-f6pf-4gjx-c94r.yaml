@@ -1,0 +1,17 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f6pf-4gjx-c94r
+  summary: OpenClaw <= 2026.3.23 媒体解析路径穿越导致任意文件读取漏洞
+  details: "摘要\r\nOpenClaw <= 2026.3.23 媒体解析路径穿越导致任意文件读取\r\n\r\n当前维护者分类\r\n- 状态：开放\r\n- 规范化严重等级：高危（High）\r\
+    \n- 评估：src/media/parse.ts 中存在真实已发布的任意文件读取漏洞，影响 <=2026.3.23 版本，\
+    已在 v2026.3.28 中修复，因此保持开放状态以待发布，而非从主线关闭。\r\n\r\n受影响软件包 / 版本\r\n- 软件包：openclaw (npm)\r\n\
+    - 最新已发布 npm 版本：2026.3.31\r\n- 受影响版本范围：<=2026.3.24\r\n- 已修复版本：>= 2026.3.28\r\n\
+    - 首个包含修复的稳定标签：v2026.3.28"
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.3.28 或更高版本。相关提交：4797bbc5b96e2cca5532e43b58915c051746fe37 — 2026-03-25T13:35:16-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r

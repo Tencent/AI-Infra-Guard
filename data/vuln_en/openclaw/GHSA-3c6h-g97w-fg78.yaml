@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3c6h-g97w-fg78
+  summary: OpenClaw tools.exec.safeBins sort long-option abbreviation bypass can skip exec approval in allowlist mode
+  details: >-
+    Summary
+
+    In OpenClaw, tools.exec.safeBins validation for sort could be bypassed via GNU long-option abbreviations in allowlist
+    mode, allowing approval-free execution paths that should require approval.
+
+
+    Affected Packages / Versions
+
+    - Ecosystem: npm
+
+    - Package: openclaw
+
+    - Latest published version checked: 2026.2.22-2
+
+    - Affected range: <= 2026.2.22-2
+
+    - Fixed version: 2026.2.23
+
+
+    Impact
+
+    When all of the following are true:
+
+    - tools.exec.security=allowlist
+
+    - tools.exec.ask=on-miss
+
+    - tools.exec.safeBins includes sort
+
+
+    abbreviated GNU long options (for example --compress-prog) could bypass denied-flag checks and be treated as allowlist-satisfied
+    safe-bin usage, skipping approval.
+
+
+    Root Cause
+
+    Long-option handling matched denied flags by exact string and accepted unknown long options with inline values instead
+    of failing closed.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to >=2026.2.23 or later. Commit(s) - 3b8e33037ae2e12af7beb56fcf0346f1f8cbde6f
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3c6h-g97w-fg78
+rule: version <= "2026.2.22-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3c6h-g97w-fg78

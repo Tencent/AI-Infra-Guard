@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w6wx-jq6j-6mcj
+  summary: OpenClaw pnpm dlx approvals did not bind local script operands
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, pnpm dlx approval planning did not bind local script operands the same way as related pnpm exec
+    flows. A local script approved through a pnpm dlx path could be replaced before execution without invalidating the approval.
+
+
+    Impact
+
+
+    An operator could approve a benign local script and then execute modified script contents through the still-valid approval
+    plan. This was an approval-integrity bug in the node-host command-planning path.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 176c059b05357df1bc09d4328a2380670859eeff — bind local
+    scripts in pnpm dlx approval plans
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj

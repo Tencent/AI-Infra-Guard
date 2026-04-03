@@ -1,0 +1,17 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6p8r-6m93-557f
+  summary: OpenClaw Fake DeviceToken Bypasses Shared Auth Rate Limiting
+  details: "Summary\r\nFake DeviceToken Bypasses Shared Auth Rate Limiting\r\n\r\nCurrent Maintainer Triage\r\n- Status: narrow\r\
+    \n- Normalized severity: low\r\n- Assessment: Real in shipped mixed WS auth flow, but practical risk is mostly weak shared-password\
+    \ deployments since strong shared tokens remain non-bruteforceable.\r\n\r\nAffected Packages / Versions\r\n- Package:\
+    \ openclaw (npm)\r\n- Latest published npm version: 2026.3.31\r\n- Vulnerable version range: <=2026.3.28\r\n- Patched\
+    \ versions: >= 2026.3.31\r\n- First stable tag containing the fix: v2026.3.31"
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - af0c0862f22ca4492406a3103d05e3628f94cbe9 — 2026-03-31T09:08:57+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6p8r-6m93-557f
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6p8r-6m93-557f

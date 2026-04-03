@@ -1,0 +1,17 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f6pf-4gjx-c94r
+  summary: OpenClaw OpenClaw <= 2026.3.23 Media Parsing Path Traversal to Arbitrary File Read
+  details: "Summary\r\nOpenClaw <= 2026.3.23 Media Parsing Path Traversal to Arbitrary File Read\r\n\r\nCurrent Maintainer\
+    \ Triage\r\n- Status: open\r\n- Normalized severity: high\r\n- Assessment: Real shipped arbitrary-file-read bug in src/media/parse.ts\
+    \ on <=2026.3.23, fixed in v2026.3.28, so keep open for publication rather than close from main.\r\n\r\nAffected Packages\
+    \ / Versions\r\n- Package: openclaw (npm)\r\n- Latest published npm version: 2026.3.31\r\n- Vulnerable version range:\
+    \ <=2026.3.24\r\n- Patched versions: >= 2026.3.28\r\n- First stable tag containing the fix: v2026.3.28"
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.28 or later. Commit(s) - 4797bbc5b96e2cca5532e43b58915c051746fe37 — 2026-03-25T13:35:16-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r

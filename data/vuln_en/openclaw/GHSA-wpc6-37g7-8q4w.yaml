@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wpc6-37g7-8q4w
+  summary: OpenClaw Shell init-file options could satisfy exec allowlist script matching
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.3.31, exec allowlist matching could treat shell init-file wrapper invocations as if the approved
+    script itself were being executed. Shell options such as --rcfile, --init-file, and --startup-file could therefore inherit
+    allowlist trust from a matched script path even though the shell loaded attacker-chosen initialization first.
+
+
+    Impact
+
+
+    This issue only applied when exec allowlist or allow-always behavior was enabled and the attacker could steer a shell-wrapper
+    command shape that used init-file options. The result was a narrower allowlist bypass, not generic arbitrary command execution
+    from an untrusted boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.3.31
+
+    - Patched versions: >= 2026.3.31
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 0c8375424620e12777ef24c162eedc7e9fcfd7e3 — reject
+    shell init-file script matches
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w
+rule: version < "2026.3.31"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w

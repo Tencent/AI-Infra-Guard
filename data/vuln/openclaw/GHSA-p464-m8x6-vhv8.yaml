@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p464-m8x6-vhv8
+  summary: OpenClaw MS Teams Webhook 在 JWT 验证前解析请求体，导致未经身份认证的资源耗尽攻击
+  details: >-
+    漏洞概述
+
+    MS Teams Webhook 在 JWT 验证前解析请求体，导致未经身份认证的资源耗尽攻击
+
+
+    维护者评估
+
+    - 状态：待修复
+
+    - 标准化严重等级：中危
+
+    - 评估说明：v2026.3.28 仍在仅通过 Bearer 前缀校验后、正式 JWT 验证之前即解析 Teams JSON 数据，"认证前置于解析"的修复方案尚未发布。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - npm 最新发布版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 首个包含修复的稳定标签：v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交：3834d47099dd13c8244ed6de8b9ea9855c553623 — 2026-03-30T13:46:40+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p464-m8x6-vhv8
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p464-m8x6-vhv8
