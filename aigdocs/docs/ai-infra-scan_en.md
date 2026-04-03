@@ -59,7 +59,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | **Model Serving**          | gradio                  | 48                  | High        |
 |                            | ollama                  | 25                  | Medium-High |
 |                            | triton-inference-server | 33                  | Medium-High |
-|                            | vllm                    | 42                  | Medium      |
+|                            | vllm                    | 43                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 7                   | Medium      |
 |                            | llama-cpp               | 1                   | Low         |
@@ -73,7 +73,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | qanything               | 8                   | Medium      |
 |                            | langflow                | 24                  | Medium      |
 |                            | litellm                 | 17                  | Medium      |
-|                            | mlflow                  | 60                  | High        |
+|                            | mlflow                  | 62                  | High        |
 |                            | librechat               | 9                   | Medium      |
 |                            | nextchat                | 4                   | Medium      |
 |                            | lobechat                | 3                   | Medium      |
@@ -107,6 +107,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
+|                            | openclaw                | 474                 | Medium-High |
 | **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
