@@ -64,7 +64,6 @@ Use A.I.G to run a safety check on DeepSeek3.2
 - **AI Tool / Skills Scan**: requires an analysis model (model name, API key, base URL) — just tell OpenClaw on first use.
 - **LLM Safety Check**: requires both the target model and a separate evaluator model configuration. Provide target/eval model name, API key, and base URL.
 - **Agent Scan**: scans Agents already configured on the A.I.G platform; does not support parameter submission yet.
-- **Plugin edition**: archived from the main delivery path; preserved in `.artifacts/disabled-plugins/aig-scan-plugin/`.
 
 ---
 

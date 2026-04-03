@@ -64,7 +64,6 @@ ClawHub 页面：
 - **AI Tool / Skills Scan**：需要配置分析模型（model name、API key、base URL），首次使用时在对话中告知即可。
 - **大模型安全体检**：需要同时提供目标模型和评估模型配置，包括 model name、API key、base URL。
 - **Agent Scan**：扫描的是 A.I.G 平台上已配置的 Agent，暂不支持参数提交。
-- **插件版**：已从主交付路径移出，备份保存在 `.artifacts/disabled-plugins/aig-scan-plugin/`。
 
 ---
 
