@@ -50,13 +50,22 @@
 
 <br>
 
-## 🚀 What's New: Agent Skills Security Scanner
+## 🚀 What's New in v4.1.2: Vulnerability Database Expansion + Three New Skills
 
-- 🔐 **New Skill: `edgeone-skill-scanner`**: Scan any Agent Skill for security risks before you install or use it — detects prompt injection, privilege escalation, credential leakage, supply chain risks, and more. 100% local static analysis, no data leaves your device. [`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🛡️ **Enhanced `edgeone-clawscan`**: Significantly expanded detection rules for OpenClaw security assessment. [`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🤖 **Skill: `aig-scanner`**: Drive A.I.G scans directly from your OpenClaw chat — no browser required. Point it at your running A.I.G instance and scan from anywhere. [`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
+- 🔍 **100+ New Vulnerability Rules**: OpenClaw coverage expanded to 474 rules — all publicly disclosed CVEs now tracked. Total: 52 AI components, 1,000+ vulnerabilities. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
+- ⏹️ **Manual Task Stop**: Cancel any running scan at any time
+- 🐛 **Stability Fixes**: Resolved bulk-target hang in AI infra scan, "no model" selection bug, and agent scan crash on malformed LLM responses
+
+<details>
+<summary>📌 Skills: edgeone-clawscan · edgeone-skill-scanner · aig-scanner</summary>
+
+- 🔐 **`edgeone-skill-scanner`**: Scan any Agent Skill for security risks before you install or use it — detects prompt injection, privilege escalation, credential leakage, supply chain risks, and more. 100% local static analysis, no data leaves your device. [`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🛡️ **`edgeone-clawscan`**: One-click security assessment for your OpenClaw deployment. [`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🤖 **`aig-scanner`**: Drive A.I.G scans directly from your OpenClaw chat — no browser required. [`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
 
 👉 [Browse A.I.G Skills](./skills/) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+
+</details>
 
 <details>
 <summary>📌 v4.1.1 Highlights</summary>
@@ -89,7 +98,7 @@
 
 </details>
 
-👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Full v4.1.2 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
