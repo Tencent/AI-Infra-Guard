@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2x4x-cc5g-qmmg
+  summary: OpenClaw node.pair.approve 接口缺少 callerScopes 校验，低权限操作员可批准恶意节点的高权限配对请求
+  details: >-
+    漏洞概述
+
+
+    节点配对审批路径未一致性地校验审批方调用者是否已持有节点所申请的全部权限范围。
+
+
+    影响
+
+
+    低权限操作员可批准待审批节点的更高权限范围申请，从而将扩展后的权限传递至已配对节点。
+
+
+    受影响组件
+
+
+    src/infra/node-pairing.ts, src/gateway/server-methods/nodes.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 4d7cc6bb4f 修复（网关：限制节点配对审批权限）。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。通过提交 4d7cc6bb4f 修复（网关：限制节点配对审批权限）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2x4x-cc5g-qmmg
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2x4x-cc5g-qmmg

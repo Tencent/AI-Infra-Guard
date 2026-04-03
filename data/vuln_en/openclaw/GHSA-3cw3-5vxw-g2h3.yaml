@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3cw3-5vxw-g2h3
+  summary: OpenClaw CLI Remote Onboarding Persists Unauthenticated Discovery Endpoint and Exfiltrates Gateway Credentials
+  details: >-
+    Summary
+
+
+    Remote onboarding accepted discovered gateway endpoints without an explicit trust confirmation before persisting the remote
+    URL and connection details.
+
+
+    Impact
+
+
+    A malicious or spoofed discovery endpoint could steer onboarding toward an attacker-controlled gateway and capture future
+    gateway credentials or traffic.
+
+
+    Affected Component
+
+
+    src/commands/onboard-remote.ts
+
+
+    Fixed Versions
+
+
+    - Affected: <= 2026.3.24
+
+    - Patched: >= 2026.3.28
+
+    - Latest stable 2026.3.28 contains the fix.
+
+
+    Fix
+
+
+    Fixed by commit d6affb17d8 (CLI: confirm discovered remote gateways before saving config).
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit d6affb17d8 (CLI: confirm discovered remote
+    gateways before saving config).'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3cw3-5vxw-g2h3
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3cw3-5vxw-g2h3

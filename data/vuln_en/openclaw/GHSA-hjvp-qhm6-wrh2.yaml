@@ -1,0 +1,68 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hjvp-qhm6-wrh2
+  summary: OpenClaw Node system.run approval context-binding weakness in approval-enabled host=node flows
+  details: >-
+    Summary
+
+    In approval-enabled host=node workflows, system.run approvals did not always carry a strict, versioned execution-context
+    binding. In uncommon setups that rely on these approvals as an integrity guardrail, a previously approved request could
+    be reused with changed env input.
+
+
+    Affected Packages / Versions
+
+    - Package: npm openclaw
+
+    - Latest published npm version at triage: 2026.2.25
+
+    - Affected range: <= 2026.2.25
+
+    - Planned fixed version (next npm release): 2026.2.26
+
+
+    Preconditions / Typical Exposure
+
+    This requires all of the following:
+
+    - system.run usage through host=node
+
+    - Exec approvals enabled and used as an execution-integrity control
+
+    - Access to an approval id in the same context
+
+
+    Most default single-operator local setups do not rely on this path, so practical exposure is typically lower.
+
+
+    Details
+
+    Approval matching now uses a required versioned binding (systemRunBindingV1) over command argv, cwd, agent/session context,
+    and env hash.
+
+
+    The fix:
+
+    - Requires commandArgv when requesting host=node approvals.
+
+    - Requires systemRunBindingV1 when consuming approvals for node system.run.
+
+    - Removes legacy non-versioned fallback matching and fails closed on missing/mismatched bindings.
+
+    - Keeps env mismatch handling explicit and blocks GIT_EXTERNAL_DIFF in host env policy.
+
+    - Adds/updates regression and contract coverage for mismatch mapping and binding rules.
+
+
+    Impact
+
+    Configuration-dependent approval-integrity weakness in node-host exec approval flows. Severity remains medium because
+    exploitation depends on this specific approval mode and context.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.26 or later. Commit(s) - 10481097f8e6dd0346db9be0b5f27570e1bdfcfa
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hjvp-qhm6-wrh2
+rule: version <= "2026.2.25"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hjvp-qhm6-wrh2

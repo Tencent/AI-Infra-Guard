@@ -1,0 +1,45 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hc5h-pmr3-3497
+  summary: OpenClaw `/pair approve` 命令路径未传递调用方权限作用域子集，导致设备配对权限提升漏洞复现
+  details: >-
+    摘要
+
+
+    /pair approve 命令路径在调用设备审批逻辑时，未将调用方的权限作用域转发至核心审批校验流程。
+
+
+    影响
+
+
+    持有配对权限但不具备管理员权限的调用方，可批准申请更高权限作用域（包括管理员访问权限）的待处理设备配对请求。
+
+
+    受影响组件
+
+
+    extensions/device-pair/index.ts, src/infra/device-pairing.ts
+
+
+    修复版本
+
+
+    - 受影响版本：<= 2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 最新稳定版 2026.3.28 已包含修复。
+
+
+    修复方案
+
+
+    通过提交 4ee4960de2 修复（Pairing：审批流程中转发调用方权限作用域）。
+  cvss: ''
+  severity: CRITICAL
+  security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 4ee4960de2 修复（Pairing：审批流程中转发调用方权限作用域）。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hc5h-pmr3-3497
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hc5h-pmr3-3497
