@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r6qf-8968-wj9q
+  summary: OpenClaw system.run wrapper-depth boundary could skip shell approval gating
+  details: >-
+    漏洞概述
+
+    OpenClaw 安全漏洞。OpenClaw system.run wrapper-depth boundary could skip shell approval gating。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响：<= 2026.3.2
+    - 已修复：>= 2026.3.7
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:L
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.3.7 或更高版本。 修复提交 - 2fc95a7cfc1eb9306356510b0251b6d51fb1c0b0'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q
+rule: version <= "2026.3.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q

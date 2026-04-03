@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-68v4-hmwv-f43h
+  summary: OpenClaw Media download follows cross-origin redirects with Authorization headers intact
+  details: >-
+    Summary
+
+    Media download follows cross-origin redirects with Authorization headers intact
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: medium
+
+    - Assessment: Shipped v2026.3.28 media downloads forwarded Authorization across cross-origin redirects, a real in-scope
+    credential-leak class that fits medium.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - e704323ff388ed21f6963f9b8e0b1b8dfaaabc5f — 2026-03-31T19:57:42+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-68v4-hmwv-f43h
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-68v4-hmwv-f43h

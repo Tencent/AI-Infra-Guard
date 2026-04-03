@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jj6q-rrrf-h66h
+  summary: OpenClaw Shared-secret comparison call sites leaked length information through timing
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, several shared-secret comparison call sites still used early length-mismatch checks instead
+    of the shared fixed-length comparison helper. Those paths could leak secret-length information through measurable timing
+    differences.
+
+
+    Impact
+
+
+    The affected paths exposed a low-severity timing side channel on secret comparison. The issue did not by itself demonstrate
+    auth bypass, but it weakened the intended constant-time handling for shared secrets.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - be10ecef770a4654519869c3641bbb91087c8c7b — reuse
+    the shared secret comparison helper at affected call sites
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jj6q-rrrf-h66h
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jj6q-rrrf-h66h

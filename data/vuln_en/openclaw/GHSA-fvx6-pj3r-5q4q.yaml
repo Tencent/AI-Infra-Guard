@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fvx6-pj3r-5q4q
+  summary: OpenClaw Complex interpreter pipelines could skip exec script preflight validation
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, exec script preflight validation could fail open on complex interpreter invocations such as
+    pipes or other non-simple command forms. In those cases, script-content validation could be skipped entirely.
+
+
+    Impact
+
+
+    An attacker-controlled command shape could bypass the intended preflight validation for script execution. This weakened
+    a defense-in-depth guard that was meant to block unsafe script content before execution.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 8aceaf5d0f0ec552b75a792f7f0a3bfa5b091513 — close
+    the fail-open bypass in exec script preflight
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q

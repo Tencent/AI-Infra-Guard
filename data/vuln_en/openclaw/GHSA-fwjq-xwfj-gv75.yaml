@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fwjq-xwfj-gv75
+  summary: 'OpenClaw `session_status` still bypasses configured `tools.sessions.visibility` for unsandboxed invocations '
+  details: >-
+    Summary
+
+    session_status still bypasses configured tools.sessions.visibility for unsandboxed invocations
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: medium
+
+    - Assessment: Real on shipped v2026.3.22: non-sandboxed session_status skipped the shared visibility guard, but this is
+    a same-agent session-policy bypass with unreleased fix, not a broader host-boundary break.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4d369a3400dc9b737fbe8daa63f09d909ce7beb8 — 2026-03-30T16:48:12+02:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fwjq-xwfj-gv75
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fwjq-xwfj-gv75

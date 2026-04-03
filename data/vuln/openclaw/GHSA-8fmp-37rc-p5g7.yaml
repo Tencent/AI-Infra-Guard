@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8fmp-37rc-p5g7
+  summary: OpenClaw Config env vars allowed startup env 注入 into service runtime
+  details: >-
+    漏洞概述
+
+    OpenClaw 注入漏洞。OpenClaw Config env vars allowed startup env 注入 into service runtime。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 已修复：>= 2026.2.21
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >=2026.2.21 或更高版本。 修复提交 - 2cdbadee1f8fcaa93302d7debbfc529e19868ea4'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7
+rule: version <= "2026.2.19-2 || =2026.2.19"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7

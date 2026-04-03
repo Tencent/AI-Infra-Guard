@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fvx6-pj3r-5q4q
+  summary: OpenClaw 复杂解释器管道可跳过执行脚本预检验证
+  details: >-
+    漏洞概述
+
+
+    在 OpenClaw 2026.4.2 之前版本中，exec 脚本预检验证（preflight validation）在遇到管道或其他非简单命令形式等复杂解释器调用时可能以开放失败（fail-open）方式处理，导致脚本内容验证被完全跳过。
+
+
+    安全影响
+
+
+    攻击者可通过构造特定命令形式绕过脚本执行的预检验证机制，削弱了旨在阻止不安全脚本内容在执行前被拦截的纵深防御措施。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.1
+
+    - 已修复版本：>= 2026.4.2
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级至 >= 2026.4.2 或更高版本。相关提交：8aceaf5d0f0ec552b75a792f7f0a3bfa5b091513 —
+    修复 exec 脚本预检中的开放失败绕过漏洞
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q

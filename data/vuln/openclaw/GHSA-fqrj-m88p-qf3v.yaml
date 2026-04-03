@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fqrj-m88p-qf3v
+  summary: OpenClaw Zalo 重放去重缓存可跨已认证 Webhook 目标抑制事件
+  details: >-
+    摘要
+
+
+    在 OpenClaw 2026.3.31 之前，Zalo Webhook 重放去重缓存在多账号部署场景中被所有已认证 Webhook 目标共享，
+    且键值划分粒度过粗。在多账号部署中，若某账号收到的重放事件与另一账号的合法事件在 event_name 和 message_id 上发生碰撞，
+    则合法事件将被静默抑制。
+
+
+    影响
+
+
+    在多账号网关部署中，控制某一已认证 Zalo Webhook 路径的攻击者，可导致共享该网关的另一 Zalo 账号消息被静默抑制。
+    该漏洞属于可用性问题，不提供跨账号认证或数据访问能力。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：>= 2026.2.19，< 2026.3.31
+
+    - 已修复版本：>= 2026.3.31
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交 - 4d038bb242c11f39e45f6a4bde400e5fd42e4ebf — 将
+    Webhook 重放去重作用域限定至各目标 - 7cea7c29705b188b464cc9cdc107c275b94b2a72 — 跟进加固：按路径和账号划分重放去重作用域
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v
+rule: version < "2026.3.31"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v

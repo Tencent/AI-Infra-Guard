@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q9w8-cf67-r238
+  summary: OpenClaw macOS Wide-Area Discovery Accepts Arbitrary Tailnet Peer as DNS Authority and Exfiltrates Operator Credentials
+  details: >-
+    Summary
+
+    macOS Wide-Area Discovery Accepts Arbitrary Tailnet Peer as DNS Authority and Exfiltrates Operator Credentials
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: medium
+
+    - Assessment: Real shipped macOS discovery steering bug, but exploitation needs same-tailnet position, a CA-trusted endpoint,
+    and user selection, so medium not high.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - a23c33a681f8c1b22dc793995acc4c5c4b568346 — 2026-03-31T10:04:11+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q9w8-cf67-r238
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q9w8-cf67-r238

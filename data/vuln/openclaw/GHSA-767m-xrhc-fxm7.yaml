@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-767m-xrhc-fxm7
+  summary: OpenClaw Gateway operator.write 可通过 send 接口访问管理员级 Telegram 配置并实现 Cron 持久化
+  details: >-
+    漏洞概述
+
+    Gateway operator.write 可通过 send 接口访问管理员级 Telegram 配置并实现 Cron 持久化
+
+
+    维护者评估
+
+    - 状态：有限范围
+
+    - 标准化严重等级：中危
+
+    - 评估：已发布版本中存在 operator.write 写入管理员级 Telegram 配置或 Cron 持久化的漏洞，
+      但这属于经过身份验证的特定接收端权限提升，考虑到其较窄的影响范围，高危评级过高。
+
+
+    受影响的软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - 最新发布的 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 包含修复的首个稳定标签：v2026.3.28
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级至 >= 2026.3.28 或更高版本。相关提交 - b7d70ade3b9900dbe97bd73be9c02e924ff3c986 — 2026-03-25T12:12:09-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-767m-xrhc-fxm7
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-767m-xrhc-fxm7

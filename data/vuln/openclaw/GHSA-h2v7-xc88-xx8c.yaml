@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h2v7-xc88-xx8c
+  summary: OpenClaw `/phone arm`/`/phone disarm` 命令绕过外部信道的 operator.admin 权限校验
+  details: >-
+    漏洞概述
+
+    /phone arm//phone disarm 命令绕过外部信道的 operator.admin 权限范围校验
+
+
+    维护者评估
+
+    - 状态：待修复
+
+    - 标准化严重等级：中危
+
+    - 评估说明：维护者已确认该问题，在 2026-03-27 通过提交 aa66ae1fc797d3298cc409ed2c5da69a89950a45 完成修复，并已随 v2026.3.28 发布，因此将其定级为"已修复已发布草案"，而非基于信任模型的关闭处理。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - npm 最新发布版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.24
+
+    - 已修复版本：>= 2026.3.28
+
+    - 首个包含修复的稳定标签：v2026.3.28
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.28 或更高版本。相关提交：aa66ae1fc797d3298cc409ed2c5da69a89950a45 — 2026-03-27T20:35:42Z
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h2v7-xc88-xx8c
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h2v7-xc88-xx8c

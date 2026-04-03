@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vmqr-rc7x-3446
+  summary: OpenClaw Non-default safeBins sort configuration can 绕过 intended allowlist approval constraints
+  details: >-
+    漏洞概述
+
+    OpenClaw 安全绕过漏洞。OpenClaw Non-default safeBins sort configuration can 绕过 intended allowlist approval constraints。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响：<=2026.2.21-2
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >=2026.2.22 或更高版本。 修复提交 - 57fbbaebca4d34d17549accf6092ae26eb7b605c'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vmqr-rc7x-3446
+rule: version <= "2026.2.21-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vmqr-rc7x-3446

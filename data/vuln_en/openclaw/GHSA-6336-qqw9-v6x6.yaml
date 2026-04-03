@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6336-qqw9-v6x6
+  summary: OpenClaw Discord Component Interaction Misclassifies Group DM as Direct Message
+  details: >-
+    Summary
+
+    Discord Component Interaction Misclassifies Group DM as Direct Message
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: low
+
+    - Assessment: Real on shipped v2026.3.24 component-interaction routing/auth in extensions/discord/src/monitor/agent-components-helpers.ts,
+    but impact is limited to Group DM policy or session misclassification.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 8c83128fc38d5a3642b8ccbea58550755fdbbbaf — 2026-03-30T11:17:53-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6336-qqw9-v6x6
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6336-qqw9-v6x6

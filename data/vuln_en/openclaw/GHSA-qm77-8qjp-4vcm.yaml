@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qm77-8qjp-4vcm
+  summary: OpenClaw Slack thread context could include messages from non-allowlisted senders
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, Slack thread starter and thread-history context fetched through the API was not filtered by
+    the effective sender allowlist. Messages from non-allowlisted senders could still enter the agent context when an allowlisted
+    user replied in the same thread.
+
+
+    Impact
+
+
+    A Slack deployment that relied on sender allowlists could still feed non-allowlisted thread content into the model context
+    through thread history. This was a sender-access-control bypass on Slack thread context, not a direct channel-auth bypass.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - ac5bc4fb37becc64a2ec314864cca1565e921f2d — filter
+    Slack thread context by the effective allowlist
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qm77-8qjp-4vcm
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qm77-8qjp-4vcm
