@@ -16,8 +16,12 @@ Alternative:
 
 ```text
 Install this skill from source:
-https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
+https://github.com/Tencent/AI-Infra-Guard/tree/main/skills/aig-scanner
 ```
+
+ClawHub page:
+
+<https://clawhub.ai/aigsec/aig-scanner>
 
 ### Usage
 
@@ -61,12 +65,6 @@ Use A.I.G to run a safety check on DeepSeek3.2
 - **LLM Safety Check**: requires both the target model and a separate evaluator model configuration. Provide target/eval model name, API key, and base URL.
 - **Agent Scan**: scans Agents already configured on the A.I.G platform; does not support parameter submission yet.
 - **Plugin edition**: archived from the main delivery path; preserved in `.artifacts/disabled-plugins/aig-scan-plugin/`.
-
-### Maintainer Notes
-
-- Keep the source skill in `integrations/openclaw/aig-scanner/`.
-- Publish ClawHub from the source directory.
-- Keep the repository source-first; do not commit packaged archives.
 
 ---
 

@@ -16,8 +16,12 @@ clawhub install aig-scanner
 
 ```text
 从这个源码目录安装 skill：
-https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-scanner
+https://github.com/Tencent/AI-Infra-Guard/tree/main/skills/aig-scanner
 ```
+
+ClawHub 页面：
+
+<https://clawhub.ai/aigsec/aig-scanner>
 
 ### 使用
 
@@ -61,12 +65,6 @@ https://github.com/Tencent/AI-Infra-Guard/tree/main/integrations/openclaw/aig-sc
 - **大模型安全体检**：需要同时提供目标模型和评估模型配置，包括 model name、API key、base URL。
 - **Agent Scan**：扫描的是 A.I.G 平台上已配置的 Agent，暂不支持参数提交。
 - **插件版**：已从主交付路径移出，备份保存在 `.artifacts/disabled-plugins/aig-scan-plugin/`。
-
-### 维护说明
-
-- Skill 源码放在 `integrations/openclaw/aig-scanner/`。
-- 发布到 ClawHub 时，使用源码目录。
-- 保持仓库源码优先，不要提交打包压缩文件。
 
 ---
 
