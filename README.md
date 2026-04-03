@@ -54,6 +54,7 @@
 
 - 🔐 **New Skill: `edgeone-skill-scanner`**: Scan any Agent Skill for security risks before you install or use it — detects prompt injection, privilege escalation, credential leakage, supply chain risks, and more. 100% local static analysis, no data leaves your device. [`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
 - 🛡️ **Enhanced `edgeone-clawscan`**: Significantly expanded detection rules for OpenClaw security assessment. [`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🤖 **Skill: `aig-scanner`**: Drive A.I.G scans directly from your OpenClaw chat — no browser required. Point it at your running A.I.G instance and scan from anywhere. [`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
 
 👉 [Browse A.I.G Skills](./skills/) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 

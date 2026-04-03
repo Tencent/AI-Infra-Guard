@@ -52,6 +52,7 @@
 
 - 🔐 **新增 Skill：`edgeone-skill-scanner`**：安装或使用任意 Agent Skill 前，先扫一遍——检测提示注入、权限提升、凭证泄露、供应链风险等，100% 本地静态分析，数据不离设备。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
 - 🛡️ **`edgeone-clawscan` 能力大幅增强**：OpenClaw 安全体检的检测规则显著扩充，覆盖更多风险场景。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🤖 **Skill：`aig-scanner`**：在 OpenClaw 对话里直接驱动 A.I.G 扫描，无需打开浏览器。配置好服务地址，随时随地发起扫描。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
 
 👉 [浏览 A.I.G Skills 目录](./skills/) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
