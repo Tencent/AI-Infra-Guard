@@ -50,22 +50,22 @@
 
 <br>
 
-## 🚀 v4.1.2 の新機能: 脆弱性データベース拡充 + 3つの新スキル
+## 🚀 v4.1.2 の新機能
 
-- 🔍 **脆弱性ルール100件以上追加**: OpenClaw対応を474件に拡充 — 公開済みCVEをすべてカバー。累計52のAIコンポーネント、1,000件以上の脆弱性に対応。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
+**🗄️ AIコンポーネント脆弱性データベース更新**
+- 🔍 **ルール100件以上追加**: OpenClaw対応を474件に拡充 — 公開済みCVEをすべてカバー。累計52のAIコンポーネント、1,000件以上の脆弱性に対応。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
+
+**🛠️ 3つの新スキル（ClawHubで公開中）**
+- 🛡️ **`edgeone-clawscan`**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、CVE脆弱性、悪意あるSkill、プライバシー漏洩を検出。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🔐 **`edgeone-skill-scanner`**: インストール前にAgent Skillをスキャン — バックドア命令やデータ窃取など10種以上のリスクをカバー。OpenClaw、Cursor、Claude Code、Codexなど主要Agentに対応。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🤖 **`aig-scanner`**: Agentのチャットから直接A.I.Gの4つのコア機能を呼び出し — AIインフラスキャン、Skillスキャン、Agentスキャン、LLMセキュリティ評価。ブラウザ不要。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
+
+**🐛 改善・修正**
 - ⏹️ **タスク手動停止**: 実行中のスキャンをいつでもキャンセル可能
-- 🐛 **安定性修正**: AIインフラスキャンの大量ターゲット処理ハング、「モデルなし」選択バグ、Agent スキャン中のLLM異常レスポンスによるクラッシュを修正
+- AIインフラスキャンの大量ターゲット処理ハングと「モデルなし」選択バグを修正
+- Agent スキャン中のLLM異常レスポンスによるクラッシュを修正
 
-<details>
-<summary>📌 スキル: edgeone-clawscan · edgeone-skill-scanner · aig-scanner</summary>
-
-- 🔐 **`edgeone-skill-scanner`**: インストールや使用前に任意のAgent Skillのセキュリティリスクをスキャン — プロンプトインジェクション、権限昇格、認証情報漏洩、サプライチェーンリスクなどを検出。100%ローカル静的解析。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🛡️ **`edgeone-clawscan`**: OpenClawデプロイメントのワンクリックセキュリティ評価。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🤖 **`aig-scanner`**: OpenClawのチャットから直接A.I.Gスキャンを実行 — ブラウザ不要。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
-
-👉 [A.I.G Skillsを見る](./skills/) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
-
-</details>
+👉 [v4.1.2 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [A.I.G Skillsを見る](./skills/) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
 <details>
 <summary>📌 v4.1.1 ハイライト</summary>
