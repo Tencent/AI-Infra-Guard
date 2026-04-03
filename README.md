@@ -50,11 +50,23 @@
 
 <br>
 
-## 🚀 What's New in v4.1.1: LiteLLM Supply Chain Attack Detection
+## 🚀 What's New: Agent Skills Security Scanner
+
+- 🔐 **New Skill: `edgeone-skill-scanner`**: Scan any Agent Skill for security risks before you install or use it — detects prompt injection, privilege escalation, credential leakage, supply chain risks, and more. 100% local static analysis, no data leaves your device. [`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🛡️ **Enhanced `edgeone-clawscan`**: Significantly expanded detection rules for OpenClaw security assessment. [`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+
+👉 [Browse A.I.G Skills](./skills/) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+
+<details>
+<summary>📌 v4.1.1 Highlights</summary>
 
 - ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: A.I.G now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **New Component Coverage**: Added fingerprints and vulnerability rules for Blinko and New-API
 - 🐛 **Bug Fix**: Mask token fields in GetTaskDetail API response to prevent credential leakage
+
+👉 [v4.1.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+
+</details>
 
 <details>
 <summary>📌 v4.1 Highlights</summary>
@@ -76,7 +88,7 @@
 
 </details>
 
-👉 [Full v4.1.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents

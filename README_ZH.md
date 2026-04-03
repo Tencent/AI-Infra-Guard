@@ -48,11 +48,23 @@
   </a>
 </p>
 
-## 🚀 A.I.G v4.1.1：LiteLLM 供应链攻击检测
+## 🚀 最新动态：Agent Skill 安全扫描器
+
+- 🔐 **新增 Skill：`edgeone-skill-scanner`**：安装或使用任意 Agent Skill 前，先扫一遍——检测提示注入、权限提升、凭证泄露、供应链风险等，100% 本地静态分析，数据不离设备。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🛡️ **`edgeone-clawscan` 能力大幅增强**：OpenClaw 安全体检的检测规则显著扩充，覆盖更多风险场景。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+
+👉 [浏览 A.I.G Skills 目录](./skills/) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+
+<details>
+<summary>📌 v4.1.1 核心亮点</summary>
 
 - ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：A.I.G 现可检测受感染的 LiteLLM v1.82.7/v1.82.8——若已安装，视该机器上所有凭证已泄露。[查看发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 - 🔍 **新增组件覆盖**：新增 Blinko、New-API 的指纹识别和漏洞检测规则
 - 🐛 **安全修复**：GetTaskDetail 接口响应中对 token 字段做脱敏处理，防止凭证泄露
+
+👉 [v4.1.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+
+</details>
 
 <details>
 <summary>📌 v4.1 核心亮点</summary>
@@ -74,7 +86,7 @@
 
 </details>
 
-👉 [查看完整 v4.1.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
