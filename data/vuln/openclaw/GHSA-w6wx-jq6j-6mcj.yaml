@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w6wx-jq6j-6mcj
+  summary: OpenClaw pnpm dlx 审批流程未绑定本地脚本操作数
+  details: >-
+    摘要
+
+
+    在 OpenClaw 2026.4.2 之前，pnpm dlx 审批计划未像相关 pnpm exec 流程那样绑定本地脚本操作数。
+    通过 pnpm dlx 路径审批的本地脚本，可在执行前被替换而不会使审批失效。
+
+
+    影响
+
+
+    攻击者可让操作者审批一个无害的本地脚本，随后通过仍然有效的审批计划执行被篡改的脚本内容。
+    该漏洞属于节点宿主命令规划路径中的审批完整性缺陷。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.1
+
+    - 已修复版本：>= 2026.4.2
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 >= 2026.4.2 或更高版本。相关提交 - 176c059b05357df1bc09d4328a2380670859eeff — 在 pnpm dlx 审批计划中绑定本地脚本操作数
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj

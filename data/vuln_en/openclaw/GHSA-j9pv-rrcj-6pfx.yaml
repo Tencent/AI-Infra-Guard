@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j9pv-rrcj-6pfx
+  summary: OpenClaw SSH-based sandbox backends pass unsanitized process.env to child processes
+  details: >-
+    Summary
+
+    SSH-based sandbox backends pass unsanitized process.env to child processes
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: low
+
+    - Assessment: Shipped SSH sandbox paths leaked unsanitized env into local SSH child processes, but remote leakage needs
+    non-default SSH env forwarding, so lower to low.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - cfe14459531e002a1c61c27d97ec7dc8aecddc1f — 2026-03-30T20:05:57+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j9pv-rrcj-6pfx
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j9pv-rrcj-6pfx

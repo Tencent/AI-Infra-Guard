@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rvvf-6vh3-9j43
+  summary: OpenClaw Discord Slash Commands Bypass Group DM Channel Allowlist
+  details: >-
+    Summary
+
+    Discord Slash Commands Bypass Group DM Channel Allowlist
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: low
+
+    - Assessment: v2026.3.28 native Discord slash and autocomplete paths still skip the group-DM allowlist, but impact is
+    limited to already-authorized Discord users bypassing a channel restriction rather than crossing a stronger trust boundary.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 8fdb19676ab44cf85d47ee13c578195f2e527591 — 2026-03-30T11:17:36-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rvvf-6vh3-9j43
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rvvf-6vh3-9j43

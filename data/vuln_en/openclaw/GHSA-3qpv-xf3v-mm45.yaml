@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3qpv-xf3v-mm45
+  summary: OpenClaw Workspace `.env` can override the bundled hooks root and load attacker hook code
+  details: >-
+    Summary
+
+    Workspace .env can override the bundled hooks root and load attacker hook code
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: high
+
+    - Assessment: v2026.3.28 still lets workspace .env override OPENCLAW_BUNDLED_HOOKS_DIR, which can replace trusted default-on
+    bundled hooks from an untrusted workspace.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 330a9f98cb29c79b1c16a2117e03d6276a0d6289 — 2026-03-31T19:25:12+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3qpv-xf3v-mm45
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3qpv-xf3v-mm45

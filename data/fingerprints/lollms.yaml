@@ -1,0 +1,22 @@
+info:
+  name: lollms
+  author: A.I.G bot
+  severity: info
+  desc: LoLLMs WebUI is an open-source web interface for Lord of Large Language and Multimodal Systems, providing a unified UI for local and remote LLM backends. Default port is 9600.
+  metadata:
+    product: lollms
+    vendor: parisneo
+
+http:
+  - method: GET
+    path: /openapi.json
+    matchers:
+      - body='"title":"LoLLMs"'
+
+version:
+  - method: GET
+    path: /get_versionID
+    extractor:
+      part: body
+      group: 1
+      regex: '"id"\s*:\s*(\d+)'

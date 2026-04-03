@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rxmx-g7hr-8mx4
+  summary: OpenClaw Zalo Webhook 重放去重键可能导致跨会话或跨发送方消息被抑制
+  details: >-
+    摘要
+
+
+    在 OpenClaw 2026.4.2 之前，Zalo Webhook 重放去重键在会话维度和发送方维度的作用域划分不够严格。
+    来自不同会话或不同发送方的合法事件可能发生键值碰撞，进而被误判为重复事件而丢弃。
+
+
+    影响
+
+
+    跨会话或跨发送方的键值碰撞可导致消息被静默抑制，破坏 Bot 业务流程。该漏洞属于 Webhook 事件处理层面的可用性问题。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.1
+
+    - 已修复版本：>= 2026.4.2
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.4.2 或更高版本。相关提交 - ef7c553dd16ee579f1d1a363f5881a99726c1412 — 补全
+    Zalo Webhook 重放去重在缺失事件维度上的作用域约束
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rxmx-g7hr-8mx4
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rxmx-g7hr-8mx4

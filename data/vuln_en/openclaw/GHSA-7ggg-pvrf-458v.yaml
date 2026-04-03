@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7ggg-pvrf-458v
+  summary: OpenClaw `PIP_INDEX_URL` and `UV_INDEX_URL` bypass host exec env sanitization and redirect Python package-index
+    traffic
+  details: >-
+    Summary
+
+    PIP_INDEX_URL and UV_INDEX_URL bypass host exec env sanitization and redirect Python package-index traffic
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: high
+
+    - Assessment: v2026.3.28 still allows Python package-index env redirection through host exec, but scope should stay limited
+    to approved or allowlisted package-management exec paths, not arbitrary remote execution.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 7ae1bb0c7799fd0cbd2d4de7b0f5b8039837ab8d — 2026-03-31T09:53:32+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7ggg-pvrf-458v
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7ggg-pvrf-458v

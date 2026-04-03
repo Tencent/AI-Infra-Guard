@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fqrj-m88p-qf3v
+  summary: OpenClaw Zalo replay dedupe cache could suppress events across authenticated webhook targets
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.3.31, the Zalo webhook replay-dedupe cache was shared across authenticated webhook targets and keyed
+    too broadly. In multi-account deployments, a replay seen on one account could suppress a legitimate event on another account
+    if event_name and message_id matched.
+
+
+    Impact
+
+
+    An attacker who controlled one authenticated Zalo webhook path in a multi-account gateway deployment could cause silent
+    message suppression on a different Zalo account sharing that gateway. This was an availability issue; it did not provide
+    cross-account authentication or data access.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.2.19, < 2026.3.31
+
+    - Patched versions: >= 2026.3.31
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4d038bb242c11f39e45f6a4bde400e5fd42e4ebf — scope
+    webhook replay dedupe per target - 7cea7c29705b188b464cc9cdc107c275b94b2a72 — follow-up hardening to scope replay dedupe
+    by path and account
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v
+rule: version < "2026.3.31"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v

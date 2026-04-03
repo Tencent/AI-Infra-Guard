@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-37v6-fxx8-xjmx
+  summary: OpenClaw Telnyx Webhook 重放检测可通过 Base64 签名重新编码绕过
+  details: >-
+    漏洞摘要
+
+    Telnyx Webhook 重放检测可通过 Base64 签名重新编码绕过
+
+
+    当前维护者研判
+
+    - 状态：范围收窄
+
+    - 标准化严重等级：低危
+
+    - 研判说明：已发布的 v2026.3.28 版本中，重放哈希校验将等效的 Telnyx Base64 与 Base64URL 签名视为不同请求，但签名验证机制本身仍然有效，因此降级为低危。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw (npm)
+
+    - 最新已发布 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 首个包含修复的稳定标签：v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: 请将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - ad77666054651c1fd77b1dc60fd6a8db6600a29a — 2026-03-30T20:01:43+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-37v6-fxx8-xjmx
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-37v6-fxx8-xjmx

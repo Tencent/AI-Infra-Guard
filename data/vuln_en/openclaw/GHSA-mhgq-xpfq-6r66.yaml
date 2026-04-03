@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mhgq-xpfq-6r66
+  summary: OpenClaw Unauthenticated plugin-auth HTTP routes receive operator runtime scopes
+  details: >-
+    Summary
+
+    Unauthenticated plugin-auth HTTP routes receive operator runtime scopes
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: medium
+
+    - Assessment: v2026.3.28 still gives auth:"plugin" routes operator WRITE_SCOPE, but impact should stay limited to plugin
+    routes that actually touch privileged runtime actions before plugin auth completes.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 2a1db0c0f1fa375004a95ba0ef030534790a6d47 — 2026-04-01T00:20:49+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mhgq-xpfq-6r66
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mhgq-xpfq-6r66

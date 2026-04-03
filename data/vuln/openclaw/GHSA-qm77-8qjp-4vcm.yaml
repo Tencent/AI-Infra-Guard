@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qm77-8qjp-4vcm
+  summary: OpenClaw Slack 线程上下文可能包含来自非白名单发送方的消息
+  details: >-
+    摘要
+
+
+    在 OpenClaw 2026.4.2 之前，通过 API 获取的 Slack 线程发起者及线程历史上下文，未经有效发送方白名单过滤。
+    当白名单内用户在同一线程中回复时，来自非白名单发送方的消息仍可进入 Agent 上下文。
+
+
+    影响
+
+
+    依赖发送方白名单的 Slack 部署，仍可能通过线程历史将非白名单线程内容注入模型上下文。
+    该漏洞属于 Slack 线程上下文的发送方访问控制绕过，并非直接的通道鉴权绕过。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.1
+
+    - 已修复版本：>= 2026.4.2
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.4.2 或更高版本。相关提交 - ac5bc4fb37becc64a2ec314864cca1565e921f2d — 按有效白名单过滤 Slack 线程上下文
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qm77-8qjp-4vcm
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qm77-8qjp-4vcm

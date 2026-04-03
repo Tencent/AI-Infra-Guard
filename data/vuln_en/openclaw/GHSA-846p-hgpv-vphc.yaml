@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-846p-hgpv-vphc
+  summary: OpenClaw QQ Bot structured payloads could read arbitrary local files
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, QQ Bot structured media payloads could read local files from attacker-chosen paths. A crafted
+    structured payload could escape QQ Bot-owned media roots and cause arbitrary file reads on the host.
+
+
+    Impact
+
+
+    Prompt-influenced structured payload output could exfiltrate any host file readable by the OpenClaw process through the
+    QQ Bot media-send path. This was a real confidentiality bug on the host filesystem boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 2c45b06afdd6f7c621038b5419d8e661cff34a7f — restrict
+    QQ Bot structured payload local paths
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-846p-hgpv-vphc
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-846p-hgpv-vphc

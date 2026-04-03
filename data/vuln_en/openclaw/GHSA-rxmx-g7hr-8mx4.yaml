@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rxmx-g7hr-8mx4
+  summary: OpenClaw Zalo replay dedupe keys could suppress messages across chats or senders
+  details: >-
+    Summary
+
+
+    Before OpenClaw 2026.4.2, Zalo webhook replay dedupe keys were not scoped strongly enough across chat and sender dimensions.
+    Legitimate events from different conversations or senders could collide and be dropped as duplicates.
+
+
+    Impact
+
+
+    Cross-conversation or cross-sender collisions could cause silent message suppression and break bot workflows. This was
+    an availability issue in webhook event processing.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.1
+
+    - Patched versions: >= 2026.4.2
+
+    - Latest published npm version: 2026.4.1
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - ef7c553dd16ee579f1d1a363f5881a99726c1412 — scope
+    Zalo webhook replay dedupe across the missing event dimensions
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rxmx-g7hr-8mx4
+rule: version <= "2026.4.1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rxmx-g7hr-8mx4

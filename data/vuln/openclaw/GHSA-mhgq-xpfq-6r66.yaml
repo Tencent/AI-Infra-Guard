@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mhgq-xpfq-6r66
+  summary: OpenClaw 未认证插件鉴权 HTTP 路由被授予运营商运行时权限作用域
+  details: >-
+    漏洞概述
+
+    未认证插件鉴权 HTTP 路由被授予运营商运行时权限作用域
+
+
+    维护者现状评估
+
+    - 状态：影响范围受限（narrow）
+
+    - 标准化严重等级：中危
+
+    - 评估说明：v2026.3.28 版本仍向 auth:"plugin" 路由授予运营商 WRITE_SCOPE 写权限，但影响范围应局限于插件鉴权完成前实际触及特权运行时操作的插件路由。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - npm 最新发布版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 包含修复的首个稳定标签：v2026.3.31
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - 2a1db0c0f1fa375004a95ba0ef030534790a6d47 — 2026-04-01T00:20:49+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mhgq-xpfq-6r66
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mhgq-xpfq-6r66
