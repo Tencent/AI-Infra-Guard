@@ -122,7 +122,7 @@ clawhub install aig-scanner
 
 Then configure `AIG_BASE_URL` to point to your running A.I.G service.
 
-For more details, see [OpenClaw integration](./integrations/openclaw/README.md).
+For more details, see the [`aig-scanner` README](./skills/aig-scanner/README.md).
 
 <details>
 <summary><strong>📦 More installation options</strong></summary>
