@@ -50,33 +50,46 @@
 
 <br>
 
-## v4.1.1 の新機能: LiteLLMサプライチェーン攻撃検出
+## 🚀 最新情報: Agent Skillセキュリティスキャナー
 
-- **LiteLLMサプライチェーン攻撃** *（重大）*: A.I.Gは侵害されたLiteLLM v1.82.7/v1.82.8を検出できるようになりました。インストールされている場合、ホスト上のすべての認証情報が窃取されたとみなすべきです。[リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-- **新規コンポーネント対応**: BlinkoおよびNew-APIのフィンガープリントと脆弱性ルールを追加
-- **バグ修正**: GetTaskDetail APIレスポンスのトークンフィールドをマスク処理し、認証情報の漏洩を防止
+- 🔐 **新スキル: `edgeone-skill-scanner`**: インストールや使用前に任意のAgent Skillのセキュリティリスクをスキャン — プロンプトインジェクション、権限昇格、認証情報漏洩、サプライチェーンリスクなどを検出。100%ローカル静的解析、データは端末外に送信されません。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
+- 🛡️ **`edgeone-clawscan` 機能強化**: OpenClawセキュリティ評価の検出ルールを大幅に拡充。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
+- 🤖 **スキル: `aig-scanner`**: OpenClawのチャットから直接A.I.Gスキャンを実行 — ブラウザ不要。稼働中のA.I.Gサービスに向けて、どこからでもスキャンを開始できます。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
+
+👉 [A.I.G Skillsを見る](./skills/) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
 <details>
-<summary>v4.1 ハイライト</summary>
+<summary>📌 v4.1.1 ハイライト</summary>
 
-- **OpenClaw検出の強化**: 脆弱性データベースに281件の新しいCVE/GHSAエントリを追加
-- **タスク効率化**: 実行中のタスクを削除すると、基盤となるエージェントの実行が即座に停止されるようになりました
+- ☠️ **LiteLLMサプライチェーン攻撃** *（重大）*: A.I.Gは侵害されたLiteLLM v1.82.7/v1.82.8を検出できるようになりました。インストールされている場合、ホスト上のすべての認証情報が窃取されたとみなすべきです。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
+- 🔍 **新規コンポーネント対応**: BlinkoおよびNew-APIのフィンガープリントと脆弱性ルールを追加
+- 🐛 **バグ修正**: GetTaskDetail APIレスポンスのトークンフィールドをマスク処理し、認証情報の漏洩を防止
 
-[v4.1 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
+👉 [v4.1.1 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
 
 </details>
 
 <details>
-<summary>v4.0 ハイライト</summary>
+<summary>📌 v4.1 ハイライト</summary>
 
-- **OpenClawセキュリティスキャン（EdgeOne ClawScan）**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出。Tencent Zhuque Labが開発し、Tencent Keen Security Labと共同構築したスキルセキュリティインテリジェンスを搭載
-- **Agent-Scan**: AIエージェントワークフロー（Dify、Cozeなど）のセキュリティを評価する、まったく新しいマルチエージェント自動スキャンフレームワーク。間接的プロンプトインジェクション、SSRF、システムプロンプト漏洩などをカバー — OWASP Top 10 for Agentic Apps 2026に基づく
+- 🔍 **OpenClaw検出の強化**: 脆弱性データベースに281件の新しいCVE/GHSAエントリを追加
+- ⚡ **タスク効率化**: 実行中のタスクを削除すると、基盤となるエージェントの実行が即座に停止されるようになりました
 
-[v4.0 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
+👉 [v4.1 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
 
 </details>
 
-[v4.1.1 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) · [CHANGELOG](./CHANGELOG.md) · [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+<details>
+<summary>📌 v4.0 ハイライト</summary>
+
+- 🛡️ **OpenClawセキュリティスキャン（EdgeOne ClawScan）**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出。Tencent Zhuque Labが開発し、Tencent Keen Security Labと共同構築したスキルセキュリティインテリジェンスを搭載
+- 🤖 **Agent-Scan**: AIエージェントワークフロー（Dify、Cozeなど）のセキュリティを評価する、まったく新しいマルチエージェント自動スキャンフレームワーク。間接的プロンプトインジェクション、SSRF、システムプロンプト漏洩などをカバー — OWASP Top 10 for Agentic Apps 2026に基づく
+
+👉 [v4.0 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
+
+</details>
+
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
 
 ## 目次
@@ -123,7 +136,7 @@ clawhub install aig-scanner
 
 その後、`AIG_BASE_URL`を実行中のA.I.Gサービスを指すように設定してください。
 
-詳細については、[OpenClaw連携](./integrations/openclaw/README.md)を参照してください。
+詳細については、[`aig-scanner` README](./skills/aig-scanner/README.md)を参照してください。
 
 <details>
 <summary><strong>その他のインストール方法</strong></summary>
@@ -163,7 +176,7 @@ docker-compose up -d
 | **ClawScan（OpenClawセキュリティスキャン）** | OpenClawのセキュリティリスクのワンクリック評価に対応。安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出します。 |
 | **Agent Scan** | 独立したマルチエージェント自動スキャンフレームワークです。AIエージェントワークフローのセキュリティを評価するために設計されています。DifyやCozeなど、さまざまなプラットフォームで動作するエージェントをシームレスにサポートします。 |
 | **MCPサーバー＆エージェントスキルスキャン** | 14の主要なセキュリティリスクカテゴリを徹底的に検出します。MCPサーバーとエージェントスキルの両方に適用されます。ソースコードとリモートURLの両方からのスキャンに柔軟に対応します。 |
-| **AIインフラ脆弱性スキャン** | 50以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1000以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
+| **AIインフラ脆弱性スキャン** | 52以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1000以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
 | **ジェイルブレイク評価** | 厳選されたデータセットを使用してプロンプトのセキュリティリスクを評価します。堅牢性をテストするために複数の攻撃手法を適用します。また、詳細なモデル間比較機能も提供します。 |
 
 <details>
