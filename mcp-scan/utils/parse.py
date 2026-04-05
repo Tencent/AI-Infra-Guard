@@ -47,6 +47,17 @@ def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
 
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:
     invocations = _parse_tags(content, "function")
+    if not invocations and content:
+        finish_match = re.search(
+            r"<finish>\s*(.*?)\s*</finish>", content, re.DOTALL | re.IGNORECASE
+        )
+        if finish_match:
+            invocations = [
+                {
+                    "toolName": "finish",
+                    "args": {"content": html.unescape(finish_match.group(1).strip())},
+                }
+            ]
     return invocations[0] if invocations else None
 
 
@@ -60,6 +71,7 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<finish>.*?</finish>",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]

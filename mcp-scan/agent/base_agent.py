@@ -183,16 +183,21 @@ class BaseAgent:
     async def handle_response(self, response: str):
         tool_invocations = parse_tool_invocations(response)
         description = clean_content(response)
+        if tool_invocations and tool_invocations["toolName"] == "finish" and description == "":
+            description = "报告完成。"
+            if self.language == "en":
+                description = "Report completed."
         if description == "":
             description = "我将继续执行"
             if self.language == "en":
                 description = "I will continue to execute"
 
-        mcpLogger.status_update(self.step_id, description, "", "running")
-
         if tool_invocations:
+            if tool_invocations["toolName"] != "finish":
+                mcpLogger.status_update(self.step_id, description, "", "running")
             return await self.process_tool_call(tool_invocations, description)
         else:
+            mcpLogger.status_update(self.step_id, description, "", "running")
             return await self.handle_no_tool(description)
 
     async def process_tool_call(self, tool_call: dict, description: str):
