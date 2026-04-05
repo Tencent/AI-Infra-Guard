@@ -50,15 +50,23 @@ class BaseAgent:
         self.instruction = instruction
         self.capabilities = capabilities or ["standard"]
         self.output_format = output_format
-        self.history = []
-        self.max_iter = 80
-        self.iter = 0
-        self.is_finished = False
         self.step_id = log_step_id
         self.debug = debug
         self.repo_dir = ""
         self.output_check_fn = output_check_fn
         self.language = language
+        # loop control
+        self.iter = 0
+        self.max_iter = 80
+        self.is_finished = False
+        # context
+        self.history = []
+        self.original_task = ""
+        self.summary_memory = ""
+        # 在模型上下文窗口达到 60% 左右时开始压缩，给后续输出和工具结果留余量。
+        self.max_history_tokens = max(int(self.llm.context_window * 0.6), 1)
+        # 压缩时保留最近若干条对话，避免丢失当前执行轨迹。
+        self.keep_recent_msgs = 8
 
     async def initialize(self):
         """异步初始化系统提示词"""
@@ -72,23 +80,52 @@ class BaseAgent:
     def set_repo_dir(self, repo_dir: str):
         self.repo_dir = repo_dir
 
+    def should_compact_history(self, usage: dict | None = None) -> bool:
+        # 没有可压缩的旧消息时，不触发压缩。
+        if len(self.history) - 2 <= self.keep_recent_msgs:
+            return False
+
+        prompt_tokens = None
+        if usage:
+            prompt_tokens = usage.get("prompt_tokens")
+        if isinstance(prompt_tokens, int):
+            return prompt_tokens >= self.max_history_tokens
+
+        # 某些兼容接口没有 usage，退回到消息条数做保守判定。
+        return len(self.history) > 24
+
     def compact_history(self):
-        if len(self.history) < 3:
+        recent_start = max(2, len(self.history) - self.keep_recent_msgs)
+
+        msgs_to_compact = []
+        if self.summary_memory:
+            msgs_to_compact.append(
+                {"role": "user", "content": self._build_summary_memory_message()}
+            )
+        msgs_to_compact.extend(self.history[2:recent_start])
+        if not msgs_to_compact:
             return
 
-        prompt = prompt_manager.load_template("compact")
-        history = self.history[1:]
-        history.append({"role": "user", "content": prompt})
-        response = self.llm.chat(history)
+        compact_prompt = prompt_manager.load_template("compact")
+        msgs_to_compact.append({"role": "user", "content": compact_prompt})
+        compacted_msgs = self.llm.chat(msgs_to_compact)
+        self.summary_memory = compacted_msgs
+
+        if not self.original_task:
+            self.original_task = self.history[1]["content"]
 
         system_prompt = self.history[0]
-        user_messages = (
-            f"我希望你完成:{self.history[1]['content']} \n\n有以下上下文提供你参考:\n" + response
-        )
-        self.history = [system_prompt, {"role": "user", "content": user_messages}]
+        recent_msgs = self.history[-self.keep_recent_msgs :]
+        self.history = [
+            system_prompt,
+            {
+                "role": "user",
+                "content": self._build_task_message(),
+            },
+            *recent_msgs,
+        ]
 
     async def generate_system_prompt(self):
-
         tools_prompt = await self.dispatcher.get_all_tools_prompt()
 
         template_name = "system_prompt"
@@ -112,15 +149,35 @@ class BaseAgent:
         result = ""
         while not self.is_finished and self.iter < self.max_iter:
             logger.debug(f"\n{'=' * 50}\nIteration {self.iter}\n{'=' * 50}")
-            response = self.llm.chat(self.history, self.debug)
+            response, usage = self.llm.chat(self.history, self.debug, ret_usage=True)
             logger.debug(f"LLM Response: {response}")
+
             self.history.append({"role": "assistant", "content": response})
             res = await self.handle_response(response)
             if res is not None:
                 result = res
-            if self.iter >= self.max_iter:
-                logger.warning(f"Max iterations ({self.max_iter}) reached")
+
+            self.iter += 1
+            if self.should_compact_history(usage) and not self.is_finished:
+                logger.info(
+                    "Prompt tokens %s exceeded limit %s, compacting context",
+                    usage.get("prompt_tokens") if usage else None,
+                    self.max_history_tokens,
+                )
                 self.compact_history()
+
+        if not self.is_finished:
+            logger.warning(f"Max iterations ({self.max_iter}) reached")
+            mcpLogger.status_update(
+                self.step_id,
+                "达到最大迭代次数，返回当前结果"
+                if self.language != "en"
+                else "Max iterations reached, returning current result",
+                "",
+                "completed",
+            )
+            if not result:
+                result = await self._format_final_output()
         return result
 
     async def handle_response(self, response: str):
@@ -152,8 +209,8 @@ class BaseAgent:
         if tool_name == "finish":
             self.is_finished = True
             logger.info("Finish tool called, final result formatted.")
+
             mcpLogger.status_update(self.step_id, description, "", "completed")
-            # mcpLogger.tool_used(self.step_id, tool_id, "报告整合", "done", tool_name, brief_content.split("\n")[0][:50])
             result = await self._format_final_output()
             mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
@@ -185,11 +242,24 @@ class BaseAgent:
         if tool_name != "read_file":
             mcpLogger.action_log(tool_id, tool_name, self.step_id, f"```\n{result_message}\n```")
 
-        # mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
         return None
 
     async def handle_no_tool(self, description: str):
-        # todo
+        next_p = self.next_prompt()
+        if self.language == "en":
+            reminder = (
+                f"{next_p}\n\n"
+                "No tool call was detected. You must call exactly one tool in your next response. "
+                "If the task is complete, call finish."
+            )
+        else:
+            reminder = (
+                f"{next_p}\n\n"
+                "未检测到工具调用。你下一次回复必须严格调用一个工具。"
+                "如果任务已完成，请调用 finish。"
+            )
+
+        self.history.append({"role": "user", "content": reminder})
         return None
 
     async def _format_final_output(self) -> str:
@@ -211,3 +281,21 @@ class BaseAgent:
             else:
                 break
         return final_output
+
+    def _build_task_message(self) -> str:
+        if not self.summary_memory:
+            return self.original_task
+
+        if self.language == "en":
+            return (
+                f"I want you to complete: {self.original_task}\n\n"
+                f"The following context is provided for your reference:\n{self.summary_memory}"
+            )
+        return (
+            f"我希望你完成: {self.original_task}\n\n有以下上下文提供你参考:\n{self.summary_memory}"
+        )
+
+    def _build_summary_memory_message(self) -> str:
+        if self.language == "en":
+            return f"Summary of previous context:\n{self.summary_memory}"
+        return f"此前上下文摘要：\n{self.summary_memory}"

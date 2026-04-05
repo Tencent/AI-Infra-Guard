@@ -33,24 +33,29 @@ class LLMManager:
         "default": {
             "model": config.DEFAULT_MODEL,
             "base_url": config.DEFAULT_BASE_URL,
+            # context_window 用于 agent 的上下文压缩判定。
+            "context_window": config.DEFAULT_MODEL_CONTEXT_WINDOW,
             "description": "默认模型",
         },
         "thinking": {
             "model": config.THINKING_MODEL,
             "base_url": config.THINKING_BASE_URL,
             "api_key": config.THINKING_API_KEY,  # 可选，为 None 时使用主 API Key
+            "context_window": config.THINKING_MODEL_CONTEXT_WINDOW,
             "description": "专门用于深度思考和推理的模型",
         },
         "coding": {
             "model": config.CODING_MODEL,
             "base_url": config.CODING_BASE_URL,
             "api_key": config.CODING_API_KEY,  # 可选，为 None 时使用主 API Key
+            "context_window": config.CODING_MODEL_CONTEXT_WINDOW,
             "description": "专门用于代码生成和分析的模型",
         },
         "fast": {
             "model": config.FAST_MODEL,
             "base_url": config.FAST_BASE_URL,
             "api_key": config.FAST_API_KEY,  # 可选，为 None 时使用主 API Key
+            "context_window": config.FAST_MODEL_CONTEXT_WINDOW,
             "description": "用于快速响应的轻量级模型",
         },
     }
@@ -130,10 +135,16 @@ class LLMManager:
         # 优先级：配置中指定的 > 默认配置中的 > 主配置
         api_key = llm_config.get("api_key") or self.default_api_key
         base_url = llm_config.get("base_url") or self.default_base_url
+        context_window = llm_config.get("context_window")
 
         # 创建新实例
         try:
-            llm = LLM(model=llm_config["model"], api_key=api_key, base_url=base_url)
+            llm = LLM(
+                model=llm_config["model"],
+                api_key=api_key,
+                base_url=base_url,
+                context_window=context_window,
+            )
             llm.temperature = llm_config.get("temperature", 0.7)
             self._llm_instances[purpose] = llm
             logger.info(

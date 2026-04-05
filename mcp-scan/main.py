@@ -112,7 +112,12 @@ async def main():
         sys.exit(1)
 
     # 创建主 LLM 实例
-    llm = LLM(model=args.model, api_key=api_key, base_url=args.base_url)
+    llm = LLM(
+        model=args.model,
+        api_key=api_key,
+        base_url=args.base_url,
+        context_window=config.DEFAULT_MODEL_CONTEXT_WINDOW,
+    )
     logger.info(f"Main LLM initialized: {args.model}")
 
     # 使用主 API Key 作为默认值
