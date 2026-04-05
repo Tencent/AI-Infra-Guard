@@ -24,6 +24,14 @@ cd mcp-scan
 
 ### 2. 安装依赖
 
+推荐使用 `uv`（速度更快，自动管理虚拟环境）：
+
+```bash
+uv sync
+```
+
+或使用 pip：
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -248,11 +256,7 @@ uv run ruff format .
 ### 运行测试
 
 ```bash
-# 测试 LLM 连接
-python utils/llm.py
-
-# 测试 LLM Manager
-python utils/llm_manager.py
+uv run pytest
 ```
 
 ### 日志查看
