@@ -24,6 +24,19 @@ from utils.loging import logger
 from utils.tool_context import ToolContext
 
 
+def _is_path_allowed(file_path: str, context: ToolContext | None) -> bool:
+    if not context or not context.folder:
+        return False
+
+    allowed_root = os.path.realpath(context.folder)
+    target_path = os.path.realpath(file_path)
+
+    try:
+        return os.path.commonpath([allowed_root, target_path]) == allowed_root
+    except ValueError:
+        return False
+
+
 @register_tool
 def read_file(file_path: str, context: ToolContext = None) -> dict[str, Any]:
     """读取文件内容
@@ -35,8 +48,7 @@ def read_file(file_path: str, context: ToolContext = None) -> dict[str, Any]:
         包含成功状态和文件内容的字典
     """
     try:
-        directory = os.path.dirname(file_path)
-        if not directory.startswith(context.folder):
+        if not _is_path_allowed(file_path, context):
             return {
                 "success": False,
                 "message": f"Path is not allowed: {file_path}, you can only access the given directory",
