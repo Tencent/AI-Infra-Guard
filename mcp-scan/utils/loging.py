@@ -16,8 +16,9 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-import time
 import sys
+import time
+
 from loguru import logger
 
 logger.remove()
@@ -37,7 +38,7 @@ logger.add(
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
     mode="w",  # 每次运行时覆盖旧日志
 )
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 设置日志级别
     # 输出日志
     logger.error("Hello, world!")

@@ -231,6 +231,20 @@ MCP-Scan 采用多阶段自动化流程：
 
 ## 🤝 开发指南
 
+建议使用 `uv` 管理本地开发环境，并统一基于 Python 3.12 进行开发与验证。
+初始化开发环境时，可执行：
+
+```bash
+uv sync --extra dev --extra test
+```
+
+提交代码前，建议至少完成以下检查：
+
+```bash
+uv run ruff check . --fix
+uv run ruff format .
+```
+
 ### 运行测试
 
 ```bash
