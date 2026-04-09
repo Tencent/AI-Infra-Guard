@@ -211,6 +211,43 @@ Experience the Pro version with advanced features and improved performance. The 
 <br />
 
 
+## 🗺️ Quick Usage Guide
+
+> After deployment, open `http://localhost:8088` in your browser.
+
+### AI Infrastructure Vulnerability Scan
+
+**What to enter as the target URL / IP?**
+
+The target is the **network address of a running AI service** you want to scan — not a GitHub URL or source code path. A.I.G connects to the live service and fingerprints it for known CVE vulnerabilities.
+
+| Scenario | Example target |
+|:---------|:--------------|
+| A locally running vLLM instance | `http://127.0.0.1:8000` |
+| An Ollama server on your LAN | `http://192.168.1.100:11434` |
+| A ComfyUI instance exposed internally | `http://10.0.0.5:8188` |
+| Multiple hosts (one per line) | `192.168.1.0/24` (CIDR), `10.0.0.1-10.0.0.20` (range) |
+
+**Step-by-step: Scan a local vLLM instance**
+
+1. Start vLLM normally (e.g. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
+2. In the A.I.G web UI, click **"AI基础设施安全扫描 / AI Infra Scan"**
+3. Enter `http://127.0.0.1:8000` (or the IP/port where vLLM is listening)
+4. Click **Start Scan** — A.I.G will fingerprint the service and match it against 1000+ known CVEs
+5. View the report: component version, matched vulnerabilities, severity, and remediation links
+
+> 💡 **Tip**: To scan the *nightly* build of vLLM specifically, just run that nightly build and point A.I.G at its address. The scanner detects the version automatically.
+
+### MCP Server & Agent Skills Scan
+
+Enter either a **remote URL** (e.g. `https://github.com/user/mcp-server`) or **upload a local source archive** — no running instance required.
+
+### Jailbreak Evaluation
+
+Configure the target LLM's API endpoint (base URL + API key) in **Settings → Model Config**, then select a dataset and start the evaluation.
+
+---
+
 ## 📖 User Guide
 
 Visit our online documentation: [https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)

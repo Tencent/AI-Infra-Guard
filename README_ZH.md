@@ -205,6 +205,43 @@ docker-compose up -d
 <br />
 
 
+## 🗺️ 快速使用指南
+
+> 部署完成后，在浏览器中打开 `http://localhost:8088`。
+
+### AI基础设施漏洞扫描
+
+**目标地址填什么？**
+
+目标是**正在运行的 AI 服务的网络地址**，不是 GitHub 链接，也不是源代码路径。A.I.G 会连接到这个地址，识别 AI 框架组件和版本，并匹配已知 CVE 漏洞。
+
+| 场景 | 目标示例 |
+|:-----|:--------|
+| 本地运行的 vLLM 实例 | `http://127.0.0.1:8000` |
+| 内网 Ollama 服务器 | `http://192.168.1.100:11434` |
+| 内网 ComfyUI 实例 | `http://10.0.0.5:8188` |
+| 批量扫描多台主机 | `192.168.1.0/24`（CIDR），`10.0.0.1-10.0.0.20`（IP 段） |
+
+**实例演练：扫描本地 vLLM**
+
+1. 正常启动 vLLM（如 `python -m vllm.entrypoints.api_server --model ...`）
+2. 在 A.I.G 界面点击「AI基础设施安全扫描」
+3. 在目标输入框填入 `http://127.0.0.1:8000`（vLLM 实际监听的 IP 和端口）
+4. 点击「开始扫描」— A.I.G 会自动识别组件版本，匹配 1000+ 已知 CVE
+5. 查看报告：组件版本、命中漏洞、严重等级及修复建议链接
+
+> 💡 **提示**：如果想扫描 vLLM 的 nightly 版本，只需启动 nightly 构建，把地址填进来即可，扫描器会自动识别版本。
+
+### MCP Server & Agent Skills 扫描
+
+在目标框填入 **GitHub 仓库地址**（如 `https://github.com/user/mcp-server`）或**直接上传本地源代码压缩包**，无需运行实例。
+
+### 越狱评估（Jailbreak Evaluation）
+
+在「设置 → 模型配置」中填入目标大模型的 API 地址和 Key，选择评估数据集后即可开始测评。
+
+---
+
 ## 📖 用户指南
 
 访问我们的在线文档：[https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
