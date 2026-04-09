@@ -57,14 +57,15 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
 | **Model Serving**          | gradio                  | 48                  | High        |
-|                            | ollama                  | 25                  | Medium-High |
+|                            | ollama                  | 26                  | Medium-High |
 |                            | triton-inference-server | 33                  | Medium-High |
 |                            | vllm                    | 43                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 7                   | Medium      |
-|                            | llama-cpp               | 1                   | Low         |
+|                            | llama-cpp               | 3                   | Low         |
 |                            | llmstudio               | 1                   | Low         |
 |                            | ChatRTX                 | 1                   | Low         |
+|                            | kubeai                  | 1                   | High        |
 | **LLM App Frameworks**     | langchain               | 51                  | High        |
 |                            | dify                    | 21                  | High        |
 |                            | anythingllm             | 16                  | Medium-High |
@@ -72,15 +73,17 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | ragflow                 | 11                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
 |                            | langflow                | 24                  | Medium      |
-|                            | litellm                 | 17                  | Medium      |
-|                            | mlflow                  | 62                  | High        |
+|                            | litellm                 | 18                  | Medium      |
+|                            | mlflow                  | 66                  | High        |
 |                            | librechat               | 9                   | Medium      |
 |                            | nextchat                | 4                   | Medium      |
 |                            | lobechat                | 3                   | Medium      |
+|                            | lobehub                 | 1                   | Medium      |
 |                            | flowise                 | 3                   | Medium      |
 |                            | langfuse                | 3                   | Low         |
 |                            | new-api                 | 2                   | Medium      |
 |                            | Chuanhugpt              | 27                  | Medium-High |
+|                            | crewai                  | 3                   | Critical    |
 | **Data Processing**        | clickhouse              | 25                  | High        |
 |                            | feast                   | 2                   | Low         |
 |                            | dask                    | 3                   | Low         |
@@ -107,7 +110,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
-|                            | openclaw                | 451                 | Medium-High |
+|                            | openclaw                | 452                 | Medium-High |
 | **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
