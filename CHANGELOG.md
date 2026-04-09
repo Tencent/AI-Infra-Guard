@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.3] - 2026-04-09
+
+### Fixed
+- **Fingerprint**: Add version extractor to OpenClaw fingerprint for accurate version detection (#286)
+- **MCP Scan**: Harden agent loop and path validation, clean up config (#282)
+
+### Changed
+- **Vulnerability Rules**: Remove duplicate GHSA files already covered by CVE entries (OpenClaw dedup)
+
+### Documentation
+- Add quick usage guide with concrete scan target examples (issue #281)
+- Sync env.example context window vars, update install and test commands for MCP scan
+- Fix README_JA quick guide missing sections and correct OpenClaw vuln count (474→451)
+- Restructure and sync What's New sections across EN/ZH/JA READMEs
+
+### Contributors
+Special thanks to @boyhack, @zhuque, @zznQ, @feiyang666, @juciepie, @aig-doc-bot
+
+---
+
 ## [v4.1.2] - 2026-04-03
 
 ### Fixed
