@@ -64,6 +64,7 @@
 - [🖼️ Showcase](#-showcase)
 - [📖 User Guide](#-user-guide)
 - [🔧 API Documentation](#-api-documentation)
+- [🏗️ Architecture Evolution](./docs/architecture_evolution.md)
 - [📝 Contribution Guide](#-contribution-guide)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
