@@ -4,8 +4,14 @@
 <h4 align="center">
     <p>
         <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="./README_ZH.md">中文</a> |
-        <a href="./README_JA.md">日本語</a>
+        <a href="./readme/README_ZH.md">中文</a> |
+        <a href="./readme/README_JA.md">日本語</a> |
+        <a href="./readme/README_ES.md">Español</a> |
+        <a href="./readme/README_DE.md">Deutsch</a> |
+        <a href="./readme/README_FR.md">Français</a> |
+        <a href="./readme/README_KR.md">한국어</a> |
+        <a href="./readme/README_PT.md">Português</a> |
+        <a href="./readme/README_RU.md">Русский</a>
     <p>
 </h4>
 <p align="center">
