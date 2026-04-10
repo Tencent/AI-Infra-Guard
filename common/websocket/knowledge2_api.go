@@ -333,7 +333,7 @@ func GetJailBreak(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "error" + err.Error(),
+			"message": "Failed to resolve prompt security directory: " + err.Error(),
 		})
 		return
 	}
@@ -342,7 +342,7 @@ func GetJailBreak(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "error" + err.Error(),
+			"message": "Failed to read strategy map: " + err.Error(),
 		})
 		return
 	}
@@ -351,7 +351,7 @@ func GetJailBreak(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "error" + err.Error(),
+			"message": "Failed to parse strategy map: " + err.Error(),
 		})
 		return
 	}
@@ -447,28 +447,28 @@ func HandleGetAgentConfig(c *gin.Context) {
 	})
 }
 
-// testAgentConnectivity 测试Agent配置的连通性
-// 返回 (success, message, error)
+// testAgentConnectivity verifies Agent configuration connectivity.
+// Returns (success, message, error).
 func testAgentConnectivity(content string) (bool, string, error) {
 	agentScanDir, err := utils.ResolveAgentScanDir()
 	if err != nil {
-		return false, "", fmt.Errorf("解析 agent-scan 目录失败: %v", err)
+		return false, "", fmt.Errorf("failed to resolve agent-scan directory: %v", err)
 	}
 	uvBin, err := utils.ResolveUvBin()
 	if err != nil {
-		return false, "", fmt.Errorf("解析 uv 路径失败: %v", err)
+		return false, "", fmt.Errorf("failed to resolve uv binary: %v", err)
 	}
 	// Create temporary file for the YAML content
 	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
 	if err != nil {
-		return false, "", fmt.Errorf("创建临时文件失败: %v", err)
+		return false, "", fmt.Errorf("failed to create temporary config file: %v", err)
 	}
 	defer os.Remove(tmpFile.Name())
 
 	// Write YAML content to temp file
 	if _, err := tmpFile.WriteString(content); err != nil {
 		tmpFile.Close()
-		return false, "", fmt.Errorf("写入配置文件失败: %v", err)
+		return false, "", fmt.Errorf("failed to write config file: %v", err)
 	}
 	tmpFile.Close()
 
@@ -484,7 +484,7 @@ func testAgentConnectivity(content string) (bool, string, error) {
 	)
 
 	if err != nil {
-		return false, "", fmt.Errorf("连通性测试执行失败: %v", err)
+		return false, "", fmt.Errorf("connectivity test execution failed: %v", err)
 	}
 	if lastLine != "" {
 		gologger.Infoln("test_agent_connect", lastLine)
@@ -493,7 +493,7 @@ func testAgentConnectivity(content string) (bool, string, error) {
 	// Parse the JSON output from Python script
 	var result ConnectResultUpdate
 	if err := json.Unmarshal([]byte(lastLine), &result); err != nil {
-		return false, "", fmt.Errorf("解析测试结果失败: %v", err)
+		return false, "", fmt.Errorf("failed to parse connectivity test result: %v", err)
 	}
 
 	return result.Content.Success, result.Content.Message, nil
@@ -533,19 +533,19 @@ func HandleSaveAgentConfig(c *gin.Context) {
 		return
 	}
 
-	// 检测Agent连通性
+	// Validate Agent connectivity before saving the config.
 	success, message, err := testAgentConnectivity(content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "连通性检测失败: " + err.Error(),
+			"message": "Connectivity check failed: " + err.Error(),
 		})
 		return
 	}
 	if !success {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "连通性检测失败: " + message,
+			"message": "Connectivity check failed: " + message,
 		})
 		return
 	}
@@ -579,7 +579,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
-		"message": "保存成功，连通性验证通过",
+		"message": "Saved successfully and connectivity check passed",
 	})
 }
 
