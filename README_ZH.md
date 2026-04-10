@@ -48,65 +48,15 @@
   </a>
 </p>
 
-## 🚀 v4.1.3 新功能
+## 🚀 最新动态
 
-**🗄️ AI组件漏洞库更新**
-- 🔍 **55 种 AI 组件，1000+ CVE**：新增 crewai（3条，严重）、kubeai（1条，高危）、lobehub（1条，中危），同步更新 ollama/llama-cpp/litellm/mlflow/openclaw 漏洞数量。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3)
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 覆盖扩展至 55 种 AI 组件，新增 crewai、kubeai、lobehub。
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHub 上线三大 Skill（`edgeone-clawscan`、`edgeone-skill-scanner`、`aig-scanner`），支持手动停止任务。
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ 可检测 LiteLLM 供应链投毒（严重）；新增 Blinko、New-API 覆盖。
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw 漏洞库新增 281 条 CVE/GHSA 条目。
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — 发布 EdgeOne ClawScan（OpenClaw 安全体检）与 Agent-Scan 框架。
 
-👉 [查看完整 v4.1.3 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
-
-<details>
-<summary>📌 v4.1.2 核心亮点</summary>
-
-**🗄️ AI组件漏洞库更新**
-- 🔍 **新增 100+ 漏洞规则**：OpenClaw 覆盖提升至 474 条，覆盖官方所有公开 CVE；累计支持 55 个 AI 组件、1000+ 漏洞扫描。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
-
-**🛠️ 三大 Skill 正式发布（均已发布至 ClawHub）**
-- 🛡️ **`edgeone-clawscan`**：一键评估 OpenClaw 安全风险，检测不安全配置、CVE 漏洞、恶意 Skill 与隐私泄露。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🔐 **`edgeone-skill-scanner`**：安装前先扫 Skill——覆盖后门指令、数据窃取等 10+ 常见风险，支持 OpenClaw、Cursor、Claude Code、Codex 等主流 Agent。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🤖 **`aig-scanner`**：在 Agent 对话里直接调用 A.I.G 四大核心能力——AI基础设施扫描、Skill扫描、Agent扫描、大模型安全体检，无需打开浏览器。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
-
-**🐛 细节功能优化**
-- ⏹️ **手动停止任务**：随时终止正在运行的扫描任务
-- 修复 AI 基础设施扫描大批量目标异常及"不使用模型"选项无法选中的问题
-- 修复 Agent 扫描中 LLM 异常响应导致程序崩溃的问题
-
-👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [浏览 A.I.G Skills 目录](./skills/)
-
-</details>
-
-<details>
-<summary>📌 v4.1.1 核心亮点</summary>
-
-- ☠️ **LiteLLM 供应链投毒** *(CRITICAL)*：A.I.G 现可检测受感染的 LiteLLM v1.82.7/v1.82.8——若已安装，视该机器上所有凭证已泄露。[查看发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-- 🔍 **新增组件覆盖**：新增 Blinko、New-API 的指纹识别和漏洞检测规则
-- 🐛 **安全修复**：GetTaskDetail 接口响应中对 token 字段做脱敏处理，防止凭证泄露
-
-👉 [v4.1.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-
-</details>
-
-<details>
-<summary>📌 v4.1 核心亮点</summary>
-
-- 🔍 **OpenClaw 检测增强**：漏洞库新增 281 条 CVE/GHSA 条目
-- ⚡ **任务效率优化**：删除运行中任务时立即终止底层 Agent 执行，节省 Token 消耗
-
-👉 [v4.1 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
-
-</details>
-
-<details>
-<summary>📌 v4.0 核心亮点</summary>
-
-- 🛡️ **OpenClaw安全体检 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)**：支持一键评估 OpenClaw 安全风险，包含不安全配置、Skill风险、CVE漏洞与隐私泄露等风险检测，由腾讯朱雀实验室提供官方核心安全引擎支持，并联合腾讯科恩实验室共建 Skill 安全情报数据。
-- 🤖 **Agent安全扫描**：基于多个 AI 红队智能体驱动的 Agent 安全风险自动化扫描框架，旨在全面评估各类 Agent 平台（如Dify、Coze 等）上运行的智能体工作流的安全性，提供间接提示注入、SSRF、System Prompt泄露等安全风险检测能力（基于 OWASP Top 10 for Agentic Apps 2026）。
-
-👉 [v4.0 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
-
-</details>
-
-👉 [查看完整 v4.1.3 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)

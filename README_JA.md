@@ -50,65 +50,15 @@
 
 <br>
 
-## 🚀 v4.1.3 の新機能
+## 🚀 最新情報
 
-**🗄️ AIコンポーネント脆弱性データベース更新**
-- 🔍 **55種のAIコンポーネント、1,000件以上のCVE**: crewai（3件・重大）、kubeai（1件・高）、lobehub（1件・中）を新規追加。ollama/llama-cpp/litellm/mlflow/openclawの脆弱性件数も更新。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3)
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 対応AIコンポーネントが55種に拡大；crewai・kubeai・lobehubを新規追加。
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHubに3つの新スキル（`edgeone-clawscan`・`edgeone-skill-scanner`・`aig-scanner`）を公開。タスク手動停止に対応。
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ LiteLLMサプライチェーン攻撃を検出可能に（重大）；Blinko・New-APIの対応を追加。
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw脆弱性データベースに281件のCVE/GHSAエントリを追加。
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — EdgeOne ClawScan（OpenClawセキュリティスキャン）とAgent-Scanフレームワークを公開。
 
-👉 [v4.1.3 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
-
-<details>
-<summary>📌 v4.1.2 ハイライト</summary>
-
-**🗄️ AIコンポーネント脆弱性データベース更新**
-- 🔍 **ルール100件以上追加**: OpenClaw対応を474件に拡充 — 公開済みCVEをすべてカバー。累計55のAIコンポーネント、1,000件以上の脆弱性に対応。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
-
-**🛠️ 3つの新スキル（ClawHubで公開中）**
-- 🛡️ **`edgeone-clawscan`**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、CVE脆弱性、悪意あるSkill、プライバシー漏洩を検出。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🔐 **`edgeone-skill-scanner`**: インストール前にAgent Skillをスキャン — バックドア命令やデータ窃取など10種以上のリスクをカバー。OpenClaw、Cursor、Claude Code、Codexなど主要Agentに対応。[`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🤖 **`aig-scanner`**: Agentのチャットから直接A.I.Gの4つのコア機能を呼び出し — AIインフラスキャン、Skillスキャン、Agentスキャン、LLMセキュリティ評価。ブラウザ不要。[`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
-
-**🐛 改善・修正**
-- ⏹️ **タスク手動停止**: 実行中のスキャンをいつでもキャンセル可能
-- AIインフラスキャンの大量ターゲット処理ハングと「モデルなし」選択バグを修正
-- Agent スキャン中のLLM異常レスポンスによるクラッシュを修正
-
-👉 [v4.1.2 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [A.I.G Skillsを見る](./skills/)
-
-</details>
-
-<details>
-<summary>📌 v4.1.1 ハイライト</summary>
-
-- ☠️ **LiteLLMサプライチェーン攻撃** *（重大）*: A.I.Gは侵害されたLiteLLM v1.82.7/v1.82.8を検出できるようになりました。インストールされている場合、ホスト上のすべての認証情報が窃取されたとみなすべきです。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-- 🔍 **新規コンポーネント対応**: BlinkoおよびNew-APIのフィンガープリントと脆弱性ルールを追加
-- 🐛 **バグ修正**: GetTaskDetail APIレスポンスのトークンフィールドをマスク処理し、認証情報の漏洩を防止
-
-👉 [v4.1.1 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-
-</details>
-
-<details>
-<summary>📌 v4.1 ハイライト</summary>
-
-- 🔍 **OpenClaw検出の強化**: 脆弱性データベースに281件の新しいCVE/GHSAエントリを追加
-- ⚡ **タスク効率化**: 実行中のタスクを削除すると、基盤となるエージェントの実行が即座に停止されるようになりました
-
-👉 [v4.1 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
-
-</details>
-
-<details>
-<summary>📌 v4.0 ハイライト</summary>
-
-- 🛡️ **OpenClawセキュリティスキャン（EdgeOne ClawScan）**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出。Tencent Zhuque Labが開発し、Tencent Keen Security Labと共同構築したスキルセキュリティインテリジェンスを搭載
-- 🤖 **Agent-Scan**: AIエージェントワークフロー（Dify、Cozeなど）のセキュリティを評価する、まったく新しいマルチエージェント自動スキャンフレームワーク。間接的プロンプトインジェクション、SSRF、システムプロンプト漏洩などをカバー — OWASP Top 10 for Agentic Apps 2026に基づく
-
-👉 [v4.0 リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
-
-</details>
-
-👉 [v4.1.3 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
 
 ## 目次

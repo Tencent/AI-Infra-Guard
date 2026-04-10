@@ -50,65 +50,15 @@
 
 <br>
 
-## 🚀 What's New in v4.1.3
+## 🚀 What's New
 
-**🗄️ AI Component Vulnerability Database**
-- 🔍 **55 AI Components, 1,000+ CVEs**: Added crewai (3 critical), kubeai (1 high), lobehub (1 medium) — plus updated vuln counts for ollama, llama-cpp, litellm, mlflow, and openclaw. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3)
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Coverage expanded to 55 AI components; added crewai, kubeai, lobehub.
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Three new skills on ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + manual task stop.
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Detects LiteLLM supply chain attack (CRITICAL); added Blinko & New-API coverage.
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw vulnerability database expanded with 281 new CVE/GHSA entries.
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Launched EdgeOne ClawScan (OpenClaw Security Scan) and Agent-Scan framework.
 
-👉 [Full v4.1.3 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
-
-<details>
-<summary>📌 v4.1.2 Highlights</summary>
-
-**🗄️ AI Component Vulnerability Database**
-- 🔍 **100+ New Rules**: OpenClaw coverage expanded to 474 entries — all publicly disclosed CVEs now fully tracked. Total: 55 AI components, 1,000+ vulnerabilities covered. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
-
-**🛠️ Three New Skills (all available on ClawHub)**
-- 🛡️ **`edgeone-clawscan`**: One-click security assessment for your OpenClaw deployment — detects insecure configs, CVE vulnerabilities, malicious Skills, and privacy leakage. [`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
-- 🔐 **`edgeone-skill-scanner`**: Scan any Agent Skill for risks before you install — covers 10+ threat types including backdoor instructions and data exfiltration. Works with OpenClaw, Cursor, Claude Code, Codex, and more. [`clawhub install edgeone-skill-scanner`](https://clawhub.ai/aigsec/edgeone-skill-scanner)
-- 🤖 **`aig-scanner`**: Drive all four A.I.G core capabilities directly from your Agent chat — AI infra scan, Skill scan, Agent scan, and LLM security eval. No browser required. [`clawhub install aig-scanner`](https://clawhub.ai/aigsec/aig-scanner)
-
-**🐛 Improvements & Fixes**
-- ⏹️ **Manual Task Stop**: Cancel any running scan at any time
-- Fixed bulk-target hang in AI infra scan and "no model" selection bug
-- Fixed agent scan crash on malformed LLM responses
-
-👉 [Full v4.1.2 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [Browse A.I.G Skills](./skills/)
-
-</details>
-
-<details>
-<summary>📌 v4.1.1 Highlights</summary>
-
-- ☠️ **LiteLLM Supply Chain Attack** *(CRITICAL)*: A.I.G now detects compromised LiteLLM v1.82.7/v1.82.8 — if installed, all credentials on the host should be considered stolen. [Release Notes →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-- 🔍 **New Component Coverage**: Added fingerprints and vulnerability rules for Blinko and New-API
-- 🐛 **Bug Fix**: Mask token fields in GetTaskDetail API response to prevent credential leakage
-
-👉 [v4.1.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1)
-
-</details>
-
-<details>
-<summary>📌 v4.1 Highlights</summary>
-
-- 🔍 **Enhanced OpenClaw Detection**: 281 new CVE/GHSA entries added to the vulnerability database
-- ⚡ **Task Efficiency**: Deleting a running task now immediately stops the underlying agent execution
-
-👉 [v4.1 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1)
-
-</details>
-
-<details>
-<summary>📌 v4.0 Highlights</summary>
-
-- 🛡️ **OpenClaw Security Scan (EdgeOne ClawScan)**: One-click security assessment for OpenClaw deployments — detects insecure configs, Skill risks, CVE vulnerabilities, and privacy leakage, powered by Tencent Zhuque Lab with Skill security intelligence co-built by Tencent Keen Security Lab
-- 🤖 **Agent-Scan**: A brand-new multi-agent automated scanning framework for evaluating the security of AI agent workflows (Dify, Coze, etc.), covering indirect prompt injection, SSRF, System Prompt leakage, and more — based on OWASP Top 10 for Agentic Apps 2026
-
-👉 [v4.0 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0)
-
-</details>
-
-👉 [Full v4.1.3 Release Notes](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
