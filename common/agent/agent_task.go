@@ -29,8 +29,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 )
 
-const AgentScanDir = "/app/agent-scan"
-
 type AgentTask struct {
 	Server string
 }
@@ -117,8 +115,16 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
-	err = utils.RunCmdWithContext(ctx, AgentScanDir, NAME, argv, func(line string) {
-		ParseStdoutLine(m.Server, AgentScanDir, tasks, line, callbacks, &config, false)
+	agentScanDir, err := utils.ResolveAgentScanDir()
+	if err != nil {
+		return fmt.Errorf("resolve agent-scan directory: %v", err)
+	}
+	uvBin, err := utils.ResolveUvBin()
+	if err != nil {
+		return fmt.Errorf("resolve uv binary: %v", err)
+	}
+	err = utils.RunCmdWithContext(ctx, agentScanDir, uvBin, argv, func(line string) {
+		ParseStdoutLine(m.Server, agentScanDir, tasks, line, callbacks, &config, false)
 	})
 	return err
 }
