@@ -28,16 +28,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Tencent/AI-Infra-Guard/common/agent"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 	"github.com/Tencent/AI-Infra-Guard/internal/mcp"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
-
-const AgentScanDir = "/app/agent-scan"
-const UvBin = "/usr/local/bin/uv"
 
 func HandleList(root string, loadFile func(filePath string) (interface{}, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -333,7 +329,15 @@ func promptCollectionDeleteFunc(id string) error {
 	return os.Remove(filePath)
 }
 func GetJailBreak(c *gin.Context) {
-	dataPath := filepath.Join(agent.DIR, "utils", "strategy_map.json")
+	promptSecurityDir, err := utils.ResolvePromptSecurityDir()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "error" + err.Error(),
+		})
+		return
+	}
+	dataPath := filepath.Join(promptSecurityDir, "utils", "strategy_map.json")
 	data, err := os.ReadFile(dataPath)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -446,6 +450,14 @@ func HandleGetAgentConfig(c *gin.Context) {
 // testAgentConnectivity 测试Agent配置的连通性
 // 返回 (success, message, error)
 func testAgentConnectivity(content string) (bool, string, error) {
+	agentScanDir, err := utils.ResolveAgentScanDir()
+	if err != nil {
+		return false, "", fmt.Errorf("解析 agent-scan 目录失败: %v", err)
+	}
+	uvBin, err := utils.ResolveUvBin()
+	if err != nil {
+		return false, "", fmt.Errorf("解析 uv 路径失败: %v", err)
+	}
 	// Create temporary file for the YAML content
 	tmpFile, err := os.CreateTemp("", "agent_connect_*.yaml")
 	if err != nil {
@@ -463,8 +475,8 @@ func testAgentConnectivity(content string) (bool, string, error) {
 	// Run Python connectivity test script using uv
 	var lastLine string
 	err = utils.RunCmd(
-		AgentScanDir,
-		UvBin,
+		agentScanDir,
+		uvBin,
 		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name()},
 		func(line string) {
 			lastLine += line
@@ -895,10 +907,26 @@ func HandleAgentPromptTest(c *gin.Context) {
 	tmpFile.Close()
 
 	// Run Python prompt test script using uv
+	agentScanDir, err := utils.ResolveAgentScanDir()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to resolve agent-scan directory: " + err.Error(),
+		})
+		return
+	}
+	uvBin, err := utils.ResolveUvBin()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  1,
+			"message": "Failed to resolve uv binary: " + err.Error(),
+		})
+		return
+	}
 	var lastLine string
 	err = utils.RunCmd(
-		AgentScanDir,
-		UvBin,
+		agentScanDir,
+		uvBin,
 		[]string{"run", "test_client_connect.py", "--client_file", tmpFile.Name(), "--prompt", req.Prompt},
 		func(line string) {
 			lastLine += line

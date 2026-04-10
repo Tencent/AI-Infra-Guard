@@ -33,11 +33,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
-const (
-	DIR  = "/app/AIG-PromptSecurity"
-	NAME = "/usr/local/bin/uv"
-)
-
 type ModelRedteamReport struct {
 	Server string
 }
@@ -213,8 +208,16 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
-	err = utils.RunCmdWithContext(ctx, DIR, NAME, argv, func(line string) {
-		ParseStdoutLine(m.Server, DIR, tasks, line, callbacks, &config, true)
+	promptSecurityDir, err := utils.ResolvePromptSecurityDir()
+	if err != nil {
+		return fmt.Errorf("resolve AIG-PromptSecurity directory: %v", err)
+	}
+	uvBin, err := utils.ResolveUvBin()
+	if err != nil {
+		return fmt.Errorf("resolve uv binary: %v", err)
+	}
+	err = utils.RunCmdWithContext(ctx, promptSecurityDir, uvBin, argv, func(line string) {
+		ParseStdoutLine(m.Server, promptSecurityDir, tasks, line, callbacks, &config, true)
 	})
 	return err
 }

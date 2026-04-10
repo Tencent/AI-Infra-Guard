@@ -33,8 +33,6 @@ import (
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
 
-const McpDir = "/app/mcp-scan"
-
 type McpTask struct {
 	Server string
 }
@@ -177,9 +175,16 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	}
 	callbacks.PlanUpdateCallback(tasks)
 	config := CmdConfig{StatusId: ""}
-
-	err := utils.RunCmdWithContext(ctx, McpDir, NAME, argv, func(line string) {
-		ParseStdoutLine(m.Server, McpDir, tasks, line, callbacks, &config, false)
+	mcpDir, err := utils.ResolveMcpScanDir()
+	if err != nil {
+		return fmt.Errorf("resolve mcp-scan directory: %v", err)
+	}
+	uvBin, err := utils.ResolveUvBin()
+	if err != nil {
+		return fmt.Errorf("resolve uv binary: %v", err)
+	}
+	err = utils.RunCmdWithContext(ctx, mcpDir, uvBin, argv, func(line string) {
+		ParseStdoutLine(m.Server, mcpDir, tasks, line, callbacks, &config, false)
 	})
 	return err
 }
