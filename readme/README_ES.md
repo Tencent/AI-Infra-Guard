@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Plataforma de Red Team para IA por Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, escaneo de vulnerabilidades en infraestructura de IA, escaneo de MCP Server y Agent Skills, y Jailbreak Evaluation, con el objetivo de proporcionar a los usuarios la solución más completa, inteligente y fácil de usar para la autoexaminación de riesgos de seguridad en IA.
+**A.I.G (AI-Infra-Guard)** integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, escaneo de vulnerabilidades en infraestructura de IA, escaneo de MCP Server y Agent Skills, y Jailbreak Evaluation, con el objetivo de proporcionar a los usuarios la solución más completa, inteligente y fácil de usar para la autoevaluación de riesgos de seguridad en IA.
 
 <p>
   Estamos comprometidos a hacer de A.I.G (AI-Infra-Guard) la plataforma líder de red team para IA en la industria. Más estrellas ayudan a este proyecto a llegar a una audiencia más amplia, atrayendo a más desarrolladores a contribuir, lo que acelera la iteración y mejora. ¡Tu estrella es crucial para nosotros!

@@ -34,7 +34,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform von Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** vereint Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, KI-Infrastruktur-Schwachstellenscan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
+**A.I.G (AI-Infra-Guard)** integriert Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, AI Infrastructure Vulnerability Scan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
 
 <p>
   Wir sind bestrebt, A.I.G (AI-Infra-Guard) zur branchenführenden AI Red Teaming Platform zu machen. Mehr Sterne helfen diesem Projekt, ein breiteres Publikum zu erreichen, und ziehen mehr Entwickler an, die zum Projekt beitragen – was die Iteration und Verbesserung beschleunigt. Ihr Stern ist für uns von entscheidender Bedeutung!
@@ -141,7 +141,7 @@ Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung
 | **ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)** | Unterstützt die Ein-Klick-Bewertung von OpenClaw-Sicherheitsrisiken. Erkennt unsichere Konfigurationen, Skill-Risiken, CVE-Schwachstellen und Datenschutzverletzungen. |
 | **Agent&nbsp;Scan** | Ein eigenständiges, multi-agenten-basiertes automatisiertes Scan-Framework. Es ist darauf ausgelegt, die Sicherheit von KI-Agent-Workflows zu bewerten. Es unterstützt nahtlos Agents, die auf verschiedenen Plattformen laufen, einschließlich Dify und Coze. |
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;Scan** | Erkennt umfassend 14 Hauptkategorien von Sicherheitsrisiken. Die Erkennung gilt sowohl für MCP Server als auch für Agent Skills. Unterstützt flexibel das Scannen aus Quellcode und entfernten URLs. |
-| **KI-Infrastruktur-Schwachstellenscan** | Identifiziert präzise über 55 KI-Framework-Komponenten. Deckt mehr als 1000 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
+| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 55 KI-Framework-Komponenten. Deckt mehr als 1000 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
 | **Jailbreak&nbsp;Evaluation** | Bewertet Prompt-Sicherheitsrisiken anhand sorgfältig kuratierter Datensätze. Die Evaluation wendet mehrere Angriffsmethoden an, um die Robustheit zu testen. Bietet außerdem detaillierte modellübergreifende Vergleichsmöglichkeiten. |
 
 <details>
@@ -172,7 +172,7 @@ Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung
 
 > Öffnen Sie nach der Bereitstellung `http://localhost:8088` in Ihrem Browser.
 
-### KI-Infrastruktur-Schwachstellenscan
+### AI Infrastructure Vulnerability Scan
 
 **Was soll als Ziel-URL / IP eingegeben werden?**
 
@@ -215,7 +215,7 @@ Für ausführlichere FAQs und Fehlerbehebungsanleitungen besuchen Sie unsere [Do
 
 ## 🔧 API-Dokumentation
 
-A.I.G stellt einen umfassenden Satz von APIs zur Aufgabenerstellung bereit, die KI-Infrastruktur-Scan, MCP Server Scan und Jailbreak Evaluation unterstützen.
+A.I.G stellt einen umfassenden Satz von APIs zur Aufgabenerstellung bereit, die AI Infrastructure Scan, MCP Server Scan und Jailbreak Evaluation unterstützen.
 
 Nachdem das Projekt läuft, besuchen Sie `http://localhost:8088/docs/index.html`, um die vollständige API-Dokumentation einzusehen.
 
