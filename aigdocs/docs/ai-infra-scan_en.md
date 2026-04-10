@@ -107,7 +107,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
-|                            | openclaw                | 474                 | Medium-High |
+|                            | openclaw                | 451                 | Medium-High |
 | **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
