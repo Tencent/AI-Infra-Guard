@@ -48,10 +48,18 @@
   </a>
 </p>
 
-## 🚀 v4.1.2 新功能
+## 🚀 v4.1.3 新功能
 
 **🗄️ AI组件漏洞库更新**
-- 🔍 **新增 100+ 漏洞规则**：OpenClaw 覆盖提升至 474 条，覆盖官方所有公开 CVE；累计支持 52 个 AI 组件、1000+ 漏洞扫描。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
+- 🔍 **55 种 AI 组件，1000+ CVE**：新增 crewai（3条，严重）、kubeai（1条，高危）、lobehub（1条，中危），同步更新 ollama/llama-cpp/litellm/mlflow/openclaw 漏洞数量。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3)
+
+👉 [查看完整 v4.1.3 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+
+<details>
+<summary>📌 v4.1.2 核心亮点</summary>
+
+**🗄️ AI组件漏洞库更新**
+- 🔍 **新增 100+ 漏洞规则**：OpenClaw 覆盖提升至 474 条，覆盖官方所有公开 CVE；累计支持 55 个 AI 组件、1000+ 漏洞扫描。[发布说明 →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
 
 **🛠️ 三大 Skill 正式发布（均已发布至 ClawHub）**
 - 🛡️ **`edgeone-clawscan`**：一键评估 OpenClaw 安全风险，检测不安全配置、CVE 漏洞、恶意 Skill 与隐私泄露。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
@@ -63,7 +71,9 @@
 - 修复 AI 基础设施扫描大批量目标异常及"不使用模型"选项无法选中的问题
 - 修复 Agent 扫描中 LLM 异常响应导致程序崩溃的问题
 
-👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [浏览 A.I.G Skills 目录](./skills/) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [浏览 A.I.G Skills 目录](./skills/)
+
+</details>
 
 <details>
 <summary>📌 v4.1.1 核心亮点</summary>
@@ -96,7 +106,7 @@
 
 </details>
 
-👉 [查看完整 v4.1.2 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [查看完整 v4.1.3 发布说明](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
@@ -180,7 +190,7 @@ docker-compose up -d
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
 | **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 52 种 AI 开源 Web 组件。涵盖 1000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 55 种 AI 开源 Web 组件。涵盖 1000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
 | **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
 
 <details>

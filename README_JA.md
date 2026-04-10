@@ -50,10 +50,18 @@
 
 <br>
 
-## 🚀 v4.1.2 の新機能
+## 🚀 v4.1.3 の新機能
 
 **🗄️ AIコンポーネント脆弱性データベース更新**
-- 🔍 **ルール100件以上追加**: OpenClaw対応を474件に拡充 — 公開済みCVEをすべてカバー。累計52のAIコンポーネント、1,000件以上の脆弱性に対応。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
+- 🔍 **55種のAIコンポーネント、1,000件以上のCVE**: crewai（3件・重大）、kubeai（1件・高）、lobehub（1件・中）を新規追加。ollama/llama-cpp/litellm/mlflow/openclawの脆弱性件数も更新。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3)
+
+👉 [v4.1.3 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+
+<details>
+<summary>📌 v4.1.2 ハイライト</summary>
+
+**🗄️ AIコンポーネント脆弱性データベース更新**
+- 🔍 **ルール100件以上追加**: OpenClaw対応を474件に拡充 — 公開済みCVEをすべてカバー。累計55のAIコンポーネント、1,000件以上の脆弱性に対応。[リリースノート →](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2)
 
 **🛠️ 3つの新スキル（ClawHubで公開中）**
 - 🛡️ **`edgeone-clawscan`**: OpenClawデプロイメントのワンクリックセキュリティ評価 — 安全でない設定、CVE脆弱性、悪意あるSkill、プライバシー漏洩を検出。[`clawhub install edgeone-clawscan`](https://clawhub.ai/aigsec/edgeone-clawscan)
@@ -65,7 +73,9 @@
 - AIインフラスキャンの大量ターゲット処理ハングと「モデルなし」選択バグを修正
 - Agent スキャン中のLLM異常レスポンスによるクラッシュを修正
 
-👉 [v4.1.2 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [A.I.G Skillsを見る](./skills/) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+👉 [v4.1.2 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [A.I.G Skillsを見る](./skills/)
+
+</details>
 
 <details>
 <summary>📌 v4.1.1 ハイライト</summary>
@@ -98,7 +108,7 @@
 
 </details>
 
-👉 [v4.1.2 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) · [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+👉 [v4.1.3 完全リリースノート](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) · [CHANGELOG](./CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
 
 ## 目次
@@ -185,7 +195,7 @@ docker-compose up -d
 | **ClawScan（OpenClawセキュリティスキャン）** | OpenClawのセキュリティリスクのワンクリック評価に対応。安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出します。 |
 | **Agent Scan** | 独立したマルチエージェント自動スキャンフレームワークです。AIエージェントワークフローのセキュリティを評価するために設計されています。DifyやCozeなど、さまざまなプラットフォームで動作するエージェントをシームレスにサポートします。 |
 | **MCPサーバー＆エージェントスキルスキャン** | 14の主要なセキュリティリスクカテゴリを徹底的に検出します。MCPサーバーとエージェントスキルの両方に適用されます。ソースコードとリモートURLの両方からのスキャンに柔軟に対応します。 |
-| **AIインフラ脆弱性スキャン** | 52以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1000以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
+| **AIインフラ脆弱性スキャン** | 55以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1000以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
 | **ジェイルブレイク評価** | 厳選されたデータセットを使用してプロンプトのセキュリティリスクを評価します。堅牢性をテストするために複数の攻撃手法を適用します。また、詳細なモデル間比較機能も提供します。 |
 
 <details>
