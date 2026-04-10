@@ -1,19 +1,10 @@
 <p align="center">
     <h1 align="center"><img vertical-align="middle" width="400px" src="../img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
-<h4 align="center">
-    <p>
-        <a href="https://tencent.github.io/AI-Infra-Guard/">Documentation</a> |
-        <a href="../README.md">English</a> |
-        <a href="./README_ZH.md">中文</a> |
-        <a href="./README_JA.md">日本語</a> |
-        <a href="./README_ES.md">Español</a> |
-        <a href="./README_DE.md">Deutsch</a> |
-        <a href="./README_KR.md">한국어</a> |
-        <a href="./README_PT.md">Português</a> |
-        <a href="./README_RU.md">Русский</a>
-    <p>
-</h4>
+<p align="center">
+  <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentation</a> &nbsp;|&nbsp;
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · **🇫🇷 Français** · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+</p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
       <img src="https://img.shields.io/github/stars/tencent/AI-Infra-Guard?style=social" alt="GitHub stars">
