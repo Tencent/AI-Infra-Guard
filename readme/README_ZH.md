@@ -61,7 +61,7 @@
 - [🖼️ 功能展示](#-功能展示)
 - [📖 用户指南](#-用户指南)
 - [🔧 API文档](#-api文档)
-- [🏗️ 架构演进](./docs/architecture_evolution.md)
+- [🏗️ 架构演进](../docs/architecture_evolution.md)
 - [📝 贡献指南](#-贡献指南)
 - [🙏 致谢](#-致谢)
 - [💬 加入社区](#-加入社区)
