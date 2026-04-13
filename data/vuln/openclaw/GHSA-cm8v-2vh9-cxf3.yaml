@@ -1,0 +1,18 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cm8v-2vh9-cxf3
+  summary: OpenClaw GIT_DIR 及相关 Git 底层环境变量未加入执行环境拒绝列表（GHSA-m866-6qv5-p2fg 变体）
+  details: "影响\r\n\r\nGIT_DIR 及相关 Git 底层环境变量未加入执行环境拒绝列表（GHSA-m866-6qv5-p2fg 变体）。\r\n\r\nGit 底层环境变量在宿主机执行前未被清除，可被利用来重定向 Git\
+    \ 操作的执行路径。\r\n\r\nOpenClaw 是一款用户自控的本地助手，本安全公告适用于 OpenClaw 信任模型，不涵盖多租户服务边界场景。\r\n\r\n受影响的软件包及版本\r\n\r\n- 软件包：openclaw\
+    \ (npm)\r\n- 受影响版本：<=2026.3.30\r\n- 已修复版本：2026.4.8\r\n\r\n修复方案\r\n\r\n该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为 d7c3210cd6f5fdfdc1beff4c9541673e814354d5。\r\
+    \n\r\n验证情况\r\n\r\n修复完成后已针对主分支进行复核，包含针对受影响安全边界的定向回归测试。\r\n\r\n致谢\r\n\r\n感谢腾讯朱雀实验室（https://github.com/Tencent/AI-Infra-Guard）\
+    的 @boy-hack 提交漏洞报告。"
+  cvss: ''
+  severity: HIGH
+  security_advise: 请升级 openclaw 至 2026.4.8 或更高版本。该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cm8v-2vh9-cxf3
+rule: version <= "2026.3.30"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cm8v-2vh9-cxf3

@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cmfr-9m2r-xwhq
+  summary: OpenClaw OpenClaw `node.invoke(browser.proxy)` bypasses `browser.request` persistent profile-mutation guard
+  details: "Impact\r\n\r\nOpenClaw node.invoke(browser.proxy) bypasses browser.request persistent profile-mutation guard.\r\
+    \n\r\nnode.invoke(browser.proxy) could mutate persistent browser profiles through a path that bypassed the browser.request\
+    \ guard.\r\n\r\nOpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and\
+    \ does not assume a multi-tenant service boundary.\r\n\r\nAffected Packages / Versions\r\n\r\n- Package: openclaw (npm)\r\
+    \n- Affected versions: <= v2026.04.01\r\n- Patched versions: 2026.4.8\r\n\r\nFix\r\n\r\nThe issue was fixed on main and\
+    \ is available in the patched npm version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.\r\
+    \n\r\nVerification\r\n\r\nThe fix was re-checked against main before publication, including targeted regression tests\
+    \ for the affected security boundary.\r\n\r\nCredits\r\n\r\nThanks @nicky-cc  of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard)\
+    \ for reporting."
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cmfr-9m2r-xwhq
+rule: version <= "v2026.04.01"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cmfr-9m2r-xwhq

@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w8g9-x8gx-crmm
+  summary: OpenClaw Playwright 重定向处理中严格浏览器 SSRF 防护绕过，导致内网目标可达
+  details: >-
+    影响
+
+
+    Playwright 重定向处理中严格浏览器 SSRF 防护绕过，导致内网目标可达。
+
+
+    严格的浏览器 SSRF 检查可能遗漏 Playwright 请求时导航至内网目标的情形。
+
+
+    OpenClaw 是一款用户本地控制的助手应用。本安全公告的范围限定于 OpenClaw 信任模型，不适用于多租户服务边界场景。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：2026.3.8
+
+    - 已修复版本：2026.4.8
+
+
+    修复方案
+
+
+    该问题已在主分支修复，并在上述已修复的 npm 版本中发布。经验证的修复提交为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+
+
+    验证
+
+
+    该修复已在发布前针对主分支进行复查，包含针对受影响安全边界的定向回归测试。
+
+
+    致谢
+
+
+    感谢 @smaeljaish771 的漏洞报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 请升级 openclaw 至 2026.4.8 或更高版本。该问题已在主分支修复，并在上述已修复的 npm 版本中发布。经验证的修复提交为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w8g9-x8gx-crmm
+rule: 'version_range: "2026.3.8"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w8g9-x8gx-crmm

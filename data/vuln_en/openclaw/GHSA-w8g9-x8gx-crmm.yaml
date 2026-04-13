@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w8g9-x8gx-crmm
+  summary: OpenClaw Strict browser SSRF bypass in Playwright redirect handling leaves private targets reachable
+  details: "Impact\r\n\r\nStrict browser SSRF bypass in Playwright redirect handling leaves private targets reachable.\r\n\
+    \r\nStrict browser SSRF checks could miss Playwright request-time navigation to private targets.\r\n\r\nOpenClaw is a\
+    \ user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume a multi-tenant\
+    \ service boundary.\r\n\r\nAffected Packages / Versions\r\n\r\n- Package: openclaw (npm)\r\n- Affected versions: 2026.3.8\r\
+    \n- Patched versions: 2026.4.8\r\n\r\nFix\r\n\r\nThe issue was fixed on main and is available in the patched npm version\
+    \ listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.\r\n\r\nVerification\r\n\r\n\
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security\
+    \ boundary.\r\n\r\nCredits\r\n\r\nThanks @smaeljaish771 for reporting."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w8g9-x8gx-crmm
+rule: 'version_range: "2026.3.8"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w8g9-x8gx-crmm

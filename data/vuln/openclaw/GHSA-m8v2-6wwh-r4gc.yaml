@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-m8v2-6wwh-r4gc
+  summary: OpenClaw Sandbox bind 验证 could 绕过 allowed-root and blocked-path checks via symlink-parent missing-leaf paths
+  details: >-
+    漏洞概述
+
+    OpenClaw 远程代码执行漏洞。OpenClaw Sandbox bind 验证 could 绕过 allowed-root and blocked-path checks via symlink-parent missing-leaf paths。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响版本：<= 2026.2.23
+    - 已修复版本：>= 2026.2.24 (planned next release)
+
+    安全影响
+
+    A source path that looked inside an allowed root could resolve outside that root (including blocked runtime paths) once the missing leaf was created, weakening sandbox bind-source boundary enforcement.
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.24 或更高版本。 The validation path now canonicalizes through the nearest existing ancestor, then always re-checks the canonical path against both: - allowed source roots - blocked runtime paths'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc
+rule: version <= "2026.2.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc

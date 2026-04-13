@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-25wv-8phj-8p7r
+  summary: OpenClaw Concurrent async auth attempts can bypass the intended shared-secret rate-limit budget on Tailscale-capable
+    paths
+  details: >-
+    Impact
+
+
+    Concurrent async auth attempts can bypass the intended shared-secret rate-limit budget on Tailscale-capable paths.
+
+
+    Concurrent asynchronous shared-secret auth attempts could race the per-key rate-limit budget.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <=2026.4.2
+
+    - Patched versions: 2026.4.4
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @Telecaster2147 for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.4 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-25wv-8phj-8p7r
+rule: version <= "2026.4.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-25wv-8phj-8p7r

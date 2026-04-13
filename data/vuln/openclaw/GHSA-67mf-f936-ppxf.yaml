@@ -1,0 +1,19 @@
+info:
+  name: OpenClaw
+  cve: GHSA-67mf-f936-ppxf
+  summary: OpenClaw `node.pair.approve` 接口被划入 `operator.write` 权限范围而非 `operator.pairing` 范围，导致低权限用户可绕过授权完成配对审批
+  details: "影响\r\n\r\nOpenClaw node.pair.approve 接口被划入 operator.write 权限范围而非 operator.pairing 范围，导致低权限用户可绕过授权完成配对审批。\r\
+    \n\r\n配对审批方法接受了 operator.write 权限，而非更严格的 pairing 权限范围以及可执行节点所要求的管理员资格验证。\r\n\r\nOpenClaw 是一款用户自控的本地助手，本安全公告适用于 OpenClaw\
+    \ 信任模型，不涵盖多租户服务边界场景。\r\n\r\n受影响的软件包及版本\r\n\r\n- 软件包：openclaw (npm)\r\n- 受影响版本：<= v2026.04.01\r\n- 已修复版本：2026.4.8\r\
+    \n\r\n修复方案\r\n\r\n该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为 d7c3210cd6f5fdfdc1beff4c9541673e814354d5。\r\n\r\n验证情况\r\
+    \n\r\n修复完成后已针对主分支进行复核，包含针对受影响安全边界的定向回归测试。\r\n\r\n致谢\r\n\r\n感谢腾讯朱雀实验室（https://github.com/Tencent/AI-Infra-Guard）\
+    的 @nicky-cc 提交漏洞报告。"
+  cvss: ''
+  severity: HIGH
+  security_advise: 请升级 openclaw 至 2026.4.8 或更高版本。该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-67mf-f936-ppxf
+rule: version <= "v2026.04.01"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-67mf-f936-ppxf

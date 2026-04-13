@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qqq7-4hxc-x63c
+  summary: 'OpenClaw Shared reply MEDIA: paths are treated as trusted and can trigger cross-channel local file exfiltration'
+  details: >-
+    Impact
+
+
+    Shared reply MEDIA: paths are treated as trusted and can trigger cross-channel local file exfiltration.
+
+
+    A crafted shared reply MEDIA reference could cause another channel to read a local file path as trusted generated media.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <=2026.4.4
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @threalwinky for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qqq7-4hxc-x63c
+rule: version <= "2026.4.4"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qqq7-4hxc-x63c
