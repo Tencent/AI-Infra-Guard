@@ -479,10 +479,6 @@ Si utilizas A.I.G en tu investigación, por favor cita:
 <br>
 <br>
 
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la **Apache License 2.0**. Consulta el archivo [LICENSE](../LICENSE) para más detalles.
-
 ## ⚖️ Licencia y Atribución
 
 Este proyecto es de código abierto bajo la **Apache License 2.0**. Damos la bienvenida y alentamos las contribuciones de la comunidad, integraciones y trabajos derivados, sujetos a los siguientes requisitos de atribución:
