@@ -138,7 +138,7 @@ docker-compose up -d
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
 | **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 55 种 AI 开源 Web 组件。涵盖 1000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 57 种 AI 开源 Web 组件。涵盖 1000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
 | **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
 
 <details>

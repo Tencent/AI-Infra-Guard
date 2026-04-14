@@ -142,7 +142,7 @@ Découvrez la version Pro avec des fonctionnalités avancées et des performance
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Prend en charge l'évaluation en un clic des risques de sécurité OpenClaw. Détecte les configurations non sécurisées, les risques liés aux Skills, les vulnérabilités CVE et les fuites de confidentialité. |
 | **Agent&nbsp;Scan** | Framework d'analyse automatisée multi-agents indépendant, conçu pour évaluer la sécurité des workflows d'agents IA. Prend en charge de façon transparente les agents fonctionnant sur diverses plateformes, notamment Dify et Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Détecte de manière approfondie 14 grandes catégories de risques de sécurité. La détection s'applique aussi bien aux MCP Servers qu'aux Agent Skills. Prend en charge de manière flexible l'analyse à partir du code source et d'URLs distantes. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 55 composants de frameworks IA. Couvre plus de 1 000 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 57 composants de frameworks IA. Couvre plus de 1 000 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
 | **Jailbreak&nbsp;Evaluation** | Évalue les risques de sécurité des prompts à l'aide de datasets soigneusement sélectionnés. L'évaluation applique plusieurs méthodes d'attaque pour tester la robustesse. Fournit également des capacités détaillées de comparaison inter-modèles. |
 
 <details>
