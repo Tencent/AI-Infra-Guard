@@ -2,8 +2,11 @@
 
 > **Base URL**: `http://<host>:8088/api/v1`
 >
-> All endpoints require the same authentication as the rest of the AIG API
-> (session cookie / `X-Token` header set during login).
+> **Authentication**: This API has **no built-in authentication**. The server
+> simply assigns requests a `public_user` identity without verifying credentials.
+> Access control must be enforced at the network level — bind the server to
+> loopback (`127.0.0.1`) or restrict port `8088` with a firewall.
+> **Do not expose this port to the public internet.**
 
 ---
 
