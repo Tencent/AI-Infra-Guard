@@ -20,9 +20,12 @@ package models
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -38,10 +41,12 @@ type AIModel interface {
 }
 
 type OpenAI struct {
-	Key      string
-	BaseUrl  string
-	Model    string
-	UseToken int64
+	Key                string
+	BaseUrl            string
+	Model              string
+	UseToken           int64
+	InsecureSkipVerify bool   // skip TLS certificate verification (e.g. self-signed certs)
+	CAFile             string // path to a custom CA certificate file (PEM format)
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -58,9 +63,52 @@ func NewOpenAI(key string, model string, url string) *OpenAI {
 	}
 }
 
+// buildHTTPClient constructs an *http.Client respecting InsecureSkipVerify and CAFile.
+// Returns nil when no TLS customisation is needed (the openai-go default client is used).
+func (ai *OpenAI) buildHTTPClient() *http.Client {
+	if !ai.InsecureSkipVerify && ai.CAFile == "" {
+		return nil
+	}
+	tlsCfg := &tls.Config{
+		InsecureSkipVerify: ai.InsecureSkipVerify, // #nosec G402 — operator-opt-in only
+	}
+	if ai.CAFile != "" {
+		pemData, err := os.ReadFile(ai.CAFile)
+		if err != nil {
+			gologger.Errorf("OpenAI: failed to read CA file %q: %v", ai.CAFile, err)
+		} else {
+			pool, err := x509.SystemCertPool()
+			if err != nil {
+				pool = x509.NewCertPool()
+			}
+			if !pool.AppendCertsFromPEM(pemData) {
+				gologger.Errorf("OpenAI: CA file %q contains no valid PEM certificates", ai.CAFile)
+			}
+			tlsCfg.RootCAs = pool
+		}
+	}
+	return &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsCfg,
+		},
+	}
+}
+
+// clientOptions returns the openai-go RequestOption slice for this instance.
+func (ai *OpenAI) clientOptions() []option.RequestOption {
+	opts := []option.RequestOption{
+		option.WithBaseURL(ai.BaseUrl),
+		option.WithAPIKey(ai.Key),
+	}
+	if hc := ai.buildHTTPClient(); hc != nil {
+		opts = append(opts, option.WithHTTPClient(hc))
+	}
+	return opts
+}
+
 // 验证OpenAI是否可用
 func (ai *OpenAI) Vaild(ctx context.Context) error {
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 	res, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage("only return '1'"),
@@ -80,7 +128,7 @@ func (ai *OpenAI) Vaild(ctx context.Context) error {
 	return nil
 }
 func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <-chan string {
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 	resp := make(chan string)
 	chatMessages := make([]openai.ChatCompletionMessageParamUnion, 0)
 	for _, item := range history {
@@ -176,7 +224,7 @@ func (ai *OpenAI) ChatWithImage(ctx context.Context, prompt string, imagePath st
 		Model: ai.Model,
 	}
 
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 
 	completion, err := client.Chat.Completions.New(ctx, params)
 	if err != nil {
@@ -202,7 +250,7 @@ func (ai *OpenAI) ChatWithImageByte(ctx context.Context, prompt string, imageDat
 		Model: ai.Model,
 	}
 
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 
 	completion, err := client.Chat.Completions.New(ctx, params)
 	if err != nil {
