@@ -1,0 +1,36 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rqpp-rjj8-7wv8
+  summary: OpenClaw WebSocket 共享认证连接可自行声明提升的权限范围
+  details: >-
+    摘要
+
+
+    OpenClaw 网关 WebSocket 连接路径中存在逻辑缺陷，允许某些无设备绑定的共享令牌或密码认证后端连接在未经服务端绑定的情况下保留客户端声明的权限范围。共享认证客户端可呈现
+    operator.admin 等提升的权限范围，即使这些范围未绑定到设备身份或明确受信任的控制界面（Control UI）路径。
+
+
+    影响
+
+
+    此漏洞突破了预期的授权边界，可能允许共享密钥认证的后端客户端执行仅管理员可用的网关操作。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。网关现在会清除非控制界面共享认证连接的未绑定权限范围，并添加了针对无设备共享认证路径的回归测试覆盖。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H
+  severity: CRITICAL
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rqpp-rjj8-7wv8
+rule: 'version <= "2026.3.11"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rqpp-rjj8-7wv8

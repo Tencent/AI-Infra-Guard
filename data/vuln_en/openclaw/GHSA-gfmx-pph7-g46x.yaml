@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gfmx-pph7-g46x
+  summary: OpenClaw Lower-trust background runtime output is injected into trusted `System:` events, and local async exec
+    completion misses the intended `exec-event` downgrade
+  details: >-
+    Impact
+
+
+    Lower-trust background runtime output is injected into trusted System: events, and local async exec completion misses
+    the intended exec-event downgrade.
+
+
+    Lower-trust runtime/background output could be promoted into trusted System events, allowing prompt-injection into later
+    agent turns.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.2
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @tdjackey for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gfmx-pph7-g46x
+rule: 'version <= "2026.4.2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gfmx-pph7-g46x

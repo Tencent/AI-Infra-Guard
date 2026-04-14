@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5fc7-f62m-8983
+  summary: OpenClaw Feishu docx upload_file/upload_image Bypasses Workspace-Only Filesystem Policy (GHSA-qf48-qfv4-jjm9 Incomplete
+    Fix)
+  details: >-
+    Impact
+
+
+    Feishu docx upload_file/upload_image Bypasses Workspace-Only Filesystem Policy (GHSA-qf48-qfv4-jjm9 Incomplete Fix).
+
+
+    Feishu document uploads could read local files outside the workspace-only file policy when processing docx upload blocks.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <=2026.4.3
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @Rosayxy for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5fc7-f62m-8983
+rule: 'version <= "2026.4.3"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5fc7-f62m-8983

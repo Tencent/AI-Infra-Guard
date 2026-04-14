@@ -1,0 +1,24 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p4wh-cr8m-gm6c
+  summary: OpenClaw shell-env trusted-prefix fallback allowed attacker-controlled binary 执行 via $SHELL
+  details: >-
+    漏洞概述
+
+    OpenClaw 安全漏洞。OpenClaw shell-env trusted-prefix fallback allowed attacker-controlled binary 执行 via $SHELL。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响：>= 2026.2.22, <= 2026.2.22-2
+    - 已修复：>= 2026.2.23
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.23 或更高版本。 修复提交 - ff10fe8b91670044a6bb0cd85deb736a0ec8fb55'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p4wh-cr8m-gm6c
+rule: 'version >= "2026.2.22" && version <= "2026.2.22-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p4wh-cr8m-gm6c

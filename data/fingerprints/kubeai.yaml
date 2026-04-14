@@ -1,0 +1,15 @@
+info:
+  name: kubeai
+  author: A.I.G bot
+  severity: info
+  desc: KubeAI is an AI inference operator for Kubernetes, providing an OpenAI-compatible API to deploy and scale LLMs, embeddings, and speech-to-text models.
+  metadata:
+    product: kubeai
+    vendor: kubeai-project
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>KubeAI</title>"
+# NOTE: Version extraction not supported.
+# KubeAI does not expose version information on unauthenticated HTTP endpoints.

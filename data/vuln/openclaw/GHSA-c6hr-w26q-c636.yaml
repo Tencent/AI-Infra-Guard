@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c6hr-w26q-c636
+  summary: OpenClaw ReDoS and regex 注入 via unescaped Feishu mention metadata in RegExp construction
+  details: >-
+    漏洞概述
+
+    OpenClaw 拒绝服务漏洞。OpenClaw ReDoS and regex 注入 via unescaped Feishu mention metadata in RegExp construction。
+
+    受影响版本
+
+    - 软件包：npm openclaw
+    - 受影响：<= 2026.2.17
+    - 已修复：2026.2.19
+
+    安全影响
+
+    - ReDoS: crafted nested-quantifier patterns in mention metadata can trigger catastrophic backtracking and block message processing. - Regex injection: metacharacters in mention metadata can remove unintended message content before it is sent to the model.
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.19 或更高版本。 修复提交 - 7e67ab75cc2f0e93569d12fecd1411c2961fcc8c - 74268489137510b6f6349919d1e197b17290d92c'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c6hr-w26q-c636
+rule: 'version <= "2026.2.17"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c6hr-w26q-c636

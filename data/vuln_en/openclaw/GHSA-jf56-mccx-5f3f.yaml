@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jf56-mccx-5f3f
+  summary: OpenClaw Authenticated `/hooks/wake` and mapped `wake` payloads are promoted into the trusted `System:` prompt
+    channel
+  details: >-
+    Impact
+
+
+    Authenticated /hooks/wake and mapped wake payloads are promoted into the trusted System: prompt channel.
+
+
+    An authenticated wake hook or mapped wake payload could be promoted into the trusted System prompt channel instead of
+    an untrusted event.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.2
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @tdjackey for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jf56-mccx-5f3f
+rule: 'version <= "2026.4.2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jf56-mccx-5f3f

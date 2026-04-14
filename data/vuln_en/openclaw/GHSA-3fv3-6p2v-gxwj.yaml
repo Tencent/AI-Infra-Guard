@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3fv3-6p2v-gxwj
+  summary: 'OpenClaw QQ Bot Extension: Missing SSRF Protection on All Media Fetch Paths'
+  details: >-
+    Impact
+
+
+    QQ Bot Extension: Missing SSRF Protection on All Media Fetch Paths.
+
+
+    QQ Bot media download paths were not consistently routed through the SSRF guard and allowlist policy.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.2
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @adithyan-ak for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3fv3-6p2v-gxwj
+rule: 'version <= "2026.4.2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3fv3-6p2v-gxwj

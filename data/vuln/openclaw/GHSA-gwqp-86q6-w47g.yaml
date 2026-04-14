@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gwqp-86q6-w47g
+  summary: OpenClaw exec allow-always can be bypassed via unrecognized multiplexer shell wrappers (busybox/toybox sh -c)
+  details: >-
+    漏洞概述
+
+    OpenClaw 安全绕过漏洞。OpenClaw exec allow-always can be bypassed via unrecognized multiplexer shell wrappers (busybox/toybox sh -c)。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响版本：<= 2026.2.22-2
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.23 或更高版本。 修复提交 - a67689a7e3ad494b6637c76235a664322d526f9e'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gwqp-86q6-w47g
+rule: 'version <= "2026.2.22-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gwqp-86q6-w47g

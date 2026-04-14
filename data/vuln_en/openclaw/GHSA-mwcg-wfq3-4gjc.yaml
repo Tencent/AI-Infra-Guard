@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mwcg-wfq3-4gjc
+  summary: OpenClaw system.run approval TOCTOU via mutable symlink cwd target on node host
+  details: "Summary\nIn openclaw@2026.2.24, approval-bound system.run on node hosts could be influenced by mutable symlink\
+    \ cwd targets between approval and execution.\n\nDetails\nApproval matching on the gateway validated command/argv and\
+    \ binding fields, including cwd, as provided text. Node execution later used runtime cwd resolution. A symlinked cwd could\
+    \ therefore be retargeted after approval and before spawn.\n\nOpenClaw's trust model does not treat one shared gateway\
+    \ as a multi-tenant adversarial boundary, but approval integrity is still a security boundary for operator-reviewed command\
+    \ execution.\n\nAffected Packages / Versions\n- Package: openclaw (npm)\n- Affected: <= 2026.2.24\n- Patched: >= 2026.2.25\
+    \ \n\nRemediation\nThe fix adds defense-in-depth hardening for approval-bound node execution:\n- reject symlink cwd paths\
+    \ for approval-bound system.run\n- canonicalize path-like executable argv before spawn\n- bind CLI approval requests to\
+    \ exact commandArgv"
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - f789f880c934caa8be25b38832f27f90f37903db
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mwcg-wfq3-4gjc
+rule: 'version <= "2026.2.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mwcg-wfq3-4gjc

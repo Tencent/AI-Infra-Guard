@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f5mf-3r52-r83w
+  summary: OpenClaw Zalouser 白名单授权默认匹配可变的群组名称
+  details: >-
+    摘要
+
+
+    OpenClaw 的 Zalouser 白名单模式接受可变的群组显示名称和规范化 slug 作为授权匹配条件，而非要求使用稳定的群组 ID。
+    在同时使用基于名称的 channels.zalouser.groups 配置项和宽松发送者白名单的部署场景中，
+    若另一个群组复用了已加入白名单的群组同名，则该群组可能被错误接受。
+
+
+    影响
+
+
+    此问题削弱了 Zalouser 群组路由的信道授权机制，当运营者依赖群组名称而非稳定 ID 进行配置时，
+    来自非预期群组的消息可能被路由至 Agent。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.11
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.12 中修复。白名单授权现在匹配稳定的群组标识符，请升级至 2026.3.12 或更高版本。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.12 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f5mf-3r52-r83w
+rule: 'version <= "2026.3.11"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f5mf-3r52-r83w

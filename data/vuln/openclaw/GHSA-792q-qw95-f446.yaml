@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-792q-qw95-f446
+  summary: OpenClaw Signal 仅含表情回应的状态事件在特定情况下可在访问检查前被加入队列
+  details: >-
+    漏洞概述
+
+    在特定的 Signal 表情回应通知路径中，仅含表情回应的入站事件可能在发送者访问检查执行之前将状态事件加入队列。
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：<= 2026.2.24（补丁时最新已发布版本）
+
+    - 已修复版本：2026.2.25
+
+
+    漏洞详情
+
+    在受影响的代码流程（src/signal/monitor/event-handler.ts）中，仅含表情回应的处理逻辑可能在对该发送者执行私信/群组授权检查之前即从 enqueueSystemEvent(...) 处返回。
+
+    此行为仅限于启用了表情回应通知的仅含表情回应入站事件场景。在该情况下，未获授权正常私信的发送者仍可为该会话加入一条 Signal 表情回应状态行。
+
+    修复方案将共享的私信/群组访问检查移至表情回应通知入队操作之前执行。正常私信的配对行为不受影响。
+
+
+    安全影响
+
+    - 仅限 Signal 仅含表情回应的入站事件。
+
+    - 可能向受影响会话的 Agent 上下文中添加未经授权的表情回应状态行。
+
+    - 不直接支持正常私信投递或直接宿主命令执行。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.25 或更高版本。相关提交 - 2aa7842adeedef423be7ce283a9144b9f1a0a669
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-792q-qw95-f446
+rule: 'version <= "2026.2.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-792q-qw95-f446

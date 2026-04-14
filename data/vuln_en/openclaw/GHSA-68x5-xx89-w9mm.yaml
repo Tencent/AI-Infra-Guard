@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-68x5-xx89-w9mm
+  summary: OpenClaw resolvedAuth closure becomes stale after config reload
+  details: "Impact\r\n\r\nresolvedAuth closure becomes stale after config reload.\r\n\r\nAfter a config reload, newly accepted\
+    \ gateway connections could continue using stale resolved auth state.\r\n\r\nOpenClaw is a user-controlled local assistant.\
+    \ This advisory is scoped to the OpenClaw trust model and does not assume a multi-tenant service boundary.\r\n\r\nAffected\
+    \ Packages / Versions\r\n\r\n- Package: openclaw (npm)\r\n- Affected versions: <= 2026.4.1\r\n- Patched versions: 2026.4.8\r\
+    \n\r\nFix\r\n\r\nThe issue was fixed on main and is available in the patched npm version listed above. The verified fixed\
+    \ tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.\r\n\r\nVerification\r\n\r\nThe fix was re-checked against main\
+    \ before publication, including targeted regression tests for the affected security boundary.\r\n\r\nCredits\r\n\r\nThanks\
+    \ @kexinoh of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-68x5-xx89-w9mm
+rule: 'version <= "2026.4.1"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-68x5-xx89-w9mm

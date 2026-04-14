@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hwpq-rrpf-pgcq
+  summary: OpenClaw system.run approval identity mismatch could execute a different binary than displayed
+  details: >-
+    Summary
+
+    system.run approvals in OpenClaw used rendered command text as the approval identity while trimming argv token whitespace.
+    Runtime execution still used raw argv. A crafted trailing-space executable token could therefore execute a different binary
+    than what the approver saw.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.2.24
+
+    - Patched versions: >= 2026.2.25
+
+
+    Impact
+
+    This is an approval-integrity bypass that can lead to unexpected command execution under the OpenClaw runtime user when
+    an attacker can influence command argv and reuse/obtain a matching approval context.
+
+
+    Trust Model Note
+
+    OpenClaw does not treat adversarial multi-user sharing of one gateway host/config as a supported security boundary. This
+    finding is still valid in supported deployments because it breaks the operator approval boundary itself (approved display
+    command vs executed argv).
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 03e689fc89bbecbcd02876a95957ef1ad9caa176
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hwpq-rrpf-pgcq
+rule: 'version <= "2026.2.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hwpq-rrpf-pgcq

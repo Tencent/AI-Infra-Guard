@@ -1,0 +1,27 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vmqr-rc7x-3446
+  summary: OpenClaw Non-default safeBins sort configuration can bypass intended allowlist approval constraints
+  details: >-
+    When sort is explicitly added to tools.exec.safeBins (non-default), the --compress-program option can invoke an external
+    helper and bypass the intended safe-bin approval constraints in allowlist mode.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Vulnerable versions: <=2026.2.21-2
+
+    - Latest published npm version checked during triage: 2026.2.21-2 (as of February 22, 2026)
+
+    - Patched in planned next release: 2026.2.22
+  cvss: CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.22 or later. Commit(s) - 57fbbaebca4d34d17549accf6092ae26eb7b605c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vmqr-rc7x-3446
+rule: 'version <= "2026.2.21-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vmqr-rc7x-3446

@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6mgf-v5j7-45cr
+  summary: OpenClaw fetch-guard forwards custom authorization headers across cross-origin redirects
+  details: >-
+    漏洞概述
+
+    OpenClaw SSRF漏洞。OpenClaw fetch-guard forwards custom authorization headers across cross-origin redirects。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响：<= 2026.3.2
+    - 已修复：2026.3.7
+
+    安全影响
+
+    A remote service that could trigger a redirect across origins could receive custom authorization credentials attached by OpenClaw callers. This can expose API keys, bearer-style custom headers, or private token headers intended only for the original destination.
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:L/A:N
+  severity: 高危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.3.7 或更高版本。 修复提交 - 46715371b0612a6f9114dffd1466941ac476cef5'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr
+rule: 'version <= "2026.3.2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr

@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4f8g-77mw-3rxc
+  summary: "OpenClaw 网关插件 HTTP `auth: gateway` 模式将携带身份信息的 `operator.read` 请求越权扩升为运行时 `operator.write` 权限"
+  details: >-
+    影响
+
+
+    网关插件 HTTP auth: gateway 模式将携带身份信息的 operator.read 请求越权扩升为运行时 operator.write 权限。
+
+
+    使用网关鉴权的插件 HTTP 路由，即使上游可信代理请求仅声明了读权限，仍可获得运行时写权限范围。
+
+
+    OpenClaw 是一款用户自控的本地助手，本安全公告适用于 OpenClaw 信任模型，不涵盖多租户服务边界场景。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw (npm)
+
+    - 受影响版本：2026.1.29
+
+    - 已修复版本：2026.4.8
+
+
+    修复方案
+
+
+    该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+
+
+    验证情况
+
+
+    修复完成后已针对主分支进行复核，包含针对受影响安全边界的定向回归测试。
+
+
+    致谢
+
+
+    感谢 @smaeljaish771 提交漏洞报告。
+  cvss: ''
+  severity: HIGH
+  security_advise: 请升级 openclaw 至 2026.4.8 或更高版本。该问题已在主分支修复，并在上述已修复的 npm 版本中提供。已验证的修复版本对应提交记录为
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4f8g-77mw-3rxc
+rule: 'version == "2026.1.29"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4f8g-77mw-3rxc

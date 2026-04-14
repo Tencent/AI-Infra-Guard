@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-6mgf-v5j7-45cr
+  summary: OpenClaw fetch-guard forwards custom authorization headers across cross-origin redirects
+  details: >-
+    OpenClaw's fetchWithSsrFGuard(...) followed cross-origin redirects while preserving arbitrary caller-supplied headers
+    except for a narrow denylist (Authorization, Proxy-Authorization, Cookie, Cookie2). This allowed custom authorization
+    headers such as X-Api-Key, Private-Token, and similar sensitive headers to be forwarded to a different origin after a
+    redirect.
+
+
+    The fix switches cross-origin redirect handling from a narrow sensitive-header denylist to a safe-header allowlist, so
+    only benign headers such as content negotiation and cache validators survive an origin change.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.3.2
+
+    - Patched version: 2026.3.7
+
+    - Latest published npm version at patch time: 2026.3.2
+
+
+    Impact
+
+
+    A remote service that could trigger a redirect across origins could receive custom authorization credentials attached
+    by OpenClaw callers. This can expose API keys, bearer-style custom headers, or private token headers intended only for
+    the original destination.
+
+
+    Verification
+
+
+    - pnpm check passed
+
+    - pnpm test:fast passed
+
+    - Focused redirect regression tests passed
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts still has unrelated current-main failures in src/gateway/server-channels.test.ts
+    and src/gateway/server-methods/agents-mutate.test.ts
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:L/A:N
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.7 or later. Commit(s) - 46715371b0612a6f9114dffd1466941ac476cef5
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr
+rule: 'version <= "2026.3.2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr

@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p4wh-cr8m-gm6c
+  summary: OpenClaw shell-env trusted-prefix fallback allowed attacker-controlled binary execution via $SHELL
+  details: >-
+    Summary
+
+    shell-env fallback trusted prefix-based executable paths for $SHELL, allowing execution of attacker-controlled binaries
+    in local/runtime-env influence scenarios.
+
+
+    Details
+
+    In affected versions, shell selection accepted either:
+
+    1. a shell listed in /etc/shells, or
+
+    2. any executable under hardcoded trusted prefixes (/bin, /usr/bin, /usr/local/bin, /opt/homebrew/bin, /run/current-system/sw/bin).
+
+
+    The selected shell was then executed as a login shell (-l -c 'env -0') for PATH/environment probing.
+
+
+    On systems where a trusted-prefix directory is writable (for example common Homebrew layouts under /opt/homebrew/bin)
+    and runtime $SHELL can be influenced, this enabled attacker-controlled binary execution in OpenClaw process context.
+
+
+    The fix removes the trusted-prefix executable fallback and now trusts only shells explicitly registered in /etc/shells;
+    otherwise it falls back to /bin/sh.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.2.22, <= 2026.2.22-2
+
+    - Latest published vulnerable version: 2026.2.22-2
+
+    - Patched versions (released): >= 2026.2.23
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. Commit(s) - ff10fe8b91670044a6bb0cd85deb736a0ec8fb55
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p4wh-cr8m-gm6c
+rule: 'version >= "2026.2.22" && version <= "2026.2.22-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p4wh-cr8m-gm6c

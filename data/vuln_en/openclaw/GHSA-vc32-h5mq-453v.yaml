@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vc32-h5mq-453v
+  summary: OpenClaw /allowlist omits owner-only enforcement for cross-channel allowlist writes
+  details: >-
+    Impact
+
+
+    /allowlist omits owner-only enforcement for cross-channel allowlist writes.
+
+
+    An authorized non-owner sender could attempt allowlist writes against a different channel.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <=v2026.4.1
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @zsxsoft and @KeenSecurityLab for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vc32-h5mq-453v
+rule: 'version <= "v2026.4.1"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vc32-h5mq-453v

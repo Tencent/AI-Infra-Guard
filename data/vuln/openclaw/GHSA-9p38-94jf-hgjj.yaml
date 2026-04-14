@@ -1,0 +1,31 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9p38-94jf-hgjj
+  summary: OpenClaw macOS `system.run` allowlist 绕过 via quoted command substitution
+  details: >-
+    漏洞概述
+
+    OpenClaw 远程代码执行漏洞。OpenClaw macOS `system.run` allowlist 绕过 via quoted command substitution。
+
+    受影响版本
+
+    - 软件包：npm openclaw
+    - 已修复：2026.2.22
+
+    安全影响
+
+    Approval/authorization bypass in allowlist mode that can lead to unintended command execution on the node host.
+
+    修复建议
+
+    建议升级到 2026
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.22 或更高版本。 修复提交 - 90a378ca3a9ecbf1634cd247f17a35f4612c6ca6'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj
+rule: 'version <= "2026.2.21-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9p38-94jf-hgjj
