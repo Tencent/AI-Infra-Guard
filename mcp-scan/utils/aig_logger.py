@@ -16,10 +16,10 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-import json
+import logging
 import time
 from typing import Literal
-import logging
+
 from pydantic import BaseModel
 
 
@@ -70,7 +70,6 @@ class AgentMsg(BaseModel):
 
 
 class McpLogger:
-
     def __init__(self):
         logger = logging.getLogger("mcpLogger")
         logger.setLevel(logging.INFO)
@@ -92,19 +91,43 @@ class McpLogger:
     def new_plan_step(self, stepId: str, stepName: str):
         self._log("newPlanStep", newPlanStep(stepId=stepId, title=stepName))
 
-    def status_update(self, stepId: str, brief: str, description: str,
-                      status: Literal["running", "completed", "failed"]):
-        self._log("statusUpdate", statusUpdate(stepId=stepId, brief=brief, description=description,
-                                               status=status))
+    def status_update(
+        self,
+        stepId: str,
+        brief: str,
+        description: str,
+        status: Literal["running", "completed", "failed"],
+    ):
+        self._log(
+            "statusUpdate",
+            statusUpdate(stepId=stepId, brief=brief, description=description, status=status),
+        )
 
-    def tool_used(self, stepId: str, tool_id: str, brief: str,
-                  status: Literal["todo", "doing", "done"], tool_name: str = None, params: str = ""):
-        self._log("toolUsed", toolUsed(stepId=stepId, tool_id=tool_id, tool_name=tool_name,
-                                       brief=brief, status=status, params=params))
+    def tool_used(
+        self,
+        stepId: str,
+        tool_id: str,
+        brief: str,
+        status: Literal["todo", "doing", "done"],
+        tool_name: str = None,
+        params: str = "",
+    ):
+        self._log(
+            "toolUsed",
+            toolUsed(
+                stepId=stepId,
+                tool_id=tool_id,
+                tool_name=tool_name,
+                brief=brief,
+                status=status,
+                params=params,
+            ),
+        )
 
     def action_log(self, tool_id: str, tool_name: str, stepId: str, log: str):
-        self._log("actionLog", actionLog(tool_id=tool_id, tool_name=tool_name,
-                                         stepId=stepId, log=log))
+        self._log(
+            "actionLog", actionLog(tool_id=tool_id, tool_name=tool_name, stepId=stepId, log=log)
+        )
 
     def result_update(self, content: dict):
         self._log("resultUpdate", content)
@@ -115,7 +138,7 @@ class McpLogger:
 
 mcpLogger = McpLogger()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     mcpLogger.new_plan_step(stepId="0", stepName="Step 1")
     mcpLogger.new_plan_step(stepId="1", stepName="Step 2")
     mcpLogger.new_plan_step(stepId="2", stepName="Step 3")

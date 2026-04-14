@@ -11,3 +11,10 @@ http:
     path: '/'
     matchers:
       - body="<openclaw-app>" || body="<title>OpenClaw Control</title>" || body="<title>Clawdbot Control</title>"
+version:
+  - method: GET
+    path: '/__openclaw/control-ui-config.json'
+    extractor:
+      part: body
+      group: 1
+      regex: '"serverVersion":\s?"([\d.]+[^"]*)"'

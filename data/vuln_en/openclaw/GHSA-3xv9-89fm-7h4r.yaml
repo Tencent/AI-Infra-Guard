@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-3xv9-89fm-7h4r
+  summary: OpenClaw diffs viewer misclassifies proxied remote requests as loopback when `allowRemoteViewer` is disabled
+  details: >-
+    Summary
+
+    diffs viewer misclassifies proxied remote requests as loopback when allowRemoteViewer is disabled
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: low
+
+    - Assessment: Shipped v2026.3.28 misclassified proxied diff-viewer requests as local loopback in some cases, a real but
+    low-severity access-control flaw.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 30a1690323088fd291abd11643a264a6828a002c — 2026-03-30T14:17:27-06:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-3xv9-89fm-7h4r
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-3xv9-89fm-7h4r

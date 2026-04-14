@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h5hg-h7rr-gpf3
+  summary: OpenClaw 节点浏览器代理 `allowProfiles` 策略可通过持久化 Profile 变更及运行时 Profile 选择被绕过
+  details: >-
+    漏洞概述
+
+    节点浏览器代理 allowProfiles 策略可通过持久化 Profile 变更及运行时 Profile 选择被绕过
+
+
+    维护者评估
+
+    - 状态：开放
+
+    - 标准化严重等级：高危
+
+    - 评估：已发布版本中存在通过 Profile 变更和运行时 Profile 选择绕过 allowProfiles 策略的漏洞，
+      已在 v2026.3.22+ 中修复并发布，保持开放状态以供正式发布，而非关闭。
+
+
+    受影响的软件包及版本
+
+    - 软件包：openclaw（npm）
+
+    - 最新发布的 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.13-1
+
+    - 已修复版本：>= 2026.3.22
+
+    - 包含修复的首个稳定标签：v2026.3.22
+  cvss: ''
+  severity: HIGH
+  security_advise: 将 openclaw 升级至 >= 2026.3.22 或更高版本。相关提交 - eac93507c36ccd0c359fba18fa466ef6448be8a5 — 2026-03-23T00:56:44-07:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3
+rule: version <= "2026.3.13-1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3

@@ -24,6 +24,14 @@ cd mcp-scan
 
 ### 2. 安装依赖
 
+推荐使用 `uv`（速度更快，自动管理虚拟环境）：
+
+```bash
+uv sync
+```
+
+或使用 pip：
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -231,14 +239,24 @@ MCP-Scan 采用多阶段自动化流程：
 
 ## 🤝 开发指南
 
+建议使用 `uv` 管理本地开发环境，并统一基于 Python 3.12 进行开发与验证。
+初始化开发环境时，可执行：
+
+```bash
+uv sync --extra dev --extra test
+```
+
+提交代码前，建议至少完成以下检查：
+
+```bash
+uv run ruff check . --fix
+uv run ruff format .
+```
+
 ### 运行测试
 
 ```bash
-# 测试 LLM 连接
-python utils/llm.py
-
-# 测试 LLM Manager
-python utils/llm_manager.py
+uv run pytest
 ```
 
 ### 日志查看

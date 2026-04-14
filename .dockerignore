@@ -12,7 +12,7 @@ ai-infra-guard
 # 测试文件
 *.test
 *.out
-mcp-testcase/
+testcase/
 
 # 日志文件
 *.log

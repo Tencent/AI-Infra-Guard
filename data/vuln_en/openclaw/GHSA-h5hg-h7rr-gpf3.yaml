@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h5hg-h7rr-gpf3
+  summary: OpenClaw Node browser proxy `allowProfiles` bypass through persistent profile mutation and runtime profile selection
+  details: >-
+    Summary
+
+    Node browser proxy allowProfiles bypass through persistent profile mutation and runtime profile selection
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: high
+
+    - Assessment: Real released allowProfiles bypass through profile mutation and runtime profile selection, fixed and shipped
+    in v2026.3.22+, so keep open for publish rather than close.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.13-1
+
+    - Patched versions: >= 2026.3.22
+
+    - First stable tag containing the fix: v2026.3.22
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - eac93507c36ccd0c359fba18fa466ef6448be8a5 — 2026-03-23T00:56:44-07:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3
+rule: version <= "2026.3.13-1"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3

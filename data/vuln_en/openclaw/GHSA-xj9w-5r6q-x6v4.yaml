@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xj9w-5r6q-x6v4
+  summary: OpenClaw Device-Paired Node Skips Node Scope Gate → Host RCE.md
+  details: >-
+    Summary
+
+    Device-Paired Node Skips Node Scope Gate → Host RCE.md
+
+
+    Current Maintainer Triage
+
+    - Status: open
+
+    - Normalized severity: high
+
+    - Assessment: Real in shipped v2026.3.28 because a merely device-paired node could expose node commands without node pairing,
+    but high is sufficient given the pairing/setup prerequisites.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 3886b65ef21d02808c1a106fa1f9f69e22f71c32 — 2026-03-30T17:29:28+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xj9w-5r6q-x6v4
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xj9w-5r6q-x6v4

@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.3] - 2026-04-09
+
+### Fixed
+- **Fingerprint**: Add version extractor to OpenClaw fingerprint for accurate version detection (#286)
+- **MCP Scan**: Harden agent loop and path validation, clean up config (#282)
+
+### Changed
+- **Vulnerability Rules**: Remove duplicate GHSA files already covered by CVE entries (OpenClaw dedup)
+
+### Documentation
+- Add quick usage guide with concrete scan target examples (issue #281)
+- Sync env.example context window vars, update install and test commands for MCP scan
+- Fix README_JA quick guide missing sections and correct OpenClaw vuln count (474→451)
+- Restructure and sync What's New sections across EN/ZH/JA READMEs
+
+### Contributors
+Special thanks to @boyhack, @zhuque, @zznQ, @feiyang666, @juciepie, @aig-doc-bot
+
+---
+
+## [v4.1.2] - 2026-04-03
+
+### Fixed
+- **Task Control**: Added support for stopping running tasks, allowing users to actively terminate scans in progress
+- **AI Infra Scan**: Fixed a bug where the "No Model" option could not be selected in AI infrastructure scan task configuration, preventing users from creating model-free scan tasks
+- **AI Infra Scan**: Fixed double-dot filename bug in scan file upload that caused certain filenames to be incorrectly rejected
+- **AI Infra Scan**: Fixed concurrent goroutine hang in multi-IP scan scenarios, improving scan stability and task completion reliability
+- **Agent Scan**: Hardened LLM error handling to prevent scan crashes on unexpected model responses
+- **LLM Input**: Fixed inappropriate input text passed to LLM in certain scan scenarios
+
+### Added
+- **Vulnerability Rules [2026-03-26]**: Added 15 new CVE rules covering n8n (×11), OpenClaw (×3), llama.cpp (×1)
+- **Vulnerability Rules [2026-03-27]**: Added 29 new CVE rules covering BentoML (×1), Langflow (×2), OpenClaw (×26); added BentoML fingerprint
+- **Vulnerability Rules [2026-03-30]**: Added 15 new CVE rules covering Langflow (×1), LibreChat (×4), LoLLMs (×1), MLflow (×1), OpenClaw (×8); added Wallos fingerprint
+- **Coverage**: AI component vulnerability coverage expanded to **52 components / 1000+ CVEs**
+
+### Changed
+- **Fingerprint Accuracy**: Aligned fingerprint `info.name` with vulnerability rule names for consistent detection matching
+- **Documentation**: Updated AI infra scan component and CVE statistics in README
+
+### Contributors
+Special thanks to @feiyang666, @Yang1k, @aigsec
+
+---
+
 ## [v4.1.1] - 2026-03-25
 
 ### Added

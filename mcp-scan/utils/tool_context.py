@@ -19,7 +19,8 @@
 """
 工具执行上下文 - 提供工具运行所需的环境信息
 """
-from typing import List, Dict, Any, Optional, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:  # pragma: no cover
     from tools.dispatcher import ToolDispatcher
@@ -30,14 +31,14 @@ class ToolContext:
     """工具执行上下文，包含历史记录、LLM实例等信息"""
 
     def __init__(
-            self,
-            llm: LLM,
-            history: List[Dict[str, str]],
-            agent_name: str = "Agent",
-            iteration: int = 0,
-            specialized_llms: Optional[Dict[str, LLM]] = None,
-            folder: Optional[str] = None,
-            tool_dispatcher: Optional["ToolDispatcher"] = None,
+        self,
+        llm: LLM,
+        history: list[dict[str, str]],
+        agent_name: str = "Agent",
+        iteration: int = 0,
+        specialized_llms: dict[str, LLM] | None = None,
+        folder: str | None = None,
+        tool_dispatcher: Optional["ToolDispatcher"] = None,
     ):
         """
         初始化工具上下文
@@ -50,7 +51,7 @@ class ToolContext:
         self.folder = folder
         self.tool_dispatcher = tool_dispatcher
 
-    async def call_mcp_tools(self, tool_name: str, tool_args: Dict[str, Any]):
+    async def call_mcp_tools(self, tool_name: str, tool_args: dict[str, Any]):
         if not self.tool_dispatcher:
             raise RuntimeError("Tool dispatcher is not available in ToolContext")
         if not self.tool_dispatcher.mcp_tools_manager:
@@ -62,10 +63,10 @@ class ToolContext:
     def get_llm(self, purpose: str = "default") -> LLM:
         """
         根据用途获取合适的LLM
-        
+
         Args:
             purpose: LLM用途，如 "thinking", "coding", "default"
-            
+
         Returns:
             LLM实例
         """
@@ -73,34 +74,34 @@ class ToolContext:
             return self.specialized_llms[purpose]
         return self.llm
 
-    def get_recent_history(self, n: int = 5) -> List[Dict[str, str]]:
+    def get_recent_history(self, n: int = 5) -> list[dict[str, str]]:
         """
         获取最近的n条历史记录
-        
+
         Args:
             n: 历史记录条数
-            
+
         Returns:
             历史记录列表
         """
         return self.history[-n:] if len(self.history) > n else self.history
 
     def call_llm(
-            self,
-            prompt: str,
-            purpose: str = "default",
-            system_prompt: Optional[str] = None,
-            use_history: bool = False
+        self,
+        prompt: str,
+        purpose: str = "default",
+        system_prompt: str | None = None,
+        use_history: bool = False,
     ) -> str:
         """
         调用LLM获取响应
-        
+
         Args:
             prompt: 用户提示
             purpose: LLM用途
             system_prompt: 系统提示（可选）
             use_history: 是否使用历史记录
-            
+
         Returns:
             LLM响应内容
         """
@@ -122,9 +123,9 @@ class ToolContext:
         return llm.chat(messages)
 
     def call_llm_messages(
-            self,
-            messages,
-            purpose: str = "default",
+        self,
+        messages,
+        purpose: str = "default",
     ) -> str:
         llm = self.get_llm(purpose)
         return llm.chat(messages)

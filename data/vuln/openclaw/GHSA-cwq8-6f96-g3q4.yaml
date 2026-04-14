@@ -1,0 +1,38 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cwq8-6f96-g3q4
+  summary: OpenClaw 安全扫描失败不阻断插件安装（失败放行）
+  details: >-
+    漏洞摘要
+
+    安全扫描失败不阻断插件安装（失败放行）
+
+
+    维护者评估
+
+    - 状态：未修复
+
+    - 标准化严重等级：低危
+
+    - 评估：该漏洞在已发布的 v2026.3.28 插件安装流程中真实存在，但严重等级评定为低危，原因是仍需操作者主动选择安装不受信任的软件包，且扫描失败状态有明确提示而非静默放行。
+
+
+    受影响包及版本
+
+    - 软件包：openclaw (npm)
+
+    - 最新已发布 npm 版本：2026.3.31
+
+    - 受影响版本范围：<=2026.3.28
+
+    - 已修复版本：>= 2026.3.31
+
+    - 包含修复的首个稳定标签：v2026.3.31
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交 - 7a953a52271b9188a5fa830739a4366614ff9916 — 2026-03-30T15:36:08+01:00 - 44b993613601280d46a5b88190e46669fc13d669 — 2026-03-31T23:16:11+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cwq8-6f96-g3q4
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cwq8-6f96-g3q4

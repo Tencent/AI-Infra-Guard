@@ -303,6 +303,14 @@ func RunWebServer(options *version.Options) {
 				"changelog": string(data),
 			})
 		})
+
+		// system — data directory auto-sync
+		system := v1.Group("/system")
+		system.Use(setupIdentityMiddleware())
+		{
+			system.POST("/update-data", HandleTriggerDataUpdate)
+			system.GET("/update-status", HandleGetUpdateStatus)
+		}
 	}
 
 	// Swagger UI - 必须在 NoRoute 之前注册

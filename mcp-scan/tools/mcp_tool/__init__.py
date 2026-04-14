@@ -16,7 +16,7 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-from .mcp_tool import call_mcp_tool, list_mcp_tools, list_mcp_prompts, list_mcp_resources
+from .mcp_tool import call_mcp_tool, list_mcp_prompts, list_mcp_resources, list_mcp_tools
 
 # Alias for backward compatibility
 mcp_tool = call_mcp_tool

@@ -17,7 +17,6 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import re
-from typing import List, Dict, Optional
 
 
 class VulnerabilityExtractor:
@@ -25,11 +24,11 @@ class VulnerabilityExtractor:
 
     def __init__(self):
         self.pattern = re.compile(
-            r'<vuln>\s*(.*?)\s*</vuln>',
-            re.DOTALL  # 使 . 匹配包括换行符在内的所有字符
+            r"<vuln>\s*(.*?)\s*</vuln>",
+            re.DOTALL,  # 使 . 匹配包括换行符在内的所有字符
         )
 
-    def extract_vulnerabilities(self, text: str) -> List[Dict[str, str]]:
+    def extract_vulnerabilities(self, text: str) -> list[dict[str, str]]:
         """
         从文本中提取所有漏洞信息
 
@@ -55,15 +54,15 @@ class VulnerabilityExtractor:
 
         return vulnerabilities
 
-    def _parse_vuln_block(self, block: str, index: int) -> Optional[Dict[str, str]]:
+    def _parse_vuln_block(self, block: str, index: int) -> dict[str, str] | None:
         """解析单个vuln块"""
 
         # 提取各个字段
-        title = self._extract_tag_content(block, 'title')
-        desc = self._extract_tag_content(block, 'desc')
-        risk_type = self._extract_tag_content(block, 'risk_type')
-        level = self._extract_tag_content(block, 'level')
-        suggestion = self._extract_tag_content(block, 'suggestion')
+        title = self._extract_tag_content(block, "title")
+        desc = self._extract_tag_content(block, "desc")
+        risk_type = self._extract_tag_content(block, "risk_type")
+        level = self._extract_tag_content(block, "level")
+        suggestion = self._extract_tag_content(block, "suggestion")
 
         # 验证必要字段
         if not all([title, desc, risk_type]):
@@ -71,26 +70,23 @@ class VulnerabilityExtractor:
             return None
 
         return {
-            'title': title.strip(),
-            'description': desc.strip(),
-            'risk_type': risk_type.strip(),
-            'level': level.strip(),
-            'suggestion': suggestion.strip()
+            "title": title.strip(),
+            "description": desc.strip(),
+            "risk_type": risk_type.strip(),
+            "level": level.strip(),
+            "suggestion": suggestion.strip(),
         }
 
-    def _extract_tag_content(self, text: str, tag: str) -> Optional[str]:
+    def _extract_tag_content(self, text: str, tag: str) -> str | None:
         """提取指定标签的内容"""
-        pattern = re.compile(
-            rf'<{tag}>\s*(.*?)\s*</{tag}>',
-            re.DOTALL
-        )
+        pattern = re.compile(rf"<{tag}>\s*(.*?)\s*</{tag}>", re.DOTALL)
         match = pattern.search(text)
         return match.group(1) if match else None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     extractor = VulnerabilityExtractor()
-    text = '''
+    text = """
 2
 2025-11-12 18:52:19.481 | INFO     | agent.base_agent:run:132 - Agent execution completed
 2025-11-12 18:52:19.481 | INFO     | __main__:main:36 - Agent completed successfully:
@@ -199,6 +195,6 @@ if __name__ == '__main__':
 
 Process finished with exit code 0
 
-'''
+"""
     vulnerabilities = extractor.extract_vulnerabilities(text)
     print(vulnerabilities)

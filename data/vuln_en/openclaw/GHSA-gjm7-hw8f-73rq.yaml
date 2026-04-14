@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gjm7-hw8f-73rq
+  summary: OpenClaw Paired node escalates to gateway RCE via unrestricted node.event agent dispatch
+  details: >-
+    Summary
+
+    Paired node escalates to gateway RCE via unrestricted node.event agent dispatch
+
+
+    Current Maintainer Triage
+
+    - Status: narrow
+
+    - Normalized severity: high
+
+    - Assessment: v2026.3.28 still lets paired role=node clients drive node.event agent.request into broader gateway-side
+    tool access than node RPCs, but critical is overstated because a trusted paired node foothold is already required.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Latest published npm version: 2026.3.31
+
+    - Vulnerable version range: <=2026.3.28
+
+    - Patched versions: >= 2026.3.31
+
+    - First stable tag containing the fix: v2026.3.31
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - a77928b1087e90f2a8903f8e5aca6dec9237ac62 — 2026-03-30T14:22:15+01:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gjm7-hw8f-73rq
+rule: version <= "2026.3.28"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gjm7-hw8f-73rq

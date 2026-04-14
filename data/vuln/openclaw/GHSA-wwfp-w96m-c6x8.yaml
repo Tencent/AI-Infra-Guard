@@ -1,0 +1,37 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wwfp-w96m-c6x8
+  summary: OpenClaw 配对待处理请求上限按通道而非按账号执行
+  details: >-
+    摘要
+
+
+    在 OpenClaw 2026.3.31 之前，待处理配对请求上限按通道文件而非按账号进行管控。
+    在多账号通道配置下，来自其他账号的请求可占满共享的待处理请求窗口，从而阻塞未受影响账号的新配对挑战。
+
+
+    影响
+
+
+    该漏洞可导致其他账号的新配对或入驻请求被拒绝，直至现有请求被审批或过期。
+    该漏洞仅影响可用性，不允许跨账号审批、数据访问或授权绕过。
+
+
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：>= 2026.2.26，< 2026.3.31
+
+    - 已修复版本：>= 2026.3.31
+
+    - npm 最新发布版本：2026.4.1
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交 - 9bc1f896c8cd325dd4761681e9bdb8c425f69785 — 将待处理请求上限的作用域限定至各账号
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wwfp-w96m-c6x8
+rule: version < "2026.3.31"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wwfp-w96m-c6x8
