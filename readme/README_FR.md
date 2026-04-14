@@ -49,11 +49,11 @@
 
 ## 🚀 Nouveautés
 
-- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) - Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
-- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) - Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
-- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) - ☠️ Détecte l'attaque de la chaîne d'approvisionnement LiteLLM (CRITIQUE) ; ajout de la couverture Blinko & New-API.
-- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) - Base de données de vulnérabilités OpenClaw étendue avec 281 nouvelles entrées CVE/GHSA.
-- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) - Lancement d'EdgeOne ClawScan (OpenClaw Security Scan) et du framework Agent-Scan.
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Détecte l'attaque de la chaîne d'approvisionnement LiteLLM (CRITIQUE) ; ajout de la couverture Blinko & New-API.
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — Base de données de vulnérabilités OpenClaw étendue avec 281 nouvelles entrées CVE/GHSA.
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Lancement d'EdgeOne ClawScan (OpenClaw Security Scan) et du framework Agent-Scan.
 
 👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [Essayer EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
@@ -191,14 +191,14 @@ La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vou
 1. Démarrez vLLM normalement (ex. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Dans l'interface web d'A.I.G, cliquez sur **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Saisissez `http://127.0.0.1:8000` (ou l'IP/port sur lequel vLLM écoute)
-4. Cliquez sur **Start Scan** - A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
+4. Cliquez sur **Start Scan** — A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
 5. Consultez le rapport : version du composant, vulnérabilités détectées, sévérité et liens de remédiation
 
 > 💡 **Conseil** : Pour analyser spécifiquement la version *nightly* de vLLM, lancez simplement ce build nightly et pointez A.I.G vers son adresse. Le scanner détecte automatiquement la version.
 
 ### Analyse MCP Server & Agent Skills
 
-Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** - aucune instance en cours d'exécution n'est requise.
+Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** — aucune instance en cours d'exécution n'est requise.
 
 ### Jailbreak Evaluation
 
