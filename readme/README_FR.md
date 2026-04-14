@@ -479,10 +479,6 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 <br>
 <br>
 
-## 📄 Licence
-
-Ce projet est sous licence **Apache License 2.0**. Voir le fichier [LICENSE](../LICENSE) pour plus de détails.
-
 ## ⚖️ Licence & Attribution
 
 Ce projet est open-sourcé sous la **licence Apache 2.0**. Nous accueillons chaleureusement et encourageons les contributions communautaires, les intégrations et les œuvres dérivées, sous réserve des exigences d'attribution suivantes :

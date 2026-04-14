@@ -479,10 +479,6 @@ Wenn Sie A.I.G in Ihrer Forschung verwenden, zitieren Sie bitte:
 <br>
 <br>
 
-## 📄 Lizenz
-
-Dieses Projekt steht unter der **Apache License 2.0**. Weitere Details finden Sie in der Datei [LICENSE](../LICENSE).
-
 ## ⚖️ Lizenz & Namensnennung
 
 Dieses Projekt ist unter der **Apache License 2.0** als Open Source veröffentlicht. Wir begrüßen und fördern ausdrücklich Community-Beiträge, Integrationen und abgeleitete Werke, vorbehaltlich der folgenden Namensnennungsanforderungen:
