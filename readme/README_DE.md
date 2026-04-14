@@ -142,7 +142,7 @@ Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung
 | **ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)** | Unterstützt die Ein-Klick-Bewertung von OpenClaw-Sicherheitsrisiken. Erkennt unsichere Konfigurationen, Skill-Risiken, CVE-Schwachstellen und Datenschutzverletzungen. |
 | **Agent&nbsp;Scan** | Ein eigenständiges, multi-agenten-basiertes automatisiertes Scan-Framework. Es ist darauf ausgelegt, die Sicherheit von KI-Agent-Workflows zu bewerten. Es unterstützt nahtlos Agents, die auf verschiedenen Plattformen laufen, einschließlich Dify und Coze. |
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;Scan** | Erkennt umfassend 14 Hauptkategorien von Sicherheitsrisiken. Die Erkennung gilt sowohl für MCP Server als auch für Agent Skills. Unterstützt flexibel das Scannen aus Quellcode und entfernten URLs. |
-| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 55 KI-Framework-Komponenten. Deckt mehr als 1000 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
+| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 57 KI-Framework-Komponenten. Deckt mehr als 1000 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
 | **Jailbreak&nbsp;Evaluation** | Bewertet Prompt-Sicherheitsrisiken anhand sorgfältig kuratierter Datensätze. Die Evaluation wendet mehrere Angriffsmethoden an, um die Robustheit zu testen. Bietet außerdem detaillierte modellübergreifende Vergleichsmöglichkeiten. |
 
 <details>
