@@ -49,11 +49,11 @@
 
 ## 🚀 Nouveautés
 
-- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
-- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
-- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Détecte l'attaque de la chaîne d'approvisionnement LiteLLM (CRITIQUE) ; ajout de la couverture Blinko & New-API.
-- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — Base de données de vulnérabilités OpenClaw étendue avec 281 nouvelles entrées CVE/GHSA.
-- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Lancement d'EdgeOne ClawScan (OpenClaw Security Scan) et du framework Agent-Scan.
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) - Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) - Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) - ☠️ Détecte l'attaque de la chaîne d'approvisionnement LiteLLM (CRITIQUE) ; ajout de la couverture Blinko & New-API.
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) - Base de données de vulnérabilités OpenClaw étendue avec 281 nouvelles entrées CVE/GHSA.
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) - Lancement d'EdgeOne ClawScan (OpenClaw Security Scan) et du framework Agent-Scan.
 
 👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [Essayer EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
@@ -142,7 +142,7 @@ Découvrez la version Pro avec des fonctionnalités avancées et des performance
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Prend en charge l'évaluation en un clic des risques de sécurité OpenClaw. Détecte les configurations non sécurisées, les risques liés aux Skills, les vulnérabilités CVE et les fuites de confidentialité. |
 | **Agent&nbsp;Scan** | Framework d'analyse automatisée multi-agents indépendant, conçu pour évaluer la sécurité des workflows d'agents IA. Prend en charge de façon transparente les agents fonctionnant sur diverses plateformes, notamment Dify et Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Détecte de manière approfondie 14 grandes catégories de risques de sécurité. La détection s'applique aussi bien aux MCP Servers qu'aux Agent Skills. Prend en charge de manière flexible l'analyse à partir du code source et d'URLs distantes. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 57 composants de frameworks IA. Couvre plus de 1 000 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 57 composants de frameworks IA. Couvre plus de 1 000 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
 | **Jailbreak&nbsp;Evaluation** | Évalue les risques de sécurité des prompts à l'aide de datasets soigneusement sélectionnés. L'évaluation applique plusieurs méthodes d'attaque pour tester la robustesse. Fournit également des capacités détaillées de comparaison inter-modèles. |
 
 <details>
@@ -177,7 +177,7 @@ Découvrez la version Pro avec des fonctionnalités avancées et des performance
 
 **Que saisir comme URL / IP cible ?**
 
-La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vous souhaitez analyser — pas une URL GitHub ou un chemin de code source. A.I.G se connecte au service actif et l'identifie pour détecter les vulnérabilités CVE connues.
+La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vous souhaitez analyser - pas une URL GitHub ou un chemin de code source. A.I.G se connecte au service actif et l'identifie pour détecter les vulnérabilités CVE connues.
 
 | Scénario | Exemple de cible |
 |:---------|:--------------|
@@ -191,14 +191,14 @@ La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vou
 1. Démarrez vLLM normalement (ex. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Dans l'interface web d'A.I.G, cliquez sur **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Saisissez `http://127.0.0.1:8000` (ou l'IP/port sur lequel vLLM écoute)
-4. Cliquez sur **Start Scan** — A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
+4. Cliquez sur **Start Scan** - A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
 5. Consultez le rapport : version du composant, vulnérabilités détectées, sévérité et liens de remédiation
 
 > 💡 **Conseil** : Pour analyser spécifiquement la version *nightly* de vLLM, lancez simplement ce build nightly et pointez A.I.G vers son adresse. Le scanner détecte automatiquement la version.
 
 ### Analyse MCP Server & Agent Skills
 
-Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** — aucune instance en cours d'exécution n'est requise.
+Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** - aucune instance en cours d'exécution n'est requise.
 
 ### Jailbreak Evaluation
 
@@ -434,22 +434,48 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 ## 📚 Articles connexes
 
-Nous sommes profondément reconnaissants envers les équipes de recherche qui ont utilisé A.I.G dans leurs travaux académiques et contribué à faire avancer la recherche en sécurité IA :
+<details>
+<summary>Nous sommes profondément reconnaissants envers les équipes de recherche qui ont utilisé A.I.G dans leurs travaux académiques. Cliquez pour développer (17 articles)</summary>
+<br>
 
-[1] Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)  
-[2] Ruiqi Li, Zhiqiang Wang, Yunhao Yao et al. **"MCP-ITP: An Automated Framework for Implicit Tool Poisoning in MCP."** arXiv preprint arXiv:2601.07395v1 (2026). [[pdf]](http://arxiv.org/abs/2601.07395v1)  
-[3] Jingxiao Yang, Ping He, Tianyu Du et al. **"HogVul: Black-box Adversarial Code Generation Framework Against LM-based Vulnerability Detectors."** arXiv preprint arXiv:2601.05587v1 (2026). [[pdf]](http://arxiv.org/abs/2601.05587v1)  
-[4] Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)  
-[5] Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)  
-[6] Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)  
-[7] Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard : Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:22510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)  
-[8] Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)  
-[9] Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)  
-[10] Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)  
-[11] Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)  
-[12] Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)  
+1. Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)
 
-📧 Si vous avez utilisé A.I.G dans vos recherches ou votre produit, ou si nous avons involontairement omis votre publication, n'hésitez pas à nous contacter ! [Contactez-nous ici](#-rejoindre-la-communauté).
+2. Ruiqi Li, Zhiqiang Wang, Yunhao Yao et al. **"MCP-ITP: An Automated Framework for Implicit Tool Poisoning in MCP."** arXiv preprint arXiv:2601.07395v1 (2026). [[pdf]](http://arxiv.org/abs/2601.07395v1)
+
+3. Jingxiao Yang, Ping He, Tianyu Du et al. **"HogVul: Black-box Adversarial Code Generation Framework Against LM-based Vulnerability Detectors."** arXiv preprint arXiv:2601.05587v1 (2026). [[pdf]](http://arxiv.org/abs/2601.05587v1)
+
+4. Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)
+
+5. Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)
+
+6. Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)
+
+7. Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard: Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:2510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)
+
+8. Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)
+
+9. Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)
+
+10. Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)
+
+11. Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)
+
+12. Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)
+
+13. Yuepeng Hu, Yuqi Jia, Mengyuan Li et al. **"MalTool: Malicious Tool Attacks on LLM Agents."** arXiv preprint arXiv:2602.12194 (2026). [[pdf]](https://arxiv.org/abs/2602.12194)
+
+14. Yi Ting Shen, Kentaroh Toyoda, Alex Leung. **"MCP-38: A Comprehensive Threat Taxonomy for Model Context Protocol Systems (v1.0)."** arXiv preprint arXiv:2603.18063 (2026). [[pdf]](https://arxiv.org/abs/2603.18063)
+
+15. Yiheng Huang, Zhijia Zhao, Bihuan Chen et al. **"From Component Manipulation to System Compromise: Understanding and Detecting Malicious MCP Servers."** arXiv preprint arXiv:2604.01905 (2026). [[pdf]](https://arxiv.org/abs/2604.01905)
+
+16. Hengkai Ye, Zhechang Zhang, Jinyuan Jia et al. **"TRUSTDESC: Preventing Tool Poisoning in LLM Applications via Trusted Description Generation."** arXiv preprint arXiv:2604.07536 (2026). [[pdf]](https://arxiv.org/abs/2604.07536)
+
+17. Zenghao Duan, Yuxin Tian, Zhiyi Yin et al. **"SkillAttack: Automated Red Teaming of Agent Skills through Attack Path Refinement."** arXiv preprint arXiv:2604.04989 (2026). [[pdf]](https://arxiv.org/abs/2604.04989)
+
+
+</details>
+
+📧 Si vous avez utilisé A.I.G dans vos recherches ou votre produit, ou si nous avons involontairement omis votre publication, n'hésitez pas à nous contacter ! [Contactez-nous ici](#-rejoindre-la-communauté).
 <br>
 <br>
 
