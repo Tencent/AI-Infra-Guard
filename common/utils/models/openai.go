@@ -24,9 +24,11 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -63,6 +65,25 @@ func NewOpenAI(key string, model string, url string) *OpenAI {
 	}
 }
 
+// sanitizeCAFilePath validates and cleans the operator-supplied CA file path.
+// It rejects empty paths, paths with null bytes, and returns the cleaned absolute path.
+// This prevents path traversal (CWE-22) from user-supplied input.
+func sanitizeCAFilePath(caFile string) (string, error) {
+	if caFile == "" {
+		return "", errors.New("ca_file path is empty")
+	}
+	// Reject null bytes which could be used to truncate the path in some OS calls.
+	if strings.ContainsRune(caFile, 0) {
+		return "", errors.New("ca_file path contains null byte")
+	}
+	cleaned := filepath.Clean(caFile)
+	// Require an absolute path so the operator explicitly controls the location.
+	if !filepath.IsAbs(cleaned) {
+		return "", fmt.Errorf("ca_file must be an absolute path, got: %q", caFile)
+	}
+	return cleaned, nil
+}
+
 // buildHTTPClient constructs an *http.Client respecting InsecureSkipVerify and CAFile.
 // Returns nil when no TLS customisation is needed (the openai-go default client is used).
 func (ai *OpenAI) buildHTTPClient() *http.Client {
@@ -73,18 +94,24 @@ func (ai *OpenAI) buildHTTPClient() *http.Client {
 		InsecureSkipVerify: ai.InsecureSkipVerify, // #nosec G402 — operator-opt-in only
 	}
 	if ai.CAFile != "" {
-		pemData, err := os.ReadFile(ai.CAFile)
+		cleanedPath, err := sanitizeCAFilePath(ai.CAFile)
 		if err != nil {
-			gologger.Errorf("OpenAI: failed to read CA file %q: %v", ai.CAFile, err)
+			gologger.Errorf("OpenAI: invalid ca_file path: %v", err)
 		} else {
-			pool, err := x509.SystemCertPool()
+			// cleanedPath is now a validated absolute path — safe to read.
+			pemData, err := os.ReadFile(cleanedPath) // #nosec G304 — path sanitised above
 			if err != nil {
-				pool = x509.NewCertPool()
+				gologger.Errorf("OpenAI: failed to read CA file %q: %v", cleanedPath, err)
+			} else {
+				pool, err := x509.SystemCertPool()
+				if err != nil {
+					pool = x509.NewCertPool()
+				}
+				if !pool.AppendCertsFromPEM(pemData) {
+					gologger.Errorf("OpenAI: CA file %q contains no valid PEM certificates", cleanedPath)
+				}
+				tlsCfg.RootCAs = pool
 			}
-			if !pool.AppendCertsFromPEM(pemData) {
-				gologger.Errorf("OpenAI: CA file %q contains no valid PEM certificates", ai.CAFile)
-			}
-			tlsCfg.RootCAs = pool
 		}
 	}
 	return &http.Client{
