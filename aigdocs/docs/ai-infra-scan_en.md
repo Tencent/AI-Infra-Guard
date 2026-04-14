@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **55 mainstream AI frameworks**, covering **1000+ known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **57 mainstream AI frameworks**, covering **1000+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -59,7 +59,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | **Model Serving**          | gradio                  | 48                  | High        |
 |                            | ollama                  | 26                  | Medium-High |
 |                            | triton-inference-server | 33                  | Medium-High |
-|                            | vllm                    | 43                  | Medium      |
+|                            | vllm                    | 46                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 7                   | Medium      |
 |                            | llama-cpp               | 3                   | Low         |
@@ -68,16 +68,16 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | kubeai                  | 1                   | High        |
 | **LLM App Frameworks**     | langchain               | 51                  | High        |
 |                            | dify                    | 21                  | High        |
-|                            | anythingllm             | 16                  | Medium-High |
+|                            | anythingllm             | 17                  | Medium-High |
 |                            | open-webui              | 39                  | Medium-High |
 |                            | ragflow                 | 11                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 24                  | Medium      |
-|                            | litellm                 | 18                  | Medium      |
+|                            | langflow                | 25                  | Medium      |
+|                            | litellm                 | 20                  | Medium      |
 |                            | mlflow                  | 66                  | High        |
-|                            | librechat               | 9                   | Medium      |
+|                            | librechat               | 10                  | Medium      |
 |                            | nextchat                | 4                   | Medium      |
-|                            | lobechat                | 3                   | Medium      |
+|                            | lobechat                | 4                   | Medium      |
 |                            | lobehub                 | 1                   | Medium      |
 |                            | flowise                 | 3                   | Medium      |
 |                            | langfuse                | 3                   | Low         |
@@ -105,12 +105,14 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | pyload-ng               | 25                  | Medium      |
 |                            | kubepi                  | 5                   | Medium      |
 |                            | llamafactory            | 4                   | Low         |
-|                            | bentoml                 | 1                   | Medium      |
+|                            | bentoml                 | 2                   | Medium      |
 |                            | blinko                  | 1                   | Low         |
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
-|                            | openclaw                | 452                 | Medium-High |
+|                            | praisonai               | 2                   | Medium      |
+|                            | text-generation-webui   | 1                   | Medium      |
+|                            | openclaw                | 566                 | Medium-High |
 | **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
