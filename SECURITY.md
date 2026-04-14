@@ -9,7 +9,7 @@ Report vulnerabilities via GitHub Security Advisories:
 - **Core scanner, agent scan, MCP scan, WebUI** — [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard/security/advisories/new)
 - **Vulnerability rule database** — [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard/security/advisories/new) (data/vuln, data/fingerprints)
 
-For issues that don't fit a specific category, open a GitHub Security Advisory or contact the maintainers at **[zhuquelab@tencent.com](mailto:zhuquelab@tencent.com)**.
+For issues that don't fit a specific category, open a GitHub Security Advisory or contact the maintainers at **[zhuque@tencent.com](mailto:zhuque@tencent.com)**.
 
 ### Required in Reports
 
@@ -110,12 +110,12 @@ When running AIG via Docker:
 
 ```bash
 # Restrict to loopback only
-docker run -p 127.0.0.1:8088:8088 zhuquelab/aig-server:latest
+docker run -p 127.0.0.1:8088:8088 zhuque/aig-server:latest
 
 # Further restrict with read-only filesystem where possible
 docker run -p 127.0.0.1:8088:8088 --read-only \
   -v aig-data:/app/data \
-  zhuquelab/aig-server:latest
+  zhuque/aig-server:latest
 ```
 
 Avoid publishing `8088` without `-p 127.0.0.1:8088:8088` binding in production environments.
@@ -157,4 +157,4 @@ AI-Infra-Guard is an open-source project. There is no formal bug bounty program.
 Security reports are handled by the **Tencent Zhuque Lab** team.
 
 - GitHub: [@Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)
-- Contact: [zhuquelab@tencent.com](mailto:zhuquelab@tencent.com)
+- Contact: [zhuque@tencent.com](mailto:zhuque@tencent.com)
