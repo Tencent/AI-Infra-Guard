@@ -1,7 +1,7 @@
 info:
   name: OpenClaw
   cve: GHSA-jf56-mccx-5f3f
-  summary: OpenClaw 经身份验证的 /hooks/wake 接口及映射的 wake 载荷被提升至受信任的 System: 提示词通道
+  summary: "OpenClaw 经身份验证的 /hooks/wake 接口及映射的 wake 载荷被提升至受信任的 System: 提示词通道"
   details: >-
     影响
 

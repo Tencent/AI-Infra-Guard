@@ -1,7 +1,7 @@
 info:
   name: OpenClaw
   cve: GHSA-gfmx-pph7-g46x
-  summary: OpenClaw 低信任级别的后台运行时输出被注入至受信任的 System: 事件，且本地异步执行完成事件未能正确降级为 exec-event 类型
+  summary: "OpenClaw 低信任级别的后台运行时输出被注入至受信任的 System: 事件，且本地异步执行完成事件未能正确降级为 exec-event 类型"
   details: >-
     影响
 
