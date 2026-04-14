@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hjvp-qhm6-wrh2
+  summary: OpenClaw Node system.run 审批上下文绑定缺陷——存在于启用审批的 host=node 工作流中
+  details: >-
+    漏洞概述
+
+    在启用审批的 host=node 工作流中，system.run 审批并未始终携带严格的、经版本控制的执行上下文绑定。在将此类审批作为完整性防护手段的非常规配置中，此前已审批的请求可能在环境输入变更后被复用。
+
+
+    受影响软件包及版本
+
+    - 软件包：npm openclaw
+
+    - 分流时最新已发布 npm 版本：2026.2.25
+
+    - 受影响范围：<= 2026.2.25
+
+    - 计划修复版本（下一 npm 发布）：2026.2.26
+
+
+    前置条件及典型暴露场景
+
+    需同时满足以下所有条件：
+
+    - 通过 host=node 使用 system.run
+
+    - 已启用执行审批并将其作为执行完整性控制手段
+
+    - 能够在同一上下文中访问审批 ID
+
+
+    大多数默认单操作员本地配置不依赖此路径，因此实际暴露风险通常较低。
+
+
+    漏洞详情
+
+    修复后，审批匹配要求使用针对命令 argv、当前工作目录、Agent/会话上下文及环境哈希的必要版本化绑定（systemRunBindingV1）。
+
+
+    修复方案：
+
+    - 请求 host=node 审批时要求提供 commandArgv。
+
+    - 为 node system.run 消费审批时要求提供 systemRunBindingV1。
+
+    - 移除旧版非版本化回退匹配，对缺失或不匹配的绑定采用失败关闭策略。
+
+    - 明确处理环境不匹配情况，并在宿主环境策略中拦截 GIT_EXTERNAL_DIFF。
+
+    - 针对不匹配映射和绑定规则添加/更新回归测试及契约测试覆盖。
+
+
+    安全影响
+
+    node 宿主执行审批流程中存在依赖配置的审批完整性缺陷。由于漏洞利用需依赖特定审批模式和上下文，严重程度维持为中危。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.26 或更高版本。相关提交 - 10481097f8e6dd0346db9be0b5f27570e1bdfcfa
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hjvp-qhm6-wrh2
+rule: 'version <= "2026.2.25"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hjvp-qhm6-wrh2

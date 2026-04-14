@@ -1,0 +1,25 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7jx5-9fjg-hp4m
+  summary: OpenClaw ACP permission auto-approval bypass via untrusted tool metadata
+  details: "Vulnerability Summary\r\n\r\nThe OpenClaw ACP client could auto-approve tool calls based on untrusted metadata\
+    \ and permissive name heuristics. A malicious or compromised ACP tool invocation could bypass expected interactive approval\
+    \ prompts for read-class operations.\r\n\r\nAffected Packages / Versions\r\n\r\n- Package: npm openclaw\r\n- Affected\
+    \ published versions: <= 2026.2.22-2 (latest published as of February 24, 2026 is 2026.2.22-2)\r\n- Patched in code on\
+    \ main: 2026.2.23 (released)\r\n\r\nTechnical Details\r\n\r\n- Permission classification trusted incoming toolCall.kind\
+    \ and heuristic name matching.\r\n- Non-core read-like names and spoofed kind metadata could reach auto-approve paths.\r\
+    \n- read operations were not scoped strongly enough to cwd in all metadata/title forms.\r\n\r\nFix\r\n\r\n- Require trusted\
+    \ core tool IDs for auto-approval and ignore untrusted toolCall.kind as an authorization source.\r\n- Scope read auto-approval\
+    \ to cwd-resolved paths.\r\n- Add stricter tool-name validation and regression coverage for spoofed kind and non-core\
+    \ read-like names.\r\n\r\nAffected Functions\r\n\r\n- resolvePermissionRequest\r\n- resolveToolNameForPermission\r\n-\
+    \ shouldAutoApproveToolCall"
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.2.23 or later. - Require trusted core tool IDs for auto-approval and ignore
+    untrusted toolCall.kind as an authorization source. - Scope read auto-approval to cwd-resolved paths. - Add stricter tool-name
+    validation and regression coverage for spoofed kind and non-core read-like names.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7jx5-9fjg-hp4m
+rule: 'version <= "2026.2.22-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7jx5-9fjg-hp4m

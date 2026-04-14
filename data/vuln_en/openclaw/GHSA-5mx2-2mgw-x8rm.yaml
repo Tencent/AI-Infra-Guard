@@ -1,0 +1,63 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5mx2-2mgw-x8rm
+  summary: OpenClaw BlueBubbles beta plugin webhook auth hardening (remove passwordless fallback)
+  details: >-
+    Summary
+
+    BlueBubbles webhook auth in the optional beta iMessage plugin allowed a passwordless fallback path. In some reverse-proxy/local
+    routing setups, this could allow unauthenticated webhook events.
+
+
+    Affected Component and Scope
+
+    - Component: extensions/bluebubbles webhook handler
+
+    - Scope: only deployments using the optional BlueBubbles plugin where webhook password auth was not configured for incoming
+    webhook events
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw/openclaw (npm)
+
+    - Latest published npm version at triage time (2026-02-21): 2026.2.19-2
+
+    - Affected structured range: <=2026.2.19-2
+
+    - Fixed on main; planned patched release: 2026.2.21 (>=2026.2.21)
+
+
+    Details
+
+    The vulnerable implementation had multiple auth branches, including a passwordless fallback with loopback/proxy heuristics.
+
+
+    The fix now uses one authentication codepath:
+
+    - inbound webhook token/guid must match channels.bluebubbles.password
+
+    - webhook target matching is consolidated to shared plugin-sdk logic
+
+    - BlueBubbles config validation now requires password when serverUrl is set
+
+
+    Impact
+
+    BlueBubbles is an optional beta iMessage plugin, and onboarding/channel-add flows already require a password. Practical
+    exposure is mainly custom/manual configurations that omitted webhook password authentication.
+
+
+    Remediation
+
+    - Upgrade to a release that includes this patch (>=2026.2.21, planned).
+
+    - Ensure BlueBubbles webhook delivery includes a matching password (?password=<password> or x-password).
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >=2026.2.21 or later. Commit(s) - 6b2f2811dc623e5faaf2f76afaa9279637174590 - 283029bdea23164ab7482b320cb420d1b90df806
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5mx2-2mgw-x8rm
+rule: 'version <= "2026.2.19-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5mx2-2mgw-x8rm

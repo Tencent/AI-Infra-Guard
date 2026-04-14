@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f8r2-vg7x-gh8m
+  summary: OpenClaw Exec 审批白名单模式在 POSIX 路径上存在过度匹配问题
+  details: >-
+    摘要
+
+
+    matchesExecAllowlistPattern 在 POSIX 系统上使用小写规范化和 glob 匹配时存在过于宽泛的问题。
+    此外，? 通配符可以匹配 /，导致匹配可以跨越路径段。
+
+
+    影响
+
+
+    这些匹配规则可能导致白名单条目过度匹配，
+    允许运营者未授权批准的命令或可执行文件路径被执行。
+
+
+    受影响版本
+
+
+    openclaw <= 2026.3.8
+
+
+    修复方案
+
+
+    已在 openclaw 2026.3.11 中修复，并包含在 2026.3.12 等后续版本中。
+    Exec 白名单匹配现在遵循预期的路径语义，
+    并针对 POSIX 大小写折叠和斜杠跨越情况添加了回归测试。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.11 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f8r2-vg7x-gh8m
+rule: 'version <= "2026.3.8"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f8r2-vg7x-gh8m

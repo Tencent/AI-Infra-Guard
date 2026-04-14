@@ -1,0 +1,60 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5mx2-2mgw-x8rm
+  summary: OpenClaw BlueBubbles Beta 插件 Webhook 认证加固（移除无密码回退路径）
+  details: >-
+    漏洞概述
+
+    可选 Beta iMessage 插件中 BlueBubbles Webhook 认证存在无密码回退路径。在某些反向代理或本地路由场景下，此路径可能导致未经认证的 Webhook 事件被接受处理。
+
+
+    受影响组件及范围
+
+    - 组件：extensions/bluebubbles webhook 处理器
+
+    - 范围：仅限使用可选 BlueBubbles 插件且未为入站 Webhook 事件配置密码认证的部署环境
+
+
+    受影响软件包及版本
+
+    - 软件包：openclaw/openclaw（npm）
+
+    - 分流时（2026-02-21）最新已发布 npm 版本：2026.2.19-2
+
+    - 受影响版本范围：<= 2026.2.19-2
+
+    - 已在主分支修复；计划修复版本：2026.2.21（>= 2026.2.21）
+
+
+    漏洞详情
+
+    存在漏洞的实现包含多条认证分支，其中包括带有回环/代理启发式判断的无密码回退路径。
+
+
+    修复后统一为单一认证流程：
+
+    - 入站 Webhook token/guid 必须与 channels.bluebubbles.password 匹配
+
+    - Webhook 目标匹配逻辑统一至共享插件 SDK 逻辑
+
+    - BlueBubbles 配置验证现要求在设置 serverUrl 时必须提供密码
+
+
+    安全影响
+
+    BlueBubbles 为可选 Beta iMessage 插件，其接入/添加频道流程已要求设置密码。实际暴露风险主要存在于自定义或手动配置中遗漏 Webhook 密码认证的场景。
+
+
+    修复建议
+
+    - 升级至包含该补丁的版本（>= 2026.2.21，计划发布）。
+
+    - 确保 BlueBubbles Webhook 投递请求中包含匹配的密码（?password=<密码> 或 x-password 请求头）。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.2.21 或更高版本。相关提交 - 6b2f2811dc623e5faaf2f76afaa9279637174590 - 283029bdea23164ab7482b320cb420d1b90df806
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5mx2-2mgw-x8rm
+rule: 'version <= "2026.2.19-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5mx2-2mgw-x8rm

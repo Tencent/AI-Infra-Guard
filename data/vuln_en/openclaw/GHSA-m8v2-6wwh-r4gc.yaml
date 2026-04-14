@@ -1,0 +1,61 @@
+info:
+  name: OpenClaw
+  cve: GHSA-m8v2-6wwh-r4gc
+  summary: OpenClaw Sandbox bind validation could bypass allowed-root and blocked-path checks via symlink-parent missing-leaf
+    paths
+  details: >-
+    Summary
+
+    In openclaw up to and including 2026.2.23 (latest npm release as of February 24, 2026), sandbox bind-source validation
+    could be bypassed when a bind source used a symlinked parent plus a non-existent leaf path.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: <= 2026.2.23
+
+    - Patched: >= 2026.2.24 (planned next release)
+
+
+    Root Cause
+
+    validateBindMounts previously relied on full-path realpath only when the full source path already existed. For missing-leaf
+    paths, parent symlink traversal was not fully canonicalized before allowed-root and blocked-path checks.
+
+
+    Security Impact
+
+    A source path that looked inside an allowed root could resolve outside that root (including blocked runtime paths) once
+    the missing leaf was created, weakening sandbox bind-source boundary enforcement.
+
+
+    Fix
+
+    The validation path now canonicalizes through the nearest existing ancestor, then always re-checks the canonical path
+    against both:
+
+    - allowed source roots
+
+    - blocked runtime paths
+
+
+    Verification
+
+    - pnpm check
+
+    - pnpm exec vitest run --config vitest.gateway.config.ts
+
+    - pnpm test:fast
+
+    - Added regression tests for symlink-parent + missing-leaf bypass patterns.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.2.24 or later. The validation path now canonicalizes through the nearest existing
+    ancestor, then always re-checks the canonical path against both: - allowed source roots - blocked runtime paths'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc
+rule: 'version <= "2026.2.23"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-m8v2-6wwh-r4gc

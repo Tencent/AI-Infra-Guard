@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vj3g-5px3-gr46
+  summary: OpenClaw 路径遍历 in Feishu media temp-file naming allows writes outside os.tmpdir()
+  details: >-
+    漏洞概述
+
+    OpenClaw 路径遍历漏洞。OpenClaw 路径遍历 in Feishu media temp-file naming allows writes outside os.tmpdir()。
+
+    受影响版本
+
+    - 软件包：openclaw (npm)
+    - 受影响：<= 2026.2.17
+    - 已修复：2026.2.19
+
+    安全影响
+
+    This is an arbitrary file write issue (within the OpenClaw process file permissions). If an attacker can control Feishu media key values returned to the client (for example via compromised upstream response path), they can influence where downloaded bytes are written.
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.19 或更高版本。 修复提交 - c821099157a9767d4df208c6b12f214946507871 - cdb00fe2428000e7a08f9b7848784a0049176705'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vj3g-5px3-gr46
+rule: 'version <= "2026.2.17"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vj3g-5px3-gr46

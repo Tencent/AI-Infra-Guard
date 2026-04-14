@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qx8j-g322-qj6m
+  summary: OpenClaw `fetchWithSsrFGuard` replays unsafe request bodies across cross-origin redirects
+  details: >-
+    Impact
+
+
+    fetchWithSsrFGuard replays unsafe request bodies across cross-origin redirects.
+
+
+    A guarded fetch could resend unsafe request bodies or headers when following cross-origin redirects.
+
+
+    OpenClaw is a user-controlled local assistant. This advisory is scoped to the OpenClaw trust model and does not assume
+    a multi-tenant service boundary.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <2026.3.31
+
+    - Patched versions: 2026.4.8
+
+
+    Fix
+
+
+    The issue was fixed on main and is available in the patched npm version listed above. The verified fixed tree is commit
+    d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+
+
+    Verification
+
+
+    The fix was re-checked against main before publication, including targeted regression tests for the affected security
+    boundary.
+
+
+    Credits
+
+
+    Thanks @BG0ECV for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: Upgrade openclaw to 2026.4.8 or later. The issue was fixed on main and is available in the patched npm
+    version listed above. The verified fixed tree is commit d7c3210cd6f5fdfdc1beff4c9541673e814354d5.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qx8j-g322-qj6m
+rule: 'version < "2026.3.31"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qx8j-g322-qj6m

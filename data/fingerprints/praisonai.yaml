@@ -1,0 +1,13 @@
+info:
+  name: praisonai
+  author: A.I.G bot
+  severity: info
+  desc: PraisonAI is a production-ready multi-agent AI teams system that orchestrates AI agents to automate and solve complex tasks. It provides a unified HTTP server with Web UI and REST API.
+  metadata:
+    product: praisonai
+    vendor: mervinpraison
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>PraisonAI</title>"
