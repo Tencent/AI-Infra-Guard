@@ -64,6 +64,7 @@
 - [🖼️ Galería](#️-galería)
 - [📖 Guía de Usuario](#-guía-de-usuario)
 - [🔧 Documentación de la API](#-documentación-de-la-api)
+- [🏗️ Evolución de la Arquitectura](../docs/architecture_evolution.md)
 - [📝 Guía de Contribución](#-guía-de-contribución)
 - [🙏 Agradecimientos](#-agradecimientos)
 - [💬 Únete a la Comunidad](#-únete-a-la-comunidad)
