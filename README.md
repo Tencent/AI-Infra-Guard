@@ -70,7 +70,6 @@
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
 - [📚 Related Papers](#-related-papers)
-- [📄 License](#-license)
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start

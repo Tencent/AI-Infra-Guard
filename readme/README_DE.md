@@ -70,7 +70,6 @@
 - [💬 Community beitreten](#-community-beitreten)
 - [📖 Zitierung](#-zitierung)
 - [📚 Verwandte Forschungsarbeiten](#-verwandte-forschungsarbeiten)
-- [📄 Lizenz](#-lizenz)
 - [⚖️ Lizenz & Namensnennung](#️-lizenz--namensnennung)
 <br><br>
 ## 🚀 Schnellstart
