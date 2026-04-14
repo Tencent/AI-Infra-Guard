@@ -108,6 +108,49 @@ A.I.G's AI tool Protocol scanning capability is entirely driven by an AI agent. 
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
+## Multi-Turn Automated Red Teaming
+
+A.I.G includes a built-in multi-turn automated red-teaming module for MCP Servers. Three LLM roles — Attacker, Target, and Evaluator — collaborate to perform adversarial testing against MCP Server source code.
+
+### Supported Attack Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| **Crescendo** | Progressive multi-turn escalation: establish trust → probe boundaries → escalate gradually → launch attack |
+| **TAP** (Tree of Attacks with Pruning) | Generates multiple attack variants per round, then uses a two-stage pruning process to retain the optimal path, advancing layer by layer |
+
+### Predefined Attack Targets (OWASP Agentic Top 10 aligned)
+
+| Target ID | Description |
+|-----------|-------------|
+| `data_exfiltration` | Data exfiltration |
+| `indirect_prompt_injection` | Indirect prompt injection |
+| `ssrf_via_agent` | SSRF via agent |
+| `rce_via_tool` | RCE via tool |
+| `privilege_escalation` | Privilege escalation |
+| `tool_poisoning` | Tool poisoning |
+
+### Usage
+
+```python
+import asyncio
+from redteam import RedTeamOrchestrator, generate_report
+
+async def main():
+    orch = RedTeamOrchestrator(
+        api_key="your-api-key",
+        base_url="https://openrouter.ai/api/v1",
+        model="deepseek/deepseek-v3.2-exp",
+        repo_dir="path/to/your/mcp/server/repo",
+    )
+    result = await orch.run("data_exfiltration", strategy_name="crescendo", max_total_rounds=8)
+    print(generate_report(result))
+
+asyncio.run(main())
+```
+
+The red-teaming module code is located in `mcp-scan/redteam/`. Run it from the `mcp-scan` project root directory to correctly resolve internal module dependencies.
+
 ## MCP Plugins
 
 MCP scanning is powered by on an AI agent that inspects the code. A.I.G. modularizes MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
