@@ -123,12 +123,13 @@ curl -X POST \
 
 ### 1. Agent Scan API
 
-AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイントなど）に対してセキュリティスキャンを実行し、プロンプトインジェクション、権限昇格、データ漏洩などの脆弱性を検出します。事前にウェブUI（設定 → Agent設定）でAgent設定を作成し、agent_idを取得してから呼び出してください。
+AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイントなど）に対してセキュリティスキャンを実行し、プロンプトインジェクション、権限昇格、データ漏洩などの脆弱性を検出します。`agent_id`（サーバーに事前保存した設定を参照）または `agent_config`（YAML設定内容をインラインで渡す）のいずれかを指定してください（互いに排他的）。
 
 #### リクエストパラメータ説明
 | パラメータ | 型 | 必須 | 説明 |
 |-----------|------|------|------|
-| agent_id | string | はい | Agent設定ID（ウェブUIで作成） |
+| agent_id | string | いいえ | Agent設定ID（ウェブUIで作成）。`agent_config` と互いに排他的——どちらか一方を必ず指定 |
+| agent_config | string | いいえ | インラインYAML形式のAgent設定内容。`agent_id` と互いに排他的——どちらか一方を必ず指定 |
 | eval_model | object | いいえ | 評価モデル設定。省略時はシステムデフォルトモデルを使用 |
 | eval_model.model | string | いいえ | モデル名（例: "gpt-4"） |
 | eval_model.token | string | いいえ | APIキー |

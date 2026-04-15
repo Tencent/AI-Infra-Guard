@@ -476,15 +476,16 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ### 4. Agent 安全扫描 API
 
-对 AI Agent（如 Dify、Coze 或自定义 HTTP 接口）进行安全扫描，检测提示词注入、越权、数据泄露等漏洞。需先通过界面（设置 → Agent 配置）创建 Agent 配置，获取 agent_id 后再调用此接口。
+对 AI Agent（如 Dify、Coze 或自定义 HTTP 接口）进行安全扫描，检测提示词注入、越权、数据泄露等漏洞。可通过 `agent_id`（引用界面预存配置）或 `agent_config`（直接传入 YAML 配置内容）两种方式指定 Agent，二者互斥，必须提供其中一个。
 
 #### 请求参数说明
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| agent_id | string | 是 | Agent 配置 ID（通过界面创建） |
+| agent_id | string | 否 | Agent 配置 ID（通过界面「设置 → Agent 配置」创建）。与 `agent_config` 互斥，二者必须提供其中一个 |
+| agent_config | string | 否 | 内联 YAML 格式的 Agent 配置内容。与 `agent_id` 互斥，二者必须提供其中一个 |
 | eval_model | object | 否 | 评估模型配置；如果省略，将自动使用系统默认模型 |
 | eval_model.model | string | 否 | 模型名称，如 "gpt-4" |
-| eval_model.token | string | 否 | API 密鑰 |
+| eval_model.token | string | 否 | API 密钥 |
 | eval_model.base_url | string | 否 | 基础 URL |
 | language | string | 否 | 语言代码，如 "zh" 或 "en" |
 | prompt | string | 否 | 额外扫描说明 |

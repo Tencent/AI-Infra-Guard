@@ -128,7 +128,8 @@ Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HT
 #### Request Parameter Description
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| agent_id | string | Yes | Agent configuration ID (created via the web UI under Settings → Agent Config) |
+| agent_id | string | No | Agent configuration ID (created via the web UI under Settings → Agent Config). Mutually exclusive with `agent_config` — one must be provided |
+| agent_config | string | No | Inline YAML configuration content for the agent. Mutually exclusive with `agent_id` — one must be provided |
 | eval_model | object | No | Evaluation model configuration; if omitted, the system default model is used |
 | eval_model.model | string | No | Model name, e.g., "gpt-4" |
 | eval_model.token | string | No | API key |
