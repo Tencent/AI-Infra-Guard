@@ -109,7 +109,7 @@ curl -X POST \
 #### Request Parameters
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| type | string | Yes | Task type: mcp_scan, ai_infra_scan, model_redteam_report |
+| type | string | Yes | Task type: mcp_scan, ai_infra_scan, model_redteam_report, agent_scan |
 | content | object | Yes | Task content, varies according to task type |
 
 #### Response Fields
@@ -125,7 +125,60 @@ curl -X POST \
 
 Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HTTP endpoints) to detect vulnerabilities including prompt injection, privilege escalation, and data leakage.
 
-> **Note**: Agent Scan API is not yet available. Please use the web UI to configure and trigger Agent Scan tasks.
+#### Request Parameter Description
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| agent_id | string | Yes | Agent configuration ID (created via the web UI under Settings → Agent Config) |
+| eval_model | object | No | Evaluation model configuration; if omitted, the system default model is used |
+| eval_model.model | string | No | Model name, e.g., "gpt-4" |
+| eval_model.token | string | No | API key |
+| eval_model.base_url | string | No | Base URL |
+| language | string | No | Language code, e.g., "zh" or "en" |
+| prompt | string | No | Additional scan instructions |
+
+#### Python Example
+```python
+def agent_scan():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "agent_scan",
+        "content": {
+            "agent_id": "your-agent-id",
+            "eval_model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en",
+            "prompt": "Focus on privilege escalation and data leakage risks"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+
+result = agent_scan()
+print(f"Agent scan task created, session ID: {result['data']['session_id']}")
+```
+
+#### cURL Example
+```bash
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "agent_scan",
+    "content": {
+      "agent_id": "your-agent-id",
+      "eval_model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en",
+      "prompt": "Focus on privilege escalation and data leakage risks"
+    }
+  }'
+```
 
 ---
 
@@ -136,7 +189,6 @@ MCP Server Scan is used to detect security vulnerabilities in MCP servers.
 #### Request Parameter Description
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| content | string | No | Task content description |
 | model | object | Yes | Model configuration |
 | model.model | string | Yes | Model name, e.g., "gpt-4" |
 | model.token | string | Yes | API key |
@@ -201,7 +253,7 @@ def mcp_scan_with_url():
     task_data = {
         "type": "mcp_scan",
         "content": {
-            "content": "https://mcp-server.example.com",  # Direct URL input
+            "prompt": "https://mcp-server.example.com",  # MCP server URL for remote scanning
             "model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -242,7 +294,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -d '{
     "type": "mcp_scan",
     "content": {
-      "content": "https://mcp-server.example.com",
+      "prompt": "https://mcp-server.example.com",
       "model": {
         "model": "gpt-4",
         "token": "sk-your-api-key",

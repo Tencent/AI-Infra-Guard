@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Документация</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · **🇷🇺 Русский**
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <b>🇷🇺 Русский</b>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Платформа AI Red Teaming от Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** объединяет такие возможности, как ClawScan (сканирование безопасности OpenClaw), Agent Scan, сканирование уязвимостей AI-инфраструктуры, сканирование MCP Server и Agent Skills, а также Jailbreak Evaluation — всё это для предоставления пользователям наиболее комплексного, интеллектуального и удобного решения для самостоятельной проверки рисков безопасности ИИ.
+<b>A.I.G (AI-Infra-Guard)</b> объединяет такие возможности, как ClawScan (сканирование безопасности OpenClaw), Agent Scan, сканирование уязвимостей AI-инфраструктуры, сканирование MCP Server и Agent Skills, а также Jailbreak Evaluation — всё это для предоставления пользователям наиболее комплексного, интеллектуального и удобного решения для самостоятельной проверки рисков безопасности ИИ.
 
 <p>
   Мы стремимся сделать A.I.G (AI-Infra-Guard) ведущей отраслевой платформой AI red teaming. Чем больше звёзд получает проект, тем шире его аудитория и тем больше разработчиков вносят свой вклад, ускоряя итерации и улучшения. Ваша звезда имеет для нас огромное значение!
@@ -70,7 +70,6 @@
 - [💬 Присоединиться к сообществу](#-присоединиться-к-сообществу)
 - [📖 Цитирование](#-цитирование)
 - [📚 Связанные публикации](#-связанные-публикации)
-- [📄 Лицензия](#-лицензия)
 - [⚖️ Лицензия и атрибуция](#️-лицензия-и-атрибуция)
 <br><br>
 ## 🚀 Быстрый старт
@@ -375,12 +374,35 @@ A.I.G предоставляет полный набор API для создан
 
 <br>
 <div align="center">
-<img src="../img/tencent.png" alt="Tencent" height="30px">
+<img src="../img/tencent.png" alt="Tencent" height="28px">
 <img src="../img/deepseek.png" alt="DeepSeek" height="38px">
 <img src="../img/antintl.svg" alt="Antintl" height="45px">
+<img src="../img/lenovo.png" alt="Lenovo" height="35px">
+<img src="../img/ICBC.jpg" alt="ICBC" height="40px">
+<img src="../img/vivo.png" alt="Vivo" height="30px">
+<img src="../img/oppo.png" alt="Oppo" height="30px">
+<img src="../img/haier.png" alt="Haier" height="30px">
+<img src="../img/abc.png" alt="Abc" height="40px">
+<img src="../img/中国电信.png" alt="中国电信" height="40px">
+<img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
+<img src="../img/qunar.png" alt="Qunar" height="35px">
+<img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
+<img src="../img/IDG.webp" alt="IDG" height="55px">
+<img src="../img/kingdee.png" alt="kingdee" height="40px">
 </div>
 
 <br>
+<div align="center">
+<img src="../img/清华大学.jpg" alt="清华大学" height="40px">
+<img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/浙江大学.png" alt="浙江大学" height="40px">
+<img src="../img/南京大学.png" alt="南京大学" height="40px">
+<img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
+<img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
+<img src="../img/南开大学.jpg" alt="南开大学" height="40px">
+<img src="../img/四川大学.png" alt="四川大学" height="40px">
+</div>
+
 <br>
 
 ## 💬 Присоединиться к сообществу
@@ -478,10 +500,6 @@ A.I.G предоставляет полный набор API для создан
 📧 Если вы использовали A.I.G в своих исследованиях или продукте, либо если мы случайно пропустили вашу публикацию — мы будем рады получить от вас весточку! [Свяжитесь с нами](#-присоединиться-к-сообществу).
 <br>
 <br>
-
-## 📄 Лицензия
-
-Этот проект распространяется под лицензией **Apache License 2.0**. Подробности см. в файле [LICENSE](../LICENSE).
 
 ## ⚖️ Лицензия и атрибуция
 

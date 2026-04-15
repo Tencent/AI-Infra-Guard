@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentação</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · **🇧🇷 Português** · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <b>🇧🇷 Português</b> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Plataforma de Red Teaming de IA pelo Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, scan de vulnerabilidades de infraestrutura de IA, scan de MCP Server & Agent Skills e Jailbreak Evaluation, com o objetivo de fornecer aos usuários a solução mais abrangente, inteligente e fácil de usar para autoavaliação de riscos de segurança em IA.
+<b>A.I.G (AI-Infra-Guard)</b> integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, scan de vulnerabilidades de infraestrutura de IA, scan de MCP Server & Agent Skills e Jailbreak Evaluation, com o objetivo de fornecer aos usuários a solução mais abrangente, inteligente e fácil de usar para autoavaliação de riscos de segurança em IA.
 
 <p>
   Estamos comprometidos em tornar o A.I.G (AI-Infra-Guard) a plataforma líder do setor em red teaming de IA. Mais stars ajudam este projeto a alcançar um público mais amplo, atraindo mais desenvolvedores para contribuir, o que acelera a iteração e melhoria. Sua star é fundamental para nós!
@@ -70,7 +70,6 @@
 - [💬 Junte-se à Comunidade](#-junte-se-à-comunidade)
 - [📖 Citação](#-citação)
 - [📚 Artigos Relacionados](#-artigos-relacionados)
-- [📄 Licença](#-licença)
 - [⚖️ Licença e Atribuição](#️-licença-e-atribuição)
 <br><br>
 ## 🚀 Início Rápido
@@ -375,12 +374,35 @@ Somos profundamente gratos às seguintes equipes e organizações pela confianç
 
 <br>
 <div align="center">
-<img src="../img/tencent.png" alt="Tencent" height="30px">
+<img src="../img/tencent.png" alt="Tencent" height="28px">
 <img src="../img/deepseek.png" alt="DeepSeek" height="38px">
 <img src="../img/antintl.svg" alt="Antintl" height="45px">
+<img src="../img/lenovo.png" alt="Lenovo" height="35px">
+<img src="../img/ICBC.jpg" alt="ICBC" height="40px">
+<img src="../img/vivo.png" alt="Vivo" height="30px">
+<img src="../img/oppo.png" alt="Oppo" height="30px">
+<img src="../img/haier.png" alt="Haier" height="30px">
+<img src="../img/abc.png" alt="Abc" height="40px">
+<img src="../img/中国电信.png" alt="中国电信" height="40px">
+<img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
+<img src="../img/qunar.png" alt="Qunar" height="35px">
+<img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
+<img src="../img/IDG.webp" alt="IDG" height="55px">
+<img src="../img/kingdee.png" alt="kingdee" height="40px">
 </div>
 
 <br>
+<div align="center">
+<img src="../img/清华大学.jpg" alt="清华大学" height="40px">
+<img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/浙江大学.png" alt="浙江大学" height="40px">
+<img src="../img/南京大学.png" alt="南京大学" height="40px">
+<img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
+<img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
+<img src="../img/南开大学.jpg" alt="南开大学" height="40px">
+<img src="../img/四川大学.png" alt="四川大学" height="40px">
+</div>
+
 <br>
 
 ## 💬 Junte-se à Comunidade
@@ -478,10 +500,6 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 📧 Se você utilizou o A.I.G em sua pesquisa ou produto, ou se inadvertidamente deixamos de mencionar sua publicação, adoraríamos saber! [Entre em contato conosco aqui](#-junte-se-à-comunidade).
 <br>
 <br>
-
-## 📄 Licença
-
-Este projeto está licenciado sob a **Apache License 2.0**. Consulte o arquivo [LICENSE](../LICENSE) para mais detalhes.
 
 ## ⚖️ Licença e Atribuição
 

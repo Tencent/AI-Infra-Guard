@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 ドキュメント</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · **🇯🇵 日本語** · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <b>🇯🇵 日本語</b> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">Tencent Zhuque Lab による AI レッドチーミングプラットフォーム</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** は、ClawScan（OpenClawセキュリティスキャン）、Agent Scan、AIインフラ脆弱性スキャン、MCPサーバー＆エージェントスキルスキャン、ジェイルブレイク評価などの機能を統合し、AIセキュリティリスクの自己診断において最も包括的でインテリジェント、かつ使いやすいソリューションをユーザーに提供することを目指しています。
+<b>A.I.G (AI-Infra-Guard)</b> は、ClawScan（OpenClawセキュリティスキャン）、Agent Scan、AIインフラ脆弱性スキャン、MCPサーバー＆エージェントスキルスキャン、ジェイルブレイク評価などの機能を統合し、AIセキュリティリスクの自己診断において最も包括的でインテリジェント、かつ使いやすいソリューションをユーザーに提供することを目指しています。
 
 <p>
   私たちはA.I.G（AI-Infra-Guard）を業界をリードするAIレッドチーミングプラットフォームにすることに尽力しています。より多くのスターは、このプロジェクトをより広いユーザーに届け、より多くの開発者の貢献を促し、イテレーションと改善を加速させます。あなたのスターは私たちにとって非常に重要です！
@@ -70,7 +70,6 @@
 - [コミュニティに参加](#-コミュニティに参加)
 - [引用](#-引用)
 - [関連論文](#-関連論文)
-- [ライセンス](#-ライセンス)
 - [ライセンスと帰属表示](#️-ライセンスと帰属表示)
 <br><br>
 
@@ -376,12 +375,35 @@ A.I.Gをご利用いただき、信頼と貴重なフィードバックをお寄
 
 <br>
 <div align="center">
-<img src="../img/tencent.png" alt="Tencent" height="30px">
+<img src="../img/tencent.png" alt="Tencent" height="28px">
 <img src="../img/deepseek.png" alt="DeepSeek" height="38px">
 <img src="../img/antintl.svg" alt="Antintl" height="45px">
+<img src="../img/lenovo.png" alt="Lenovo" height="35px">
+<img src="../img/ICBC.jpg" alt="ICBC" height="40px">
+<img src="../img/vivo.png" alt="Vivo" height="30px">
+<img src="../img/oppo.png" alt="Oppo" height="30px">
+<img src="../img/haier.png" alt="Haier" height="30px">
+<img src="../img/abc.png" alt="Abc" height="40px">
+<img src="../img/中国电信.png" alt="中国电信" height="40px">
+<img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
+<img src="../img/qunar.png" alt="Qunar" height="35px">
+<img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
+<img src="../img/IDG.webp" alt="IDG" height="55px">
+<img src="../img/kingdee.png" alt="kingdee" height="40px">
 </div>
 
 <br>
+<div align="center">
+<img src="../img/清华大学.jpg" alt="清华大学" height="40px">
+<img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/浙江大学.png" alt="浙江大学" height="40px">
+<img src="../img/南京大学.png" alt="南京大学" height="40px">
+<img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
+<img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
+<img src="../img/南开大学.jpg" alt="南开大学" height="40px">
+<img src="../img/四川大学.png" alt="四川大学" height="40px">
+</div>
+
 <br>
 
 ## コミュニティに参加
@@ -479,10 +501,6 @@ A.I.Gをご利用いただき、信頼と貴重なフィードバックをお寄
 A.I.Gを研究や製品にご使用いただいた方、または掲載漏れがございましたら、ぜひお知らせください！[こちらからご連絡ください](#-コミュニティに参加)。
 <br>
 <br>
-
-## ライセンス
-
-本プロジェクトは **Apache License 2.0** に基づきライセンスされています。詳細については [LICENSE](../LICENSE) ファイルをご覧ください。
 
 ## ライセンスと帰属表示
 

@@ -502,7 +502,6 @@ If you use A.I.G in your research, please cite:
 <br>
 <br>
 
-
 ## ⚖️ License & Attribution
 
 This project is open-sourced under the **Apache License 2.0**. We warmly welcome and encourage community contributions, integrations, and derivative works, subject to the following attribution requirements:

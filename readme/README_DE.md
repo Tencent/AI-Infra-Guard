@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Dokumentation</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · **🇩🇪 Deutsch** · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <b>🇩🇪 Deutsch</b> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform von Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integriert Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, AI Infrastructure Vulnerability Scan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
+<b>A.I.G (AI-Infra-Guard)</b> integriert Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, AI Infrastructure Vulnerability Scan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
 
 <p>
   Wir sind bestrebt, A.I.G (AI-Infra-Guard) zur branchenführenden AI Red Teaming Platform zu machen. Mehr Sterne helfen diesem Projekt, ein breiteres Publikum zu erreichen, und ziehen mehr Entwickler an, die zum Projekt beitragen - was die Iteration und Verbesserung beschleunigt. Ihr Stern ist für uns von entscheidender Bedeutung!
@@ -70,7 +70,6 @@
 - [💬 Community beitreten](#-community-beitreten)
 - [📖 Zitierung](#-zitierung)
 - [📚 Verwandte Forschungsarbeiten](#-verwandte-forschungsarbeiten)
-- [📄 Lizenz](#-lizenz)
 - [⚖️ Lizenz & Namensnennung](#️-lizenz--namensnennung)
 <br><br>
 ## 🚀 Schnellstart
@@ -375,12 +374,35 @@ Wir sind den folgenden Teams und Organisationen für ihr Vertrauen und ihre wert
 
 <br>
 <div align="center">
-<img src="../img/tencent.png" alt="Tencent" height="30px">
+<img src="../img/tencent.png" alt="Tencent" height="28px">
 <img src="../img/deepseek.png" alt="DeepSeek" height="38px">
 <img src="../img/antintl.svg" alt="Antintl" height="45px">
+<img src="../img/lenovo.png" alt="Lenovo" height="35px">
+<img src="../img/ICBC.jpg" alt="ICBC" height="40px">
+<img src="../img/vivo.png" alt="Vivo" height="30px">
+<img src="../img/oppo.png" alt="Oppo" height="30px">
+<img src="../img/haier.png" alt="Haier" height="30px">
+<img src="../img/abc.png" alt="Abc" height="40px">
+<img src="../img/中国电信.png" alt="中国电信" height="40px">
+<img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
+<img src="../img/qunar.png" alt="Qunar" height="35px">
+<img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
+<img src="../img/IDG.webp" alt="IDG" height="55px">
+<img src="../img/kingdee.png" alt="kingdee" height="40px">
 </div>
 
 <br>
+<div align="center">
+<img src="../img/清华大学.jpg" alt="清华大学" height="40px">
+<img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/浙江大学.png" alt="浙江大学" height="40px">
+<img src="../img/南京大学.png" alt="南京大学" height="40px">
+<img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
+<img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
+<img src="../img/南开大学.jpg" alt="南开大学" height="40px">
+<img src="../img/四川大学.png" alt="四川大学" height="40px">
+</div>
+
 <br>
 
 ## 💬 Community beitreten
@@ -478,10 +500,6 @@ Wenn Sie A.I.G in Ihrer Forschung verwenden, zitieren Sie bitte:
 📧 Wenn Sie A.I.G in Ihrer Forschung oder Ihrem Produkt verwendet haben oder wenn wir Ihre Veröffentlichung versehentlich nicht aufgeführt haben, freuen wir uns von Ihnen zu hören! [Kontaktieren Sie uns hier](#-community-beitreten).
 <br>
 <br>
-
-## 📄 Lizenz
-
-Dieses Projekt steht unter der **Apache License 2.0**. Weitere Details finden Sie in der Datei [LICENSE](../LICENSE).
 
 ## ⚖️ Lizenz & Namensnennung
 
