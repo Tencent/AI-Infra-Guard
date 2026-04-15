@@ -40,7 +40,7 @@ func HandleList(root string, loadFile func(filePath string) (interface{}, error)
 		var allItems []interface{}
 		err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
 			if err != nil {
-				return nil // 忽略错误
+				return nil // skip entry on error
 			}
 			if !d.IsDir() {
 				item, err := loadFile(path)
@@ -78,19 +78,19 @@ func HandleCreate(readAndSave func(content string) error) gin.HandlerFunc {
 			return
 		}
 		if err := readAndSave(request.Content); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "保存失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "failed to save config: " + err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "创建成功"})
+		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "created"})
 	}
 }
 
-// HandleEdit 返回处理编辑请求的HandlerFunc
+// HandleEdit returns a HandlerFunc for edit requests
 func HandleEdit(updateFunc func(id string, content string) error) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		name := c.Param("id")
 		if name == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "名称不能为空"})
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "name must not be empty"})
 			return
 		}
 
@@ -103,33 +103,33 @@ func HandleEdit(updateFunc func(id string, content string) error) gin.HandlerFun
 		}
 
 		if err := updateFunc(c.Param("id"), request.Content); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "更新失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "update failed: " + err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "更新成功"})
+		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "updated"})
 	}
 }
 
-// HandleDelete 返回处理删除请求的HandlerFunc
+// HandleDelete returns a HandlerFunc for delete requests
 func HandleDelete(deleteFunc func(id string) error) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		name := c.Param("id")
 		if name == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "名称不能为空"})
+			c.JSON(http.StatusBadRequest, gin.H{"status": 1, "message": "name must not be empty"})
 			return
 		}
 
 		if err := deleteFunc(name); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "删除失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "delete failed: " + err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "删除成功"})
+		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "deleted"})
 	}
 }
 
-// mcp prompt管理
+// MCP prompt management
 const MCPROOT = "data/mcp"
 
 func McpLoadFile(filePath string) (interface{}, error) {
@@ -159,27 +159,27 @@ func McpLoadFile(filePath string) (interface{}, error) {
 }
 
 func mcpReadAndSave(content string) error {
-	// 确保目录存在
+	// Ensure directory exists
 	if err := os.MkdirAll(MCPROOT, 0755); err != nil {
-		return fmt.Errorf("创建目录失败: %w", err)
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	// 解析YAML验证格式
+	// Parse YAML to validate format
 	var config mcp.PluginConfig
 	err := yaml.Unmarshal([]byte(content), &config)
 	if err != nil {
-		return fmt.Errorf("YAML解析失败: %w", err)
+		return fmt.Errorf("failed to parse YAML: %w", err)
 	}
 
-	// 获取ID
+	// Extract ID
 	id := config.Info.ID
 	if id == "" {
-		return errors.New("缺少info.id字段")
+		return errors.New("missing info.id field")
 	}
 
-	// 安全检查
+	// Safety check
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
 	filename, err := safeJoinPath(MCPROOT, id+".yaml")
@@ -190,18 +190,18 @@ func mcpReadAndSave(content string) error {
 }
 
 func mcpUpdateFunc(id string, content string) error {
-	// 解析YAML验证内容格式
+	// Parse YAML to validate content format
 	var config mcp.PluginConfig
 	if err := yaml.Unmarshal([]byte(content), &config); err != nil {
-		return fmt.Errorf("YAML解析失败: %w", err)
+		return fmt.Errorf("failed to parse YAML: %w", err)
 	}
 
-	// 安全检查文件名
+	// Validate filename safety
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
-	// 使用提供的name作为文件名，允许更新文件而不强制更改文件名
+	// Use provided name as filename; allow file update without forcing a rename
 	filePath, err := safeJoinPath(MCPROOT, id+".yaml")
 	if err != nil {
 		return err
@@ -210,23 +210,23 @@ func mcpUpdateFunc(id string, content string) error {
 }
 
 func mcpDeleteFunc(id string) error {
-	// 安全检查文件名
+	// Validate filename safety
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
 	filePath, pathErr := safeJoinPath(MCPROOT, id+".yaml")
 	if pathErr != nil {
 		return pathErr
 	}
-	// 检查文件是否存在
+	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return errors.New("文件不存在")
+		return errors.New("file not found")
 	}
 	return os.Remove(filePath)
 }
 
-// AI应用透视镜管理
+// AI application inspector management
 const PromptCollectionsRoot = "data/prompt_collections"
 
 type PromptCollection struct {
@@ -265,22 +265,22 @@ func promptCollectionLoadFile(filePath string) (interface{}, error) {
 }
 
 func promptCollectionReadAndSave(content string) error {
-	// 验证JSON格式
+	// Validate JSON format
 	var collection map[string]interface{}
 	err := json.Unmarshal([]byte(content), &collection)
 	if err != nil {
-		return fmt.Errorf("JSON解析失败: %w", err)
+		return fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// 获取ID作为文件名
+	// Use ID as filename
 	id, ok := collection["id"].(string)
 	if !ok || id == "" {
-		return errors.New("缺少id字段")
+		return errors.New("missing id field")
 	}
 
-	// 安全检查
+	// Safety check
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
 	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
@@ -291,16 +291,16 @@ func promptCollectionReadAndSave(content string) error {
 }
 
 func promptCollectionUpdateFunc(id string, content string) error {
-	// 验证JSON格式
+	// Validate JSON format
 	var collection map[string]interface{}
 	err := json.Unmarshal([]byte(content), &collection)
 	if err != nil {
-		return fmt.Errorf("JSON格式无效: %w", err)
+		return fmt.Errorf("invalid JSON format: %w", err)
 	}
 
-	// 安全检查文件名
+	// Validate filename safety
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
 	filename, err := safeJoinPath(PromptCollectionsRoot, id+".json")
@@ -311,9 +311,9 @@ func promptCollectionUpdateFunc(id string, content string) error {
 }
 
 func promptCollectionDeleteFunc(id string) error {
-	// 安全检查文件名
+	// Validate filename safety
 	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\<>:\"|?*") {
-		return errors.New("无效的文件名")
+		return errors.New("invalid filename")
 	}
 
 	filePath, err := safeJoinPath(PromptCollectionsRoot, id+".json")
@@ -321,9 +321,9 @@ func promptCollectionDeleteFunc(id string) error {
 		return err
 	}
 
-	// 检查文件是否存在
+	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return errors.New("文件不存在")
+		return errors.New("file not found")
 	}
 
 	return os.Remove(filePath)
@@ -366,8 +366,8 @@ func GetJailBreak(c *gin.Context) {
 const AgentConfigRoot = "data/agents"
 const PublicUser = "public_user"
 
-// getAgentUserDir 获取用户的 agent 配置目录
-// username 必须已通过 validateUsername 校验，此处额外用 safeJoinPath 做防御
+// getAgentUserDir returns the agent config directory for a user.
+// username must have passed validateUsername; safeJoinPath provides an extra defence layer.
 func getAgentUserDir(username string) string {
 	p, err := safeJoinPath(AgentConfigRoot, username)
 	if err != nil {
@@ -377,7 +377,7 @@ func getAgentUserDir(username string) string {
 	return p
 }
 
-// validateUsername 验证用户名安全性（防止路径穿越）
+// validateUsername checks that a username is safe to use in file paths (prevents path traversal)
 func validateUsername(username string) bool {
 	if username == "" {
 		return false
@@ -398,7 +398,7 @@ func HandleListAgentNames(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "获取失败: " + err.Error(),
+			"message": "failed to retrieve: " + err.Error(),
 		})
 		return
 	}
@@ -419,7 +419,7 @@ func HandleGetAgentConfig(c *gin.Context) {
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  1,
-			"message": "配置名称非法",
+			"message": "invalid config name",
 		})
 		return
 	}
@@ -429,13 +429,13 @@ func HandleGetAgentConfig(c *gin.Context) {
 		if errors.Is(err, os.ErrNotExist) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"status":  1,
-				"message": "配置不存在",
+				"message": "config not found",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "读取失败: " + err.Error(),
+			"message": "failed to read config: " + err.Error(),
 		})
 		return
 	}
@@ -509,7 +509,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  1,
-			"message": "配置名称非法",
+			"message": "invalid config name",
 		})
 		return
 	}
@@ -528,34 +528,37 @@ func HandleSaveAgentConfig(c *gin.Context) {
 	if content == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  1,
-			"message": "content不能为空",
+			"message": "content must not be empty",
 		})
 		return
 	}
 
-	// Validate Agent connectivity before saving the config.
-	success, message, err := testAgentConnectivity(content)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  1,
-			"message": "Connectivity check failed: " + err.Error(),
-		})
-		return
-	}
-	if !success {
-		c.JSON(http.StatusOK, gin.H{
-			"status":  1,
-			"message": "Connectivity check failed: " + message,
-		})
-		return
+	// Validate Agent connectivity before saving the config (skip when ?verify=false).
+	skipVerify := strings.ToLower(strings.TrimSpace(c.Query("verify"))) == "false"
+	if !skipVerify {
+		success, message, err := testAgentConnectivity(content)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status":  1,
+				"message": "connectivity check failed: " + err.Error(),
+			})
+			return
+		}
+		if !success {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "connectivity check failed: " + message,
+			})
+			return
+		}
 	}
 
-	// 创建用户专属目录
+	// Create user-specific directory
 	userDir := getAgentUserDir(username)
 	if err := os.MkdirAll(userDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "创建目录失败: " + err.Error(),
+			"message": "failed to create directory: " + err.Error(),
 		})
 		return
 	}
@@ -564,7 +567,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "保存失败: " + err.Error(),
+			"message": "failed to save config: " + err.Error(),
 		})
 		return
 	}
@@ -572,7 +575,7 @@ func HandleSaveAgentConfig(c *gin.Context) {
 	if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "保存失败: " + err.Error(),
+			"message": "failed to save config: " + err.Error(),
 		})
 		return
 	}
@@ -593,7 +596,7 @@ func HandleDeleteAgentConfig(c *gin.Context) {
 	if name == "" || !isValidName(name) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  1,
-			"message": "配置名称非法",
+			"message": "invalid config name",
 		})
 		return
 	}
@@ -602,25 +605,25 @@ func HandleDeleteAgentConfig(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  1,
-			"message": "删除失败: " + err.Error(),
+			"message": "delete failed: " + err.Error(),
 		})
 		return
 	}
 	if !deleted {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  1,
-			"message": "配置不存在",
+			"message": "config not found",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
-		"message": "删除成功",
+		"message": "deleted",
 	})
 }
 
-// listAgentConfigNamesFromDir 从指定目录读取配置名称列表
+// listAgentConfigNamesFromDir reads config names from a given directory
 func listAgentConfigNamesFromDir(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -645,16 +648,16 @@ func listAgentConfigNamesFromDir(dir string) ([]string, error) {
 	return names, nil
 }
 
-// listAgentConfigNames 列出用户的配置名称（合并用户目录和公共目录，去重）
+// listAgentConfigNames lists config names for a user, merging user-dir and public-dir entries with deduplication
 func listAgentConfigNames(username string) ([]string, error) {
-	// 读取用户目录的配置
+	// Read configs from user directory
 	userDir := getAgentUserDir(username)
 	userNames, err := listAgentConfigNamesFromDir(userDir)
 	if err != nil {
 		return nil, err
 	}
 
-	// 如果不是公共用户，还需要合并公共目录的配置
+	// If not the public user, also merge configs from the public directory
 	if username != PublicUser {
 		publicDir := getAgentUserDir(PublicUser)
 		publicNames, err := listAgentConfigNamesFromDir(publicDir)
@@ -662,7 +665,7 @@ func listAgentConfigNames(username string) ([]string, error) {
 			return nil, err
 		}
 
-		// 合并并去重
+		// Merge and deduplicate
 		nameSet := make(map[string]struct{})
 		for _, name := range userNames {
 			nameSet[name] = struct{}{}
@@ -681,7 +684,7 @@ func listAgentConfigNames(username string) ([]string, error) {
 	return userNames, nil
 }
 
-// readAgentConfigContentFromDir 从指定目录读取配置内容
+// readAgentConfigContentFromDir reads config file content from a directory
 func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
 	name = strings.TrimSpace(name)
 	if name == "" || !isValidName(name) {
@@ -708,9 +711,9 @@ func readAgentConfigContentFromDir(dir, name string) ([]byte, error) {
 	return nil, os.ErrNotExist
 }
 
-// readAgentConfigContent 读取配置内容（优先用户目录，fallback 到公共目录）
+// readAgentConfigContent reads config content, preferring the user directory with fallback to the public directory
 func readAgentConfigContent(username, name string) ([]byte, error) {
-	// 确保用于构造路径的用户名是安全的；否则退回到公共用户目录
+	// Ensure the username is safe for path construction; fall back to public user directory otherwise
 	safeUsername := username
 	if !validateUsername(safeUsername) {
 		safeUsername = PublicUser
@@ -720,7 +723,7 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 		return nil, os.ErrNotExist
 	}
 
-	// 优先从用户目录读取
+	// Prefer user directory
 	userDir := getAgentUserDir(safeUsername)
 	data, err := readAgentConfigContentFromDir(userDir, name)
 	if err == nil {
@@ -730,7 +733,7 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 		return nil, err
 	}
 
-	// 如果不是公共用户且用户目录没有，尝试从公共目录读取
+	// Fall back to public directory when user directory has no match
 	if safeUsername != PublicUser {
 		publicDir := getAgentUserDir(PublicUser)
 		return readAgentConfigContentFromDir(publicDir, name)
@@ -739,7 +742,7 @@ func readAgentConfigContent(username, name string) ([]byte, error) {
 	return nil, os.ErrNotExist
 }
 
-// resolveAgentConfigPathForWrite 解析写入路径（写入用户目录）
+// resolveAgentConfigPathForWrite resolves the write path (always writes to user directory)
 func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 	userDir := getAgentUserDir(username)
 	p1, err1 := safeJoinPath(userDir, name+".yaml")
@@ -766,7 +769,7 @@ func resolveAgentConfigPathForWrite(username, name string) (string, error) {
 	return p1, nil
 }
 
-// deleteAgentConfig 删除配置（只删除用户目录的配置）
+// deleteAgentConfig deletes a config entry (only from the user directory)
 func deleteAgentConfig(username, name string) (bool, error) {
 	userDir := getAgentUserDir(username)
 	for _, ext := range []string{".yaml", ".yml"} {
@@ -835,7 +838,7 @@ func HandleAgentConnect(c *gin.Context) {
 		return
 	}
 
-	// 使用公共的连通性测试函数
+	// Delegate to shared connectivity test helper
 	success, message, err := testAgentConnectivity(req.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

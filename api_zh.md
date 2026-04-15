@@ -476,12 +476,13 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ### 4. Agent 安全扫描 API
 
-对 AI Agent（如 Dify、Coze 或自定义 HTTP 接口）进行安全扫描，检测提示词注入、越权、数据泄露等漏洞。需先通过界面（设置 → Agent 配置）创建 Agent 配置，获取 agent_id 后再调用此接口。
+对 AI Agent（如 Dify、Coze 或自定义 HTTP 接口）进行安全扫描，检测提示词注入、越权、数据泄露等漏洞。支持两种方式提供 Agent 配置：内联传入 YAML（无需提前保存）或引用已保存的 agent_id。
 
 #### 请求参数说明
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| agent_id | string | 是 | Agent 配置 ID（通过界面创建） |
+| agent_id | string | 否\* | Agent 配置 ID（通过 `POST /api/v1/app/knowledge/agent/:name` 接口预先保存）。与 agent_config 二选一 |
+| agent_config | string | 否\* | 直接内联 YAML 配置内容。与 agent_id 二选一，同时提供时优先使用。**必须提供 agent_id 或 agent_config 之一** |
 | eval_model | object | 否 | 评估模型配置；如果省略，将自动使用系统默认模型 |
 | eval_model.model | string | 否 | 模型名称，如 "gpt-4" |
 | eval_model.token | string | 否 | API 密鑰 |
@@ -489,14 +490,27 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 | language | string | 否 | 语言代码，如 "zh" 或 "en" |
 | prompt | string | 否 | 额外扫描说明 |
 
-#### Python 示例
+#### 预先保存 Agent 配置（方式一的前提）
+
+使用 `agent_id` 方式前，需要先保存 YAML 配置：
+```
+POST /api/v1/app/knowledge/agent/:name
+```
+Body: `{ "content": "<yaml 内容>" }`。如果 Python 环境未就绪，可带上 `?verify=false` 跳过连通性检测直接保存。
+
+#### Python 示例 — 内联传入 YAML（无需提前保存）
 ```python
-def agent_scan():
+def agent_scan_inline():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    yaml_content = """
+provider: dify
+base_url: https://your-dify-instance.example.com
+api_key: app-your-dify-api-key
+"""
     task_data = {
         "type": "agent_scan",
         "content": {
-            "agent_id": "your-agent-id",
+            "agent_config": yaml_content,
             "eval_model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -510,12 +524,50 @@ def agent_scan():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-result = agent_scan()
+result = agent_scan_inline()
 print(f"任务创建成功，会话ID: {result['data']['session_id']}")
+```
+
+#### Python 示例 — 引用已保存配置
+```python
+def agent_scan_by_id():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "agent_scan",
+        "content": {
+            "agent_id": "your-agent-id",
+            "eval_model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "zh"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
 ```
 
 #### cURL 示例
 ```bash
+# 内联传入 YAML
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "agent_scan",
+    "content": {
+      "agent_config": "provider: dify\nbase_url: https://your-dify.example.com\napi_key: app-xxx",
+      "eval_model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "zh"
+    }
+  }'
+
+# 引用已保存的 agent_id
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -527,8 +579,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "token": "sk-your-api-key",
         "base_url": "https://api.openai.com/v1"
       },
-      "language": "zh",
-      "prompt": "重点关注越权和数据泄露风险"
+      "language": "zh"
     }
   }'
 ```
