@@ -127,8 +127,9 @@ Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HT
 
 #### Request Parameter Description
 | Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| agent_id | string | Yes | Agent configuration ID (created via the web UI under Settings → Agent Config) |
+|-----------|------|----------|--------------|
+| agent_id | string | No* | Agent configuration ID (pre-saved via `POST /api/v1/app/knowledge/agent/:name`). Required if `agent_config` is not provided. |
+| agent_config | string | No* | Inline YAML config content. Mutually exclusive with `agent_id`; takes priority if both are supplied. At least one of `agent_id` / `agent_config` must be provided. |
 | eval_model | object | No | Evaluation model configuration; if omitted, the system default model is used |
 | eval_model.model | string | No | Model name, e.g., "gpt-4" |
 | eval_model.token | string | No | API key |
@@ -136,14 +137,29 @@ Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HT
 | language | string | No | Language code, e.g., "zh" or "en" |
 | prompt | string | No | Additional scan instructions |
 
-#### Python Example
+> \* `agent_id` and `agent_config` are mutually exclusive; at least one must be provided.
+
+#### Saving Agent Config (Method 1 prerequisite)
+
+Before using `agent_id`, save the YAML config via:
+```
+POST /api/v1/app/knowledge/agent/:name
+```
+Body: `{ "content": "<yaml>" }`. Append `?verify=false` to skip the connectivity check when the agent-scan Python environment is unavailable.
+
+#### Python Example — inline config (no pre-save required)
 ```python
-def agent_scan():
+def agent_scan_inline():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    yaml_content = """
+provider: dify
+base_url: https://your-dify-instance.example.com
+api_key: app-your-dify-api-key
+"""
     task_data = {
         "type": "agent_scan",
         "content": {
-            "agent_id": "your-agent-id",
+            "agent_config": yaml_content,
             "eval_model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -157,12 +173,50 @@ def agent_scan():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-result = agent_scan()
+result = agent_scan_inline()
 print(f"Agent scan task created, session ID: {result['data']['session_id']}")
+```
+
+#### Python Example — pre-saved config
+```python
+def agent_scan_by_id():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "agent_scan",
+        "content": {
+            "agent_id": "your-agent-id",
+            "eval_model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
 ```
 
 #### cURL Example
 ```bash
+# Using inline YAML config
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "agent_scan",
+    "content": {
+      "agent_config": "provider: dify\nbase_url: https://your-dify.example.com\napi_key: app-xxx",
+      "eval_model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en"
+    }
+  }'
+
+# Using pre-saved agent_id
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -174,8 +228,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "token": "sk-your-api-key",
         "base_url": "https://api.openai.com/v1"
       },
-      "language": "en",
-      "prompt": "Focus on privilege escalation and data leakage risks"
+      "language": "en"
     }
   }'
 ```

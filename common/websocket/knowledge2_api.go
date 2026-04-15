@@ -533,21 +533,24 @@ func HandleSaveAgentConfig(c *gin.Context) {
 		return
 	}
 
-	// Validate Agent connectivity before saving the config.
-	success, message, err := testAgentConnectivity(content)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  1,
-			"message": "Connectivity check failed: " + err.Error(),
-		})
-		return
-	}
-	if !success {
-		c.JSON(http.StatusOK, gin.H{
-			"status":  1,
-			"message": "Connectivity check failed: " + message,
-		})
-		return
+	// Validate Agent connectivity before saving the config (skip when ?verify=false).
+	skipVerify := strings.ToLower(strings.TrimSpace(c.Query("verify"))) == "false"
+	if !skipVerify {
+		success, message, err := testAgentConnectivity(content)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status":  1,
+				"message": "Connectivity check failed: " + err.Error(),
+			})
+			return
+		}
+		if !success {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "Connectivity check failed: " + message,
+			})
+			return
+		}
 	}
 
 	// 创建用户专属目录

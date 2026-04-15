@@ -123,12 +123,13 @@ curl -X POST \
 
 ### 1. Agent Scan API
 
-AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイントなど）に対してセキュリティスキャンを実行し、プロンプトインジェクション、権限昇格、データ漏洩などの脆弱性を検出します。事前にウェブUI（設定 → Agent設定）でAgent設定を作成し、agent_idを取得してから呼び出してください。
+AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイントなど）に対してセキュリティスキャンを実行し、プロンプトインジェクション、権限昇格、データ漏洩などの脆弱性を検出します。Agent YAML設定はインラインで直接渡すか、事前保存済みの agent_id を指定するか、どちらか一方を選べます。
 
 #### リクエストパラメータ説明
 | パラメータ | 型 | 必須 | 説明 |
 |-----------|------|------|------|
-| agent_id | string | はい | Agent設定ID（ウェブUIで作成） |
+| agent_id | string | いいえ\* | Agent設定ID（`POST /api/v1/app/knowledge/agent/:name`で事前保存）。agent_configとどちらか一方を指定 |
+| agent_config | string | いいえ\* | YAML設定を直接内包する。agent_idとは排他。両方指定時はこちらが優先。**agent_idまたはagent_configのどちらかは必須** |
 | eval_model | object | いいえ | 評価モデル設定。省略時はシステムデフォルトモデルを使用 |
 | eval_model.model | string | いいえ | モデル名（例: "gpt-4"） |
 | eval_model.token | string | いいえ | APIキー |
@@ -136,14 +137,27 @@ AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイン
 | language | string | いいえ | 言語コード（例: "zh"、"en"） |
 | prompt | string | いいえ | 追加のスキャン指示 |
 
-#### Pythonサンプル
+#### Agent設定の事前保存（方法1の前提条件）
+
+agent_idを使う場合は、事前にYAML設定を保存する必要があります：
+```
+POST /api/v1/app/knowledge/agent/:name
+```
+Body: `{ "content": "<yaml内容>" }`。Python環境が整っていない場合は `?verify=false` を付けることで按続性チェックをスキップできます。
+
+#### Pythonサンプル — インラインYAML（事前保存不要）
 ```python
-def agent_scan():
+def agent_scan_inline():
     task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    yaml_content = """
+provider: dify
+base_url: https://your-dify-instance.example.com
+api_key: app-your-dify-api-key
+"""
     task_data = {
         "type": "agent_scan",
         "content": {
-            "agent_id": "your-agent-id",
+            "agent_config": yaml_content,
             "eval_model": {
                 "model": "gpt-4",
                 "token": "sk-your-api-key",
@@ -157,12 +171,50 @@ def agent_scan():
     response = requests.post(task_url, json=task_data)
     return response.json()
 
-result = agent_scan()
+result = agent_scan_inline()
 print(f"タスク作成成功、セッションID: {result['data']['session_id']}")
+```
+
+#### Pythonサンプル — 保存済み設定を使用
+```python
+def agent_scan_by_id():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "agent_scan",
+        "content": {
+            "agent_id": "your-agent-id",
+            "eval_model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
 ```
 
 #### cURLサンプル
 ```bash
+# インラインYAMLを使用
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "agent_scan",
+    "content": {
+      "agent_config": "provider: dify\nbase_url: https://your-dify.example.com\napi_key: app-xxx",
+      "eval_model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en"
+    }
+  }'
+
+# 保存済みagent_idを使用
 curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   -H "Content-Type: application/json" \
   -d '{
@@ -174,8 +226,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
         "token": "sk-your-api-key",
         "base_url": "https://api.openai.com/v1"
       },
-      "language": "en",
-      "prompt": "Focus on privilege escalation and data leakage risks"
+      "language": "en"
     }
   }'
 ```

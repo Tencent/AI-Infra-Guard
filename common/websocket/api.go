@@ -100,12 +100,14 @@ type PromptSecurityTaskRequest struct {
 }
 
 // AgentScanTaskRequest Agent 安全扫描任务请求结构体
-// @Description Agent 安全扫描任务请求参数，使用已配置的 agent_id 和评估模型执行扫描
+// @Description Agent 安全扫描任务请求参数。agent_id 和 agent_config 二选一：
+// agent_id 引用已保存在服务端的配置；agent_config 直接内联 YAML 内容，无需提前保存。
 type AgentScanTaskRequest struct {
-	AgentID   string      `json:"agent_id" binding:"required" example:"demo-agent"` // Agent 配置名称 - 必需
-	EvalModel ModelParams `json:"eval_model"`                                        // 评估模型配置 - 可选，留空时自动选择默认模型
-	Language  string      `json:"language,omitempty" example:"zh"`                   // 语言代码 - 可选
-	Prompt    string      `json:"prompt,omitempty" example:"重点关注越权和数据泄露风险"`      // 额外扫描说明 - 可选
+	AgentID     string      `json:"agent_id,omitempty" example:"demo-agent"`                              // Agent 配置名称（与 agent_config 二选一）
+	AgentConfig string      `json:"agent_config,omitempty" example:"provider: dify\nbase_url: ..."`       // 直接内联 YAML 配置内容（与 agent_id 二选一）
+	EvalModel   ModelParams `json:"eval_model"`                                                           // 评估模型配置 - 可选，留空时自动选择默认模型
+	Language    string      `json:"language,omitempty" example:"zh"`                                      // 语言代码 - 可选
+	Prompt      string      `json:"prompt,omitempty" example:"重点关注越权和数据泄露风险"`                      // 额外扫描说明 - 可选
 }
 
 // APIResponse 通用API响应结构
@@ -380,20 +382,27 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			})
 			return
 		}
-		if strings.TrimSpace(req.AgentID) == "" {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  1,
-				"message": "参数错误: agent_id 不能为空",
-				"data":    nil,
-			})
-			return
-		}
 
-		agentData, err := readAgentConfigContent(username, req.AgentID)
-		if err != nil {
+		// Resolve agent YAML: inline content takes priority over stored config.
+		var agentData []byte
+		if strings.TrimSpace(req.AgentConfig) != "" {
+			// Method A: caller supplies YAML inline — no file lookup needed.
+			agentData = []byte(strings.TrimSpace(req.AgentConfig))
+		} else if strings.TrimSpace(req.AgentID) != "" {
+			// Method B: look up pre-saved config by agent_id.
+			agentData, err = readAgentConfigContent(username, req.AgentID)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "参数错误: 获取 Agent 配置失败: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: 获取 Agent 配置失败: " + err.Error(),
+				"message": "参数错误: agent_id 或 agent_config 至少提供一个",
 				"data":    nil,
 			})
 			return
