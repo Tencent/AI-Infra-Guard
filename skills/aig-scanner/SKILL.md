@@ -1,6 +1,6 @@
 ---
 name: aig-scanner
-version: 1.0.2
+version: 1.0.3
 author: aigsec/Tencent Zhuque Lab
 license: MIT
 description: >
@@ -93,7 +93,6 @@ If `AIG_BASE_URL` is missing, tell the user to configure the A.I.G service addre
 
 - the A.I.G deployment is web-login or cookie only
 - the user expects background monitoring or continuous polling after the turn ends
-- the user expects to upload a local Agent YAML file
 
 ## Tooling Rules
 
@@ -111,8 +110,11 @@ python3 ~/.openclaw/skills/aig-scanner/scripts/aig_client.py scan-ai-tools \
   --github-url "https://github.com/user/repo" \
   --model <model> --token <token> --base-url <base_url>
 
-# Agent Scan
+# Agent Scan — by pre-saved config name
 python3 ~/.openclaw/skills/aig-scanner/scripts/aig_client.py scan-agent --agent-id "demo-agent"
+
+# Agent Scan — by local YAML file (no server-side pre-save needed)
+python3 ~/.openclaw/skills/aig-scanner/scripts/aig_client.py scan-agent --agent-config-file /path/to/agent.yaml
 
 # LLM Jailbreak Evaluation
 python3 ~/.openclaw/skills/aig-scanner/scripts/aig_client.py scan-model-safety \
@@ -165,7 +167,7 @@ Do not call `/api/v1/app/models` for user-visible model inventory output. If thi
 
 ### 3. Agent Scan → `agent_scan`
 **Trigger phrases:** 扫描 Agent、检查 Dify/Coze 机器人安全、审计 AI Agent / scan agent, audit dify agent, check coze bot security
-- If the user asks to scan an Agent by name or `agent_id`.
+- If the user asks to scan an Agent by name (`agent_id`) or by providing a local YAML config file (`--agent-config-file`).
 
 ### 4. LLM Jailbreak Evaluation → `model_redteam_report`
 **Trigger phrases:** 评测模型抗越狱、越狱测试 / red-team LLM, jailbreak test
@@ -278,20 +280,30 @@ For missing parameters in `大模型安全体检` / `LLM Jailbreak Evaluation`:
 - if the user explicitly mentions OpenRouter, it is valid to use the OpenRouter API key as `target-token` and `https://openrouter.ai/api/v1` as `target-base-url`
 - do not mislabel this flow as `MCP scan`
 
-### 2. Agent scan reads server-side YAML
+### 2. Agent scan — two input methods
 
-`agent_scan` does **not** upload a local YAML file.
-It uses:
+`agent_scan` supports two mutually exclusive input methods:
 
-- `agent_id`
-- `username` request header
+**Method A — inline YAML (`--agent-config-file`):**
+Pass a local YAML file; its content is sent inline as `agent_config`. No server-side pre-save required.
+Use this when the user has a YAML file ready or wants to scan an agent without configuring it through the Web UI first.
 
-and the A.I.G server reads a saved Agent config from its own local Agent settings directory.
+```bash
+python3 aig_client.py scan-agent --agent-config-file /path/to/agent.yaml
+```
+
+**Method B — pre-saved config (`--agent-id`):**
+Reference an Agent config already saved in the A.I.G server by name (`agent_id`).
+The server looks up the config from `data/agents/{username}/`.
+
+```bash
+python3 aig_client.py scan-agent --agent-id "demo-agent"
+```
 
 The default `AIG_USERNAME=openclaw` is useful because AIG Web UI can distinguish these tasks from normal web-created tasks.
 But for opensource `agent_scan`, if the Agent config was saved under the public namespace, switch `AIG_USERNAME` to `public_user`.
 
-So before running `agent_scan`:
+So before running `agent_scan` with `--agent-id`:
 
 - if the exact `agent_id` is unknown, list visible agents first
 - if the namespace is unclear, mention `AIG_USERNAME` and that it defaults to `openclaw`
@@ -311,7 +323,7 @@ So before running `agent_scan`:
 - Do not expose raw API key values in commands shown to the user.
 - Do not keep polling indefinitely.
 - Do not guess unsupported endpoints.
-- Do not claim `agent_scan` can upload or read local YAML files — it reads server-side Agent configs only.
+- For `agent_scan`, use `--agent-config-file` when the user has a local YAML file; use `--agent-id` when referencing a server-side pre-saved config.
 - Do not inspect local workspace files for remote URL scans.
 
 ## Result Footer

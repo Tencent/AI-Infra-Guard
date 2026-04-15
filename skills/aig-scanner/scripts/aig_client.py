@@ -367,10 +367,27 @@ def cmd_scan_ai_tools(args: argparse.Namespace) -> None:
 
 
 def cmd_scan_agent(args: argparse.Namespace) -> None:
-    content: dict[str, Any] = {
-        "agent_id": args.agent_id,
-        "language": args.language,
-    }
+    # Resolve agent YAML: --agent-config-file (inline) takes priority over --agent-id.
+    if args.agent_config_file:
+        config_path = os.path.abspath(args.agent_config_file)
+        if not os.path.isfile(config_path):
+            _die(f"Agent config file not found: {args.agent_config_file}")
+        with open(config_path, "r", encoding="utf-8") as f:
+            agent_config_content = f.read().strip()
+        if not agent_config_content:
+            _die(f"Agent config file is empty: {args.agent_config_file}")
+        content: dict[str, Any] = {
+            "agent_config": agent_config_content,
+            "language": args.language,
+        }
+    elif args.agent_id:
+        content = {
+            "agent_id": args.agent_id,
+            "language": args.language,
+        }
+    else:
+        _die("Must provide either --agent-id or --agent-config-file")
+
     if args.eval_model and args.eval_token:
         content["eval_model"] = {
             "model": args.eval_model,
@@ -491,7 +508,9 @@ def main() -> None:
 
     # scan-agent
     p = sub.add_parser("scan-agent", help="Agent Scan (Dify/Coze/custom agents)")
-    p.add_argument("--agent-id", required=True, help="Agent config name in A.I.G Web UI")
+    agent_src = p.add_mutually_exclusive_group(required=True)
+    agent_src.add_argument("--agent-id", help="Agent config name pre-saved in A.I.G Web UI")
+    agent_src.add_argument("--agent-config-file", metavar="PATH", help="Local YAML file to pass inline (no server-side pre-save needed)")
     p.add_argument("--language", default="zh", choices=["zh", "en"], help="Report language")
     p.add_argument("--eval-model", help="Eval model name")
     p.add_argument("--eval-token", help="Eval model token")
