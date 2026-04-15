@@ -70,7 +70,6 @@
 - [💬 Únete a la Comunidad](#-únete-a-la-comunidad)
 - [📖 Cita](#-cita)
 - [📚 Artículos Relacionados](#-artículos-relacionados)
-- [📄 Licencia](#-licencia)
 - [⚖️ Licencia y Atribución](#️-licencia-y-atribución)
 <br><br>
 ## 🚀 Inicio Rápido
