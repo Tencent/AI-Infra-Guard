@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Dokumentation</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · **🇩🇪 Deutsch** · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <b>🇩🇪 Deutsch</b> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 AI Red Teaming Platform von Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integriert Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, AI Infrastructure Vulnerability Scan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
+<b>A.I.G (AI-Infra-Guard)</b> integriert Funktionen wie ClawScan (OpenClaw Security Scan), Agent Scan, AI Infrastructure Vulnerability Scan, MCP Server & Agent Skills Scan sowie Jailbreak Evaluation, um Benutzern die umfassendste, intelligenteste und benutzerfreundlichste Lösung zur Selbstüberprüfung von KI-Sicherheitsrisiken bereitzustellen.
 
 <p>
   Wir sind bestrebt, A.I.G (AI-Infra-Guard) zur branchenführenden AI Red Teaming Platform zu machen. Mehr Sterne helfen diesem Projekt, ein breiteres Publikum zu erreichen, und ziehen mehr Entwickler an, die zum Projekt beitragen - was die Iteration und Verbesserung beschleunigt. Ihr Stern ist für uns von entscheidender Bedeutung!

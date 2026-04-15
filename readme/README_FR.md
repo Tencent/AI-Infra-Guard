@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentation</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · **🇫🇷 Français** · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <b>🇫🇷 Français</b> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Plateforme de Red Teaming IA par Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** intègre des fonctionnalités telles que ClawScan (OpenClaw Security Scan), Agent Scan, l'analyse de vulnérabilités de l'infrastructure IA, l'analyse MCP Server & Agent Skills, ainsi que Jailbreak Evaluation, dans le but de fournir aux utilisateurs la solution la plus complète, intelligente et conviviale pour l'autoévaluation des risques de sécurité IA.
+<b>A.I.G (AI-Infra-Guard)</b> intègre des fonctionnalités telles que ClawScan (OpenClaw Security Scan), Agent Scan, l'analyse de vulnérabilités de l'infrastructure IA, l'analyse MCP Server & Agent Skills, ainsi que Jailbreak Evaluation, dans le but de fournir aux utilisateurs la solution la plus complète, intelligente et conviviale pour l'autoévaluation des risques de sécurité IA.
 
 <p>
   Nous nous engageons à faire d'A.I.G (AI-Infra-Guard) la plateforme de red teaming IA de référence dans l'industrie. Plus d'étoiles permettent à ce projet de toucher un public plus large, attirant davantage de développeurs à contribuer, ce qui accélère l'itération et l'amélioration. Votre étoile est cruciale pour nous !

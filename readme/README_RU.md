@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Документация</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · **🇷🇺 Русский**
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <b>🇷🇺 Русский</b>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Платформа AI Red Teaming от Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** объединяет такие возможности, как ClawScan (сканирование безопасности OpenClaw), Agent Scan, сканирование уязвимостей AI-инфраструктуры, сканирование MCP Server и Agent Skills, а также Jailbreak Evaluation — всё это для предоставления пользователям наиболее комплексного, интеллектуального и удобного решения для самостоятельной проверки рисков безопасности ИИ.
+<b>A.I.G (AI-Infra-Guard)</b> объединяет такие возможности, как ClawScan (сканирование безопасности OpenClaw), Agent Scan, сканирование уязвимостей AI-инфраструктуры, сканирование MCP Server и Agent Skills, а также Jailbreak Evaluation — всё это для предоставления пользователям наиболее комплексного, интеллектуального и удобного решения для самостоятельной проверки рисков безопасности ИИ.
 
 <p>
   Мы стремимся сделать A.I.G (AI-Infra-Guard) ведущей отраслевой платформой AI red teaming. Чем больше звёзд получает проект, тем шире его аудитория и тем больше разработчиков вносят свой вклад, ускоряя итерации и улучшения. Ваша звезда имеет для нас огромное значение!
