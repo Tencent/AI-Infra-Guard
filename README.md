@@ -2,6 +2,10 @@
     <h1 align="center"><img vertical-align="middle" width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
 <p align="center">
+  <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentation</a> &nbsp;|&nbsp;
+  🌐 <a href="./readme/README_ZH.md">🇨🇳 中文</a> · <a href="./readme/README_JA.md">🇯🇵 日本語</a> · <a href="./readme/README_ES.md">🇪🇸 Español</a> · <a href="./readme/README_DE.md">🇩🇪 Deutsch</a> · <a href="./readme/README_FR.md">🇫🇷 Français</a> · <a href="./readme/README_KR.md">🇰🇷 한국어</a> · <a href="./readme/README_PT.md">🇧🇷 Português</a> · <a href="./readme/README_RU.md">🇷🇺 Русский</a>
+</p>
+<p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
       <img src="https://img.shields.io/github/stars/tencent/AI-Infra-Guard?style=social" alt="GitHub stars">
     </a>
@@ -19,13 +23,20 @@
     </a>
 </p>
 <p align="center">
-  <a href="https://trendshift.io/repositories/13637" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-  <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" style="width: 175px; height: 55px;" width="175" height="55"/></a>
-  <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" style="width: 273px; height: 55px;" width="273" height="55"/></a>
+    <a href="https://clawhub.ai/aigsec/edgeone-clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/ClawHub-EdgeOne%20ClawScan-a870dc" alt="EdgeOne ClawScan">
+    </a>
+    <a href="https://clawhub.ai/aigsec/edgeone-skill-scanner" target="_blank">
+       <img src="https://img.shields.io/badge/ClawHub-EdgeOne%20Skill%20Scanner-2ea44f" alt="EdgeOne Skill Scanner">
+    </a>
+    <a href="https://clawhub.ai/aigsec/aig-scanner" target="_blank">
+       <img src="https://img.shields.io/badge/ClawHub-AIG%20Scanner-e6a817" alt="AIG Scanner">
+    </a>
 </p>
 <p align="center">
-  <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentation</a> &nbsp;|&nbsp;
-  🌐 <a href="./readme/README_ZH.md">🇨🇳 中文</a> · <a href="./readme/README_JA.md">🇯🇵 日本語</a> · <a href="./readme/README_ES.md">🇪🇸 Español</a> · <a href="./readme/README_DE.md">🇩🇪 Deutsch</a> · <a href="./readme/README_FR.md">🇫🇷 Français</a> · <a href="./readme/README_KR.md">🇰🇷 한국어</a> · <a href="./readme/README_PT.md">🇧🇷 Português</a> · <a href="./readme/README_RU.md">🇷🇺 Русский</a>
+  <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
+  <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
+  <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
 </p>
 
 <br>
