@@ -70,7 +70,6 @@
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
 - [📚 Related Papers](#-related-papers)
-- [📄 License](#-license)
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
@@ -375,9 +374,33 @@ We are deeply grateful to the following teams and organizations for their trust,
 
 <br>
 <div align="center">
-<img src="img/tencent.png" alt="Tencent" height="30px">
+<img src="img/tencent.png" alt="Tencent" height="28px">
 <img src="img/deepseek.png" alt="DeepSeek" height="38px">
 <img src="img/antintl.svg" alt="Antintl" height="45px">
+<img src="img/lenovo.png" alt="Lenovo" height="35px">
+<img src="img/ICBC.jpg" alt="ICBC" height="40px">
+<img src="img/vivo.png" alt="Vivo" height="30px">
+<img src="img/oppo.png" alt="Oppo" height="30px">
+<img src="img/haier.png" alt="Haier" height="30px">
+<img src="img/abc.png" alt="Abc" height="40px">
+<img src="img/中国电信.png" alt="中国电信" height="40px">
+<img src="img/bilibili.jpg" alt="Bilibili" height="38px">
+<img src="img/qunar.png" alt="Qunar" height="35px">
+<img src="img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
+<img src="img/IDG.webp" alt="IDG" height="55px">
+<img src="img/kingdee.png" alt="kingdee" height="40px">
+</div>
+<br>
+
+<div align="center">
+<img src="img/清华大学.jpg" alt="清华大学" height="40px">
+<img src="img/北京大学.png" alt="北京大学" height="40px">
+<img src="img/浙江大学.png" alt="浙江大学" height="40px">
+<img src="img/南京大学.png" alt="南京大学" height="40px">
+<img src="img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
+<img src="img/西安交通大学.png" alt="西安交通大学" height="40px">
+<img src="img/南开大学.jpg" alt="南开大学" height="40px">
+<img src="img/四川大学.png" alt="四川大学" height="40px">
 </div>
 
 <br>
@@ -479,9 +502,6 @@ If you use A.I.G in your research, please cite:
 <br>
 <br>
 
-## 📄 License
-
-This project is licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for details.
 
 ## ⚖️ License & Attribution
 
