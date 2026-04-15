@@ -52,84 +52,84 @@ type ModelParams struct {
 }
 
 // MCPTaskRequest represents MCP task request structure
-// @Description MCP (Model Context Protocol) 安全扫描任务请求参数
+// @Description MCP (Model Context Protocol) security scan task parameters
 type MCPTaskRequest struct {
-	Prompt string `json:"prompt,omitempty" example:"prompt,填写url则远程mcp扫描"` // 任务内容描述
+	Prompt string `json:"prompt,omitempty" example:"Enter a URL for remote MCP scan, or leave empty for source-code scan"` // Scan description or MCP server URL
 	Model  struct {
-		Model   string `json:"model" example:"gpt-4"`                         // 模型名称 - 必需
-		Token   string `json:"token" example:"sk-xxx"`                        // API密钥 - 必需
-		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
-	} `json:"model"` // 模型配置 - 必需
-	Thread      int               `json:"thread,omitempty" example:"4"`              // 并发线程数
-	Language    string            `json:"language,omitempty" example:"zh"`           // 语言代码 - 可选
-	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // 附件文件路径
+		Model   string `json:"model" example:"gpt-4"`                         // Model name - required
+		Token   string `json:"token" example:"sk-xxx"`                                   // API key - required
+		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
+	} `json:"model"` // Model configuration - required
+	Thread      int               `json:"thread,omitempty" example:"4"`              // Concurrent thread count
+	Language    string            `json:"language,omitempty" example:"zh"`           // Language code - optional
+	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // Attachment file path (upload first)
 	Headers     map[string]string `json:"headers,omitempty" example:"{\"Authorization\":\"Bearer token\"}"`
 }
 
-// AIInfraScanTaskRequest AI基础设施扫描任务请求结构体
-// @Description AI基础设施安全扫描任务请求参数，支持目标URL、自定义请求头以及用于辅助分析的模型配置
+// AIInfraScanTaskRequest represents AI infrastructure scan task request structure
+// @Description AI infrastructure security scan task parameters: target URLs, custom headers, and optional model config for result analysis
 type AIInfraScanTaskRequest struct {
-	Target  []string          `json:"target" example:"https://example.com"`                   // 扫描目标URL列表
-	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // 自定义请求头
-	Timeout int               `json:"timeout" example:"30"`                                   // 请求超时时间(秒)
+	Target  []string          `json:"target" example:"https://example.com"`                   // List of scan target URLs
+	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // Custom request headers
+	Timeout int               `json:"timeout" example:"30"`                                   // Request timeout in seconds
 	Model   struct {
-		Model   string `json:"model" binding:"required" example:"gpt-4"`               // 模型名称 - 必需
-		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API密钥 - 必需
-		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // 基础URL - 可选
-	} `json:"model,omitempty"` // 模型配置 - 可选，用于辅助漏洞扫描结果分析
+		Model   string `json:"model" binding:"required" example:"gpt-4"`               // Model name - required
+		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API key - required
+		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
+	} `json:"model,omitempty"` // Model configuration - optional, used for assisted vulnerability analysis
 }
 
-// PromptSecurityTaskRequest 提示词安全测试任务请求结构体
-// @Description 提示词安全测试任务请求参数，支持通过指定数据集或手动输入 Prompt 进行红队测试
-// @Description 支持的数据集:
-// @Description - JailBench-Tiny: 小型越狱基准测试数据集
-// @Description - JailbreakPrompts-Tiny: 小型越狱提示词数据集
-// @Description - ChatGPT-Jailbreak-Prompts: ChatGPT越狱提示词数据集
-// @Description - JADE-db-v3.0: JADE数据库v3.0版本
-// @Description - HarmfulEvalBenchmark: 有害内容评估基准数据集
+// PromptSecurityTaskRequest represents prompt security test task request structure
+// @Description Prompt security (red team) task parameters. Supports dataset selection or manual prompt input.
+// @Description Supported datasets:
+// @Description - JailBench-Tiny: small jailbreak benchmark dataset
+// @Description - JailbreakPrompts-Tiny: small jailbreak prompt dataset
+// @Description - ChatGPT-Jailbreak-Prompts: ChatGPT jailbreak prompt dataset
+// @Description - JADE-db-v3.0: JADE database v3.0
+// @Description - HarmfulEvalBenchmark: harmful content evaluation benchmark dataset
 type PromptSecurityTaskRequest struct {
-	Model     []ModelParams `json:"model"`      // 测试模型列表
-	EvalModel ModelParams   `json:"eval_model"` // 评估模型配置
+	Model     []ModelParams `json:"model"`      // List of models under test
+	EvalModel ModelParams   `json:"eval_model"` // Evaluation model configuration
 	Datasets  struct {
-		DataFile   []string `json:"dataFile" example:"[\"JailBench-Tiny\",\"JailbreakPrompts-Tiny\"]"` // 数据集文件列表
-		NumPrompts int      `json:"numPrompts" example:"100"`                                          // 提示词数量
-		RandomSeed int      `json:"randomSeed" example:"42"`                                           // 随机种子
-	} `json:"dataset"` // 数据集配置
-	Prompt     string   `json:"prompt"`     // 自定义测试 Prompt - 可选
-	Techniques []string `json:"techniques"` // 测试技术列表 - 可选
+		DataFile   []string `json:"dataFile" example:"[\"JailBench-Tiny\",\"JailbreakPrompts-Tiny\"]"` // Dataset file list
+		NumPrompts int      `json:"numPrompts" example:"100"`                                          // Number of prompts
+		RandomSeed int      `json:"randomSeed" example:"42"`                                           // Random seed
+	} `json:"dataset"` // Dataset configuration
+	Prompt     string   `json:"prompt"`     // Custom test prompt - optional
+	Techniques []string `json:"techniques"` // Attack technique list - optional
 }
 
-// AgentScanTaskRequest Agent 安全扫描任务请求结构体
-// @Description Agent 安全扫描任务请求参数。agent_id 和 agent_config 二选一：
-// agent_id 引用已保存在服务端的配置；agent_config 直接内联 YAML 内容，无需提前保存。
+// AgentScanTaskRequest represents Agent security scan task request structure
+// @Description Agent security scan task parameters. agent_id and agent_config are mutually exclusive:
+// agent_id references a config pre-saved on the server; agent_config passes YAML content inline without prior saving.
 type AgentScanTaskRequest struct {
-	AgentID     string      `json:"agent_id,omitempty" example:"demo-agent"`                              // Agent 配置名称（与 agent_config 二选一）
-	AgentConfig string      `json:"agent_config,omitempty" example:"provider: dify\nbase_url: ..."`       // 直接内联 YAML 配置内容（与 agent_id 二选一）
-	EvalModel   ModelParams `json:"eval_model"`                                                           // 评估模型配置 - 可选，留空时自动选择默认模型
-	Language    string      `json:"language,omitempty" example:"zh"`                                      // 语言代码 - 可选
-	Prompt      string      `json:"prompt,omitempty" example:"重点关注越权和数据泄露风险"`                      // 额外扫描说明 - 可选
+	AgentID     string      `json:"agent_id,omitempty" example:"demo-agent"`                              // Agent config name (mutually exclusive with agent_config)
+	AgentConfig string      `json:"agent_config,omitempty" example:"provider: dify\nbase_url: ..."`       // Inline YAML config content (mutually exclusive with agent_id)
+	EvalModel   ModelParams `json:"eval_model"`                                                           // Evaluation model config - optional, falls back to system default
+	Language    string      `json:"language,omitempty" example:"zh"`                                      // Language code - optional
+	Prompt      string      `json:"prompt,omitempty" example:"Focus on privilege escalation and data leakage risks"` // Additional scan instructions - optional
 }
 
-// APIResponse 通用API响应结构
+// APIResponse is the common API response structure
 type APIResponse struct {
-	Status  int         `json:"status" example:"0"`     // 状态码: 0=成功, 1=失败
-	Message string      `json:"message" example:"操作成功"` // 响应消息
-	Data    interface{} `json:"data"`                   // 响应数据
+	Status  int         `json:"status" example:"0"`     // Status code: 0=success, 1=failure
+	Message string      `json:"message" example:"ok"`     // Response message
+	Data    interface{} `json:"data"`     // Response data
 }
 
-// TaskStatusResponse 任务状态响应结构
+// TaskStatusResponse holds the task status response
 type TaskStatusResponse struct {
-	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
-	Status    string `json:"status" example:"running"`                                  // 任务状态: pending, running, completed, failed
-	Title     string `json:"title" example:"MCP安全扫描任务"`                                 // 任务标题
-	CreatedAt int64  `json:"created_at" example:"1640995200000"`                        // 创建时间戳(毫秒)
-	UpdatedAt int64  `json:"updated_at" example:"1640995200000"`                        // 更新时间戳(毫秒)
-	Log       string `json:"log" example:"任务执行日志..."`                                   // 任务执行日志
+	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // Task session ID
+	Status    string `json:"status" example:"running"`                                  // Task status: pending, running, completed, failed
+	Title     string `json:"title" example:"MCP Scan Task"`                                   // Task title
+	CreatedAt int64  `json:"created_at" example:"1640995200000"`                        // Creation timestamp (ms)
+	UpdatedAt int64  `json:"updated_at" example:"1640995200000"`                        // Last update timestamp (ms)
+	Log       string `json:"log" example:"Task execution log..."`                           // Task execution log
 }
 
-// TaskCreateResponse 任务创建响应结构
+// TaskCreateResponse holds the task creation response
 type TaskCreateResponse struct {
-	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // 任务会话ID
+	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // Task session ID
 }
 
 func resolveTaskAPIUsername(c *gin.Context) string {
@@ -168,7 +168,7 @@ func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.Mod
 	}, nil
 }
 
-// SubmitTask 创建任务接口
+// SubmitTask is the task creation handler
 // @Summary Create a new task
 // @Description Submit a new task for processing. Supports three types of tasks:
 // @Description 1. MCP Scan (mcp_scan): Model Context Protocol security scanning
@@ -251,18 +251,16 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 	if err := c.ShouldBindJSON(&content); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "参数错误: " + err.Error(),
+			"message": "invalid parameters: " + err.Error(),
 			"data":    nil,
 		})
 		return
 	}
-	// 生成sessionId
+	// Generate session and message IDs
 	sessionId := uuid.New().String()
-
-	// 生成消息ID
 	messageId := uuid.New().String()
 
-	// 设置开发者 API 用户名，优先走鉴权中间件，其次允许显式 header 注入
+	// Resolve username: prefer auth middleware, fall back to explicit header
 	username := resolveTaskAPIUsername(c)
 
 	var taskReq TaskCreateRequest
@@ -275,7 +273,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: " + err.Error(),
+				"message": "invalid parameters: " + err.Error(),
 				"data":    nil,
 			})
 			return
@@ -283,12 +281,12 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		if strings.TrimSpace(req.Model.Model) == "" || strings.TrimSpace(req.Model.Token) == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: mcp_scan 必须显式提供 model.model 和 model.token",
+				"message": "invalid parameters: mcp_scan requires model.model and model.token",
 				"data":    nil,
 			})
 			return
 		}
-		// 构建任务参数
+		// Build task params
 		params := map[string]interface{}{
 			"model": map[string]interface{}{
 				"model":    req.Model.Model,
@@ -302,7 +300,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			attachments = append(attachments, req.Attachments)
 		}
 
-		// 构建TaskCreateRequest
+		// Build TaskCreateRequest
 		taskReq = TaskCreateRequest{
 			ID:          messageId,
 			SessionID:   sessionId,
@@ -319,7 +317,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: " + err.Error(),
+				"message": "invalid parameters: " + err.Error(),
 				"data":    nil,
 			})
 			return
@@ -350,7 +348,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: " + err.Error(),
+				"message": "invalid parameters: " + err.Error(),
 				"data":    nil,
 			})
 			return
@@ -377,7 +375,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: " + err.Error(),
+				"message": "invalid parameters: " + err.Error(),
 				"data":    nil,
 			})
 			return
@@ -394,7 +392,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			if err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"status":  1,
-					"message": "参数错误: 获取 Agent 配置失败: " + err.Error(),
+					"message": "invalid parameters: failed to load agent config: " + err.Error(),
 					"data":    nil,
 				})
 				return
@@ -402,7 +400,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"status":  1,
-				"message": "参数错误: agent_id 或 agent_config 至少提供一个",
+				"message": "invalid parameters: agent_id or agent_config must be provided",
 				"data":    nil,
 			})
 			return
@@ -416,7 +414,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			if err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"status":  1,
-					"message": "参数错误: 获取默认模型失败: " + err.Error(),
+					"message": "invalid parameters: failed to resolve default model: " + err.Error(),
 					"data":    nil,
 				})
 				return
@@ -424,7 +422,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			if defaultModel == nil {
 				c.JSON(http.StatusOK, gin.H{
 					"status":  1,
-					"message": "参数错误: 未配置可用的默认模型",
+					"message": "invalid parameters: no default model configured",
 					"data":    nil,
 				})
 				return
@@ -462,31 +460,31 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "无效的任务类型",
+			"message": "unsupported task type",
 			"data":    nil,
 		})
 		return
 	}
 	err := tm.AddTaskApi(&taskReq)
 	if err != nil {
-		log.Errorf("任务创建失败: sessionId=%s, error=%v", sessionId, err)
+		log.Errorf("task creation failed: sessionId=%s, error=%v", sessionId, err)
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "任务创建失败: " + err.Error(),
+			"message": "task creation failed: " + err.Error(),
 			"data":    nil,
 		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
-		"message": "任务创建成功，正在后台处理",
+		"message": "task created successfully",
 		"data": gin.H{
 			"session_id": sessionId,
 		},
 	})
 }
 
-// GetTaskStatus 获取任务状态接口（开发者API）
+// GetTaskStatus retrieves task status (developer API)
 // @Summary Get task status
 // @Description Retrieve the current status and logs of a task by session ID. Returns task metadata and execution logs.
 // @Tags taskapi
@@ -503,39 +501,39 @@ func GetTaskStatus(c *gin.Context, tm *TaskManager) {
 	if sessionId == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "任务ID不能为空",
+			"message": "session ID is required",
 			"data":    nil,
 		})
 		return
 	}
 
-	// 验证sessionId格式
+	// Validate session ID format
 	if !isValidSessionID(sessionId) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "无效的任务ID格式",
+			"message": "invalid session ID format",
 			"data":    nil,
 		})
 		return
 	}
 
-	// 从数据库获取任务信息
+	// Fetch task from store
 	session, err := tm.taskStore.GetSession(sessionId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "任务不存在",
+			"message": "task not found",
 			"data":    nil,
 		})
 		return
 	}
 
-	// 获取任务的所有消息/事件
+	// Fetch all task events
 	messages, err := tm.taskStore.GetSessionEventsByType(sessionId, "actionLog")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "获取任务结果失败",
+			"message": "failed to retrieve task data",
 			"data":    nil,
 		})
 		return
@@ -554,7 +552,7 @@ func GetTaskStatus(c *gin.Context, tm *TaskManager) {
 		msg += x.ActionLog
 	}
 
-	// 构建状态响应
+	// Build status response
 	statusData := gin.H{
 		"session_id": session.ID,
 		"status":     session.Status,
@@ -566,12 +564,12 @@ func GetTaskStatus(c *gin.Context, tm *TaskManager) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  0,
-		"message": "获取任务状态成功",
+		"message": "ok",
 		"data":    statusData,
 	})
 }
 
-// GetTaskResult 获取任务结果接口（开发者API）
+// GetTaskResult retrieves task result (developer API)
 // @Summary Get task result
 // @Description Retrieve the final result of a completed task. Returns detailed scan results, vulnerabilities found, and security assessment data.
 // @Tags taskapi
@@ -589,41 +587,41 @@ func GetTaskResult(c *gin.Context, tm *TaskManager) {
 	if sessionId == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "任务ID不能为空",
+			"message": "session ID is required",
 			"data":    nil,
 		})
 		return
 	}
 
-	// 验证sessionId格式
+	// Validate session ID format
 	if !isValidSessionID(sessionId) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "无效的任务ID格式",
+			"message": "invalid session ID format",
 			"data":    nil,
 		})
 		return
 	}
 
-	log.Infof("开始获取任务结果: trace_id=%s, sessionId=%s", traceID, sessionId)
+	log.Infof("fetching task result: trace_id=%s, sessionId=%s", traceID, sessionId)
 
-	// 获取任务的所有消息/事件
+	// Fetch all task events
 	messages, err := tm.taskStore.GetSessionEventsByType(sessionId, "resultUpdate")
 	if err != nil || len(messages) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "获取任务结果失败,任务可能尚未完成",
+			"message": "task result not available yet",
 			"data":    nil,
 		})
 		return
 	}
 	msg := messages[0]
-	// 解析事件数据
+	// Parse event data
 	var eventData map[string]interface{}
 	if err := json.Unmarshal(msg.EventData, &eventData); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
-			"message": "获取任务结果失败",
+			"message": "failed to retrieve task result",
 			"data":    nil,
 		})
 		return
