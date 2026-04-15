@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 ドキュメント</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · **🇯🇵 日本語** · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <b>🇯🇵 日本語</b> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">Tencent Zhuque Lab による AI レッドチーミングプラットフォーム</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** は、ClawScan（OpenClawセキュリティスキャン）、Agent Scan、AIインフラ脆弱性スキャン、MCPサーバー＆エージェントスキルスキャン、ジェイルブレイク評価などの機能を統合し、AIセキュリティリスクの自己診断において最も包括的でインテリジェント、かつ使いやすいソリューションをユーザーに提供することを目指しています。
+<b>A.I.G (AI-Infra-Guard)</b> は、ClawScan（OpenClawセキュリティスキャン）、Agent Scan、AIインフラ脆弱性スキャン、MCPサーバー＆エージェントスキルスキャン、ジェイルブレイク評価などの機能を統合し、AIセキュリティリスクの自己診断において最も包括的でインテリジェント、かつ使いやすいソリューションをユーザーに提供することを目指しています。
 
 <p>
   私たちはA.I.G（AI-Infra-Guard）を業界をリードするAIレッドチーミングプラットフォームにすることに尽力しています。より多くのスターは、このプロジェクトをより広いユーザーに届け、より多くの開発者の貢献を促し、イテレーションと改善を加速させます。あなたのスターは私たちにとって非常に重要です！

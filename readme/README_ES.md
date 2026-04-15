@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentación</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · **🇪🇸 Español** · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <a href="./README_ZH.md">🇨🇳 中文</a> · <a href="./README_JA.md">🇯🇵 日本語</a> · <b>🇪🇸 Español</b> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -34,7 +34,7 @@
     <h2 align="center">🚀 Plataforma de Red Team para IA por Tencent Zhuque Lab</h2>
 </p>
 
-**A.I.G (AI-Infra-Guard)** integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, escaneo de vulnerabilidades en infraestructura de IA, escaneo de MCP Server y Agent Skills, y Jailbreak Evaluation, con el objetivo de proporcionar a los usuarios la solución más completa, inteligente y fácil de usar para la autoevaluación de riesgos de seguridad en IA.
+<b>A.I.G (AI-Infra-Guard)</b> integra capacidades como ClawScan (OpenClaw Security Scan), Agent Scan, escaneo de vulnerabilidades en infraestructura de IA, escaneo de MCP Server y Agent Skills, y Jailbreak Evaluation, con el objetivo de proporcionar a los usuarios la solución más completa, inteligente y fácil de usar para la autoevaluación de riesgos de seguridad en IA.
 
 <p>
   Estamos comprometidos a hacer de A.I.G (AI-Infra-Guard) la plataforma líder de red team para IA en la industria. Más estrellas ayudan a este proyecto a llegar a una audiencia más amplia, atrayendo a más desarrolladores a contribuir, lo que acelera la iteración y mejora. ¡Tu estrella es crucial para nosotros!
