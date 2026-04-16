@@ -69,10 +69,11 @@ type MCPTaskRequest struct {
 // AIInfraScanTaskRequest represents AI infrastructure scan task request structure
 // @Description AI infrastructure security scan task parameters: target URLs, custom headers, and optional model config for result analysis
 type AIInfraScanTaskRequest struct {
-	Target  []string          `json:"target" example:"https://example.com"`                   // List of scan target URLs
-	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // Custom request headers
-	Timeout int               `json:"timeout" example:"30"`                                   // Request timeout in seconds
-	Model   struct {
+	Target   []string          `json:"target" example:"https://example.com"`                   // List of scan target URLs
+	Headers  map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // Custom request headers
+	Timeout  int               `json:"timeout" example:"30"`                                   // Request timeout in seconds
+	Language string            `json:"language,omitempty" example:"zh"`                        // Language code - optional
+	Model    struct {
 		Model   string `json:"model" binding:"required" example:"gpt-4"`               // Model name - required
 		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API key - required
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
@@ -302,14 +303,15 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 
 		// Build TaskCreateRequest
 		taskReq = TaskCreateRequest{
-			ID:          messageId,
-			SessionID:   sessionId,
-			Username:    username,
-			Task:        agent.TaskTypeMcpScan,
-			Timestamp:   time.Now().UnixMilli(),
-			Content:     req.Prompt,
-			Params:      params,
-			Attachments: attachments,
+			ID:             messageId,
+			SessionID:      sessionId,
+			Username:       username,
+			Task:           agent.TaskTypeMcpScan,
+			Timestamp:      time.Now().UnixMilli(),
+			Content:        req.Prompt,
+			Params:         params,
+			Attachments:    attachments,
+			CountryIsoCode: req.Language,
 		}
 	case "ai_infra_scan":
 		var req AIInfraScanTaskRequest
@@ -333,14 +335,15 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		}
 
 		taskReq = TaskCreateRequest{
-			ID:          messageId,
-			SessionID:   sessionId,
-			Username:    username,
-			Task:        agent.TaskTypeAIInfraScan,
-			Timestamp:   time.Now().UnixMilli(),
-			Params:      scanParams,
-			Content:     strings.Join(req.Target, "\n"),
-			Attachments: []string{},
+			ID:             messageId,
+			SessionID:      sessionId,
+			Username:       username,
+			Task:           agent.TaskTypeAIInfraScan,
+			Timestamp:      time.Now().UnixMilli(),
+			Params:         scanParams,
+			Content:        strings.Join(req.Target, "\n"),
+			Attachments:    []string{},
+			CountryIsoCode: req.Language,
 		}
 	case "model_redteam_report":
 		var req PromptSecurityTaskRequest
