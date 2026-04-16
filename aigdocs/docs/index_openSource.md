@@ -2,9 +2,11 @@
 
 ## 核心功能
 
-- **AI基础设施漏洞扫描**：通过精准的指纹识别，检测AI训练、部署与应用构建中使用的各类框架组件（如Ollama、ComfyUI等）Web服务的已知CVE漏洞。
-- **AI工具协议扫描**：基于AI Agent智能检测MCP Server/Skills是否存在工具投毒与代码漏洞等安全威胁，帮助AI工具开发者与应用市场在上架前完成安全认证。
+- **OpenClaw安全体检**：一键通过自然语言对话，让A.I.G给你的AI助手做安全体检，并建立持久免疫能力。[了解更多](https://matrix.tencent.com/clawscan)
+- **Agent安全扫描**：快速接入并扫描Dify、Coze等平台Workflow Agent的OWASP Top 10 for Agentic Apps风险。
+- **AI工具技能扫描**：基于AI Agent智能检测MCP Server/Skills是否存在工具投毒与代码漏洞等安全威胁，帮助AI工具开发者与应用市场在上架前完成安全认证。
 - **大模型安全体检**：通过高质量与多样性的评测集，自动化评估不同大模型在面对恶意、对抗或诱导类提示词输入时的整体安全性，导出Badcase用于安全对齐与护栏加固。
+- **AI基础设施漏洞扫描**：通过精准的指纹识别，检测AI训练、部署与应用构建中使用的各类框架组件（如Ollama、ComfyUI等）Web服务的已知CVE漏洞。
 
 
 ## 合作共建

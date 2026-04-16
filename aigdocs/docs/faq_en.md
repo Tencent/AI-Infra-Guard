@@ -14,8 +14,10 @@
   - [3.4 Import Images on Internal Network Server](#34-import-images-on-internal-network-server)
   - [3.5 Start Containers](#35-start-containers)
 - [4. Recommended Models](#4-recommended-models)
-  - [4.1 Recommended Choices for MCP Scan](#41-recommended-choices-for-mcp-scan)
-  - [4.2 Recommended Choices for Jailbreak Evaluation Models](#42-recommended-choices-for-jailbreak-evaluation-models)
+  - [4.1 Recommended Choices for Agent Scan](#41-recommended-choices-for-agent-scan)
+  - [4.2 Recommended Choices for AI Tool Skill Scan](#42-recommended-choices-for-ai-tool-skill-scan)
+  - [4.3 Recommended Choices for Jailbreak Evaluation Models](#43-recommended-choices-for-jailbreak-evaluation-models)
+  - [4.4 Recommended Choices for AI Infra Scan](#44-recommended-choices-for-ai-infra-scan)
 - [5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets](#5-inaccurate-jailbreak-detection-with-custom-evaluation-datasets)
 - [6. Adding Model Failed](#6-adding-model-failed)  
 
@@ -129,14 +131,32 @@ docker-compose -f docker-compose.images.yml up -d
 ```
 
 ## 4. Recommended Models
-### 4.1 Recommended Choices for MCP Scan
+### 4.1 Recommended Choices for Agent Scan
+
+Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool calling, and task planning**.
+
+**Best Performance:**
+- Claude-4.6-Opus
+- Gemini-3.1-Pro
+- GLM-5.1
+
+**Cost-Effective Choices:**
+- Qwen-3.6
+- Kimi-2.5
+- Gemini-3-Flash
+
+> Models iterate quickly. It is recommended to regularly refer to
+> [OpenRouter Rankings](https://openrouter.ai/rankings)
+> and choose the top-ranked models.
+
+### 4.2 Recommended Choices for AI Tool Skill Scan
 - GLM4.6
 - DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
-### 4.2 Recommended Choices for Jailbreak Evaluation Models
+### 4.3 Recommended Choices for Jailbreak Evaluation Models
 
 When working with a custom dataset, selecting an appropriate safety evaluation model can significantly improve the accuracy of automated assessments. You can balance model selection from two dimensions: **language** and **scenario**.
 
@@ -156,6 +176,9 @@ When working with a custom dataset, selecting an appropriate safety evaluation m
   Gemini models perform best.  
 - **Dangerous weapons or high-risk behavior testing:**  
   Claude models perform best. For cost-effectiveness, Gemini models are also an option.  
+
+### 4.4 Recommended Choices for AI Infra Scan
+- GPT5+
 
 ## 5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets
 
