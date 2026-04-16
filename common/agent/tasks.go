@@ -359,6 +359,10 @@ func (t *AIInfraScanAgent) executeScan(ctx context.Context, request TaskRequest,
 	callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusRunning, "Thinking", "")
 
 	// 配置选项
+	language := request.Language
+	if language == "" {
+		language = "zh"
+	}
 	opts := &options.Options{
 		TimeOut:      reqScan.Timeout,
 		RateLimit:    200,
@@ -367,6 +371,7 @@ func (t *AIInfraScanAgent) executeScan(ctx context.Context, request TaskRequest,
 		WebServer:    false,
 		Target:       reqScan.Target,
 		LoadRemote:   true,
+		Language:     language,
 	}
 
 	headers := make([]string, 0)
