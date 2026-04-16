@@ -157,6 +157,7 @@ docker-compose up -d
 
 - 🖥️ **现代化Web界面**：用户友好的UI，一键扫描和实时进度跟踪
 - 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
+- 🤖 **拥抱Agent**：开箱即用的 ClawHub Agent 技能 — [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)、[EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner) 和 [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) — 一键将安全扫描嵌入任意 AI Agent 工作流
 - 🌐 **多语言支持**：中英文界面，本地化文档
 - 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
 - 🆓 **免费且开源**：完全免费，Apache License 2.0 开源协议

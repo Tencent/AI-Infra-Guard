@@ -160,6 +160,7 @@ docker-compose up -d
 
 - 🖥️ **현대적인 웹 인터페이스**: 원클릭 scan 및 실시간 진행 상황 추적이 가능한 사용자 친화적 UI
 - 🔌 **완전한 API**: 쉬운 통합을 위한 전체 인터페이스 문서 및 Swagger 사양
+- 🤖 **Agent 지원**: ClawHub에서 바로 사용 가능한 에이전트 스킬 — [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan), [EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner), [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) — 보안 스캔을 모든 AI 에이전트 워크플로에 손쉽게 통합
 - 🌐 **다국어 지원**: 현지화된 문서와 함께 중국어 및 영어 인터페이스 제공
 - 🐳 **크로스 플랫폼**: Docker 기반 배포로 Linux, macOS 및 Windows 지원
 - 🆓 **무료 오픈소스**: Apache 2.0 라이선스 하에 완전 무료

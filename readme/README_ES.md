@@ -160,6 +160,7 @@ Experimenta la versión Pro con funciones avanzadas y rendimiento mejorado. La v
 
 - 🖥️ **Interfaz Web Moderna**: UI fácil de usar con escaneo de un clic y seguimiento del progreso en tiempo real
 - 🔌 **API Completa**: Documentación completa de interfaces y especificaciones Swagger para fácil integración
+- 🤖 **Listo para Agentes**: Skills de agente listos para usar en ClawHub — [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan), [EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner) y [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) — integra el escaneo de seguridad en cualquier flujo de trabajo de agentes IA sin esfuerzo
 - 🌐 **Multilingüe**: Interfaces en chino e inglés con documentación localizada
 - 🐳 **Multiplataforma**: Soporte para Linux, macOS y Windows con despliegue basado en Docker
 - 🆓 **Gratuito y Código Abierto**: Completamente gratuito bajo la licencia Apache 2.0
