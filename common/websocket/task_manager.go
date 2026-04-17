@@ -309,7 +309,6 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 			BaseUrl:            model.BaseURL,
 			Limit:              model.Limit,
 			InsecureSkipVerify: model.InsecureSkipVerify,
-			CAFile:             model.CAFile,
 		}
 		return &p, nil
 	}

@@ -21,15 +21,11 @@ package models
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
-	"io/fs"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -48,8 +44,7 @@ type OpenAI struct {
 	BaseUrl            string
 	Model              string
 	UseToken           int64
-	InsecureSkipVerify bool   // skip TLS certificate verification (e.g. self-signed certs)
-	CAFile             string // path to a custom CA certificate file (PEM format)
+	InsecureSkipVerify bool // skip TLS certificate verification (e.g. self-signed certs)
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -66,74 +61,17 @@ func NewOpenAI(key string, model string, url string) *OpenAI {
 	}
 }
 
-// openCAFile opens and reads the operator-supplied CA certificate file.
-// Security design:
-//  1. Input must be an absolute path (no relative paths accepted).
-//  2. filepath.EvalSymlinks resolves the real on-disk path and confirms
-//     the file exists with no symlink escapes.
-//  3. We split the resolved path into dir + base and use os.DirFS to scope
-//     access strictly to the parent directory.  The string passed to the
-//     underlying open syscall is therefore just the bare filename — CodeQL
-//     cannot trace user-controlled taint through it.
-func openCAFile(caFile string) ([]byte, error) {
-	if caFile == "" {
-		return nil, errors.New("ca_file path is empty")
-	}
-	// Reject null bytes which could be used to truncate the path in some OS calls.
-	if strings.ContainsRune(caFile, 0) {
-		return nil, errors.New("ca_file path contains null byte")
-	}
-	// Require an absolute path so the operator explicitly controls the location.
-	if !filepath.IsAbs(caFile) {
-		return nil, fmt.Errorf("ca_file must be an absolute path, got: %q", caFile)
-	}
-	// EvalSymlinks resolves the real path on disk and validates the file exists.
-	realPath, err := filepath.EvalSymlinks(caFile)
-	if err != nil {
-		return nil, fmt.Errorf("ca_file path resolution failed: %w", err)
-	}
-	if !filepath.IsAbs(realPath) {
-		return nil, fmt.Errorf("ca_file resolved to non-absolute path: %q", realPath)
-	}
-	// Confine file access to the parent directory using os.DirFS.
-	// fs.ReadFile receives only the bare filename (no user-controlled path component),
-	// which satisfies static-analysis path-injection checks.
-	dir := filepath.Dir(realPath)
-	base := filepath.Base(realPath)
-	data, err := fs.ReadFile(os.DirFS(dir), base)
-	if err != nil {
-		return nil, fmt.Errorf("ca_file read failed: %w", err)
-	}
-	return data, nil
-}
-
-// buildHTTPClient constructs an *http.Client respecting InsecureSkipVerify and CAFile.
+// buildHTTPClient constructs an *http.Client respecting InsecureSkipVerify.
 // Returns nil when no TLS customisation is needed (the openai-go default client is used).
 func (ai *OpenAI) buildHTTPClient() *http.Client {
-	if !ai.InsecureSkipVerify && ai.CAFile == "" {
+	if !ai.InsecureSkipVerify {
 		return nil
-	}
-	tlsCfg := &tls.Config{
-		InsecureSkipVerify: ai.InsecureSkipVerify, // #nosec G402 — operator-opt-in only
-	}
-	if ai.CAFile != "" {
-		pemData, err := openCAFile(ai.CAFile)
-		if err != nil {
-			gologger.Errorf("OpenAI: CA file error: %v", err)
-		} else {
-			pool, err := x509.SystemCertPool()
-			if err != nil {
-				pool = x509.NewCertPool()
-			}
-			if !pool.AppendCertsFromPEM(pemData) {
-				gologger.Errorf("OpenAI: CA file %q contains no valid PEM certificates", ai.CAFile)
-			}
-			tlsCfg.RootCAs = pool
-		}
 	}
 	return &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: tlsCfg,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // #nosec G402 — operator-opt-in only
+			},
 		},
 	}
 }

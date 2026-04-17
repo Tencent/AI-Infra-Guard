@@ -88,7 +88,6 @@ type ScanRequest struct {
 		Token              string `json:"token"`
 		BaseUrl            string `json:"base_url"`
 		InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty"`
-		CAFile             string `json:"ca_file,omitempty"`
 	} `json:"model,omitempty"`
 }
 
@@ -138,7 +137,6 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			Model:              reqScan.Model.Model,
 			Key:                reqScan.Model.Token,
 			InsecureSkipVerify: reqScan.Model.InsecureSkipVerify,
-			CAFile:             reqScan.Model.CAFile,
 		}
 	}
 

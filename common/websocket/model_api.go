@@ -38,7 +38,6 @@ type ModelInfo struct {
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
 	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty"` // skip TLS certificate verification (self-signed certs)
-	CAFile             string `json:"ca_file,omitempty"`             // path to custom CA certificate file (PEM)
 }
 
 // CreateModelRequest 创建模型请求
@@ -56,7 +55,6 @@ type UpdateModelInfo struct {
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
 	InsecureSkipVerify *bool  `json:"insecure_skip_verify,omitempty"` // nil means unchanged
-	CAFile             *string `json:"ca_file,omitempty"`             // nil means unchanged
 }
 
 // UpdateModelRequest 更新模型请求
@@ -299,7 +297,6 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		Model:              req.Model.Model,
 		BaseUrl:            req.Model.BaseURL,
 		InsecureSkipVerify: req.Model.InsecureSkipVerify,
-		CAFile:             req.Model.CAFile,
 	}
 	if !strings.HasSuffix(ai.BaseUrl, "/") {
 		ai.BaseUrl += "/"
@@ -325,7 +322,6 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		Note:               req.Model.Note,
 		Limit:              req.Model.Limit,
 		InsecureSkipVerify: req.Model.InsecureSkipVerify,
-		CAFile:             req.Model.CAFile,
 	}
 
 	err = mm.modelStore.CreateModel(model)
@@ -417,9 +413,6 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 	}
 	if req.Model.InsecureSkipVerify != nil {
 		updates["insecure_skip_verify"] = *req.Model.InsecureSkipVerify
-	}
-	if req.Model.CAFile != nil {
-		updates["ca_file"] = *req.Model.CAFile
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)
