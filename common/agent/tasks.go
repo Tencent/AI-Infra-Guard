@@ -87,7 +87,6 @@ type ScanRequest struct {
 		Model              string `json:"model"`
 		Token              string `json:"token"`
 		BaseUrl            string `json:"base_url"`
-		InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty"`
 	} `json:"model,omitempty"`
 }
 
@@ -136,7 +135,6 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			BaseUrl:            reqScan.Model.BaseUrl,
 			Model:              reqScan.Model.Model,
 			Key:                reqScan.Model.Token,
-			InsecureSkipVerify: reqScan.Model.InsecureSkipVerify,
 		}
 	}
 

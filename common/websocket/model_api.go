@@ -37,7 +37,6 @@ type ModelInfo struct {
 	BaseURL            string `json:"base_url" binding:"required"`
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
-	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty"` // skip TLS certificate verification (self-signed certs)
 }
 
 // CreateModelRequest 创建模型请求
@@ -54,7 +53,6 @@ type UpdateModelInfo struct {
 	BaseURL            string `json:"base_url"`
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
-	InsecureSkipVerify *bool  `json:"insecure_skip_verify,omitempty"` // nil means unchanged
 }
 
 // UpdateModelRequest 更新模型请求
@@ -296,7 +294,6 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		Key:                req.Model.Token,
 		Model:              req.Model.Model,
 		BaseUrl:            req.Model.BaseURL,
-		InsecureSkipVerify: req.Model.InsecureSkipVerify,
 	}
 	if !strings.HasSuffix(ai.BaseUrl, "/") {
 		ai.BaseUrl += "/"
@@ -321,7 +318,6 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		BaseURL:            req.Model.BaseURL,
 		Note:               req.Model.Note,
 		Limit:              req.Model.Limit,
-		InsecureSkipVerify: req.Model.InsecureSkipVerify,
 	}
 
 	err = mm.modelStore.CreateModel(model)
@@ -410,9 +406,6 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 	}
 	if req.Model.BaseURL != "" {
 		updates["base_url"] = req.Model.BaseURL
-	}
-	if req.Model.InsecureSkipVerify != nil {
-		updates["insecure_skip_verify"] = *req.Model.InsecureSkipVerify
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)

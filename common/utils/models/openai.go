@@ -44,7 +44,6 @@ type OpenAI struct {
 	BaseUrl            string
 	Model              string
 	UseToken           int64
-	InsecureSkipVerify bool // skip TLS certificate verification (e.g. self-signed certs)
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -61,16 +60,13 @@ func NewOpenAI(key string, model string, url string) *OpenAI {
 	}
 }
 
-// buildHTTPClient constructs an *http.Client respecting InsecureSkipVerify.
-// Returns nil when no TLS customisation is needed (the openai-go default client is used).
+// buildHTTPClient constructs an *http.Client with TLS verification disabled.
+// This allows connecting to HTTPS endpoints with self-signed or private CA certificates.
 func (ai *OpenAI) buildHTTPClient() *http.Client {
-	if !ai.InsecureSkipVerify {
-		return nil
-	}
 	return &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true, // #nosec G402 — operator-opt-in only
+				InsecureSkipVerify: true, // #nosec G402
 			},
 		},
 	}
@@ -81,9 +77,7 @@ func (ai *OpenAI) clientOptions() []option.RequestOption {
 	opts := []option.RequestOption{
 		option.WithBaseURL(ai.BaseUrl),
 		option.WithAPIKey(ai.Key),
-	}
-	if hc := ai.buildHTTPClient(); hc != nil {
-		opts = append(opts, option.WithHTTPClient(hc))
+		option.WithHTTPClient(ai.buildHTTPClient()),
 	}
 	return opts
 }

@@ -26,11 +26,10 @@ import (
 )
 
 type ModelParams struct {
-	BaseUrl            string `json:"base_url"`
-	Token              string `json:"token"`
-	Model              string `json:"model"`
-	Limit              int    `json:"limit"`
-	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"` // skip TLS certificate verification
+	BaseUrl string `json:"base_url"`
+	Token   string `json:"token"`
+	Model   string `json:"model"`
+	Limit   int    `json:"limit"`
 }
 
 // Model 模型表
@@ -42,7 +41,6 @@ type Model struct {
 	BaseURL            string   `gorm:"column:base_url;not null" json:"base_url" yaml:"base_url"`                                 // 基础URL
 	Note               string   `gorm:"column:note" json:"note" yaml:"note,omitempty"`                                            // 备注信息
 	Limit              int      `gorm:"column:limit" json:"limit" yaml:"limit,omitempty"`
-	InsecureSkipVerify bool     `gorm:"column:insecure_skip_verify;default:false" json:"insecure_skip_verify" yaml:"insecure_skip_verify,omitempty"` // skip TLS cert verification
 	Default            []string `gorm:"-" json:"default,omitempty" yaml:"default,omitempty"`                                      // 默认字段
 	CreatedAt          int64    `gorm:"column:created_at;not null" json:"created_at" yaml:"-"`                                    // 时间戳毫秒级
 	UpdatedAt          int64    `gorm:"column:updated_at;not null" json:"updated_at" yaml:"-"`                                    // 时间戳毫秒级
