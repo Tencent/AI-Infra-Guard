@@ -65,6 +65,7 @@
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Three new skills on ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + manual task stop.
 - **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Detects LiteLLM supply chain attack (CRITICAL); added Blinko & New-API coverage.
 - **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw vulnerability database expanded with 281 new CVE/GHSA entries.
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Launched EdgeOne ClawScan (OpenClaw Security Scan) and Agent-Scan framework.
 
 👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
