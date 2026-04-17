@@ -84,9 +84,9 @@ type ScanRequest struct {
 	Headers map[string]string `json:"headers"`
 	Timeout int               `json:"timeout,omitempty"`
 	Model   struct {
-		Model   string `json:"model"`
-		Token   string `json:"token"`
-		BaseUrl string `json:"base_url"`
+		Model              string `json:"model"`
+		Token              string `json:"token"`
+		BaseUrl            string `json:"base_url"`
 	} `json:"model,omitempty"`
 }
 
@@ -132,9 +132,9 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			return fmt.Errorf("model parameters are required")
 		}
 		model = &models.OpenAI{
-			BaseUrl: reqScan.Model.BaseUrl,
-			Model:   reqScan.Model.Model,
-			Key:     reqScan.Model.Token,
+			BaseUrl:            reqScan.Model.BaseUrl,
+			Model:              reqScan.Model.Model,
+			Key:                reqScan.Model.Token,
 		}
 	}
 

@@ -20,9 +20,11 @@ package models
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -38,10 +40,10 @@ type AIModel interface {
 }
 
 type OpenAI struct {
-	Key      string
-	BaseUrl  string
-	Model    string
-	UseToken int64
+	Key                string
+	BaseUrl            string
+	Model              string
+	UseToken           int64
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -58,9 +60,31 @@ func NewOpenAI(key string, model string, url string) *OpenAI {
 	}
 }
 
+// buildHTTPClient constructs an *http.Client with TLS verification disabled.
+// This allows connecting to HTTPS endpoints with self-signed or private CA certificates.
+func (ai *OpenAI) buildHTTPClient() *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // #nosec G402
+			},
+		},
+	}
+}
+
+// clientOptions returns the openai-go RequestOption slice for this instance.
+func (ai *OpenAI) clientOptions() []option.RequestOption {
+	opts := []option.RequestOption{
+		option.WithBaseURL(ai.BaseUrl),
+		option.WithAPIKey(ai.Key),
+		option.WithHTTPClient(ai.buildHTTPClient()),
+	}
+	return opts
+}
+
 // 验证OpenAI是否可用
 func (ai *OpenAI) Vaild(ctx context.Context) error {
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 	res, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage("only return '1'"),
@@ -80,7 +104,7 @@ func (ai *OpenAI) Vaild(ctx context.Context) error {
 	return nil
 }
 func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <-chan string {
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 	resp := make(chan string)
 	chatMessages := make([]openai.ChatCompletionMessageParamUnion, 0)
 	for _, item := range history {
@@ -176,7 +200,7 @@ func (ai *OpenAI) ChatWithImage(ctx context.Context, prompt string, imagePath st
 		Model: ai.Model,
 	}
 
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 
 	completion, err := client.Chat.Completions.New(ctx, params)
 	if err != nil {
@@ -202,7 +226,7 @@ func (ai *OpenAI) ChatWithImageByte(ctx context.Context, prompt string, imageDat
 		Model: ai.Model,
 	}
 
-	client := openai.NewClient(option.WithBaseURL(ai.BaseUrl), option.WithAPIKey(ai.Key))
+	client := openai.NewClient(ai.clientOptions()...)
 
 	completion, err := client.Chat.Completions.New(ctx, params)
 	if err != nil {

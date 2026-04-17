@@ -304,10 +304,10 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		//	return nil, fmt.Errorf("模型无效: %v", err)
 		//}
 		p := database.ModelParams{
-			Model:   model.ModelName,
-			Token:   model.Token,
-			BaseUrl: model.BaseURL,
-			Limit:   model.Limit,
+			Model:              model.ModelName,
+			Token:              model.Token,
+			BaseUrl:            model.BaseURL,
+			Limit:              model.Limit,
 		}
 		return &p, nil
 	}

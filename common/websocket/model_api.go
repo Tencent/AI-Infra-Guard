@@ -21,6 +21,7 @@ package websocket
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/utils/models"
 
@@ -31,11 +32,11 @@ import (
 
 // ModelInfo 模型信息（用于创建）
 type ModelInfo struct {
-	Model   string `json:"model" binding:"required"`
-	Token   string `json:"token" binding:"required"`
-	BaseURL string `json:"base_url" binding:"required"`
-	Limit   int    `json:"limit"`
-	Note    string `json:"note"`
+	Model              string `json:"model" binding:"required"`
+	Token              string `json:"token" binding:"required"`
+	BaseURL            string `json:"base_url" binding:"required"`
+	Limit              int    `json:"limit"`
+	Note               string `json:"note"`
 }
 
 // CreateModelRequest 创建模型请求
@@ -47,11 +48,11 @@ type CreateModelRequest struct {
 // UpdateModelInfo 模型信息（用于更新）
 // 这里不对 Token/BaseURL 使用 binding:"required"，以支持“只改名称等字段”的场景。
 type UpdateModelInfo struct {
-	Model   string `json:"model"`
-	Token   string `json:"token"`
-	BaseURL string `json:"base_url"`
-	Limit   int    `json:"limit"`
-	Note    string `json:"note"`
+	Model              string `json:"model"`
+	Token              string `json:"token"`
+	BaseURL            string `json:"base_url"`
+	Limit              int    `json:"limit"`
+	Note               string `json:"note"`
 }
 
 // UpdateModelRequest 更新模型请求
@@ -289,7 +290,14 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		return
 	}
 	// 校验模型 token base_url
-	ai := models.NewOpenAI(req.Model.Token, req.Model.Model, req.Model.BaseURL)
+	ai := &models.OpenAI{
+		Key:                req.Model.Token,
+		Model:              req.Model.Model,
+		BaseUrl:            req.Model.BaseURL,
+	}
+	if !strings.HasSuffix(ai.BaseUrl, "/") {
+		ai.BaseUrl += "/"
+	}
 	err = ai.Vaild(context.Background())
 	if err != nil {
 		log.Errorf("模型校验失败: trace_id=%s, modelID=%s, username=%s, error=%v", traceID, req.ModelID, username, err)
@@ -303,13 +311,13 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 
 	// 4. 创建模型
 	model := &database.Model{
-		ModelID:   req.ModelID,
-		Username:  username,
-		ModelName: req.Model.Model,
-		Token:     req.Model.Token,
-		BaseURL:   req.Model.BaseURL,
-		Note:      req.Model.Note,
-		Limit:     req.Model.Limit,
+		ModelID:            req.ModelID,
+		Username:           username,
+		ModelName:          req.Model.Model,
+		Token:              req.Model.Token,
+		BaseURL:            req.Model.BaseURL,
+		Note:               req.Model.Note,
+		Limit:              req.Model.Limit,
 	}
 
 	err = mm.modelStore.CreateModel(model)
