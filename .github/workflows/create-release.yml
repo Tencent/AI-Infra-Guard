@@ -55,7 +55,6 @@ jobs:
           cp docker-compose.images.yml release-package/docker-compose.yml
           cp -r data release-package/data
           cp README.md release-package/README.md
-          cp README_ZH.md release-package/README_ZH.md
           cp LICENSE release-package/LICENSE
           cp CHANGELOG.md release-package/CHANGELOG.md
           mkdir -p release-package/db
