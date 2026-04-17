@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.4] - 2026-04-17
+
+### Security
+- **TLS**: Support HTTPS connections with self-signed/private CA certificates for model endpoints; add InsecureSkipVerify option (#306, closes #302)
+
+### Added
+- **MCP Scan**: Add multi-turn red team attack module with TAP and Crescendo strategies (#299)
+- **System API**: Add data auto-sync API (`POST /api/v1/system/update-data`, `GET /api/v1/system/update-status`) for syncing `data/` directory (#301)
+- **Agent Scan API**: Support inline `agent_config` in agent scan API, make verify optional on save (#322)
+- **CLI**: Support `--agent-config-file` for inline YAML agent scan config (aig-scanner v1.0.3)
+- **Security Policy**: Add SECURITY.md with trust model and vulnerability disclosure policy
+
+### Fixed
+- **Vulnerability Rules**: Fill empty rule fields and add new CVE rules
+- **API**: Fix mcp_scan content field and add agent_scan API documentation
+- **Docs**: Fix HTML block bold rendering in multilingual READMEs
+- **Architecture**: Fix runtime path resolution for local deployments
+
+### Changed
+- **Codebase**: Convert all Chinese comments and messages to English in api.go and knowledge2_api.go
+- **Docs**: Expand Related Papers to 17 entries with 5 new 2026 papers; sync across all multilingual READMEs
+- **Docs**: Add architecture evolution document covering v0.1/v2.6/v3.6.0 (#294)
+- **Vulnerability Stats**: Update component vulnerability counts, add crewai/kubeai/lobehub entries (#291)
+
+### Contributors
+Special thanks to @boyhack, @zhuque, @ac0d3r, @feiyang666, @rocie799, @aig-doc-bot
+
+---
+
 ## [v4.1.3] - 2026-04-09
 
 ### Fixed
