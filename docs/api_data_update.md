@@ -1,18 +1,16 @@
 # Data Auto-Sync API
 
-> **Base URL**: `http://<host>:8088/api/v1`
->
-> **Authentication**: This API has **no built-in authentication**. The server
-> simply assigns requests a `public_user` identity without verifying credentials.
-> Access control must be enforced at the network level — bind the server to
-> loopback (`127.0.0.1`) or restrict port `8088` with a firewall.
-> **Do not expose this port to the public internet.**
-
----
-
 ## Overview
 
-AIG's detection rules live in the `data/` directory on disk:
+AIG detects AI infrastructure vulnerabilities using rule files in the `data/` directory. The **Data Auto-Sync** API allows you to pull the latest rules from the official GitHub repository (`Tencent/AI-Infra-Guard`) without restarting the server or rebuilding the Docker image.
+
+- **Base URL**: `http://localhost:8088` (adjust to your deployment address)
+- **Content-Type**: `application/json`
+- **Authentication**: No authentication required
+
+The sync is performed by cloning the repository into a temporary directory using `git clone`, then copying the requested `data/` sub-directories into the working directory. No GitHub token is needed.
+
+## Data Directory Layout
 
 | Sub-directory | Contents |
 |---|---|
@@ -23,47 +21,50 @@ AIG's detection rules live in the `data/` directory on disk:
 | `data/eval/` | Jailbreak / prompt-security evaluation datasets |
 | `data/agents/` | Agent scan configuration |
 
-The **data auto-sync** feature lets you pull the latest rules from the
-official GitHub repository (`Tencent/AI-Infra-Guard`) without restarting
-the server or rebuilding the Docker image.
-
 ---
 
-## Endpoints
+## API Endpoints
 
-### POST `/api/v1/system/update-data`
+### 1. Trigger Data Sync
 
-Trigger an asynchronous sync of the `data/` directory from GitHub.
+#### Endpoint Info
 
-Only **one sync** can run at a time. If a sync is already in progress the
-endpoint returns `200 OK` with the current status instead of starting a new
-one.
+- **URL**: `/api/v1/system/update-data`
+- **Method**: `POST`
+- **Content-Type**: `application/json`
 
-#### Request Body (JSON, optional)
+#### Request Parameters
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `ref` | `string` | `"main"` | Branch name or tag to sync from |
-| `is_tag` | `bool` | `false` | Set `true` when `ref` is a Git tag (e.g. `"v4.1.3"`) |
-| `github_token` | `string` | `""` | Personal access token — avoids GitHub's anonymous rate limit (60 req/h) |
-| `dirs` | `string` | `"fingerprints,vuln,vuln_en,mcp,eval,agents"` | Comma-separated list of `data/` sub-directories to sync |
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `ref` | string | No | `"main"` | Branch name or Git tag to sync from |
+| `is_tag` | bool | No | `false` | Set `true` when `ref` is a Git tag (e.g. `"v4.1.3"`) |
+| `dirs` | string | No | `"fingerprints,vuln,vuln_en,mcp,eval,agents"` | Comma-separated list of `data/` sub-directories to sync |
 
-#### Response — `202 Accepted` (sync started) or `200 OK` (already running)
+An empty request body (`{}`) is valid and triggers a sync of all directories from the `main` branch.
 
-```json
-{
-  "running": true,
-  "started_at": "2026-04-10T17:20:00Z",
-  "finished_at": null,
-  "message": "downloading archive from GitHub…",
-  "files_updated": 0,
-  "ref": "main"
-}
-```
+#### Response Fields
 
-#### Examples
+| Field | Type | Description |
+|---|---|---|
+| `running` | bool | Whether a sync is currently in progress |
+| `success` | bool | Whether the last sync succeeded (absent if never run) |
+| `started_at` | string | ISO-8601 timestamp when the sync started |
+| `finished_at` | string | ISO-8601 timestamp when the sync finished (absent if still running) |
+| `message` | string | Human-readable status message |
+| `files_updated` | int | Number of files written to disk |
+| `ref` | string | Branch or tag that was used |
 
-**Sync latest `main` (anonymous)**
+#### Response Codes
+
+| Code | Meaning |
+|---|---|
+| `202 Accepted` | Sync started successfully |
+| `200 OK` | A sync is already running; returns current status |
+
+#### cURL Examples
+
+**Sync latest `main` branch**
 ```bash
 curl -X POST http://localhost:8088/api/v1/system/update-data \
   -H "Content-Type: application/json" \
@@ -80,94 +81,95 @@ curl -X POST http://localhost:8088/api/v1/system/update-data \
   }'
 ```
 
-**Sync only vulnerability rules (authenticated)**
+**Sync only fingerprint and vulnerability rules**
 ```bash
 curl -X POST http://localhost:8088/api/v1/system/update-data \
   -H "Content-Type: application/json" \
   -d '{
-    "ref": "main",
-    "github_token": "ghp_xxxxxxxxxxxx",
-    "dirs": "vuln,vuln_en"
+    "dirs": "fingerprints,vuln,vuln_en"
   }'
+```
+
+#### Python Example
+
+```python
+import requests
+import time
+
+BASE_URL = "http://localhost:8088"
+
+def trigger_sync(ref="main", is_tag=False, dirs=None):
+    payload = {"ref": ref, "is_tag": is_tag}
+    if dirs:
+        payload["dirs"] = dirs
+    resp = requests.post(f"{BASE_URL}/api/v1/system/update-data", json=payload)
+    return resp.json()
+
+def wait_for_sync(poll_interval=3, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        status = requests.get(f"{BASE_URL}/api/v1/system/update-status").json()
+        print(f"[{status.get('message')}] files_updated={status.get('files_updated')}")
+        if not status.get("running"):
+            return status
+        time.sleep(poll_interval)
+    raise TimeoutError("sync timed out")
+
+# Trigger and wait
+result = trigger_sync()
+print(result)
+final = wait_for_sync()
+if final.get("success"):
+    print(f"Sync complete — {final['files_updated']} file(s) updated")
+else:
+    print(f"Sync failed: {final['message']}")
 ```
 
 ---
 
-### GET `/api/v1/system/update-status`
+### 2. Get Sync Status
 
-Return the status of the current (or most recent) sync operation.
+#### Endpoint Info
 
-#### Response — `200 OK`
+- **URL**: `/api/v1/system/update-status`
+- **Method**: `GET`
+
+#### Response Fields
+
+Same fields as the trigger endpoint response (see above).
+
+#### cURL Example
+
+```bash
+curl http://localhost:8088/api/v1/system/update-status
+```
+
+#### Example Response
 
 ```json
 {
   "running": false,
   "success": true,
-  "started_at": "2026-04-10T17:20:00Z",
-  "finished_at": "2026-04-10T17:20:42Z",
+  "started_at": "2026-04-17T10:00:00Z",
+  "finished_at": "2026-04-17T10:00:45Z",
   "message": "sync complete — 312 file(s) updated from ref \"main\"",
   "files_updated": 312,
   "ref": "main"
 }
 ```
 
-#### Response Fields
-
-| Field | Type | Description |
-|---|---|---|
-| `running` | `bool` | `true` while a sync is in progress |
-| `success` | `bool \| null` | `true` = completed OK, `false` = error, `null` = never run |
-| `started_at` | `string (RFC3339)` | When the current/last sync started |
-| `finished_at` | `string (RFC3339) \| null` | When it finished; `null` if still running |
-| `message` | `string` | Human-readable status/error description |
-| `files_updated` | `int` | Number of files written to disk |
-| `ref` | `string` | Branch or tag used |
-
-#### Example — poll until done
-```bash
-while true; do
-  STATUS=$(curl -s http://localhost:8088/api/v1/system/update-status)
-  echo "$STATUS"
-  RUNNING=$(echo "$STATUS" | python3 -c "import sys,json; print(json.load(sys.stdin)['running'])")
-  [ "$RUNNING" = "False" ] && break
-  sleep 3
-done
-```
-
 ---
 
-## Workflow
+## Typical Workflow
 
-```
-Client                          AIG Server                    GitHub
-  |                                 |                            |
-  |-- POST /system/update-data ---> |                            |
-  |<-- 202 Accepted (running=true)  |                            |
-  |                                 |-- GET codeload.github.com -->|
-  |                                 |<-- zip archive --------------|
-  |                                 | (unzip + overwrite data/)   |
-  |                                 |                            |
-  |-- GET /system/update-status --> |                            |
-  |<-- 200 OK (running=false,       |                            |
-  |            success=true)        |                            |
-```
-
----
-
-## Error Cases
-
-| Scenario | `success` | `message` example |
-|---|---|---|
-| GitHub unreachable / timeout | `false` | `"download failed: Get … context deadline exceeded"` |
-| Invalid ref / 404 | `false` | `"download failed: HTTP 404 from …"` |
-| Disk write error | `false` | `"extraction failed: write data/vuln/…: permission denied"` |
-| Rate limited (anonymous) | `false` | `"download failed: HTTP 429 from …"` — use `github_token` |
-
----
+1. **Trigger sync** — call `POST /api/v1/system/update-data`; the operation runs in the background and the endpoint returns `202 Accepted` immediately.
+2. **Poll for completion** — call `GET /api/v1/system/update-status` periodically until `running` is `false`.
+3. **Check result** — inspect `success` and `message` to confirm the sync succeeded.
+4. **No restart needed** — AIG reads rule files at scan time, so updated rules take effect on the next scan without a server restart.
 
 ## Notes
 
-- The sync **overwrites** matching files in `data/` but does **not delete** files that no longer exist in the upstream repo. To do a full clean sync, remove the `data/` sub-directories manually before triggering the update.
-- The server does **not** need to restart after a sync — rule files are read from disk at scan time.
-- In-progress scans are not interrupted; they will use the new rules on the next run.
-- The `github_token` field value is **never logged or stored**.
+- Only one sync can run at a time. Concurrent requests return the current status with `200 OK`.
+- The `git` binary must be available in the server's `PATH`.
+- The server must be able to reach `github.com` on port 443.
+- The sync uses `git clone --depth 1` to minimise bandwidth and clone time.
