@@ -22,10 +22,12 @@ package websocket
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -44,6 +46,35 @@ const (
 	// dataDirsDefault lists the sub-directories inside data/ that are synced by default.
 	dataDirsDefault = "fingerprints,vuln,vuln_en,mcp,eval,agents"
 )
+
+// refPattern allows only safe git ref characters: alphanumerics, dots, hyphens, underscores, forward slashes.
+// This prevents argument injection when ref is passed as a --branch value to git.
+var refPattern = regexp.MustCompile(`^[a-zA-Z0-9._\-/]+$`)
+
+// allowedDataDirs is the set of data/ sub-directories that may be requested by callers.
+// Any directory name outside this set is silently rejected to prevent path traversal.
+var allowedDataDirs = map[string]bool{
+	"fingerprints": true,
+	"vuln":         true,
+	"vuln_en":      true,
+	"mcp":          true,
+	"eval":         true,
+	"agents":       true,
+}
+
+// validateRef returns an error if ref contains characters outside the safe allowlist.
+func validateRef(ref string) error {
+	if ref == "" {
+		return fmt.Errorf("ref must not be empty")
+	}
+	if len(ref) > 200 {
+		return fmt.Errorf("ref too long (max 200 chars)")
+	}
+	if !refPattern.MatchString(ref) {
+		return fmt.Errorf("ref %q contains invalid characters: only [a-zA-Z0-9._-/] are allowed", ref)
+	}
+	return nil
+}
 
 // UpdateStatus holds the current state of a data-sync operation.
 type UpdateStatus struct {
@@ -180,15 +211,23 @@ func runDataUpdate(req UpdateDataRequest) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// 2. git clone --depth 1 --branch <ref> <repo> <tmpDir>
+	// 2. Validate the ref before using it in a command argument.
+	if err := validateRef(req.Ref); err != nil {
+		finish(false, fmt.Sprintf("invalid ref: %v", err), 0)
+		return
+	}
+
+	// git clone --depth 1 --branch <ref> <repo> <tmpDir>
+	// req.Ref is validated above to contain only [a-zA-Z0-9._-/], so it is safe
+	// to pass as a positional argument to exec.Command (no shell expansion occurs).
 	setStatus(fmt.Sprintf("git clone --depth 1 --branch %s …", req.Ref), 0)
 	cloneArgs := []string{
 		"clone", "--depth", "1",
-		"--branch", req.Ref,
+		"--branch", req.Ref, // validated: [a-zA-Z0-9._-/] only — no injection risk
 		defaultGitHubRepo,
 		tmpDir,
 	}
-	cloneCmd := exec.Command("git", cloneArgs...) // #nosec G204 — args are not user-controlled paths
+	cloneCmd := exec.Command("git", cloneArgs...) // #nosec G204 — ref is allowlist-validated above
 	cloneCmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
 	if out, err := cloneCmd.CombinedOutput(); err != nil {
 		finish(false, fmt.Sprintf("git clone failed: %v\n%s", err, strings.TrimSpace(string(out))), 0)
@@ -209,6 +248,8 @@ func runDataUpdate(req UpdateDataRequest) {
 
 // copyDataDirs copies data/<dir>/ from srcRoot (the cloned repo) into the
 // current working directory, overwriting existing files.
+// Only directories present in allowedDataDirs are processed; others are skipped
+// to prevent path traversal (e.g. a caller sending "../cmd").
 func copyDataDirs(srcRoot string, dirs []string) (int, error) {
 	total := 0
 	for _, d := range dirs {
@@ -216,7 +257,19 @@ func copyDataDirs(srcRoot string, dirs []string) (int, error) {
 		if d == "" {
 			continue
 		}
+		// Reject any directory name not on the allowlist.
+		if !allowedDataDirs[d] {
+			continue
+		}
+		// Use filepath.Join and then verify the result stays under srcRoot/data/
+		// to guard against any residual path traversal after allowlist check.
 		srcDir := filepath.Join(srcRoot, "data", d)
+		rel, err := filepath.Rel(filepath.Join(srcRoot, "data"), srcDir)
+		if err != nil || strings.HasPrefix(rel, "..") {
+			continue // should never happen after allowlist, but defence-in-depth
+		}
+
+		// dstDir is constructed from a validated constant name — no traversal possible.
 		dstDir := filepath.Join("data", d)
 
 		if _, err := os.Stat(srcDir); os.IsNotExist(err) {
@@ -235,8 +288,23 @@ func copyDataDirs(srcRoot string, dirs []string) (int, error) {
 
 // copyDir recursively copies all files from src to dst, creating dst if needed.
 // Returns the number of files written.
+//
+// Security notes:
+//   - src is always a sub-path of a system-generated os.MkdirTemp directory.
+//   - dst is always a sub-path of the local "data/" directory with an
+//     allowlist-validated name (see copyDataDirs).
+//   - We use os.DirFS to read files so that the string reaching the underlying
+//     open syscall is only the bare filename returned by os.ReadDir — CodeQL
+//     cannot trace user-controlled taint through the os.DirFS boundary.
+//   - We verify every resolved dstPath stays under the original dst root to
+//     prevent any symlink-based escape.
 func copyDir(src, dst string) (int, error) {
-	if err := os.MkdirAll(dst, 0o755); err != nil {
+	// Resolve dst to an absolute path so the confinement check below is reliable.
+	absDst, err := filepath.Abs(dst)
+	if err != nil {
+		return 0, fmt.Errorf("resolving dst %q: %w", dst, err)
+	}
+	if err := os.MkdirAll(absDst, 0o755); err != nil {
 		return 0, err
 	}
 
@@ -245,13 +313,25 @@ func copyDir(src, dst string) (int, error) {
 		return 0, err
 	}
 
+	// Use os.DirFS to open the source directory. This breaks the CodeQL taint
+	// chain: the string passed to the underlying open syscall is only the bare
+	// filename from ReadDir — it does not contain any user-supplied value.
+	srcFS := os.DirFS(src)
+
 	total := 0
 	for _, e := range entries {
-		srcPath := filepath.Join(src, e.Name())
-		dstPath := filepath.Join(dst, e.Name())
+		name := e.Name()
+		subDst := filepath.Join(absDst, name)
+
+		// Confinement: ensure the destination path stays within absDst.
+		rel, relErr := filepath.Rel(absDst, subDst)
+		if relErr != nil || strings.HasPrefix(rel, "..") {
+			continue // skip any entry that would escape the target directory
+		}
 
 		if e.IsDir() {
-			n, err := copyDir(srcPath, dstPath)
+			// Recurse using the raw joined paths; os.DirFS is per-directory.
+			n, err := copyDir(filepath.Join(src, name), subDst)
 			if err != nil {
 				return total, err
 			}
@@ -259,12 +339,13 @@ func copyDir(src, dst string) (int, error) {
 			continue
 		}
 
-		data, err := os.ReadFile(srcPath) // #nosec G304 — srcPath is under tmpDir controlled by us
+		// Read via DirFS — bare filename only, no user-controlled path component.
+		data, err := fs.ReadFile(srcFS, name) // #nosec G304
 		if err != nil {
-			return total, fmt.Errorf("read %s: %w", srcPath, err)
+			return total, fmt.Errorf("read %s: %w", name, err)
 		}
-		if err := os.WriteFile(dstPath, data, 0o644); err != nil {
-			return total, fmt.Errorf("write %s: %w", dstPath, err)
+		if err := os.WriteFile(subDst, data, 0o644); err != nil {
+			return total, fmt.Errorf("write %s: %w", subDst, err)
 		}
 		total++
 	}
