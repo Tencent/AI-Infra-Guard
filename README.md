@@ -383,7 +383,7 @@ Thanks to all the developers who have contributed to the A.I.G project, Your con
 
 ### 🤝 Appreciation for Our Users
 
-We are deeply grateful to the following teams and organizations for their trust, and valuable feedback in using A.I.G.
+Thanks to the users from the following organizations and teams for using A.I.G and their valuable feedback.
 
 <br>
 <div align="center">

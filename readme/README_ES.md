@@ -383,7 +383,7 @@ Gracias a todos los desarrolladores que han contribuido al proyecto A.I.G. Sus c
 
 ### 🤝 Agradecimiento a Nuestros Usuarios
 
-Estamos profundamente agradecidos a los siguientes equipos y organizaciones por su confianza y valiosos comentarios al usar A.I.G.
+Gracias a los usuarios de las siguientes empresas y equipos por utilizar A.I.G y por sus valiosos comentarios.
 
 <br>
 <div align="center">

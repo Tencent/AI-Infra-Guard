@@ -383,7 +383,7 @@ Dank gilt allen Entwicklern, die zum A.I.G-Projekt beigetragen haben. Ihre Beitr
 
 ### 🤝 Dank an unsere Nutzer
 
-Wir sind den folgenden Teams und Organisationen für ihr Vertrauen und ihre wertvollen Rückmeldungen bei der Nutzung von A.I.G aufrichtig dankbar.
+Vielen Dank an die Nutzer aus den folgenden Unternehmen und Teams für die Verwendung von A.I.G und ihr wertvolles Feedback.
 
 <br>
 <div align="center">

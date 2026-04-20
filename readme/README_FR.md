@@ -383,7 +383,7 @@ Merci à tous les développeurs qui ont contribué au projet A.I.G. Vos contribu
 
 ### 🤝 Reconnaissance envers nos utilisateurs
 
-Nous sommes profondément reconnaissants envers les équipes et organisations suivantes pour leur confiance et leurs précieux retours lors de l'utilisation d'A.I.G.
+Merci aux utilisateurs des entreprises et équipes suivantes pour leur utilisation d'A.I.G et leurs précieux retours.
 
 <br>
 <div align="center">
