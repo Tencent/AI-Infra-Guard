@@ -87,6 +87,13 @@ type UpdateStatus struct {
 	Ref          string     `json:"ref,omitempty"`
 }
 
+// updateDataResponse wraps UpdateStatus in the standard API envelope.
+type updateDataResponse struct {
+	Status  int          `json:"status"`
+	Message string       `json:"message"`
+	Data    UpdateStatus `json:"data"`
+}
+
 var (
 	updateMu     sync.Mutex
 	updateStatus = &UpdateStatus{Message: "idle"}
@@ -111,13 +118,17 @@ type UpdateDataRequest struct{}
 //	@Description	Returns the current (or last) status of the automatic data directory sync.
 //	@Tags			system
 //	@Produce		json
-//	@Success		200	{object}	UpdateStatus
+//	@Success		200	{object}	updateDataResponse
 //	@Router			/api/v1/system/update-status [get]
 func HandleGetUpdateStatus(c *gin.Context) {
 	updateMu.Lock()
 	snap := *updateStatus
 	updateMu.Unlock()
-	c.JSON(http.StatusOK, snap)
+	c.JSON(http.StatusOK, updateDataResponse{
+		Status:  0,
+		Message: snap.Message,
+		Data:    snap,
+	})
 }
 
 // HandleTriggerDataUpdate godoc
@@ -130,8 +141,7 @@ func HandleGetUpdateStatus(c *gin.Context) {
 //	@Description	for progress. Only one sync may run at a time.
 //	@Tags			system
 //	@Produce		json
-//	@Success		202	{object}	UpdateStatus	"Sync started"
-//	@Success		200	{object}	UpdateStatus	"Already running"
+//	@Success		200	{object}	updateDataResponse
 //	@Router			/api/v1/system/update-data [post]
 func HandleTriggerDataUpdate(c *gin.Context) {
 	req := UpdateDataRequest{}
@@ -145,7 +155,11 @@ func HandleTriggerDataUpdate(c *gin.Context) {
 	if updateStatus.Running {
 		snap := *updateStatus
 		updateMu.Unlock()
-		c.JSON(http.StatusOK, snap)
+		c.JSON(http.StatusOK, updateDataResponse{
+			Status:  0,
+			Message: "sync already running",
+			Data:    snap,
+		})
 		return
 	}
 	updateStatus = &UpdateStatus{
@@ -161,7 +175,11 @@ func HandleTriggerDataUpdate(c *gin.Context) {
 	updateMu.Lock()
 	snap := *updateStatus
 	updateMu.Unlock()
-	c.JSON(http.StatusAccepted, snap)
+	c.JSON(http.StatusOK, updateDataResponse{
+		Status:  0,
+		Message: "sync started",
+		Data:    snap,
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -377,3 +395,6 @@ func (u UpdateStatus) MarshalJSON() ([]byte, error) {
 		Ref:          u.Ref,
 	})
 }
+
+// Ensure encoding/json is used (MarshalJSON reference).
+var _ interface{ MarshalJSON() ([]byte, error) } = UpdateStatus{}

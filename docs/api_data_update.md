@@ -25,7 +25,7 @@ The sync is performed by cloning the `main` branch into a temporary directory us
 
 No request parameters. The sync always pulls from the `main` branch and updates all data directories.
 
-#### Response Fields
+#### Response Fields (`data` object)
 
 | Field | Type | Description |
 |---|---|---|
@@ -37,28 +37,25 @@ No request parameters. The sync always pulls from the `main` branch and updates 
 | `files_updated` | int | Number of files written to disk |
 | `ref` | string | Branch used for this sync (always `"main"`) |
 
-#### Response Codes
-
-| Code | Meaning |
-|---|---|
-| `202 Accepted` | Sync started successfully |
-| `200 OK` | A sync is already running; returns current status |
-
 #### cURL Example
 
 ```bash
 curl -X POST http://localhost:8088/api/v1/system/update-data
 ```
 
-#### Example Response (`202 Accepted`)
+#### Example Response (sync started)
 
 ```json
 {
-  "running": true,
-  "started_at": "2026-04-20T10:00:00Z",
-  "message": "cloning repository…",
-  "files_updated": 0,
-  "ref": "main"
+  "status": 0,
+  "message": "sync started",
+  "data": {
+    "running": true,
+    "started_at": "2026-04-20T10:00:00Z",
+    "message": "cloning repository…",
+    "files_updated": 0,
+    "ref": "main"
+  }
 }
 ```
 
@@ -77,15 +74,16 @@ print(resp.json())
 # Poll until done
 while True:
     status = requests.get(f"{BASE_URL}/api/v1/system/update-status").json()
-    print(f"[{status['message']}] files_updated={status['files_updated']}")
-    if not status["running"]:
+    data = status["data"]
+    print(f"[{data['message']}] files_updated={data['files_updated']}")
+    if not data["running"]:
         break
     time.sleep(3)
 
-if status.get("success"):
-    print(f"Sync complete — {status['files_updated']} file(s) updated")
+if data.get("success"):
+    print(f"Sync complete — {data['files_updated']} file(s) updated")
 else:
-    print(f"Sync failed: {status['message']}")
+    print(f"Sync failed: {data['message']}")
 ```
 
 ---
@@ -101,7 +99,7 @@ else:
 
 #### Response Fields
 
-Same fields as the trigger endpoint response (see above).
+Same envelope `{status, message, data}` as the trigger endpoint. See above for `data` field definitions.
 
 #### cURL Example
 
@@ -113,11 +111,15 @@ curl http://localhost:8088/api/v1/system/update-status
 
 ```json
 {
-  "running": true,
-  "started_at": "2026-04-20T10:00:00Z",
+  "status": 0,
   "message": "copying data directories…",
-  "files_updated": 0,
-  "ref": "main"
+  "data": {
+    "running": true,
+    "started_at": "2026-04-20T10:00:00Z",
+    "message": "copying data directories…",
+    "files_updated": 0,
+    "ref": "main"
+  }
 }
 ```
 
@@ -125,13 +127,17 @@ curl http://localhost:8088/api/v1/system/update-status
 
 ```json
 {
-  "running": false,
-  "success": true,
-  "started_at": "2026-04-20T10:00:00Z",
-  "finished_at": "2026-04-20T10:00:45Z",
+  "status": 0,
   "message": "sync complete — 312 file(s) updated from ref \"main\"",
-  "files_updated": 312,
-  "ref": "main"
+  "data": {
+    "running": false,
+    "success": true,
+    "started_at": "2026-04-20T10:00:00Z",
+    "finished_at": "2026-04-20T10:00:45Z",
+    "message": "sync complete — 312 file(s) updated from ref \"main\"",
+    "files_updated": 312,
+    "ref": "main"
+  }
 }
 ```
 
@@ -139,13 +145,17 @@ curl http://localhost:8088/api/v1/system/update-status
 
 ```json
 {
-  "running": false,
-  "success": false,
-  "started_at": "2026-04-20T10:00:00Z",
-  "finished_at": "2026-04-20T10:00:05Z",
+  "status": 0,
   "message": "git clone failed: exit status 128\nfatal: unable to access 'https://github.com/...'",
-  "files_updated": 0,
-  "ref": "main"
+  "data": {
+    "running": false,
+    "success": false,
+    "started_at": "2026-04-20T10:00:00Z",
+    "finished_at": "2026-04-20T10:00:05Z",
+    "message": "git clone failed: exit status 128\nfatal: unable to access 'https://github.com/...'",
+    "files_updated": 0,
+    "ref": "main"
+  }
 }
 ```
 
@@ -153,13 +163,13 @@ curl http://localhost:8088/api/v1/system/update-status
 
 ## Typical Workflow
 
-1. **Trigger sync** — call `POST /api/v1/system/update-data`; returns `202 Accepted` immediately.
-2. **Poll for completion** — call `GET /api/v1/system/update-status` until `running` is `false`.
-3. **Check result** — inspect `success` and `message`.
+1. **Trigger sync** — call `POST /api/v1/system/update-data`; returns immediately.
+2. **Poll for completion** — call `GET /api/v1/system/update-status` until `data.running` is `false`.
+3. **Check result** — inspect `data.success` and `data.message`.
 4. **No restart needed** — updated rules take effect on the next scan.
 
 ## Notes
 
-- Only one sync can run at a time. A concurrent trigger returns the current status with `200 OK`.
+- Only one sync can run at a time. A concurrent trigger returns the current status.
 - The `git` binary must be available in the server's `PATH`.
 - The server must be able to reach `github.com` on port 443.
