@@ -97,17 +97,9 @@ var (
 // ---------------------------------------------------------------------------
 
 // UpdateDataRequest is the JSON body for POST /api/v1/system/update-data.
-//
-//	{
-//	  "ref":   "main",        // branch name or tag, default: "main"
-//	  "is_tag": false,        // set true when ref is a Git tag (e.g. "v4.1.3")
-//	  "dirs":  "fingerprints,vuln,vuln_en,mcp,eval,agents"  // optional
-//	}
-type UpdateDataRequest struct {
-	Ref   string `json:"ref"`
-	IsTag bool   `json:"is_tag"`
-	Dirs  string `json:"dirs"`
-}
+// The request body is optional and ignored; the sync always pulls from the
+// default branch (main) and updates all data/ sub-directories.
+type UpdateDataRequest struct{}
 
 // ---------------------------------------------------------------------------
 // Handlers
@@ -131,30 +123,23 @@ func HandleGetUpdateStatus(c *gin.Context) {
 // HandleTriggerDataUpdate godoc
 //
 //	@Summary		Trigger data directory sync from GitHub
-//	@Description	Clones the repository into a temporary directory and copies the requested
+//	@Description	Clones the repository into a temporary directory and copies all
 //	@Description	data/ sub-directories (fingerprints, vuln, vuln_en, mcp, eval, agents)
 //	@Description	to the working directory. No GitHub token is required.
 //	@Description	The operation runs asynchronously; poll GET /api/v1/system/update-status
 //	@Description	for progress. Only one sync may run at a time.
 //	@Tags			system
-//	@Accept			json
 //	@Produce		json
-//	@Param			body	body		UpdateDataRequest	false	"Sync options"
-//	@Success		202	{object}	UpdateStatus		"Sync started"
-//	@Success		200	{object}	UpdateStatus		"Already running"
-//	@Failure		500	{object}	map[string]string	"Internal error"
+//	@Success		202	{object}	UpdateStatus	"Sync started"
+//	@Success		200	{object}	UpdateStatus	"Already running"
 //	@Router			/api/v1/system/update-data [post]
 func HandleTriggerDataUpdate(c *gin.Context) {
-	var req UpdateDataRequest
-	// allow empty body
+	req := UpdateDataRequest{}
 	_ = c.ShouldBindJSON(&req)
 
-	if req.Ref == "" {
-		req.Ref = defaultGitHubBranch
-	}
-	if req.Dirs == "" {
-		req.Dirs = dataDirsDefault
-	}
+	// Always sync from main branch with all directories.
+	const ref = defaultGitHubBranch
+	const dirs = dataDirsDefault
 
 	updateMu.Lock()
 	if updateStatus.Running {
@@ -167,11 +152,11 @@ func HandleTriggerDataUpdate(c *gin.Context) {
 		Running:   true,
 		StartedAt: time.Now(),
 		Message:   "cloning repository…",
-		Ref:       req.Ref,
+		Ref:       ref,
 	}
 	updateMu.Unlock()
 
-	go runDataUpdate(req)
+	go runDataUpdate(ref, dirs)
 
 	updateMu.Lock()
 	snap := *updateStatus
@@ -183,7 +168,7 @@ func HandleTriggerDataUpdate(c *gin.Context) {
 // Core sync logic
 // ---------------------------------------------------------------------------
 
-func runDataUpdate(req UpdateDataRequest) {
+func runDataUpdate(ref, dirs string) {
 	setStatus := func(msg string, filesUpdated int) {
 		updateMu.Lock()
 		updateStatus.Message = msg
@@ -211,39 +196,38 @@ func runDataUpdate(req UpdateDataRequest) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// 2. Validate the ref before using it in a command argument.
-	if err := validateRef(req.Ref); err != nil {
+	// ref is the package-level constant defaultGitHubBranch ("main") — always valid.
+	// validateRef is kept as a defence-in-depth guard.
+	if err := validateRef(ref); err != nil {
 		finish(false, fmt.Sprintf("invalid ref: %v", err), 0)
 		return
 	}
 
-	// git clone --depth 1 --branch <ref> <repo> <tmpDir>
-	// req.Ref is validated above to contain only [a-zA-Z0-9._-/], so it is safe
-	// to pass as a positional argument to exec.Command (no shell expansion occurs).
-	setStatus(fmt.Sprintf("git clone --depth 1 --branch %s …", req.Ref), 0)
+	// git clone --depth 1 --branch main <repo> <tmpDir>
+	setStatus(fmt.Sprintf("git clone --depth 1 --branch %s …", ref), 0)
 	cloneArgs := []string{
 		"clone", "--depth", "1",
-		"--branch", req.Ref, // validated: [a-zA-Z0-9._-/] only — no injection risk
+		"--branch", ref, // constant "main" — no injection risk
 		defaultGitHubRepo,
 		tmpDir,
 	}
-	cloneCmd := exec.Command("git", cloneArgs...) // #nosec G204 — ref is allowlist-validated above
+	cloneCmd := exec.Command("git", cloneArgs...) // #nosec G204 — ref is a validated constant
 	cloneCmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
 	if out, err := cloneCmd.CombinedOutput(); err != nil {
 		finish(false, fmt.Sprintf("git clone failed: %v\n%s", err, strings.TrimSpace(string(out))), 0)
 		return
 	}
 
-	// 3. Copy the requested data/ sub-directories into the working directory.
+	// 3. Copy all data/ sub-directories into the working directory.
 	setStatus("copying data directories…", 0)
-	dirs := splitDirs(req.Dirs)
-	filesWritten, err := copyDataDirs(tmpDir, dirs)
+	dirsSlice := splitDirs(dirs)
+	filesWritten, err := copyDataDirs(tmpDir, dirsSlice)
 	if err != nil {
 		finish(false, fmt.Sprintf("copy failed: %v", err), filesWritten)
 		return
 	}
 
-	finish(true, fmt.Sprintf("sync complete — %d file(s) updated from ref %q", filesWritten, req.Ref), filesWritten)
+	finish(true, fmt.Sprintf("sync complete — %d file(s) updated from ref %q", filesWritten, ref), filesWritten)
 }
 
 // copyDataDirs copies data/<dir>/ from srcRoot (the cloned repo) into the
