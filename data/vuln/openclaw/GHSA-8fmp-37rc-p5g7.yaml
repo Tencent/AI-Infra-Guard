@@ -18,6 +18,6 @@ info:
   security_advise: '建议将 OpenClaw 升级至 >=2026.2.21 或更高版本。 修复提交 - 2cdbadee1f8fcaa93302d7debbfc529e19868ea4'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7
-rule: 'version <= "2026.2.19-2 || =2026.2.19"'
+rule: 'version <= "2026.2.19"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-8fmp-37rc-p5g7
