@@ -124,8 +124,16 @@ func HandleGetUpdateStatus(c *gin.Context) {
 	updateMu.Lock()
 	snap := *updateStatus
 	updateMu.Unlock()
+
+	// Determine status code following the project convention:
+	// 0 = ok (idle / running / success), 1 = last sync failed.
+	apiStatus := 0
+	if snap.Success != nil && !*snap.Success {
+		apiStatus = 1
+	}
+
 	c.JSON(http.StatusOK, updateDataResponse{
-		Status:  0,
+		Status:  apiStatus,
 		Message: snap.Message,
 		Data:    snap,
 	})
