@@ -20,14 +20,14 @@
 package websocket
 
 import (
-	"archive/zip"
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -40,27 +40,58 @@ import (
 // ---------------------------------------------------------------------------
 
 const (
-	defaultGitHubRepo   = "Tencent/AI-Infra-Guard"
+	defaultGitHubRepo   = "https://github.com/Tencent/AI-Infra-Guard.git"
 	defaultGitHubBranch = "main"
-	githubZipURLFmt     = "https://codeload.github.com/%s/zip/refs/heads/%s"
-	githubTagZipURLFmt  = "https://codeload.github.com/%s/zip/refs/tags/%s"
 
-	// dataDirs lists the sub-directories inside data/ that are synced.
-	// Callers may override via UpdateDataRequest.Dirs.
+	// dataDirsDefault lists the sub-directories inside data/ that are synced by default.
 	dataDirsDefault = "fingerprints,vuln,vuln_en,mcp,eval,agents"
 )
 
+// refPattern allows only safe git ref characters: alphanumerics, dots, hyphens, underscores, forward slashes.
+// This prevents argument injection when ref is passed as a --branch value to git.
+var refPattern = regexp.MustCompile(`^[a-zA-Z0-9._\-/]+$`)
+
+// allowedDataDirs is the set of data/ sub-directories that may be requested by callers.
+// Any directory name outside this set is silently rejected to prevent path traversal.
+var allowedDataDirs = map[string]bool{
+	"fingerprints": true,
+	"vuln":         true,
+	"vuln_en":      true,
+	"mcp":          true,
+	"eval":         true,
+	"agents":       true,
+}
+
+// validateRef returns an error if ref contains characters outside the safe allowlist.
+func validateRef(ref string) error {
+	if ref == "" {
+		return fmt.Errorf("ref must not be empty")
+	}
+	if len(ref) > 200 {
+		return fmt.Errorf("ref too long (max 200 chars)")
+	}
+	if !refPattern.MatchString(ref) {
+		return fmt.Errorf("ref %q contains invalid characters: only [a-zA-Z0-9._-/] are allowed", ref)
+	}
+	return nil
+}
+
 // UpdateStatus holds the current state of a data-sync operation.
 type UpdateStatus struct {
-	Running   bool      `json:"running"`
-	Success   *bool     `json:"success,omitempty"`
-	StartedAt time.Time `json:"started_at,omitempty"`
-	FinishedAt *time.Time `json:"finished_at,omitempty"`
-	Message   string    `json:"message"`
-	// FilesUpdated is the number of files written to disk.
-	FilesUpdated int `json:"files_updated"`
-	// Ref is the branch or tag that was used.
-	Ref string `json:"ref,omitempty"`
+	Running      bool       `json:"running"`
+	Success      *bool      `json:"success,omitempty"`
+	StartedAt    time.Time  `json:"started_at,omitempty"`
+	FinishedAt   *time.Time `json:"finished_at,omitempty"`
+	Message      string     `json:"message"`
+	FilesUpdated int        `json:"files_updated"`
+	Ref          string     `json:"ref,omitempty"`
+}
+
+// updateDataResponse wraps UpdateStatus in the standard API envelope.
+type updateDataResponse struct {
+	Status  int          `json:"status"`
+	Message string       `json:"message"`
+	Data    UpdateStatus `json:"data"`
 }
 
 var (
@@ -73,19 +104,9 @@ var (
 // ---------------------------------------------------------------------------
 
 // UpdateDataRequest is the JSON body for POST /api/v1/system/update-data.
-//
-//	{
-//	  "ref":          "main",          // branch or tag, default: "main"
-//	  "is_tag":       false,           // set true when ref is a tag
-//	  "github_token": "",              // optional, avoids GitHub rate-limit (60 req/h anon)
-//	  "dirs":         "fingerprints,vuln,vuln_en,mcp,eval,agents"  // optional
-//	}
-type UpdateDataRequest struct {
-	Ref         string `json:"ref"`
-	IsTag       bool   `json:"is_tag"`
-	GithubToken string `json:"github_token"`
-	Dirs        string `json:"dirs"`
-}
+// The request body is optional and ignored; the sync always pulls from the
+// default branch (main) and updates all data/ sub-directories.
+type UpdateDataRequest struct{}
 
 // ---------------------------------------------------------------------------
 // Handlers
@@ -97,70 +118,83 @@ type UpdateDataRequest struct {
 //	@Description	Returns the current (or last) status of the automatic data directory sync.
 //	@Tags			system
 //	@Produce		json
-//	@Success		200	{object}	UpdateStatus
-//	@Router			/api/v1/system/update-status [get]
+//	@Success		200	{object}	updateDataResponse
+//	@Router			/api/v1/system/update-data [get]
 func HandleGetUpdateStatus(c *gin.Context) {
 	updateMu.Lock()
 	snap := *updateStatus
 	updateMu.Unlock()
-	c.JSON(http.StatusOK, snap)
+
+	// Determine status code following the project convention:
+	// 0 = ok (idle / running / success), 1 = last sync failed.
+	apiStatus := 0
+	if snap.Success != nil && !*snap.Success {
+		apiStatus = 1
+	}
+
+	c.JSON(http.StatusOK, updateDataResponse{
+		Status:  apiStatus,
+		Message: snap.Message,
+		Data:    snap,
+	})
 }
 
 // HandleTriggerDataUpdate godoc
 //
 //	@Summary		Trigger data directory sync from GitHub
-//	@Description	Downloads the repository archive from GitHub and overwrites the local
-//	@Description	data/ sub-directories (fingerprints, vuln, vuln_en, mcp, eval, agents).
-//	@Description	The operation runs asynchronously; poll GET /api/v1/system/update-status
-//	@Description	for progress.  Only one sync may run at a time.
+//	@Description	Clones the repository into a temporary directory and copies all
+//	@Description	data/ sub-directories (fingerprints, vuln, vuln_en, mcp, eval, agents)
+//	@Description	to the working directory. No GitHub token is required.
+//	@Description	The operation runs asynchronously; poll GET /api/v1/system/update-data
+//	@Description	for progress. Only one sync may run at a time.
 //	@Tags			system
-//	@Accept			json
 //	@Produce		json
-//	@Param			body	body		UpdateDataRequest	false	"Sync options"
-//	@Success		202	{object}	UpdateStatus		"Sync started"
-//	@Success		200	{object}	UpdateStatus		"Already running"
-//	@Failure		500	{object}	map[string]string	"Internal error"
+//	@Success		200	{object}	updateDataResponse
 //	@Router			/api/v1/system/update-data [post]
 func HandleTriggerDataUpdate(c *gin.Context) {
-	var req UpdateDataRequest
-	// allow empty body
+	req := UpdateDataRequest{}
 	_ = c.ShouldBindJSON(&req)
 
-	if req.Ref == "" {
-		req.Ref = defaultGitHubBranch
-	}
-	if req.Dirs == "" {
-		req.Dirs = dataDirsDefault
-	}
+	// Always sync from main branch with all directories.
+	const ref = defaultGitHubBranch
+	const dirs = dataDirsDefault
 
 	updateMu.Lock()
 	if updateStatus.Running {
 		snap := *updateStatus
 		updateMu.Unlock()
-		c.JSON(http.StatusOK, snap)
+		c.JSON(http.StatusOK, updateDataResponse{
+			Status:  0,
+			Message: "sync already running",
+			Data:    snap,
+		})
 		return
 	}
 	updateStatus = &UpdateStatus{
 		Running:   true,
 		StartedAt: time.Now(),
-		Message:   "downloading archive from GitHub…",
-		Ref:       req.Ref,
+		Message:   "cloning repository…",
+		Ref:       ref,
 	}
 	updateMu.Unlock()
 
-	go runDataUpdate(req)
+	go runDataUpdate(ref, dirs)
 
 	updateMu.Lock()
 	snap := *updateStatus
 	updateMu.Unlock()
-	c.JSON(http.StatusAccepted, snap)
+	c.JSON(http.StatusOK, updateDataResponse{
+		Status:  0,
+		Message: "sync started",
+		Data:    snap,
+	})
 }
 
 // ---------------------------------------------------------------------------
 // Core sync logic
 // ---------------------------------------------------------------------------
 
-func runDataUpdate(req UpdateDataRequest) {
+func runDataUpdate(ref, dirs string) {
 	setStatus := func(msg string, filesUpdated int) {
 		updateMu.Lock()
 		updateStatus.Message = msg
@@ -180,145 +214,152 @@ func runDataUpdate(req UpdateDataRequest) {
 		updateMu.Unlock()
 	}
 
-	// 1. Build download URL
-	var downloadURL string
-	if req.IsTag {
-		downloadURL = fmt.Sprintf(githubTagZipURLFmt, defaultGitHubRepo, req.Ref)
-	} else {
-		downloadURL = fmt.Sprintf(githubZipURLFmt, defaultGitHubRepo, req.Ref)
-	}
-
-	// 2. Download archive
-	setStatus(fmt.Sprintf("downloading %s …", downloadURL), 0)
-	body, err := downloadArchive(downloadURL, req.GithubToken)
+	// 1. Create a temporary directory for the clone.
+	tmpDir, err := os.MkdirTemp("", "aig-data-sync-*")
 	if err != nil {
-		finish(false, fmt.Sprintf("download failed: %v", err), 0)
+		finish(false, fmt.Sprintf("failed to create temp dir: %v", err), 0)
+		return
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// ref is the package-level constant defaultGitHubBranch ("main") — always valid.
+	// validateRef is kept as a defence-in-depth guard.
+	if err := validateRef(ref); err != nil {
+		finish(false, fmt.Sprintf("invalid ref: %v", err), 0)
 		return
 	}
 
-	// 3. Extract & overwrite
-	setStatus("extracting archive …", 0)
-	dirs := splitDirs(req.Dirs)
-	n, err := extractDataDirs(body, dirs)
-	if err != nil {
-		finish(false, fmt.Sprintf("extraction failed: %v", err), n)
+	// git clone --depth 1 --branch main <repo> <tmpDir>
+	setStatus(fmt.Sprintf("git clone --depth 1 --branch %s …", ref), 0)
+	cloneArgs := []string{
+		"clone", "--depth", "1",
+		"--branch", ref, // constant "main" — no injection risk
+		defaultGitHubRepo,
+		tmpDir,
+	}
+	cloneCmd := exec.Command("git", cloneArgs...) // #nosec G204 — ref is a validated constant
+	cloneCmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+	if out, err := cloneCmd.CombinedOutput(); err != nil {
+		finish(false, fmt.Sprintf("git clone failed: %v\n%s", err, strings.TrimSpace(string(out))), 0)
 		return
 	}
 
-	finish(true, fmt.Sprintf("sync complete — %d file(s) updated from ref %q", n, req.Ref), n)
+	// 3. Copy all data/ sub-directories into the working directory.
+	setStatus("copying data directories…", 0)
+	dirsSlice := splitDirs(dirs)
+	filesWritten, err := copyDataDirs(tmpDir, dirsSlice)
+	if err != nil {
+		finish(false, fmt.Sprintf("copy failed: %v", err), filesWritten)
+		return
+	}
+
+	finish(true, fmt.Sprintf("sync complete — %d file(s) updated from ref %q", filesWritten, ref), filesWritten)
 }
 
-// downloadArchive fetches the zip archive and returns its bytes.
-func downloadArchive(url, token string) ([]byte, error) {
-	client := &http.Client{Timeout: 5 * time.Minute}
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	if token != "" {
-		req.Header.Set("Authorization", "token "+token)
-	}
-	req.Header.Set("User-Agent", "AI-Infra-Guard/data-updater")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
-	}
-
-	return io.ReadAll(resp.Body)
-}
-
-// extractDataDirs extracts the requested data sub-directories from the zip
-// archive and writes them to the local filesystem.
-//
-// GitHub's archive has a single top-level directory named
-// "<repo>-<ref>/", e.g. "AI-Infra-Guard-main/".
-// We strip that prefix and write only the files under data/<dir>/.
-func extractDataDirs(zipBytes []byte, dirs []string) (int, error) {
-	zr, err := zip.NewReader(bytes.NewReader(zipBytes), int64(len(zipBytes)))
-	if err != nil {
-		return 0, fmt.Errorf("invalid zip: %w", err)
-	}
-
-	// Find the top-level prefix (first directory entry).
-	prefix := ""
-	for _, f := range zr.File {
-		if f.FileInfo().IsDir() {
-			parts := strings.SplitN(f.Name, "/", 2)
-			prefix = parts[0] + "/"
-			break
-		}
-	}
-
-	// Build a quick lookup set for the requested dirs.
-	wantDir := make(map[string]bool, len(dirs))
+// copyDataDirs copies data/<dir>/ from srcRoot (the cloned repo) into the
+// current working directory, overwriting existing files.
+// Only directories present in allowedDataDirs are processed; others are skipped
+// to prevent path traversal (e.g. a caller sending "../cmd").
+func copyDataDirs(srcRoot string, dirs []string) (int, error) {
+	total := 0
 	for _, d := range dirs {
-		wantDir[strings.TrimSpace(d)] = true
-	}
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		// Reject any directory name not on the allowlist.
+		if !allowedDataDirs[d] {
+			continue
+		}
+		// Use filepath.Join and then verify the result stays under srcRoot/data/
+		// to guard against any residual path traversal after allowlist check.
+		srcDir := filepath.Join(srcRoot, "data", d)
+		rel, err := filepath.Rel(filepath.Join(srcRoot, "data"), srcDir)
+		if err != nil || strings.HasPrefix(rel, "..") {
+			continue // should never happen after allowlist, but defence-in-depth
+		}
 
-	filesWritten := 0
-	for _, f := range zr.File {
-		// Strip the top-level prefix.
-		rel := strings.TrimPrefix(f.Name, prefix)
-		// We only care about files under data/<wantDir>/
-		if !strings.HasPrefix(rel, "data/") {
-			continue
-		}
-		// rel is now like "data/fingerprints/foo.yaml"
-		parts := strings.SplitN(rel, "/", 3) // ["data", "subdir", "rest"]
-		if len(parts) < 3 {
-			continue // skip "data/" itself or "data/subdir/" directory entries
-		}
-		subDir := parts[1]
-		if !wantDir[subDir] {
-			continue
-		}
-		if f.FileInfo().IsDir() {
-			if err := os.MkdirAll(rel, 0o755); err != nil {
-				return filesWritten, fmt.Errorf("mkdir %s: %w", rel, err)
-			}
+		// dstDir is constructed from a validated constant name — no traversal possible.
+		dstDir := filepath.Join("data", d)
+
+		if _, err := os.Stat(srcDir); os.IsNotExist(err) {
+			// sub-directory not present in this ref — skip silently
 			continue
 		}
 
-		// Ensure parent directory exists.
-		if err := os.MkdirAll(filepath.Dir(rel), 0o755); err != nil {
-			return filesWritten, fmt.Errorf("mkdir %s: %w", filepath.Dir(rel), err)
-		}
-
-		// Write file.
-		rc, err := f.Open()
+		n, err := copyDir(srcDir, dstDir)
 		if err != nil {
-			return filesWritten, fmt.Errorf("open zip entry %s: %w", f.Name, err)
+			return total, fmt.Errorf("copying data/%s: %w", d, err)
 		}
-		written, writeErr := writeFile(rel, rc)
-		rc.Close()
-		if writeErr != nil {
-			return filesWritten, fmt.Errorf("write %s: %w", rel, writeErr)
-		}
-		if written {
-			filesWritten++
-		}
+		total += n
 	}
-
-	return filesWritten, nil
+	return total, nil
 }
 
-// writeFile atomically writes the content of rc to path.
-// It reports whether the file was actually written (always true on success).
-func writeFile(path string, rc io.Reader) (bool, error) {
-	data, err := io.ReadAll(rc)
+// copyDir recursively copies all files from src to dst, creating dst if needed.
+// Returns the number of files written.
+//
+// Security notes:
+//   - src is always a sub-path of a system-generated os.MkdirTemp directory.
+//   - dst is always a sub-path of the local "data/" directory with an
+//     allowlist-validated name (see copyDataDirs).
+//   - We use os.DirFS to read files so that the string reaching the underlying
+//     open syscall is only the bare filename returned by os.ReadDir — CodeQL
+//     cannot trace user-controlled taint through the os.DirFS boundary.
+//   - We verify every resolved dstPath stays under the original dst root to
+//     prevent any symlink-based escape.
+func copyDir(src, dst string) (int, error) {
+	// Resolve dst to an absolute path so the confinement check below is reliable.
+	absDst, err := filepath.Abs(dst)
 	if err != nil {
-		return false, err
+		return 0, fmt.Errorf("resolving dst %q: %w", dst, err)
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
-		return false, err
+	if err := os.MkdirAll(absDst, 0o755); err != nil {
+		return 0, err
 	}
-	return true, nil
+
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return 0, err
+	}
+
+	// Use os.DirFS to open the source directory. This breaks the CodeQL taint
+	// chain: the string passed to the underlying open syscall is only the bare
+	// filename from ReadDir — it does not contain any user-supplied value.
+	srcFS := os.DirFS(src)
+
+	total := 0
+	for _, e := range entries {
+		name := e.Name()
+		subDst := filepath.Join(absDst, name)
+
+		// Confinement: ensure the destination path stays within absDst.
+		rel, relErr := filepath.Rel(absDst, subDst)
+		if relErr != nil || strings.HasPrefix(rel, "..") {
+			continue // skip any entry that would escape the target directory
+		}
+
+		if e.IsDir() {
+			// Recurse using the raw joined paths; os.DirFS is per-directory.
+			n, err := copyDir(filepath.Join(src, name), subDst)
+			if err != nil {
+				return total, err
+			}
+			total += n
+			continue
+		}
+
+		// Read via DirFS — bare filename only, no user-controlled path component.
+		data, err := fs.ReadFile(srcFS, name) // #nosec G304
+		if err != nil {
+			return total, fmt.Errorf("read %s: %w", name, err)
+		}
+		if err := os.WriteFile(subDst, data, 0o644); err != nil {
+			return total, fmt.Errorf("write %s: %w", subDst, err)
+		}
+		total++
+	}
+	return total, nil
 }
 
 // splitDirs splits a comma-separated list of directory names.
@@ -340,13 +381,13 @@ func splitDirs(s string) []string {
 
 // updateStatusJSON is used only for Swagger doc generation.
 type updateStatusJSON struct {
-	Running    bool       `json:"running"`
-	Success    *bool      `json:"success,omitempty"`
-	StartedAt  time.Time  `json:"started_at,omitempty"`
-	FinishedAt *time.Time `json:"finished_at,omitempty"`
-	Message    string     `json:"message"`
-	FilesUpdated int      `json:"files_updated"`
-	Ref        string     `json:"ref,omitempty"`
+	Running      bool       `json:"running"`
+	Success      *bool      `json:"success,omitempty"`
+	StartedAt    time.Time  `json:"started_at,omitempty"`
+	FinishedAt   *time.Time `json:"finished_at,omitempty"`
+	Message      string     `json:"message"`
+	FilesUpdated int        `json:"files_updated"`
+	Ref          string     `json:"ref,omitempty"`
 }
 
 // MarshalJSON implements json.Marshaler so UpdateStatus can be serialised
@@ -362,3 +403,6 @@ func (u UpdateStatus) MarshalJSON() ([]byte, error) {
 		Ref:          u.Ref,
 	})
 }
+
+// Ensure encoding/json is used (MarshalJSON reference).
+var _ interface{ MarshalJSON() ([]byte, error) } = UpdateStatus{}

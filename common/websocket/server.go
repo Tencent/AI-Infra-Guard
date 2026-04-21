@@ -309,7 +309,7 @@ func RunWebServer(options *version.Options) {
 		system.Use(setupIdentityMiddleware())
 		{
 			system.POST("/update-data", HandleTriggerDataUpdate)
-			system.GET("/update-status", HandleGetUpdateStatus)
+			system.GET("/update-data", HandleGetUpdateStatus)
 		}
 	}
 
