@@ -2,7 +2,7 @@
 
 ## Overview
 
-AIG detects AI infrastructure vulnerabilities using rule files in the `data/` directory. The **Data Auto-Sync** API allows you to pull the latest rules from the official GitHub repository (`Tencent/AI-Infra-Guard`) without restarting the server or rebuilding the Docker image.
+A.I.G detects AI infrastructure vulnerabilities using rule files in the `data/` directory. The **Data Auto-Sync** API allows you to pull the latest rules from the official GitHub repository (`Tencent/AI-Infra-Guard`) without restarting the server or rebuilding the Docker image.
 
 - **Base URL**: `http://localhost:8088` (adjust to your deployment address)
 - **Authentication**: No authentication required
