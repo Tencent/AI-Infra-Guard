@@ -13,9 +13,9 @@ The sync is performed by cloning the `main` branch into a temporary directory us
 
 ## API Endpoints
 
-### 1. Trigger Data Sync
+Both operations share the same path `/api/v1/system/update-data` and are distinguished by HTTP method.
 
-#### Endpoint Info
+### 1. Trigger Data Sync — `POST /api/v1/system/update-data`
 
 | Item | Value |
 |---|---|
@@ -59,42 +59,13 @@ curl -X POST http://localhost:8088/api/v1/system/update-data
 }
 ```
 
-#### Python Example
-
-```python
-import requests
-import time
-
-BASE_URL = "http://localhost:8088"
-
-# Trigger sync
-resp = requests.post(f"{BASE_URL}/api/v1/system/update-data")
-print(resp.json())
-
-# Poll until done
-while True:
-    status = requests.get(f"{BASE_URL}/api/v1/system/update-status").json()
-    data = status["data"]
-    print(f"[{data['message']}] files_updated={data['files_updated']}")
-    if not data["running"]:
-        break
-    time.sleep(3)
-
-if data.get("success"):
-    print(f"Sync complete — {data['files_updated']} file(s) updated")
-else:
-    print(f"Sync failed: {data['message']}")
-```
-
 ---
 
-### 2. Get Sync Status
-
-#### Endpoint Info
+### 2. Get Sync Status — `GET /api/v1/system/update-data`
 
 | Item | Value |
 |---|---|
-| URL | `/api/v1/system/update-status` |
+| URL | `/api/v1/system/update-data` |
 | Method | `GET` |
 
 #### Response Fields
@@ -104,7 +75,7 @@ Same envelope `{status, message, data}` as the trigger endpoint. See above for `
 #### cURL Example
 
 ```bash
-curl http://localhost:8088/api/v1/system/update-status
+curl http://localhost:8088/api/v1/system/update-data
 ```
 
 #### Example Response (sync in progress)
@@ -145,7 +116,7 @@ curl http://localhost:8088/api/v1/system/update-status
 
 ```json
 {
-  "status": 0,
+  "status": 1,
   "message": "git clone failed: exit status 128\nfatal: unable to access 'https://github.com/...'",
   "data": {
     "running": false,
@@ -164,9 +135,36 @@ curl http://localhost:8088/api/v1/system/update-status
 ## Typical Workflow
 
 1. **Trigger sync** — call `POST /api/v1/system/update-data`; returns immediately.
-2. **Poll for completion** — call `GET /api/v1/system/update-status` until `data.running` is `false`.
+2. **Poll for completion** — call `GET /api/v1/system/update-data` until `data.running` is `false`.
 3. **Check result** — inspect `data.success` and `data.message`.
 4. **No restart needed** — updated rules take effect on the next scan.
+
+#### Python Example
+
+```python
+import requests
+import time
+
+BASE_URL = "http://localhost:8088"
+
+# Trigger sync
+resp = requests.post(f"{BASE_URL}/api/v1/system/update-data")
+print(resp.json())
+
+# Poll until done
+while True:
+    status = requests.get(f"{BASE_URL}/api/v1/system/update-data").json()
+    data = status["data"]
+    print(f"[{data['message']}] files_updated={data['files_updated']}")
+    if not data["running"]:
+        break
+    time.sleep(3)
+
+if data.get("success"):
+    print(f"Sync complete — {data['files_updated']} file(s) updated")
+else:
+    print(f"Sync failed: {data['message']}")
+```
 
 ## Notes
 

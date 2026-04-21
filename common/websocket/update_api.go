@@ -119,7 +119,7 @@ type UpdateDataRequest struct{}
 //	@Tags			system
 //	@Produce		json
 //	@Success		200	{object}	updateDataResponse
-//	@Router			/api/v1/system/update-status [get]
+//	@Router			/api/v1/system/update-data [get]
 func HandleGetUpdateStatus(c *gin.Context) {
 	updateMu.Lock()
 	snap := *updateStatus
@@ -145,7 +145,7 @@ func HandleGetUpdateStatus(c *gin.Context) {
 //	@Description	Clones the repository into a temporary directory and copies all
 //	@Description	data/ sub-directories (fingerprints, vuln, vuln_en, mcp, eval, agents)
 //	@Description	to the working directory. No GitHub token is required.
-//	@Description	The operation runs asynchronously; poll GET /api/v1/system/update-status
+//	@Description	The operation runs asynchronously; poll GET /api/v1/system/update-data
 //	@Description	for progress. Only one sync may run at a time.
 //	@Tags			system
 //	@Produce		json
