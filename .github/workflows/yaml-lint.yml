@@ -9,6 +9,7 @@ on:
     paths:
       - 'data/**'
       - 'cmd/yamlcheck/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
