@@ -113,6 +113,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | praisonai               | 2                   | Medium      |
 |                            | text-generation-webui   | 1                   | Medium      |
 |                            | openclaw                | 566                 | Medium-High |
+| **AI Agent Config Security** | AI-Agent-Config       | 1                   | High        |
 | **Total**                  |                         | **1000+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
