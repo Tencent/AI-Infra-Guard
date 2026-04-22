@@ -104,4 +104,4 @@ http:
   - method: GET
     path: '/.env'
     matchers:
-      - body~="(?m)^[A-Z][A-Z0-9_]+=\S"
+      - body~="(OPENAI_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|OPENROUTER_API_KEY|DEEPSEEK_API_KEY|HUNYUAN_API_KEY)\s*=\s*[A-Za-z0-9_\-]{16,}"
