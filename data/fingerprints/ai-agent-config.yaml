@@ -14,17 +14,17 @@ http:
   - method: GET
     path: '/claude_desktop_config.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
   - method: GET
     path: '/.claude.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
   - method: GET
     path: '/.mcp.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # Cursor
@@ -32,23 +32,23 @@ http:
   - method: GET
     path: '/.cursor/mcp.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
-# Trae IDE (ByteDance) — project-level & user-level
+# Trae IDE (ByteDance)
 # ──────────────────────────────────────────────
   - method: GET
     path: '/.trae/mcp.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
-# CodeBuddy (Tencent Cloud) — VSCode extension globalStorage
+# CodeBuddy (Tencent Cloud)
 # ──────────────────────────────────────────────
   - method: GET
     path: '/mcp_settings.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # Continue
@@ -56,7 +56,7 @@ http:
   - method: GET
     path: '/.continue/config.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # Cline / Roo-Cline (VSCode extension)
@@ -64,7 +64,7 @@ http:
   - method: GET
     path: '/cline_mcp_settings.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # Windsurf (Codeium)
@@ -72,7 +72,7 @@ http:
   - method: GET
     path: '/mcp_config.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # VS Code Copilot (workspace-level)
@@ -80,15 +80,15 @@ http:
   - method: GET
     path: '/.vscode/mcp.json'
     matchers:
-      - body~="\"mcpServers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
-# Zed editor — context_servers is the MCP key in Zed
+# Zed editor
 # ──────────────────────────────────────────────
   - method: GET
     path: '/.config/zed/settings.json'
     matchers:
-      - body~="\"context_servers\"\s*:\s*\{"
+      - body~="^\s*\{"
 
 # ──────────────────────────────────────────────
 # Goose (Block Inc.) — YAML format
@@ -96,7 +96,7 @@ http:
   - method: GET
     path: '/.config/goose/config.yaml'
     matchers:
-      - body~="extensions\s*:\s*\n\s+-\s+name\s*:"
+      - body~="(?m)^\w+\s*:"
 
 # ──────────────────────────────────────────────
 # Generic .env with AI API keys
@@ -104,4 +104,4 @@ http:
   - method: GET
     path: '/.env'
     matchers:
-      - body~="(OPENAI_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|OPENROUTER_API_KEY|DEEPSEEK_API_KEY|HUNYUAN_API_KEY)\s*=\s*[A-Za-z0-9_\-]{16,}"
+      - body~="(?m)^[A-Z][A-Z0-9_]+=\S"
