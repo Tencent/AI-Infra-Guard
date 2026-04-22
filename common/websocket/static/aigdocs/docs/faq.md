@@ -14,10 +14,13 @@
   - [3.4 在内网服务器上导入镜像](#34-在内网服务器上导入镜像)
   - [3.5 启动容器](#35-启动容器)
 - [4. 推荐模型](#4-推荐模型)
-  - [4.1 MCP扫描推荐](#41-mcp扫描推荐)
-  - [4.2 越狱评估模型推荐](#42-越狱评估模型推荐)
+  - [4.1 Agent安全扫描推荐](#41-agent安全扫描推荐)
+  - [4.2 AI工具技能扫描推荐](#42-ai工具技能扫描推荐)
+  - [4.3 大模型安全体检模型推荐](#43-大模型安全体检模型推荐)
+  - [4.4 AI基础设施安全扫描推荐](#44-ai基础设施安全扫描推荐)
 - [5. 使用自定义评估数据集时越狱评估不准确](#5-使用自定义评估数据集时越狱评估不准确)
 - [6. 添加模型失败](#6-添加模型失败)  
+- [7. 如何快速更新越狱评测集、AI应用指纹与漏洞库](#7-如何快速更新越狱评测集ai应用指纹与漏洞库)
 
 ---
 
@@ -129,14 +132,32 @@ docker-compose -f docker-compose.images.yml up -d
 ```
 
 ## 4. 推荐模型
-### 4.1 MCP扫描推荐
+### 4.1 Agent安全扫描推荐
+
+Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
+
+**最优性能：**
+- Claude-4.6-Opus
+- Gemini-3.1-Pro
+- GLM-5.1
+
+**性价比之选：**
+- Qwen-3.6
+- Kimi-2.5
+- Gemini-3-Flash
+
+> 模型迭代速度较快，建议定期参考
+> [OpenRouter Rankings](https://openrouter.ai/rankings)
+> 选择当前排名靠前的模型。
+
+### 4.2 AI工具技能扫描推荐
 - GLM4.6
 - DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
-### 4.2 越狱评估模型推荐
+### 4.3 大模型安全体检模型推荐
 
 在使用自定义数据集时，选择合适的安全评估模型可以显著提高自动化评估的准确性。您可以从两个维度平衡模型选择：**语言**和**场景**。
 
@@ -157,6 +178,9 @@ docker-compose -f docker-compose.images.yml up -d
 - **危险武器或高风险行为测试：**  
   Claude模型表现最佳。从成本效益考虑，Gemini模型也是不错的选择。  
 
+### 4.4 AI基础设施安全扫描推荐
+- GPT5 或以上
+
 ## 5. 使用自定义评估数据集时越狱评估不准确
 
 您可以根据数据集的特点调整评估标准。如需修改评估标准，请修改该文件：[https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py](https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py)
@@ -164,3 +188,19 @@ docker-compose -f docker-compose.images.yml up -d
 ## 6. 添加模型失败
 
 A.I.G 支持标准 OpenAI 格式的模型接口。如果您的模型不是 OpenAI 格式，可以使用模型 API 网关进行格式转换，例如 [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm)。
+
+## 7. 如何快速更新越狱评测集、AI应用指纹与漏洞库
+
+A.I.G 的越狱评测集、AI 应用指纹、漏洞库数据会随主仓库 [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 持续迭代。您无需重新部署即可在页面内一键拉取最新数据。
+
+**操作步骤：**
+
+1. 打开页面左下角的 **设置** → **插件管理**。
+2. 点击标题右侧的 **更新数据** 按钮，系统会从 GitHub 主仓库同步最新的越狱评测集、AI 应用指纹和漏洞库数据。
+3. 同步完成后会弹出提示
+
+![更新数据操作示意](./assets/faq1.png)
+
+> **说明：**
+> - 该功能依赖服务端访问 `https://github.com` 的能力。若您的服务部署在无法访问外网的内网环境，请在外网机器上从 [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 仓库根目录下载 `data` 目录，并将其完整覆盖至部署 A.I.G 服务器的代码根目录即可完成更新。
+> - 更新过程为异步任务（可能持续数十秒至几分钟），点击按钮后请耐心等待结果提示，期间无需重复点击。

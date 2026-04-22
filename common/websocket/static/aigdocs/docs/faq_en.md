@@ -14,10 +14,13 @@
   - [3.4 Import Images on Internal Network Server](#34-import-images-on-internal-network-server)
   - [3.5 Start Containers](#35-start-containers)
 - [4. Recommended Models](#4-recommended-models)
-  - [4.1 Recommended Choices for MCP Scan](#41-recommended-choices-for-mcp-scan)
-  - [4.2 Recommended Choices for Jailbreak Evaluation Models](#42-recommended-choices-for-jailbreak-evaluation-models)
+  - [4.1 Recommended Choices for Agent Scan](#41-recommended-choices-for-agent-scan)
+  - [4.2 Recommended Choices for AI Tool Skill Scan](#42-recommended-choices-for-ai-tool-skill-scan)
+  - [4.3 Recommended Choices for Jailbreak Evaluation Models](#43-recommended-choices-for-jailbreak-evaluation-models)
+  - [4.4 Recommended Choices for AI Infra Scan](#44-recommended-choices-for-ai-infra-scan)
 - [5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets](#5-inaccurate-jailbreak-detection-with-custom-evaluation-datasets)
 - [6. Adding Model Failed](#6-adding-model-failed)  
+- [7. How to Quickly Update Jailbreak Datasets, AI Fingerprints and Vulnerability Database](#7-how-to-quickly-update-jailbreak-datasets-ai-fingerprints-and-vulnerability-database)
 
 ---
 
@@ -129,14 +132,32 @@ docker-compose -f docker-compose.images.yml up -d
 ```
 
 ## 4. Recommended Models
-### 4.1 Recommended Choices for MCP Scan
+### 4.1 Recommended Choices for Agent Scan
+
+Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool calling, and task planning**.
+
+**Best Performance:**
+- Claude-4.6-Opus
+- Gemini-3.1-Pro
+- GLM-5.1
+
+**Cost-Effective Choices:**
+- Qwen-3.6
+- Kimi-2.5
+- Gemini-3-Flash
+
+> Models iterate quickly. It is recommended to regularly refer to
+> [OpenRouter Rankings](https://openrouter.ai/rankings)
+> and choose the top-ranked models.
+
+### 4.2 Recommended Choices for AI Tool Skill Scan
 - GLM4.6
 - DeepSeek-V3.2
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
 
-### 4.2 Recommended Choices for Jailbreak Evaluation Models
+### 4.3 Recommended Choices for Jailbreak Evaluation Models
 
 When working with a custom dataset, selecting an appropriate safety evaluation model can significantly improve the accuracy of automated assessments. You can balance model selection from two dimensions: **language** and **scenario**.
 
@@ -157,6 +178,9 @@ When working with a custom dataset, selecting an appropriate safety evaluation m
 - **Dangerous weapons or high-risk behavior testing:**  
   Claude models perform best. For cost-effectiveness, Gemini models are also an option.  
 
+### 4.4 Recommended Choices for AI Infra Scan
+- GPT5+
+
 ## 5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets
 
 You can adjust the evaluation criteria based on the characteristics of your dataset. To modify the evaluation standards, please refer to the template file at: [https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py](https://github.com/Tencent/AI-Infra-Guard/blob/main/AIG-PromptSecurity/deepteam/metrics/harm/template.py)
@@ -164,3 +188,19 @@ You can adjust the evaluation criteria based on the characteristics of your data
 ## 6. Adding Model Failed
 
 A.I.G supports model interfaces in standard OpenAI format. If your model is not in OpenAI format, you can use a model API gateway to perform format conversion, such as [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm).
+
+## 7. How to Quickly Update Jailbreak Datasets, AI Fingerprints and Vulnerability Database
+
+The jailbreak datasets, AI application fingerprints, and vulnerability database in A.I.G continuously evolve along with the main [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) repository. You can pull the latest data directly from the UI with one click — no redeployment required.
+
+**Steps:**
+
+1. Open **Settings** → **Plugin Management** from the bottom-left corner of the page.
+2. Click the **Update Data** button next to the title. The system will sync the latest jailbreak datasets, AI application fingerprints, and vulnerability database from the main GitHub repository.
+3. A toast notification will be shown once the sync completes.
+
+![Update Data Operation](./assets/faq1-en.png)
+
+> **Notes:**
+> - This feature requires the server to access `https://github.com`. If A.I.G is deployed in an isolated network without internet access, download the `data` directory from the root of the [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) repository on an internet-connected machine, and overwrite the `data` directory at the root of your A.I.G deployment to complete the update.
+> - The update runs as an asynchronous job (may take from a few seconds to several minutes). After clicking the button, please wait for the final toast — there is no need to click repeatedly.
