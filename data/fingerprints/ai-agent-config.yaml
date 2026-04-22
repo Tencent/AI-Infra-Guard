@@ -1,0 +1,53 @@
+info:
+  name: AI-Agent-Config
+  author: 腾讯朱雀实验室
+  severity: high
+  desc: AI Agent 配置文件（如 claude_desktop_config.json、.cursor/mcp.json 等）通过 HTTP 可公开访问，可能泄露 MCP Server 地址、API 密钥等敏感信息。
+  metadata:
+    product: AI-Agent-Config
+    vendor: various
+http:
+  - method: GET
+    path: '/claude_desktop_config.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.claude.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.mcp.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.cursor/mcp.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.continue/config.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/cline_mcp_settings.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/mcp_config.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.vscode/mcp.json'
+    matchers:
+      - body="mcpServers"
+  - method: GET
+    path: '/.config/zed/settings.json'
+    matchers:
+      - body="context_servers"
+  - method: GET
+    path: '/.config/goose/config.yaml'
+    matchers:
+      - body="extensions"
+  - method: GET
+    path: '/.env'
+    matchers:
+      - body="OPENAI_API_KEY" || body="ANTHROPIC_API_KEY" || body="GEMINI_API_KEY" || body="OPENROUTER_API_KEY"

@@ -1,0 +1,42 @@
+info:
+  name: AI-Agent-Config
+  cve: ""
+  summary: AI Agent 配置文件公开访问导致敏感信息泄露（MCP Server 配置、API 密钥）
+  details: |
+    AI Agent 工具（如 Claude Desktop、Cursor、Cline、Windsurf、Continue 等）将 MCP（Model Context Protocol）Server
+    的配置信息存储在特定路径的 JSON/YAML 配置文件中。这些文件通常包含以下敏感信息：
+
+    - MCP Server 地址及访问端点
+    - API 密钥（如 OPENAI_API_KEY、ANTHROPIC_API_KEY 等）
+    - 本地命令执行配置（command、args 字段）
+    - 内部服务地址及认证信息
+
+    当目标服务器错误地将这些配置文件通过 HTTP 对外暴露时，攻击者可以：
+    1. 获取配置的 AI 服务端点及认证凭据，进行未授权访问
+    2. 枚举内网 AI 基础设施部署情况
+    3. 窃取 API 密钥造成经济损失或数据泄露
+
+    涉及的常见配置文件路径：
+    - claude_desktop_config.json（Claude Desktop）
+    - .claude.json / .mcp.json（Claude Code）
+    - .cursor/mcp.json（Cursor）
+    - .continue/config.json（Continue）
+    - cline_mcp_settings.json（Cline/Roo-Cline）
+    - mcp_config.json（Windsurf）
+    - .vscode/mcp.json（VS Code Copilot）
+    - .config/zed/settings.json（Zed）
+    - .config/goose/config.yaml（Goose）
+    - .env（含 AI API 密钥的环境变量文件）
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: |
+    1. 确保 Web 服务器不将上述配置文件暴露在公网可访问路径下。
+    2. 在 Nginx/Apache 等 Web 服务器中配置规则，拒绝访问 .json、.yaml、.env 等配置文件：
+       Nginx: location ~* \.(json|yaml|env)$ { deny all; }
+    3. 将配置文件存放在 Web 根目录之外。
+    4. 定期审计服务器上可被 HTTP 访问的文件列表。
+    5. 对已泄露的 API 密钥立即进行轮换。
+references:
+  - https://modelcontextprotocol.io/quickstart/user
+  - https://github.com/Tencent/AI-Infra-Guard
+rule: ""

@@ -1,0 +1,43 @@
+info:
+  name: AI-Agent-Config
+  cve: ""
+  summary: AI agent config file publicly accessible — MCP server configuration and API keys exposed
+  details: |
+    AI agent tools (Claude Desktop, Cursor, Cline, Windsurf, Continue, etc.) store their
+    MCP (Model Context Protocol) server configurations in well-known JSON/YAML config files.
+    These files typically contain sensitive information including:
+
+    - MCP server URLs and endpoints
+    - API keys (e.g., OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY)
+    - Local command execution configurations (command, args fields)
+    - Internal service addresses and authentication credentials
+
+    When a server misconfigures its web root to expose these files over HTTP, an attacker can:
+    1. Obtain AI service endpoints and credentials for unauthorized access
+    2. Enumerate the internal AI infrastructure deployment
+    3. Steal API keys leading to financial loss or data breach
+
+    Common config file paths covered:
+    - claude_desktop_config.json (Claude Desktop)
+    - .claude.json / .mcp.json (Claude Code)
+    - .cursor/mcp.json (Cursor)
+    - .continue/config.json (Continue)
+    - cline_mcp_settings.json (Cline / Roo-Cline VSCode extension)
+    - mcp_config.json (Windsurf)
+    - .vscode/mcp.json (VS Code Copilot MCP)
+    - .config/zed/settings.json (Zed)
+    - .config/goose/config.yaml (Goose)
+    - .env (environment variable files containing AI API keys)
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: |
+    1. Ensure the web server does not serve the above config files from a publicly accessible path.
+    2. Configure deny rules in Nginx/Apache to block access to config file extensions:
+       Nginx: location ~* \.(json|yaml|env)$ { deny all; }
+    3. Store config files outside the web root directory.
+    4. Periodically audit which files are reachable via HTTP on your server.
+    5. Immediately rotate any API keys that may have been exposed.
+references:
+  - https://modelcontextprotocol.io/quickstart/user
+  - https://github.com/Tencent/AI-Infra-Guard
+rule: ""
