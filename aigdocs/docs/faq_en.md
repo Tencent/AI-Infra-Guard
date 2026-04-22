@@ -20,6 +20,7 @@
   - [4.4 Recommended Choices for AI Infra Scan](#44-recommended-choices-for-ai-infra-scan)
 - [5. Inaccurate Jailbreak Detection with Custom Evaluation Datasets](#5-inaccurate-jailbreak-detection-with-custom-evaluation-datasets)
 - [6. Adding Model Failed](#6-adding-model-failed)  
+- [7. How to Quickly Update Jailbreak Datasets, AI Fingerprints and Vulnerability Database](#7-how-to-quickly-update-jailbreak-datasets-ai-fingerprints-and-vulnerability-database)
 
 ---
 
@@ -187,3 +188,19 @@ You can adjust the evaluation criteria based on the characteristics of your data
 ## 6. Adding Model Failed
 
 A.I.G supports model interfaces in standard OpenAI format. If your model is not in OpenAI format, you can use a model API gateway to perform format conversion, such as [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm).
+
+## 7. How to Quickly Update Jailbreak Datasets, AI Fingerprints and Vulnerability Database
+
+The jailbreak datasets, AI application fingerprints, and vulnerability database in A.I.G continuously evolve along with the main [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) repository. You can pull the latest data directly from the UI with one click — no redeployment required.
+
+**Steps:**
+
+1. Open **Settings** → **Plugin Management** from the bottom-left corner of the page.
+2. Click the **Update Data** button next to the title. The system will sync the latest jailbreak datasets, AI application fingerprints, and vulnerability database from the main GitHub repository.
+3. A toast notification will be shown once the sync completes.
+
+![Update Data Operation](./assets/faq1-en.png)
+
+> **Notes:**
+> - This feature requires the server to access `https://github.com`. If A.I.G is deployed in an isolated network without internet access, download the `data` directory from the root of the [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) repository on an internet-connected machine, and overwrite the `data` directory at the root of your A.I.G deployment to complete the update.
+> - The update runs as an asynchronous job (may take from a few seconds to several minutes). After clicking the button, please wait for the final toast — there is no need to click repeatedly.
