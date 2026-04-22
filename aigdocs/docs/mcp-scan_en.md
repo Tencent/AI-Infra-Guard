@@ -1,5 +1,5 @@
-# AI Tool Skill Scan
-A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. A.I.G can detect the following common AI tool skill security risks, with continuous updates:
+# AI Tool Protocol Scan
+A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. A.I.G can detect the following common AI tool protocol security risks, with continuous updates:
 
 <table>
 <thead>
@@ -71,7 +71,7 @@ A.I.G leverages AI agents for comprehensive MCP Server and Skills security asses
 </tbody>
 </table>
 
-A.I.G's AI Tool Skill scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+A.I.G's AI tool Protocol scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
 
 ### Add a Model API for AI tool Detection
 
@@ -79,21 +79,21 @@ A.I.G's AI Tool Skill scanning capability is entirely driven by an AI agent. The
 
 ## Method 1: AI tool Source Code Scan
 
-1. Select "AI Tool Skill Scan"
+1. Select "AI Tool Protocol Scan"
 2. Upload the AI tool source code as an attachment
 ![image-mcp4](./assets/mcp4-en.png)
 3. Start Scan
 
 
 ## Method 2: Scan an AI tool project from GitHub
-1. Select "AI Tool Skill Scan"
+1. Select "AI Tool Protocol Scan"
 ![image-mcp5](./assets/mcp5-en.png)
 2. Enter the GitHub repository URL in the input box
 3. Start Scan
 
 ## Method 3: Remote MCP Service Scan
 
-1. Select "AI Tool Skill Scan"
+1. Select "AI Tool Protocol Scan"
 2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `http://127.0.0.1:9000/sse`
 3. Start Scan
 ![image-mcp8](./assets/mcp8-en.png)
@@ -107,6 +107,49 @@ A.I.G's AI Tool Skill scanning capability is entirely driven by an AI agent. The
 - Kimi-K2-Instruct
 - Qwen3-Coder-480B
 - Hunyuan-Turbos
+
+## Multi-Turn Automated Red Teaming
+
+A.I.G includes a built-in multi-turn automated red-teaming module for MCP Servers. Three LLM roles — Attacker, Target, and Evaluator — collaborate to perform adversarial testing against MCP Server source code.
+
+### Supported Attack Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| **Crescendo** | Progressive multi-turn escalation: establish trust → probe boundaries → escalate gradually → launch attack |
+| **TAP** (Tree of Attacks with Pruning) | Generates multiple attack variants per round, then uses a two-stage pruning process to retain the optimal path, advancing layer by layer |
+
+### Predefined Attack Targets (OWASP Agentic Top 10 aligned)
+
+| Target ID | Description |
+|-----------|-------------|
+| `data_exfiltration` | Data exfiltration |
+| `indirect_prompt_injection` | Indirect prompt injection |
+| `ssrf_via_agent` | SSRF via agent |
+| `rce_via_tool` | RCE via tool |
+| `privilege_escalation` | Privilege escalation |
+| `tool_poisoning` | Tool poisoning |
+
+### Usage
+
+```python
+import asyncio
+from redteam import RedTeamOrchestrator, generate_report
+
+async def main():
+    orch = RedTeamOrchestrator(
+        api_key="your-api-key",
+        base_url="https://openrouter.ai/api/v1",
+        model="deepseek/deepseek-v3.2-exp",
+        repo_dir="path/to/your/mcp/server/repo",
+    )
+    result = await orch.run("data_exfiltration", strategy_name="crescendo", max_total_rounds=8)
+    print(generate_report(result))
+
+asyncio.run(main())
+```
+
+The red-teaming module code is located in `mcp-scan/redteam/`. Run it from the `mcp-scan` project root directory to correctly resolve internal module dependencies.
 
 ## MCP Plugins
 
