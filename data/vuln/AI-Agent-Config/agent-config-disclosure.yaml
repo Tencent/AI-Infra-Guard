@@ -20,6 +20,8 @@ info:
     - claude_desktop_config.json（Claude Desktop）
     - .claude.json / .mcp.json（Claude Code）
     - .cursor/mcp.json（Cursor）
+    - .trae/mcp.json（Trae IDE，字节跳动）
+    - mcp_settings.json（CodeBuddy，腾讯云代码助手）
     - .continue/config.json（Continue）
     - cline_mcp_settings.json（Cline/Roo-Cline）
     - mcp_config.json（Windsurf）
@@ -35,7 +37,7 @@ info:
        Nginx: location ~* \.(json|yaml|env)$ { deny all; }
     3. 将配置文件存放在 Web 根目录之外。
     4. 定期审计服务器上可被 HTTP 访问的文件列表。
-    5. 对已泄露的 API 密钥立即进行轮换。
+    5. 对已泄露的 API 密钥（OPENAI_API_KEY、ANTHROPIC_API_KEY、DEEPSEEK_API_KEY、HUNYUAN_API_KEY 等）立即进行轮换。
 references:
   - https://modelcontextprotocol.io/quickstart/user
   - https://github.com/Tencent/AI-Infra-Guard

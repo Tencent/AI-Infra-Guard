@@ -2,52 +2,109 @@ info:
   name: AI-Agent-Config
   author: 腾讯朱雀实验室
   severity: high
-  desc: AI Agent 配置文件（如 claude_desktop_config.json、.cursor/mcp.json 等）通过 HTTP 可公开访问，可能泄露 MCP Server 地址、API 密钥等敏感信息。
+  desc: AI Agent 配置文件（如 claude_desktop_config.json、.cursor/mcp.json、.trae/mcp.json 等）通过 HTTP 可公开访问，可能泄露 MCP Server 地址、API 密钥等敏感信息。
   metadata:
     product: AI-Agent-Config
     vendor: various
+
+# ──────────────────────────────────────────────
+# Claude Desktop / Claude Code
+# ──────────────────────────────────────────────
 http:
   - method: GET
     path: '/claude_desktop_config.json'
     matchers:
       - body="mcpServers"
+
   - method: GET
     path: '/.claude.json'
     matchers:
       - body="mcpServers"
+
   - method: GET
     path: '/.mcp.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Cursor
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.cursor/mcp.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Trae IDE (ByteDance) — project-level & user-level
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.trae/mcp.json'
+    matchers:
+      - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# CodeBuddy (Tencent Cloud) — VSCode extension globalStorage
+# macOS: ~/Library/Application Support/Code/User/globalStorage/Tencent.codebuddy-vscode/mcp_settings.json
+# Linux: ~/.config/Code/User/globalStorage/Tencent.codebuddy-vscode/mcp_settings.json
+# Windows: %APPDATA%\Code\User\globalStorage\Tencent.codebuddy-vscode\mcp_settings.json
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/mcp_settings.json'
+    matchers:
+      - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Continue
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.continue/config.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Cline / Roo-Cline (VSCode extension)
+# ──────────────────────────────────────────────
   - method: GET
     path: '/cline_mcp_settings.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Windsurf (Codeium)
+# ──────────────────────────────────────────────
   - method: GET
     path: '/mcp_config.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# VS Code Copilot (workspace-level)
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.vscode/mcp.json'
     matchers:
       - body="mcpServers"
+
+# ──────────────────────────────────────────────
+# Zed editor
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.config/zed/settings.json'
     matchers:
       - body="context_servers"
+
+# ──────────────────────────────────────────────
+# Goose (Block Inc.)
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.config/goose/config.yaml'
     matchers:
       - body="extensions"
+
+# ──────────────────────────────────────────────
+# Generic .env with AI API keys
+# ──────────────────────────────────────────────
   - method: GET
     path: '/.env'
     matchers:
-      - body="OPENAI_API_KEY" || body="ANTHROPIC_API_KEY" || body="GEMINI_API_KEY" || body="OPENROUTER_API_KEY"
+      - body="OPENAI_API_KEY" || body="ANTHROPIC_API_KEY" || body="GEMINI_API_KEY" || body="OPENROUTER_API_KEY" || body="DEEPSEEK_API_KEY" || body="HUNYUAN_API_KEY"

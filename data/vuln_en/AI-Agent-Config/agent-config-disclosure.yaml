@@ -21,6 +21,8 @@ info:
     - claude_desktop_config.json (Claude Desktop)
     - .claude.json / .mcp.json (Claude Code)
     - .cursor/mcp.json (Cursor)
+    - .trae/mcp.json (Trae IDE, ByteDance)
+    - mcp_settings.json (CodeBuddy, Tencent Cloud Code Assistant)
     - .continue/config.json (Continue)
     - cline_mcp_settings.json (Cline / Roo-Cline VSCode extension)
     - mcp_config.json (Windsurf)
@@ -36,7 +38,7 @@ info:
        Nginx: location ~* \.(json|yaml|env)$ { deny all; }
     3. Store config files outside the web root directory.
     4. Periodically audit which files are reachable via HTTP on your server.
-    5. Immediately rotate any API keys that may have been exposed.
+    5. Immediately rotate any API keys that may have been exposed (OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY, HUNYUAN_API_KEY, etc.).
 references:
   - https://modelcontextprotocol.io/quickstart/user
   - https://github.com/Tencent/AI-Infra-Guard
