@@ -60,7 +60,7 @@
 
 ## 🚀 새로운 소식
 
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Agent Scan에 탈옥 탐지 추가; 노출된 AI Agent 설정 파일 탐지.
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 노출된 AI Agent 구성 파일 탐지(13개 경로); 탈옥 데이터셋 및 취약점 DB 수동 업데이트 지원.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 자체 서명 인증서가 있는 HTTPS 모델 엔드포인트를 이제 지원합니다.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — AI 컴포넌트 커버리지가 55개로 확장되었습니다. crewai, kubeai, lobehub가 추가되었습니다.
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHub에 3개의 신규 skill 추가(`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) 및 수동 작업 중지 기능이 추가되었습니다.

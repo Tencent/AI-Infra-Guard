@@ -60,7 +60,7 @@
 
 ## 🚀 最新情報
 
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Agent Scanにジェイルブレイク検出を追加；AIエージェント設定ファイルの露出を検出可能に。
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 公開されたAIエージェント設定ファイルを検出（13種のパス）；ジェイルブレイクデータセットと脆弱性DBの手動更新に対応。
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自己署名証明書の HTTPS モデルエンドポイントに対応。
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 対応AIコンポーネントが55種に拡大；crewai・kubeai・lobehubを新規追加。
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHubに3つの新スキル（`edgeone-clawscan`・`edgeone-skill-scanner`・`aig-scanner`）を公開。タスク手動停止に対応。

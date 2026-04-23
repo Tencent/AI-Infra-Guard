@@ -60,7 +60,7 @@
 
 ## 🚀 What's New
 
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Jailbreak detection for Agent Scan; detects exposed AI agent config files.
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Detects exposed AI agent config files (13 paths); manual update for jailbreak datasets and vuln databases.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — HTTPS model endpoints with self-signed certificates now supported.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Coverage expanded to 55 AI components; added crewai, kubeai, lobehub.
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Three new skills on ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + manual task stop.
