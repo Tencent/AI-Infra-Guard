@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.5] - 2026-04-23
+
+### Added
+- **Agent Scan**: Add jailbreak detection support and implement ModelJailbreak task (45d171b)
+- **Vuln Rules**: Detect exposed AI agent config files (claude_desktop_config.json, mcp.json, etc.) (18049bc)
+- **Vuln Rules**: Add Trae IDE and CodeBuddy MCP config paths, extend .env key patterns (59f4bd9)
+- **Data Sync**: Replace zip download with git clone, remove github_token dependency (b7ce189)
+- **Manual Updates**: Support manual updates to the latest jailbreak datasets, fingerprints, and vulnerability databases (c4fe1c2)
+- **Update API**: Merge update-status into update-data endpoint (4131bdb)
+
+### Fixed
+- **Vuln Rules**: Revert .env matcher to API key pattern matching (7d12568)
+- **Vuln Rules**: Remove mcpServers field dependency, match on file format only (4513987)
+- **Vuln Rules**: Replace substring match with regex to reduce false positives (2238a06)
+- **Update API**: Return status=1 when last sync failed (44b86ab)
+- **Update API**: Unify response format to {status, message, data} (5abd3f6)
+- **Update API**: Remove request params, always sync main branch (17d0ee3)
+- **Data Sync**: Harden update_api against CodeQL path-injection and command-injection alerts (e8fcd14)
+- **Vuln Rules**: Update GHSA-8fmp-37rc-p5g7.yaml and OpenClaw versioning rule (108108d, c85e88f)
+
+### Changed
+- **CI**: Add workflow_dispatch trigger to yaml-lint.yml (8111a21)
+- **Docs**: Add AI-Agent-Config to component table in ai-infra-scan docs (9d6a985)
+- **Docs**: Fix brand name AIG -> A.I.G in api_data_update.md (6b28158)
+- **Docs**: Update AI component count across all 9 README languages (ba347f3, 40afacc)
+
+### Contributors
+Special thanks to @zhuque, @boyhack, @aigsec, @aig-doc-bot
+
+---
+
 ## [v4.1.4] - 2026-04-17
 
 ### Security
