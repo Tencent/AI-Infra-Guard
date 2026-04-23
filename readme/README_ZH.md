@@ -58,7 +58,7 @@
 
 ## 🚀 最新动态
 
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Agent Scan 新增越狱检测；可发现暴露的 AI Agent 配置文件。
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 可检测暴露的 AI Agent 配置文件（13 种路径）；支持手动更新越狱数据集与漏洞库。
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自签名证书的 HTTPS 模型端点现已支持。
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 覆盖扩展至 55 种 AI 组件，新增 crewai、kubeai、lobehub。
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHub 上线三大 Skill（`edgeone-clawscan`、`edgeone-skill-scanner`、`aig-scanner`），支持手动停止任务。
