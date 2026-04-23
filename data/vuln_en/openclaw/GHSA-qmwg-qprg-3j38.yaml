@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qmwg-qprg-3j38
+  summary: OpenClaw Browser interaction routes could pivot into local CDP and regain file reads
+  details: >-
+    Summary
+
+
+    Browser interaction routes could pivot into local CDP and regain file reads.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.9
+
+    - Patched versions: >= 2026.4.9
+
+
+    Impact
+
+
+    Browser act/evaluate interactions could trigger navigation into the local CDP origin and then create or read disallowed
+    file:// pages despite direct navigation guards.
+
+
+    Technical Details
+
+
+    The fix re-checks browser URLs after interaction-driven navigations and blocks targets that violate the configured navigation
+    policy.
+
+
+    Fix
+
+
+    The issue was fixed in 63226. The first stable tag containing the fix is v2026.4.9, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @tdjackey for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.9 or later. The issue was fixed in #63226. The first stable tag containing
+    the fix is v2026.4.9, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qmwg-qprg-3j38
+rule: version < "2026.4.9"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qmwg-qprg-3j38

@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gj9q-8w99-mp8j
+  summary: OpenClaw exec 脚本预检中存在 TOCTOU 读取竞争漏洞
+  details: >-
+    摘要
+
+
+    OpenClaw 的 exec 脚本预检验证器此前通过可变路径名对脚本进行验证后再读取。本地竞争条件可在验证与读取之间替换目标文件，导致预检分析实际检查的文件与通过工作区边界验证的文件不一致（即 TOCTOU：检查时间与使用时间不一致漏洞）。
+
+
+    受影响包 / 版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.10
+
+    - 已修复版本：>= 2026.4.10
+
+
+    影响
+
+
+    影响有限。此漏洞并非通过预检错误路径实现任意完整文件泄露。验证器仅会暴露衍生的预检内容，例如匹配的 token、行号，或某分支中第一个非空 JavaScript 行。此外，利用该漏洞还需要攻击者具备在预检窗口期间修改相关工作区路径的能力。
+
+
+    尽管如此，这仍是预检代码中一个真实存在的 TOCTOU 边界漏洞，而预检代码本应在执行前对工作区本地脚本文件进行可信推断。通过初始边界验证的文件身份，可能与后续被读取用于预检分析的文件身份不同。
+
+
+    技术细节
+
+
+    漏洞存在于 validateScriptFileForShellBleed 函数中，该函数对路径验证和文件读取分开执行。由于读取操作基于路径进行，具有工作区路径写入权限的攻击者可在验证通过后、预检读取前竞争替换目标文件。
+
+
+    修复方案
+
+
+    PR #62333 将"先检查后读取"的流程替换为使用共享 readFileWithinRoot 辅助函数的固定安全打开/读取路径。修复后的路径对已打开的文件身份执行边界验证，不再依赖可变路径名进行最终预检读取。回归测试覆盖了打开前和打开后的文件替换窗口。
+
+
+    致谢
+
+
+    感谢 @kikayli 报告此问题。
+  cvss: ''
+  severity: LOW
+  security_advise: 升级 openclaw 至 >= 2026.4.10 或更高版本。PR #62333 将"先检查后读取"流程替换为使用共享 readFileWithinRoot 辅助函数的固定安全打开/读取路径。修复后的路径对已打开的文件身份执行边界验证，不再依赖可变路径名进行最终预检读取。回归测试覆盖了打开前和打开后的文件替换窗口。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gj9q-8w99-mp8j
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gj9q-8w99-mp8j

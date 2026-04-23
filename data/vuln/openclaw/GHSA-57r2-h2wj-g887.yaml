@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-57r2-h2wj-g887
+  summary: OpenClaw 隔离 Cron 感知事件被记录为受信任的系统事件
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    由 Webhook 触发的隔离 Cron Agent 运行所产生的输出，可能在未设置 trusted: false 的情况下被加入主会话感知流。这导致该事件以受信任的
+    System: 事件形式呈现，而非不受信任的系统事件。
+
+
+    此问题属于信任标签标记缺陷，可增强提示注入攻击的危害，但其本身不能绕过网关鉴权、工具策略或沙箱隔离机制。严重等级为低危。
+
+
+    修复方案
+
+
+    OpenClaw 现已为隔离 Cron 感知事件保留不受信任标签，并通过 Cron 投递辅助函数正确传递信任标志。
+
+
+    修复提交：
+
+
+    - f61896b03cc7031f51106a04566831f4ac2a0bd7
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: LOW
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已为隔离 Cron 感知事件保留不受信任标签，并通过 Cron 投递辅助函数正确传递信任标志。修复提交：\
+    \ - f61896b03cc7031f51106a04566831f4ac2a0bd7"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-57r2-h2wj-g887
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-57r2-h2wj-g887

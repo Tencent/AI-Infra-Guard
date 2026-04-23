@@ -1,0 +1,28 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gfg9-5357-hv4c
+  summary: OpenClaw Webchat audio embedding could read local files without local-root containment
+  details: "Impact\r\n\r\nOpenClaw deployments before 2026.4.15 could embed host-local audio files into webchat responses\
+    \ without applying the local media root containment check used by other media-serving paths.\r\n\r\nIf an attacker could\
+    \ influence an agent or tool-produced ReplyPayload.mediaUrl, the webchat audio embedding helper could resolve an absolute\
+    \ local path or file: URL, read an audio-like file under the size cap, and base64-encode it into the webchat media response.\
+    \ This crossed the model/tool-output boundary into a host file read. Prompt injection or malicious tool output is a delivery\
+    \ mechanism; the security boundary failure is the missing local-root containment check.\r\n\r\nThe impact is narrow: the\
+    \ file had to be readable by the gateway process, have an audio-like extension, and fit within the webchat audio size\
+    \ cap. The issue exposed contents into the webchat assistant/media transcript path; it was not a general remote filesystem\
+    \ API.\r\n\r\nAffected Packages / Versions\r\n\r\n- Package: openclaw on npm\r\n- Affected versions: <= 2026.4.14\r\n\
+    - Patched version: 2026.4.15\r\n\r\nThe latest public release, 2026.4.21, also contains the fix.\r\n\r\nPatches\r\n\r\n\
+    The public fix threads the applicable local media roots into the webchat audio embedding path and calls assertLocalMediaAllowed\
+    \ before local audio content is read. Current main also includes an additional trustedLocalMedia gate so untrusted model/tool\
+    \ payloads cannot opt into local audio embedding.\r\n\r\nFix commit:\r\n\r\n- 6e58f1f9f54bca1fea1268ec0ee4c01a2af03dde\r\
+    \n\r\nWorkarounds\r\n\r\nUpgrade to openclaw@2026.4.15 or later. The latest public release, 2026.4.21, is fixed. Before\
+    \ upgrading, avoid exposing webchat sessions to untrusted prompt/tool content that can influence reply media URLs.\r\n\
+    \r\nCredits\r\n\r\nThanks @zsxsoft for reporting."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.15 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gfg9-5357-hv4c
+rule: version <= "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gfg9-5357-hv4c

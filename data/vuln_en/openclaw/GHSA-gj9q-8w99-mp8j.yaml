@@ -1,0 +1,69 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gj9q-8w99-mp8j
+  summary: OpenClaw TOCTOU read in exec script preflight
+  details: >-
+    Summary
+
+
+    OpenClaw's exec script preflight validator previously validated and then read a script by mutable pathname. A local race
+    could swap the path between validation and read, causing preflight analysis to inspect a different file identity than
+    the one that passed the workspace boundary check.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.10
+
+    - Patched versions: >= 2026.4.10
+
+
+    Impact
+
+
+    The impact is limited. This was not arbitrary full-file disclosure through the preflight error path. The validator only
+    surfaced derived preflight content, such as a matched token, a line number, or the first non-empty JavaScript line in
+    one branch. Exploitation also required the ability to mutate the relevant workspace path during the preflight window.
+
+
+    Still, this was a real TOCTOU boundary bug in code that is supposed to reason about workspace-local script files before
+    execution. A file identity that passed the initial boundary validation could differ from the identity that was later read
+    for preflight analysis.
+
+
+    Technical Details
+
+
+    The vulnerable flow performed separate path validation and file reads in validateScriptFileForShellBleed. Because the
+    read was path-based, an attacker with write access to the workspace path could race replacement of the target after validation
+    but before preflight read.
+
+
+    Fix
+
+
+    PR 62333 replaced the check-then-read flow with a pinned safe-open/read path using the shared readFileWithinRoot helper.
+    The fixed path performs boundary verification around the opened file identity and avoids relying on a mutable pathname
+    for the final preflight read. Regression tests cover both pre-open and post-open swap windows.
+
+
+    Credits
+
+
+    Thanks to @kikayli for reporting this issue.
+  cvss: ''
+  severity: LOW
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. PR #62333 replaced the check-then-read flow with a pinned safe-open/read
+    path using the shared readFileWithinRoot helper. The fixed path performs boundary verification around the opened file
+    identity and avoids relying on a mutable pathname for the final preflight read. Regression tests cover both pre-open and
+    post-open swap windows.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gj9q-8w99-mp8j
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gj9q-8w99-mp8j

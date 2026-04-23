@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-72q8-jcmc-97wx
+  summary: OpenClaw 飞书卡片动作可能将私聊误分类为群组会话，导致绕过 dmPolicy 策略
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    飞书卡片动作（card-action）回调可能将私聊（DM）会话合成为群组会话的消息事件，从而跳过对卡片动作的 dmPolicy 策略执行。这意味着飞书私聊中的发送方可触发本应被严格
+    DM 策略阻断的卡片动作流程。
+
+
+    该问题仅限于飞书卡片动作处理逻辑。严重等级为中危。
+
+
+    修复方案
+
+
+    OpenClaw 现已在消息分发前解析飞书卡片动作的会话类型（包括在存储上下文不可用时通过 API 查询），并避免将私聊消息降级为群组处理流程。
+
+
+    修复提交：
+
+
+    - 90979d7c3ef7ec30b9f8aa6963a5e38d2f17d166
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已在消息分发前解析飞书卡片动作的会话类型（包括在存储上下文不可用时通过 API 查询），并避免将私聊消息降级为群组处理流程。修复提交：\
+    \ - 90979d7c3ef7ec30b9f8aa6963a5e38d2f17d166"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-72q8-jcmc-97wx
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-72q8-jcmc-97wx

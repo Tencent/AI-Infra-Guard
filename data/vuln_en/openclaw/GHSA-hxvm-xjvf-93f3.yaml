@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hxvm-xjvf-93f3
+  summary: OpenClaw Workspace dotenv could override OpenClaw runtime-control environment variables
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Workspace .env loading did not reserve the OPENCLAW_ runtime-control namespace broadly enough. A malicious workspace could
+    set variables such as OPENCLAW_GIT_DIR before source-update or installer flows, potentially steering trusted OpenClaw
+    runtime behavior.
+
+
+    This requires running OpenClaw from an attacker-controlled workspace. Severity is medium.
+
+
+    Fix
+
+
+    OpenClaw now reserves the workspace OPENCLAW_ environment namespace and rejects workspace dotenv entries for OpenClaw
+    runtime-control variables.
+
+
+    Fix commit:
+
+
+    - 018494fa3ebb9145112e68b56fe1cb2e9f9a9ed6
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now reserves the workspace OPENCLAW_ environment namespace\
+    \ and rejects workspace dotenv entries for OpenClaw runtime-control variables. Fix commit: - 018494fa3ebb9145112e68b56fe1cb2e9f9a9ed6"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hxvm-xjvf-93f3
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hxvm-xjvf-93f3

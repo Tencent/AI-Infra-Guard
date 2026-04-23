@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-72q8-jcmc-97wx
+  summary: OpenClaw Feishu card actions could misclassify DMs and skip dmPolicy
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Feishu card-action callbacks could synthesize a message event with DM conversations classified as group conversations.
+    That skipped dmPolicy enforcement for card actions, so a sender in a Feishu DM could trigger card-action flows that should
+    have been blocked by a restrictive DM policy.
+
+
+    The issue is limited to Feishu card-action handling. Severity is medium.
+
+
+    Fix
+
+
+    OpenClaw now resolves Feishu card-action chat type before dispatch, including API lookup when stored context is unavailable,
+    and avoids falling through to group handling for DMs.
+
+
+    Fix commit:
+
+
+    - 90979d7c3ef7ec30b9f8aa6963a5e38d2f17d166
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now resolves Feishu card-action chat type before dispatch,\
+    \ including API lookup when stored context is unavailable, and avoids falling through to group handling for DMs. Fix commit:\
+    \ - 90979d7c3ef7ec30b9f8aa6963a5e38d2f17d166"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-72q8-jcmc-97wx
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-72q8-jcmc-97wx

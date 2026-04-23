@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mj59-h3q9-ghfh
+  summary: OpenClaw MCP stdio server env could load dangerous startup variables from workspace config
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Workspace MCP stdio configuration could pass dangerous process-startup environment variables such as NODE_OPTIONS, LD_PRELOAD,
+    or BASH_ENV to the spawned MCP server process. In a malicious workspace, this could make the MCP child load attacker-controlled
+    code when the operator starts a session that uses that MCP server.
+
+
+    The impact is limited to local/workspace trust boundaries and requires the operator to run OpenClaw in a workspace containing
+    the malicious MCP configuration. Severity is therefore medium, not high/critical.
+
+
+    Fix
+
+
+    OpenClaw now filters MCP stdio environment entries through the host environment safety denylist before spawning stdio
+    MCP servers.
+
+
+    Fix commits:
+
+
+    - 62fa5071896e95edc7f67d1cebc70a2859e283af
+
+    - 85d86ebc4bf3d2226d39d132a484f4f7a299fa1b
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now filters MCP stdio environment entries through the\
+    \ host environment safety denylist before spawning stdio MCP servers. Fix commits: - 62fa5071896e95edc7f67d1cebc70a2859e283af"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mj59-h3q9-ghfh
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mj59-h3q9-ghfh

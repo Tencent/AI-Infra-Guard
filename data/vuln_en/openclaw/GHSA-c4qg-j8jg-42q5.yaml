@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c4qg-j8jg-42q5
+  summary: OpenClaw QQBot direct media upload skipped URL SSRF validation
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    The QQBot direct-upload media path could forward attacker-controlled image URLs without applying the SSRF validation used
+    by the local download path. This could make configured QQBot media delivery request or relay URLs the operator did not
+    intend to allow.
+
+
+    The affected path is limited to QQBot outbound media handling and does not expose arbitrary local files. Severity is low.
+
+
+    Fix
+
+
+    OpenClaw now validates QQBot direct-upload media URLs before uploadC2CMedia and uploadGroupMedia direct-upload calls.
+
+
+    Fix commit:
+
+
+    - 49db424c8001f2f419aad85f434894d8d85c1a09
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now validates QQBot direct-upload media URLs before uploadC2CMedia\
+    \ and uploadGroupMedia direct-upload calls. Fix commit: - 49db424c8001f2f419aad85f434894d8d85c1a09"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qg-j8jg-42q5
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qg-j8jg-42q5

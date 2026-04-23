@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f7fh-qg34-x2xh
+  summary: OpenClaw CDP /json/version WebSocket URL could pivot to untrusted second-hop targets
+  details: >-
+    Summary
+
+
+    CDP /json/version WebSocket URL could pivot to untrusted second-hop targets.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.5
+
+    - Patched versions: >= 2026.4.5
+
+
+    Impact
+
+
+    A browser profile could trust a CDP /json/version response whose webSocketDebuggerUrl pointed at a different host, enabling
+    a second-hop SSRF-style pivot.
+
+
+    Technical Details
+
+
+    The fix normalizes and re-validates direct CDP WebSocket targets before connecting.
+
+
+    Fix
+
+
+    The issue was fixed in 60469. The first stable tag containing the fix is v2026.4.5, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @tdjackey for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.5 or later. The issue was fixed in #60469. The first stable tag containing
+    the fix is v2026.4.5, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f7fh-qg34-x2xh
+rule: version < "2026.4.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f7fh-qg34-x2xh

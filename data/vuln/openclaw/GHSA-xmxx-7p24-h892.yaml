@@ -1,0 +1,61 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xmxx-7p24-h892
+  summary: OpenClaw Gateway HTTP 端点在 SecretRef 轮换后重新解析 Bearer 认证配置
+  details: >-
+    漏洞摘要
+
+
+    Gateway HTTP 及 WebSocket 处理器在服务器启动时捕获并缓存了已解析的 Bearer 认证配置。在 SecretRef 轮换后，
+    已运行的 Gateway 可能在重启前持续接受旧的 Bearer 令牌。
+
+
+    影响
+
+
+    本应通过 SecretRef 轮换吊销的 Bearer 令牌可能在进程生命周期内在 Gateway HTTP 及升级接口上持续有效。
+    由于旧令牌在运维人员认为其已被轮换失效后仍可继续授权 Gateway 请求，严重等级为高危（High）。
+
+
+    受影响版本
+
+
+    - 受影响版本：< 2026.4.15
+
+    - 已修复版本：2026.4.15
+
+
+    修复方案
+
+
+    OpenClaw 2026.4.15 改为在每次请求和每次升级时从运行时密钥快照中动态解析活跃的 Gateway 认证配置，
+    而非使用启动时缓存的过期值。
+
+
+    已在 v2026.4.15 中验证：
+
+
+    - src/gateway/server.impl.ts 暴露了基于当前运行时密钥快照的 getResolvedAuth() 方法。
+
+    - src/gateway/server-http.ts 在每次 HTTP 请求和 WebSocket 升级时调用 getResolvedAuth() 执行认证检查。
+
+    - src/gateway/server-http.probe.test.ts 验证了 /ready 接口在轮换后重新解析 Bearer 认证配置并拒绝旧令牌的行为。
+
+
+    v2026.4.15 中包含而 v2026.4.14 中缺失的修复提交：
+
+
+    - acd4e0a32f12e1ad85f3130f63b42443ce90f094（通过 PR 66651）
+
+
+    感谢 @zsxsoft、Keen Security Lab 和 @qclawer 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: "升级 openclaw 至 2026.4.15 或更高版本。OpenClaw 2026.4.15 改为在每次请求和每次升级时从运行时密钥快照中动态解析活跃的 Gateway\
+    \ 认证配置，而非使用启动时缓存的过期值。已在 v2026.4.15 中验证：- src/gateway/server.impl.ts 暴露了基于当前运行时密钥快照的 getResolvedAuth()\
+    \ 方法。"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xmxx-7p24-h892
+rule: version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xmxx-7p24-h892

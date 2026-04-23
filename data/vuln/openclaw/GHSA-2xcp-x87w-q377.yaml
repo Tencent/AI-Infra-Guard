@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2xcp-x87w-q377
+  summary: OpenClaw Hook 映射模板可绕过 Hook 会话密钥（session-key）选项的启用限制
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    模板化的 Hook 映射 sessionKey 值与请求方提供的会话密钥处理方式不同。即使 hooks.allowRequestSessionKey 已被禁用，Hook
+    映射仍可渲染受外部影响的会话密钥，从而绕过针对 Hook 调用方的预期路由选项启用限制。
+
+
+    此问题影响 Webhook 路由隔离机制，其本身不授予宿主机执行权限。严重等级为中危。
+
+
+    修复方案
+
+
+    模板渲染的映射会话密钥现已被视为外部提供的路由输入，须满足 hooks.allowRequestSessionKey=true 并通过现有前缀策略检查方可使用。
+
+
+    修复提交：
+
+
+    - 5275d008ed33203dba3f98e969ad683a65c416c3
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。模板渲染的映射会话密钥现已被视为外部提供的路由输入，须满足 hooks.allowRequestSessionKey=true\
+    \ 并通过现有前缀策略检查方可使用。修复提交：- 5275d008ed33203dba3f98e969ad683a65c416c3"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2xcp-x87w-q377
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2xcp-x87w-q377

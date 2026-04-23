@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vfp4-8x56-j7c5
+  summary: OpenClaw Exec environment denylist missed high-risk interpreter startup variables
+  details: "Summary\r\n\r\nExec environment denylist missed high-risk interpreter startup variables.\r\n\r\nAffected Packages\
+    \ / Versions\r\n\r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: < 2026.4.10\r\n- Patched versions:\
+    \ >= 2026.4.10\r\n\r\nImpact\r\n\r\nThe exec environment policy missed interpreter startup variables such as VIMINIT,\
+    \ EXINIT, LUA_INIT, and HOSTALIASES, allowing operator-supplied environment overrides to influence downstream execution\
+    \ or network behavior.\r\n\r\nTechnical Details\r\n\r\nThe fix expands the host environment security policy denylist to\
+    \ cover these and related high-risk environment variables, with regression coverage.\r\n\r\nFix\r\n\r\nThe issue was fixed\
+    \ in 63277. The first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.\r\n\r\n\n\
+    Credits\r\n\r\nThanks to @feiyang666 of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting this\
+    \ issue."
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63277. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vfp4-8x56-j7c5
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vfp4-8x56-j7c5

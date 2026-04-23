@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vw3h-q6xq-jjm5
+  summary: OpenClaw Voice-call realtime WebSocket accepted oversized frames
+  details: "Summary\r\n\r\nVoice-call realtime WebSocket accepted oversized frames.\r\n\r\nAffected Packages / Versions\r\n\
+    \r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: >= 2026.4.9 < 2026.4.10\r\n- Patched versions: >=\
+    \ 2026.4.10\r\n\r\nImpact\r\n\r\nThe voice-call realtime WebSocket path could accept oversized frames, creating a remote\
+    \ availability risk for deployments exposing that webhook path.\r\n\r\nTechnical Details\r\n\r\nThe fix rejects oversized\
+    \ realtime WebSocket frames before processing them.\r\n\r\nFix\r\n\r\nThe issue was fixed in 63890. The first stable tag\
+    \ containing the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.\r\n\r\n\nReporters\r\n\r\nThanks to G0odUser\
+    \ from ADLab of VenusTech\r\nThanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this\
+    \ issue."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63890. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vw3h-q6xq-jjm5
+rule: version >= "2026.4.9" && version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vw3h-q6xq-jjm5

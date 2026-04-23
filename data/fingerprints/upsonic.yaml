@@ -1,0 +1,13 @@
+info:
+  name: upsonic
+  author: A.I.G bot
+  severity: info
+  desc: Upsonic is an open-source AI agent framework for building production-ready agents with MCP tool integration, safety policies, and multi-agent coordination.
+  metadata:
+    product: upsonic
+    vendor: upsonic
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Upsonic</title>"

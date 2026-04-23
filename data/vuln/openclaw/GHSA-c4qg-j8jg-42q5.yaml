@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c4qg-j8jg-42q5
+  summary: OpenClaw QQBot 直接媒体上传路径跳过了 URL SSRF 校验
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    QQBot 直接上传（direct-upload）媒体路径在转发攻击者控制的图片 URL 时，未应用本地下载路径所使用的 SSRF 校验逻辑。这可能导致已配置的
+    QQBot 媒体投递请求或中继了运营商未预期允许的 URL。
+
+
+    受影响路径仅限于 QQBot 出站媒体处理，不会暴露任意本地文件。严重等级为低危。
+
+
+    修复方案
+
+
+    OpenClaw 现已在执行 uploadC2CMedia 和 uploadGroupMedia 直接上传调用前，对 QQBot 直接上传的媒体 URL 进行 SSRF 校验。
+
+
+    修复提交：
+
+
+    - 49db424c8001f2f419aad85f434894d8d85c1a09
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: LOW
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已在执行 uploadC2CMedia 和 uploadGroupMedia 直接上传调用前，对 QQBot\
+    \ 直接上传的媒体 URL 进行 SSRF 校验。修复提交：- 49db424c8001f2f419aad85f434894d8d85c1a09"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qg-j8jg-42q5
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qg-j8jg-42q5

@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2767-2q9v-9326
+  summary: OpenClaw QQBot 回复媒体 URL 处理可触发 SSRF 并重新上传所获取的字节流
+  details: >-
+    概述
+
+
+    QQBot 回复媒体 URL 处理可触发服务端请求伪造（SSRF）并重新上传所获取的字节流。
+
+
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.12
+
+    - 已修复版本：>= 2026.4.12
+
+
+    影响
+
+
+    QQBot 回复中的媒体 URL 可被视为可信媒体源，攻击者可利用此漏洞发起 SSRF 请求，将所获取的字节流通过通道重新上传。
+
+
+    技术细节
+
+
+    修复方案将 QQBot 远程媒体获取流程路由至具备 SSRF 防护的媒体抓取模块，并实施显式 URL 白名单策略。
+
+
+    修复
+
+
+    该漏洞已在提交 #63495 和 #65788 中修复。首个包含修复的稳定标签为 v2026.4.12，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @threalwinky 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '请将 openclaw 升级至 >= 2026.4.12 或更高版本。该漏洞已在 #63495 和 #65788 中修复。首个包含修复的稳定标签为 v2026.4.12，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2767-2q9v-9326
+rule: version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2767-2q9v-9326

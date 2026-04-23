@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-49cg-279w-m73x
+  summary: OpenClaw Empty approver lists could grant explicit approval authorization
+  details: >-
+    Summary
+
+
+    Empty approver lists could grant explicit approval authorization.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.12
+
+    - Patched versions: >= 2026.4.12
+
+
+    Impact
+
+
+    For helper-backed channels, an empty resolved approver list could be interpreted as explicit approval authorization, allowing
+    a sender outside the normal channel authorization gate to resolve pending approvals if they knew an approval id.
+
+
+    Technical Details
+
+
+    The fix prevents empty approver lists from granting explicit approval authorization and adds regression coverage for unauthorized
+    senders.
+
+
+    Fix
+
+
+    The issue was fixed in 65714. The first stable tag containing the fix is v2026.4.12, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @anshumanbh for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.12 or later. The issue was fixed in #65714. The first stable tag containing
+    the fix is v2026.4.12, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-49cg-279w-m73x
+rule: version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-49cg-279w-m73x

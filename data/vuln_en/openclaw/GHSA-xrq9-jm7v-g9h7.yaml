@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xrq9-jm7v-g9h7
+  summary: OpenClaw Paired-device pairing actions were not limited to the caller device
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    A paired device session with limited pairing scope could enumerate global pairing state and act on pairing requests that
+    belonged to another device within the same gateway scope ceiling.
+
+
+    This is a same-gateway paired-device authorization bug, not a remote unauthenticated issue. Severity is low.
+
+
+    Fix
+
+
+    Pairing management actions are now limited to the caller device, so non-admin paired-device sessions cannot approve or
+    operate on unrelated pending device requests.
+
+
+    Fix commit:
+
+
+    - 5a12f30441d5b0b151f550daa2c5c9e8db61e2e6
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. Pairing management actions are now limited to the caller device,\
+    \ so non-admin paired-device sessions cannot approve or operate on unrelated pending device requests. Fix commit: - 5a12f30441d5b0b151f550daa2c5c9e8db61e2e6"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xrq9-jm7v-g9h7
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xrq9-jm7v-g9h7

@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-736r-jwj6-4w23
+  summary: OpenClaw 沙箱化 Agent 可通过 host=node 覆盖参数逃逸 exec 路由隔离
+  details: >-
+    漏洞摘要
+
+
+    沙箱化 Agent 可通过 host=node 覆盖参数逃逸 exec 路由隔离。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：>= 2026.4.5 < 2026.4.10
+
+    - 已修复版本：>= 2026.4.10
+
+
+    影响
+
+
+    沙箱化 Agent 可通过请求 host: "node" 参数，将 exec 执行路由到远程节点而非预期的沙箱执行路径，
+    从而绕过沙箱路由隔离边界。
+
+
+    技术细节
+
+
+    修复方案阻断沙箱化 exec 逃逸至远程节点目标的行为，确保路由与当前沙箱策略保持一致。
+
+
+    修复方案
+
+
+    问题已在 #63880 中修复。包含该修复的第一个稳定标签为 v2026.4.10，openclaw@2026.4.14 包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft 报告此问题，以及 @KeenSecurityLab 和 @qclawer 的赞助支持。
+  cvss: ''
+  severity: HIGH
+  security_advise: '升级 openclaw 至 >= 2026.4.10 或更高版本。问题已在 #63880 中修复。包含该修复的第一个稳定标签为 v2026.4.10，openclaw@2026.4.14
+    包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-736r-jwj6-4w23
+rule: version >= "2026.4.5" && version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-736r-jwj6-4w23

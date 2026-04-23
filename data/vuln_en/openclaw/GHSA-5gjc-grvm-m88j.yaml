@@ -1,0 +1,20 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5gjc-grvm-m88j
+  summary: OpenClaw Memory dreaming config persistence was reachable from operator.write commands
+  details: "Summary\r\n\r\nMemory dreaming config persistence was reachable from operator.write commands.\r\n\r\nAffected\
+    \ Packages / Versions\r\n\r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: >= 2026.4.5 < 2026.4.10\r\
+    \n- Patched versions: >= 2026.4.10\r\n\r\nImpact\r\n\r\nA write-scoped gateway path could toggle persistent memory dreaming\
+    \ settings through /dreaming, crossing into an admin-class configuration mutation.\r\n\r\nTechnical Details\r\n\r\nThe\
+    \ fix requires admin scope for persistent dreaming gateway toggles.\r\n\r\nFix\r\n\r\nThe issue was fixed in 63872. The\
+    \ first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.\r\n\r\n\nCredits\r\n\r\n\
+    Thanks to @zpbrent and @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63872. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5gjc-grvm-m88j
+rule: version >= "2026.4.5" && version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5gjc-grvm-m88j

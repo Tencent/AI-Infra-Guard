@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j4c5-89f5-f3pm
+  summary: OpenClaw 浏览器 CDP Profile 创建时跳过了严格模式下的 SSRF 检查
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    浏览器 Profile 创建流程在持久化 cdpUrl 值前会对其进行规范化处理，但在创建时未应用已配置的浏览器 SSRF 策略。在显式禁用私有网络
+    CDP 目标的部署环境中，已保存的 Profile 仍可指向私有网络或元数据服务端点，并在后续的常规 Profile 状态检测流程中被探测利用。
+
+
+    默认的运营商可信浏览器行为允许访问私有网络 CDP 端点，因此此问题仅影响启用了严格模式的部署环境。严重等级为低危。
+
+
+    修复方案
+
+
+    OpenClaw 现已在 Profile 创建和可达性检测操作期间，针对浏览器 SSRF 策略对 CDP 端点进行校验。
+
+
+    修复提交：
+
+
+    - 1fd049e3074cac72f6734a7fe88468c84f5f8bd7
+
+    - e90c89cf8b1459f2aa1f3a665be67392b6c03fdf
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: LOW
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已在 Profile 创建和可达性检测操作期间，针对浏览器 SSRF 策略对 CDP 端点进行校验。修复提交：\
+    \ - 1fd049e3074cac72f6734a7fe88468c84f5f8bd7"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c5-89f5-f3pm
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c5-89f5-f3pm

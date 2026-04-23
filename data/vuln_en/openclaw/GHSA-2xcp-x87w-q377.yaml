@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2xcp-x87w-q377
+  summary: OpenClaw Hook mapping templates could bypass hook session-key opt-in
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Templated hook mapping sessionKey values were treated differently from request-supplied session keys. A hook mapping could
+    render an externally influenced session key even when hooks.allowRequestSessionKey was disabled, bypassing the intended
+    routing opt-in for hook callers.
+
+
+    This affects webhook routing isolation. It does not grant host execution by itself. Severity is medium.
+
+
+    Fix
+
+
+    Template-rendered mapping session keys are now treated as externally supplied routing input and require hooks.allowRequestSessionKey=true
+    plus the existing prefix policy checks.
+
+
+    Fix commit:
+
+
+    - 5275d008ed33203dba3f98e969ad683a65c416c3
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. Template-rendered mapping session keys are now treated as externally\
+    \ supplied routing input and require hooks.allowRequestSessionKey=true plus the existing prefix policy checks. Fix commit:\
+    \ - 5275d008ed33203dba3f98e969ad683a65c416c3"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2xcp-x87w-q377
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2xcp-x87w-q377

@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j6c7-3h5x-99g9
+  summary: OpenClaw Shell-wrapper detection missed env-argv assignment injection forms
+  details: >-
+    Summary
+
+
+    Shell-wrapper detection missed env-argv assignment injection forms.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: >= 2026.2.22 < 2026.4.12
+
+    - Patched versions: >= 2026.4.12
+
+
+    Impact
+
+
+    Exec preflight handling missed shell-wrapper and argv-level environment assignment forms that could affect execution semantics,
+    including high-risk shell environment controls.
+
+
+    Technical Details
+
+
+    The fix broadens shell-wrapper detection and blocks environment assignments in argv forms. High-risk shell variables such
+    as SHELLOPTS and PS4 are covered by the host environment security policy.
+
+
+    Fix
+
+
+    The issue was fixed in 65717. The first stable tag containing the fix is v2026.4.12, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @decsecre583 for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.12 or later. The issue was fixed in #65717. The first stable tag containing
+    the fix is v2026.4.12, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j6c7-3h5x-99g9
+rule: version >= "2026.2.22" && version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j6c7-3h5x-99g9

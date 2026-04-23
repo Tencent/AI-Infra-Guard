@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f934-5rqf-xx47
+  summary: OpenClaw QMD memory_get 将读取限制为规范内存路径或已索引内存路径
+  details: >-
+    摘要
+
+
+    QMD 后端的 memory_get 读取路径接受任意工作区 Markdown 路径，这些路径虽在工作区内，但位于规范内存位置之外，或不属于已索引的 QMD 结果集。
+
+
+    影响
+
+
+    当 QMD 后端启用时，具备 memory_get 工具访问权限的调用方可读取工作区根目录下任意 *.md 文件，即使这些文件并非规范内存文件，也未被 QMD 搜索返回。由于利用该漏洞需要访问内存工具接口，且范围仅限于工作区 Markdown 文件，因此严重性保持为低，但该漏洞绕过了预期的内存路径访问策略。
+
+
+    受影响版本
+
+
+    - 受影响：< 2026.4.15
+
+    - 已修复：2026.4.15
+
+
+    修复
+
+
+    OpenClaw 2026.4.15 将 QMD 读取限制为规范内存路径或先前已索引的 QMD 工作区路径，仅满足工作区包含条件不再被视为充分。
+
+
+    在 v2026.4.15 中已验证：
+
+
+    - extensions/memory-core/src/memory/qmd-manager.ts 会拒绝非默认工作区 Markdown 路径，除非其匹配已索引的 QMD 工作区读取路径。
+
+    - extensions/memory-core/src/memory/qmd-manager.test.ts 涵盖了 QMD 会话搜索结果读取及读取路径限制行为的测试用例。
+
+
+    修复提交包含于 v2026.4.15，v2026.4.14 中不存在：
+
+
+    - 37d5971db36491d5050efd42c333cbe0b98ed292，通过 PR 66026 合入
+
+
+    感谢 @zsxsoft、Keen Security Lab 及 @qclawer 报告此问题。
+  cvss: ''
+  severity: LOW
+  security_advise: "将 openclaw 升级至 2026.4.15 或更高版本。OpenClaw 2026.4.15 将 QMD 读取限制为规范内存路径或先前已索引的 QMD 工作区路径，仅满足工作区包含条件不再被视为充分。已在\
+    \ v2026.4.15 中验证：extensions/memory-core/src/memory/qmd-manager.ts 会拒绝非默认工作区 Markdown 路径，除非其匹配已索引的 QMD 工作区读取路径。"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f934-5rqf-xx47
+rule: version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f934-5rqf-xx47

@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-66r7-m7xm-v49h
+  summary: OpenClaw QQBot media tags could read arbitrary local files through reply text
+  details: "Summary\r\n\r\nQQBot media tags could read arbitrary local files through reply text.\r\n\r\nAffected Packages\
+    \ / Versions\r\n\r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: < 2026.4.10\r\n- Patched versions:\
+    \ >= 2026.4.10\r\n\r\nImpact\r\n\r\nQQBot outbound media tags in AI reply text could reference host-local paths outside\
+    \ the intended media storage boundary, allowing local file disclosure through outbound media handling.\r\n\r\nTechnical\
+    \ Details\r\n\r\nThe fix enforces the media storage boundary for all outbound QQBot local file paths.\r\n\r\nFix\r\n\r\
+    \nThe issue was fixed in 63271. The first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes\
+    \ the fix.\r\n\r\n\nCredits\r\n\r\nThanks to @feiyang666 of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard)\
+    \ for reporting this issue."
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63271. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-66r7-m7xm-v49h
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-66r7-m7xm-v49h

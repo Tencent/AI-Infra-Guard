@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2767-2q9v-9326
+  summary: OpenClaw QQBot reply media URL handling could trigger SSRF and re-upload fetched bytes
+  details: >-
+    Summary
+
+
+    QQBot reply media URL handling could trigger SSRF and re-upload fetched bytes.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.12
+
+    - Patched versions: >= 2026.4.12
+
+
+    Impact
+
+
+    QQBot reply media URLs could be treated as trusted media sources, allowing SSRF fetches whose returned bytes were then
+    re-uploaded through the channel.
+
+
+    Technical Details
+
+
+    The fix routes QQBot remote media fetches through SSRF-guarded media fetching and explicit URL allowlist policy.
+
+
+    Fix
+
+
+    The issue was fixed in 63495 and 65788. The first stable tag containing the fix is v2026.4.12, and openclaw@2026.4.14
+    includes the fix.
+
+
+    Credits
+
+
+    Thanks to @threalwinky for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.12 or later. The issue was fixed in #63495 and #65788. The first stable
+    tag containing the fix is v2026.4.12, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2767-2q9v-9326
+rule: version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2767-2q9v-9326

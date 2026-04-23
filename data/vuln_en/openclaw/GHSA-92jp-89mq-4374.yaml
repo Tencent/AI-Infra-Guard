@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-92jp-89mq-4374
+  summary: OpenClaw Sandbox noVNC helper route exposed interactive browser session credentials
+  details: >-
+    Summary
+
+
+    Sandbox noVNC helper route exposed interactive browser session credentials.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: >= 2026.2.21 < 2026.4.10
+
+    - Patched versions: >= 2026.4.10
+
+
+    Impact
+
+
+    The sandbox noVNC helper route could be reached without the intended bridge authentication, exposing an interactive browser
+    session surface.
+
+
+    Technical Details
+
+
+    The fix gates the sandbox noVNC helper route behind bridge authentication.
+
+
+    Fix
+
+
+    The issue was fixed in 63882. The first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63882. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-92jp-89mq-4374
+rule: version >= "2026.2.21" && version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-92jp-89mq-4374

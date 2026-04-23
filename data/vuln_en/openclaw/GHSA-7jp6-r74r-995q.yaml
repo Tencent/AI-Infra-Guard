@@ -1,0 +1,21 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7jp6-r74r-995q
+  summary: OpenClaw Matrix profile config persistence was reachable from operator.write message tools
+  details: "Summary\r\n\r\nMatrix profile config persistence was reachable from operator.write message tools.\r\n\r\nAffected\
+    \ Packages / Versions\r\n\r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: < 2026.4.10\r\n- Patched\
+    \ versions: >= 2026.4.10\r\n\r\nImpact\r\n\r\nGateway operator.write message-tool paths could reach Matrix profile persistence\
+    \ that should have required admin-level authority.\r\n\r\nTechnical Details\r\n\r\nThe fix gates Matrix profile updates\
+    \ for non-owner message-tool runs and prevents write-scoped callers from mutating persistent profile config.\r\n\r\nFix\r\
+    \n\r\nThe issue was fixed in 62662. The first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes\
+    \ the fix.\r\n\r\n\nCredits\r\n\r\nThanks to @zpbrent and @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer\
+    \ for reporting this issue."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #62662. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7jp6-r74r-995q
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7jp6-r74r-995q

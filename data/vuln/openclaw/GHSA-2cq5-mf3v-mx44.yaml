@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2cq5-mf3v-mx44
+  summary: OpenClaw busybox 和 toybox applet 执行削弱了 exec 审批绑定机制
+  details: >-
+    概述
+
+
+    busybox 和 toybox applet 执行削弱了 exec 审批绑定机制。
+
+
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：>= 2026.2.23 < 2026.4.12
+
+    - 已修复版本：>= 2026.4.12
+
+
+    影响
+
+
+    busybox 和 toybox 等不透明的多调用二进制文件可混淆实际运行的 applet 或类脚本行为，从而削弱 exec 审批绑定机制和风险分类的有效性。
+
+
+    技术细节
+
+
+    修复方案将 busybox 和 toybox 视为不透明的可变脚本运行器，采用失败关闭策略，而非绑定不安全的 applet 调用。
+
+
+    修复
+
+
+    该漏洞已在提交 #65713 中修复。首个包含修复的稳定标签为 v2026.4.12，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @decsecre583 报告此问题。
+  cvss: ''
+  severity: HIGH
+  security_advise: '请将 openclaw 升级至 >= 2026.4.12 或更高版本。该漏洞已在 #65713 中修复。首个包含修复的稳定标签为 v2026.4.12，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2cq5-mf3v-mx44
+rule: version >= "2026.2.23" && version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2cq5-mf3v-mx44
