@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h2vw-ph2c-jvwf
+  summary: OpenClaw Workspace dotenv MiniMax host override could redirect credentialed requests
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.4.5, < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    A malicious workspace .env could set MINIMAX_API_HOST and redirect credentialed MiniMax requests to an attacker-controlled
+    origin, exposing the MiniMax API key in the outbound Authorization header.
+
+
+    This requires running OpenClaw from an attacker-controlled workspace. Severity is medium.
+
+
+    Fix
+
+
+    OpenClaw now blocks MINIMAX_API_HOST from workspace dotenv injection and removes env-driven URL routing from the affected
+    MiniMax request path.
+
+
+    Fix commit:
+
+
+    - 2f06696579a1ab0cb5bbbbb6a900414a6b2e3cd1
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now blocks MINIMAX_API_HOST from workspace dotenv injection\
+    \ and removes env-driven URL routing from the affected MiniMax request path. Fix commit: - 2f06696579a1ab0cb5bbbbb6a900414a6b2e3cd1"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h2vw-ph2c-jvwf
+rule: version >= "2026.4.5" && version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h2vw-ph2c-jvwf

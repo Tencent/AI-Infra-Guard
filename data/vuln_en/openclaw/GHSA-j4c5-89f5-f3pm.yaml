@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-j4c5-89f5-f3pm
+  summary: OpenClaw Browser CDP profile creation skipped strict-mode SSRF checks
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Browser profile creation normalized cdpUrl values before persisting them, but did not apply the configured browser SSRF
+    policy at creation time. In deployments that explicitly disabled private-network CDP targets, a stored profile could still
+    point at a private-network or metadata endpoint and later be probed by normal profile status flows.
+
+
+    Default trusted-operator browser behavior allows private-network CDP endpoints, so this only affected strict-mode deployments.
+    Severity is low.
+
+
+    Fix
+
+
+    OpenClaw now checks CDP endpoints against the browser SSRF policy during profile creation and reachability operations.
+
+
+    Fix commits:
+
+
+    - 1fd049e3074cac72f6734a7fe88468c84f5f8bd7
+
+    - e90c89cf8b1459f2aa1f3a665be67392b6c03fdf
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now checks CDP endpoints against the browser SSRF policy\
+    \ during profile creation and reachability operations. Fix commits: - 1fd049e3074cac72f6734a7fe88468c84f5f8bd7"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c5-89f5-f3pm
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c5-89f5-f3pm

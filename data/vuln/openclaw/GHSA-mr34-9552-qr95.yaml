@@ -1,0 +1,67 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mr34-9552-qr95
+  summary: OpenClaw Webchat 媒体嵌入对工具结果文件强制执行本地根目录限制策略
+  details: >-
+    漏洞摘要
+
+
+    Webchat 工具结果媒体路径规范化处理中，可能将本地路径及 UNC 风格的文件路径传入宿主侧媒体嵌入路径，而未应用已配置的本地根目录限制策略。
+
+
+    影响
+
+
+    精心构造的工具结果媒体引用可能导致宿主在准备 webchat 媒体块时尝试读取本地文件或访问 Windows UNC/网络路径。这可能导致受影响 Windows 部署中的
+    允许宿主文件信息泄露或网络凭据暴露。由于漏洞利用依赖工具结果媒体路径到达 webchat 嵌入路径，而触发点为用户看到渲染结果前的宿主侧文件读取操作，
+    严重等级保持为中危。
+
+
+    受影响版本
+
+
+    - 受影响版本：>= 2026.4.7, < 2026.4.15
+
+    - 已修复版本：2026.4.15
+
+
+    修复方案
+
+
+    OpenClaw 2026.4.15 加固了 webchat 媒体路径及共享媒体解析器。远程宿主 file:// URL 和 Windows 网络路径在文件系统访问前被拒绝，
+    音频嵌入现在在执行 stat 或 read 操作前强制执行已配置的 localRoots 限制策略。
+
+
+    已在 v2026.4.15 中验证：
+
+
+    - src/gateway/server-methods/chat-webchat-media.ts 使用安全的 file URL 解析，拒绝 Windows 网络路径，并在探测本地音频文件前调用
+    assertLocalMediaAllowed。
+
+    - src/media/web-media.ts 在共享媒体路径上拒绝远程宿主 file:// URL、Windows 网络路径及本地根目录绕过。
+
+    - src/gateway/server-methods/chat-webchat-media.test.ts 覆盖了远程宿主 file:// 拒绝和文件系统访问前本地根目录拒绝的测试用例。
+
+
+    v2026.4.15 中包含而 v2026.4.14 中缺失的修复提交：
+
+
+    - 1470de5d3e0970856d86cd99336bb8ada3fe87da（通过 PR 67293）
+
+    - 6e58f1f9f54bca1fea1268ec0ee4c01a2af03dde（通过 PR 67298）
+
+    - 52ef42302ead9e183e6c8810e0a04ee4ef8ae9fc（通过 PR 67303，作为可信媒体透传锚定的纵深防御）
+
+
+    感谢 @Kherrisan 报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.15 或更高版本。OpenClaw 2026.4.15 加固了 webchat 媒体路径及共享媒体解析器。远程宿主 file:// URL\
+    \ 和 Windows 网络路径在文件系统访问前被拒绝，音频嵌入现在在执行 stat 或 read 操作前强制执行已配置的 localRoots 限制策略。已在 v2026.4.15 中验证：-\
+    \ src/gateway/server-methods/chat-webchat-media.ts 使用安全的 file URL 解析，拒绝 Windows 网络路径，并在探测本地音频文件前调用\
+    \ assertLocalMediaAllowed。"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mr34-9552-qr95
+rule: version >= "2026.4.7" && version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mr34-9552-qr95

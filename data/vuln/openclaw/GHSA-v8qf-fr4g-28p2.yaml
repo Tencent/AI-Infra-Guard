@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v8qf-fr4g-28p2
+  summary: OpenClaw 助手媒体路由未对可信代理认证执行操作者权限范围校验
+  details: >-
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 修复版本：2026.4.20
+
+
+    影响
+
+
+    Control UI 的 assistant-media 路由虽对可信代理调用方进行了认证，但未对携带身份标识的 HTTP 认证路径强制执行已声明的操作者权限范围（operator scopes）。
+    不具备 operator.read 权限的可信代理调用方，可访问本应受限于允许媒体根目录（media root）范围内的助手媒体文件及其元数据。
+
+
+    该路由仍需通过网关认证及媒体根目录校验，漏洞危害等级为低危。
+
+
+    修复
+
+
+    助手媒体文件及元数据请求现已要求在携带身份标识的 HTTP 认证路径上具备 operator.read 权限。
+
+
+    修复提交：
+
+
+    - 99ef3a63c58440d53f8e45ad861b846032fcb036
+
+
+    发布版本
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: LOW
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。助手媒体文件及元数据请求现已要求在携带身份标识的 HTTP 认证路径上具备 operator.read 权限。修复提交：- 99ef3a63c58440d53f8e45ad861b846032fcb036"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v8qf-fr4g-28p2
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v8qf-fr4g-28p2

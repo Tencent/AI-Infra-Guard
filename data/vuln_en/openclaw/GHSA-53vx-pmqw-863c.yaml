@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-53vx-pmqw-863c
+  summary: OpenClaw Browser SSRF policy default allowed private-network navigation
+  details: >-
+    Summary
+
+
+    Browser SSRF policy default allowed private-network navigation.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.14
+
+    - Patched versions: >= 2026.4.14
+
+
+    Impact
+
+
+    Browser SSRF protection could allow private-network navigation by default in paths where restrictive behavior was expected,
+    exposing internal services or metadata endpoints through browser-driven requests.
+
+
+    Technical Details
+
+
+    The fix preserves strict SSRF configuration semantics, keeps private-network access disabled unless explicitly opted in,
+    and updates loopback CDP readiness handling for the stricter default.
+
+
+    Fix
+
+
+    The issue was fixed in 66354 and 66386. The first stable tag containing the fix is v2026.4.14, and openclaw@2026.4.14
+    includes the fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.14 or later. The issue was fixed in #66354 and #66386. The first stable
+    tag containing the fix is v2026.4.14, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-53vx-pmqw-863c
+rule: version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-53vx-pmqw-863c

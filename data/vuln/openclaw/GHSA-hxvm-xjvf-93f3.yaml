@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hxvm-xjvf-93f3
+  summary: OpenClaw 工作区 dotenv 可覆盖 OpenClaw 运行时控制环境变量
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    工作区 .env 文件加载逻辑对 OPENCLAW_ 运行时控制命名空间的保留范围不够全面。恶意工作区可在源码更新或安装器流程执行前设置如
+    OPENCLAW_GIT_DIR 等变量，从而潜在地干预 OpenClaw 受信任的运行时行为。
+
+
+    此攻击需在攻击者控制的工作区中运行 OpenClaw。严重等级为中危。
+
+
+    修复方案
+
+
+    OpenClaw 现已为工作区 OPENCLAW_ 环境命名空间设置保留策略，并拒绝工作区 dotenv 中针对 OpenClaw 运行时控制变量的配置项。
+
+
+    修复提交：
+
+
+    - 018494fa3ebb9145112e68b56fe1cb2e9f9a9ed6
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已为工作区 OPENCLAW_ 环境命名空间设置保留策略，并拒绝工作区 dotenv 中针对 OpenClaw\
+    \ 运行时控制变量的配置项。修复提交：- 018494fa3ebb9145112e68b56fe1cb2e9f9a9ed6"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hxvm-xjvf-93f3
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hxvm-xjvf-93f3

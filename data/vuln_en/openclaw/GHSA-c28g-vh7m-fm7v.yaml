@@ -1,0 +1,26 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c28g-vh7m-fm7v
+  summary: OpenClaw Owner-enforced commands could accept wildcard channel senders as command owners
+  details: "Impact\r\n\r\nOpenClaw deployments before 2026.4.21 could treat a non-owner sender as authorized for owner-enforced\
+    \ slash commands when all of the following were true:\r\n\r\n- a channel plugin declared commands.enforceOwnerForCommands:\
+    \ true;\r\n- the channel accepted wildcard inbound senders with allowFrom: [\"*\"];\r\n- no explicit commands.ownerAllowFrom\
+    \ was configured.\r\n\r\nIn that state, src/auto-reply/command-auth.ts reused the channel inbound wildcard as part of\
+    \ the command-owner decision. A sender who was not the owner could therefore pass the owner-command gate for commands\
+    \ such as /send, /config, or /debug on the affected channel.\r\n\r\nThe issue is limited to the command-owner authorization\
+    \ axis. It does not by itself grant owner-only tool access, host/sandbox access, or gateway administrator scope.\r\n\r\
+    \nAffected Packages / Versions\r\n\r\n- Package: openclaw on npm\r\n- Affected versions: <= 2026.4.20\r\n- Patched version:\
+    \ 2026.4.21\r\n\r\nThe latest public release, 2026.4.21, contains the fix.\r\n\r\nPatches\r\n\r\nThe fix requires a concrete\
+    \ owner identity or internal operator-admin scope when a plugin enforces owner-only commands. Wildcard channel allowFrom\
+    \ no longer implies wildcard command ownership.\r\n\r\nFix commits:\r\n\r\n- 2aa93d44a1b2c7058c371f261fda2b5d4de4a882\
+    \ on main\r\n- 995febb7b1e811ff6a1df5b18c22de94103f4c9f in the 2026.4.21 release line\r\n\r\nWorkarounds\r\n\r\nUpgrade\
+    \ to openclaw@2026.4.21 or later. Before upgrading, avoid wildcard/open-DM sender policy on owner-enforced channels, or\
+    \ configure commands.ownerAllowFrom to the intended owner identities.\r\n\r\nCredits\r\n\r\nThanks @zsxsoft for reporting."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to 2026.4.21 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c28g-vh7m-fm7v
+rule: version <= "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c28g-vh7m-fm7v

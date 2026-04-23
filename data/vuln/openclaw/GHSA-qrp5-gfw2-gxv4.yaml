@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-qrp5-gfw2-gxv4
+  summary: OpenClaw 内置 MCP/LSP 工具可绕过已配置的工具策略
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    内置 MCP 和 LSP 工具可在常规工具策略流水线已完成核心工具过滤之后，被追加到 Agent 的有效工具集中。如果运营商配置了限制性策略（例如工具
+    Profile、显式允许/拒绝列表、owner-only 工具限制、沙箱工具策略或子 Agent 工具策略），内置 MCP/LSP 工具仍可能保持可用，即使相同策略本应将其拒绝。
+
+
+    该问题需要配置了内置 MCP 或 LSP 工具源，且运营商策略本应限制该工具。此为本地 Agent 策略执行绕过问题，并非远程未认证的网关入侵。严重等级为中危。
+
+
+    修复方案
+
+
+    OpenClaw 现已在将内置 MCP/LSP 工具合并到常规运行和压缩（compaction）所使用的工具集之前，对其执行最终的有效工具策略检查。该检查覆盖
+    Profile 策略、Provider Profile 策略、全局/Agent/群组策略、owner-only 过滤、沙箱工具策略以及子 Agent 工具策略。
+
+
+    修复提交：
+
+
+    - 0e7a992d3f3155199c1acc2dd9a53c5b3a4d3ada
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已在将内置 MCP/LSP 工具合并到常规运行和压缩所使用的工具集之前，对其执行最终的有效工具策略检查，覆盖\
+    \ Profile 策略、Provider Profile 策略、全局/Agent/群组策略、owner-only 过滤、沙箱工具策略以及子 Agent 工具策略。修复提交：- 0e7a992d3f3155199c1acc2dd9a53c5b3a4d3ada"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-qrp5-gfw2-gxv4
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-qrp5-gfw2-gxv4

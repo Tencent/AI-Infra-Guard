@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-536q-mj95-h29h
+  summary: OpenClaw 浏览器按键/输入交互路由的导航防护覆盖不完整
+  details: >-
+    概述
+
+
+    浏览器按键/输入交互路由的导航防护覆盖不完整。
+
+
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.10
+
+    - 已修复版本：>= 2026.4.10
+
+
+    影响
+
+
+    部分浏览器按键/输入类型交互可触发页面导航，但缺乏完整的动作后 SSRF 策略执行，导致防护存在缺口。
+
+
+    技术细节
+
+
+    修复方案为具有导航能力的交互操作（包括 pressKey 和 type 提交流程）应用了三阶段交互导航防护机制。
+
+
+    修复
+
+
+    该漏洞已在提交 #62023、#63226 和 #63889 中修复。首个包含修复的稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft 在 @KeenSecurityLab 和 @qclawer 的赞助支持下报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '请将 openclaw 升级至 >= 2026.4.10 或更高版本。该漏洞已在 #62023、#63226 和 #63889 中修复。首个包含修复的稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-536q-mj95-h29h
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-536q-mj95-h29h

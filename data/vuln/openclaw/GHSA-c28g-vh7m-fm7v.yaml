@@ -1,0 +1,23 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c28g-vh7m-fm7v
+  summary: OpenClaw 所有者强制命令可能将通配符频道发送者识别为命令所有者
+  details: "影响范围\r\n\r\n2026.4.21 之前的 OpenClaw 部署版本，在以下所有条件同时满足时，可能将非所有者发送者误判为已授权的所有者强制斜杠命令执行者：\r\
+    \n\r\n- 某频道插件声明了 commands.enforceOwnerForCommands: true；\r\n- 该频道通过 allowFrom:\
+    \ [\"*\"] 接受通配符入站发送者；\r\n- 未显式配置 commands.ownerAllowFrom。\r\n\r\n在上述状态下，src/auto-reply/command-auth.ts\
+    \ 将频道入站通配符复用于命令所有者判定逻辑。非所有者发送者因此可绕过所有者命令鉴权门控，对受影响频道执行 /send、/config 或 /debug\
+    \ 等命令。\r\n\r\n该漏洞仅影响命令所有者授权层面，不会直接授予仅限所有者的工具访问权限、宿主机/沙箱访问权限或网关管理员权限范围。\r\n\r\n受影响的软件包及版本\r\
+    \n\r\n- 软件包：npm 上的 openclaw\r\n- 受影响版本：<= 2026.4.20\r\n- 已修复版本：2026.4.21\r\n\r\n最新公开发布版本\
+    \ 2026.4.21 已包含修复补丁。\r\n\r\n补丁说明\r\n\r\n修复方案要求：当插件强制执行仅限所有者命令时，必须提供明确的所有者身份或内部运营管理员权限范围。通配符频道\
+    \ allowFrom 不再隐含通配符命令所有权。\r\n\r\n修复提交：\r\n\r\n- main 分支：2aa93d44a1b2c7058c371f261fda2b5d4de4a882\r\
+    \n- 2026.4.21 发布线：995febb7b1e811ff6a1df5b18c22de94103f4c9f\r\n\r\n临时缓解措施\r\n\r\n升级至 openclaw@2026.4.21\
+    \ 或更高版本。升级前，请避免在所有者强制频道上使用通配符/开放私信发送者策略，或将 commands.ownerAllowFrom 配置为预期的所有者身份标识。\r\n\
+    \r\n致谢\r\n\r\n感谢 @zsxsoft 提交报告。"
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级至 2026.4.21 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c28g-vh7m-fm7v
+rule: version <= "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c28g-vh7m-fm7v

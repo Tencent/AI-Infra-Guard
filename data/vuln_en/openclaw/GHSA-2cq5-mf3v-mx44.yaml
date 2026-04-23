@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2cq5-mf3v-mx44
+  summary: OpenClaw busybox and toybox applet execution weakened exec approval binding
+  details: >-
+    Summary
+
+
+    busybox and toybox applet execution weakened exec approval binding.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: >= 2026.2.23 < 2026.4.12
+
+    - Patched versions: >= 2026.4.12
+
+
+    Impact
+
+
+    Opaque multi-call binaries such as busybox and toybox could obscure which applet or script-like behavior would actually
+    run, weakening exec approval binding and risk classification.
+
+
+    Technical Details
+
+
+    The fix treats busybox and toybox as opaque mutable script runners and fails closed rather than binding unsafe applet
+    invocations.
+
+
+    Fix
+
+
+    The issue was fixed in 65713. The first stable tag containing the fix is v2026.4.12, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @decsecre583 for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: 'Upgrade openclaw to >= 2026.4.12 or later. The issue was fixed in #65713. The first stable tag containing
+    the fix is v2026.4.12, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2cq5-mf3v-mx44
+rule: version >= "2026.2.23" && version < "2026.4.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2cq5-mf3v-mx44

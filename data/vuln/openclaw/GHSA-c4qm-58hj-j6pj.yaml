@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c4qm-58hj-j6pj
+  summary: OpenClaw 浏览器快照与截图路由在导航后可能暴露内部页面内容
+  details: >-
+    漏洞概述
+
+
+    浏览器快照与截图路由在导航后可能暴露内部页面内容。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.14
+
+    - 已修复版本：>= 2026.4.14
+
+
+    影响
+
+
+    已认证的浏览器工具调用方可使用快照、截图或标签页路由，而这些路由在路由驱动导航后未能始终如一地验证最终浏览器目标。在启用浏览器 SSRF 限制配置的场景下，这可能导致内部或其他受限页面的内容被泄露。
+
+
+    技术细节
+
+
+    修复方案在返回页面内容前，将浏览器快照、截图和标签页路由的结果重新与已配置的浏览器 SSRF 策略进行核查。同时新增了针对快照/截图及标签页路由流程的回归测试覆盖。
+
+
+    修复
+
+
+    该问题已在 66040 中修复。包含此修复的第一个稳定标签为 v2026.4.14，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft 报告此问题，由 @KeenSecurityLab 和 @qclawer 提供资助支持。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '将 openclaw 升级至 >= 2026.4.14 或更高版本。该问题已在 #66040 中修复。包含此修复的第一个稳定标签为 v2026.4.14，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qm-58hj-j6pj
+rule: version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qm-58hj-j6pj

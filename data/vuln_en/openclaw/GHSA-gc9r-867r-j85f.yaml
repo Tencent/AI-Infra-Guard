@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gc9r-867r-j85f
+  summary: OpenClaw Microsoft Teams SSO invoke handler missed sender authorization checks
+  details: >-
+    Summary
+
+
+    Microsoft Teams SSO invoke handler missed sender authorization checks.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: >= 2026.4.10 < 2026.4.14
+
+    - Patched versions: >= 2026.4.14
+
+
+    Impact
+
+
+    Microsoft Teams SSO signin invoke handling could process an invoke from a sender before applying the same sender allowlist
+    checks used by normal message handling.
+
+
+    Technical Details
+
+
+    The fix routes SSO invoke handling through the Teams sender authorization path and adds coverage for denied senders.
+
+
+    Fix
+
+
+    The issue was fixed in 66033. The first stable tag containing the fix is v2026.4.14, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: LOW
+  security_advise: 'Upgrade openclaw to >= 2026.4.14 or later. The issue was fixed in #66033. The first stable tag containing
+    the fix is v2026.4.14, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gc9r-867r-j85f
+rule: version >= "2026.4.10" && version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gc9r-867r-j85f

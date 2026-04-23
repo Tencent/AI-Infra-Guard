@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xrq9-jm7v-g9h7
+  summary: OpenClaw 已配对设备的配对操作未限制为仅针对调用方自身设备
+  details: >-
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 修复版本：2026.4.20
+
+
+    影响
+
+
+    具有有限配对权限范围的已配对设备会话，可枚举全局配对状态，并对同一网关权限范围内属于其他设备的配对请求执行操作。
+
+
+    这是同一网关内已配对设备的授权越权问题，而非远程未认证漏洞，危害等级为低危。
+
+
+    修复
+
+
+    配对管理操作现已限制为仅针对调用方自身设备，非管理员的已配对设备会话无法审批或操作与其无关的待处理设备请求。
+
+
+    修复提交：
+
+
+    - 5a12f30441d5b0b151f550daa2c5c9e8db61e2e6
+
+
+    发布版本
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: LOW
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。配对管理操作现已限制为仅针对调用方自身设备，非管理员的已配对设备会话无法审批或操作与其无关的待处理设备请求。修复提交：- 5a12f30441d5b0b151f550daa2c5c9e8db61e2e6"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xrq9-jm7v-g9h7
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xrq9-jm7v-g9h7

@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mj59-h3q9-ghfh
+  summary: OpenClaw MCP stdio 服务器环境变量可从工作区配置中加载危险的启动变量
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    工作区 MCP stdio 配置可向被启动的 MCP 服务器进程传递危险的进程启动环境变量，例如 NODE_OPTIONS、LD_PRELOAD 或 BASH_ENV。在恶意工作区场景下，当运营商启动使用该
+    MCP 服务器的会话时，MCP 子进程可能被迫加载攻击者控制的代码。
+
+
+    该影响范围仅限于本地/工作区信任边界，需要运营商在包含恶意 MCP 配置的工作区中运行 OpenClaw。因此严重等级为中危，而非高危/严重。
+
+
+    修复方案
+
+
+    OpenClaw 现已在启动 stdio MCP 服务器前，通过宿主环境安全拒绝列表对 MCP stdio 环境变量条目进行过滤。
+
+
+    修复提交：
+
+
+    - 62fa5071896e95edc7f67d1cebc70a2859e283af
+
+    - 85d86ebc4bf3d2226d39d132a484f4f7a299fa1b
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已在启动 stdio MCP 服务器前，通过宿主环境安全拒绝列表对 MCP stdio 环境变量条目进行过滤。修复提交：\
+    \ - 62fa5071896e95edc7f67d1cebc70a2859e283af"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mj59-h3q9-ghfh
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mj59-h3q9-ghfh

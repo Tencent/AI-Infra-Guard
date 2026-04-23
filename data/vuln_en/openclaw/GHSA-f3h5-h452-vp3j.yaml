@@ -1,0 +1,20 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f3h5-h452-vp3j
+  summary: OpenClaw Nostr profile mutation routes allowed operator.write config persistence
+  details: "Summary\r\n\r\nNostr profile mutation routes allowed operator.write config persistence.\r\n\r\nAffected Packages\
+    \ / Versions\r\n\r\n- Package: openclaw\r\n- Ecosystem: npm\r\n- Affected versions: < 2026.4.10\r\n- Patched versions:\
+    \ >= 2026.4.10\r\n\r\nImpact\r\n\r\nNostr plugin HTTP profile routes could persist profile config through a path that\
+    \ did not require admin authority.\r\n\r\nTechnical Details\r\n\r\nThe fix requires operator.admin scope for Nostr profile\
+    \ mutation routes.\r\n\r\nFix\r\n\r\nThe issue was fixed in 63553. The first stable tag containing the fix is v2026.4.10,\
+    \ and openclaw@2026.4.14 includes the fix.\r\n\r\n\nCredits\r\n\r\nThanks to @zpbrent and @zsxsoft, with sponsorship from\
+    \ @KeenSecurityLab and @qclawer for reporting this issue."
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #63553. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f3h5-h452-vp3j
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f3h5-h452-vp3j

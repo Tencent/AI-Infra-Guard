@@ -1,0 +1,50 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7jm2-g593-4qrc
+  summary: OpenClaw Agent 网关配置变更操作可修改受保护的运营商配置项
+  details: >-
+    受影响的软件包及版本
+
+
+    - 软件包：openclaw（npm）
+
+    - 受影响版本：< 2026.4.20
+
+    - 已修复版本：2026.4.20
+
+
+    影响
+
+
+    面向 Agent 的网关 config.patch / config.apply 防护机制未覆盖多项运营商可信配置项，包括沙箱策略、插件启用状态、网关鉴权/TLS 配置、Hook
+    路由、MCP 服务器配置、SSRF 策略及文件系统加固设置。持有 owner-only 网关工具访问权限的受提示注入影响的模型，可对上述配置项进行持久化变更。
+
+
+    此问题属于模型层对运营商层的防护绕过，而非远程未认证的网关入侵。严重等级为中危。
+
+
+    修复方案
+
+
+    OpenClaw 现已针对更广泛的运营商可信路径集合阻断模型驱动的网关配置变更，并覆盖了单 Agent 覆盖配置和数组条目补丁操作。
+
+
+    修复提交：
+
+
+    - fe30b31a97a917ecc6e92f6c85378b6b20352422
+
+
+    发布信息
+
+
+    已在 OpenClaw 2026.4.20 中修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "升级 openclaw 至 2026.4.20 或更高版本。OpenClaw 现已针对更广泛的运营商可信路径集合阻断模型驱动的网关配置变更，并覆盖了单 Agent 覆盖配置和数组条目补丁操作。修复提交：\
+    \ - fe30b31a97a917ecc6e92f6c85378b6b20352422"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7jm2-g593-4qrc
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7jm2-g593-4qrc

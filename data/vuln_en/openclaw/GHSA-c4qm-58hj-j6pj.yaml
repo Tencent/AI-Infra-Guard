@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c4qm-58hj-j6pj
+  summary: OpenClaw Browser snapshot and screenshot routes could expose internal page content after navigation
+  details: >-
+    Summary
+
+
+    Browser snapshot and screenshot routes could expose internal page content after navigation.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.14
+
+    - Patched versions: >= 2026.4.14
+
+
+    Impact
+
+
+    Authenticated browser tool callers could use snapshot, screenshot, or tab routes that did not consistently validate the
+    final browser target after route-driven navigation. In restrictive browser SSRF configurations this could expose content
+    from internal or otherwise disallowed pages.
+
+
+    Technical Details
+
+
+    The fix re-checks browser snapshot, screenshot, and tab route results against the configured browser SSRF policy before
+    returning page content. Regression coverage was added around snapshot/screenshot and tab-route flows.
+
+
+    Fix
+
+
+    The issue was fixed in 66040. The first stable tag containing the fix is v2026.4.14, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.14 or later. The issue was fixed in #66040. The first stable tag containing
+    the fix is v2026.4.14, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qm-58hj-j6pj
+rule: version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c4qm-58hj-j6pj

@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g2hm-779g-vm32
+  summary: OpenClaw 心跳所有者降级逻辑遗漏了不可信 Webhook 唤醒事件
+  details: >-
+    摘要
+
+
+    心跳所有者降级逻辑遗漏了不可信 Webhook 唤醒事件。
+
+
+    受影响包 / 版本
+
+
+    - 包名：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：>= 2026.4.7 < 2026.4.14
+
+    - 已修复版本：>= 2026.4.14
+
+
+    影响
+
+
+    心跳所有者降级逻辑可能跳过携带不可信内容的 Webhook 唤醒事件，导致运行上下文保留了类似所有者级别的执行权限，而本应被降级处理。
+
+
+    技术细节
+
+
+    修复措施将唤醒事件和钩子事件原因纳入所有者降级检查范围，并强制对不可信钩子唤醒事件执行降级处理。
+
+
+    修复
+
+
+    该问题已在提交 66031 中修复。首个包含修复的稳定标签为 v2026.4.14，openclaw@2026.4.14 也包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft，以及由 @KeenSecurityLab 和 @qclawer 赞助报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '将 openclaw 升级至 >= 2026.4.14 或更高版本。该问题已在 #66031 中修复。首个包含修复的稳定标签为 v2026.4.14，openclaw@2026.4.14 也包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g2hm-779g-vm32
+rule: version >= "2026.4.7" && version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g2hm-779g-vm32

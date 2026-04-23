@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7g8c-cfr3-vqqr
+  summary: OpenClaw Agent 钩子事件可能将未经净化的外部输入作为受信任的系统事件入队
+  details: >-
+    漏洞概述
+
+
+    Agent 钩子事件可能将未经净化的外部输入作为受信任的系统事件入队。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.10
+
+    - 已修复版本：>= 2026.4.10
+
+
+    影响
+
+
+    Agent 钩子调度可能将外部提供的钩子元数据转化为受信任的系统事件，导致不受信任的输入以更高信任级别的上下文进入 Agent。
+
+
+    技术细节
+
+
+    修复方案对钩子名称进行了净化处理，并在将 Agent 钩子系统事件入队前将其标记为不受信任。
+
+
+    修复
+
+
+    该问题已在 64372 中修复。包含此修复的第一个稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft 报告此问题，由 @KeenSecurityLab 和 @qclawer 提供资助支持。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '将 openclaw 升级至 >= 2026.4.10 或更高版本。该问题已在 #64372 中修复。包含此修复的第一个稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7g8c-cfr3-vqqr
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7g8c-cfr3-vqqr

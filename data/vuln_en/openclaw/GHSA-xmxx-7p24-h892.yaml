@@ -1,0 +1,62 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xmxx-7p24-h892
+  summary: OpenClaw Gateway HTTP endpoints re-resolve bearer auth after SecretRef rotation
+  details: >-
+    Summary
+
+
+    Gateway HTTP and WebSocket handlers captured the resolved bearer-auth configuration when the server started. After a SecretRef
+    rotation, the already-running gateway could continue accepting the old bearer token until restart.
+
+
+    Impact
+
+
+    A bearer token that should have been revoked by SecretRef rotation could remain valid on the gateway HTTP and upgrade
+    surfaces for the lifetime of the process. Severity remains high because the old token could continue to authorize gateway
+    requests after operators believed it was rotated out.
+
+
+    Affected versions
+
+
+    - Affected: < 2026.4.15
+
+    - Patched: 2026.4.15
+
+
+    Fix
+
+
+    OpenClaw 2026.4.15 resolves active gateway auth from the runtime secret snapshot per request and per upgrade instead of
+    using a stale startup-time value.
+
+
+    Verified in v2026.4.15:
+
+
+    - src/gateway/server.impl.ts exposes getResolvedAuth() backed by the current runtime secret snapshot.
+
+    - src/gateway/server-http.ts calls getResolvedAuth() for each HTTP request and WebSocket upgrade before running auth checks.
+
+    - src/gateway/server-http.probe.test.ts verifies /ready re-resolves bearer auth after rotation and rejects the old token.
+
+
+    Fix commit included in v2026.4.15 and absent from v2026.4.14:
+
+
+    - acd4e0a32f12e1ad85f3130f63b42443ce90f094 via PR 66651
+
+
+    Thanks to @zsxsoft, Keen Security Lab, and @qclawer for reporting this issue.
+  cvss: ''
+  severity: HIGH
+  security_advise: "Upgrade openclaw to 2026.4.15 or later. OpenClaw 2026.4.15 resolves active gateway auth from the runtime\
+    \ secret snapshot per request and per upgrade instead of using a stale startup-time value. Verified in v2026.4.15: - src/gateway/server.impl.ts\
+    \ exposes getResolvedAuth() backed by the current runtime secret snapshot."
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xmxx-7p24-h892
+rule: version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xmxx-7p24-h892

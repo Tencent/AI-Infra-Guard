@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v8qf-fr4g-28p2
+  summary: OpenClaw Assistant media route missed scope enforcement for trusted-proxy auth
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    The Control UI assistant-media route authenticated trusted-proxy callers but did not enforce the declared operator scopes
+    for identity-bearing HTTP auth paths. A trusted-proxy caller without operator.read could access assistant-media files
+    and metadata that were otherwise inside allowed media roots.
+
+
+    The route still required successful gateway authentication and media-root checks. Severity is low.
+
+
+    Fix
+
+
+    Assistant-media file and metadata requests now require operator.read on identity-bearing HTTP auth paths.
+
+
+    Fix commit:
+
+
+    - 99ef3a63c58440d53f8e45ad861b846032fcb036
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. Assistant-media file and metadata requests now require operator.read\
+    \ on identity-bearing HTTP auth paths. Fix commit: - 99ef3a63c58440d53f8e45ad861b846032fcb036"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v8qf-fr4g-28p2
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v8qf-fr4g-28p2

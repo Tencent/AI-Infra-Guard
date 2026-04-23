@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-527m-976r-jf79
+  summary: OpenClaw 现有会话浏览器交互路由绕过了 SSRF 策略执行
+  details: >-
+    概述
+
+
+    现有会话浏览器交互路由绕过了 SSRF 策略执行。
+
+
+    受影响软件包 / 版本
+
+
+    - 软件包：openclaw
+
+    - 生态系统：npm
+
+    - 受影响版本：< 2026.4.10
+
+    - 已修复版本：>= 2026.4.10
+
+
+    影响
+
+
+    现有会话的浏览器交互路由在与目标继续交互或导航时，未应用受防护浏览器路由所使用的同等 SSRF 导航防护机制。
+
+
+    技术细节
+
+
+    修复方案为现有会话的导航与交互路由添加了浏览器导航策略检查。
+
+
+    修复
+
+
+    该漏洞已在提交 #64370 中修复。首个包含修复的稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。
+
+
+    致谢
+
+
+    感谢 @zsxsoft 在 @KeenSecurityLab 和 @qclawer 的赞助支持下报告此问题。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: '请将 openclaw 升级至 >= 2026.4.10 或更高版本。该漏洞已在 #64370 中修复。首个包含修复的稳定标签为 v2026.4.10，openclaw@2026.4.14 亦包含此修复。'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-527m-976r-jf79
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-527m-976r-jf79

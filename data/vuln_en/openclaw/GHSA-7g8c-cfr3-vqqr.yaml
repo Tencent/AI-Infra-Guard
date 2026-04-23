@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7g8c-cfr3-vqqr
+  summary: OpenClaw Agent hook events could enqueue trusted system events from unsanitized external input
+  details: >-
+    Summary
+
+
+    Agent hook events could enqueue trusted system events from unsanitized external input.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.10
+
+    - Patched versions: >= 2026.4.10
+
+
+    Impact
+
+
+    Agent hook dispatch could turn externally supplied hook metadata into trusted system events, allowing untrusted input
+    to enter the agent as higher-trust context.
+
+
+    Technical Details
+
+
+    The fix sanitizes hook names and marks agent hook system events as untrusted before enqueueing them.
+
+
+    Fix
+
+
+    The issue was fixed in 64372. The first stable tag containing the fix is v2026.4.10, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.10 or later. The issue was fixed in #64372. The first stable tag containing
+    the fix is v2026.4.10, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7g8c-cfr3-vqqr
+rule: version < "2026.4.10"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7g8c-cfr3-vqqr

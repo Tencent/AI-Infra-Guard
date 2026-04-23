@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-57r2-h2wj-g887
+  summary: OpenClaw Isolated cron awareness events were recorded as trusted system events
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    Output from webhook-triggered isolated cron agent runs could be queued into the main session awareness stream without
+    trusted: false. That made the event render as a trusted System: event instead of an untrusted system event.
+
+
+    This is a trust-labeling issue that can strengthen prompt-injection impact, but it does not directly bypass gateway auth,
+    tool policy, or sandboxing. Severity is low.
+
+
+    Fix
+
+
+    OpenClaw now preserves untrusted labels for isolated cron awareness events and forwards the trust flag through cron delivery
+    helpers.
+
+
+    Fix commit:
+
+
+    - f61896b03cc7031f51106a04566831f4ac2a0bd7
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now preserves untrusted labels for isolated cron awareness\
+    \ events and forwards the trust flag through cron delivery helpers. Fix commit: - f61896b03cc7031f51106a04566831f4ac2a0bd7"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-57r2-h2wj-g887
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-57r2-h2wj-g887

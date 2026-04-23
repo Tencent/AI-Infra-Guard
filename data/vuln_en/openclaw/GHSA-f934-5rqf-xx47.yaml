@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-f934-5rqf-xx47
+  summary: OpenClaw QMD memory_get restricts reads to canonical or indexed memory paths
+  details: >-
+    Summary
+
+
+    The QMD backend memory_get read path accepted arbitrary workspace Markdown paths that were inside the workspace but outside
+    the canonical memory locations or indexed QMD result set.
+
+
+    Impact
+
+
+    When the QMD backend was enabled, a caller with access to memory_get could read arbitrary *.md files under the configured
+    workspace root, even when those files were not canonical memory files and had not been returned by QMD search. Severity
+    remains low because exploitation requires access to the memory tool surface and is limited to workspace Markdown files,
+    but it bypassed the intended memory-path policy.
+
+
+    Affected versions
+
+
+    - Affected: < 2026.4.15
+
+    - Patched: 2026.4.15
+
+
+    Fix
+
+
+    OpenClaw 2026.4.15 restricts QMD reads to canonical memory paths or previously indexed QMD workspace paths. Workspace
+    containment alone is no longer sufficient.
+
+
+    Verified in v2026.4.15:
+
+
+    - extensions/memory-core/src/memory/qmd-manager.ts rejects non-default workspace Markdown paths unless they match an indexed
+    QMD workspace read path.
+
+    - extensions/memory-core/src/memory/qmd-manager.test.ts covers QMD session search-result reads and the read-path restriction
+    behavior.
+
+
+    Fix commit included in v2026.4.15 and absent from v2026.4.14:
+
+
+    - 37d5971db36491d5050efd42c333cbe0b98ed292 via PR 66026
+
+
+    Thanks to @zsxsoft, Keen Security Lab, and @qclawer for reporting this issue.
+  cvss: ''
+  severity: LOW
+  security_advise: "Upgrade openclaw to 2026.4.15 or later. OpenClaw 2026.4.15 restricts QMD reads to canonical memory paths\
+    \ or previously indexed QMD workspace paths. Workspace containment alone is no longer sufficient. Verified in v2026.4.15:\
+    \ - extensions/memory-core/src/memory/qmd-manager.ts rejects non-default workspace Markdown paths unless they match an\
+    \ indexed QMD workspace read path."
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-f934-5rqf-xx47
+rule: version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-f934-5rqf-xx47

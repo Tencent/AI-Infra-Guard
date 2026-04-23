@@ -1,0 +1,73 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mr34-9552-qr95
+  summary: OpenClaw Webchat media embedding enforces local-root containment for tool-result files
+  details: >-
+    Summary
+
+
+    Webchat tool-result media normalization could pass local and UNC-style file paths into the host-side media embedding path
+    without applying the configured local-root containment policy.
+
+
+    Impact
+
+
+    A crafted tool-result media reference could cause the host to attempt local file reads or Windows UNC/network path access
+    while preparing webchat media blocks. This could disclose allowed host files or trigger network credential exposure on
+    affected Windows deployments. Severity remains medium because exploitation depends on a tool-result media path reaching
+    the webchat embedding path, but the sink is a host-side file read before the user sees the rendered result.
+
+
+    Affected versions
+
+
+    - Affected: >= 2026.4.7, < 2026.4.15
+
+    - Patched: 2026.4.15
+
+
+    Fix
+
+
+    OpenClaw 2026.4.15 hardens the webchat media path and the shared media resolver. Remote-host file:// URLs and Windows
+    network paths are rejected before filesystem access, and audio embedding now enforces configured localRoots containment
+    before stat or read operations.
+
+
+    Verified in v2026.4.15:
+
+
+    - src/gateway/server-methods/chat-webchat-media.ts uses safe file-URL parsing, rejects Windows network paths, and calls
+    assertLocalMediaAllowed before probing local audio files.
+
+    - src/media/web-media.ts rejects remote-host file:// URLs, Windows network paths, and local-root bypasses on the shared
+    media path.
+
+    - src/gateway/server-methods/chat-webchat-media.test.ts covers both remote-host file:// rejection and local-root denial
+    before filesystem access.
+
+
+    Fix commits included in v2026.4.15 and absent from v2026.4.14:
+
+
+    - 1470de5d3e0970856d86cd99336bb8ada3fe87da via PR 67293
+
+    - 6e58f1f9f54bca1fea1268ec0ee4c01a2af03dde via PR 67298
+
+    - 52ef42302ead9e183e6c8810e0a04ee4ef8ae9fc via PR 67303 as defense-in-depth for trusted media passthrough anchoring
+
+
+    Thanks to @Kherrisan for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.15 or later. OpenClaw 2026.4.15 hardens the webchat media path and the shared\
+    \ media resolver. Remote-host file:// URLs and Windows network paths are rejected before filesystem access, and audio\
+    \ embedding now enforces configured localRoots containment before stat or read operations. Verified in v2026.4.15: - src/gateway/server-methods/chat-webchat-media.ts\
+    \ uses safe file-URL parsing, rejects Windows network paths, and calls assertLocalMediaAllowed before probing local audio\
+    \ files."
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mr34-9552-qr95
+rule: version >= "2026.4.7" && version < "2026.4.15"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mr34-9552-qr95

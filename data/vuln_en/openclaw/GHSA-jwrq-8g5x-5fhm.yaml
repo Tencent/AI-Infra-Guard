@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jwrq-8g5x-5fhm
+  summary: OpenClaw Collect-mode queue batches could reuse the last sender authorization context
+  details: >-
+    Summary
+
+
+    Collect-mode queue batches could reuse the last sender authorization context.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Ecosystem: npm
+
+    - Affected versions: < 2026.4.14
+
+    - Patched versions: >= 2026.4.14
+
+
+    Impact
+
+
+    Collect-mode queued messages from different senders could be drained as one batch using the final sender's authorization
+    context, allowing earlier messages to inherit a more privileged context.
+
+
+    Technical Details
+
+
+    The fix splits collect-mode batches by sender authorization context before dispatch, preserving each message's own trust
+    state.
+
+
+    Fix
+
+
+    The issue was fixed in 66024. The first stable tag containing the fix is v2026.4.14, and openclaw@2026.4.14 includes the
+    fix.
+
+
+    Credits
+
+
+    Thanks to @zsxsoft, with sponsorship from @KeenSecurityLab and @qclawer for reporting this issue.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 'Upgrade openclaw to >= 2026.4.14 or later. The issue was fixed in #66024. The first stable tag containing
+    the fix is v2026.4.14, and openclaw@2026.4.14 includes the fix.'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jwrq-8g5x-5fhm
+rule: version < "2026.4.14"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jwrq-8g5x-5fhm

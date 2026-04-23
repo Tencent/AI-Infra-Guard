@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-7jm2-g593-4qrc
+  summary: OpenClaw Agent gateway config mutations could change protected operator settings
+  details: >-
+    Affected Packages / Versions
+
+
+    - Package: openclaw (npm)
+
+    - Affected versions: < 2026.4.20
+
+    - Patched version: 2026.4.20
+
+
+    Impact
+
+
+    The agent-facing gateway config.patch / config.apply guard did not cover several operator-trusted settings, including
+    sandbox policy, plugin enablement, gateway auth/TLS, hook routing, MCP server configuration, SSRF policy, and filesystem
+    hardening. A prompt-injected model with access to the owner-only gateway tool could persist changes to those settings.
+
+
+    This is a model-to-operator guard bypass, not a remote unauthenticated gateway compromise. Severity is medium.
+
+
+    Fix
+
+
+    OpenClaw now blocks model-driven gateway config mutations for the broader operator-trusted path set and covers per-agent
+    overrides and array-entry patching.
+
+
+    Fix commit:
+
+
+    - fe30b31a97a917ecc6e92f6c85378b6b20352422
+
+
+    Release
+
+
+    Fixed in OpenClaw 2026.4.20.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: "Upgrade openclaw to 2026.4.20 or later. OpenClaw now blocks model-driven gateway config mutations for\
+    \ the broader operator-trusted path set and covers per-agent overrides and array-entry patching. Fix commit: - fe30b31a97a917ecc6e92f6c85378b6b20352422"
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-7jm2-g593-4qrc
+rule: version < "2026.4.20"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-7jm2-g593-4qrc
