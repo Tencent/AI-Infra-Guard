@@ -60,6 +60,7 @@
 
 ## 🚀 Neuigkeiten
 
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Abdeckung auf 58 KI-Komponenten erweitert (FastGPT, Upsonic hinzugefügt); Schwachstellen-DB für 7 Komponenten umfassend aktualisiert.
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Erkennt exponierte AI-Agent-Konfigurationsdateien (13 Pfade); manuelle Aktualisierung von Jailbreak-Datensätzen und Schwachstellendatenbanken.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — HTTPS-Modell-Endpunkte mit selbstsignierten Zertifikaten werden jetzt unterstützt.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Abdeckung auf 55 KI-Komponenten erweitert; crewai, kubeai und lobehub hinzugefügt.
@@ -154,7 +155,7 @@ Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung
 | **ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)** | Unterstützt die Ein-Klick-Bewertung von OpenClaw-Sicherheitsrisiken. Erkennt unsichere Konfigurationen, Skill-Risiken, CVE-Schwachstellen und Datenschutzverletzungen. |
 | **Agent&nbsp;Scan** | Ein eigenständiges, multi-agenten-basiertes automatisiertes Scan-Framework. Es ist darauf ausgelegt, die Sicherheit von KI-Agent-Workflows zu bewerten. Es unterstützt nahtlos Agents, die auf verschiedenen Plattformen laufen, einschließlich Dify und Coze. |
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;Scan** | Erkennt umfassend 14 Hauptkategorien von Sicherheitsrisiken. Die Erkennung gilt sowohl für MCP Server als auch für Agent Skills. Unterstützt flexibel das Scannen aus Quellcode und entfernten URLs. |
-| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 57 KI-Framework-Komponenten. Deckt mehr als 1000 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
+| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 58 KI-Framework-Komponenten. Deckt mehr als 1200 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
 | **Jailbreak&nbsp;Evaluation** | Bewertet Prompt-Sicherheitsrisiken anhand sorgfältig kuratierter Datensätze. Die Evaluation wendet mehrere Angriffsmethoden an, um die Robustheit zu testen. Bietet außerdem detaillierte modellübergreifende Vergleichsmöglichkeiten. |
 
 <details>
@@ -204,7 +205,7 @@ Das Ziel ist die **Netzwerkadresse eines laufenden KI-Dienstes**, den Sie scanne
 1. Starten Sie vLLM normal (z. B. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Klicken Sie in der A.I.G-Weboberfläche auf **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Geben Sie `http://127.0.0.1:8000` ein (oder die IP/den Port, auf dem vLLM lauscht)
-4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1000+ bekannten CVEs ab
+4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1200+ bekannten CVEs ab
 5. Sehen Sie den Bericht ein: Komponentenversion, gefundene Schwachstellen, Schweregrad und Behebungslinks
 
 > 💡 **Tipp**: Um speziell den *Nightly-Build* von vLLM zu scannen, führen Sie diesen Nightly-Build aus und verweisen Sie A.I.G auf dessen Adresse. Der Scanner erkennt die Version automatisch.
