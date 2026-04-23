@@ -25,7 +25,8 @@ RUN apk add --no-cache \
     ca-certificates \
     tzdata \
     bash \
-    curl
+    curl \
+    git
 
 # 安装uv到/usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
