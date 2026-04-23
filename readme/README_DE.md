@@ -60,12 +60,11 @@
 
 ## 🚀 Neuigkeiten
 
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Jailbreak-Erkennung für Agent Scan; erkennt exponierte AI-Agent-Konfigurationsdateien.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — HTTPS-Modell-Endpunkte mit selbstsignierten Zertifikaten werden jetzt unterstützt.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Abdeckung auf 55 KI-Komponenten erweitert; crewai, kubeai und lobehub hinzugefügt.
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Drei neue Skills auf ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) sowie manueller Aufgabenstopp.
 - **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Erkennt LiteLLM-Supply-Chain-Angriff (KRITISCH); Blinko & New-API-Abdeckung hinzugefügt.
-- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw-Schwachstellendatenbank mit 281 neuen CVE/GHSA-Einträgen erweitert.
-- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Veröffentlichung von EdgeOne ClawScan (OpenClaw Sicherheitsscan) und dem Agent-Scan-Framework.
 
 👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [EdgeOne ClawScan ausprobieren](https://matrix.tencent.com/clawscan)
 

@@ -60,12 +60,11 @@
 
 ## 🚀 Nouveautés
 
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Détection de jailbreak pour Agent Scan ; détecte les fichiers de configuration d'AI Agent exposés.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — Les endpoints de modèle HTTPS avec certificats auto-signés sont désormais pris en charge.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
 - **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Détecte l'attaque de la chaîne d'approvisionnement LiteLLM (CRITIQUE) ; ajout de la couverture Blinko & New-API.
-- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — Base de données de vulnérabilités OpenClaw étendue avec 281 nouvelles entrées CVE/GHSA.
-- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Lancement d’EdgeOne ClawScan (Analyse de Sécurité OpenClaw) et du framework Agent-Scan.
 
 👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [Essayer EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
@@ -161,7 +160,7 @@ Découvrez la version Pro avec des fonctionnalités avancées et des performance
 
 - 🖥️ **Interface web moderne** : Interface conviviale avec analyse en un clic et suivi de progression en temps réel
 - 🔌 **API complète** : Documentation d'interface complète et spécifications Swagger pour une intégration facile
-- 🤖 **Prêt pour les agents** : Skills d'agent prêts à l'emploi sur ClawHub — [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan), [EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner) et [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) — intégrez l'analyse de sécurité dans n'importe quel workflow d'agent IA en toute simplicité
+- 🤖 **Prêt pour les agents** : Skills d'agent prêts à l'emploi sur ClawHub - [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan), [EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner) et [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) - intégrez l'analyse de sécurité dans n'importe quel workflow d'agent IA en toute simplicité
 - 🌐 **Multi-langue** : Interfaces en chinois et en anglais avec documentation localisée
 - 🐳 **Multi-plateforme** : Prise en charge Linux, macOS et Windows avec déploiement basé sur Docker
 - 🆓 **Gratuit et open source** : Entièrement gratuit sous la licence Apache 2.0
@@ -203,14 +202,14 @@ La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vou
 1. Démarrez vLLM normalement (ex. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Dans l'interface web d'A.I.G, cliquez sur **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Saisissez `http://127.0.0.1:8000` (ou l'IP/port sur lequel vLLM écoute)
-4. Cliquez sur **Start Scan** — A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
+4. Cliquez sur **Start Scan** - A.I.G va identifier le service et le comparer à plus de 1 000 CVE connus
 5. Consultez le rapport : version du composant, vulnérabilités détectées, sévérité et liens de remédiation
 
 > 💡 **Conseil** : Pour analyser spécifiquement la version *nightly* de vLLM, lancez simplement ce build nightly et pointez A.I.G vers son adresse. Le scanner détecte automatiquement la version.
 
 ### Analyse MCP Server & Agent Skills
 
-Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** — aucune instance en cours d'exécution n'est requise.
+Saisissez soit une **URL distante** (ex. `https://github.com/user/mcp-server`) soit **chargez une archive source locale** - aucune instance en cours d'exécution n'est requise.
 
 ### Jailbreak Evaluation
 
@@ -510,7 +509,7 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 </details>
 
-📧 Si vous avez utilisé A.I.G dans vos recherches ou votre produit, ou si nous avons involontairement omis votre publication, n'hésitez pas à nous contacter ! [Contactez-nous ici](#-rejoindre-la-communauté).
+📧 Si vous avez utilisé A.I.G dans vos recherches ou votre produit, ou si nous avons involontairement omis votre publication, n'hésitez pas à nous contacter ! [Contactez-nous ici](#-rejoindre-la-communauté).
 <br>
 <br>
 
