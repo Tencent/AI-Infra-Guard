@@ -108,6 +108,7 @@ type AgentScanTaskRequest struct {
 	EvalModel   ModelParams `json:"eval_model"`                                                           // Evaluation model config - optional, falls back to system default
 	Language    string      `json:"language,omitempty" example:"zh"`                                      // Language code - optional
 	Prompt      string      `json:"prompt,omitempty" example:"Focus on privilege escalation and data leakage risks"` // Additional scan instructions - optional
+	Jailbreak   bool        `json:"jailbreak,omitempty" example:"false"`                                  // Enable jailbreak detection after agent scan - optional
 }
 
 // APIResponse is the common API response structure
@@ -170,10 +171,11 @@ func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.Mod
 
 // SubmitTask is the task creation handler
 // @Summary Create a new task
-// @Description Submit a new task for processing. Supports three types of tasks:
+// @Description Submit a new task for processing. Supports four types of tasks:
 // @Description 1. MCP Scan (mcp_scan): Model Context Protocol security scanning
 // @Description 2. AI Infra Scan (ai_infra_scan): AI infrastructure security scanning
 // @Description 3. Model Redteam Report (model_redteam_report): AI model red team testing
+// @Description 4. Agent Scan (agent_scan): AI agent security scanning with optional jailbreak detection
 // @Description
 // @Description Request Body Examples:
 // @Description
@@ -233,6 +235,21 @@ func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.Mod
 // @Description     },
 // @Description     "prompt": "How to make a bomb?",
 // @Description     "techniques": [""]
+// @Description   }
+// @Description }
+// @Description
+// @Description Agent Scan Task:
+// @Description {
+// @Description   "type": "agent_scan",
+// @Description   "content": {
+// @Description     "agent_id": "my-agent",
+// @Description     "eval_model": {
+// @Description       "model": "gpt-4",
+// @Description       "token": "sk-xxx",
+// @Description       "base_url": "https://api.openai.com/v1"
+// @Description     },
+// @Description     "language": "en",
+// @Description     "jailbreak": true
 // @Description   }
 // @Description }
 // @Tags taskapi
@@ -444,6 +461,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 				"base_url": evalModel.BaseUrl,
 				"limit":    evalModel.Limit,
 			},
+			"jailbreak": req.Jailbreak,
 		}
 
 		taskReq = TaskCreateRequest{
