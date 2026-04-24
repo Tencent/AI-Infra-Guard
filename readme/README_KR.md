@@ -409,6 +409,7 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/fudan.png" alt="복旦대학" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
 <img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">

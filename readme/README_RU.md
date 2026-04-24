@@ -409,6 +409,7 @@ A.I.G предоставляет полный набор API для создан
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
 <img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
