@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/tencent-ai-infra-guard-badge.png)](https://mseep.ai/app/tencent-ai-infra-guard)
+
 <p align="center">
     <h1 align="center"><img vertical-align="middle" width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
