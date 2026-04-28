@@ -58,6 +58,7 @@
 
 ## 🚀 最新动态
 
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — 覆盖扩展至 58 种 AI 组件（新增 FastGPT、Upsonic）；7 个组件漏洞库批量更新。
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 可检测暴露的 AI Agent 配置文件（13 种路径）；支持手动更新越狱数据集与漏洞库。
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自签名证书的 HTTPS 模型端点现已支持。
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 覆盖扩展至 55 种 AI 组件，新增 crewai、kubeai、lobehub。
@@ -151,7 +152,7 @@ docker-compose up -d
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
 | **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 57 种 AI 开源 Web 组件。涵盖 1000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 58 种 AI 开源 Web 组件。涵盖 1200+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
 | **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
 
 <details>
@@ -199,7 +200,7 @@ docker-compose up -d
 1. 正常启动 vLLM（如 `python -m vllm.entrypoints.api_server --model ...`）
 2. 在 A.I.G 界面点击「AI基础设施安全扫描」
 3. 在目标输入框填入 `http://127.0.0.1:8000`（vLLM 实际监听的 IP 和端口）
-4. 点击「开始扫描」— A.I.G 会自动识别组件版本，匹配 1000+ 已知 CVE
+4. 点击「开始扫描」— A.I.G 会自动识别组件版本，匹配 1200+ 已知 CVE
 5. 查看报告：组件版本、命中漏洞、严重等级及修复建议链接
 
 > 💡 **提示**：如果想扫描 vLLM 的 nightly 版本，只需启动 nightly 构建，把地址填进来即可，扫描器会自动识别版本。

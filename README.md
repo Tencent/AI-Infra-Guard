@@ -60,6 +60,7 @@
 
 ## 🚀 What's New
 
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Coverage expanded to 58 AI components (added FastGPT, Upsonic); vuln database refreshed across 7 components.
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Detects exposed AI agent config files (13 paths); manual update for jailbreak datasets and vuln databases.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — HTTPS model endpoints with self-signed certificates now supported.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Coverage expanded to 55 AI components; added crewai, kubeai, lobehub.
@@ -154,7 +155,7 @@ Experience the Pro version with advanced features and improved performance. The 
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
 | **Agent&nbsp;Scan** | This is an independent, multi-agent automated scanning framework. It is designed to evaluate the security of AI agent workflows. It seamlessly supports agents running across various platforms, including Dify and Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 57 AI framework components. It covers more than 1000 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 58 AI framework components. It covers more than 1200 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
 | **Jailbreak&nbsp;Evaluation** | It assesses prompt security risks using carefully curated datasets. The evaluation applies multiple attack methods to test robustness. It also provides detailed cross-model comparison capabilities. |
 
 <details>
@@ -204,7 +205,7 @@ The target is the **network address of a running AI service** you want to scan -
 1. Start vLLM normally (e.g. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. In the A.I.G web UI, click **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Enter `http://127.0.0.1:8000` (or the IP/port where vLLM is listening)
-4. Click **Start Scan** - A.I.G will fingerprint the service and match it against 1000+ known CVEs
+4. Click **Start Scan** - A.I.G will fingerprint the service and match it against 1200+ known CVEs
 5. View the report: component version, matched vulnerabilities, severity, and remediation links
 
 > 💡 **Tip**: To scan the *nightly* build of vLLM specifically, just run that nightly build and point A.I.G at its address. The scanner detects the version automatically.
