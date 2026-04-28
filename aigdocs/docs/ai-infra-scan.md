@@ -61,23 +61,24 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 |                    | ChatRTX                 | 1        | 低       |
 |                    | kubeai                  | 1        | 高       |
 | **LLM应用框架**    | langchain               | 51       | 高       |
-|                    | dify                    | 21       | 高       |
+|                    | dify                    | 25       | 高       |
 |                    | anythingllm             | 17       | 中高     |
 |                    | open-webui              | 39       | 中高     |
 |                    | ragflow                 | 11       | 中       |
 |                    | qanything               | 8        | 中       |
-|                    | langflow                | 25       | 中       |
+|                    | langflow                | 29       | 中       |
 |                    | litellm                 | 20       | 中       |
 |                    | mlflow                  | 66       | 高       |
 |                    | librechat               | 10       | 中       |
 |                    | nextchat                | 4        | 中       |
 |                    | lobechat                | 4        | 中       |
 |                    | lobehub                 | 1        | 中       |
-|                    | flowise                 | 3        | 中       |
+|                    | flowise                 | 4        | 中       |
 |                    | langfuse                | 3        | 低       |
 |                    | new-api                 | 2        | 中       |
 |                    | Chuanhugpt              | 27       | 中高     |
 |                    | crewai                  | 3        | 严重     |
+|                    | fastgpt                 | 1        | 中       |
 | **数据处理与分析** | clickhouse              | 25       | 高       |
 |                    | feast                   | 2        | 低       |
 |                    | dask                    | 3        | 低       |
@@ -88,7 +89,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 |                    | ray                     | 10       | 中       |
 |                    | n8n                     | 33       | 中高     |
 |                    | simstudioai             | 9        | 中       |
-| **其他AI组件**     | comfyui                 | 8        | 低       |
+| **其他AI组件**     | comfyui                 | 13       | 中       |
 |                    | comfy_mtb               | 1        | 低       |
 |                    | ComfyUI-Prompt-Preview  | 1        | 低       |
 |                    | ComfyUI-Custom-Scripts  | 1        | 低       |
@@ -106,9 +107,10 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 |                    | wallos                  | 1        | 低       |
 |                    | praisonai               | 2        | 中       |
 |                    | text-generation-webui   | 1        | 中       |
-|                    | openclaw                | 566      | 中高     |
+|                    | openclaw                | 575      | 中高     |
+|                    | upsonic                 | 1        | 中       |
 | **AI Agent 配置安全** | AI-Agent-Config         | 1        | 高       |
-| **总计**           |                         | **1000+** |          |
+| **总计**           |                         | **1200+** |          |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 
