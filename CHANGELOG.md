@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.7] - 2026-04-30
+
+### Changed
+- **Docs**: Update README What's New section with v4.1.6 highlights, update component count (57→58) and vulnerability stats across all 9 README languages (75946d1)
+- **Users**: Update user list (7c2a7f1)
+
+### Contributors
+Special thanks to @jucie-pie, @aigsec, @aig-doc-bot
+
+---
+
 ## [v4.1.6] - 2026-04-23
 
 ### Added
