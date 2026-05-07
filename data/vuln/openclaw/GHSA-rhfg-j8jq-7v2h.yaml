@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rhfg-j8jq-7v2h
+  summary: OpenClaw 多个渠道扩展中未防护的配置 Base URL 导致 SSRF（CVE-2026-28476 不完整修复）
+  details: >-
+    漏洞概述
+
+
+    多个渠道扩展中未防护的配置 Base URL 导致 SSRF（CVE-2026-28476 不完整修复）
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    多个渠道扩展仍使用原始 fetch() 请求配置的 Base URL，未经过 CVE-2026-28476 中添加的 SSRF 防护处理。
+    提交 f92c92515bd439a71bd03eb1bc969c1964f17acf 将这些出站请求改为经 fetchWithSsrfGuard 路由，
+    防止配置的端点被重绑定到内部受限目标（SSRF 攻击）。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 f92c92515bd439a71bd03eb1bc969c1964f17acf 在 main 分支修复。
+  cvss: ''
+  severity: HIGH
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：f92c92515bd439a71bd03eb1bc969c1964f17acf
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rhfg-j8jq-7v2h
+rule: 'version <= "2026.3.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rhfg-j8jq-7v2h

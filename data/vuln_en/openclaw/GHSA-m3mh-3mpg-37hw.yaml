@@ -1,0 +1,72 @@
+info:
+  name: OpenClaw
+  cve: GHSA-m3mh-3mpg-37hw
+  summary: OpenClaw openclaw Arbitrary Malicious Code Execution Vulnerability
+  details: >-
+    > Fixed in OpenClaw 2026.3.24, the current shipping release.
+
+
+    Summary
+
+    During the installation phase of OpenClaw local plugins/hooks, the Git executable can be hijacked by a project-level .npmrc
+    file, leading to arbitrary code execution during installation.
+
+
+    Details
+
+    Please note that the source code locations mentioned below are based on version openclaw-2026.3.13-1, but the issue has
+    been confirmed to still exist in the current latest version, 2026.3.23.
+
+
+    When installing a local plugin directory, local plugin archive, local hook pack directory, or local hook pack archive,
+    OpenClaw first copies the source directory to a temporary stageDir, then executes the following in that directory:
+
+
+    ``
+
+    npm install --omit=dev --silent --ignore-scripts
+
+    `
+
+
+    See src/infra/install-package-dir.ts:176-199.
+
+
+    Since this process does not strip the project root .npmrc, and npm reads the project-level .npmrc during local project
+    installation, an attacker could use a .npmrc file in a malicious plugin or hook directory to override npm’s git executable
+    path. By leveraging a Git dependency, the attacker could trigger npm to call this malicious program, thereby executing
+    arbitrary local code during the installation phase.
+
+
+    Affected Paths
+
+
+    - Plugin CLI entry point: src/cli/plugins-cli.ts:199-255
+
+    - Hook CLI entry point: src/cli/hooks-cli.ts:573-676
+
+    - Plugin local directory / archive installation: src/plugins/install.ts:379-405, src/plugins/install.ts:541-565
+
+    - Hook local directory / archive installation: src/hooks/install.ts:380-403, src/hooks/install.ts:443-470
+
+    - Actual execution of npm install --ignore-scripts: src/infra/install-package-dir.ts:176-199
+
+
+    Vulnerability Trigger Flow
+
+
+    1. The user executes one of the following commands:
+
+       - openclaw plugins install <path-or-spec>
+       - openclaw hooks install <path-or-spec>
+    2. If the argument is a local directory or local archive, OpenClaw navigates to the local installation path.
+
+    3. OpenClaw copies the source directory to a temporary stageDir. See src/i...
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-m3mh-3mpg-37hw
+rule: version <= "2025.3.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-m3mh-3mpg-37hw

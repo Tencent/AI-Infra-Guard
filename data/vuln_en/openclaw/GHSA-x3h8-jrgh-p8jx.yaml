@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x3h8-jrgh-p8jx
+  summary: OpenClaw Exec allowlist analysis rejects shell expansion in unquoted heredocs
+  details: >-
+    Summary
+
+    Exec allowlist analysis rejects shell expansion in unquoted heredocs
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    An allowlisted command containing an unquoted heredoc could hide shell expansion in the heredoc body. That could make
+    the approved command text look safer than what the shell would evaluate at runtime.
+
+
+    Fix
+
+    The exec command analyzer now tracks heredoc bodies, rejects unquoted heredoc expansion tokens and continuation-splice
+    bypasses, and preserves quoted heredocs and literal safe text.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @VladimirEliTokarev for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. The exec command analyzer now tracks heredoc bodies, rejects unquoted heredoc
+    expansion tokens and continuation-splice bypasses, and preserves quoted heredocs and literal safe text.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x3h8-jrgh-p8jx
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x3h8-jrgh-p8jx

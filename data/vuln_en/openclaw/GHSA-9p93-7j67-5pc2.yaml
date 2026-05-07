@@ -1,0 +1,43 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9p93-7j67-5pc2
+  summary: >-
+    OpenClaw Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding
+  details: >-
+    Summary
+
+
+    Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    The HTTP /sessions/:sessionKey/kill route previously treated any bearer-authenticated request as admin-eligible and could
+    call killSubagentRunAdmin(...) without binding the action to requester ownership or caller-granted operator scopes. Commit
+    02cf12371f9353a16455da01cc02e6c4ecfc4152 removes the bearer-token admin fallback and keeps remote session kills on the
+    local-admin or requester-owned path only.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit 02cf12371f9353a16455da01cc02e6c4ecfc4152.
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 02cf12371f9353a16455da01cc02e6c4ecfc4152
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p93-7j67-5pc2
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9p93-7j67-5pc2

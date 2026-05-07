@@ -1,0 +1,98 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jq4x-98m3-ggq6
+  summary: >-
+    OpenClaw ZDI-CAN-29312: OpenClaw Canvas Path Traversal Information Disclosure Vulnerability
+  details: >-
+    ZDI-CAN-29312: OpenClaw Canvas Path Traversal Information Disclosure Vulnerability
+
+
+    -- CVSS -----------------------------------------
+
+
+    6.5: AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N
+
+
+    -- ABSTRACT -------------------------------------
+
+
+    Trend Micro's Zero Day Initiative has identified a vulnerability affecting the following products:
+
+    OpenClaw - OpenClaw
+
+
+    -- VULNERABILITY DETAILS ------------------------
+
+    * Version tested: openclaw 2026.2.17
+
+    * Platform tested: macOS 26.3
+
+
+    ---
+
+
+    Analysis
+
+
+    Description
+
+
+    The OpenClaw gateway's canvas tool accepts an a2ui_push action with a jsonlPath parameter that specifies a filesystem
+    path to read. The gateway reads this file using fs.readFile() with no path validation, canonicalization, or directory
+    restriction. An authenticated attacker can supply an arbitrary absolute or relative path to read any file accessible to
+    the gateway process.
+
+
+    The file contents are forwarded to the connected node client via the canvas.a2ui.pushJSONL WebSocket command. The gateway
+    itself returns { ok: true } to the HTTP caller, confirming the file was read and transmitted.
+
+
+    Root Cause
+
+
+    In src/agents/tools/canvas-tool.ts, the a2ui_push action handler reads a file from disk without any path restrictions:
+
+
+    ``typescript
+
+    case "a2ui_push": {
+      const jsonl =
+        typeof params.jsonl === "string" && params.jsonl.trim()
+          ? params.jsonl
+          : typeof params.jsonlPath === "string" && params.jsonlPath.trim()
+            ? await fs.readFile(params.jsonlPath.trim(), "utf8")  // <-- NO PATH VALIDATION
+            : "";
+      if (!jsonl.trim()) {
+        throw new Error("jsonl or jsonlPath required");
+      }
+      await invoke("canvas.a2ui.pushJSONL", { jsonl });
+      return jsonResult({ ok: true });
+    }
+
+    `
+
+
+    The jsonlPath parameter is passed directly to fs.readFile() after only a .trim() call. There is:
+
+    - No allowlist of permitted directories
+
+    - No canonicalization (path.resolve / realpath)
+
+    - No check against directory traversal sequences (..)
+
+    - No restriction to .jsonl file extensions
+
+
+    Attack Scenario
+
+
+    Prom...
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to >= 2026.2.21 or later. Commit(s) - 39816e61b0c4347a83c9b76bc8883190cfe5a3c9
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jq4x-98m3-ggq6
+rule: version <= "2026.2.19-2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jq4x-98m3-ggq6

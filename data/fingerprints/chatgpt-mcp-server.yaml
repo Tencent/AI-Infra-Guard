@@ -1,0 +1,14 @@
+info:
+  name: chatgpt-mcp-server
+  author: A.I.G bot
+  severity: info
+  desc: A Model Context Protocol (MCP) server for Docker container management through ChatGPT/Claude. Exposes an HTTP API on port 3001 (default) for Docker operations including container create, start, stop, remove, logs, and exec. Built on TypeScript with API key authentication and rate limiting.
+  metadata:
+    product: chatgpt-mcp-server
+    vendor: toowiredd
+http:
+  - method: GET
+    path: '/health'
+    matchers:
+      - header="Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS, HEAD"
+      - header="Access-Control-Allow-Headers: Content-Type, X-API-Key"

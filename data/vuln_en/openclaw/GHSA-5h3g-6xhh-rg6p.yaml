@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-5h3g-6xhh-rg6p
+  summary: >-
+    OpenClaw OpenShell FS bridge reads pin and verify the opened file before returning bytes
+  details: >-
+    Summary
+
+    OpenShell FS bridge reads pin and verify the opened file before returning bytes
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    A time-of-check/time-of-use race around OpenShell sandbox filesystem reads could let a symlink swap cause bytes outside
+    the intended mount root to be read.
+
+
+    Fix
+
+    OpenShell reads now open the file with no-follow semantics where available, validate the pinned file descriptor against
+    the canonical mount root, reject unsafe hardlink/symlink cases, and use a strict fallback ancestor walk on platforms without
+    fd-path readback.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @VladimirEliTokarev for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. OpenShell reads now open the file with no-follow semantics where available, validate
+    the pinned file descriptor against the canonical mount root, reject unsafe hardlink/symlink cases, and use a strict fallback
+    ancestor walk on platforms without fd-path readback.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-5h3g-6xhh-rg6p
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-5h3g-6xhh-rg6p

@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rqp8-q22p-5j9q
+  summary: >-
+    OpenClaw Synology Chat shared webhook path route replacement collapses multi-account policy contexts and bypasses DM access
+    control.
+  details: >-
+    Summary
+
+    Synology Chat multi-account configuration could collapse onto a shared webhook path, replacing route ownership and bypassing
+    per-account DM policy separation.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - extensions/synology-chat/src/accounts.ts now distinguishes inherited base webhook paths from explicit per-account paths.
+
+    - extensions/synology-chat/src/gateway-runtime.ts now fails closed on inherited or duplicate webhook paths and registers
+    routes without replacement.
+
+
+    Thanks @tdjackey for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 980940aa58f862da4e19372597bbc2a9f268d70b
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rqp8-q22p-5j9q
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rqp8-q22p-5j9q

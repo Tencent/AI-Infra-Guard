@@ -1,0 +1,111 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xp9r-prpg-373r
+  summary: >-
+    OpenClaw `browser.request` still allows `POST /reset-profile` through the `operator.write` surface
+  details: >-
+    > Fixed in OpenClaw 2026.3.24, the current shipping release.
+
+
+    Title
+
+
+    browser.request still allows POST /reset-profile through the operator.write surface in OpenClaw v2026.3.22 after GHSA-vmhq-cqm9-6p7q
+
+
+    Severity Assessment
+
+
+    High
+
+
+    CWE:
+
+
+    - CWE-863: Incorrect Authorization
+
+
+    Proposed CVSS v3.1:
+
+
+    - 8.1 (CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H)
+
+
+    An authenticated caller who only has access to the scoped Gateway method browser.request on the operator.write surface
+    can still reach a destructive persistent-profile management route.
+
+
+    Likely related advisory family:
+
+
+    - GHSA-vmhq-cqm9-6p7q
+
+
+    This should be treated as a later-version residual or incomplete fix. The earlier fix blocked POST /profiles/create and
+    profile deletion, but the latest released v2026.3.22 code still omits POST /reset-profile from the same mutation gate.
+
+
+    Impact
+
+
+    A caller with operator.write access to browser.request can still trigger persistent profile reset via POST /reset-profile.
+
+
+    This crosses the intended privilege boundary for browser profile management because the release already attempts to block
+    adjacent persistent profile mutations on this same surface.
+
+
+    In practice, the allowed route reaches destructive behavior that can:
+
+
+    - stop the running browser for that profile
+
+    - close the Playwright browser connection for that profile
+
+    - move the profile's local userDataDir to Trash when it exists
+
+
+    This is a real integrity and availability impact on persistent browser state, not a route-classification mismatch with
+    no side effects.
+
+
+    Affected Component
+
+
+    Product:
+
+
+    - openclaw
+
+
+    Tested latest released version:
+
+
+    - release tag: v2026.3.22
+
+    - release tag target commit (peeled tag): e7d11f6c33e223a0dd8a21cfe01076bd76cef87a
+
+
+    Published artifact for that release:
+
+
+    - package: openclaw-2026.3.22.tgz
+
+    - package build-info commit: 4dcc39c25c6cc63fedfd004f52d173716576fcf0
+
+    - package build-info timestamp: 2026-03-23T10:56:05.946Z
+
+
+    Exact vulnerable paths on the shipped tag:
+
+
+    - src/gateway/method-scopes.ts:114
+      - browser.requ...
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H
+  severity: HIGH
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xp9r-prpg-373r
+rule: version <= "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xp9r-prpg-373r

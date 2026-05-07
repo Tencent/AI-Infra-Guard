@@ -1,0 +1,56 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q8ff-7ffm-m3r9
+  summary: OpenClaw Webhooks SecretRef route secret remains valid after rotation/reload
+  details: >-
+    Summary
+
+
+    OpenClaw webhooks allowed route secrets to be backed by SecretRef values, but cached the resolved secret for a route.
+    After an operator rotated the underlying secret and ran openclaw secrets reload, the previous resolved webhook secret
+    could remain valid until the plugin or gateway restarted.
+
+
+    Impact
+
+
+    An attacker who already had a previously valid webhook route secret could continue authenticating webhook requests after
+    the operator rotated the secret and reloaded secrets. This weakened credential rotation for webhook routes and could allow
+    continued invocation of the configured webhook task flow until restart.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw on npm
+
+    - Affected: versions before 2026.4.23
+
+    - Fixed: 2026.4.23
+
+    - Latest stable verified fixed: openclaw@2026.4.23, tag v2026.4.23
+
+
+    Fix
+
+
+    Webhook route authentication now resolves SecretRef-backed route secrets on each request. A rotated secret becomes effective
+    after openclaw secrets reload without requiring a gateway or plugin restart, and the old secret is rejected.
+
+
+    Severity
+
+
+    Severity remains medium. The attack requires possession of a previously valid route secret, but the stale credential can
+    continue to authorize webhook actions after rotation.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:L/I:H/A:L
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.23 or later. Webhook route authentication now resolves SecretRef-backed route secrets on each
+    request. A rotated secret becomes effective after openclaw secrets reload without requiring a gateway or plugin restart,
+    and the old secret is rejected.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q8ff-7ffm-m3r9
+rule: version < "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q8ff-7ffm-m3r9

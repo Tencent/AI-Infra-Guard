@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q3jj-46pq-826r
+  summary: OpenClaw ACP 子会话应继承子代理安全信封约束
+  details: >-
+    漏洞概述
+
+    ACP 子会话应继承子代理安全信封约束
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    受限子代理在派生 ACP 子会话时，可能未能传递子代理专属的约束条件，例如调用深度限制、子代理数量上限、控制作用域及目标代理限制等。
+
+
+    修复方案
+
+    ACP 派生过程现已解析并持久化子代理信封字段，强制执行最大调用深度和活跃子代理数量上限，并将继承的控制作用域应用于子 ACP 会话。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @zsxsoft、@qclawer 和 @KeenSecurityLab 的漏洞报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。ACP 派生过程现已解析并持久化子代理信封字段，强制执行最大调用深度和活跃子代理数量上限，并将继承的控制作用域应用于子 ACP 会话。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q3jj-46pq-826r
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q3jj-46pq-826r

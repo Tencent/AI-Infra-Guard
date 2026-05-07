@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xq8g-hgh6-87hv
+  summary: OpenClaw BlueBubbles Webhook 缺少猜测频率限制，导致可暴力破解弱 Webhook 密码
+  details: >-
+    漏洞概述
+
+
+    BlueBubbles Webhook 缺少猜测频率限制，导致可暴力破解弱 Webhook 密码
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    BlueBubbles Webhook 认证此前在拒绝错误密码时未对重复猜测进行限速，
+    使攻击者可对弱 Webhook 密码发起暴力破解攻击。
+    提交 5e08ce36d522a1c96df2bfe88e39303ae2643d92 在返回认证失败响应前添加重复猜测限速逻辑。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 5e08ce36d522a1c96df2bfe88e39303ae2643d92 在 main 分支修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：5e08ce36d522a1c96df2bfe88e39303ae2643d92
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv
+rule: 'version <= "2026.3.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv

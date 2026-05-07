@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mf5g-6r6f-ghhm
+  summary: >-
+    OpenClaw Synology Chat Webhook Pre-Auth Rate-Limit Bypass Enables Brute-Force Guessing of Weak Webhook Token
+  details: >-
+    Summary
+
+
+    Synology Chat Webhook Pre-Auth Rate-Limit Bypass Enables Brute-Force Guessing of Weak Webhook Token
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    Synology Chat webhook auth previously rejected invalid tokens without throttling repeated guesses, allowing brute-force
+    attempts against weak webhook secrets. Commit 0b4d07337467f4d40a0cc1ced83d45ceaec0863c adds repeated-guess throttling
+    before auth failure responses.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit 0b4d07337467f4d40a0cc1ced83d45ceaec0863c.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 0b4d07337467f4d40a0cc1ced83d45ceaec0863c
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mf5g-6r6f-ghhm
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mf5g-6r6f-ghhm

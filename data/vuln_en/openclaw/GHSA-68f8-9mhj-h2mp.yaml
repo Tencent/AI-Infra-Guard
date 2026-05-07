@@ -1,0 +1,90 @@
+info:
+  name: OpenClaw
+  cve: GHSA-68f8-9mhj-h2mp
+  summary: OpenClaw Gateway HTTP /v1/models Route Bypasses Operator Read Scope
+  details: >-
+    > Fixed in OpenClaw 2026.3.24, the current shipping release.
+
+
+    Summary
+
+
+    The OpenAI-compatible HTTP endpoint /v1/models accepts bearer auth but does not enforce operator method scopes.
+
+
+    In contrast, the WebSocket RPC path enforces operator.read for models.list.
+
+
+    A caller connected with operator.approvals (no read scope) is rejected for models.list (missing scope: operator.read)
+    but can still enumerate model metadata through HTTP /v1/models.
+
+
+    Confirmed on current main at commit 06de515b6c42816b62ec752e1c221cab67b38501.
+
+
+    Details
+
+
+    The WS control-plane path enforces role/scope checks centrally before dispatching methods. For non-admin operators, this
+    includes required method scopes such as operator.read for models.list.
+
+
+    The HTTP compatibility path for /v1/models performs bearer authorization and then returns model metadata; it does not
+    apply an equivalent scope check.
+
+
+    As reproduced, a caller with only operator.approvals can:
+
+
+    1. connect successfully,
+
+    2. fail models.list over WS with missing scope: operator.read,
+
+    3. fetch /v1/models over HTTP with status 200 and model data.
+
+
+    This is a cross-surface authorization inconsistency where the stricter WS policy can be bypassed via HTTP.
+
+
+    Impact
+
+
+    - Callers lacking operator.read can still enumerate gateway model metadata through HTTP compatibility routes.
+
+    - Breaks scope model consistency between WS RPC and HTTP surfaces.
+
+    - Weakens least-privilege expectations for operators granted non-read scopes.
+
+
+    Patch Suggestion
+
+
+    1) Enforce read scope on /v1/models routes
+
+
+    Apply a scope gate equivalent to models.list before serving /v1/models or /v1/models/:id.
+
+
+    2) Reuse centralized scope-authorization helper for HTTP compatibility endpoints
+
+
+    Use the same operator scope logic used by WS dispatch (authorizeOperatorScopesForMethod(...)) to prevent policy drift.
+
+
+    3) Add regression tests
+
+
+    Keep this PoC and add explicit negative/positive controls:
+
+
+    - operator.approvals without read is rejected on HTTP /v1/models.
+
+    - operator.read is accepted on both...
+  cvss: ''
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-68f8-9mhj-h2mp
+rule: version <= "2026.3.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-68f8-9mhj-h2mp

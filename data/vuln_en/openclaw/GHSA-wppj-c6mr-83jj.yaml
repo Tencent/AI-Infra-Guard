@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wppj-c6mr-83jj
+  summary: OpenClaw OpenShell FS bridge writes stay pinned to the sandbox mount root
+  details: >-
+    Summary
+
+    OpenShell FS bridge writes stay pinned to the sandbox mount root
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    A time-of-check/time-of-use race around OpenShell sandbox filesystem writes could let a symlink swap redirect a write
+    outside the intended local mount root.
+
+
+    Fix
+
+    OpenShell write paths now validate the canonical target against the mount root, reject unsafe symlink parents and symlink
+    leaves for writes, and use root-scoped write helpers before syncing to the remote sandbox.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @VladimirEliTokarev for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. OpenShell write paths now validate the canonical target against the mount root,
+    reject unsafe symlink parents and symlink leaves for writes, and use root-scoped write helpers before syncing to the remote
+    sandbox.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wppj-c6mr-83jj
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wppj-c6mr-83jj

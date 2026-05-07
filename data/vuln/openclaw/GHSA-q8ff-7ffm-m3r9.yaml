@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q8ff-7ffm-m3r9
+  summary: OpenClaw Webhooks SecretRef 路由密钥在轮换/重载后仍保持有效
+  details: >-
+    漏洞概述
+
+
+    OpenClaw webhooks 允许路由密钥（route secret）由 SecretRef 值支撑，但会对已解析的路由密钥进行缓存。运营者轮换底层密钥并执行 openclaw secrets reload 后，之前已解析的 webhook 路由密钥可能在插件或 gateway 重启之前持续保持有效。
+
+
+    安全影响
+
+
+    攻击者若已持有先前有效的 webhook 路由密钥，在运营者完成密钥轮换并重载密钥后，仍可继续使用该密钥对 webhook 请求进行认证。此漏洞削弱了 webhook 路由的凭据轮换机制，可能允许攻击者在 gateway 重启前持续调用已配置的 webhook 任务流。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：npm 上的 openclaw
+
+    - 受影响版本：2026.4.23 之前的所有版本
+
+    - 修复版本：2026.4.23
+
+    - 最新稳定修复版本：openclaw@2026.4.23，标签 v2026.4.23
+
+
+    修复方案
+
+
+    Webhook 路由认证现在在每次请求时动态解析 SecretRef 支撑的路由密钥。完成密钥轮换后执行 openclaw secrets reload，新密钥立即生效，无需重启 gateway 或插件，旧密钥将被拒绝。
+
+
+    严重等级说明
+
+
+    严重等级为中危。利用此漏洞需攻击者已持有先前有效的路由密钥，但过期凭据可在密钥轮换后继续授权 webhook 操作。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:L/I:H/A:L
+  severity: MEDIUM
+  security_advise: >-
+    升级 openclaw 至 2026.4.23 或更高版本。Webhook 路由认证现在在每次请求时动态解析 SecretRef 支撑的路由密钥。完成密钥轮换后执行 openclaw secrets reload，新密钥立即生效，无需重启 gateway 或插件，旧密钥将被拒绝。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q8ff-7ffm-m3r9
+rule: version < "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q8ff-7ffm-m3r9

@@ -1,0 +1,93 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w6m8-cqvj-pg5v
+  summary: >-
+    OpenClaw Incomplete Fix for CVE-2026-32011: Feishu Webhook Pre-Auth Body Parsing DoS (Slow-Body / Slowloris Variant)
+  details: >-
+    > Fixed in OpenClaw 2026.3.24, the current shipping release.
+
+
+    Advisory Details
+
+
+    Title: Incomplete Fix for CVE-2026-32011: Feishu Webhook Pre-Auth Body Parsing DoS (Slow-Body / Slowloris Variant)
+
+
+    Description:
+
+
+    Summary
+
+
+    The patch for CVE-2026-32011 tightened pre-auth body parsing limits (from 1MB/30s to 64KB/5s) across several webhook handlers.
+    However, the Feishu extension's webhook handler was not included in the patch and still accepts request bodies with the
+    old permissive limits (1MB body, 30-second timeout) before verifying the webhook signature. An unauthenticated attacker
+    can exhaust server connection resources by sending concurrent slow HTTP POST requests to the Feishu webhook endpoint.
+
+
+    Details
+
+
+    In extensions/feishu/src/monitor.ts, the webhook HTTP handler uses installRequestBodyLimitGuard with permissive limits
+    at lines 276-278:
+
+
+    ``typescript
+
+    const FEISHU_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;    // 1MB (line 26)
+
+    const FEISHU_WEBHOOK_BODY_TIMEOUT_MS = 30_000;         // 30s (line 27)
+
+
+    // ... in monitorWebhook(), line 276-278:
+
+    const guard = installRequestBodyLimitGuard(req, res, {
+      maxBytes: FEISHU_WEBHOOK_MAX_BODY_BYTES,    // 1MB
+      timeoutMs: FEISHU_WEBHOOK_BODY_TIMEOUT_MS,  // 30s
+      responseFormat: "text",
+    });
+
+    `
+
+
+    The body guard is installed at line 276 before the request reaches the Lark SDK's adaptDefault webhook handler (line 284),
+    which performs signature verification. This means:
+
+
+    1. Any unauthenticated HTTP POST is accepted
+
+    2. The server waits up to 30 seconds for the body to arrive
+
+    3. Each connection can buffer up to 1MB
+
+    4. Authentication only happens after the body is fully read
+
+
+    The patched handlers (Mattermost, MSTeams, Google Chat, etc.) now use tight pre-auth limits:
+
+    `typescript
+
+    const PREAUTH_MAX_BODY_BYTES = 64 * 1024;     // 64KB
+
+    const PREAUTH_BODY_TIMEOUT_MS = 5_000;         // 5s
+
+    `
+
+
+    The Feishu extension was missed because it resides in extensions/feishu/ (a plugin workspace) rather than in the core
+    src/ directory.
+
+
+    Attack chain:
+
+    `
+
+    [Attacke...
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: MEDIUM
+  security_advise: Upgrade openclaw to >= 2026.3.24 or later.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v
+rule: version <= "2026.2.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v

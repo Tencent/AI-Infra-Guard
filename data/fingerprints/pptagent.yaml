@@ -1,0 +1,13 @@
+info:
+  name: pptagent
+  author: A.I.G bot
+  severity: info
+  desc: PPTAgent (DeepPresenter) is an agentic AI framework for reflective PowerPoint generation using LLMs, developed by ICIP-CAS (Institute of Computing Technology, Chinese Academy of Sciences).
+  metadata:
+    product: pptagent
+    vendor: icip-cas
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - title="DeepPresenter" && body="gradio"

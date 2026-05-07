@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wppj-c6mr-83jj
+  summary: OpenClaw OpenShell 文件系统桥的写操作应严格限定在沙箱挂载根目录范围内
+  details: >-
+    漏洞概述
+
+    OpenShell 文件系统桥的写操作应严格限定在沙箱挂载根目录范围内
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    OpenShell 沙箱文件系统写操作存在检查时间/使用时间（TOCTOU）竞争条件，攻击者可利用符号链接替换将写操作重定向至本地挂载根目录之外的路径。
+
+
+    修复方案
+
+    OpenShell 写路径现已对规范化目标路径进行校验，确保其在挂载根目录范围内；拒绝将不安全的符号链接父目录及符号链接叶节点用于写操作；并在同步至远程沙箱前使用具有根目录作用域的写入辅助函数。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @VladimirEliTokarev 的漏洞报告。
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。OpenShell 写路径现已对规范化目标路径进行校验，确保其在挂载根目录范围内；拒绝将不安全的符号链接父目录及符号链接叶节点用于写操作；并在同步至远程沙箱前使用具有根目录作用域的写入辅助函数。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wppj-c6mr-83jj
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wppj-c6mr-83jj

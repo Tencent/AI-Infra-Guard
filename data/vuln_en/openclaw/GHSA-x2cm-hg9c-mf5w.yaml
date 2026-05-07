@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x2cm-hg9c-mf5w
+  summary: >-
+    OpenClaw Sessions send Action Missing controlScope Enforcement Allows Leaf Subagents to Message Controlled Children.
+  details: >-
+    Summary
+
+    Leaf subagents could still use the send action to message controlled child sessions even when their controlScope was narrower
+    than children.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - src/auto-reply/reply/commands-subagents/action-send.ts now threads controller context through the send path.
+
+    - src/agents/subagent-control.ts now blocks send attempts unless the requester owns the target and has controlScope="children".
+
+
+    Thanks @space08 for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7679eb375294941b02214c234aff3948796969d0
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w

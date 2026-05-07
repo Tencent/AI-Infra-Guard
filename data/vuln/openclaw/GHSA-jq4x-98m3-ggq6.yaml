@@ -1,0 +1,18 @@
+info:
+  name: OpenClaw
+  cve: GHSA-jq4x-98m3-ggq6
+  summary: 'OpenClaw ZDI-CAN-29312: OpenClaw Canvas 路径遍历 信息泄露 漏洞'
+  details: >-
+    漏洞概述
+
+    OpenClaw 路径遍历漏洞。OpenClaw ZDI-CAN-29312: OpenClaw Canvas 路径遍历 信息泄露 漏洞。
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 中危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.21 或更高版本。 修复提交 - 39816e61b0c4347a83c9b76bc8883190cfe5a3c9'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-jq4x-98m3-ggq6
+rule: 'version <= "2026.2.19-2"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-jq4x-98m3-ggq6

@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rm59-992w-x2mv
+  summary: OpenClaw 语音通话 Webhook 在提供商签名验证前缓冲请求体，导致有限的未认证计算
+  details: >-
+    漏洞概述
+
+    语音通话 Webhook 在执行提供商签名验证之前缓冲请求体，使得攻击者可触发有限的未认证计算资源消耗。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rm59-992w-x2mv
+rule: 'version < "2026.3.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rm59-992w-x2mv

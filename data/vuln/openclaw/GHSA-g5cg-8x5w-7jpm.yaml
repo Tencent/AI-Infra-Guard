@@ -1,0 +1,15 @@
+info:
+  name: OpenClaw
+  cve: GHSA-g5cg-8x5w-7jpm
+  summary: OpenClaw 心跳上下文继承漏洞——通过 senderIsOwner 权限提升绕过沙箱
+  details: "摘要\r\n心跳上下文继承机制通过 senderIsOwner 权限提升绕过沙箱隔离\r\n\r\n当前维护者分类\r\n- 状态：开放\r\n\
+    - 规范化严重等级：严重（Critical）\r\n\r\n受影响软件包 / 版本\r\n- 软件包：openclaw (npm)\r\n- 最新已发布 npm 版本：2026.3.31\r\
+    \n- 受影响版本范围：<=2026.3.28\r\n- 已修复版本：>= 2026.3.31\r\n- 首个包含修复的稳定标签：v2026.3.31"
+  cvss: ''
+  severity: CRITICAL
+  security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交：a30214a624946fc5c85c9558a27c1580172374fd — 2026-03-31T09:06:51+09:00
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-g5cg-8x5w-7jpm
+rule: 'version <= "2026.3.28"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-g5cg-8x5w-7jpm

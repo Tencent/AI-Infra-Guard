@@ -1,0 +1,18 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vvjh-f6p9-5vcf
+  summary: 'OpenClaw ZDI-CAN-29311: OpenClaw Canvas 认证绕过 漏洞'
+  details: >-
+    漏洞概述
+
+    OpenClaw 认证绕过漏洞。OpenClaw ZDI-CAN-29311: OpenClaw Canvas 认证绕过 漏洞。
+
+    （原文技术细节请参阅英文版规则文件）
+  cvss: ''
+  severity: 高危
+  security_advise: '建议将 OpenClaw 升级至 >= 2026.2.19 或更高版本。 修复提交 - c45f3c5b004c8d63dc0e282e2176f8c9355d24f1'
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf
+rule: 'version <= "2026.2.17"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf

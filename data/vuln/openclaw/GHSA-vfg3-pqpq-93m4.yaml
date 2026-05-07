@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vfg3-pqpq-93m4
+  summary: OpenClaw Tlon cite 展开在频道和 DM 授权完成前执行
+  details: >-
+    漏洞概述
+
+    Tlon cite 引用展开操作在频道和私信授权完成之前即执行，导致可能在未授权状态下访问引用内容。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vfg3-pqpq-93m4
+rule: 'version < "2026.3.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vfg3-pqpq-93m4

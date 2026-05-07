@@ -1,0 +1,19 @@
+info:
+  name: OpenClaw
+  cve: GHSA-h43v-27wg-5mf9
+  summary: OpenClaw 伪造的 Nostr 私信可在签名验证前创建配对状态
+  details: "摘要\r\n\r\n在 OpenClaw 2026.3.31 之前，Nostr 私信入站路径可能在校验事件签名之前发出配对挑战。\
+    伪造的私信可创建待处理配对条目，并在签名被拒绝前触发配对回复尝试。\r\n\r\n影响\r\n\r\n\
+    未经认证的远程发送方可消耗共享配对容量，并在 Nostr 频道触发有限的中继/日志记录操作。\
+    该问题不授予消息解密、配对审批或更广泛的授权绕过能力。\r\n\r\n受影响的软件包 / 版本\r\n\r\n\
+    - 软件包：openclaw (npm)\r\n- 受影响版本：>= 2026.3.22, < 2026.3.31\r\n\
+    - 已修复版本：>= 2026.3.31\r\n- npm 最新发布版本：2026.4.1"
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - 4ee742174f36b5445703e3b1ef2fbd6ae6700fa4
+    — 在发送配对回复前验证入站私信签名
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9
+rule: 'version >= "2026.3.22" && version < "2026.3.31"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9

@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rf6h-5gpw-qrgq
+  summary: >-
+    OpenClaw MS Teams Feedback Invoke Bypasses Sender Allowlists and Records Unauthorized Session Feedback
+  details: >-
+    Summary
+
+
+    MS Teams Feedback Invoke Bypasses Sender Allowlists and Records Unauthorized Session Feedback
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    Microsoft Teams feedback invokes previously bypassed sender authorization and could record feedback or trigger reflection
+    for unauthorized senders. Commit c5415a474bb085404c20f8b312e436997977b1ea applies the same DM and group authorization
+    checks to feedback invokes.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit c5415a474bb085404c20f8b312e436997977b1ea.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - c5415a474bb085404c20f8b312e436997977b1ea
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rf6h-5gpw-qrgq
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rf6h-5gpw-qrgq

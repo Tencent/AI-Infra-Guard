@@ -1,0 +1,13 @@
+info:
+  name: superagi
+  author: A.I.G bot
+  severity: info
+  desc: SuperAGI is an open-source autonomous AI agent framework that enables developers to build, manage, and run useful autonomous AI agents with a graphical web interface.
+  metadata:
+    product: superagi
+    vendor: transformeroptimus
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>SuperAGI"

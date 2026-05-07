@@ -1,0 +1,87 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w6m8-cqvj-pg5v
+  summary: OpenClaw CVE-2026-32011 修复不完整：飞书 Webhook 预认证阶段请求体解析拒绝服务（慢速请求体 / Slowloris 变种）
+  details: >-
+    > 已在 OpenClaw 2026.3.24（当前正式发布版本）中修复。
+
+
+    公告详情
+
+
+    标题：CVE-2026-32011 修复不完整：飞书 Webhook 预认证阶段请求体解析拒绝服务（慢速请求体 / Slowloris 变种）
+
+
+    漏洞描述：
+
+
+    概述
+
+
+    CVE-2026-32011 的补丁收紧了多个 Webhook 处理程序的预认证阶段请求体解析限制（从 1MB/30s 收紧至 64KB/5s）。然而，飞书扩展的 Webhook 处理程序未包含在此次补丁中，仍使用旧的宽松限制（1MB
+    请求体，30 秒超时）在验证 Webhook 签名之前接收请求体。未经认证的攻击者可通过向飞书 Webhook 端点发送并发慢速 HTTP POST 请求来耗尽服务器连接资源，造成拒绝服务。
+
+
+    漏洞详情
+
+
+    在 extensions/feishu/src/monitor.ts 中，Webhook HTTP 处理程序在第 276-278 行使用了具有宽松限制的 installRequestBodyLimitGuard：
+
+
+    ``typescript
+
+    const FEISHU_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;    // 1MB（第 26 行）
+
+    const FEISHU_WEBHOOK_BODY_TIMEOUT_MS = 30_000;         // 30 秒（第 27 行）
+
+
+    // ... 在 monitorWebhook() 中，第 276-278 行：
+
+    const guard = installRequestBodyLimitGuard(req, res, {
+      maxBytes: FEISHU_WEBHOOK_MAX_BODY_BYTES,    // 1MB
+      timeoutMs: FEISHU_WEBHOOK_BODY_TIMEOUT_MS,  // 30 秒
+      responseFormat: "text",
+    });
+
+    `
+
+
+    请求体防护在第 276 行安装，在请求到达 Lark SDK 的 adaptDefault Webhook 处理程序（第 284 行，执行签名验证）之前生效。这意味着：
+
+
+    1. 任何未经认证的 HTTP POST 请求均被接受
+
+    2. 服务器等待最长 30 秒以接收完整请求体
+
+    3. 每个连接最多可缓冲 1MB 数据
+
+    4. 认证仅在请求体完整读取后才发生
+
+
+    已修复的处理程序（Mattermost、MSTeams、Google Chat 等）现使用严格的预认证限制：
+
+    `typescript
+
+    const PREAUTH_MAX_BODY_BYTES = 64 * 1024;     // 64KB
+
+    const PREAUTH_BODY_TIMEOUT_MS = 5_000;         // 5 秒
+
+    `
+
+
+    飞书扩展被遗漏，因为它位于 extensions/feishu/（插件工作区），而非核心 src/ 目录。
+
+
+    攻击链：
+
+    `
+
+    [攻击者...
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v
+rule: 'version <= "2026.2.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v

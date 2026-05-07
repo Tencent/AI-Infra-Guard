@@ -1,0 +1,13 @@
+info:
+  name: qnabot-on-aws
+  author: A.I.G bot
+  severity: info
+  desc: QnABot on AWS is a generative AI solution providing multi-channel, multi-language conversational interfaces powered by Amazon Lex, Amazon OpenSearch Service, and Amazon Bedrock.
+  metadata:
+    product: qnabot-on-aws
+    vendor: aws
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>QnABot"

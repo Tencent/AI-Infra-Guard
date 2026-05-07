@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mp66-rf4f-mhh8
+  summary: OpenClaw Google Chat 应用 URL Webhook 认证接受非部署的 add-on 主体
+  details: >-
+    漏洞概述
+
+    Google Chat 应用 URL Webhook 认证机制接受非部署的 add-on 主体，导致未授权的 Webhook 请求可被处理。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8
+rule: 'version < "2026.3.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8

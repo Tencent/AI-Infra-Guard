@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wq58-2pvg-5h4f
+  summary: OpenClaw Gateway agent /reset 接口将管理员会话重置暴露给 operator.write 调用方
+  details: >-
+    漏洞概述
+
+    Gateway agent /reset 接口将管理员会话重置功能暴露给 operator.write 权限调用方，导致低权限用户可重置管理员会话。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 高危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wq58-2pvg-5h4f
+rule: 'version < "2026.3.23"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wq58-2pvg-5h4f

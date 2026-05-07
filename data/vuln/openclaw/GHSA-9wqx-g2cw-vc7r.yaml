@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9wqx-g2cw-vc7r
+  summary: OpenClaw Matrix 验证通知绕过 Matrix DM 策略并向未配对 DM 对端发送回复
+  details: >-
+    漏洞概述
+
+
+    Matrix 验证通知绕过 Matrix DM 策略并向未配对 DM 对端发送回复
+
+
+    受影响软件包及版本
+
+
+    - 软件包：openclaw
+
+    - 受影响版本：<= 2026.3.24
+
+    - 首个修复版本：2026.3.25
+
+    - 验证时 npm 最新发布版本：2026.3.24
+
+
+    漏洞详情
+
+
+    Matrix 验证通知此前绕过 DM 访问检查，可向未配对或 DM 策略不允许的对端发送回复。
+    提交 2383daf5c4a4e08d9553e0e949552ad755ef9ec2 在发送验证通知前进行 DM 访问权限检查。
+
+
+    已在标签 v2026.3.24 上验证存在该漏洞，并由提交 2383daf5c4a4e08d9553e0e949552ad755ef9ec2 在 main 分支修复。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：2383daf5c4a4e08d9553e0e949552ad755ef9ec2
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9wqx-g2cw-vc7r
+rule: 'version <= "2026.3.24"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9wqx-g2cw-vc7r

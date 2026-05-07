@@ -1,0 +1,33 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vqvg-86cc-cg83
+  summary: OpenClaw 变更性内部 `/allowlist` 聊天命令缺失 `operator.admin` 权限作用域强制校验
+  details: '> 已在 OpenClaw 2026.3.24（当前正式发布版本）中修复。
+
+
+    **漏洞标题**：变更性内部 /allowlist 聊天命令缺失 operator.admin 权限作用域强制校验
+
+
+    **CWE**：CWE-862 缺失授权
+
+
+    **CVSS v3.1**：CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N，基础评分：6.5（中危）
+
+
+    **严重性评估**：中危。这是 OpenClaw 内部控制平面中真实存在的授权缺陷，利用需已认证且持有 operator.write 权限的内部 Gateway
+    调用方。
+
+
+    **安全影响**：仅持有 operator.write 权限的已认证内部 Gateway 调用方，可在不具备 operator.admin 权限的情况下执行变更性
+    /allowlist 操作。可触达的影响包括：对基于配置存储的 allowFrom 条目和基于配对存储的白名单条目进行持久化修改。
+
+
+    **受影响版本**：已在 v2026.3.23（ccfeecb6887cd97937e33a71877ad512741e82b2，发布于 2026-03-23）上验证。'
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N
+  severity: MEDIUM
+  security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83
+rule: 'version <= "2026.3.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vqvg-86cc-cg83

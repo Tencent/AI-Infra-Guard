@@ -1,0 +1,51 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2hh7-c75g-qj2r
+  summary: OpenClaw Zalo outbound photo URLs are validated through the SSRF guard
+  details: >-
+    Summary
+
+    Zalo outbound photo URLs are validated through the SSRF guard
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    The Zalo plugin could forward an attacker-controlled outbound photo URL to the Zalo Bot API without first applying OpenClaw's
+    SSRF validation policy.
+
+
+    Fix
+
+    Zalo sendPhoto now parses and validates outbound photo URLs with the shared SSRF hostname policy before posting to Zalo,
+    and media-reply paths route through the guarded outbound media helpers.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @foodlook for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. Zalo sendPhoto now parses and validates outbound photo URLs with the shared SSRF
+    hostname policy before posting to Zalo, and media-reply paths route through the guarded outbound media helpers.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2hh7-c75g-qj2r
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2hh7-c75g-qj2r

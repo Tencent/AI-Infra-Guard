@@ -1,0 +1,22 @@
+info:
+  name: OpenClaw
+  cve: GHSA-pw7h-9g6p-c378
+  summary: OpenClaw Tlon 设置空白名单协调绕过了预期的撤销逻辑
+  details: >-
+    漏洞概述
+
+    Tlon 设置中空白名单的协调处理绕过了预期的权限撤销逻辑，导致已撤销的访问权限未被正确执行。
+
+    受影响版本
+
+    - 包名：openclaw (npm)
+    - 受影响：< 2026.3.22
+    - 修复版本：>= 2026.3.22
+  cvss: ''
+  severity: 中危
+  security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378
+rule: 'version < "2026.3.22"'
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378

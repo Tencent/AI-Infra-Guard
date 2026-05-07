@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q2qc-744p-66r2
+  summary: >-
+    OpenClaw `session_status` sessionId resolution bypasses sandboxed session-tree visibility
+  details: >-
+    Summary
+
+
+    session_status sessionId resolution bypasses sandboxed session-tree visibility
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: >= 2026.3.11, <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    session_status previously resolved a sessionId to a canonical session key after early visibility checks, letting sandboxed
+    children reach parent or sibling sessions that were blocked by explicit sessionKey. Commit d9810811b6c3c9266d7580f00574e5e02f7663de
+    enforces visibility after sessionId resolution so sandboxed callers cannot escape their session tree.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit d9810811b6c3c9266d7580f00574e5e02f7663de.
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - d9810811b6c3c9266d7580f00574e5e02f7663de
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q2qc-744p-66r2
+rule: version >= "2026.3.11" && version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q2qc-744p-66r2

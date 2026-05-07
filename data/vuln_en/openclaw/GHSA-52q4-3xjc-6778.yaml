@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-52q4-3xjc-6778
+  summary: >-
+    OpenClaw Google Chat Authz Bypass via Group Policy Rebinding with Mutable Space displayName
+  details: >-
+    Summary
+
+
+    Google Chat Authz Bypass via Group Policy Rebinding with Mutable Space displayName
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw
+
+    - Affected versions: <= 2026.3.24
+
+    - First patched version: 2026.3.25
+
+    - Latest published npm version at verification time: 2026.3.24
+
+
+    Details
+
+
+    Google Chat group authorization previously relied on mutable space display names, which allowed policy rebinding when
+    names changed or collided. Commit 11ea1f67863d88b6cbcb229dd368a45e07094bff requires stable group IDs for access decisions.
+
+
+    Verified vulnerable on tag v2026.3.24 and fixed on main by commit 11ea1f67863d88b6cbcb229dd368a45e07094bff.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 11ea1f67863d88b6cbcb229dd368a45e07094bff
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-52q4-3xjc-6778
+rule: version <= "2026.3.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-52q4-3xjc-6778

@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xw77-45gv-p728
+  summary: >-
+    OpenClaw Plugin subagent routes could bypass gateway authorization with synthetic admin scopes
+  details: >-
+    Summary
+
+    In affected versions of openclaw, the plugin subagent runtime dispatched gateway methods through a synthetic operator
+    client that always carried broad administrative scopes. A plugin-owned HTTP route using auth: "plugin" could therefore
+    trigger admin-only gateway actions without normal gateway authorization when that route called runtime.subagent.*.
+
+
+    Impact
+
+    This is a high-severity authorization flaw in plugin route composition. A remote unauthenticated request to a plugin-owned
+    route could reach privileged subagent runtime methods and perform admin-only gateway actions such as deleting sessions,
+    reading session data, or triggering agent execution.
+
+
+    At publication time, we did not identify a shipped extension route in this repository that used runtime.subagent.* on
+    a plugin-owned public route. The issue primarily affected custom or third-party plugins that combined plugin-managed public
+    routes with subagent runtime calls and assumed those calls would preserve least-privilege gateway scopes.
+
+
+    Affected Packages and Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: >= 2026.3.7, < 2026.3.11
+
+    - Fixed in: 2026.3.11
+
+
+    Technical Details
+
+    The subagent runtime preserved neither the original caller's auth context nor least-privilege scope. Instead, it executed
+    gateway dispatches through a fabricated operator client with administrative scopes, and plugin-owned routes are intentionally
+    available for plugin-managed auth and webhook verification.
+
+
+    Fix
+
+    OpenClaw now propagates the real gateway client into the plugin subagent runtime and caps unauthenticated plugin-route
+    access to non-admin scope. The fix shipped in openclaw@2026.3.11.
+
+
+    Workarounds
+
+    Upgrade to 2026.3.11 or later.
+
+
+    If you cannot upgrade immediately, avoid calling runtime.subagent.* from plugin-owned public routes unless the route performs
+    its own strict authentication and authorization checks.
+  cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.3.11 or later. OpenClaw now propagates the real gateway client into the plugin subagent runtime
+    and caps unauthenticated plugin-route access to non-admin scope. The fix shipped in openclaw@2026.3.11.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728
+rule: version >= "2026.3.7" && version < "2026.3.11"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728

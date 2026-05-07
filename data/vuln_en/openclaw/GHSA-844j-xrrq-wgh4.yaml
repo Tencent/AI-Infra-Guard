@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-844j-xrrq-wgh4
+  summary: >-
+    OpenClaw XFF loopback spoofing bypasses canvas auth and rate limiter when trustedProxies configured.
+  details: >-
+    Summary
+
+    When gateway.trustedProxies was configured, spoofed loopback hops in forwarding headers could be accepted as the client
+    origin and weaken downstream auth and rate-limit decisions.
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected: < 2026.3.22
+
+    - Fixed: >= 2026.3.22
+
+    - Latest released tag checked: v2026.3.23-2 (630f1479c44f78484dfa21bb407cbe6f171dac87)
+
+    - Latest published npm version checked: 2026.3.23-2
+
+
+    Release Status
+
+    The fix shipped in v2026.3.22 and remains present in v2026.3.23 and v2026.3.23-2.
+
+
+    Code-Level Confirmation
+
+    - src/gateway/net.ts now ignores loopback forwarded hops before trusted-proxy client resolution.
+
+    - That shipped origin fix is the one consumed by canvas auth and gateway auth-rate-limit paths that rely on resolved client
+    identity.
+
+
+    Thanks @lintsinghua for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - fc2d29ea926f47c428c556e92ec981441228d2a4
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4
+rule: version < "2026.3.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4
