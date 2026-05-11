@@ -107,7 +107,16 @@ def register_tool(
 
 
 def get_tool_by_name(name: str) -> Callable[..., Any] | None:
-    return _tools_by_name.get(name)
+    # Try exact match first
+    tool = _tools_by_name.get(name)
+    if tool is not None:
+        return tool
+    # Fallback: case-insensitive lookup (LLMs may capitalize tool names)
+    name_lower = name.lower()
+    for key, func in _tools_by_name.items():
+        if key.lower() == name_lower:
+            return func
+    return None
 
 
 def get_tool_names() -> list[str]:
@@ -132,8 +141,9 @@ def needs_context(tool_name: str) -> bool:
 
 
 def should_execute_in_sandbox(tool_name: str) -> bool:
+    tool_name_lower = tool_name.lower()
     for tool in tools:
-        if tool.get("name") == tool_name:
+        if tool.get("name", "").lower() == tool_name_lower:
             return bool(tool.get("sandbox_execution", True))
     return True
 
