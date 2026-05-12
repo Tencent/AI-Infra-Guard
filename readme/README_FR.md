@@ -155,7 +155,7 @@ Découvrez la version Pro avec des fonctionnalités avancées et des performance
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Prend en charge l'évaluation en un clic des risques de sécurité OpenClaw. Détecte les configurations non sécurisées, les risques liés aux Skills, les vulnérabilités CVE et les fuites de confidentialité. |
 | **Agent&nbsp;Scan** | Framework d'analyse automatisée multi-agents indépendant, conçu pour évaluer la sécurité des workflows d'agents IA. Prend en charge de façon transparente les agents fonctionnant sur diverses plateformes, notamment Dify et Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Détecte de manière approfondie 14 grandes catégories de risques de sécurité. La détection s'applique aussi bien aux MCP Servers qu'aux Agent Skills. Prend en charge de manière flexible l'analyse à partir du code source et d'URLs distantes. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 58 composants de frameworks IA. Couvre plus de 1 200 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 64 composants de frameworks IA. Couvre plus de 1 300 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
 | **Jailbreak&nbsp;Evaluation** | Évalue les risques de sécurité des prompts à l'aide de datasets soigneusement sélectionnés. L'évaluation applique plusieurs méthodes d'attaque pour tester la robustesse. Fournit également des capacités détaillées de comparaison inter-modèles. |
 
 <details>
@@ -205,7 +205,7 @@ La cible est l'**adresse réseau d'un service IA en cours d'exécution** que vou
 1. Démarrez vLLM normalement (ex. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Dans l'interface web d'A.I.G, cliquez sur **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Saisissez `http://127.0.0.1:8000` (ou l'IP/port sur lequel vLLM écoute)
-4. Cliquez sur **Start Scan** - A.I.G va identifier le service et le comparer à plus de 1 200 CVE connus
+4. Cliquez sur **Start Scan** - A.I.G va identifier le service et le comparer à plus de 1 300 CVE connus
 5. Consultez le rapport : version du composant, vulnérabilités détectées, sévérité et liens de remédiation
 
 > 💡 **Conseil** : Pour analyser spécifiquement la version *nightly* de vLLM, lancez simplement ce build nightly et pointez A.I.G vers son adresse. Le scanner détecte automatiquement la version.
