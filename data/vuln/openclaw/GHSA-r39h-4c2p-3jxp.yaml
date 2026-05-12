@@ -1,0 +1,49 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r39h-4c2p-3jxp
+  summary: >-
+    OpenClaw 在环境密钥解析过程中从当前工作目录加载攻击者控制的 setup-api.js，导致任意代码执行
+  details: >-
+    漏洞概述
+
+
+    OpenClaw 内置的插件安装解析器（setup resolver）在解析 provider 安装元数据时，可能回退至 process.cwd() 路径。若用户在包含 extensions/<plugin>/setup-api.js 的攻击者控制仓库中执行 OpenClaw 命令，OpenClaw 可能在常规 provider/model 状态解析期间加载并执行该 JavaScript 文件。
+
+
+    安全影响
+
+
+    此漏洞可导致在当前用户账户权限下于 OpenClaw 进程中执行任意 JavaScript 代码。恶意仓库可在用户从该目录执行 provider/model 检查等命令时触发代码执行。该漏洞不依赖 gateway 网络暴露，但需要用户交互：用户必须在包含攻击者控制的 setup 文件的目录中运行 OpenClaw。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：npm 上的 openclaw
+
+    - 受影响版本：2026.4.23 之前的所有版本
+
+    - 修复版本：2026.4.23
+
+    - 最新稳定修复版本：openclaw@2026.4.23，标签 v2026.4.23
+
+
+    修复方案
+
+
+    OpenClaw 现在仅从规范的软件包/仓库根目录解析内置 setup 回退路径，不再将 process.cwd() 纳入受信任的 setup-api 搜索根目录。已添加回归测试，验证工作区本地的 extensions/<plugin>/setup-api.js 不会通过 provider setup 解析流程被加载。
+
+
+    严重等级说明
+
+
+    严重等级为高危，因为成功利用该漏洞可在运行 OpenClaw 的用户权限下执行任意代码。CVSS 向量为本地/需用户交互范围（而非纯网络攻击），因为受害者必须在攻击者控制的目录中运行 OpenClaw。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: >-
+    升级 openclaw 至 2026.4.23 或更高版本。OpenClaw 现在仅从规范的软件包/仓库根目录解析内置 setup 回退路径，不再将 process.cwd() 纳入受信任的 setup-api 搜索根目录。已添加回归测试，验证工作区本地的 extensions/<plugin>/setup-api.js 不会通过 provider setup 解析流程被加载。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r39h-4c2p-3jxp
+rule: version < "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r39h-4c2p-3jxp

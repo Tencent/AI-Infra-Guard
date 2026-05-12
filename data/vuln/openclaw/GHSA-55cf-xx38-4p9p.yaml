@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-55cf-xx38-4p9p
+  summary: OpenClaw 工作区 dotenv 文件不得覆盖连接器端点主机配置
+  details: >-
+    漏洞概述
+
+    工作区 dotenv 文件不得覆盖连接器端点主机配置
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    工作区 .env 文件可设置 Matrix、Mattermost、IRC 或 Synology 相关连接器的端点变量，将运行时流量重定向至偏离运营方所配置的目标端点。
+
+
+    修复方案
+
+    工作区 .env 文件加载机制现已屏蔽上述端点变量，包括各账户的 Matrix 主服务器后缀及通用的 base-url/API-host 类覆盖变量。受信任的全局运行时 dotenv 加载逻辑保持独立不受影响。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @qi-scape 的漏洞报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。工作区 .env 文件加载机制现已屏蔽端点变量，包括各账户的 Matrix 主服务器后缀及通用的 base-url/API-host 类覆盖变量。受信任的全局运行时 dotenv 加载逻辑保持独立不受影响。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-55cf-xx38-4p9p
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-55cf-xx38-4p9p

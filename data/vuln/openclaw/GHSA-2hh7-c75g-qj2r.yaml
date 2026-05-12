@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2hh7-c75g-qj2r
+  summary: OpenClaw Zalo 出站图片 URL 应通过 SSRF 防护机制进行验证
+  details: >-
+    漏洞概述
+
+    Zalo 出站图片 URL 应通过 SSRF 防护机制进行验证
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    Zalo 插件在未经 OpenClaw SSRF 验证策略检查的情况下，可将攻击者可控的出站图片 URL 直接转发至 Zalo Bot API，存在服务器端请求伪造（SSRF）风险。
+
+
+    修复方案
+
+    Zalo sendPhoto 现已在向 Zalo 发送请求前，使用共享 SSRF 主机名策略对出站图片 URL 进行解析和校验；媒体回复路径也已统一通过受保护的出站媒体处理辅助函数进行路由。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @foodlook 的漏洞报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。Zalo sendPhoto 现已在向 Zalo 发送请求前，使用共享 SSRF 主机名策略对出站图片 URL 进行解析和校验；媒体回复路径也已统一通过受保护的出站媒体处理辅助函数进行路由。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2hh7-c75g-qj2r
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2hh7-c75g-qj2r

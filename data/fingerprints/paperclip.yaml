@@ -1,0 +1,13 @@
+info:
+  name: paperclip
+  author: A.I.G bot
+  severity: info
+  desc: Paperclip is a Node.js server and React UI that orchestrates a team of AI agents to run a business. It provides org charts, agent coordination, budgets, and governance for autonomous AI companies.
+  metadata:
+    product: paperclip
+    vendor: paperclipai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Paperclip</title>"

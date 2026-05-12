@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r6xh-pqhr-v4xh
+  summary: OpenClaw MCP 回环所有者上下文应基于服务端签发的 Bearer 令牌进行派生
+  details: >-
+    漏洞概述
+
+    MCP 回环所有者上下文应基于服务端签发的 Bearer 令牌进行派生
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    回环 MCP 路径从请求头中接受可伪造的所有者上下文元数据，这可能允许非所有者的回环客户端在所有者权限受限的操作中伪装成所有者。
+
+
+    修复方案
+
+    MCP 回环运行时现已分别签发所有者令牌和非所有者令牌，并完全依据认证请求所使用的令牌来派生 senderIsOwner 标识。可被伪造的 sender-owner 请求头不再被发送或信任。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @VladimirEliTokarev 的漏洞报告。
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。MCP 回环运行时现已分别签发所有者令牌和非所有者令牌，并完全依据认证请求所使用的令牌来派生 senderIsOwner 标识。可被伪造的 sender-owner 请求头不再被发送或信任。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r6xh-pqhr-v4xh
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r6xh-pqhr-v4xh

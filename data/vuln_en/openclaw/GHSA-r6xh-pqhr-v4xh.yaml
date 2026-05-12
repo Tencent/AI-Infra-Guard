@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-r6xh-pqhr-v4xh
+  summary: OpenClaw MCP loopback owner context is derived from server-issued bearer tokens
+  details: >-
+    Summary
+
+    MCP loopback owner context is derived from server-issued bearer tokens
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    The loopback MCP path accepted spoofable owner-context metadata from request headers, which could allow a non-owner loopback
+    client to present itself as owner for owner-gated operations.
+
+
+    Fix
+
+    The MCP loopback runtime now issues separate owner and non-owner bearer tokens and derives senderIsOwner exclusively from
+    which token authenticated the request. The spoofable sender-owner header is no longer emitted or trusted.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @VladimirEliTokarev for reporting.
+  cvss: ''
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. The MCP loopback runtime now issues separate owner and non-owner bearer tokens
+    and derives senderIsOwner exclusively from which token authenticated the request. The spoofable sender-owner header is
+    no longer emitted or trusted.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-r6xh-pqhr-v4xh
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-r6xh-pqhr-v4xh

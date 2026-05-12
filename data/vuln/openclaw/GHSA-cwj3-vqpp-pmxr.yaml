@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cwj3-vqpp-pmxr
+  summary: OpenClaw Gateway 配置变更防护机制允许模型驱动的不安全配置写入
+  details: >-
+    漏洞概述
+
+
+    面向 Agent 的 gateway 工具通过模型-运营者信任边界对 config.apply 和 config.patch 进行保护，该防护机制使用手动维护的受保护配置路径拒绝列表（denylist）。随着配置模式（config schema）的扩展，拒绝列表未能覆盖所有敏感子树，导致这些敏感配置路径可通过模型驱动的 gateway 配置变更操作被写入。
+
+
+    安全影响
+
+
+    遭受提示词注入或其他方式被攻陷的模型，若具备访问仅限所有者使用的 gateway 工具的权限，可持久化写入跨越安全边界的不安全配置。受影响的配置路径包括：命令执行、网络/代理/TLS 行为、凭据转发、遥测或钩子（hook）端点、内存/索引存储面，以及运营者策略控制。这些恶意配置变更一旦写入后可在重启后持续生效。
+
+
+    受影响软件包及版本
+
+
+    - 软件包：npm 上的 openclaw
+
+    - 受影响版本：2026.4.23 之前的所有版本
+
+    - 修复版本：2026.4.23
+
+    - 最新稳定修复版本：openclaw@2026.4.23，标签 v2026.4.23
+
+
+    修复方案
+
+
+    OpenClaw 将拒绝列表替换为失败关闭（fail-closed）的允许列表（allowlist）。Agent 驱动的 gateway config.apply 和 gateway config.patch 现在仅允许修改有限的 Agent 可调整的提示词/模型设置及提及门控（mention-gating）路径，其他配置变更在 gateway 变更 RPC 调用前即被拒绝。
+
+
+    严重等级说明
+
+
+    严重等级为高危。漏洞入口点仅限所有者访问，但模型/Agent 在 OpenClaw 安全模型中并非可信主体，而该防护机制是持久化配置变更的模型-运营者显式信任边界。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: >-
+    升级 openclaw 至 2026.4.23 或更高版本。OpenClaw 已将拒绝列表替换为失败关闭的允许列表。Agent 驱动的 gateway config.apply 和 gateway config.patch 现在仅允许修改有限的 Agent 可调整的提示词/模型设置及提及门控路径，其他配置变更在 gateway 变更 RPC 调用前即被拒绝。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cwj3-vqpp-pmxr
+rule: version < "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cwj3-vqpp-pmxr

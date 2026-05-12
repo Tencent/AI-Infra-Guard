@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x3h8-jrgh-p8jx
+  summary: OpenClaw Exec 命令白名单分析器拒绝未加引号的 heredoc 中的 Shell 展开操作
+  details: >-
+    漏洞概述
+
+    Exec 命令白名单分析器拒绝未加引号的 heredoc 中的 Shell 展开操作
+
+
+    受影响组件 / 版本
+
+    - 包名：openclaw（npm）
+
+    - 受影响版本：<= 2026.4.21
+
+    - 修复版本：2026.4.22
+
+
+    影响说明
+
+    包含未加引号 heredoc 的白名单命令可在 heredoc 主体中隐藏 Shell 展开操作，使已审批的命令文本看起来比 Shell 运行时实际执行的内容更为安全。
+
+
+    修复方案
+
+    Exec 命令分析器现已追踪 heredoc 主体，拒绝未加引号的 heredoc 展开标记及续接拼接绕过方式，同时保留已加引号的 heredoc 及字面量安全文本。
+
+
+    验证说明
+
+    - 修复提交已包含于公开发布的 v2026.4.22 标签中。
+
+    - openclaw@2026.4.22 已发布至 npm，编译包中包含该修复。
+
+    - 针对此路径的重点回归测试在发布前已通过。
+
+
+    感谢 @VladimirEliTokarev 的漏洞报告。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    请升级 openclaw 至 2026.4.22 或更高版本。Exec 命令分析器现已追踪 heredoc 主体，拒绝未加引号的 heredoc 展开标记及续接拼接绕过方式，同时保留已加引号的 heredoc 及字面量安全文本。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x3h8-jrgh-p8jx
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x3h8-jrgh-p8jx

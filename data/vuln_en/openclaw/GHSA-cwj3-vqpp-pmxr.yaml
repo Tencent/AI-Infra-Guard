@@ -1,0 +1,58 @@
+info:
+  name: OpenClaw
+  cve: GHSA-cwj3-vqpp-pmxr
+  summary: OpenClaw Gateway config mutation guard allowed unsafe model-driven config writes
+  details: >-
+    Summary
+
+
+    The agent-facing gateway tool protects config.apply and config.patch with a model-to-operator trust boundary. That guard
+    used a hand-maintained denylist of protected config paths. The config schema outgrew that denylist, leaving sensitive
+    subtrees writable through model-driven gateway config mutations.
+
+
+    Impact
+
+
+    A prompt-injected or otherwise compromised model running with access to the owner-only gateway tool could persist unsafe
+    config changes that crossed security boundaries. Examples included config paths affecting command execution, network/proxy/TLS
+    behavior, credential forwarding, telemetry or hook endpoints, memory/indexing surfaces, and operator policy controls.
+    These changes could survive restart once written to config.
+
+
+    Affected Packages / Versions
+
+
+    - Package: openclaw on npm
+
+    - Affected: versions before 2026.4.23
+
+    - Fixed: 2026.4.23
+
+    - Latest stable verified fixed: openclaw@2026.4.23, tag v2026.4.23
+
+
+    Fix
+
+
+    OpenClaw replaced the denylist with a fail-closed allowlist. Agent-driven gateway config.apply and gateway config.patch
+    now permit only narrow agent-tunable prompt/model settings and mention-gating paths. Other config changes are rejected
+    before the gateway mutation RPC is invoked.
+
+
+    Severity
+
+
+    Severity remains high. The vulnerable entry point is owner-only, but the model/agent is not a trusted principal under
+    OpenClaw's security model, and the guard is the explicit model-to-operator boundary for persisted config mutation.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.4.23 or later. OpenClaw replaced the denylist with a fail-closed allowlist. Agent-driven gateway
+    config.apply and gateway config.patch now permit only narrow agent-tunable prompt/model settings and mention-gating paths.
+    Other config changes are rejected before the gateway mutation RPC is invoked.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-cwj3-vqpp-pmxr
+rule: version < "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-cwj3-vqpp-pmxr

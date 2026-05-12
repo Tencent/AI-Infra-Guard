@@ -1,0 +1,52 @@
+info:
+  name: OpenClaw
+  cve: GHSA-55cf-xx38-4p9p
+  summary: OpenClaw Workspace dotenv files cannot override connector endpoint hosts
+  details: >-
+    Summary
+
+    Workspace dotenv files cannot override connector endpoint hosts
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    A workspace .env file could set connector endpoint variables for Matrix, Mattermost, IRC, or Synology-related connectors
+    and redirect runtime traffic away from the operator-configured endpoint.
+
+
+    Fix
+
+    Workspace .env loading now blocks those endpoint variables, including per-account Matrix homeserver suffixes and generic
+    base-url/API-host style overrides. Trusted global runtime dotenv loading remains separate.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @qi-scape for reporting.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. Workspace .env loading now blocks those endpoint variables, including per-account
+    Matrix homeserver suffixes and generic base-url/API-host style overrides. Trusted global runtime dotenv loading remains
+    separate.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-55cf-xx38-4p9p
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-55cf-xx38-4p9p

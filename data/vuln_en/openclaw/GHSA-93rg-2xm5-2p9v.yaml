@@ -1,0 +1,53 @@
+info:
+  name: OpenClaw
+  cve: GHSA-93rg-2xm5-2p9v
+  summary: OpenClaw Gateway Control UI bootstrap config required Gateway auth
+  details: >-
+    Summary
+
+    Gateway Control UI bootstrap config required Gateway auth
+
+
+    Affected Packages / Versions
+
+    - Package: openclaw (npm)
+
+    - Affected versions: <= 2026.4.21
+
+    - Fixed version: 2026.4.22
+
+
+    Impact
+
+    When Gateway authentication was enabled, the Control UI bootstrap config endpoint could still be read without a valid
+    Gateway token. That response could expose sensitive bootstrap/config fields intended only for authenticated Control UI
+    sessions.
+
+
+    Fix
+
+    The bootstrap config route now goes through the same Gateway read-auth path as other authenticated Control UI reads. Regression
+    tests cover unauthenticated rejection, valid-token access, and basePath handling.
+
+
+    Verification
+
+    - The fix commit is contained in the public v2026.4.22 tag.
+
+    - openclaw@2026.4.22 is published on npm and the compiled package contains the fix.
+
+    - Focused regression coverage for this path passed before publication.
+
+
+    Thanks @zsxsoft for reporting.
+  cvss: ''
+  severity: LOW
+  security_advise: >-
+    Upgrade openclaw to 2026.4.22 or later. The bootstrap config route now goes through the same Gateway read-auth path as
+    other authenticated Control UI reads. Regression tests cover unauthenticated rejection, valid-token access, and basePath
+    handling.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-93rg-2xm5-2p9v
+rule: version <= "2026.4.21"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-93rg-2xm5-2p9v
