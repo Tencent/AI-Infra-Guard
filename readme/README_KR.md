@@ -155,7 +155,7 @@ docker-compose up -d
 | **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | OpenClaw 보안 위험에 대한 원클릭 평가를 지원합니다. 안전하지 않은 설정, Skill 위험, CVE 취약점 및 개인정보 유출을 탐지합니다. |
 | **Agent&nbsp;Scan** | AI Agent 워크플로우의 보안을 평가하도록 설계된 독립적인 다중 Agent 자동화 scan 프레임워크입니다. Dify 및 Coze를 포함한 다양한 플랫폼에서 실행되는 Agent를 원활하게 지원합니다. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 14가지 주요 보안 위험 카테고리를 철저히 탐지합니다. MCP Server와 Agent Skills 모두에 적용됩니다. 소스 코드와 원격 URL 모두에서 유연하게 scan을 지원합니다. |
-| **AI&nbsp;인프라&nbsp;취약점&nbsp;scan** | 58개 이상의 AI 프레임워크 컴포넌트를 정확하게 식별합니다. 1,200개 이상의 알려진 CVE 취약점을 커버합니다. Ollama, ComfyUI, vLLM, n8n, Triton Inference Server 등의 프레임워크를 지원합니다. |
+| **AI&nbsp;인프라&nbsp;취약점&nbsp;scan** | 64개 이상의 AI 프레임워크 컴포넌트를 정확하게 식별합니다. 1,300개 이상의 알려진 CVE 취약점을 커버합니다. Ollama, ComfyUI, vLLM, n8n, Triton Inference Server 등의 프레임워크를 지원합니다. |
 | **Jailbreak&nbsp;Evaluation** | 엄선된 데이터셋을 사용하여 prompt 보안 위험을 평가합니다. 다양한 공격 방법을 적용하여 견고성을 테스트합니다. 상세한 모델 간 비교 기능도 제공합니다. |
 
 <details>
@@ -205,7 +205,7 @@ docker-compose up -d
 1. vLLM을 정상적으로 시작합니다 (예: `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. A.I.G 웹 UI에서 **"AI基础设施安全扫描 / AI Infra Scan"**을 클릭합니다.
 3. `http://127.0.0.1:8000`을 입력합니다 (또는 vLLM이 수신 대기 중인 IP/포트)
-4. **Start Scan**을 클릭합니다 — A.I.G가 서비스의 지문을 채취하여 1,200개 이상의 알려진 CVE와 매칭합니다.
+4. **Start Scan**을 클릭합니다 — A.I.G가 서비스의 지문을 채취하여 1,300개 이상의 알려진 CVE와 매칭합니다.
 5. 보고서를 확인합니다: 컴포넌트 버전, 매칭된 취약점, 심각도 및 수정 링크
 
 > 💡 **팁**: 특별히 vLLM의 *nightly* 빌드를 scan하려면 해당 nightly 빌드를 실행하고 A.I.G가 그 주소를 가리키도록 하세요. scanner가 버전을 자동으로 탐지합니다.
