@@ -506,7 +506,7 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 발표로, AI 에이전트 생태계에서 MCP 프로토콜의 보안 위험을 밝힌 연구입니다. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
-<summary>학술 연구에서 A.I.G를 사용하여 AI 보안 연구 발전에 기여해 주신 연구팀들에게 깊이 감사드립니다. 클릭하여 확장 (17편)</summary>
+<summary>학술 연구에서 A.I.G를 사용하여 AI 보안 연구 발전에 기여해 주신 연구팀들에게 깊이 감사드립니다. 클릭하여 확장 (18편)</summary>
 <br>
 
 1. Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)
@@ -542,6 +542,8 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 16. Hengkai Ye, Zhechang Zhang, Jinyuan Jia et al. **"TRUSTDESC: Preventing Tool Poisoning in LLM Applications via Trusted Description Generation."** arXiv preprint arXiv:2604.07536 (2026). [[pdf]](https://arxiv.org/abs/2604.07536)
 
 17. Zenghao Duan, Yuxin Tian, Zhiyi Yin et al. **"SkillAttack: Automated Red Teaming of Agent Skills through Attack Path Refinement."** arXiv preprint arXiv:2604.04989 (2026). [[pdf]](https://arxiv.org/abs/2604.04989)
+
+18. Zhaojiacheng Zhou. **"Proteus: A Self-Evolving Red Team for Agent Skill Ecosystems."** arXiv preprint arXiv:2605.11891 (2026). [[pdf]](http://arxiv.org/abs/2605.11891v1)
 
 
 </details>
