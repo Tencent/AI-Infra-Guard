@@ -506,7 +506,7 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Palestra no Black Hat Europe 2025 revelando riscos de segurança do protocolo MCP no ecossistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
-<summary>Somos profundamente gratos às equipes de pesquisa que utilizaram o A.I.G em seus trabalhos acadêmicos. Clique para expandir (17 artigos)</summary>
+<summary>Somos profundamente gratos às equipes de pesquisa que utilizaram o A.I.G em seus trabalhos acadêmicos. Clique para expandir (18 artigos)</summary>
 <br>
 
 1. Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)
@@ -542,6 +542,8 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 16. Hengkai Ye, Zhechang Zhang, Jinyuan Jia et al. **"TRUSTDESC: Preventing Tool Poisoning in LLM Applications via Trusted Description Generation."** arXiv preprint arXiv:2604.07536 (2026). [[pdf]](https://arxiv.org/abs/2604.07536)
 
 17. Zenghao Duan, Yuxin Tian, Zhiyi Yin et al. **"SkillAttack: Automated Red Teaming of Agent Skills through Attack Path Refinement."** arXiv preprint arXiv:2604.04989 (2026). [[pdf]](https://arxiv.org/abs/2604.04989)
+
+18. Zhaojiacheng Zhou. **"Proteus: A Self-Evolving Red Team for Agent Skill Ecosystems."** arXiv preprint arXiv:2605.11891 (2026). [[pdf]](http://arxiv.org/abs/2605.11891v1)
 
 
 </details>
