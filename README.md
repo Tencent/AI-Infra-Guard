@@ -80,10 +80,11 @@
 - [🔧 API Documentation](#-api-documentation)
 - [🏗️ Architecture Evolution](./docs/architecture_evolution.md)
 - [📝 Contribution Guide](#-contribution-guide)
+- [🛡️ About the Team](#️-about-the-team)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
-- [📚 Related Papers](#-related-papers)
+- [📚 Papers](#-papers)
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
@@ -255,6 +256,32 @@ Please refer to the existing rule formats, create new files, and submit them via
 - 💡 [Suggest a New Feature](https://github.com/Tencent/AI-Infra-Guard/issues)
 - ⭐ [Improve Documentation](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
+<br />
+
+## 🛡️ About the Team
+
+This project is led and developed by **Tencent Zhuque Lab**, part of the Tencent Security Platform Department. Founded in 2019, [Tencent Zhuque Lab](https://matrix.tencent.com/) is a top-tier security research lab focused on real-world offensive and defensive research and frontier technology in the AI security space, covering large model security, AI agent security, AI-empowered security, and AI-generated content detection.
+
+The team has helped major vendors such as **NVIDIA, Google, and Microsoft**, as well as open-source communities like **OpenClaw, Linux, and Hugging Face**, fix a large number of high-risk vulnerabilities, and has been publicly acknowledged by them.
+
+We have released open-source AI security products including the AI Red Team Security Testing Platform **A.I.G (AI-Infra-Guard)** and the **Zhuque AI Detection Assistant**. Our research has been widely published at top international security and AI conferences such as **Black Hat, DEF CON, ICLR, CVPR, NeurIPS, and ACL**, and we have authored the book *"AI Security: Technology and Practice"*.
+
+### 👥 Core Members & Contributions
+
+| Role | Member | Contribution |
+| --- | --- | --- |
+| Head of Tencent Security Platform Department | **Yong Yang** | Initiated A.I.G and proposed automated assessment of AI agent loss-of-control risks, guiding the platform's expansion from AI infrastructure vulnerability scanning to agent execution risk, tool misuse, and permission-boundary evaluation. |
+| Head of Tencent Zhuque Lab | **Xing Zheng** | Proposed the automated vulnerability-update and benchmark-alignment mechanism, helping AI Infra fingerprints, CVE/GHSA rules, and benchmarks iterate continuously. |
+| Project Lead | **Nicky** | Frontier security research, product planning, technical-route decisions, internal and external collaboration, and communications. |
+| Technical Lead | **Python** | Overall architecture design, core module development, and version iteration. |
+| Core Contributor | **Zona** | Frontend interaction, product experience, community operations, and user-feedback loop. |
+| Core Contributor | **Fyoung** | AI Infra vulnerability component fingerprint updates and Benchmark system construction. |
+| Core Contributor | **Robert** | LLM safety assessment and jailbreak-evaluation strategy operations. |
+| Core Contributor | **Zoe** | LLM safety assessment, jailbreak evaluation, and model-integration module development. |
+| Core Contributor | **Xiangfan** | Security capability development for Skill risks and agent loss-of-control scenarios. |
+| Contributor | **Ronin** | Participated in AI agent security scanning development. |
+| Contributor | **Rsin** | Participated in community operations and campaign communications. |
+
 <br />
 
 ## 🙏 Acknowledgements
@@ -471,7 +498,13 @@ If you use A.I.G in your research, please cite:
 ```
 <br>
 
-## 📚 Related Papers
+## 📚 Papers
+
+1. **"AI-Infra-Guard Technical Report"** — Technical report covering architecture design, scanning engine, and assessment methodology. [[pdf]](./AIG_Technical_Report.pdf)
+
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal presentation showcasing A.I.G's capabilities and real-world use cases. [[pdf]](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 talk revealing security risks in the MCP protocol within the AI agent ecosystem. [[pdf]](./BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
 <summary>We are deeply grateful to the research teams who have used A.I.G in their academic work. Click to expand (17 papers)</summary>

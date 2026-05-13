@@ -80,10 +80,11 @@
 - [🔧 Documentação da API](#-documentação-da-api)
 - [🏗️ Evolução da Arquitetura](../docs/architecture_evolution.md)
 - [📝 Guia de Contribuição](#-guia-de-contribuição)
+- [🛡️ Sobre a Equipe](#️-sobre-a-equipe)
 - [🙏 Agradecimentos](#-agradecimentos)
 - [💬 Junte-se à Comunidade](#-junte-se-à-comunidade)
 - [📖 Citação](#-citação)
-- [📚 Artigos Relacionados](#-artigos-relacionados)
+- [📚 Publicações](#-publicações)
 - [⚖️ Licença e Atribuição](#️-licença-e-atribuição)
 <br><br>
 ## 🚀 Início Rápido
@@ -255,6 +256,32 @@ Consulte os formatos de regras existentes, crie novos arquivos e os submeta por 
 - 💡 [Sugerir uma Nova Funcionalidade](https://github.com/Tencent/AI-Infra-Guard/issues)
 - ⭐ [Melhorar a Documentação](https://github.com/Tencent/AI-Infra-Guard/pulls)
 <br />
+<br />
+
+## 🛡️ Sobre a Equipe
+
+Este projeto é liderado e desenvolvido pelo **Tencent Zhuque Lab**, parte do Tencent Security Platform Department. Fundado em 2019, o [Tencent Zhuque Lab](https://matrix.tencent.com/) é um laboratório de pesquisa em segurança de primeiro nível, focado em pesquisa ofensiva e defensiva em condições reais e em tecnologias de ponta na área de segurança de IA. Suas áreas de pesquisa abrangem segurança de modelos de linguagem de grande porte, segurança de agentes de IA, segurança potencializada por IA e detecção de conteúdo gerado por IA.
+
+A equipe ajudou grandes fornecedores como **NVIDIA, Google e Microsoft**, bem como comunidades de código aberto como **OpenClaw, Linux e Hugging Face**, a corrigir um grande número de vulnerabilidades de alto risco, recebendo agradecimentos públicos oficiais.
+
+A equipe lançou produtos de segurança de IA de código aberto, incluindo a plataforma de testes de segurança AI Red Team **A.I.G (AI-Infra-Guard)** e o **Zhuque AI Detection Assistant**. Suas pesquisas foram amplamente publicadas em conferências internacionais de primeira linha em segurança e IA, como **Black Hat, DEF CON, ICLR, CVPR, NeurIPS e ACL**, e a equipe é autora do livro *"AI Security: Technology and Practice"*.
+
+### 👥 Membros principais e contribuições
+
+| Função | Membro | Contribuição |
+| --- | --- | --- |
+| Responsável pelo Tencent Security Platform Department | **Yong Yang** | Iniciou o A.I.G e propôs a avaliação automatizada de riscos de perda de controle de agentes de IA, conduzindo a expansão da plataforma do scan de vulnerabilidades de infraestrutura de IA para a avaliação de riscos de execução de agentes, uso indevido de ferramentas e limites de permissão. |
+| Responsável pelo Tencent Zhuque Lab | **Xing Zheng** | Propôs o mecanismo de atualização automática de vulnerabilidades e de alinhamento de benchmarks, impulsionando a iteração contínua de fingerprints de AI Infra, regras CVE/GHSA e benchmarks. |
+| Líder do projeto | **Nicky** | Pesquisa de segurança de fronteira, planejamento de produto, decisões de roadmap técnico, colaboração interna e externa e comunicação. |
+| Líder técnico | **Python** | Desenho da arquitetura geral, desenvolvimento dos módulos centrais e iteração de versões. |
+| Contribuidor principal | **Zona** | Interação frontend, experiência do produto, operação da comunidade e ciclo de feedback dos usuários. |
+| Contribuidor principal | **Fyoung** | Atualização de fingerprints de componentes vulneráveis de AI Infra e construção do sistema de benchmark. |
+| Contribuidor principal | **Robert** | Avaliação de segurança de LLMs e operação de estratégias de avaliação de jailbreak. |
+| Contribuidor principal | **Zoe** | Avaliação de segurança de LLMs, avaliação de jailbreak e desenvolvimento do módulo de integração de modelos. |
+| Contribuidor principal | **Xiangfan** | Desenvolvimento de capacidades de segurança para riscos de Skills e cenários de perda de controle de agentes. |
+| Contribuidor | **Ronin** | Participou do desenvolvimento do scan de segurança de agentes de IA. |
+| Contribuidor | **Rsin** | Participou da operação da comunidade e da comunicação de campanhas. |
+
 <br />
 
 ## 🙏 Agradecimentos
@@ -470,7 +497,13 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 ```
 <br>
 
-## 📚 Artigos Relacionados
+## 📚 Publicações
+
+1. **"AI-Infra-Guard Technical Report"** — Relatório técnico da plataforma A.I.G abrangendo design de arquitetura, motor de varredura e metodologia de avaliação. [[pdf]](../AIG_Technical_Report.pdf)
+
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Apresentação Arsenal no Black Hat Europe 2025 demonstrando as capacidades do A.I.G e casos de uso reais. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Palestra no Black Hat Europe 2025 revelando riscos de segurança do protocolo MCP no ecossistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
 <summary>Somos profundamente gratos às equipes de pesquisa que utilizaram o A.I.G em seus trabalhos acadêmicos. Clique para expandir (17 artigos)</summary>
