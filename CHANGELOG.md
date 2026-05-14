@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.8] - 2026-05-14
+
+### Fixed
+- **Tools**: Make tool name lookup case-insensitive (2e76c7d)
+- **Vuln Rules**: Remove 143 duplicate GHSA files that have corresponding CVE references (bf06029)
+- **Vuln Rules**: Remove invalid fingerprints (chatgpt-mcp-server/pptagent), fix GHSA-9p3r YAML format (8a19ff8)
+- **Vuln Rules**: Restore GHSA files added upstream after base commit (6cdecfd)
+
+### Changed
+- **Docs**: Add invitation code application link to all README files (08c356a)
+- **Docs**: Add 1 new related paper to README + fix ZH PDF links (2cbc750)
+- **Docs**: Add team introduction, core members, and papers section across all READMEs (3ef3cb8)
+- **Docs**: Update component count 58→64 and vuln stats 1200+→1300+ across all 9 README languages (0a3b50b)
+
+### Contributors
+Special thanks to @feiyang666, @zhuque, @boyhack, @aigsec, @aig-doc-bot, @jucie-pie, @AIG-Bot
+
+---
+
 ## [v4.1.7] - 2026-04-30
 
 ### Changed
