@@ -60,6 +60,7 @@
 
 ## 🚀 最新情報
 
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — カバレッジが64種AIコンポーネントに拡大（InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABotを追加）；脆弱性DBの重複排除とクリーンアップ。
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — カバレッジが58種AIコンポーネントに拡大（FastGPT、Upsonicを追加）；7コンポーネントの脆弱性DBを一括更新。
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 公開されたAIエージェント設定ファイルを検出（13種のパス）；ジェイルブレイクデータセットと脆弱性DBの手動更新に対応。
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自己署名証明書の HTTPS モデルエンドポイントに対応。

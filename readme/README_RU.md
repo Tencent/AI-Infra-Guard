@@ -60,6 +60,7 @@
 
 ## 🚀 Новое
 
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Покрытие расширено до 64 AI-компонентов (6 новых: InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot); БД уязвимостей дедуплицирована и очищена.
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Покрытие расширено до 58 AI-компонентов (добавлены FastGPT, Upsonic); массовое обновление БД уязвимостей для 7 компонентов.
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Обнаружение открытых файлов конфигурации AI Agent (13 путей); ручное обновление датасетов jailbreak и баз уязвимостей.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — Теперь поддерживаются HTTPS-эндпоинты модели с самоподписанными сертификатами.

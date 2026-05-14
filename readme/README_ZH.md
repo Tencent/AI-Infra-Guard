@@ -58,6 +58,7 @@
 
 ## 🚀 最新动态
 
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — 覆盖扩展至 64 种 AI 组件（新增 InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABot）；漏洞库去重与清理。
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — 覆盖扩展至 58 种 AI 组件（新增 FastGPT、Upsonic）；7 个组件漏洞库批量更新。
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 可检测暴露的 AI Agent 配置文件（13 种路径）；支持手动更新越狱数据集与漏洞库。
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自签名证书的 HTTPS 模型端点现已支持。
