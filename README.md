@@ -145,7 +145,7 @@ For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getti
 </details>
 
 ### Try the Online Pro Version
-Experience the Pro version with advanced features and improved performance. The Pro version requires an invitation code and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
+Experience the Pro version with advanced features and improved performance. The Pro version requires an [invitation code](https://wj.qq.com/s2/25099467/25vn/) and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
 <br>
 

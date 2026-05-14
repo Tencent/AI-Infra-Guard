@@ -145,7 +145,7 @@ Weitere Informationen finden Sie unter: [https://tencent.github.io/AI-Infra-Guar
 </details>
 
 ### Online-Pro-Version ausprobieren
-Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung. Die Pro-Version erfordert einen Einladungscode und wird vorrangig für Mitwirkende vergeben, die Issues, Pull Requests oder Diskussionen eingereicht oder aktiv zur Verbreitung der Community beigetragen haben. Besuchen Sie: [https://aigsec.ai/](https://aigsec.ai/).
+Erleben Sie die Pro-Version mit erweiterten Funktionen und verbesserter Leistung. Die Pro-Version erfordert einen [Einladungscode](https://wj.qq.com/s2/25099467/25vn/) und wird vorrangig für Mitwirkende vergeben, die Issues, Pull Requests oder Diskussionen eingereicht oder aktiv zur Verbreitung der Community beigetragen haben. Besuchen Sie: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
 <br>
 

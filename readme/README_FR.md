@@ -145,7 +145,7 @@ Pour plus d'informations, voir : [https://tencent.github.io/AI-Infra-Guard/?menu
 </details>
 
 ### Essayer la version Pro en ligne
-Découvrez la version Pro avec des fonctionnalités avancées et des performances améliorées. La version Pro nécessite un code d'invitation et est prioritairement réservée aux contributeurs ayant soumis des issues, des pull requests ou des discussions, ou qui aident activement à développer la communauté. Visitez : [https://aigsec.ai/](https://aigsec.ai/).
+Découvrez la version Pro avec des fonctionnalités avancées et des performances améliorées. La version Pro nécessite un [code d'invitation](https://wj.qq.com/s2/25099467/25vn/) et est prioritairement réservée aux contributeurs ayant soumis des issues, des pull requests ou des discussions, ou qui aident activement à développer la communauté. Visitez : [https://aigsec.ai/](https://aigsec.ai/).
 <br>
 <br>
 

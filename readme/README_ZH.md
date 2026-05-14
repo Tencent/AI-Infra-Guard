@@ -142,7 +142,7 @@ docker-compose up -d
 </details>
 
 ### 体验在线Pro版
-体验具有内测及高级功能的Pro版，需要邀请码，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
+体验具有内测及高级功能的Pro版，需要[邀请码](https://wj.qq.com/s2/25099467/25vn/)，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
 <br/>
 <br/>
 
