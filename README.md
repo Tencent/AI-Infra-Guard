@@ -60,6 +60,7 @@
 
 ## 🚀 What's New
 
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Coverage expanded to 64 AI components (6 new: InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot); vuln database deduplicated and cleaned.
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Coverage expanded to 58 AI components (added FastGPT, Upsonic); vuln database refreshed across 7 components.
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Detects exposed AI agent config files (13 paths); manual update for jailbreak datasets and vuln databases.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — HTTPS model endpoints with self-signed certificates now supported.
