@@ -146,7 +146,7 @@ docker-compose up -d
 </details>
 
 ### オンラインPro版を試す
-高度な機能と改善されたパフォーマンスを備えたPro版をお試しください。Pro版には招待コードが必要で、Issue、Pull Request、Discussionを提出した方、またはコミュニティの成長に積極的に貢献された方が優先されます。アクセス: [https://aigsec.ai/](https://aigsec.ai/)
+高度な機能と改善されたパフォーマンスを備えたPro版をお試しください。Pro版には[招待コード](https://wj.qq.com/s2/25099467/25vn/)が必要で、Issue、Pull Request、Discussionを提出した方、またはコミュニティの成長に積極的に貢献された方が優先されます。アクセス: [https://aigsec.ai/](https://aigsec.ai/)
 <br>
 <br>
 
