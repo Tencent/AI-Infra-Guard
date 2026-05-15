@@ -159,7 +159,45 @@ python cli_run.py \
 - `filter_conditions`：过滤条件（如 `{"category": "harmful", "language": "zh"}`）
 
 
-## b) 评测集管理
+## b) 一键越狱
+
+### 越狱攻击类型
+
+**单轮越狱攻击：**
+- **Prompt Injection**：提示注入攻击
+- **Leetspeak**：字符替换编码
+- **ROT-13**：凯撒密码变种
+- **Base64**：Base64编码攻击
+- **Emoji**：表情符号混淆
+- **Math Problem**：数学问题伪装
+- **Roleplay**：角色扮演攻击
+
+**多轮越狱攻击：**
+- **Linear Jailbreaking**：线性渐进越狱
+- **Tree Jailbreaking**：树形搜索越狱
+- **Crescendo Jailbreaking**：渐进式越狱
+- **Sequential Jailbreaking**：序列化越狱
+- **Bad Likert Judge**：恶意评分攻击
+
+### 攻击策略
+- **random**：随机选择攻击方法（默认）
+- **serial**：串行嵌套攻击
+- **parallel**：并行独立攻击
+
+### 使用示例
+```bash
+# 一键越狱测试
+python cli_run.py \
+  --model "gpt-3.5-turbo" \
+  --base_url "https://api.openai.com/v1" \
+  --api_key "your-api-key" \
+  --max_concurrent 10 \
+  --scenarios Bias \
+  --techniques LinearJailbreaking TreeJailbreaking \
+  --choice serial
+```
+
+## c) 评测集管理
 
 ### 内置评测场景
 
@@ -198,6 +236,68 @@ python cli_run.py \
 
 > 注：自定义评测集强调“灵活组合与配置”，与“上传自定义数据集”不同，后者主要用于导入外部测试用例。
 
+## d) 攻击算子管理与当前支持的攻击算子
+
+### 攻击算子分类
+
+**编码类攻击：**
+- Base64、Braille、Ecoji、Morse、Nato、ROT-13、Zalgo、Zerowidth
+
+**混淆类攻击：**
+- Leetspeak、Emoji、GrayBox、Homomorphic
+
+**高级攻击：**
+- ICRTJailbreak、MathProblem、Multilingual、PromptInjection、PromptProbing、Roleplay
+
+**自定义攻击算子：**
+- CustomAttack（此功能在未来版本中规划）
+
+### 攻击算子配置
+```bash
+# 查看所有可用攻击算子
+python cli_run.py --scan-tools techniques
+
+# 查看特定攻击算子的参数
+python cli_run.py --show-tool-params PromptInjection
+```
+
+### 当前支持的攻击算子
+
+#### 单轮攻击算子（Single-Turn Attacks）
+
+| 攻击算子 | 描述 | 适用场景 |
+|---------|------|----------|
+| Base64 | Base64编码混淆 | 绕过关键词过滤 |
+| Braille | 盲文编码 | 视觉混淆攻击 |
+| Ecoji | Emoji编码 | 表情符号混淆 |
+| Emoji | 表情符号替换 | 文本混淆 |
+| GrayBox | 灰盒攻击 | 部分信息攻击 |
+| Homomorphic | 同态编码 | 语义保持攻击 |
+| ICRTJailbreak | ICRT越狱攻击 | 高级越狱技术 |
+| Leetspeak | 字符替换编码 | 经典混淆攻击 |
+| MathProblem | 数学问题伪装 | 逻辑伪装攻击 |
+| Morse | 摩尔斯电码 | 编码混淆 |
+| Multilingual | 多语言攻击 | 跨语言漏洞 |
+| Nato | NATO字母编码 | 军事编码混淆 |
+| PromptInjection | 提示注入 | 指令注入攻击 |
+| PromptProbing | 提示探测 | 系统信息探测 |
+| Raw | 原始攻击 | 直接攻击 |
+| Roleplay | 角色扮演 | 身份伪装攻击 |
+| Rot13 | ROT13编码 | 简单替换编码 |
+| Zalgo | Zalgo文本 | Unicode混淆 |
+| Zerowidth | 零宽字符 | 不可见字符攻击 |
+
+#### 多轮攻击算子（Multi-Turn Attacks）
+
+| 攻击算子 | 描述 | 特点 |
+|---------|------|------|
+| BadLikertJudge | 恶意评分攻击 | 利用评分机制 |
+| BestofN | N选1攻击 | 多选项攻击 |
+| CrescendoJailbreaking | 渐进式越狱 | 逐步升级攻击 |
+| LinearJailbreaking | 线性越狱 | 线性迭代攻击 |
+| SequentialJailbreak | 序列化越狱 | 对话式攻击 |
+| TreeJailbreaking | 树形越狱 | 多路径搜索 | 
+
 ## 🙏 致谢 | Acknowledgements
 
 本项目的开发离不开以下优秀的开源项目，特此致谢。
@@ -213,9 +313,13 @@ python cli_run.py \
 
 | 算子名称 | 来源团队 | 链接 |
 |---------|--------|------|
-| 部分算子 | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| 部分单轮和多轮算子 | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| SequentialBreak | Saiem等 | [Paper](https://arxiv.org/abs/2411.06426) |
+| Best of N | Hughes等 | [Paper](https://arxiv.org/abs/2412.03556) |
+| ICRT Jailbreak | Yang等 | [Paper](https://arxiv.org/abs/2505.02862) |
 | Strata-Sword | Alibaba AAIG | [Paper](https://arxiv.org/abs/2509.01444) |
 | StegoRedTeam | SZU P&P Team | [Github](https://github.com/lhppppp/StegoRedTeam) |
+| PROMISQROUTE | Adversa AI | [Blog](https://adversa.ai/blog/promisqroute-gpt-5-ai-router-novel-vulnerability-class/) |
 
 ### 数据集贡献
 我们向为本项目使用的各种数据集做出贡献的研究团队和社区表示诚挚的感谢：

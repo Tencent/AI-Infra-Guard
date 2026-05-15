@@ -138,9 +138,28 @@
 - **单个技术，无参数：**  
   直接写类名，首字母大写。例如：
   ```
-  Raw
+  PromptInjection
   ```
 
+- **单个技术，有参数：**  
+  用冒号分隔类名和参数，参数用 `key=value` 形式。例如：
+  ```
+  Roleplay:role=doctor
+  ```
+
+- **多个技术：**  
+  每个技术作为一个独立参数。例如：
+  ```bash
+  --techniques PromptInjection Roleplay Roleplay:role=doctor
+  ```
+
+- **串行嵌套技术链（serial模式）：**
+  - 指定多个技术方法，并加 `--choice serial`，会对每个基线攻击**依次串行嵌套所有技术方法**。
+  - 例如：
+    ```bash
+    --techniques Base64 Rot13 Roleplay --choice serial
+    ```
+    实际效果为：`Roleplay(Base64(Rot13(原始攻击)))`
 
 
 ## 4. 评估指标（Metric）用法
