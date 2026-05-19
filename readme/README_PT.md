@@ -289,7 +289,7 @@ A equipe lançou produtos de segurança de IA de código aberto, incluindo a pla
 
 ### 🎓 Colaborações Acadêmicas
 
-Expressamos nossa sincera gratidão aos nossos parceiros acadêmicos por suas excepcionais contribuições de pesquisa e suporte técnico.
+Agradecemos aos nossos parceiros acadêmicos por suas contribuições de pesquisa e suporte técnico.
 
 #### <img src="../img/北大未来网络重点实验室2.png" height="30" align="middle"/>
 <table>
@@ -396,7 +396,7 @@ Expressamos nossa sincera gratidão aos nossos parceiros acadêmicos por suas ex
 <br>
 
 ### 👥 Gratidão aos Desenvolvedores Contribuidores
-Obrigado a todos os desenvolvedores que contribuíram para o projeto A.I.G. Suas contribuições foram fundamentais para tornar o A.I.G uma plataforma de AI Red Team mais robusta e confiável.
+Obrigado a todos os desenvolvedores que contribuíram para o projeto A.I.G.
 <br />
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -508,7 +508,7 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Palestra no Black Hat Europe 2025 revelando riscos de segurança do protocolo MCP no ecossistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
-<summary>Somos profundamente gratos às equipes de pesquisa que utilizaram o A.I.G em seus trabalhos acadêmicos. Clique para expandir (19 artigos)</summary>
+<summary>Agradecemos às equipes de pesquisa que citaram o A.I.G em seus trabalhos acadêmicos. Clique para expandir (19 artigos)</summary>
 <br>
 
 1. Chenning Li, Pan Hu, Justin Xu et al. **"ADR: An Agentic Detection System for Enterprise Agentic AI Security."** arXiv preprint arXiv:2605.17380 (2026). [[pdf]](http://arxiv.org/abs/2605.17380v1)

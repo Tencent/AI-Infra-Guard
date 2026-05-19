@@ -60,9 +60,9 @@
 
 ## 🚀 Nouveautés
 
-- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Couverture étendue à 64 composants IA (6 nouveaux : InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot) ; base de vulnérabilités dédupliquée et nettoyée.
-- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Couverture étendue à 58 composants IA (ajout de FastGPT, Upsonic) ; mise à jour massive de la base de vulnérabilités pour 7 composants.
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Détecte les fichiers de configuration d’AI Agent exposés (13 chemins) ; mise à jour manuelle des jeux de données jailbreak et des bases de vulnérabilités.
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) - Couverture étendue à 64 composants IA (6 nouveaux : InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot) ; base de vulnérabilités dédupliquée et nettoyée.
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) - Couverture étendue à 58 composants IA (ajout de FastGPT, Upsonic) ; mise à jour massive de la base de vulnérabilités pour 7 composants.
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) - Détecte les fichiers de configuration d'AI Agent exposés (13 chemins) ; mise à jour manuelle des jeux de données jailbreak et des bases de vulnérabilités.
 - **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) - Les endpoints de modèle HTTPS avec certificats auto-signés sont désormais pris en charge.
 - **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) - Couverture étendue à 55 composants IA ; ajout de crewai, kubeai, lobehub.
 - **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) - Trois nouveaux skills sur ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + arrêt manuel des tâches.
@@ -289,7 +289,7 @@ L'équipe a publié des produits de sécurité IA open source tels que la platef
 
 ### 🎓 Collaborations académiques
 
-Nous exprimons notre sincère reconnaissance à nos partenaires académiques pour leurs contributions exceptionnelles à la recherche et leur soutien technique.
+Nous remercions nos partenaires académiques pour leurs contributions de recherche et leur soutien technique.
 
 #### <img src="../img/北大未来网络重点实验室2.png" height="30" align="middle"/>
 <table>
@@ -396,7 +396,7 @@ Nous exprimons notre sincère reconnaissance à nos partenaires académiques pou
 <br>
 
 ### 👥 Remerciements aux développeurs contributeurs
-Merci à tous les développeurs qui ont contribué au projet A.I.G. Vos contributions ont été déterminantes pour faire d'A.I.G une plateforme de Red Team IA plus robuste et fiable.
+Merci à tous les développeurs qui ont contribué au projet A.I.G.
 <br />
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -501,14 +501,14 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 ## 📚 Publications
 
-1. **"AI-Infra-Guard Technical Report"** — Rapport technique de la plateforme A.I.G couvrant la conception de l'architecture, le moteur de scan et la méthodologie d'évaluation. [[pdf]](../AIG_Technical_Report.pdf)
+1. **"AI-Infra-Guard Technical Report"** - Rapport technique de la plateforme A.I.G couvrant la conception de l'architecture, le moteur de scan et la méthodologie d'évaluation. [[pdf]](../AIG_Technical_Report.pdf)
 
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Présentation Arsenal au Black Hat Europe 2025 présentant les capacités d'A.I.G et des cas d'usage concrets. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** - Présentation Arsenal au Black Hat Europe 2025 présentant les capacités d'A.I.G et des cas d'usage concrets. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Conférence au Black Hat Europe 2025 révélant les risques de sécurité du protocole MCP dans l'écosystème des agents IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** - Conférence au Black Hat Europe 2025 révélant les risques de sécurité du protocole MCP dans l'écosystème des agents IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 <details>
-<summary>Nous sommes profondément reconnaissants envers les équipes de recherche qui ont utilisé A.I.G dans leurs travaux académiques. Cliquez pour développer (19 articles)</summary>
+<summary>Merci aux équipes de recherche ayant cité A.I.G dans leurs travaux académiques. Cliquez pour développer (19 articles)</summary>
 <br>
 
 1. Chenning Li, Pan Hu, Justin Xu et al. **"ADR: An Agentic Detection System for Enterprise Agentic AI Security."** arXiv preprint arXiv:2605.17380 (2026). [[pdf]](http://arxiv.org/abs/2605.17380v1)
