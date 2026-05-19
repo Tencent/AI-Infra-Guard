@@ -435,7 +435,6 @@ Vielen Dank an die Nutzer aus den folgenden Unternehmen und Teams für die Verwe
 <img src="../img/changan.png" alt="长安汽车" height="40px">
 </div>
 
-<br>
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
@@ -444,7 +443,7 @@ Vielen Dank an die Nutzer aus den folgenden Unternehmen und Teams für die Verwe
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
 <img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
 <img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
-<img src="../img/huazhong.png" alt="华中科技大学" height="40px">
+<img src="../img/huazhong.png" alt="华中科技大学" height="45px">
 <img src="../img/南开大学.jpg" alt="南开大学" height="45px">
 <img src="../img/四川大学.png" alt="四川大学" height="40px">
 </div>
