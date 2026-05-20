@@ -10,16 +10,15 @@ info:
   metadata:
     product: sglang
     vendor: sgl-project
-
 http:
   - method: GET
     path: '/server_info'
     matchers:
       - body="radix_eviction_policy" && body="weight_version" && body="tokenizer_path"
-  version:
-    - method: GET
-      path: '/server_info'
-      extractor:
-        part: body
-        group: 1
-        regex: '"version":"([^"]+)"'
+version:
+  - method: GET
+    path: '/server_info'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"([^"]+)"'
