@@ -31,6 +31,6 @@ info:
     强制执行会话终止接口的 HTTP 权限范围校验
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw

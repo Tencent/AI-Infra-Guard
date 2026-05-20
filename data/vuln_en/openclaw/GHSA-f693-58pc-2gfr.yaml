@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-f693-58pc-2gfr
-  summary: OpenClaw Telegram legacy allowFrom migration fans default-account trust into all named accounts
+  summary: >-
+    OpenClaw Telegram legacy allowFrom migration fans default-account trust into all named accounts
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - d8c68c8d4265ea6fa5e8c5e056534c351bddef37 — 2026-03-31T12:51:38+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - d8c68c8d4265ea6fa5e8c5e056534c351bddef37 — 2026-03-31T12:51:38+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-f693-58pc-2gfr
 rule: version <= "2026.3.28"

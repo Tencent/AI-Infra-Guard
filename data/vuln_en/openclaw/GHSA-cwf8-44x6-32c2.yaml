@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-cwf8-44x6-32c2
-  summary: 'OpenClaw OpenShell Mirror Sync: Sandbox Escape via Unrestricted File Sync + Symlink Traversal'
+  summary: >-
+    OpenClaw OpenShell Mirror Sync: Sandbox Escape via Unrestricted File Sync + Symlink Traversal
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - c02ee8a3a4cb390b23afdf21317aa8b2096854d1 — 2026-03-25T19:59:07Z
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - c02ee8a3a4cb390b23afdf21317aa8b2096854d1 — 2026-03-25T19:59:07Z
     - 3b9dab0ece4643a9643e6a45459f5c709d3ce320 — 2026-03-30T14:51:44+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-cwf8-44x6-32c2

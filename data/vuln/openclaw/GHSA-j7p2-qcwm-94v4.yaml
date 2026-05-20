@@ -40,6 +40,6 @@ info:
   security_advise: '升级 openclaw 至 >= 2026.3.22 或更高版本。由提交 7abfff756d 修复（Exec: harden host env override handling across gateway and node，执行：加固网关与节点的宿主环境变量覆盖处理机制）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-j7p2-qcwm-94v4
-rule: version < "2026.3.22"
+rule: 'version < "2026.3.22"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-j7p2-qcwm-94v4

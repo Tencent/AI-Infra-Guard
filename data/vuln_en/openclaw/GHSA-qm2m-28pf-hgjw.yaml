@@ -32,7 +32,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit ec2dbcff9afd8a52e00de054b506c91726d9fbbe.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - ec2dbcff9afd8a52e00de054b506c91726d9fbbe
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - ec2dbcff9afd8a52e00de054b506c91726d9fbbe
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qm2m-28pf-hgjw
 rule: version <= "2026.3.24"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-wq58-2pvg-5h4f
-  summary: OpenClaw Gateway agent /reset exposes admin session reset to operator.write callers
+  summary: >-
+    OpenClaw Gateway agent /reset exposes admin session reset to operator.write callers
   details: >-
     Summary
 
@@ -45,8 +46,9 @@ info:
     Thanks @smaeljaish771 for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - 50f6a2f136fed85b58548a38f7a3dbb98d2cd1a0 — fix(gateway):
-    require admin for agent session reset'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - 50f6a2f136fed85b58548a38f7a3dbb98d2cd1a0 — fix(gateway): require
+    admin for agent session reset
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-wq58-2pvg-5h4f
 rule: version < "2026.3.23"

@@ -35,6 +35,6 @@ info:
   security_advise: 升级 openclaw 至 2026.3.25 或更高版本。相关提交：5e08ce36d522a1c96df2bfe88e39303ae2643d92
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv

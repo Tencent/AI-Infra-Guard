@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-74wf-h43j-vvmj
-  summary: OpenClaw ACP rawInput tool identity spoof could suppress dangerous-tool prompting.
+  summary: >-
+    OpenClaw ACP rawInput tool identity spoof could suppress dangerous-tool prompting.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - e4c61723cd2d530680cc61789311d464ab8cdf60
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - e4c61723cd2d530680cc61789311d464ab8cdf60
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-74wf-h43j-vvmj
 rule: version < "2026.3.22"

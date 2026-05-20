@@ -37,7 +37,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-8883-9w57-vwv6
 rule: version < "2026.3.22"

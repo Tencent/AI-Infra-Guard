@@ -33,6 +33,6 @@ info:
   security_advise: 将 openclaw 升级至 >= 2026.3.31 或更高版本。相关提交 - 330a9f98cb29c79b1c16a2117e03d6276a0d6289 — 2026-03-31T19:25:12+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qcj9-wwgw-6gm8
-rule: version <= "2026.3.28"
+rule: 'version <= "2026.3.28"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-qcj9-wwgw-6gm8

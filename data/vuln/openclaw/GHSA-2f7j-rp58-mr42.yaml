@@ -31,6 +31,6 @@ info:
     将连接快照元数据限制为管理员权限范围的客户端可见
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-2f7j-rp58-mr42
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-2f7j-rp58-mr42

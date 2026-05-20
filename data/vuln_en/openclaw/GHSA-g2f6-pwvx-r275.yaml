@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-g2f6-pwvx-r275
-  summary: OpenClaw Unsanitized iMessage attachment paths allowed SCP remote-path command injection
+  summary: >-
+    OpenClaw Unsanitized iMessage attachment paths allowed SCP remote-path command injection
   details: >-
     Summary
 
@@ -41,10 +42,11 @@ info:
     filenames with shell metacharacters before spawning scp).
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.13 or later. openclaw@2026.3.13 validates the SCP remote path before spawning
-    scp. Current code calls normalizeScpRemotePath(...) and rejects paths containing shell metacharacters instead of passing
-    them through to the remote shell. Regression coverage exists in src/auto-reply/reply.stage-sandbox-media.scp-remote-path.test.ts
-    (rejects remote attachment filenames with shell metacharacters before spawning scp).
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.13 or later. openclaw@2026.3.13 validates the SCP remote path before spawning scp. Current
+    code calls normalizeScpRemotePath(...) and rejects paths containing shell metacharacters instead of passing them through
+    to the remote shell. Regression coverage exists in src/auto-reply/reply.stage-sandbox-media.scp-remote-path.test.ts (rejects
+    remote attachment filenames with shell metacharacters before spawning scp).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-g2f6-pwvx-r275
 rule: version <= "2026.3.12"

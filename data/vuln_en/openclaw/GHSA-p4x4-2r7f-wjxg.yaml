@@ -39,8 +39,9 @@ info:
     Fixed by commit 9ec44fad39 (Exec approvals: reject wrapper carrier allow-always targets).
   cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 9ec44fad39 (Exec approvals: reject wrapper
-    carrier allow-always targets).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 9ec44fad39 (Exec approvals: reject wrapper carrier allow-always
+    targets).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-p4x4-2r7f-wjxg
 rule: version <= "2026.3.24"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-h2v7-xc88-xx8c
-  summary: 'OpenClaw `/phone arm`/`/phone disarm` Bypasses `operator.admin` Scope Check for External Channels '
+  summary: >-
+    OpenClaw `/phone arm`/`/phone disarm` Bypasses `operator.admin` Scope Check for External Channels
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.28
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.28 or later. Commit(s) - aa66ae1fc797d3298cc409ed2c5da69a89950a45 — 2026-03-27T20:35:42Z
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Commit(s) - aa66ae1fc797d3298cc409ed2c5da69a89950a45 — 2026-03-27T20:35:42Z
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-h2v7-xc88-xx8c
 rule: version <= "2026.3.24"

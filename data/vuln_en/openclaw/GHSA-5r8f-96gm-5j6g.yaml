@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-5r8f-96gm-5j6g
-  summary: OpenClaw Gateway `operator.write` can reach admin-only session reset via `chat.send` `/reset`
+  summary: >-
+    OpenClaw Gateway `operator.write` can reach admin-only session reset via `chat.send` `/reset`
   details: >-
     Summary
 
@@ -39,8 +40,8 @@ info:
     Fixed by commit be00fcfccb (Gateway: align chat.send reset scope checks).
   cvss: ''
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit be00fcfccb (Gateway: align chat.send reset
-    scope checks).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit be00fcfccb (Gateway: align chat.send reset scope checks).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-5r8f-96gm-5j6g
 rule: version <= "2026.3.24"

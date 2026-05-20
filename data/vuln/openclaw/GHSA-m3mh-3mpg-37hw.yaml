@@ -16,6 +16,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-m3mh-3mpg-37hw
-rule: version <= "2025.3.23"
+rule: 'version <= "2025.3.23"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-m3mh-3mpg-37hw

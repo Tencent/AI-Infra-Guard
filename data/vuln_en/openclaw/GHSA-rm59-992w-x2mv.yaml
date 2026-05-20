@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-rm59-992w-x2mv
-  summary: OpenClaw Voice Call webhook buffered request bodies before provider signature checks, enabling bounded unauthenticated
+  summary: >-
+    OpenClaw Voice Call webhook buffered request bodies before provider signature checks, enabling bounded unauthenticated
     resource exhaustion.
   details: >-
     Summary
@@ -40,7 +41,8 @@ info:
     Thanks @SEORY0 for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 651dc7450b68a5396a009db78ef9382633707ead
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 651dc7450b68a5396a009db78ef9382633707ead
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-rm59-992w-x2mv
 rule: version < "2026.3.22"

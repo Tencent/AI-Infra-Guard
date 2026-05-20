@@ -32,6 +32,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.4.2 或更高版本。相关提交 - 9c22d636697336a6b22b0ae24798d8b8325d7828 — 在执行回环检查前对 localhost 绝对形式 CDP 主机名进行规范化处理
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fh32-73r9-rgh5
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-fh32-73r9-rgh5

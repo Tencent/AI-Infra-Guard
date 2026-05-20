@@ -31,7 +31,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 2194587d70d2aef863508b945319c5a7c88b12ce — 2026-03-31T19:40:15+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 2194587d70d2aef863508b945319c5a7c88b12ce — 2026-03-31T19:40:15+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-4g5x-2jfc-xm98
 rule: version <= "2026.3.28"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-844j-xrrq-wgh4
-  summary: OpenClaw XFF loopback spoofing bypasses canvas auth and rate limiter when trustedProxies configured.
+  summary: >-
+    OpenClaw XFF loopback spoofing bypasses canvas auth and rate limiter when trustedProxies configured.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @lintsinghua for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - fc2d29ea926f47c428c556e92ec981441228d2a4
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - fc2d29ea926f47c428c556e92ec981441228d2a4
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4
 rule: version < "2026.3.22"

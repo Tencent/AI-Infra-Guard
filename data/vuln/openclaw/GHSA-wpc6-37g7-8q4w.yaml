@@ -33,6 +33,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.31 或更高版本。相关提交 - 0c8375424620e12777ef24c162eedc7e9fcfd7e3 — 拒绝通过 Shell 初始化文件方式匹配脚本
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w
-rule: version < "2026.3.31"
+rule: 'version < "2026.3.31"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w

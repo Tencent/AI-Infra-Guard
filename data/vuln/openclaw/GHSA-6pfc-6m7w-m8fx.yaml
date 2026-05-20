@@ -40,6 +40,6 @@ info:
   security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。由提交 83da3cfe31 修复（infra: unwrap script wrapper approval targets，基础设施：解包 script 包装器审批目标）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6pfc-6m7w-m8fx
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-6pfc-6m7w-m8fx

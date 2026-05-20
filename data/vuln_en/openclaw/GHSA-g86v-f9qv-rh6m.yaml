@@ -36,10 +36,14 @@ info:
 
 
     Fixed by commit d61f8e5672 (Net: block missing IPv6 special-use ranges).
+
+
+    Thanks @nicky-cc  of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:N/A:N
   severity: LOW
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit d61f8e5672 (Net: block missing IPv6 special-use
-    ranges).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit d61f8e5672 (Net: block missing IPv6 special-use ranges). Thanks
+    @nicky-cc of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-g86v-f9qv-rh6m
 rule: version <= "2026.3.24"

@@ -31,6 +31,6 @@ info:
     约束 OpenShell 镜像同步的根目录范围
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-m34q-h93w-vg5x
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-m34q-h93w-vg5x

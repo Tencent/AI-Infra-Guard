@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-rhfg-j8jq-7v2h
-  summary: OpenClaw SSRF via Unguarded Configured Base URLs in Multiple Channel Extensions (Incomplete Fix for CVE-2026-28476)
+  summary: >-
+    OpenClaw SSRF via Unguarded Configured Base URLs in Multiple Channel Extensions (Incomplete Fix for CVE-2026-28476)
   details: >-
     Summary
 
@@ -32,7 +33,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit f92c92515bd439a71bd03eb1bc969c1964f17acf.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - f92c92515bd439a71bd03eb1bc969c1964f17acf
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - f92c92515bd439a71bd03eb1bc969c1964f17acf
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-rhfg-j8jq-7v2h
 rule: version <= "2026.3.24"

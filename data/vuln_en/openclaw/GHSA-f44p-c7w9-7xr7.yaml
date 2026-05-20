@@ -1,8 +1,12 @@
 info:
   name: OpenClaw
   cve: GHSA-f44p-c7w9-7xr7
-  summary: OpenClaw OpenClaw Gateway WebSocket denial of service via unbounded pre-auth upgrades
+  summary: >-
+    OpenClaw OpenClaw Gateway WebSocket denial of service via unbounded pre-auth upgrades
   details: >-
+    Discoverer ：Topsec AlphaLab (wang dong)
+
+
     Summary
 
 
@@ -39,8 +43,8 @@ info:
     Fixed by commit cb5f7e201f (gateway: cap concurrent pre-auth websocket upgrades).
   cvss: ''
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit cb5f7e201f (gateway: cap concurrent pre-auth
-    websocket upgrades).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit cb5f7e201f (gateway: cap concurrent pre-auth websocket upgrades).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-f44p-c7w9-7xr7
 rule: version <= "2026.3.24"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-6xg4-82hv-cp6f
-  summary: OpenClaw Gateway chat.send ACP-only provenance guard could be bypassed by client identity spoofing
+  summary: >-
+    OpenClaw Gateway chat.send ACP-only provenance guard could be bypassed by client identity spoofing
   details: >-
     Summary
 
@@ -39,8 +40,8 @@ info:
     Fixed by commit 4b9542716c (Gateway: require verified scope for chat provenance).
   cvss: ''
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 4b9542716c (Gateway: require verified scope
-    for chat provenance).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 4b9542716c (Gateway: require verified scope for chat provenance).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6xg4-82hv-cp6f
 rule: version <= "2026.3.24"

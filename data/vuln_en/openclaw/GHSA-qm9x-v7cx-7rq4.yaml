@@ -37,7 +37,8 @@ info:
     Thanks @YLChen-007 for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 39409b6a6dd4239deea682e626bac9ba547bfb14
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 39409b6a6dd4239deea682e626bac9ba547bfb14
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qm9x-v7cx-7rq4
 rule: version < "2026.3.22"

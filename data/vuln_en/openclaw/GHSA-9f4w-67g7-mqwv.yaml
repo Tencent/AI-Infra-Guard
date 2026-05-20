@@ -1,8 +1,9 @@
 info:
   name: OpenClaw
   cve: GHSA-9f4w-67g7-mqwv
-  summary: OpenClaw Remote onboarding preserves attacker-discovered endpoint after trust decline, routing gateway credentials
-    to it
+  summary: >-
+    OpenClaw Remote onboarding preserves attacker-discovered endpoint after trust decline, routing gateway credentials to
+    it
   details: >-
     Summary
 
@@ -32,7 +33,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 2a75416634837c21ed05b8c3ed906eb7a7807060 — 2026-03-30T20:03:06+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 2a75416634837c21ed05b8c3ed906eb7a7807060 — 2026-03-30T20:03:06+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-9f4w-67g7-mqwv
 rule: version <= "2026.3.28"

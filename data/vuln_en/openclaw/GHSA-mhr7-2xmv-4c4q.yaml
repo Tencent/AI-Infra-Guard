@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-mhr7-2xmv-4c4q
-  summary: OpenClaw HTTP operator endpoints lack browser-origin validation in trusted-proxy mode
+  summary: >-
+    OpenClaw HTTP operator endpoints lack browser-origin validation in trusted-proxy mode
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 6b3f99a11f4d070fa5ed2533abbb3d7329ea4f0d — 2026-03-31T19:49:26+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 6b3f99a11f4d070fa5ed2533abbb3d7329ea4f0d — 2026-03-31T19:49:26+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-mhr7-2xmv-4c4q
 rule: version <= "2026.3.28"

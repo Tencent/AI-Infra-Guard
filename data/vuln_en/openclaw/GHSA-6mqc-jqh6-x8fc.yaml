@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-6mqc-jqh6-x8fc
-  summary: OpenClaw Gateway Canvas local-direct requests bypass Canvas HTTP and WebSocket authentication
+  summary: >-
+    OpenClaw Gateway Canvas local-direct requests bypass Canvas HTTP and WebSocket authentication
   details: >-
     Summary
 
@@ -46,8 +47,9 @@ info:
     Thanks @smaeljaish771 for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: 'Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - d5dc6b6573ae489bc7e5651090f4767b93537c9e — fix(gateway):
-    require auth for canvas routes'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - d5dc6b6573ae489bc7e5651090f4767b93537c9e — fix(gateway): require
+    auth for canvas routes
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6mqc-jqh6-x8fc
 rule: version < "2026.3.23"

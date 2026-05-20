@@ -1,8 +1,9 @@
 info:
   name: OpenClaw
   cve: GHSA-rqp8-q22p-5j9q
-  summary: OpenClaw Synology Chat shared webhook path route replacement collapses multi-account policy contexts and bypasses
-    DM access control.
+  summary: >-
+    OpenClaw Synology Chat shared webhook path route replacement collapses multi-account policy contexts and bypasses DM access
+    control.
   details: >-
     Summary
 
@@ -39,7 +40,8 @@ info:
     Thanks @tdjackey for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 980940aa58f862da4e19372597bbc2a9f268d70b
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 980940aa58f862da4e19372597bbc2a9f268d70b
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-rqp8-q22p-5j9q
 rule: version < "2026.3.22"

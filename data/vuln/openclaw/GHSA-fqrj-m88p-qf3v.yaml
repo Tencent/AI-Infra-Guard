@@ -34,6 +34,6 @@ info:
     Webhook 重放去重作用域限定至各目标 - 7cea7c29705b188b464cc9cdc107c275b94b2a72 — 跟进加固：按路径和账号划分重放去重作用域
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v
-rule: version < "2026.3.31"
+rule: 'version >= "2026.2.19" && version < "2026.3.31"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqrj-m88p-qf3v

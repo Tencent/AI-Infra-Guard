@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-83f3-hh45-vfw9
-  summary: OpenClaw Android accepted cleartext remote gateway endpoints and sent stored credentials over ws://
+  summary: >-
+    OpenClaw Android accepted cleartext remote gateway endpoints and sent stored credentials over ws://
   details: >-
     Summary
 
@@ -30,8 +31,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - a941a4fef9bc43b2973c92d0dcff5b8a426210c5 — require
-    TLS for remote Android gateway endpoints
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - a941a4fef9bc43b2973c92d0dcff5b8a426210c5 — require TLS for remote
+    Android gateway endpoints
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-83f3-hh45-vfw9
 rule: version <= "2026.4.1"

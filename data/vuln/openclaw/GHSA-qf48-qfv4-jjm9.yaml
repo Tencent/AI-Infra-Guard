@@ -40,6 +40,6 @@ info:
   security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。由提交 764394c78b 修复（fix: enforce localRoots sandbox on Feishu docx upload file reads，修复：对飞书文档上传文件读取强制执行 localRoots 沙箱限制）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qf48-qfv4-jjm9
-rule: version <= "2026.3.24"
+rule: 'version >= "2026.2.6" && version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-qf48-qfv4-jjm9

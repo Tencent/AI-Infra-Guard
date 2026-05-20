@@ -18,6 +18,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-68f8-9mhj-h2mp
-rule: version <= "2026.3.23"
+rule: 'version <= "2026.3.23"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-68f8-9mhj-h2mp

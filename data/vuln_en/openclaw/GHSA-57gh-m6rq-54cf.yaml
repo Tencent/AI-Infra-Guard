@@ -1,8 +1,9 @@
 info:
   name: OpenClaw
   cve: GHSA-57gh-m6rq-54cf
-  summary: OpenClaw Media Local Roots Self-Whitelisting in <code>appendLocalMediaParentRoots</code> Allows Model-Initiated
-    Arbitrary Host File Read and Credential Exfiltration
+  summary: >-
+    OpenClaw Media Local Roots Self-Whitelisting in <code>appendLocalMediaParentRoots</code> Allows Model-Initiated Arbitrary
+    Host File Read and Credential Exfiltration
   details: >-
     Summary
 
@@ -33,7 +34,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 1ca4261d7e055d0be141ed79ebb1365d0fbc7364 — 2026-03-30T17:15:03+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 1ca4261d7e055d0be141ed79ebb1365d0fbc7364 — 2026-03-30T17:15:03+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-57gh-m6rq-54cf
 rule: version <= "2026.3.28"

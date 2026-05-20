@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-5h2w-qmfp-ggp6
-  summary: OpenClaw Gateway `operator.write` can reach admin-only persisted `verboseLevel` via `chat.send` `/verbose`
+  summary: >-
+    OpenClaw Gateway `operator.write` can reach admin-only persisted `verboseLevel` via `chat.send` `/verbose`
   details: >-
     Summary
 
@@ -39,8 +40,9 @@ info:
     Fixed by commit c603123528 (fix(gateway): require admin for persisted verbose defaults).
   cvss: ''
   severity: MEDIUM
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit c603123528 (fix(gateway): require admin for
-    persisted verbose defaults).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit c603123528 (fix(gateway): require admin for persisted verbose
+    defaults).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-5h2w-qmfp-ggp6
 rule: version <= "2026.3.24"

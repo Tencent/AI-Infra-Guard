@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-h43v-27wg-5mf9
-  summary: OpenClaw Forged Nostr DMs could create pairing state before signature verification
+  summary: >-
+    OpenClaw Forged Nostr DMs could create pairing state before signature verification
   details: >-
     Summary
 
@@ -29,10 +30,11 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4ee742174f36b5445703e3b1ef2fbd6ae6700fa4 — verify
-    inbound DM signatures before pairing replies
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4ee742174f36b5445703e3b1ef2fbd6ae6700fa4 — verify inbound DM signatures
+    before pairing replies
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9
-rule: version < "2026.3.31"
+rule: version >= "2026.3.22" && version < "2026.3.31"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-wj55-88gf-x564
-  summary: OpenClaw Queued node actions were not revalidated against current command policy.
+  summary: >-
+    OpenClaw Queued node actions were not revalidated against current command policy.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - ec2c6d83b9f5f91d6d9094842e0f19b88e63e3e2
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - ec2c6d83b9f5f91d6d9094842e0f19b88e63e3e2
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-wj55-88gf-x564
 rule: version < "2026.3.22"

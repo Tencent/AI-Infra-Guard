@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-qf48-qfv4-jjm9
-  summary: OpenClaw Feishu extension resolveUploadInput bypasses file-system sandbox and allows arbitrary file reads via upload_image
+  summary: >-
+    OpenClaw Feishu extension resolveUploadInput bypasses file-system sandbox and allows arbitrary file reads via upload_image
   details: >-
     Summary
 
@@ -39,10 +40,11 @@ info:
     Fixed by commit 764394c78b (fix: enforce localRoots sandbox on Feishu docx upload file reads).
   cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N
   severity: MEDIUM
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 764394c78b (fix: enforce localRoots sandbox
-    on Feishu docx upload file reads).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 764394c78b (fix: enforce localRoots sandbox on Feishu docx
+    upload file reads).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qf48-qfv4-jjm9
-rule: version <= "2026.3.24"
+rule: version >= "2026.2.6" && version <= "2026.3.24"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-qf48-qfv4-jjm9

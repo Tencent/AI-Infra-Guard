@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-hr5v-j9h9-xjhg
-  summary: OpenClaw Sandbox Media Root Bypass via Unnormalized `mediaUrl` / `fileUrl` Parameter Keys (CWE-22)
+  summary: >-
+    OpenClaw Sandbox Media Root Bypass via Unnormalized `mediaUrl` / `fileUrl` Parameter Keys (CWE-22)
   details: >-
     > Fixed in OpenClaw 2026.3.24, the current shipping release.
 

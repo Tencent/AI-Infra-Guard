@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-9p93-7j67-5pc2
-  summary: OpenClaw Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding
+  summary: >-
+    OpenClaw Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding
   details: >-
     Summary
 
@@ -33,7 +34,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 02cf12371f9353a16455da01cc02e6c4ecfc4152.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 02cf12371f9353a16455da01cc02e6c4ecfc4152
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 02cf12371f9353a16455da01cc02e6c4ecfc4152
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-9p93-7j67-5pc2
 rule: version <= "2026.3.24"

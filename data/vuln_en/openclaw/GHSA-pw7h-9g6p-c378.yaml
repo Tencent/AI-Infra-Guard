@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-pw7h-9g6p-c378
-  summary: OpenClaw Tlon settings empty-allowlist reconciliation bypassed intended revocation.
+  summary: >-
+    OpenClaw Tlon settings empty-allowlist reconciliation bypassed intended revocation.
   details: >-
     Summary
 
@@ -37,7 +38,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 3cbf932413e41d1836cb91aed1541a28a3122f93
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 3cbf932413e41d1836cb91aed1541a28a3122f93
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378
 rule: version < "2026.3.22"

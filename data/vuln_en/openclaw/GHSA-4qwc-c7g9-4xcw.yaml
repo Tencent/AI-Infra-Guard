@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-4qwc-c7g9-4xcw
-  summary: OpenClaw Remote media error responses could trigger unbounded memory allocation before failure.
+  summary: >-
+    OpenClaw Remote media error responses could trigger unbounded memory allocation before failure.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @YLChen-007 for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 81445a901091a5d27ef0b56fceedbe4724566438
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 81445a901091a5d27ef0b56fceedbe4724566438
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-4qwc-c7g9-4xcw
 rule: version < "2026.3.22"

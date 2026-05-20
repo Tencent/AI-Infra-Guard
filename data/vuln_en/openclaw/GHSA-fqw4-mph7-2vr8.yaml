@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-fqw4-mph7-2vr8
-  summary: OpenClaw Gateway local shared-auth reconnect silently widens paired device scope from operator.read to operator.admin
+  summary: >-
+    OpenClaw Gateway local shared-auth reconnect silently widens paired device scope from operator.read to operator.admin
     and reach node RCE
   details: >-
     Summary
@@ -34,7 +35,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 81ebc7e0344fd19c85778e883bad45e2da972229.
   cvss: ''
   severity: CRITICAL
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 81ebc7e0344fd19c85778e883bad45e2da972229
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 81ebc7e0344fd19c85778e883bad45e2da972229
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fqw4-mph7-2vr8
 rule: version <= "2026.3.24"

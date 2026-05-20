@@ -31,6 +31,6 @@ info:
     将 OAuth state 与 PKCE 验证码分离，使用独立随机值
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-9jpj-g8vv-j5mf
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-9jpj-g8vv-j5mf

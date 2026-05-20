@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-wwfp-w96m-c6x8
-  summary: OpenClaw Pairing pending-request caps were enforced per channel instead of per account
+  summary: >-
+    OpenClaw Pairing pending-request caps were enforced per channel instead of per account
   details: >-
     Summary
 
@@ -30,10 +31,11 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 9bc1f896c8cd325dd4761681e9bdb8c425f69785 — scope
-    pending request caps per account
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 9bc1f896c8cd325dd4761681e9bdb8c425f69785 — scope pending request
+    caps per account
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-wwfp-w96m-c6x8
-rule: version < "2026.3.31"
+rule: version >= "2026.2.26" && version < "2026.3.31"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-wwfp-w96m-c6x8

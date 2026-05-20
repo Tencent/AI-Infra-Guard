@@ -31,7 +31,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 5cca38084074fb5095aa11b6a59820d63e4937c9 — 2026-03-30T15:38:26+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 5cca38084074fb5095aa11b6a59820d63e4937c9 — 2026-03-30T15:38:26+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-chfm-xgc4-47rj
 rule: version <= "2026.3.28"

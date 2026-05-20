@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-jccr-rrw2-vc8h
-  summary: OpenClaw OpenClaw safeBins jq `$ENV` filter bypass allows environment variable disclosure
+  summary: >-
+    OpenClaw OpenClaw safeBins jq `$ENV` filter bypass allows environment variable disclosure
   details: >-
     Summary
 
@@ -37,9 +38,14 @@ info:
 
 
     Fixed by commit 78e2f3d66d (Exec: tighten jq safe-bin env checks).
+
+
+    Thanks @nicky-cc  of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 78e2f3d66d (Exec: tighten jq safe-bin env checks).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 78e2f3d66d (Exec: tighten jq safe-bin env checks). Thanks @nicky-cc
+    of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-jccr-rrw2-vc8h
 rule: version <= "2026.3.24"

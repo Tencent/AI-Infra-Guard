@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-2qrv-rc5x-2g2h
-  summary: OpenClaw Untrusted workspace channel shadows could execute during built-in channel setup
+  summary: >-
+    OpenClaw Untrusted workspace channel shadows could execute during built-in channel setup
   details: >-
     Summary
 
@@ -30,8 +31,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 53c29df2a9eb242a70d0ff29f3d1e67c8d6801f0 — ignore
-    untrusted workspace channel shadows during setup resolution
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 53c29df2a9eb242a70d0ff29f3d1e67c8d6801f0 — ignore untrusted workspace
+    channel shadows during setup resolution
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-2qrv-rc5x-2g2h
 rule: version <= "2026.4.1"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-gjm7-hw8f-73rq
-  summary: OpenClaw Paired node escalates to gateway RCE via unrestricted node.event agent dispatch
+  summary: >-
+    OpenClaw Paired node escalates to gateway RCE via unrestricted node.event agent dispatch
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - a77928b1087e90f2a8903f8e5aca6dec9237ac62 — 2026-03-30T14:22:15+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - a77928b1087e90f2a8903f8e5aca6dec9237ac62 — 2026-03-30T14:22:15+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-gjm7-hw8f-73rq
 rule: version <= "2026.3.28"

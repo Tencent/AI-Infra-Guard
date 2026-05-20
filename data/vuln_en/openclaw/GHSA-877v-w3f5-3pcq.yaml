@@ -31,7 +31,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - f45e5a6569aab1d58cc6de25b19f1dc4c8779b85 — 2026-03-31T19:43:54+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - f45e5a6569aab1d58cc6de25b19f1dc4c8779b85 — 2026-03-31T19:43:54+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-877v-w3f5-3pcq
 rule: version <= "2026.3.28"

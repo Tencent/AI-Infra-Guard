@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-jp4j-q5fc-58gv
-  summary: OpenClaw Discord component interaction ingress skips guild/channel policy enforcement
+  summary: >-
+    OpenClaw Discord component interaction ingress skips guild/channel policy enforcement
   details: >-
     Summary
 
@@ -38,10 +39,10 @@ info:
     Fixed by commit 511093d4b3 (Discord: apply component interaction policy gates).
   cvss: ''
   severity: MEDIUM
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 511093d4b3 (Discord: apply component interaction
-    policy gates).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 511093d4b3 (Discord: apply component interaction policy gates).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv
-rule: version <= "2026.3.24"
+rule: version >= "2026.2.14" && version <= "2026.3.24"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv

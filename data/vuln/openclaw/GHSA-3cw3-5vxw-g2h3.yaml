@@ -40,6 +40,6 @@ info:
   security_advise: '升级 openclaw 至 >= 2026.3.28 或更高版本。通过提交 d6affb17d8 修复（CLI：保存配置前确认已发现的远程网关）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-3cw3-5vxw-g2h3
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-3cw3-5vxw-g2h3

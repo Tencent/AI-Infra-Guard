@@ -48,8 +48,9 @@ info:
     Thanks @smaeljaish771 for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - b0ce53a79cf63834660270513e26d921899b4e5b — fix(voice-call):
-    stabilize plivo v2 replay keys'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.23 or later. Commit(s) - b0ce53a79cf63834660270513e26d921899b4e5b — fix(voice-call): stabilize
+    plivo v2 replay keys
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-cg6c-q2hx-69h7
 rule: version < "2026.3.23"

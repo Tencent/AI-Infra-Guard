@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-rvqr-hrcc-j9vv
-  summary: OpenClaw TXT-only Bonjour and DNS-SD discovery metadata could still steer CLI routing when service resolution failed
+  summary: >-
+    OpenClaw TXT-only Bonjour and DNS-SD discovery metadata could still steer CLI routing when service resolution failed
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @nexrin for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - deecf68b59a9b7eea978e40fd3c2fe543087b569
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - deecf68b59a9b7eea978e40fd3c2fe543087b569
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-rvqr-hrcc-j9vv
 rule: version < "2026.3.22"

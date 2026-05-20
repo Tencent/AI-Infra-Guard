@@ -35,6 +35,6 @@ info:
   security_advise: 将 openclaw 升级至 >= 2026.3.22 或更高版本。相关提交 - a600c72ed7d0045a27f58bf031d2b36ecb0141c9 — 2026-03-22T23:57:15-07:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-gg9v-mgcp-v6m7
-rule: version <= "2026.3.13-1"
+rule: 'version <= "2026.3.13-1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-gg9v-mgcp-v6m7

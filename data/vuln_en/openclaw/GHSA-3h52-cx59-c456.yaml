@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-3h52-cx59-c456
-  summary: OpenClaw Feishu webhook reads and parses unauthenticated request bodies before signature validation
+  summary: >-
+    OpenClaw Feishu webhook reads and parses unauthenticated request bodies before signature validation
   details: >-
     Summary
 
@@ -32,7 +33,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 5e8cb22176e9235e224be0bc530699261eb60e53.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 5e8cb22176e9235e224be0bc530699261eb60e53
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 5e8cb22176e9235e224be0bc530699261eb60e53
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-3h52-cx59-c456
 rule: version <= "2026.3.24"

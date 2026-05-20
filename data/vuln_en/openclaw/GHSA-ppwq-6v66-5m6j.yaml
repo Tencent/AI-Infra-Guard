@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-ppwq-6v66-5m6j
-  summary: OpenClaw Gateway operator.read Exposes Credentials Embedded in baseUrl Fields via config.get and channels.status.
+  summary: >-
+    OpenClaw Gateway operator.read Exposes Credentials Embedded in baseUrl Fields via config.get and channels.status.
   details: >-
     Summary
 
@@ -36,7 +37,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - f0202264d0de7ad345382b9008c5963bcefb01b7
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - f0202264d0de7ad345382b9008c5963bcefb01b7
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-ppwq-6v66-5m6j
 rule: version < "2026.3.22"

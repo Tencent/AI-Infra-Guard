@@ -1,8 +1,9 @@
 info:
   name: OpenClaw
   cve: GHSA-98hh-7ghg-x6rq
-  summary: OpenClaw Discord text `/approve` bypasses `channels.discord.execApprovals.approvers` and allows non-approvers to
-    resolve pending exec approvals
+  summary: >-
+    OpenClaw Discord text `/approve` bypasses `channels.discord.execApprovals.approvers` and allows non-approvers to resolve
+    pending exec approvals
   details: >-
     Summary
 
@@ -38,8 +39,8 @@ info:
     Fixed by commit 355abe5eba (Discord: enforce approver checks for text approvals).
   cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 355abe5eba (Discord: enforce approver checks
-    for text approvals).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 355abe5eba (Discord: enforce approver checks for text approvals).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-98hh-7ghg-x6rq
 rule: version <= "2026.3.24"

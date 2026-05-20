@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-qcc3-jqwp-5vh2
-  summary: OpenClaw LINE webhook handler lacks shared pre-auth concurrency budget before signature verification
+  summary: >-
+    OpenClaw LINE webhook handler lacks shared pre-auth concurrency budget before signature verification
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 57c47d8c7fbf5a2e70cc4dec2380977968903cad — 2026-03-31T19:34:25+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 57c47d8c7fbf5a2e70cc4dec2380977968903cad — 2026-03-31T19:34:25+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-qcc3-jqwp-5vh2
 rule: version <= "2026.3.28"

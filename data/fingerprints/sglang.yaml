@@ -1,0 +1,25 @@
+info:
+  name: sglang
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    SGLang is a high-performance inference framework for large language models (LLMs)
+    and multimodal AI models. It provides OpenAI-compatible REST APIs and native server
+    APIs (e.g., /generate, /server_info, /get_model_info), supporting models such as
+    Qwen, DeepSeek, Mistral, and Llama. Default port is 30000.
+  metadata:
+    product: sglang
+    vendor: sgl-project
+
+http:
+  - method: GET
+    path: '/server_info'
+    matchers:
+      - body="radix_eviction_policy" && body="weight_version" && body="tokenizer_path"
+  version:
+    - method: GET
+      path: '/server_info'
+      extractor:
+        part: body
+        group: 1
+        regex: '"version":"([^"]+)"'

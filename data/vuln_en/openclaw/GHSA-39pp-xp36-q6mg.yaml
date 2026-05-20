@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-39pp-xp36-q6mg
-  summary: OpenClaw Gateway host exec env override handling did not consistently apply the shared host env policy.
+  summary: >-
+    OpenClaw Gateway host exec env override handling did not consistently apply the shared host env policy.
   details: >-
     Summary
 
@@ -39,7 +40,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7abfff756d6c68d17e21d1657bbacbaec86de232
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7abfff756d6c68d17e21d1657bbacbaec86de232
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-39pp-xp36-q6mg
 rule: version < "2026.3.22"

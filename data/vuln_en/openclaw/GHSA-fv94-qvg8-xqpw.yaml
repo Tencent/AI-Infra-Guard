@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-fv94-qvg8-xqpw
-  summary: OpenClaw SSH sandbox tar upload follows symlinks, enabling arbitrary file write on remote host
+  summary: >-
+    OpenClaw SSH sandbox tar upload follows symlinks, enabling arbitrary file write on remote host
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 3d5af14984ac1976c747a8e11581d697bd0829dc — 2026-03-31T19:56:45+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 3d5af14984ac1976c747a8e11581d697bd0829dc — 2026-03-31T19:56:45+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fv94-qvg8-xqpw
 rule: version <= "2026.3.28"

@@ -1,8 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-m866-6qv5-p2fg
-  summary: OpenClaw OpenClaw host-env blocklist missing `GIT_TEMPLATE_DIR` and `AWS_CONFIG_FILE` allows code execution via
-    env override
+  summary: >-
+    OpenClaw OpenClaw host-env blocklist missing `GIT_TEMPLATE_DIR` and `AWS_CONFIG_FILE` allows code execution via env override
   details: >-
     Summary
 
@@ -38,10 +38,14 @@ info:
 
 
     Fixed by commit 6eb82fba3c (Infra: block additional host exec env keys).
+
+
+    Thanks @nicky-cc  of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:N
   severity: MEDIUM
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 6eb82fba3c (Infra: block additional host exec
-    env keys).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 6eb82fba3c (Infra: block additional host exec env keys). Thanks
+    @nicky-cc of Tencent zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) for reporting.
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-m866-6qv5-p2fg
 rule: version <= "2026.3.24"

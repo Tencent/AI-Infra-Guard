@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-65h8-27jh-q8wv
-  summary: OpenClaw Nostr inbound DMs could trigger unauthenticated crypto work before sender policy enforcement.
+  summary: >-
+    OpenClaw Nostr inbound DMs could trigger unauthenticated crypto work before sender policy enforcement.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @kuranikaran for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 1ee9611079e81b9122f4bed01abb3d9f56206c77
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 1ee9611079e81b9122f4bed01abb3d9f56206c77
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-65h8-27jh-q8wv
 rule: version < "2026.3.22"

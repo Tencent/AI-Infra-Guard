@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-6pfc-6m7w-m8fx
-  summary: OpenClaw Gateway exec allowlist allow-always bypass via unregistered /usr/bin/script wrapper
+  summary: >-
+    OpenClaw Gateway exec allowlist allow-always bypass via unregistered /usr/bin/script wrapper
   details: >-
     Summary
 
@@ -37,10 +38,10 @@ info:
 
 
     Fixed by commit 83da3cfe31 (infra: unwrap script wrapper approval targets).
-  cvss: ''
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H
   severity: HIGH
-  security_advise: 'Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 83da3cfe31 (infra: unwrap script wrapper approval
-    targets).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 83da3cfe31 (infra: unwrap script wrapper approval targets).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6pfc-6m7w-m8fx
 rule: version <= "2026.3.24"

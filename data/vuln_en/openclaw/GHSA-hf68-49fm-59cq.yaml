@@ -1,8 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-hf68-49fm-59cq
-  summary: OpenClaw Gateway device.pair.approve Lets operator.pairing Escalate a New Device into operator.admin, reaching
-    Node RCE.
+  summary: >-
+    OpenClaw Gateway device.pair.approve Lets operator.pairing Escalate a New Device into operator.admin, reaching Node RCE.
   details: >-
     Summary
 
@@ -38,7 +38,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: CRITICAL
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - fc2d29ea926f47c428c556e92ec981441228d2a4
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - fc2d29ea926f47c428c556e92ec981441228d2a4
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-hf68-49fm-59cq
 rule: version < "2026.3.22"

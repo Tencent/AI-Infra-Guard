@@ -31,6 +31,6 @@ info:
     在设置解析阶段忽略不受信任工作区的频道影子
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-2qrv-rc5x-2g2h
-rule: version <= "2026.4.1"
+rule: 'version <= "2026.4.1"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-2qrv-rc5x-2g2h

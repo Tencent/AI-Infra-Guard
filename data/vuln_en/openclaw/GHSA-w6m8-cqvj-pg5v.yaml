@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-w6m8-cqvj-pg5v
-  summary: 'OpenClaw Incomplete Fix for CVE-2026-32011: Feishu Webhook Pre-Auth Body Parsing DoS (Slow-Body / Slowloris Variant)'
+  summary: >-
+    OpenClaw Incomplete Fix for CVE-2026-32011: Feishu Webhook Pre-Auth Body Parsing DoS (Slow-Body / Slowloris Variant)
   details: >-
     > Fixed in OpenClaw 2026.3.24, the current shipping release.
 

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-5hff-46vh-rxmw
-  summary: OpenClaw Read-scoped identity-bearing HTTP clients could kill sessions via /sessions/:sessionKey/kill
+  summary: >-
+    OpenClaw Read-scoped identity-bearing HTTP clients could kill sessions via /sessions/:sessionKey/kill
   details: >-
     Summary
 
@@ -29,8 +30,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 54a0878517167c6e49900498cf77420dadb74beb — enforce
-    session-kill HTTP scopes
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 54a0878517167c6e49900498cf77420dadb74beb — enforce session-kill
+    HTTP scopes
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw
 rule: version <= "2026.4.1"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-j7p2-qcwm-94v4
-  summary: OpenClaw Incomplete host env sanitization blocklist allows supply-chain redirection via package-manager env overrides
+  summary: >-
+    OpenClaw Incomplete host env sanitization blocklist allows supply-chain redirection via package-manager env overrides
   details: >-
     Summary
 
@@ -39,8 +40,9 @@ info:
     Fixed by commit 7abfff756d (Exec: harden host env override handling across gateway and node).
   cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H
   severity: CRITICAL
-  security_advise: 'Upgrade openclaw to >= 2026.3.22 or later. Fixed by commit 7abfff756d (Exec: harden host env override
-    handling across gateway and node).'
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Fixed by commit 7abfff756d (Exec: harden host env override handling across
+    gateway and node).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-j7p2-qcwm-94v4
 rule: version < "2026.3.22"

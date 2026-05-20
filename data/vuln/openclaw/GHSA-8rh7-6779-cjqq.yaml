@@ -40,6 +40,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.28 或更高版本。由提交 6a79324802 修复（Filter untrusted CWD .env entries before OpenClaw startup，在 OpenClaw 启动前过滤不受信任的当前工作目录 .env 条目）。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-8rh7-6779-cjqq
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-8rh7-6779-cjqq

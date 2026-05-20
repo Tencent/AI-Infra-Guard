@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-7xr2-q9vf-x4r5
-  summary: 'OpenClaw Incomplete Fix for CVE-2026-32013: Symlink Traversal via IDENTITY.md appendFile in agents.create/update'
+  summary: >-
+    OpenClaw Incomplete Fix for CVE-2026-32013: Symlink Traversal via IDENTITY.md appendFile in agents.create/update
   details: >-
     Advisory Details
 

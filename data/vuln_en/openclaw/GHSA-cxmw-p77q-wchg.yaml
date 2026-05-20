@@ -1,8 +1,9 @@
 info:
   name: OpenClaw
   cve: GHSA-cxmw-p77q-wchg
-  summary: OpenClaw Unvalidated WebView JavascriptInterface allows attacker-controlled pages to inject and execute arbitrary
-    instructions via the OpenClaw Android canvas bridge
+  summary: >-
+    OpenClaw Unvalidated WebView JavascriptInterface allows attacker-controlled pages to inject and execute arbitrary instructions
+    via the OpenClaw Android canvas bridge
   details: >-
     Summary
 
@@ -40,7 +41,8 @@ info:
     Thanks @cyjhhh for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 8b02ef133275be96d8aac2283100016c8a7f32e5
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 8b02ef133275be96d8aac2283100016c8a7f32e5
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-cxmw-p77q-wchg
 rule: version < "2026.3.22"

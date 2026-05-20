@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-3q42-xmxv-9vfr
-  summary: OpenClaw Gateway operator.write Can Reach Admin-Class Talk Voice Config Persistence via chat.send
+  summary: >-
+    OpenClaw Gateway operator.write Can Reach Admin-Class Talk Voice Config Persistence via chat.send
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.28
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.28 or later. Commit(s) - e34694733fc64931ed4a543c73d84ad3435d5df1 — 2026-03-25T19:55:26Z
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Commit(s) - e34694733fc64931ed4a543c73d84ad3435d5df1 — 2026-03-25T19:55:26Z
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-3q42-xmxv-9vfr
 rule: version <= "2026.3.24"

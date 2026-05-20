@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-xw77-45gv-p728
-  summary: OpenClaw Plugin subagent routes could bypass gateway authorization with synthetic admin scopes
+  summary: >-
+    OpenClaw Plugin subagent routes could bypass gateway authorization with synthetic admin scopes
   details: >-
     Summary
 
@@ -53,10 +54,11 @@ info:
     its own strict authentication and authorization checks.
   cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:L
   severity: HIGH
-  security_advise: Upgrade openclaw to 2026.3.11 or later. OpenClaw now propagates the real gateway client into the plugin
-    subagent runtime and caps unauthenticated plugin-route access to non-admin scope. The fix shipped in openclaw@2026.3.11.
+  security_advise: >-
+    Upgrade openclaw to 2026.3.11 or later. OpenClaw now propagates the real gateway client into the plugin subagent runtime
+    and caps unauthenticated plugin-route access to non-admin scope. The fix shipped in openclaw@2026.3.11.
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728
-rule: version < "2026.3.11"
+rule: version >= "2026.3.7" && version < "2026.3.11"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728

@@ -82,6 +82,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.24 或更高版本。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v
-rule: version <= "2026.2.22"
+rule: 'version <= "2026.2.22"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v

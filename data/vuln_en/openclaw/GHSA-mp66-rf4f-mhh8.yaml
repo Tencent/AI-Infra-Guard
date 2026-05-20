@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-mp66-rf4f-mhh8
-  summary: OpenClaw Google Chat app-url webhook auth accepted non-deployment add-on principals.
+  summary: >-
+    OpenClaw Google Chat app-url webhook auth accepted non-deployment add-on principals.
   details: >-
     Summary
 
@@ -38,7 +39,8 @@ info:
     Thanks @ijxpwastaken for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - a47722de7e3c9cbda8d5512747ca7e3bb8f6ee66
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8
 rule: version < "2026.3.22"

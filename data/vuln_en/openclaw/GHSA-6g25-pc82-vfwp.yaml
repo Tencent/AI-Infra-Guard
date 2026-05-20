@@ -40,7 +40,8 @@ info:
     auth in this path.
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 8f3310000a8b0c11eced054c2cdb6fb27803511a
+  security_advise: >-
+    Upgrade openclaw to >= 2026.2.25 or later. Commit(s) - 8f3310000a8b0c11eced054c2cdb6fb27803511a
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6g25-pc82-vfwp
 rule: version <= "2026.2.24"

@@ -40,6 +40,6 @@ info:
   security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 355abe5eba 修复（Discord：对文本审批指令强制执行审批者身份校验）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-98hh-7ghg-x6rq
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-98hh-7ghg-x6rq

@@ -32,9 +32,10 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 464e2c10a5edceb380d815adb6ff56e1a4c50f60.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 464e2c10a5edceb380d815adb6ff56e1a4c50f60
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 464e2c10a5edceb380d815adb6ff56e1a4c50f60
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-4hmj-39m8-jwc7
-rule: version <= "2026.3.24"
+rule: version >= "2026.2.13" && version <= "2026.3.24"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-4hmj-39m8-jwc7

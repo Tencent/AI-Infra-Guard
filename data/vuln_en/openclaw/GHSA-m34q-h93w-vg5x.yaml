@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-m34q-h93w-vg5x
-  summary: OpenClaw OpenShell mirror mode could delete arbitrary remote directories when roots were mis-scoped
+  summary: >-
+    OpenClaw OpenShell mirror mode could delete arbitrary remote directories when roots were mis-scoped
   details: >-
     Summary
 
@@ -29,8 +30,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - b21c9840c2e38f4bb338d031511b479d5f07ca25 — constrain
-    OpenShell mirror sync roots
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - b21c9840c2e38f4bb338d031511b479d5f07ca25 — constrain OpenShell mirror
+    sync roots
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-m34q-h93w-vg5x
 rule: version <= "2026.4.1"

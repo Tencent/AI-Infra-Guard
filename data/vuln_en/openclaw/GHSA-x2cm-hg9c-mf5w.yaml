@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-x2cm-hg9c-mf5w
-  summary: OpenClaw Sessions send Action Missing controlScope Enforcement Allows Leaf Subagents to Message Controlled Children.
+  summary: >-
+    OpenClaw Sessions send Action Missing controlScope Enforcement Allows Leaf Subagents to Message Controlled Children.
   details: >-
     Summary
 
@@ -37,7 +38,8 @@ info:
     Thanks @space08 for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7679eb375294941b02214c234aff3948796969d0
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 7679eb375294941b02214c234aff3948796969d0
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w
 rule: version < "2026.3.22"

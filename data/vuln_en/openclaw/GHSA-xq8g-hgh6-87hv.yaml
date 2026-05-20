@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-xq8g-hgh6-87hv
-  summary: OpenClaw BlueBubbles Webhook Missing Guess Rate Limiting Enables Brute-Force Guessing of Weak Webhook Password
+  summary: >-
+    OpenClaw BlueBubbles Webhook Missing Guess Rate Limiting Enables Brute-Force Guessing of Weak Webhook Password
   details: >-
     Summary
 
@@ -32,7 +33,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 5e08ce36d522a1c96df2bfe88e39303ae2643d92.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 5e08ce36d522a1c96df2bfe88e39303ae2643d92
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 5e08ce36d522a1c96df2bfe88e39303ae2643d92
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv
 rule: version <= "2026.3.24"

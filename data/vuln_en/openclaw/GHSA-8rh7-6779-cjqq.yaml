@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-8rh7-6779-cjqq
-  summary: OpenClaw CWD `.env` environment variable injection bypasses host-env policy and allows config takeover
+  summary: >-
+    OpenClaw CWD `.env` environment variable injection bypasses host-env policy and allows config takeover
   details: >-
     Summary
 
@@ -39,8 +40,9 @@ info:
     Fixed by commit 6a79324802 (Filter untrusted CWD .env entries before OpenClaw startup).
   cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H
   severity: CRITICAL
-  security_advise: Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 6a79324802 (Filter untrusted CWD .env entries
-    before OpenClaw startup).
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.28 or later. Fixed by commit 6a79324802 (Filter untrusted CWD .env entries before OpenClaw
+    startup).
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-8rh7-6779-cjqq
 rule: version <= "2026.3.24"

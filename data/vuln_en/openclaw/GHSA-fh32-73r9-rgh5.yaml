@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-fh32-73r9-rgh5
-  summary: OpenClaw Trailing-dot localhost CDP hosts could bypass remote loopback protections
+  summary: >-
+    OpenClaw Trailing-dot localhost CDP hosts could bypass remote loopback protections
   details: >-
     Summary
 
@@ -30,8 +31,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 9c22d636697336a6b22b0ae24798d8b8325d7828 — normalize
-    localhost absolute-form CDP hosts before loopback checks
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 9c22d636697336a6b22b0ae24798d8b8325d7828 — normalize localhost absolute-form
+    CDP hosts before loopback checks
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fh32-73r9-rgh5
 rule: version <= "2026.4.1"

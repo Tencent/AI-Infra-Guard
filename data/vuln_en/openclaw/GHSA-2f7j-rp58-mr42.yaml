@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-2f7j-rp58-mr42
-  summary: OpenClaw Gateway hello snapshots exposed host config and state paths to non-admin clients
+  summary: >-
+    OpenClaw Gateway hello snapshots exposed host config and state paths to non-admin clients
   details: >-
     Summary
 
@@ -30,8 +31,9 @@ info:
     - Latest published npm version: 2026.4.1
   cvss: ''
   severity: LOW
-  security_advise: Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 676b748056b5efca6f1255708e9dd9469edf5e2e — limit
-    connect snapshot metadata to admin-scoped clients
+  security_advise: >-
+    Upgrade openclaw to >= 2026.4.2 or later. Commit(s) - 676b748056b5efca6f1255708e9dd9469edf5e2e — limit connect snapshot
+    metadata to admin-scoped clients
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-2f7j-rp58-mr42
 rule: version <= "2026.4.1"

@@ -40,6 +40,6 @@ info:
   security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 511093d4b3 修复（Discord：对组件交互应用策略控制）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv
-rule: version <= "2026.3.24"
+rule: 'version >= "2026.2.14" && version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-jp4j-q5fc-58gv

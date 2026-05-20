@@ -17,6 +17,6 @@ info:
   security_advise: 升级 openclaw 至 >= 2026.3.22 版本。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-7xr2-q9vf-x4r5
-rule: version < "2026.3.22"
+rule: 'version <= "2026.2.22"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-7xr2-q9vf-x4r5

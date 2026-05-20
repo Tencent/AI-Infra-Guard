@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-3w6x-gv34-mqpf
-  summary: OpenClaw Mutating internal ACP chat commands missed operator.admin scope enforcement.
+  summary: >-
+    OpenClaw Mutating internal ACP chat commands missed operator.admin scope enforcement.
   details: >-
     Summary
 
@@ -37,7 +38,8 @@ info:
     Thanks @tdjackey for reporting.
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 229426a257e49694a59fa4e3895861d02a4d767f
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 229426a257e49694a59fa4e3895861d02a4d767f
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-3w6x-gv34-mqpf
 rule: version < "2026.3.22"

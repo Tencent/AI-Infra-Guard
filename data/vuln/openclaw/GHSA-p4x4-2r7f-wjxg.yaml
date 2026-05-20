@@ -40,6 +40,6 @@ info:
   security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 9ec44fad39 修复（Exec approvals：拒绝将包装器载体可执行文件作为"永久允许"目标）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-p4x4-2r7f-wjxg
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-p4x4-2r7f-wjxg

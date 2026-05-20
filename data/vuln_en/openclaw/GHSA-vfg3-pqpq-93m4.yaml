@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-vfg3-pqpq-93m4
-  summary: OpenClaw Tlon cite expansion happened before channel and DM authorization completed.
+  summary: >-
+    OpenClaw Tlon cite expansion happened before channel and DM authorization completed.
   details: >-
     Summary
 
@@ -39,7 +40,8 @@ info:
     Thanks @zpbrent for reporting.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 3cbf932413e41d1836cb91aed1541a28a3122f93 - ebee4e2210e1f282a982c7ef2ad79d77a572fc87
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.22 or later. Commit(s) - 3cbf932413e41d1836cb91aed1541a28a3122f93 - ebee4e2210e1f282a982c7ef2ad79d77a572fc87
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-vfg3-pqpq-93m4
 rule: version < "2026.3.22"

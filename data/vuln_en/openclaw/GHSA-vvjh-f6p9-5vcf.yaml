@@ -87,7 +87,8 @@ info:
       // Only allow fallback for private/loopbac...
   cvss: ''
   severity: HIGH
-  security_advise: Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - c45f3c5b004c8d63dc0e282e2176f8c9355d24f1
+  security_advise: >-
+    Upgrade openclaw to >= 2026.2.19 or later. Commit(s) - c45f3c5b004c8d63dc0e282e2176f8c9355d24f1
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf
 rule: version <= "2026.2.17"

@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-58q2-7r52-jq62
-  summary: OpenClaw Path traversal via inbound channel attachment path in ACP dispatch allows arbitrary file read
+  summary: >-
+    OpenClaw Path traversal via inbound channel attachment path in ACP dispatch allows arbitrary file read
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 566fb73d9da2d73c0be0d9b8e5b762e4dcd8e81d — 2026-03-30T14:04:02+01:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 566fb73d9da2d73c0be0d9b8e5b762e4dcd8e81d — 2026-03-30T14:04:02+01:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-58q2-7r52-jq62
 rule: version <= "2026.3.28"

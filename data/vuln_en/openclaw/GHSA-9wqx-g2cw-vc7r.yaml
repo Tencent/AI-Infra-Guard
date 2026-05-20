@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-9wqx-g2cw-vc7r
-  summary: OpenClaw Matrix Verification Notices Bypass Matrix DM Policy and Reply to Unpaired DM Peers
+  summary: >-
+    OpenClaw Matrix Verification Notices Bypass Matrix DM Policy and Reply to Unpaired DM Peers
   details: >-
     Summary
 
@@ -32,7 +33,8 @@ info:
     Verified vulnerable on tag v2026.3.24 and fixed on main by commit 2383daf5c4a4e08d9553e0e949552ad755ef9ec2.
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to 2026.3.25 or later. Commit(s) - 2383daf5c4a4e08d9553e0e949552ad755ef9ec2
+  security_advise: >-
+    Upgrade openclaw to 2026.3.25 or later. Commit(s) - 2383daf5c4a4e08d9553e0e949552ad755ef9ec2
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-9wqx-g2cw-vc7r
 rule: version <= "2026.3.24"

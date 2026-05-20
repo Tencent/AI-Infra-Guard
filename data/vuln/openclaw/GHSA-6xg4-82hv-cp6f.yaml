@@ -40,6 +40,6 @@ info:
   security_advise: '将 openclaw 升级至 >= 2026.3.28 或更高版本。已通过提交 4b9542716c 修复（Gateway：聊天来源校验需要经过验证的权限作用域）。'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6xg4-82hv-cp6f
-rule: version <= "2026.3.24"
+rule: 'version <= "2026.3.24"'
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-6xg4-82hv-cp6f

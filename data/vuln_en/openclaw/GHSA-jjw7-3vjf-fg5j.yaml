@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-jjw7-3vjf-fg5j
-  summary: OpenClaw OpenClaw Nostr privateKey config redaction bypass leaks plaintext signing key via config.get
+  summary: >-
+    OpenClaw OpenClaw Nostr privateKey config redaction bypass leaks plaintext signing key via config.get
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 57700d716f660591fb6e09727f3ca8041fa48b9d — 2026-03-31T19:55:03+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 57700d716f660591fb6e09727f3ca8041fa48b9d — 2026-03-31T19:55:03+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-jjw7-3vjf-fg5j
 rule: version <= "2026.3.28"

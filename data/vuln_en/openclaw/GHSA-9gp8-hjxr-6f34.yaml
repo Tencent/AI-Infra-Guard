@@ -1,7 +1,8 @@
 info:
   name: OpenClaw
   cve: GHSA-9gp8-hjxr-6f34
-  summary: OpenClaw Host exec environment overrides miss proxy, TLS, Docker, and Git TLS controls
+  summary: >-
+    OpenClaw Host exec environment overrides miss proxy, TLS, Docker, and Git TLS controls
   details: >-
     Summary
 
@@ -31,7 +32,8 @@ info:
     - First stable tag containing the fix: v2026.3.31
   cvss: ''
   severity: MEDIUM
-  security_advise: Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4d912e04519b4bd53b248437c53748cdebce9a41 — 2026-03-31T21:25:36+09:00
+  security_advise: >-
+    Upgrade openclaw to >= 2026.3.31 or later. Commit(s) - 4d912e04519b4bd53b248437c53748cdebce9a41 — 2026-03-31T21:25:36+09:00
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-9gp8-hjxr-6f34
 rule: version <= "2026.3.28"
