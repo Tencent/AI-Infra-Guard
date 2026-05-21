@@ -111,6 +111,7 @@ func ScreenShot(url string) ([]byte, error) {
 		gologger.WithError(err).Errorf("new screenshot instance error: %s", err)
 		return nil, err
 	}
+	defer instance.Close()
 	shotData, err := instance.Screen(url)
 	if err != nil {
 		gologger.WithError(err).Errorf("get screenshot error: %s", err)
