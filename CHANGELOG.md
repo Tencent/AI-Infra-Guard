@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.9] - 2026-05-21
+
+### Added
+- **Prompt Security**: Add 20+ single-turn attack operators (invisible-text, case-formatting, script-system, unicode-style, classical-cipher, classic-encoding, SystemOverride, SuperUser, LinguisticConfusion, Roleplay, PromptProbing, PromptInjection, PROMISQROUTE, PermissionEscalation, Multilingual, MathProblem, InputBypass, ICRTJailbreak, GrayBox, GoalRedirection, EquaCode, ContextPoisoning) (fbac88b..14a3d01)
+- **Prompt Security**: Add 6 multi-turn attack operators (TreeJailbreaking, SequentialJailbreak, LinearJailbreaking, CrescendoJailbreaking, BestofN, BadLikertJudge) (f4e7cd8..6116a8a)
+- **Prompt Security**: Register and document newly added attack operators (03d67de, ce3869c)
+- **Scan**: Add indirect prompt injection defense to scanning agent prompts (bce80c9)
+
+### Changed
+- **Docs**: Reorder academic citation papers by publication date descending (0ae8625)
+- **Docs**: Normalize quotes in DE/RU paper citations to standard format (b9b4d2b)
+- **Docs**: Simplify overly formal acknowledgement wording across all languages (5926ade)
+- **Docs**: Add Changan Auto and HUST logos to user appreciation section (968710f)
+- **Docs**: Sync HUST and Nankai University logo heights (45px) across all READMEs (7ef9cd4, c59eb29)
+- **Docs**: Add 1 new related paper to README (b93e1e0)
+
+### Contributors
+Special thanks to @y3oZ, @Truman, @zhuque, @boyhack, @aigsec, @aig-doc-bot, @jucie-pie
+
+---
+
 ## [v4.1.8] - 2026-05-14
 
 ### Fixed
