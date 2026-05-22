@@ -60,6 +60,7 @@
 
 ## 🚀 새로운 소식
 
+- **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26개 신규 공격 오퍼레이터(20개 싱글턴 + 6개 멀티턴); 스캔 Agent에 간접 프롬프트 인젝션 방어 추가.
 - **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — 64개 AI 컴포넌트로 커버리지 확대(InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot 추가); 취약점 DB 중복 제거 및 정리.
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — 58개 AI 컴포넌트로 커버리지 확대(FastGPT, Upsonic 추가); 7개 컴포넌트 취약점 DB 대규모 업데이트.
 - **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 노출된 AI Agent 구성 파일 탐지(13개 경로); 탈옥 데이터셋 및 취약점 DB 수동 업데이트 지원.
