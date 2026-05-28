@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.10] - 2026-05-28
+
+### Added
+- **Data**: Add CVE rules and fingerprints for new targets (junoclaw, lollms, sglang) (6054e45)
+- **Scan**: Support WebSocket agent providers (2c845e8)
+
+### Fixed
+- **Scan**: Resolve uv run failures in Docker and improve dify version detection (23f098a)
+- **Chromium**: Add defer Close() to prevent zombie processes (b617bf7)
+- **Data**: Correct sglang fingerprint YAML structure (version as top-level key) (653cc9a)
+
+### Changed
+- **Docs**: Add v4.1.9 to What's New across all 9 README languages (187442d)
+
+### Contributors
+Special thanks to @feiyang666, @boyhack, @zhuque, @jucie-pie, @rocie799, @AIG-Bot, @aig-doc-bot
+
+---
+
 ## [v4.1.9] - 2026-05-21
 
 ### Added
