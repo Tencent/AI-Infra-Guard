@@ -27,11 +27,21 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import httpx
 import yaml
 from pydantic import BaseModel, Field, Json
+
+try:
+    from websockets.exceptions import ConnectionClosed, WebSocketException
+    from websockets.sync.client import connect as websocket_connect
+except ImportError:  # pragma: no cover - exercised only when optional dependency is absent
+    class _MissingWebSocketDependencyError(Exception):
+        pass
+
+    ConnectionClosed = WebSocketException = _MissingWebSocketDependencyError
+    websocket_connect = None
 
 
 class ProviderConfig(BaseModel):
@@ -214,6 +224,50 @@ class AIProviderClient:
 
     DEFAULT_TIMEOUT = 30
     DEFAULT_TEST_PROMPT = "Hi!"
+    DEFAULT_WS_MAX_MESSAGES = 20
+    DEFAULT_WS_MAX_RESPONSE_BYTES = 1024 * 1024
+    WS_SCHEMES = ("ws://", "wss://")
+    WS_TERMINAL_SIGNALS = {
+        "event": {
+            "conversation.chat.completed",
+            "conversation.chat.failed",
+            "conversation.stream.done",
+            "done",
+            "end",
+            "error",
+            "message_end",
+            "workflow_failed",
+            "workflow_finished",
+            "workflow_stopped",
+        },
+        "type": {
+            "done",
+            "end",
+            "error",
+            "message_end",
+            "message_stop",
+            "response.done",
+            "workflow_failed",
+            "workflow_finished",
+            "workflow_stopped",
+        },
+        "status": {
+            "complete",
+            "completed",
+            "done",
+            "end",
+            "failed",
+            "partial-succeeded",
+            "stopped",
+            "succeeded",
+        },
+    }
+    WS_TERMINAL_BOOLEAN_PATHS = (
+        ("serverContent", "generationComplete"),
+        ("serverContent", "turnComplete"),
+        ("server_content", "generation_complete"),
+        ("server_content", "turn_complete"),
+    )
 
     def __init__(self, timeout: int = DEFAULT_TIMEOUT):
         """
@@ -255,6 +309,11 @@ class AIProviderClient:
     def _route_call(self, provider: ProviderOptions, provider_id: str, prompt: str) -> ProviderTestResult:
         """Route to the correct provider handler."""
         config = provider.config
+
+        # Keep the existing frontend-compatible HTTP config shape: when users enter
+        # a ws:// or wss:// URL, route it to the WebSocket handler automatically.
+        if self._should_use_websocket(provider_id, config):
+            return self._call_websocket_provider(provider, prompt)
 
         # HTTP endpoint
         if provider_id.startswith("http") or (config and config.url and not provider_id):
@@ -410,7 +469,17 @@ class AIProviderClient:
         body_str = body_str.replace("{{prompt}}", prompt.replace('"', '\\"'))
         return json.loads(body_str)
 
-    # ==================== HTTP Provider ====================
+    # ==================== Custom Endpoint Providers ====================
+
+    def _is_websocket_url(self, url: Optional[str]) -> bool:
+        """Return whether a URL uses a WebSocket scheme."""
+        return bool(url and url.strip().lower().startswith(self.WS_SCHEMES))
+
+    def _should_use_websocket(self, provider_id: str, config: Optional[ProviderConfig]) -> bool:
+        """Return whether the provider should be handled as a WebSocket target."""
+        if provider_id.startswith("websocket"):
+            return True
+        return bool(config and self._is_websocket_url(config.url))
 
     def _call_http_provider(self, provider: ProviderOptions, prompt: str) -> ProviderTestResult:
         """Call a custom HTTP endpoint."""
@@ -430,30 +499,260 @@ class AIProviderClient:
         if "Content-Type" not in headers and "content-type" not in headers:
             headers["Content-Type"] = "application/json"
 
-        # Build body with prompt placeholder.
-        # The body template is already a JSON-encoded string (from json.dumps), so
-        # the prompt must be escaped as a complete JSON string value (with quotes).
-        # This ensures newlines, quotes, backslashes, and other special chars are
-        # correctly escaped in the final JSON body.
-        body = None
-        if config.body:
-            body_str = json.dumps(config.body) if isinstance(config.body, dict) else str(config.body)
-            # Use json.dumps to properly escape the entire prompt string, then strip the outer quotes
-            # to get the content that's already properly JSON-escaped internally.
-            json_escaped_prompt = json.dumps(prompt)[1:-1]  # Remove surrounding quotes from json.dumps output
+        body = self._render_prompt_body(config.body, prompt)
+
+        return self._make_http_request(url, method, headers, body, config.transform_response)
+
+    def _render_prompt_body(self, body_template: Any, prompt: str) -> Any:
+        """Render a provider request body by replacing prompt placeholders."""
+        if body_template:
+            body_str = json.dumps(body_template) if isinstance(body_template, (dict, list)) else str(body_template)
+            json_escaped_prompt = json.dumps(prompt)[1:-1]
             body_str = (
                 body_str
                 .replace("{{prompt}}", json_escaped_prompt)
                 .replace("{{ prompt }}", json_escaped_prompt)
             )
             try:
-                body = json.loads(body_str)
+                return json.loads(body_str)
             except json.JSONDecodeError:
-                body = body_str
-        else:
-            body = {"message": prompt}
+                return body_str
+        return {"message": prompt}
 
-        return self._make_http_request(url, method, headers, body, config.transform_response)
+    def _get_ws_limits(self, config: ProviderConfig) -> Tuple[int, int]:
+        """Return bounded WebSocket receive limits from provider config."""
+        extra = config.extra if isinstance(config.extra, dict) else {}
+
+        max_messages = extra.get("max_messages", self.DEFAULT_WS_MAX_MESSAGES)
+        max_response_bytes = extra.get("max_response_bytes", self.DEFAULT_WS_MAX_RESPONSE_BYTES)
+
+        try:
+            max_messages = int(max_messages)
+        except (TypeError, ValueError):
+            max_messages = self.DEFAULT_WS_MAX_MESSAGES
+        try:
+            max_response_bytes = int(max_response_bytes)
+        except (TypeError, ValueError):
+            max_response_bytes = self.DEFAULT_WS_MAX_RESPONSE_BYTES
+
+        max_messages = min(max(max_messages, 1), 100)
+        max_response_bytes = min(max(max_response_bytes, 1024), 10 * 1024 * 1024)
+        return max_messages, max_response_bytes
+
+    def _get_provider_url(self, config: ProviderConfig) -> str:
+        """Build the final provider URL from base URL and optional endpoint."""
+        base_url = (config.url or "").strip()
+        if config.endpoint:
+            return f"{base_url}{config.endpoint}"
+        return base_url
+
+    def _get_timeout_seconds(self, config: ProviderConfig) -> float:
+        """Return a bounded timeout in seconds."""
+        timeout = (config.timeout_ms / 1000.0) if config.timeout_ms else self.timeout
+        return max(timeout, 1)
+
+    def _get_headers(self, config: ProviderConfig) -> Dict[str, str]:
+        """Return provider headers as a plain dict."""
+        return dict(config.headers) if config.headers else {}
+
+    def _validate_websocket_config(self, config: Optional[ProviderConfig]) -> Optional[ProviderTestResult]:
+        """Validate WebSocket config and return an error result when invalid."""
+        if not config or not config.url:
+            return ProviderTestResult(
+                success=False,
+                message="❌ WebSocket URL is required"
+            )
+        if not self._is_websocket_url(config.url):
+            return ProviderTestResult(
+                success=False,
+                message="❌ WebSocket URL must start with ws:// or wss://"
+            )
+        if websocket_connect is None:
+            return ProviderTestResult(
+                success=False,
+                message="❌ WebSocket support requires the 'websockets' Python package.",
+                suggestions=["Install agent-scan requirements again to include websockets>=12.0"]
+            )
+        return None
+
+    def _parse_ws_message(self, message: Any) -> Any:
+        """Decode a WebSocket message as JSON when possible, otherwise keep text."""
+        if isinstance(message, bytes):
+            message = message.decode("utf-8", errors="replace")
+        if not isinstance(message, str):
+            return message
+        try:
+            return json.loads(message)
+        except json.JSONDecodeError:
+            return message
+
+    def _append_ws_message_output(self, parsed_message: Any, transform_response: Optional[str]) -> Optional[str]:
+        """Extract text output from a parsed WebSocket message."""
+        if isinstance(parsed_message, dict):
+            output = self._extract_output(parsed_message, transform_response)
+            if output:
+                return output
+            return None
+        if isinstance(parsed_message, str):
+            return parsed_message
+        return None
+
+    def _is_ws_done_message(self, parsed_message: Any) -> bool:
+        """Best-effort detection for common WebSocket stream terminators."""
+        if parsed_message == "[DONE]":
+            return True
+        if not isinstance(parsed_message, dict):
+            return False
+
+        for field, terminal_values in self.WS_TERMINAL_SIGNALS.items():
+            value = str(parsed_message.get(field) or "").lower()
+            if value in terminal_values:
+                return True
+        for parent_field, child_field in self.WS_TERMINAL_BOOLEAN_PATHS:
+            parent = parsed_message.get(parent_field)
+            if isinstance(parent, dict) and parent.get(child_field) is True:
+                return True
+        return False
+
+    def _receive_websocket_messages(
+            self,
+            websocket: Any,
+            config: ProviderConfig,
+            timeout: float,
+            max_messages: int,
+            max_response_bytes: int,
+    ) -> Tuple[List[Any], List[str], Optional[ProviderTestResult]]:
+        """Receive bounded WebSocket messages and extract response text."""
+        raw_messages: List[Any] = []
+        output_parts: List[str] = []
+        total_response_bytes = 0
+
+        for _ in range(max_messages):
+            try:
+                response_message = websocket.recv(timeout=timeout)
+            except TimeoutError:
+                break
+            except ConnectionClosed:
+                break
+
+            if isinstance(response_message, bytes):
+                total_response_bytes += len(response_message)
+            else:
+                total_response_bytes += len(str(response_message).encode("utf-8"))
+            if total_response_bytes > max_response_bytes:
+                return raw_messages, output_parts, ProviderTestResult(
+                    success=False,
+                    message=f"❌ WebSocket response exceeded {max_response_bytes} bytes",
+                    provider_response=ProviderResponseInfo(
+                        raw=raw_messages,
+                        error="response size limit exceeded",
+                    )
+                )
+
+            parsed_message = self._parse_ws_message(response_message)
+            raw_messages.append(parsed_message)
+
+            output = self._append_ws_message_output(parsed_message, config.transform_response)
+            if output:
+                output_parts.append(output)
+
+            if self._is_ws_done_message(parsed_message):
+                break
+
+        return raw_messages, output_parts, None
+
+    def _call_websocket_provider(self, provider: ProviderOptions, prompt: str) -> ProviderTestResult:
+        """Call a request-response style WebSocket endpoint."""
+        config = provider.config
+        validation_error = self._validate_websocket_config(config)
+        if validation_error:
+            return validation_error
+
+        url = self._get_provider_url(config)
+        timeout = self._get_timeout_seconds(config)
+        headers = self._get_headers(config)
+
+        body = self._render_prompt_body(config.body, prompt)
+        message = json.dumps(body, ensure_ascii=False) if isinstance(body, (dict, list)) else str(body)
+        max_messages, max_response_bytes = self._get_ws_limits(config)
+
+        start_time = time.time()
+
+        try:
+            with websocket_connect(
+                    url,
+                    additional_headers=headers or None,
+                    open_timeout=timeout,
+                    close_timeout=min(timeout, 5),
+                    max_size=max_response_bytes,
+            ) as websocket:
+                websocket.send(message)
+                raw_messages, output_parts, receive_error = self._receive_websocket_messages(
+                    websocket,
+                    config,
+                    timeout,
+                    max_messages,
+                    max_response_bytes,
+                )
+                if receive_error:
+                    receive_error.provider_response.metadata = {
+                        "url": url,
+                        "elapsed_time": f"{time.time() - start_time:.2f}s",
+                        "transport": "websocket",
+                    }
+                    return receive_error
+
+            elapsed = time.time() - start_time
+            raw_response: Any = raw_messages[-1] if len(raw_messages) == 1 else raw_messages
+            output = "".join(output_parts) if output_parts else self._extract_output(raw_response, config.transform_response)
+
+            provider_response = ProviderResponseInfo(
+                raw=raw_response,
+                output=output,
+                metadata={
+                    "elapsed_time": f"{elapsed:.2f}s",
+                    "url": url,
+                    "transport": "websocket",
+                    "message_count": len(raw_messages),
+                }
+            )
+
+            if output:
+                return ProviderTestResult(
+                    success=True,
+                    message=f"✅ WebSocket connection successful! Messages: {len(raw_messages)}, Time: {elapsed:.2f}s",
+                    provider_response=provider_response
+                )
+            return ProviderTestResult(
+                success=False,
+                message="❌ WebSocket response did not contain extractable output",
+                provider_response=provider_response
+            )
+
+        except TimeoutError:
+            return ProviderTestResult(
+                success=False,
+                message=f"⏱️ WebSocket request timed out after {timeout:.0f} seconds",
+                provider_response=ProviderResponseInfo(error="Timeout", metadata={"url": url})
+            )
+        except WebSocketException as e:
+            return ProviderTestResult(
+                success=False,
+                message=f"🔌 WebSocket connection failed: {str(e)}",
+                provider_response=ProviderResponseInfo(error=str(e), metadata={"url": url})
+            )
+        except OSError as e:
+            return ProviderTestResult(
+                success=False,
+                message=f"🔌 WebSocket connection failed: {str(e)}",
+                provider_response=ProviderResponseInfo(error=str(e), metadata={"url": url})
+            )
+        except Exception as e:
+            return ProviderTestResult(
+                success=False,
+                message=f"❌ WebSocket error: {str(e)}",
+                provider_response=ProviderResponseInfo(error=str(e), metadata={"url": url})
+            )
 
     def _call_dify_provider(self, provider: ProviderOptions, prompt: str) -> ProviderTestResult:
         """
