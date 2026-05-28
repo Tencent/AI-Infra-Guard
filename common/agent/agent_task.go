@@ -95,7 +95,7 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 
 	// Build command arguments
 	var argv []string
-	argv = append(argv, "run", "main.py")
+	argv = append(argv, "run", "--no-project", "main.py")
 	argv = append(argv, "-m", params.EvalModel.Model)
 	argv = append(argv, "-k", params.EvalModel.ApiKey)
 	argv = append(argv, "-u", params.EvalModel.BaseUrl)

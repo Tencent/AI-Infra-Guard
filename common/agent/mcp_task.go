@@ -132,7 +132,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	}
 
 	var argv []string = make([]string, 0)
-	argv = append(argv, "run", "main.py")
+	argv = append(argv, "run", "--no-project", "main.py")
 	argv = append(argv, "--model", params.Model.Model)
 	argv = append(argv, "--base_url", params.Model.BaseUrl)
 	argv = append(argv, "--api_key", params.Model.Token)
