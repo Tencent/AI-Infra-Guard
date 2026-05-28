@@ -60,6 +60,7 @@
 
 ## 🚀 Novedades
 
+- **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Cobertura ampliada a 68 componentes de IA (añadidos junoclaw, lollms, sglang); 600+ nuevas reglas CVE; soporte de proveedor WebSocket para Agent Scan.
 - **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26 nuevos operadores de ataque (20 de un solo turno + 6 multitturno); agentes de escaneo reforzados contra inyección indirecta de prompts.
 - **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Cobertura ampliada a 64 componentes de IA (6 nuevos: InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot); base de datos de vulnerabilidades deduplicada y limpiada.
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Cobertura ampliada a 58 componentes de IA (añadidos FastGPT, Upsonic); actualización masiva de la base de datos de vulnerabilidades en 7 componentes.
