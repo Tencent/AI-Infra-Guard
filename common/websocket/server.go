@@ -304,12 +304,13 @@ func RunWebServer(options *version.Options) {
 			})
 		})
 
-		// system — data directory auto-sync
+		// system — data directory auto-sync & version check
 		system := v1.Group("/system")
 		system.Use(setupIdentityMiddleware())
 		{
 			system.POST("/update-data", HandleTriggerDataUpdate)
 			system.GET("/update-data", HandleGetUpdateStatus)
+			system.GET("/version", HandleVersionCheck)
 		}
 	}
 
