@@ -1,0 +1,17 @@
+info:
+  name: lm-studio
+  author: A.I.G bot
+  severity: info
+  desc: LM Studio - Local LLM server with OpenAI-compatible API for running models on your machine.
+  metadata:
+    product: lm-studio
+    vendor: lmstudio
+http:
+  - method: GET
+    path: '/lmstudio-greeting'
+    matchers:
+      - body="\"lmstudio\"" && body="true"
+  - method: GET
+    path: '/api/v0/models'
+    matchers:
+      - body="\"object\"" && body="\"data\""

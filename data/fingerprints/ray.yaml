@@ -15,3 +15,7 @@ http:
     path: '/'
     matchers:
       - icon="463802404"
+  - method: GET
+    path: '/api/serve/applications/'
+    matchers:
+      - body="\"controller_info\"" && body="\"proxy_location\"" && body="SERVE_CONTROLLER_ACTOR"

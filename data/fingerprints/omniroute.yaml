@@ -1,0 +1,13 @@
+info:
+  name: omniroute
+  author: A.I.G bot
+  severity: info
+  desc: OmniRoute - AI gateway for multi-provider LLMs with smart routing, load balancing, caching, and observability.
+  metadata:
+    product: omniroute
+    vendor: omniroute
+http:
+  - method: GET
+    path: '/api/cache'
+    matchers:
+      - body="semanticCache" && header="X-OmniRoute-Cache"

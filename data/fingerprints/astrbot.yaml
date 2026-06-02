@@ -1,0 +1,13 @@
+info:
+  name: astrbot
+  author: A.I.G bot
+  severity: info
+  desc: AstrBot - Multi-platform LLM chatbot framework with dashboard and plugin system.
+  metadata:
+    product: astrbot
+    vendor: astrbot
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>AstrBot" && body="AstrBot Dashboard"

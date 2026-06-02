@@ -1,0 +1,21 @@
+info:
+  name: tensorrt-llm
+  author: A.I.G bot
+  severity: info
+  desc: NVIDIA TensorRT-LLM inference server (trtllm-serve) for high-performance LLM deployment.
+  metadata:
+    product: tensorrt-llm
+    vendor: nvidia
+http:
+  - method: GET
+    path: '/metrics'
+    matchers:
+      - body="inflightBatchingStats" && body="kvCacheStats"
+  - method: GET
+    path: '/health_generate'
+    matchers:
+      - body="Generation health check OK"
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"owned_by\":\"tensorrt_llm\"" || body="\"owned_by\": \"tensorrt_llm\""

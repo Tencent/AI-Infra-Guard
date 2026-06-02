@@ -1,0 +1,13 @@
+info:
+  name: together-ai
+  author: A.I.G bot
+  severity: info
+  desc: Together AI - Cloud inference platform for open-source models with OpenAI-compatible API.
+  metadata:
+    product: together-ai
+    vendor: together
+http:
+  - method: GET
+    path: '/v1/hardware'
+    matchers:
+      - body="You can find your API key at https://api.together.xyz"

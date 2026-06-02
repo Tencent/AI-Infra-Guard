@@ -1,0 +1,13 @@
+info:
+  name: huggingface-chat-ui
+  author: A.I.G bot
+  severity: info
+  desc: HuggingFace Chat UI - Open-source ChatGPT-style interface powering HuggingChat.
+  metadata:
+    product: huggingface-chat-ui
+    vendor: huggingface
+http:
+  - method: GET
+    path: '/api/v2/public-config'
+    matchers:
+      - body="\"PUBLIC_APP_NAME\":\"ChatUI\"" && body="\"PUBLIC_APP_ASSETS\""

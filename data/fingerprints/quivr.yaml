@@ -1,0 +1,13 @@
+info:
+  name: quivr
+  author: A.I.G bot
+  severity: info
+  desc: Quivr - Open-source RAG platform for building AI assistants with brain-based knowledge management.
+  metadata:
+    product: quivr
+    vendor: quivrhq
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="/brains/" && body="/knowledge/" && body="/chat/"

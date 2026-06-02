@@ -1,0 +1,13 @@
+info:
+  name: fireworks-ai
+  author: A.I.G bot
+  severity: info
+  desc: Fireworks AI - Cloud inference platform for LLMs with OpenAI-compatible API.
+  metadata:
+    product: fireworks-ai
+    vendor: fireworks
+http:
+  - method: GET
+    path: '/inference/v1/models'
+    matchers:
+      - body="accounts/fireworks/models/"

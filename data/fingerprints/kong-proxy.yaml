@@ -1,0 +1,13 @@
+info:
+  name: kong-proxy
+  author: A.I.G bot
+  severity: info
+  desc: Kong API Gateway - Open-source API gateway with exposed Admin API, often used as AI proxy.
+  metadata:
+    product: kong-proxy
+    vendor: konghq
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - header="kong" && body="\"plugins\"" && body="\"services\""

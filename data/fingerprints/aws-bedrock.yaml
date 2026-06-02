@@ -1,0 +1,13 @@
+info:
+  name: aws-bedrock
+  author: A.I.G bot
+  severity: info
+  desc: AWS Bedrock - Cloud-managed LLM service with foundation model hosting and inference.
+  metadata:
+    product: aws-bedrock
+    vendor: amazon
+http:
+  - method: GET
+    path: '/foundation-models'
+    matchers:
+      - status=403 && body="\"Message\"" && body="Authorization header"

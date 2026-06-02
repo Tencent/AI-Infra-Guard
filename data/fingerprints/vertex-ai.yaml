@@ -1,0 +1,13 @@
+info:
+  name: vertex-ai
+  author: A.I.G bot
+  severity: info
+  desc: Google Vertex AI - ML training and generative AI platform (aiplatform.googleapis.com).
+  metadata:
+    product: vertex-ai
+    vendor: google
+http:
+  - method: GET
+    path: '/$discovery/rest?version=v1'
+    matchers:
+      - 'body="\"name\": \"aiplatform\"" && body="\"title\": \"Vertex AI API\""'

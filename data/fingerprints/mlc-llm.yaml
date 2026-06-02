@@ -1,0 +1,17 @@
+info:
+  name: mlc-llm
+  author: A.I.G bot
+  severity: info
+  desc: MLC LLM - Universal deployment engine for LLMs with ML compilation optimization.
+  metadata:
+    product: mlc-llm
+    vendor: mlc-ai
+http:
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"MLC-LLM\""
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="/microserving/prep_recv"

@@ -1,0 +1,17 @@
+info:
+  name: helicone
+  author: A.I.G bot
+  severity: info
+  desc: Helicone - Open-source LLM observability platform and AI gateway.
+  metadata:
+    product: helicone
+    vendor: helicone
+http:
+  - method: GET
+    path: '/healthcheck'
+    matchers:
+      - body="\"healthy :)\""
+  - method: GET
+    path: '/download/swagger.json'
+    matchers:
+      - body="Helicone"

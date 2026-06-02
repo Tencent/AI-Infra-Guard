@@ -1,0 +1,13 @@
+info:
+  name: betterchatgpt
+  author: A.I.G bot
+  severity: info
+  desc: Better ChatGPT - Enhanced open-source ChatGPT UI clone.
+  metadata:
+    product: betterchatgpt
+    vendor: betterchatgpt
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Better ChatGPT" && body="Play and chat smarter with BetterChatGPT"

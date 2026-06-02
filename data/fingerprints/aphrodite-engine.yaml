@@ -1,0 +1,13 @@
+info:
+  name: aphrodite-engine
+  author: A.I.G bot
+  severity: info
+  desc: Aphrodite Engine - Large-scale LLM inference engine with OpenAI-compatible API, forked from vLLM.
+  metadata:
+    product: aphrodite-engine
+    vendor: aphrodite-engine
+http:
+  - method: GET
+    path: '/.well-known/serviceinfo'
+    matchers:
+      - body="\"Aphrodite Engine\"" && body="\"software\""

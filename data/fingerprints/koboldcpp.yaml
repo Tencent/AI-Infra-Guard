@@ -1,0 +1,17 @@
+info:
+  name: koboldcpp
+  author: A.I.G bot
+  severity: info
+  desc: KoboldCpp - Easy-to-use AI text-generation software for GGML/GGUF models.
+  metadata:
+    product: koboldcpp
+    vendor: koboldcpp
+http:
+  - method: GET
+    path: '/api/extra/version'
+    matchers:
+      - body="\"result\": \"KoboldCpp\""
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"owned_by\": \"koboldcpp\""

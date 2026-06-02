@@ -11,6 +11,10 @@ http:
     path: '/version'
     matchers:
       - body="{\"version\":\""
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - header="uvicorn" && body="\"object\"" && body="\"data\""
 version:
   - method: GET
     path: '/version'

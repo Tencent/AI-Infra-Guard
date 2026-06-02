@@ -1,0 +1,13 @@
+info:
+  name: replicate
+  author: A.I.G bot
+  severity: info
+  desc: Replicate - Cloud ML platform with prediction-based API for running open-source models.
+  metadata:
+    product: replicate
+    vendor: replicate
+http:
+  - method: GET
+    path: '/v1/hardware'
+    matchers:
+      - status=401 && body="\"Unauthenticated\""

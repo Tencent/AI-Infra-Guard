@@ -10,7 +10,7 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<openclaw-app>" || body="<title>OpenClaw Control</title>" || body="<title>Clawdbot Control</title>"
+      - body="<openclaw-app>" || body="<title>OpenClaw Control</title>" || body="<title>Clawdbot Control</title>" || body="<title>Moltbot Control</title>"
 version:
   - method: GET
     path: '/__openclaw/control-ui-config.json'

@@ -11,3 +11,7 @@ http:
     path: '/v2/repository/models/simple/load'
     matchers:
       - body="{\"error\":\""
+  - method: GET
+    path: '/v2'
+    matchers:
+      - body="\"name\"" && body="\"extensions\"" && body="triton"

@@ -10,3 +10,11 @@ http:
     path: '/'
     matchers:
       - body="<title>NextChat</title>"
+  - method: GET
+    path: '/site.webmanifest'
+    matchers:
+      - 'body="\"name\": \"NextChat\"" && body="\"short_name\": \"NextChat\""'
+  - method: GET
+    path: '/api/config'
+    matchers:
+      - 'body="\"needCode\"" && body="\"hideUserApiKey\"" && body="\"disableGPT4\""'

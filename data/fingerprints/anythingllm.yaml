@@ -11,3 +11,7 @@ http:
     path: '/'
     matchers:
       - body="<title>AnythingLLM | Your personal LLM trained on anything</title>"
+  - method: GET
+    path: '/api/setup-complete'
+    matchers:
+      - body="AnythingLLMOllamaModelPref" || body="\"PGVectorTableName\":\"anythingllm_vectors\""

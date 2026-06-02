@@ -1,0 +1,13 @@
+info:
+  name: tensorzero
+  author: A.I.G bot
+  severity: info
+  desc: TensorZero Gateway - Open-source Rust-based LLM gateway with observability, optimization, and experimentation.
+  metadata:
+    product: tensorzero
+    vendor: tensorzero
+http:
+  - method: GET
+    path: '/metrics'
+    matchers:
+      - body="tensorzero_inferences_total"

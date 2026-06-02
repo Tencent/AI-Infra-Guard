@@ -1,0 +1,17 @@
+info:
+  name: bifrost
+  author: A.I.G bot
+  severity: info
+  desc: Bifrost AI Gateway - High-performance unified LLM gateway by MaximHQ with caching and routing.
+  metadata:
+    product: bifrost
+    vendor: maximhq
+http:
+  - method: GET
+    path: '/api/config'
+    matchers:
+      - body="\"is_db_connected\"" && body="\"framework_config\""
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"db_pings\""

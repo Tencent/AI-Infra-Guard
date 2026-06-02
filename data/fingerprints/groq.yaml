@@ -1,0 +1,17 @@
+info:
+  name: groq
+  author: A.I.G bot
+  severity: info
+  desc: Groq Cloud LPU Inference API - Ultra-fast LLM inference with custom LPU hardware.
+  metadata:
+    product: groq
+    vendor: groq
+http:
+  - method: GET
+    path: '/openai/v1/models'
+    matchers:
+      - header="x-groq-region"
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Welcome to the Groq API" && header="x-groq-region"

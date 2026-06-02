@@ -1,0 +1,17 @@
+info:
+  name: sillytavern
+  author: A.I.G bot
+  severity: info
+  desc: SillyTavern - LLM frontend for roleplay/chat with character cards and multi-model support.
+  metadata:
+    product: sillytavern
+    vendor: sillytavern
+http:
+  - method: GET
+    path: '/manifest.json'
+    matchers:
+      - body="\"name\": \"SillyTavern\""
+  - method: GET
+    path: '/version'
+    matchers:
+      - body="SillyTavern" && body="\"pkgVersion\""

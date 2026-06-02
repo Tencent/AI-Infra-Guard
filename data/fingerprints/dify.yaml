@@ -11,6 +11,10 @@ http:
     matchers:
       - body="<title>Dify</title>" || icon="97378986"
       - body="content=\"Dify"
+  - method: GET
+    path: '/apps'
+    matchers:
+      - body="<title>Dify</title>" && body="data-public-edition"
 version:
   - method: GET
     path: '/health'
