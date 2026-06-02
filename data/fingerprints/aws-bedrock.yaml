@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/foundation-models'
     matchers:
-      - status=403 && body="\"Message\"" && body="Authorization header"
+      - body="\"Message\"" && body="Authorization header"

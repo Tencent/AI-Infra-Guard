@@ -18,4 +18,4 @@ http:
   - method: GET
     path: '/v1/models'
     matchers:
-      - body="\"owned_by\":\"tensorrt_llm\"" || body="\"owned_by\": \"tensorrt_llm\""
+      - 'body="\"owned_by\":\"tensorrt_llm\"" || body="\"owned_by\": \"tensorrt_llm\""'

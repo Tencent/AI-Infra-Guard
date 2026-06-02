@@ -8,6 +8,6 @@ info:
     vendor: modal
 http:
   - method: GET
-    path: '/praetorian-nonexistent-probe-path'
+    path: '/'
     matchers:
-      - status=404 && body="modal-http: invalid function call"
+      - 'body="modal-http: invalid function call"'

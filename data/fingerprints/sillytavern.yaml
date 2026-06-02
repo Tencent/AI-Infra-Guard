@@ -10,7 +10,7 @@ http:
   - method: GET
     path: '/manifest.json'
     matchers:
-      - body="\"name\": \"SillyTavern\""
+      - 'body="\"name\": \"SillyTavern\""'
   - method: GET
     path: '/version'
     matchers:

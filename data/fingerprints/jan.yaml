@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/openapi.json'
     matchers:
-      - body="\"title\": \"Jan API Server Endpoints\""
+      - 'body="\"title\": \"Jan API Server Endpoints\""'

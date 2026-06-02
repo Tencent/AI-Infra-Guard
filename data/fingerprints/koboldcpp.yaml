@@ -10,8 +10,8 @@ http:
   - method: GET
     path: '/api/extra/version'
     matchers:
-      - body="\"result\": \"KoboldCpp\""
+      - 'body="\"result\": \"KoboldCpp\""'
   - method: GET
     path: '/v1/models'
     matchers:
-      - body="\"owned_by\": \"koboldcpp\""
+      - 'body="\"owned_by\": \"koboldcpp\""'

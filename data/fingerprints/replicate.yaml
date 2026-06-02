@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/v1/hardware'
     matchers:
-      - status=401 && body="\"Unauthenticated\""
+      - body="\"Unauthenticated\""

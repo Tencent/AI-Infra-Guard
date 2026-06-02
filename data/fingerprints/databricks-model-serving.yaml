@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/api/2.0/serving-endpoints'
     matchers:
-      - status=401 && body="\"error_code\"" && body="serving endpoint"
+      - body="\"error_code\"" && body="serving endpoint"

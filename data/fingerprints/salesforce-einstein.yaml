@@ -10,4 +10,4 @@ http:
   - method: POST
     path: '/iamessage/api/v2/authorization/unauthenticated/access-token'
     matchers:
-      - status=400 && body="\"errorCode\":\"INVALID_"
+      - body="\"errorCode\"" && body="INVALID_"

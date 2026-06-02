@@ -15,7 +15,7 @@ http:
   - method: GET
     path: '/api/v1/chatflows'
     matchers:
-      - status=401 && body="\"Unauthorized Access\""
+      - body="\"Unauthorized Access\""
 version:
   - method: GET
     path: '/api/v1/version'

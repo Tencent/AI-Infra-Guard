@@ -22,7 +22,7 @@ http:
   - method: GET
     path: '/v1/models'
     matchers:
-      - body="\"owned_by\":\"sglang\"" || body="\"owned_by\": \"sglang\""
+      - 'body="\"owned_by\":\"sglang\"" || body="\"owned_by\": \"sglang\""'
 version:
   - method: GET
     path: '/server_info'

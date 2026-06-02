@@ -11,7 +11,3 @@ http:
     path: '/v1/models'
     matchers:
       - body="\"object\"" && body="\"data\""
-  - method: GET
-    path: '/v1/models'
-    matchers:
-      - status=401 && body="\"error\""

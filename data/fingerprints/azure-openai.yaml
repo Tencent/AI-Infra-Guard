@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/openai/deployments'
     matchers:
-      - status=401 && body="\"error\"" && body="Access denied"
+      - body="\"error\"" && body="Access denied"
