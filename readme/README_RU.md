@@ -431,6 +431,7 @@ A.I.G предоставляет полный набор API для создан
 <img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
 <img src="../img/IDG.webp" alt="IDG" height="55px">
 <img src="../img/kingdee.png" alt="kingdee" height="40px">
+<img src="../img/unicom.png" alt="联通数科" height="40px">
 <img src="../img/changan.png" alt="长安汽车" height="40px">
 </div>
 
@@ -441,6 +442,7 @@ A.I.G предоставляет полный набор API для создан
 <img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
+<img src="../img/wuhan.png" alt="武汉大学" height="40px">
 <img src="../img/An-NajahNationalUniversity.png" alt="An-Najah National University" height="40px">
 <img src="../img/西安交通大学.png" alt="西安交通大学" height="40px">
 <img src="../img/huazhong.png" alt="华中科技大学" height="40px">
