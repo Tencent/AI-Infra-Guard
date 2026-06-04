@@ -1,0 +1,13 @@
+info:
+  name: portkey-ai-gateway
+  author: A.I.G bot
+  severity: info
+  desc: Portkey AI Gateway - Blazing fast unified gateway for 200+ LLM providers.
+  metadata:
+    product: portkey-ai-gateway
+    vendor: portkey
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="AI Gateway says hey!"

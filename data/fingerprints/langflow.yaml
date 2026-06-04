@@ -11,6 +11,14 @@ http:
     path: '/'
     matchers:
       - body="<title>Langflow</title>"
+  - method: GET
+    path: '/api/v1/version'
+    matchers:
+      - body="\"package\"" && body="Langflow"
+  - method: GET
+    path: '/health_check'
+    matchers:
+      - body="\"chat\":" && body="\"db\":"
 version:
   - method: GET
     path: '/api/v1/version'

@@ -1,0 +1,17 @@
+info:
+  name: powerinfer
+  author: A.I.G bot
+  severity: info
+  desc: PowerInfer - CPU/GPU hybrid LLM inference engine (llama.cpp fork with activation locality).
+  metadata:
+    product: powerinfer
+    vendor: sjtu-ipads
+http:
+  - method: GET
+    path: '/model.json'
+    matchers:
+      - header="llama.cpp"
+  - method: GET
+    path: '/props'
+    matchers:
+      - header="llama.cpp"

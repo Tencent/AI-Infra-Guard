@@ -11,6 +11,11 @@ http:
     path: '/'
     matchers:
       - body="<title>Flowise</title>"
+      - body="flowiseai.com" && body="FlowiseAI"
+  - method: GET
+    path: '/api/v1/chatflows'
+    matchers:
+      - body="\"Unauthorized Access\""
 version:
   - method: GET
     path: '/api/v1/version'

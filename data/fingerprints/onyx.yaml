@@ -1,0 +1,17 @@
+info:
+  name: onyx
+  author: A.I.G bot
+  severity: info
+  desc: Onyx - Open-source AI platform for enterprise search and chat with RAG capabilities.
+  metadata:
+    product: onyx
+    vendor: onyx
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="\"title\":\"Onyx Backend\""
+  - method: GET
+    path: '/api/docs'
+    matchers:
+      - body="<title>Onyx Backend - Swagger UI</title>"

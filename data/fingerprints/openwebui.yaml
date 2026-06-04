@@ -11,6 +11,10 @@ http:
     path: '/'
     matchers:
       - body="title=\"Open WebUI\""
+  - method: GET
+    path: '/api/config'
+    matchers:
+      - body="\"name\":\"Open WebUI\"" && body="\"features\":"
 version:
   - method: GET
     path: '/api/version'

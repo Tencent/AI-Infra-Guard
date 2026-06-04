@@ -11,6 +11,14 @@ http:
     path: '/'
     matchers:
       - body="LiteLLM API" || body="Proxy Server to call 100+ LLMs in the OpenAI format" || body="LiteLLM Admin Panel on /ui"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"litellm_metadata\""
+  - method: GET
+    path: '/health/readiness'
+    matchers:
+      - body="\"litellm_version\""
 version:
   - method: GET
     path: '/openapi.json'

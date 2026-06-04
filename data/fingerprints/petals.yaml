@@ -1,0 +1,13 @@
+info:
+  name: petals
+  author: A.I.G bot
+  severity: info
+  desc: Petals - Decentralized LLM inference, BitTorrent-style distributed serving for large models.
+  metadata:
+    product: petals
+    vendor: bigscience
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Decentralized platform for running large language models" && body="petals-infra"

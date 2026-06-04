@@ -1,0 +1,13 @@
+info:
+  name: baseten-truss
+  author: A.I.G bot
+  severity: info
+  desc: Baseten Truss - Open-source ML model serving framework with OpenAPI spec.
+  metadata:
+    product: baseten-truss
+    vendor: baseten
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="Baseten Inference Server"

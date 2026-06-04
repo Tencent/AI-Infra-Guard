@@ -1,0 +1,13 @@
+info:
+  name: jan
+  author: A.I.G bot
+  severity: info
+  desc: Jan AI - Local OpenAI-compatible API server for running LLMs on your machine.
+  metadata:
+    product: jan
+    vendor: jan-ai
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - 'body="\"title\": \"Jan API Server Endpoints\""'

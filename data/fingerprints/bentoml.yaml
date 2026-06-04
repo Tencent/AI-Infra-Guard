@@ -11,3 +11,11 @@ http:
     path: '/'
     matchers:
       - body="BentoML Prediction Service"
+  - method: GET
+    path: '/docs.json'
+    matchers:
+      - body="BentoML Team" && body="contact@bentoml.com"
+  - method: GET
+    path: '/metrics'
+    matchers:
+      - body="bentoml_api_server"

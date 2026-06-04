@@ -11,3 +11,7 @@ http:
     path: '/'
     matchers:
       - body="<title>RAGFlow</title>"
+  - method: GET
+    path: '/v1/system/healthz'
+    matchers:
+      - body="\"doc_engine\""

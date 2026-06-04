@@ -11,6 +11,10 @@ http:
     path: /
     matchers:
       - body="<title>LibreChat</title>"
+  - method: GET
+    path: /api/config
+    matchers:
+      - body="librechat.ai"
 version:
   - method: GET
     path: /api/version

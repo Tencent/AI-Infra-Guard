@@ -1,0 +1,13 @@
+info:
+  name: openai-compatible
+  author: A.I.G bot
+  severity: info
+  desc: Generic OpenAI-compatible API endpoint (fallback detection for unidentified LLM services).
+  metadata:
+    product: openai-compatible
+    vendor: generic
+http:
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"object\"" && body="\"data\""

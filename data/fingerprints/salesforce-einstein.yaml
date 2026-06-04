@@ -1,0 +1,13 @@
+info:
+  name: salesforce-einstein
+  author: A.I.G bot
+  severity: info
+  desc: Salesforce Einstein Messaging API (MIAW) - AI-powered conversational service.
+  metadata:
+    product: salesforce-einstein
+    vendor: salesforce
+http:
+  - method: POST
+    path: '/iamessage/api/v2/authorization/unauthenticated/access-token'
+    matchers:
+      - body="\"errorCode\"" && body="INVALID_"

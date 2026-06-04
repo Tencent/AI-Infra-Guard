@@ -11,3 +11,4 @@ http:
     path: '/info'
     matchers:
       - body="\"model_id\":" && body="\"model_pipeline_tag\":"
+      - body="\"model_id\"" && body="\"model_dtype\"" && body="\"max_batch_total_tokens\"" && body="\"docker_label\""

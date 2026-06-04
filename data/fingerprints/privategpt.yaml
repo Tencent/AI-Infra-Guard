@@ -1,0 +1,13 @@
+info:
+  name: privategpt
+  author: A.I.G bot
+  severity: info
+  desc: PrivateGPT by Zylon - RAG pipeline for private document Q&A with LLMs.
+  metadata:
+    product: privategpt
+    vendor: zylon-ai
+http:
+  - method: GET
+    path: '/v1/ingest/list'
+    matchers:
+      - 'body="\"model\":\"private-gpt\"" || body="\"model\": \"private-gpt\""'

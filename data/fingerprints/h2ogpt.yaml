@@ -1,0 +1,17 @@
+info:
+  name: h2ogpt
+  author: A.I.G bot
+  severity: info
+  desc: h2oGPT - Private local GPT with document Q&A by H2O.ai, built on Gradio.
+  metadata:
+    product: h2ogpt
+    vendor: h2oai
+http:
+  - method: GET
+    path: '/info'
+    matchers:
+      - body="submit_nochat_api"
+  - method: GET
+    path: '/'
+    matchers:
+      - body="h2oGPT"

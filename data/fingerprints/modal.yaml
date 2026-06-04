@@ -1,0 +1,13 @@
+info:
+  name: modal
+  author: A.I.G bot
+  severity: info
+  desc: Modal - Serverless AI platform for LLM serving via vLLM/FastAPI.
+  metadata:
+    product: modal
+    vendor: modal
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - 'body="modal-http: invalid function call"'

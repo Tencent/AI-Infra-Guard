@@ -10,3 +10,7 @@ http:
     path: '/'
     matchers:
       - body="<title>LobeChat</title>"
+  - method: GET
+    path: '/manifest.webmanifest'
+    matchers:
+      - body="\"id\":\"lobe-hub\"" && body="\"name\":\"LobeHub\""

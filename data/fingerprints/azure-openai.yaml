@@ -1,0 +1,13 @@
+info:
+  name: azure-openai
+  author: A.I.G bot
+  severity: info
+  desc: Azure OpenAI Service - Microsoft's cloud-hosted OpenAI models with enterprise features.
+  metadata:
+    product: azure-openai
+    vendor: microsoft
+http:
+  - method: GET
+    path: '/openai/deployments'
+    matchers:
+      - body="\"error\"" && body="Access denied"

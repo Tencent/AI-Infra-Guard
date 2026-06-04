@@ -1,0 +1,13 @@
+info:
+  name: tabbyapi
+  author: A.I.G bot
+  severity: info
+  desc: TabbyAPI - FastAPI-based LLM server for ExLlama with OpenAI-compatible API.
+  metadata:
+    product: tabbyapi
+    vendor: theroyallab
+http:
+  - method: GET
+    path: '/.well-known/serviceinfo'
+    matchers:
+      - body="\"TabbyAPI\"" && body="\"software\""

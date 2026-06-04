@@ -1,0 +1,13 @@
+info:
+  name: databricks-model-serving
+  author: A.I.G bot
+  severity: info
+  desc: Databricks Model Serving - Endpoints for real-time ML inference on Databricks platform.
+  metadata:
+    product: databricks-model-serving
+    vendor: databricks
+http:
+  - method: GET
+    path: '/api/2.0/serving-endpoints'
+    matchers:
+      - body="\"error_code\"" && body="serving endpoint"
