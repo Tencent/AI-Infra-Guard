@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.11] - 2026-06-04
+
+### Changed
+- **Docs**: Add Wuhan University and Unicom Digital Tech logos to all READMEs (3af7f63)
+- **Docs**: Add v4.1.10 to What's New across all 9 README languages (5e0a6f4)
+
+### Contributors
+Special thanks to @aigsec, @jucie-pie, @aig-doc-bot
+
+---
+
 ## [v4.1.10] - 2026-05-28
 
 ### Added
