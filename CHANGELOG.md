@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.12] - 2026-06-08
+
+### Added
+- **Fingerprints**: Add 39 new AI web fingerprints and enhance 18 existing ones (7c438fa)
+
+### Fixed
+- **Fingerprints**: Fix YAML matcher syntax for CI validation (49e2552)
+
+### Changed
+- **Docs**: Update component count to 100+ and CVE count to 1600+ across all languages (58d97ff)
+- **Docs**: Add v4.1.11 to What's New across all 9 README languages (39a0cec)
+
+### Contributors
+Special thanks to @zhuque, @boyhack, @aig-doc-bot
+
+---
+
 ## [v4.1.11] - 2026-06-04
 
 ### Changed
