@@ -60,6 +60,7 @@
 
 ## 🚀 새로운 소식
 
+- **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 39개의 신규 AI 웹 핑거프린트(AWS Bedrock, Azure OpenAI, Groq, Vertex AI 등) 추가 및 18개 강화; 클라우드/호스팅 AI 서비스 탐지 범위 확대.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 신규 신뢰 보증: 우한대학교 및 Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 68개 AI 컴포넌트로 커버리지 확대(junoclaw, lollms, sglang 추가); 600개 이상의 신규 CVE 규칙 추가; Agent Scan에 WebSocket 프로바이더 지원.
 - **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26개 신규 공격 오퍼레이터(20개 싱글턴 + 6개 멀티턴); 스캔 Agent에 간접 프롬프트 인젝션 방어 추가.
