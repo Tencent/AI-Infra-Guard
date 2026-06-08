@@ -425,6 +425,7 @@ Gracias a los usuarios de las siguientes empresas y equipos por utilizar A.I.G y
 <img src="../img/oppo.png" alt="Oppo" height="30px">
 <img src="../img/haier.png" alt="Haier" height="30px">
 <img src="../img/abc.png" alt="Abc" height="40px">
+<img src="../img/JkOvmDOXpr.png" alt="招商银行" height="40px">
 <img src="../img/中国电信.png" alt="中国电信" height="40px">
 <img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
 <img src="../img/qunar.png" alt="Qunar" height="35px">
