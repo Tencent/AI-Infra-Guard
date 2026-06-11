@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.13] - 2026-06-11
+
+### Added
+- **API**: Add version check endpoint (Closes #376) (5ab5c0f)
+
+### Fixed
+- **Scoring**: Replace weighted ratio with absolute deduction model (Closes #403) (cf2170f)
+
+### Changed
+- **Docs**: Add China Merchants Bank logo to user appreciation section in all READMEs (c95f052)
+- **Docs**: Update What's New to v4.1.12 across all README languages (0a8da63)
+- **Docs**: Restore v4.1.11 entry in What's New across all 9 README languages (b341578)
+
+### Contributors
+Special thanks to @boyhack, @zhuque, @aigsec, @aigdocs[bot]
+
+---
+
 ## [v4.1.12] - 2026-06-08
 
 ### Added
