@@ -60,6 +60,7 @@
 
 ## 🚀 Novedades
 
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nuevo endpoint de API para verificación de versión; la puntuación de seguridad ahora utiliza un modelo de deducción absoluta para resultados más precisos.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de huellas digitales ampliada: 39 nuevas huellas AI Web añadidas, 18 existentes mejoradas.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — Nuevos respaldos de confianza: Universidad de Wuhan y Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Cobertura ampliada a 68 componentes de IA (añadidos junoclaw, lollms, sglang); 600+ nuevas reglas CVE; soporte de proveedor WebSocket para Agent Scan.
