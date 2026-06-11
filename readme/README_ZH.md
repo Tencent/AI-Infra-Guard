@@ -58,6 +58,7 @@
 
 ## 🚀 最新动态
 
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 指纹库大幅扩充：新增 39 个 AI Web 指纹，增强 18 个现有指纹。
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 新增信任背书：武汉大学、联通数字科技。
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 覆盖扩展至 68 种 AI 组件（新增 junoclaw、lollms、sglang）；新增 600+ CVE 规则；Agent Scan 支持 WebSocket 接入方式。
