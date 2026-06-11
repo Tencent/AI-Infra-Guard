@@ -22,7 +22,6 @@ package runner
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -721,24 +720,15 @@ func (r *Runner) CalcSecScore(advisories []vulstruct.Info) CallbackReportInfo {
 			LowRisk:    0,
 		}
 	}
-	// 计算加权风险比例
-	weightedRisk := (float64(high)/float64(total))*0.7 +
-		(float64(middle)/float64(total))*0.5 +
-		(float64(low)/float64(total))*0.3
-
-	// 计算安全评分（百分制）
-	safetyScore := 100 - weightedRisk*100
-
-	// 确保评分在0-100范围内
+	// 绝对扣分制：每个 critical/high -70，medium -30，low -10，扣到 0 为止
+	deduction := high*70 + middle*30 + low*10
+	safetyScore := 100 - deduction
 	if safetyScore < 0 {
 		safetyScore = 0
 	}
-	if safetyScore >= 100 {
-		safetyScore = 100
-	}
 
 	ret := CallbackReportInfo{
-		SecScore:   int(math.Round(safetyScore)),
+		SecScore:   safetyScore,
 		HighRisk:   high,
 		MediumRisk: middle,
 		LowRisk:    low,
