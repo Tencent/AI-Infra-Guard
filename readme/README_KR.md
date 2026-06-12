@@ -60,7 +60,7 @@
 
 ## 🚀 새로운 소식
 
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 버전 확인 API 엔드포인트 추가; 보안 점수가 절대 감점 모델을 사용하여 더 정확한 결과 제공.
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 버전 확인 API 엔드포인트 신규 추가; 보안 점수를 절대 감점 모델로 전환하여 리스크 평가를 더욱 명확히 개선.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 지문 라이브러리 확장: AI Web 지문 39개 신규 추가, 기존 18개 강화.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 신규 신뢰 보증: 우한대학교 및 Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 68개 AI 컴포넌트로 커버리지 확대(junoclaw, lollms, sglang 추가); 600개 이상의 신규 CVE 규칙 추가; Agent Scan에 WebSocket 프로바이더 지원.
@@ -445,6 +445,7 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="../img/fudan.png" alt="복旦대학" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">

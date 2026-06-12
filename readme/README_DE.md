@@ -60,7 +60,7 @@
 
 ## 🚀 Neuigkeiten
 
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Neuer API-Endpunkt zur Versionsprüfung; Sicherheitsbewertung verwendet jetzt absolutes Abzugsmodell für genauere Ergebnisse.
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Neuer API-Endpunkt zur Versionsprüfung; Sicherheitsbewertung auf absolutes Abzugsmodell umgestellt für klarere Risikoeinschätzung.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Fingerprint-Bibliothek erweitert: 39 neue AI-Web-Fingerprints hinzugefügt, 18 bestehende verbessert.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — Neue Vertrauensnachweise: Wuhan University und Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Abdeckung auf 68 KI-Komponenten erweitert (junoclaw, lollms, sglang hinzugefügt); 600+ neue CVE-Regeln; WebSocket-Provider-Unterstützung für Agent Scan.
@@ -445,6 +445,7 @@ Vielen Dank an die Nutzer aus den folgenden Unternehmen und Teams für die Verwe
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">

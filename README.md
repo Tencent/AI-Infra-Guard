@@ -60,7 +60,7 @@
 
 ## 🚀 What's New
 
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — New version-check API endpoint; security scoring now uses absolute deduction model for more accurate results.
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — New version check API endpoint; security scoring switched to absolute deduction model for clearer risk assessment.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Fingerprint library expanded: 39 new AI Web fingerprints added, 18 existing fingerprints enhanced.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — New trusted-by endorsements: Wuhan University and Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Coverage expanded to 68 AI components (added junoclaw, lollms, sglang); 600+ new CVE rules; WebSocket agent provider support for Agent Scan.
@@ -445,6 +445,7 @@ Thanks to the users from the following organizations and teams for using A.I.G a
 <div align="center">
 <img src="img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="img/北京大学.png" alt="北京大学" height="40px">
+<img src="img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="img/fudan.png" alt="复旦大学" height="40px">
 <img src="img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="img/南京大学.png" alt="南京大学" height="40px">

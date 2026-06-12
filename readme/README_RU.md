@@ -60,7 +60,7 @@
 
 ## 🚀 Новое
 
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Новый API-эндпоинт для проверки версии; оценка безопасности теперь использует модель абсолютных вычетов для более точных результатов.
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Новый API-эндпоинт проверки версии; оценка безопасности переключена на модель абсолютного вычета для более чёткой оценки рисков.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Расширение библиотеки отпечатков: добавлено 39 новых AI Web отпечатков, улучшено 18 существующих.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — Новые подтверждения доверия: Уханьский университет и Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Покрытие расширено до 68 AI-компонентов (добавлены junoclaw, lollms, sglang); 600+ новых правил CVE; поддержка WebSocket-провайдера для Agent Scan.
@@ -445,6 +445,7 @@ A.I.G предоставляет полный набор API для создан
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">

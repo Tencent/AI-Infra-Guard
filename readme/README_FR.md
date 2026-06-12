@@ -60,7 +60,7 @@
 
 ## 🚀 Nouveautés
 
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nouveau point de terminaison API pour la vérification de version ; le score de sécurité utilise désormais un modèle de déduction absolue pour des résultats plus précis.
+- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nouvel endpoint API de vérification de version ; scoring de sécurité basculé vers un modèle de déduction absolue pour une évaluation des risques plus claire.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Bibliothèque d’empreintes étendue : 39 nouvelles empreintes AI Web ajoutées, 18 existantes améliorées.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — Nouveaux soutiens de confiance : Université de Wuhan et Unicom Digital Tech.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) - Couverture étendue à 68 composants IA (ajout de junoclaw, lollms, sglang) ; 600+ nouvelles règles CVE ; prise en charge du provider WebSocket pour Agent Scan.
@@ -445,6 +445,7 @@ Merci aux utilisateurs des entreprises et équipes suivantes pour leur utilisati
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
