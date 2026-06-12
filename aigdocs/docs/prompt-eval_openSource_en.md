@@ -84,8 +84,8 @@ The system includes a rich library of attack methods that support dynamic enhanc
 The development of this project relies on the following excellent open-source projects, for which we express our gratitude.
 
 ### Framework Support
-This project is built and deeply customized based on the **[DeepTeam](https://github.com/DeepTeam/DeepTeam)** project from the **[Confident AI](http://www.confident-ai.com)** team.
-- **Original Repository**: [https://github.com/DeepTeam/DeepTeam](https://github.com/DeepTeam/DeepTeam)
+This project is built and deeply customized based on the **[DeepTeam](https://github.com/confident-ai/deepteam)** project from the **[Confident AI](http://www.confident-ai.com)** team.
+- **Original Repository**: [https://github.com/confident-ai/deepteam](https://github.com/confident-ai/deepteam)
 - **Original Project License**: Please refer to the `LICENSE` file in their repository.
 - **Note**: We sincerely thank the Confident AI team for providing an excellent foundational framework. To better adapt and serve our own business architecture and specific requirements, we have made extensive modifications, extensions, and refactoring to achieve specialized adaptation and integration with the **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** ecosystem, enabling seamless out-of-the-box integration.
 
@@ -94,7 +94,7 @@ We express our sincere gratitude to the research teams and communities that cont
 
 | Operator Name | Source Team | Link |
 |---------|--------|------|
-| Some single-round and multi-round operators | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| Some single-round and multi-round operators | Confident AI Inc. | [Github](https://github.com/confident-ai/deepteam) |
 | SequentialBreak | Saiem et al. | [Paper](https://arxiv.org/abs/2411.06426) |
 | Best of N | Hughes et al. | [Paper](https://arxiv.org/abs/2412.03556) |
 | ICRT Jailbreak | Yang et al. | [Paper](https://arxiv.org/abs/2505.02862) |
