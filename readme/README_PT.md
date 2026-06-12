@@ -445,6 +445,7 @@ Agradecemos aos usuários das seguintes empresas e equipes por utilizarem o A.I.
 <div align="center">
 <img src="../img/清华大学.jpg" alt="清华大学" height="40px">
 <img src="../img/北京大学.png" alt="北京大学" height="40px">
+<img src="../img/nanyang.png" alt="南洋理工大学" height="40px">
 <img src="../img/fudan.png" alt="复旦大学" height="40px">
 <img src="../img/浙江大学.png" alt="浙江大学" height="40px">
 <img src="../img/南京大学.png" alt="南京大学" height="40px">
