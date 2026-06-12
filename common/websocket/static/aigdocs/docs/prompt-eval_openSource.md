@@ -84,8 +84,8 @@
 本项目的开发离不开以下优秀的开源项目，特此致谢。
 
 ### 框架支持
-本项目基于 **[Confident AI](http://www.confident-ai.com)** 团队的 **[DeepTeam](https://github.com/DeepTeam/DeepTeam)** 项目进行构建与深度定制。
-- **原项目仓库**: [https://github.com/DeepTeam/DeepTeam](https://github.com/DeepTeam/DeepTeam)
+本项目基于 **[Confident AI](http://www.confident-ai.com)** 团队的 **[DeepTeam](https://github.com/confident-ai/deepteam)** 项目进行构建与深度定制。
+- **原项目仓库**: [https://github.com/confident-ai/deepteam](https://github.com/confident-ai/deepteam)
 - **原项目许可**: 请参考其仓库下的 `LICENSE` 文件。
 - **说明**: 我们由衷感谢 Confident AI 团队提供的出色基础框架。为了使其更好地兼容并服务于我们自身的业务架构和特定需求，我们对其进行了大量的修改、扩展和重构，以实现`针对 **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** 的生态进行了专项适配与集成，实现开箱即用的无缝对接。
 
@@ -94,7 +94,7 @@
 
 | 算子名称 | 来源团队 | 链接 |
 |---------|--------|------|
-| 部分单轮和多轮算子 | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| 部分单轮和多轮算子 | Confident AI Inc. | [Github](https://github.com/confident-ai/deepteam) |
 | SequentialBreak | Saiem等 | [Paper](https://arxiv.org/abs/2411.06426) |
 | Best of N | Hughes等 | [Paper](https://arxiv.org/abs/2412.03556) |
 | ICRT Jailbreak | Yang等 | [Paper](https://arxiv.org/abs/2505.02862) |

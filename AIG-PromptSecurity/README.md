@@ -302,8 +302,8 @@ python cli_run.py --show-tool-params PromptInjection
 The development of this project would not have been possible without the following excellent open-source projects.
 
 ### Framework Support
-This project is built and deeply customized based on the **[DeepTeam](https://github.com/DeepTeam/DeepTeam)** project by the **[Confident AI](http://www.confident-ai.com)** team.
-- **Original repository**: [https://github.com/DeepTeam/DeepTeam](https://github.com/DeepTeam/DeepTeam)
+This project is built and deeply customized based on the **[DeepTeam](https://github.com/confident-ai/deepteam)** project by the **[Confident AI](http://www.confident-ai.com)** team.
+- **Original repository**: [https://github.com/confident-ai/deepteam](https://github.com/confident-ai/deepteam)
 - **Original license**: Please refer to the `LICENSE` file in their repository.
 - **Note**: We sincerely thank the Confident AI team for providing an excellent base framework. To make it better compatible with and serve our own business architecture and specific needs, we have made extensive modifications, expansions, and refactoring to achieve seamless out-of-the-box integration with the **[AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard)** ecosystem.
 
@@ -312,7 +312,7 @@ We extend our sincere gratitude to the research teams and communities that have 
 
 | Operator Name | Source Team | Link |
 |---------|--------|------|
-| Some single-turn and multi-turn operators | Confident AI Inc. | [Github](https://github.com/DeepTeam/DeepTeam) |
+| Some single-turn and multi-turn operators | Confident AI Inc. | [Github](https://github.com/confident-ai/deepteam) |
 | SequentialBreak | Saiem et al. | [Paper](https://arxiv.org/abs/2411.06426) |
 | Best of N | Hughes et al. | [Paper](https://arxiv.org/abs/2412.03556) |
 | ICRT Jailbreak | Yang et al. | [Paper](https://arxiv.org/abs/2505.02862) |
