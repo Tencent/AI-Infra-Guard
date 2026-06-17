@@ -31,6 +31,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/common/agent"
@@ -55,13 +56,14 @@ const (
 )
 
 type TaskManager struct {
-	mu           sync.RWMutex
-	tasks        map[string]*TaskCreateRequest // sessionId -> 任务请求
-	agentManager *AgentManager                 // 新增：引用 AgentManager
-	taskStore    *database.TaskStore           // 新增：引用 TaskStore
-	modelStore   *database.ModelStore          // 新增：引用 ModelStore
-	fileConfig   *FileUploadConfig             // 新增：文件上传配置
-	sseManager   *SSEManager                   // 新增：SSE管理器
+	mu              sync.RWMutex
+	tasks           map[string]*TaskCreateRequest // sessionId -> 任务请求
+	agentManager    *AgentManager                 // 新增：引用 AgentManager
+	taskStore       *database.TaskStore           // 新增：引用 TaskStore
+	modelStore      *database.ModelStore          // 新增：引用 ModelStore
+	fileConfig      *FileUploadConfig             // 新增：文件上传配置
+	sseManager      *SSEManager                   // 新增：SSE管理器
+	dispatchCounter uint64                        // round-robin 计数器（原子操作）
 }
 
 func NewTaskManager(agentManager *AgentManager, taskStore *database.TaskStore, modelStore *database.ModelStore, fileConfig *FileUploadConfig, sseManager *SSEManager) *TaskManager {
@@ -185,8 +187,9 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 		return fmt.Errorf("没有可用的Agent")
 	}
 
-	// 3. 选择 Agent（简单策略：选择第一个，相信GetAvailableAgents的过滤结果）
-	selectedAgent := availableAgents[0]
+	// 3. 选择 Agent（round-robin 策略：轮询所有可用 Agent，均匀分配任务）
+	idxApi := atomic.AddUint64(&tm.dispatchCounter, 1) - 1
+	selectedAgent := availableAgents[idxApi%uint64(len(availableAgents))]
 
 	// 4. 更新session的assigned_agent和开始时间
 	err = tm.taskStore.UpdateSessionAssignedAgent(req.SessionID, selectedAgent.agentID)
@@ -270,8 +273,10 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 
 	log.Infof("找到可用Agent数量: trace_id=%s, sessionId=%s, count=%d", traceID, sessionId, len(availableAgents))
 
-	// 3. 选择 Agent（简单策略：选择第一个，相信GetAvailableAgents的过滤结果）
-	selectedAgent := availableAgents[0]
+	// 3. 选择 Agent（round-robin 策略：轮询所有可用 Agent，均匀分配任务）
+	idxDisp := atomic.AddUint64(&tm.dispatchCounter, 1) - 1
+	selectedAgent := availableAgents[idxDisp%uint64(len(availableAgents))]
+	log.Infof("选择Agent (round-robin): trace_id=%s, sessionId=%s, agentId=%s, idx=%d", traceID, sessionId, selectedAgent.agentID, idxDisp)
 
 	// 4. 更新session的assigned_agent和开始时间
 	err := tm.taskStore.UpdateSessionAssignedAgent(task.SessionID, selectedAgent.agentID)
