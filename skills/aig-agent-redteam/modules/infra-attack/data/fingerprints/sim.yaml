@@ -1,0 +1,12 @@
+info:
+  name: simstudioai
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: simstudioai
+    vendor: simstudioai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Sim is an open-source AI agent workflow builder"

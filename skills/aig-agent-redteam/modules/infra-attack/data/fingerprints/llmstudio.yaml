@@ -1,0 +1,20 @@
+info:
+  name: llmstudio
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: H2O.ai提供的框架和无代码GUI，用于微调大型语言模型。
+  metadata:
+    product: lmstudio
+    vendor: lmstudio
+http:
+  - method: GET
+    path: '/zuqu3'
+    matchers:
+      - "body=\"Unexpected endpoint or method. (GET /zuqu3)\" && header=\"x-powered-by: Express\""
+version:  
+  - method: GET  
+    path: '/'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: 'v(\d+\.\d+\.?\d*)'

@@ -1,0 +1,12 @@
+info:
+  name: Clawdbot Gateway
+  author: momo
+  severity: info
+  metadata:
+    product: Clawdbot Gateway
+    vendor: Clawdbot Gateway
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Clawdbot Control</title>" || body="<clawdbot-app></clawdbot-app>"

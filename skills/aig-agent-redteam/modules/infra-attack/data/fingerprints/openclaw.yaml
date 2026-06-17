@@ -1,0 +1,20 @@
+info:
+  name: OpenClaw
+  author: A.I.G bot
+  severity: info
+  desc: OpenClaw is a personal AI assistant platform with tool-use, skill management, and gateway service.
+  metadata:
+    product: openclaw
+    vendor: openclaw
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<openclaw-app>" || body="<title>OpenClaw Control</title>" || body="<title>Clawdbot Control</title>"
+version:
+  - method: GET
+    path: '/__openclaw/control-ui-config.json'
+    extractor:
+      part: body
+      group: 1
+      regex: '"serverVersion":\s?"([\d.]+[^"]*)"'

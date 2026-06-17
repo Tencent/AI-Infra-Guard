@@ -1,0 +1,107 @@
+info:
+  name: AI-Agent-Config
+  author: 腾讯朱雀实验室
+  severity: high
+  desc: AI Agent 配置文件（如 claude_desktop_config.json、.cursor/mcp.json、.trae/mcp.json 等）通过 HTTP 可公开访问，可能泄露 MCP Server 地址、API 密钥等敏感信息。
+  metadata:
+    product: AI-Agent-Config
+    vendor: various
+
+# ──────────────────────────────────────────────
+# Claude Desktop / Claude Code
+# ──────────────────────────────────────────────
+http:
+  - method: GET
+    path: '/claude_desktop_config.json'
+    matchers:
+      - body~="^\s*\{"
+
+  - method: GET
+    path: '/.claude.json'
+    matchers:
+      - body~="^\s*\{"
+
+  - method: GET
+    path: '/.mcp.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Cursor
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.cursor/mcp.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Trae IDE (ByteDance)
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.trae/mcp.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# CodeBuddy (Tencent Cloud)
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/mcp_settings.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Continue
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.continue/config.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Cline / Roo-Cline (VSCode extension)
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/cline_mcp_settings.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Windsurf (Codeium)
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/mcp_config.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# VS Code Copilot (workspace-level)
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.vscode/mcp.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Zed editor
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.config/zed/settings.json'
+    matchers:
+      - body~="^\s*\{"
+
+# ──────────────────────────────────────────────
+# Goose (Block Inc.) — YAML format
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.config/goose/config.yaml'
+    matchers:
+      - body~="(?m)^\w+\s*:"
+
+# ──────────────────────────────────────────────
+# Generic .env with AI API keys
+# ──────────────────────────────────────────────
+  - method: GET
+    path: '/.env'
+    matchers:
+      - body~="(OPENAI_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|OPENROUTER_API_KEY|DEEPSEEK_API_KEY|HUNYUAN_API_KEY)\s*=\s*[A-Za-z0-9_\-]{16,}"

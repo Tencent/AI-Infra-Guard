@@ -1,0 +1,13 @@
+info:
+  name: nvidia-nim
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: NVIDIA NIM 推理微服务，提供企业级 AI 模型部署与推理能力。
+  metadata:
+    product: nvidia-nim
+    vendor: nvidia
+http:
+  - method: GET
+    path: '/v1/metadata'
+    matchers:
+      - body="\"modelInfo\""

@@ -7,5 +7,6 @@
 | `edgeone-clawscan` | 扫 OpenClaw 安全 | <https://clawhub.ai/aigsec/edgeone-clawscan> | [`skills/edgeone-clawscan/`](./edgeone-clawscan/) |
 | `edgeone-skill-scanner` | 扫 skill 安全 | <https://clawhub.ai/aigsec/edgeone-skill-scanner> | [`skills/edgeone-skill-scanner/`](./edgeone-skill-scanner/) |
 | `aig-scanner` | 调用 A.I.G 做扫描 | <https://clawhub.ai/aigsec/aig-scanner> | [`skills/aig-scanner/`](./aig-scanner/) |
+| `aig-agent-redteam` | 全方位 Agent 红队安全演习 | <https://github.com/Tencent/AI-Infra-Guard> | [`skills/aig-agent-redteam/`](./aig-agent-redteam/) |
 
 每个 skill 目录内都包含对应的 `SKILL.md`，以及需要的 README 或脚本文件。

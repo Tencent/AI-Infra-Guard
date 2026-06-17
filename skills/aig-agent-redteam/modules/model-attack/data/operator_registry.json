@@ -1,0 +1,308 @@
+{
+  "schema": "aig-agent-redteam.model-operator-registry.v1",
+  "last_updated": "2026-05-28",
+  "single_turn": {
+    "raw": {
+      "family": "baseline",
+      "intent": "原始 prompt 直问，作为对照基线",
+      "applies_to": [
+        "all"
+      ],
+      "combo_with": [],
+      "conflicts_with": [
+        "roleplay_dan",
+        "system_override",
+        "encoding_base64"
+      ],
+      "default_priority": 10
+    },
+    "roleplay_dan": {
+      "family": "roleplay",
+      "intent": "DAN/AIM/STAN 等无策略人格",
+      "applies_to": [
+        "content",
+        "info"
+      ],
+      "combo_with": [
+        "encoding_base64",
+        "emotional_manipulation"
+      ],
+      "conflicts_with": [
+        "raw"
+      ],
+      "default_priority": 80
+    },
+    "encoding_base64": {
+      "family": "encoding",
+      "intent": "Base64 编码包装 goal 绕过关键词过滤",
+      "applies_to": [
+        "content",
+        "info",
+        "filter_bypass"
+      ],
+      "combo_with": [
+        "roleplay_dan",
+        "system_override"
+      ],
+      "conflicts_with": [],
+      "default_priority": 60
+    },
+    "system_override": {
+      "family": "system_override",
+      "intent": "伪造 system 标签覆盖原系统提示",
+      "applies_to": [
+        "all"
+      ],
+      "combo_with": [
+        "encoding_base64",
+        "synthetic_context_injection"
+      ],
+      "conflicts_with": [
+        "raw"
+      ],
+      "default_priority": 70
+    },
+    "prompt_injection": {
+      "family": "injection",
+      "intent": "经典 prompt 注入：忽略前面指令",
+      "applies_to": [
+        "all"
+      ],
+      "combo_with": [
+        "encoding_base64"
+      ],
+      "conflicts_with": [
+        "raw"
+      ],
+      "default_priority": 65
+    },
+    "synthetic_context_injection": {
+      "family": "injection",
+      "intent": "构造合成多轮对话上下文劫持",
+      "applies_to": [
+        "info",
+        "content"
+      ],
+      "combo_with": [
+        "roleplay_dan"
+      ],
+      "conflicts_with": [],
+      "default_priority": 75
+    },
+    "composition_of_principles": {
+      "family": "semantic",
+      "intent": "原则组合利用 helpfulness 偏好",
+      "applies_to": [
+        "content",
+        "high_defense"
+      ],
+      "combo_with": [
+        "math_problem"
+      ],
+      "conflicts_with": [],
+      "default_priority": 70
+    },
+    "homoglyph": {
+      "family": "encoding",
+      "intent": "Unicode 同形字符替换绕过关键词过滤",
+      "applies_to": [
+        "filter_bypass"
+      ],
+      "combo_with": [
+        "roleplay_dan"
+      ],
+      "conflicts_with": [],
+      "default_priority": 50
+    },
+    "leetspeak": {
+      "family": "encoding",
+      "intent": "1337 字符替换绕过过滤",
+      "applies_to": [
+        "filter_bypass"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 40
+    },
+    "stego_zero_width": {
+      "family": "stego",
+      "intent": "零宽 Unicode 隐写绕过显式过滤",
+      "applies_to": [
+        "filter_bypass"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 55
+    },
+    "ascii_smuggling": {
+      "family": "stego",
+      "intent": "ASCII smuggling Unicode tag chars",
+      "applies_to": [
+        "filter_bypass"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 55
+    },
+    "emotional_manipulation": {
+      "family": "emotion",
+      "intent": "情感操控（同情/紧迫感）",
+      "applies_to": [
+        "content",
+        "info"
+      ],
+      "combo_with": [
+        "roleplay_dan",
+        "grandma"
+      ],
+      "conflicts_with": [],
+      "default_priority": 60
+    },
+    "grandma": {
+      "family": "emotion",
+      "intent": "祖母临终请求等温情场景包装",
+      "applies_to": [
+        "content",
+        "info"
+      ],
+      "combo_with": [
+        "emotional_manipulation"
+      ],
+      "conflicts_with": [],
+      "default_priority": 60
+    },
+    "policy_forgery": {
+      "family": "authority",
+      "intent": "伪造企业/合规政策授权",
+      "applies_to": [
+        "permission",
+        "high_defense"
+      ],
+      "combo_with": [
+        "authorized_user"
+      ],
+      "conflicts_with": [],
+      "default_priority": 65
+    },
+    "authorized_user": {
+      "family": "authority",
+      "intent": "声称授权用户身份",
+      "applies_to": [
+        "permission"
+      ],
+      "combo_with": [
+        "policy_forgery"
+      ],
+      "conflicts_with": [],
+      "default_priority": 50
+    },
+    "code_obfuscation": {
+      "family": "puzzle_shell",
+      "intent": "把 goal 包装成代码补全/调试场景",
+      "applies_to": [
+        "content",
+        "info",
+        "filter_bypass"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 60
+    },
+    "math_problem": {
+      "family": "puzzle_shell",
+      "intent": "把 goal 包装成数学题/解谜",
+      "applies_to": [
+        "content"
+      ],
+      "combo_with": [
+        "composition_of_principles"
+      ],
+      "conflicts_with": [],
+      "default_priority": 55
+    },
+    "pap_persuasion": {
+      "family": "semantic",
+      "intent": "PAP 说服策略（逻辑诉求/情感诉求/权威诉求）",
+      "applies_to": [
+        "content",
+        "high_defense"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 65
+    },
+    "multilingual": {
+      "family": "encoding",
+      "intent": "翻译为低资源语言绕过过滤",
+      "applies_to": [
+        "filter_bypass"
+      ],
+      "combo_with": [],
+      "conflicts_with": [],
+      "default_priority": 45
+    },
+    "eni_lime": {
+      "family": "ssrt",
+      "intent": "人格锚定 + 情感操控（高防御目标）",
+      "applies_to": [
+        "high_defense"
+      ],
+      "combo_with": [
+        "thinking_hijack"
+      ],
+      "conflicts_with": [],
+      "default_priority": 85
+    }
+  },
+  "multi_turn": {
+    "crescendo": {
+      "family": "multi_turn",
+      "intent": "线性升温：从无害问题逐步引导到目标",
+      "applies_to": [
+        "content",
+        "info",
+        "medium_defense"
+      ],
+      "default_rounds": 8,
+      "default_priority": 75
+    },
+    "tap": {
+      "family": "multi_turn",
+      "intent": "Tree-of-Attacks-with-Pruning 树搜索",
+      "applies_to": [
+        "all"
+      ],
+      "default_rounds": 12,
+      "default_priority": 70
+    },
+    "goat": {
+      "family": "multi_turn",
+      "intent": "Goal-oriented Attacker 目标导向多轮",
+      "applies_to": [
+        "high_defense"
+      ],
+      "default_rounds": 10,
+      "default_priority": 80
+    },
+    "many_shot": {
+      "family": "multi_turn",
+      "intent": "Many-shot in-context learning（256+ 示例）",
+      "applies_to": [
+        "large_context"
+      ],
+      "default_rounds": 1,
+      "default_priority": 60
+    }
+  },
+  "side_channel": {
+    "contrast_inference": {
+      "family": "side_channel",
+      "intent": "拒答内容差异推理（让模型告诉你它'不会'什么）",
+      "applies_to": [
+        "hard_boundary"
+      ],
+      "default_priority": 50,
+      "path": "operators/side_channel/contrast_inference.md"
+    }
+  }
+}
