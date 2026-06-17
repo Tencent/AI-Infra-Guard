@@ -111,3 +111,6 @@
 | JBB-Behaviors | Chao等 | [HuggingFace](https://huggingface.co/datasets/JailbreakBench/JBB-Behaviors) |
 | JADE 3.0 | 复旦白泽智能 | [Github](https://github.com/whitzard-ai/jade-db/tree/main/jade-db-v3.0) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
+| AdvBench | Andy Zou | [Github](https://github.com/llm-attacks/llm-attacks) |
+| CNSafe | Zonghao Ying | [HuggingFace](https://huggingface.co/datasets/Zonghao2025/CNSafe) |
+| SafeBench | Zonghao Ying | [HuggingFace](https://huggingface.co/datasets/Zonghao2025/safebench/) |
