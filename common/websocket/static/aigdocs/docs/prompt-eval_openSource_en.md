@@ -111,3 +111,6 @@ We express our sincere gratitude to the research teams and communities that cont
 | JBB-Behaviors | Chao et al. | [HuggingFace](https://huggingface.co/datasets/JailbreakBench/JBB-Behaviors) |
 | JADE 3.0 | Fudan Baize Intelligence | [Github](https://github.com/whitzard-ai/jade-db/tree/main/jade-db-v3.0) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
+| AdvBench | Andy Zou | [Github](https://github.com/llm-attacks/llm-attacks) |
+| CNSafe | Zonghao Ying | [HuggingFace](https://huggingface.co/datasets/Zonghao2025/CNSafe) |
+| SafeBench | Zonghao Ying | [HuggingFace](https://huggingface.co/datasets/Zonghao2025/safebench/) |
