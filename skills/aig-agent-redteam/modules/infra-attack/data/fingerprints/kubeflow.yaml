@@ -1,0 +1,20 @@
+info:
+  name: kubeflow
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个开源平台，简化在Kubernetes上部署和管理机器学习工作流，覆盖ML生命周期各阶段。
+  metadata:
+    product: kubeflow
+    vendor: kubeflow
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Kubeflow Central Dashboard</title>"
+version:  
+  - method: GET  
+    path: '/api/workgroup/env-info'  
+    extractor:  
+      part: body  
+      group: 1  
+      regex: '"kubeflowVersion":"([^"]+)"'

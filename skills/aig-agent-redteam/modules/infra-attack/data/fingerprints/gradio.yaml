@@ -1,0 +1,20 @@
+info:
+  name: gradio
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个开源Python库，用于创建共享和交互机器学习模型的网页界面。
+  metadata:
+    product: gradio
+    vendor: gradio
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<script>window.gradio_config = {" || body="document.getElementsByTagName(\"gradio-app\");"
+version:
+  - method: GET
+    path: '/'
+    extractor:
+      part: body
+      group: 1
+      regex: window.gradio_config = {"version":"(\d+\.\d+\.?\d+?)"

@@ -1,0 +1,20 @@
+info:
+  name: dify
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: dify
+    vendor: dify
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Dify</title>" || icon="97378986"
+      - body="content=\"Dify"
+version:
+  - method: GET
+    path: '/console/api/version'
+    extractor:
+      part: header
+      group: 1
+      regex: 'x-version:\s*(\d+\.\d+\.?\d+?)'

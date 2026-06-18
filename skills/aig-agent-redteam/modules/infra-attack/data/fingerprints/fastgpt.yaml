@@ -1,0 +1,13 @@
+info:
+  name: fastgpt
+  author: A.I.G bot
+  severity: info
+  desc: FastGPT is an open-source AI Agent building platform based on LLMs, offering knowledge base Q&A, visual workflow orchestration, and RAG capabilities.
+  metadata:
+    product: fastgpt
+    vendor: labring
+http:
+  - method: GET
+    path: '/login'
+    matchers:
+      - body="<title>FastGPT</title>"

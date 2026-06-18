@@ -1,0 +1,20 @@
+info:
+  name: langfuse
+  author: 腾讯科恩实验室
+  severity: info
+  desc: 一个开源的可观测性和分析平台，专为由大型语言模型（LLM）驱动的应用而设计。
+  metadata:
+    product: langfuse
+    vendor: langfuse
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="alt=\"Langfuse Icon\"" || body="data-sentry-component=\"LangfuseIcon\""
+version:
+  - method: GET
+    path: '/api/trpc/public.checkUpdate'
+    extractor:
+      part: body
+      group: 1
+      regex: '"currentVersion":"v(\d+\.\d+\.\d+)"'

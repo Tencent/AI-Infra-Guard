@@ -1,0 +1,20 @@
+info:
+  name: comfyui
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个基于节点的图形界面，用于使用Stable Diffusion等扩散模型创建AI艺术。
+  metadata:
+    product: comfyanonymous
+    vendor: comfyui
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>ComfyUI</title>"
+version:
+  - method: GET
+    path: '/system_stats'
+    extractor:
+      part: body
+      group: 1
+      regex: '"comfyui_version":\s?"(.*?)"'

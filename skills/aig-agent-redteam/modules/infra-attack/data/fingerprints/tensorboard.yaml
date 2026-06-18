@@ -1,0 +1,12 @@
+info:
+  name: tensorboard
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: tensorboard
+    vendor: tensorboard
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="title>TensorBoard</title"

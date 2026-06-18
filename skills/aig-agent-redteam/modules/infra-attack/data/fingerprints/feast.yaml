@@ -1,0 +1,12 @@
+info:
+  name: feast
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: feast-webui
+    vendor: feast
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="/feast-favicon-300x300.png" && body="<title>Feast Feature Store</title>"

@@ -1,0 +1,12 @@
+info:
+  name: fastchat-webui
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: fastchat-webui
+    vendor: lm-sys
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="\"title\":\"Chat with Open Large Language Models\""

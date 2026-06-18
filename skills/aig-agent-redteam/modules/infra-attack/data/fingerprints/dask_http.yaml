@@ -1,0 +1,17 @@
+info:
+  name: dask
+  author: mada2aa
+  severity: info
+  desc: dask一个开源框架，用于扩展AI和Python应用，提供分布式计算和机器学习工作负载的统一方式。
+  metadata:
+    product: dashboard
+    vendor: dask
+http:
+  - method: GET
+    path: '/info/main/logs.html'
+    matchers:
+      - body="Scheduler at"
+  - method: GET
+    path: '/'
+    matchers:
+      - icon="1034154531"

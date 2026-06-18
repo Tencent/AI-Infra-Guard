@@ -1,0 +1,12 @@
+info:
+  name: LobeChat
+  author: 腾讯朱雀实验室
+  severity: info
+  metadata:
+    product: LobeChat
+    vendor: LobeChat
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>LobeChat</title>"

@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{REPORT_TITLE}}</title>
+  <style>
+    :root {
+      --ink: #17211c;
+      --muted: #637066;
+      --paper: #f4f1e8;
+      --panel: #fffdf6;
+      --line: #d8d1bf;
+      --line-strong: #a89f89;
+      --green: #167a4a;
+      --green-soft: #e5f2eb;
+      --red: #b8202f;
+      --red-soft: #fae7e8;
+      --amber: #a86800;
+      --amber-soft: #f8edcf;
+      --blue: #185f7d;
+      --blue-soft: #e3eef3;
+      --charcoal: #101713;
+      --code: #111815;
+      --code-ink: #e8f0e9;
+      --shadow: 0 18px 60px rgba(28, 35, 30, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 33, 28, .05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(23, 33, 28, .04) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.62;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 264px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      background: #111814;
+      color: #e8efe9;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: #26342b;
+      color: #b9f0cd;
+      font: 700 17px Georgia, serif;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font: 800 18px/1.25 "Avenir Next", "PingFang SC", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 0;
+      color: #b9c5bd;
+      font-size: 12px;
+    }
+
+    .brand a,
+    footer a,
+    .source-link {
+      color: #b9f0cd;
+      font-weight: 800;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(185, 240, 205, .45);
+    }
+
+    .brand a:hover,
+    footer a:hover,
+    .source-link:hover {
+      color: #ffffff;
+      border-bottom-color: #ffffff;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 22px;
+    }
+
+    nav a {
+      color: #dbe5dd;
+      text-decoration: none;
+      border: 1px solid transparent;
+      padding: 9px 10px;
+      font-size: 13px;
+      background: rgba(255,255,255,.03);
+    }
+
+    nav a:hover {
+      border-color: rgba(185, 240, 205, .5);
+      color: #ffffff;
+      background: rgba(185, 240, 205, .08);
+    }
+
+    .side-note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      color: #b9c5bd;
+      font-size: 12px;
+      background: rgba(255,255,255,.04);
+    }
+
+    main {
+      min-width: 0;
+      padding: 28px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      color: #f7fbf8;
+      background:
+        linear-gradient(135deg, rgba(17,24,20,.96), rgba(24,95,125,.9)),
+        radial-gradient(circle at 78% 14%, rgba(185,240,205,.3), transparent 34%);
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -20px -70px auto;
+      width: 320px;
+      height: 220px;
+      border: 1px solid rgba(255,255,255,.18);
+      transform: rotate(-12deg);
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 18px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      font-size: 12px;
+      color: #dce9e1;
+    }
+
+    .source-ribbon {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 10px 12px;
+      border: 1px solid rgba(185, 240, 205, .34);
+      background: rgba(185, 240, 205, .08);
+      color: #dce9e1;
+      font-size: 13px;
+    }
+
+    .source-ribbon strong {
+      color: #ffffff;
+    }
+
+    .hero h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 920px;
+      margin: 16px 0 10px;
+      font: 850 34px/1.16 "Avenir Next", "PingFang SC", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0;
+      color: #d8e2dc;
+      font-size: 14px;
+    }
+
+    .meta-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .meta {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+    }
+
+    .meta b {
+      display: block;
+      color: #ffffff;
+      font-size: 18px;
+    }
+
+    .meta span {
+      color: #c5d1c9;
+      font-size: 12px;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: 22px;
+      background: rgba(255,253,246,.92);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(28,35,30,.06);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font: 800 22px/1.2 "Avenir Next", "PingFang SC", sans-serif;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 620px;
+    }
+
+    .score-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .score-card {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      background: #fbf6e9;
+      border: 1px solid var(--line-strong);
+    }
+
+    .gauge {
+      width: 156px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--amber) 0 {{SCORE}}%, #ded6c2 {{SCORE}}% 100%);
+    }
+
+    .gauge-inner {
+      width: 116px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .gauge-inner strong {
+      display: block;
+      font: 900 38px/1 Georgia, serif;
+      color: var(--ink);
+    }
+
+    .gauge-inner span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 48px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .track {
+      height: 12px;
+      background: #e7dfcc;
+      border: 1px solid #d5cab3;
+    }
+
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .matrix th,
+    .matrix td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .matrix th {
+      color: #2d382f;
+      background: #ebe5d6;
+      font-weight: 800;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .profile-card {
+      min-height: 132px;
+      border: 1px solid var(--line);
+      background: #fffdf6;
+      padding: 12px;
+    }
+
+    .profile-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #26342b;
+    }
+
+    .profile-card p,
+    .profile-card ul {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .profile-card ul {
+      padding-left: 18px;
+    }
+
+    .defense-grid,
+    .remediation-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .defense-card,
+    .remediation-card {
+      border: 1px solid var(--line);
+      background: #fffdf6;
+      padding: 14px;
+    }
+
+    .defense-card h4,
+    .remediation-card h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #26342b;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .detail-list b {
+      color: var(--ink);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 78px;
+      padding: 3px 8px;
+      border: 1px solid currentColor;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .critical { color: var(--red); background: var(--red-soft); }
+    .high { color: #92411a; background: #f6e3d2; }
+    .medium { color: var(--amber); background: var(--amber-soft); }
+    .info { color: var(--blue); background: var(--blue-soft); }
+    .resisted { color: var(--green); background: var(--green-soft); }
+
+    .finding {
+      border: 1px solid var(--line-strong);
+      background: #fffbf0;
+      margin-top: 16px;
+    }
+
+    .finding-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f3ecda;
+    }
+
+    .finding-head h4 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .finding-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .finding-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .note-box {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .note-box h5 {
+      margin: 0 0 7px;
+      font-size: 13px;
+      color: #28362d;
+    }
+
+    .note-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .conversation {
+      display: grid;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .round {
+      border: 1px solid var(--line-strong);
+      background: #fdf8ec;
+    }
+
+    .round-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #202b24;
+      color: #eef6ef;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .round-body {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .evidence-block {
+      border: 1px solid #314139;
+      background: var(--code);
+      color: var(--code-ink);
+    }
+
+    .evidence-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      color: #c8d6ce;
+      background: rgba(255,255,255,.04);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      max-height: 420px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 12.5px/1.58 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .decision {
+      border-left: 4px solid var(--blue);
+      background: #edf4f6;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #314048;
+    }
+
+    .remediation-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .remediation-list li {
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #fffdf6;
+    }
+
+    footer {
+      color: var(--muted);
+      padding: 22px 0 6px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; }
+      .side-note { position: static; margin-top: 18px; }
+      .meta-grid, .score-layout, .two-col, .profile-grid { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">AIG</div>
+        <h1>{{REPORT_SHORT_TITLE}}</h1>
+        <p>Generated with <a href="https://github.com/tencent/AI-Infra-Guard" target="_blank" rel="noopener noreferrer">tencent/AI-Infra-Guard</a></p>
+      </div>
+      <nav aria-label="报告导航">
+        <a href="#summary">摘要</a>
+        <a href="#score">评分总览</a>
+        <a href="#profile">Agent 画像</a>
+        <a href="#dynamic-stats">动态统计</a>
+        <a href="#attempts">测试结果</a>
+        <a href="#findings">安全发现</a>
+        <a href="#defense">正面防御证据</a>
+        <a href="#remediation">修复建议</a>
+      </nav>
+      <div class="side-note">
+        {{REPORT_SIDE_NOTE}}
+      </div>
+    </aside>
+
+    <main>
+      <header class="hero" id="summary">
+        <span class="eyebrow">AI Agent Security Exercise Preview</span>
+        <h2>{{REPORT_TITLE}}</h2>
+        <p>{{EXECUTIVE_SUMMARY}}</p>
+        <div class="source-ribbon">
+          <strong>AIG 数据源</strong>
+          <span>{{AIG_DATA_SOURCE_NOTE}}</span>
+        </div>
+        <div class="meta-grid">
+          <div class="meta"><b>{{GRADE}}</b><span>总体等级</span></div>
+          <div class="meta"><b>{{SCORE}}/100</b><span>综合评分</span></div>
+          <div class="meta"><b>{{RISK_HYPOTHESIS_COUNT}}</b><span>风险假设</span></div>
+          <div class="meta"><b>{{COMPROMISED_COUNT}}/{{TOTAL_ATTEMPT_COUNT}}</b><span>compromised / total</span></div>
+        </div>
+      </header>
+
+      <section id="score">
+        <div class="section-title">
+          <h3>评分总览</h3>
+          <p>评分用于表达当前上线风险趋势，不替代逐条 finding 的业务影响判断。</p>
+        </div>
+        <div class="score-layout">
+          <div class="score-card">
+            <div class="gauge" aria-label="综合评分 68">
+              <div class="gauge-inner">
+                <strong>{{SCORE}}</strong>
+                <span>Grade {{GRADE}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="bars">
+            {{SCORE_BARS_HTML}}
+          </div>
+        </div>
+      </section>
+
+      <section id="profile">
+        <div class="section-title">
+          <h3>Agent 画像</h3>
+          <p>{{AGENT_PROFILE_SUMMARY}}</p>
+        </div>
+        <div class="profile-grid">
+          {{AGENT_PROFILE_CARDS_HTML}}
+        </div>
+      </section>
+
+      <section id="dynamic-stats">
+        <div class="section-title">
+          <h3>动态测试统计</h3>
+          <p>{{DYNAMIC_TEST_SUMMARY}}</p>
+        </div>
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>统计项</th>
+              <th>数量</th>
+              <th>来源或说明</th>
+              <th>是否满足要求</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>发送 payload 总数</td>
+              <td>{{PAYLOAD_SENT_COUNT}}</td>
+              <td>{{PAYLOAD_SENT_SOURCE_NOTE}}</td>
+              <td>{{PAYLOAD_SENT_REQUIREMENT_STATUS}}</td>
+            </tr>
+            <tr>
+              <td>数据集原始 payload 数</td>
+              <td>{{DATASET_PAYLOAD_COUNT}}</td>
+              <td>{{DATASET_PAYLOAD_SOURCE_NOTE}}</td>
+              <td>{{DATASET_PAYLOAD_REQUIREMENT_STATUS}}</td>
+            </tr>
+            <tr>
+              <td>算子变异 payload 数</td>
+              <td>{{MUTATED_PAYLOAD_COUNT}}</td>
+              <td>{{MUTATION_OPERATOR_NOTE}}</td>
+              <td>{{MUTATION_REQUIREMENT_STATUS}}</td>
+            </tr>
+            <tr>
+              <td>Agent 手工构造 payload 数</td>
+              <td>{{MANUAL_PAYLOAD_COUNT}}</td>
+              <td>{{MANUAL_PAYLOAD_SOURCE_NOTE}}</td>
+              <td>{{MANUAL_PAYLOAD_REQUIREMENT_STATUS}}</td>
+            </tr>
+            <tr>
+              <td>使用变异算子数量</td>
+              <td>{{MUTATION_OPERATOR_COUNT}}</td>
+              <td>{{MUTATION_OPERATOR_LIST}}</td>
+              <td>{{MUTATION_OPERATOR_REQUIREMENT_STATUS}}</td>
+            </tr>
+            <tr>
+              <td>覆盖场景数</td>
+              <td>{{DYNAMIC_SCENARIO_COUNT}}</td>
+              <td>{{DYNAMIC_SCENARIO_NOTE}}</td>
+              <td>{{DYNAMIC_SCENARIO_STATUS}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="attempts">
+        <div class="section-title">
+          <h3>我们做了哪些尝试</h3>
+          <p>{{ATTEMPTS_SUMMARY}}</p>
+        </div>
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>我们尝试了什么</th>
+              <th>为什么要测</th>
+              <th>结果</th>
+              <th>说明什么</th>
+              <th>后续动作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ATTEMPT_ROWS_HTML}}
+          </tbody>
+        </table>
+      </section>
+
+      <section id="findings">
+        <div class="section-title">
+          <h3>安全发现</h3>
+          <p>{{FINDINGS_SUMMARY}}</p>
+        </div>
+        {{FINDINGS_HTML}}
+      </section>
+
+      <section id="defense">
+        <div class="section-title">
+          <h3>正面防御证据</h3>
+          <p>{{DEFENSE_SUMMARY}}</p>
+        </div>
+        <div class="defense-grid">
+          {{DEFENSE_CARDS_HTML}}
+        </div>
+      </section>
+
+      <section id="remediation">
+        <div class="section-title">
+          <h3>修复建议</h3>
+          <p>{{REMEDIATION_SUMMARY}}</p>
+        </div>
+        <div class="remediation-grid">
+          {{REMEDIATION_CARDS_HTML}}
+        </div>
+      </section>
+
+      <footer>
+        Detection Method: <a href="https://github.com/tencent/AI-Infra-Guard" target="_blank" rel="noopener noreferrer">tencent/AI-Infra-Guard</a> data + aig-agent-redteam first-principles workflow. Run id: {{RUN_ID}}.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
