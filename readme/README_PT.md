@@ -60,6 +60,7 @@
 
 ## 🚀 Novidades
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Nova skill `aig-agent-redteam` para avaliação abrangente de red team de agentes IA; 9 novos métodos de ataque jailbreak single-turn adicionados ao Prompt Security.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Novo endpoint de API para verificação de versão; pontuação de segurança alterada para modelo de dedução absoluta para avaliação de riscos mais clara.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de impressões digitais expandida: 39 novas impressões AI Web adicionadas, 18 existentes aprimoradas.
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — Novos endossos de confiança: Universidade de Wuhan e Unicom Digital Tech.

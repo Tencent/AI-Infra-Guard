@@ -58,6 +58,7 @@
 
 ## 🚀 最新动态
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — 新增 `aig-agent-redteam` Skill，支持全面的 AI Agent 红队评估；Prompt 安全模块新增 9 种单轮越笼攻击方法。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 指纹库大幅扩充：新增 39 个 AI Web 指纹，增强 18 个现有指纹。
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 新增信任背书：武汉大学、联通数字科技。

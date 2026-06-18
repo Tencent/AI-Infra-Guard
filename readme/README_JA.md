@@ -60,6 +60,7 @@
 
 ## 🚀 最新情報
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — AI エージェント総合レッドチーム評価向け新 `aig-agent-redteam` スキルを追加；Prompt セキュリティに 9 種のシングルターン越齄攻撃手法を新規追加。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。
 - **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 新規採用組織：武漢大学、聯通デジタルテクノロジー。
