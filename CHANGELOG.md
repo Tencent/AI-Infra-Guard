@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.14] - 2026-06-18
+
+### Added
+- **Skills**: Add aig-agent-redteam skill for comprehensive Agent security assessment (5eb87a6)
+- **Prompt Security**: Add 9 single-turn jailbreak attack methods: PrefillAttack, ICA, PastTense, Overload, Jailbroken, FlipAttack, DeepInception, CodeChameleon, JAM (d48e508)
+- **Eval**: Add jailbreak evaluation datasets: AdvBench, CNSafe, SafeBench (e0ce12e)
+
+### Changed
+- **Dispatch**: Implement round-robin agent selection for load balancing (Closes #407) (cb0fa37)
+- **Docs**: Add AdvBench, CNSafe, SafeBench to dataset credits in prompt-eval docs (52b9737)
+- **Docs**: Update DeepTeam repo URL to confident-ai/deepteam (8743b1f)
+- **Docs**: Add Nanyang Technological University logo to README (b800978)
+- **Docs**: Update What's New to v4.1.13 across all README languages (bb73db9)
+
+### Contributors
+Special thanks to @boyhack, @Elwood-Zonghao-Ying, @aigsec, @aigdocs[bot], @aig-doc-bot
+
+---
+
 ## [v4.1.13] - 2026-06-11
 
 ### Added
