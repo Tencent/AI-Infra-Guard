@@ -16,16 +16,25 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
+from .code_chameleon import CodeChameleon
 from .context_poisoning import ContextPoisoning
+from .deep_inception import DeepInception
 from .encoding import *
 from .equa_code import EquaCode
+from .flip_attack import FlipAttack
 from .goal_redirection import GoalRedirection
 from .gray_box import GrayBox
+from .ica import ICA
 from .icrt_jailbreak import ICRTJailbreak
 from .input_bypass import InputBypass
+from .jailbroken import Jailbroken
+from .jam import JAM
+from .overload import Overload
 from .math_problem import MathProblem
 from .multilingual import Multilingual
+from .past_tense import PastTense
 from .permission_escalation import PermissionEscalation
+from .prefill import PrefillAttack
 from .promisqroute import PROMISQROUTE
 from .prompt_injection import PromptInjection
 from .prompt_probing import PromptProbing
