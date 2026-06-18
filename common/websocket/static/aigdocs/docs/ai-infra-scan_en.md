@@ -113,7 +113,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | wallos                  | 1                   | Low         |
 |                            | praisonai               | 2                   | Medium      |
 |                            | text-generation-webui   | 1                   | Medium      |
-|                            | openclaw                | 628                 | Medium-High |
+|                            | openclaw                | 655                 | Medium-High |
 |                            | upsonic                 | 1                   | Medium      |
 |                            | instructlab             | 1                   | Low         |
 |                            | lmdeploy                | 1                   | Low         |
