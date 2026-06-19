@@ -272,12 +272,21 @@ python cli_run.py --show-tool-params PromptInjection
 | Emoji | Emoji substitution | Text obfuscation |
 | GrayBox | Gray box attacks | Partial information attacks |
 | Homomorphic | Homomorphic encoding | Semantic preservation attacks |
+| CodeChameleon | Code-based disguise attack | Code structure obfuscation |
+| DeepInception | Deep inception scenario attack | Nested scenario jailbreaking |
+| FlipAttack | Character flip/reversal attack | Encoding inversion attacks |
+| ICA | In-context attack | Context manipulation |
 | ICRTJailbreak | ICRT jailbreak attacks | Advanced jailbreaking techniques |
+| JAM | Jailbreak-as-a-Method attack | Systematic jailbreak attempts |
+| Jailbroken | Pre-built jailbreak templates | Classic jailbreak patterns |
 | Leetspeak | Character substitution encoding | Classic obfuscation attacks |
 | MathProblem | Mathematical problem disguise | Logical disguise attacks |
 | Morse | Morse code | Encoding obfuscation |
 | Multilingual | Multilingual attacks | Cross-language vulnerabilities |
 | Nato | NATO alphabet encoding | Military encoding obfuscation |
+| Overload | Context overload attack | Information overload attacks |
+| PastTense | Past tense rephrasing attack | Temporal framing attacks |
+| PrefillAttack | Prefill-based attack | Response prefill manipulation |
 | PromptInjection | Prompt injection | Instruction injection attacks |
 | PromptProbing | Prompt probing | System information probing |
 | Raw | Raw attacks | Direct attacks |
