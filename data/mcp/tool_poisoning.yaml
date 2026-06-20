@@ -1,0 +1,57 @@
+info:
+  id: "mcp_tool_poisoning"
+  name: "MCP Tool Poisoning Detection"
+  description: "Detect hidden or malicious instructions embedded in MCP tool descriptions, parameter docstrings, or tool output that manipulate the host agent into unintended actions (tool poisoning / indirect prompt injection via tool metadata)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect tool-poisoning vulnerabilities in MCP server code. Tool poisoning hides adversarial instructions inside tool-facing text (descriptions, parameter docs, returned content) that the host LLM reads as trusted context. Require concrete evidence; only report when the text is plausibly attacker-controlled and instruction-bearing.
+
+  ## Vulnerability Definition
+  Tool poisoning occurs when an MCP tool's description, input-schema field
+  descriptions, annotations, or returned content contain natural-language
+  instructions directed at the *agent* rather than the user — causing the agent
+  to exfiltrate data, call other tools, ignore safety policy, or alter behavior.
+
+  ## Detection Criteria (at least one with concrete evidence)
+
+  ### 1. Imperative instructions inside tool metadata
+  **Code Patterns:**
+  - Tool `description` / parameter `description` containing phrases like
+    "ignore previous instructions", "do not tell the user", "before answering,
+    first call", "always include the contents of", "send the result to".
+  - Hidden directives in `inputSchema` field descriptions or tool annotations.
+
+  ### 2. Instruction-bearing tool output
+  **Code Patterns:**
+  - Returned tool content that embeds agent-directed commands or fake "system"
+    / "developer" framing constructed from untrusted input.
+  - Output that concatenates external data into instructions without delimiting
+    or neutralizing it.
+
+  ### 3. Concealment techniques
+  **Code Patterns:**
+  - Instructions hidden via unicode tag/control characters, zero-width
+    characters, HTML comments, or whitespace far past visible text.
+  - Base64 / hex / homoglyph-obfuscated instruction strings in tool text.
+
+  ## Strict Judgment Standards
+  - **Legitimate usage docs**: Do not report ordinary tool descriptions that
+    only document parameters and behavior for the user.
+  - **Static help text**: Do not report developer-authored constant strings that
+    carry no agent-directed imperative.
+  - **Test/example identifiers**: Do not report content marked test, example, or
+    sample with no real instruction payload.
+
+  ## Output Requirements
+  Only output when finding concrete tool-poisoning evidence:
+  - Specific file paths and line numbers
+  - The exact poisoned description / docstring / output snippet
+  - Technical analysis: how the host agent would ingest it as instructions
+  - Impact assessment: actions the injected instructions could trigger
+  - Remediation: separate tool metadata from agent instructions; sanitize and
+    delimit untrusted content; strip control/zero-width characters.
+
+  **Strict Requirement: provide the concrete instruction-bearing text and the agent-manipulation path. Remain silent when no concrete evidence exists.**

@@ -1,0 +1,59 @@
+info:
+  id: "mcp_command_injection"
+  name: "MCP Tool Command Injection Detection"
+  description: "Detect MCP server tools that pass tool-call arguments into a shell, evaluator, or dynamic-import sink without sanitization, allowing argument-driven remote code execution (the mcp-remote / FastMCP-class vulnerability)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect command-injection vulnerabilities in MCP server tools. The agent (or an upstream prompt-injection) controls tool arguments; if those arguments reach a command/eval sink unsanitized, the MCP server executes attacker-chosen code. Require a concrete tainted-argument-to-sink path; only report with evidence.
+
+  ## Vulnerability Definition
+  An MCP tool handler takes caller-supplied arguments (from `inputSchema`
+  parameters) and routes them into a code-execution sink — OS shell, `eval`,
+  dynamic import, template/format execution — without validation or safe APIs.
+  Because tool arguments are model/attacker-influenced, this is argument-driven
+  RCE on the MCP host.
+
+  ## Detection Criteria (require tainted argument -> sink)
+
+  ### 1. Shell execution of arguments
+  **Code Patterns:**
+  - `child_process.exec` / `execSync` / `spawn(..., {shell:true})`,
+    `os.system`, `subprocess.*(..., shell=True)`, `Popen` with a string built
+    from tool arguments.
+  - Interpreter flags fed argument data: `node -e`, `python -c`, `bash -c`,
+    `npx -c`, `sh -c` with interpolated parameters.
+
+  ### 2. Dynamic evaluation
+  **Code Patterns:**
+  - `eval` / `Function(...)` / `vm.runIn*` / `exec()` / `compile()` on a value
+    derived from tool input.
+  - Dynamic `require()` / `import()` / module load from an argument-controlled
+    path or name.
+
+  ### 3. Unsafe templating / path
+  **Code Patterns:**
+  - Argument concatenated into a command string with no allowlist/escaping.
+  - Path arguments reaching file or process APIs without canonicalization.
+
+  ## Strict Judgment Standards
+  - **Constant commands**: Do not report fixed commands with no argument
+    interpolation.
+  - **Safe APIs**: Do not report `execFile` / `spawn` with an argv array and
+    `shell:false`, or parameterized library calls.
+  - **Validated input**: Do not report arguments passed through a strict
+    allowlist / schema-enforced enum before the sink.
+  - **Test/example**: Do not report sample handlers with hardcoded test input.
+
+  ## Output Requirements
+  Only output when finding a concrete injection path:
+  - Specific file paths and line numbers for the tainted argument and the sink
+  - The tool parameter name and the exact sink call
+  - Technical analysis: how a crafted argument achieves execution
+  - Impact assessment: RCE scope on the MCP host
+  - Remediation: use argv-array execution with `shell:false`, drop eval/dynamic
+    import, enforce schema allowlists, escape/validate before any sink.
+
+  **Strict Requirement: provide the tainted-argument source and the execution sink with line numbers. Remain silent when no concrete evidence exists.**
