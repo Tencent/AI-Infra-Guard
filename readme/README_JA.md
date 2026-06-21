@@ -60,8 +60,10 @@
 
 ## 🚀 最新情報
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。
+- **2026-06-04** · [v4.1.11](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11) — 新規採用組織：武漢大学、联通デジタルテクノロジー。
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — カバレッジが68種AIコンポーネントに拡大（junoclaw、lollms、sglangを追加）；600件以上の新規CVEルール追加；Agent ScanがWebSocketプロバイダーをサポート。
 - **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security：26種の新規攻撃オペレーター（シングルターン20種 + マルチターン6種）；スキャンAgentに間接プロンプトインジェクション防御を追加。
 - **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — カバレッジが64種AIコンポーネントに拡大（InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABotを追加）；脆弱性DBの重複排除とクリーンアップ。
