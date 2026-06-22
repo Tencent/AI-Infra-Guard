@@ -60,6 +60,7 @@
 
 ## 🚀 새로운 소식
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9개 신규 싱글턴 공격 오퍼레이터 추가; Agent 종합 레드팀 평가를 위한 신규 `aig-agent-redteam` skill 추가.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 버전 확인 API 엔드포인트 신규 추가; 보안 점수를 절대 감점 모델로 전환하여 리스크 평가를 더욱 명확히 개선.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 지문 라이브러리 확장: AI Web 지문 39개 신규 추가, 기존 18개 강화.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 68개 AI 컴포넌트로 커버리지 확대(junoclaw, lollms, sglang 추가); 600개 이상의 신규 CVE 규칙 추가; Agent Scan에 WebSocket 프로바이더 지원.

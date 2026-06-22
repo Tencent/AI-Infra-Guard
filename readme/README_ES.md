@@ -60,6 +60,7 @@
 
 ## 🚀 Novedades
 
+- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 nuevos operadores de ataque single-turn; nueva skill `aig-agent-redteam` para evaluación red-team integral de Agentes.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nuevo endpoint API de verificación de versión; puntuación de seguridad cambiada a modelo de deducción absoluta para una evaluación de riesgos más clara.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de huellas digitales ampliada: 39 nuevas huellas AI Web añadidas, 18 existentes mejoradas.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Cobertura ampliada a 68 componentes de IA (añadidos junoclaw, lollms, sglang); 600+ nuevas reglas CVE; soporte de proveedor WebSocket para Agent Scan.
