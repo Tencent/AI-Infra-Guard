@@ -30,6 +30,7 @@ description: OWASP Top 10 for Agentic Applications 2026 (ASI) classification fra
 | `tool-abuse-detection` | Skill | ASI02, ASI05, ASI07 | ASI03 |
 | `indirect-injection-detection` | Skill | ASI01 | ASI06 |
 | `authorization-bypass-detection` | Skill | ASI03 | ASI09 |
+| `memory-rag-poisoning-detection` | Skill | ASI06 | ASI01, ASI04 |
 | Prompt Injection tests | Dialogue | ASI01, ASI06 | ASI09 |
 | Code Audit | Agent | ASI04, ASI05 | ASI10 |
 
