@@ -62,7 +62,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | vllm                    | 47                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 9                   | Medium      |
-|                            | llama-cpp               | 3                   | Low         |
+|                            | llama-cpp               | 9                   | Medium-High |
 |                            | llmstudio               | 1                   | Low         |
 |                            | ChatRTX                 | 1                   | Low         |
 |                            | kubeai                  | 1                   | High        |
