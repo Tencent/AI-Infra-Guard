@@ -122,7 +122,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | qnabot-on-aws           | 1                   | Low         |
 |                            | superagi                | 1                   | Low         |
 | **AI Agent Config Security** | AI-Agent-Config       | 1                   | High        |
-| **Total**                  |                         | **1300+**           |             |
+| **Total**                  |                         | **1600+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
