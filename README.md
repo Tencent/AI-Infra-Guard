@@ -58,6 +58,12 @@
 
 <br>
 
+## 📋 User Feedback Survey
+
+Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Survey](https://doc.weixin.qq.com/forms/AJEAIQdfAAoAFkA0QbdAFwCNcKSO0BFLf). Users who provide high-quality feedback and leave a valid email address will receive an exclusive Tencent souvenir gift.
+
+<br>
+
 ## 🚀 What's New
 
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 new single-turn jailbreak operators; new `aig-agent-redteam` skill for comprehensive Agent red-team assessment.

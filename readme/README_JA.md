@@ -58,6 +58,12 @@
 
 <br>
 
+## 📋 ユーザーフィードバックアンケート
+
+A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバックアンケート](https://doc.weixin.qq.com/forms/AJEAIQdfAAoAFkA0QbdAFwCNcKSO0BFLf)にご回答いただけると幸いです。高品質なフィードバックを提供し、有効なメールアドレスを残してくださった方には、Tencent特製記念品をお贈りします。
+
+<br>
+
 ## 🚀 最新情報
 
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。

@@ -58,6 +58,12 @@
 
 <br>
 
+## 📋 Benutzer-Feedback-Umfrage
+
+Helfen Sie uns, A.I.G zu verbessern! Bitte nehmen Sie sich 3-5 Minuten Zeit, um unsere [Benutzer-Feedback-Umfrage](https://doc.weixin.qq.com/forms/AJEAIQdfAAoAFkA0QbdAFwCNcKSO0BFLf) auszufüllen. Nutzer, die hochwertiges Feedback geben und eine gültige E-Mail-Adresse hinterlassen, erhalten ein exklusives Tencent-Geschenk.
+
+<br>
+
 ## 🚀 Neuigkeiten
 
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 neue Single-Turn-Angriffsoberatoren; neue `aig-agent-redteam` Skill für umfassende Agent Red-Team-Bewertung.

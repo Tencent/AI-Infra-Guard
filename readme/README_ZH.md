@@ -56,6 +56,12 @@
   </a>
 </p>
 
+## 📋 用户反馈问卷
+
+帮助我们改进 A.I.G！请花 3-5 分钟填写我们的[用户反馈调查问卷](https://doc.weixin.qq.com/forms/AJEAIQdfAAoAFkA0QbdAFwCNcKSO0BFLf)。提供高质量反馈并留下有效邮箱的用户，将收到鹅厂特色小礼品。
+
+<br>
+
 ## 🚀 最新动态
 
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
