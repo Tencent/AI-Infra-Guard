@@ -64,14 +64,22 @@
 
 ## 🚀 最新动态
 
-- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP 扫描新增 3 条威胁检测规则（工具投毒、凭证窃取、命令注入）；新增 6 条 llama.cpp CVE 规则；扫描配置中 `model.token` 现支持省略，自动回退到系统默认模型。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 指纹库大幅扩充：新增 39 个 AI Web 指纹，增强 18 个现有指纹。
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 覆盖扩展至 68 种 AI 组件（新增 junoclaw、lollms、sglang）；新增 600+ CVE 规则；Agent Scan 支持 WebSocket 接入方式。
+- **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security：新增 26 种攻击算子（20 种单轮 + 6 种多轮）；扫描 Agent 增强间接提示词注入防御。
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — 覆盖扩展至 64 种 AI 组件（新增 InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABot）；漏洞库去重与清理。
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — 覆盖扩展至 58 种 AI 组件（新增 FastGPT、Upsonic）；7 个组件漏洞库批量更新。
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 可检测暴露的 AI Agent 配置文件（13 种路径）；支持手动更新越狱数据集与漏洞库。
+- **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自签名证书的 HTTPS 模型端点现已支持。
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — 覆盖扩展至 55 种 AI 组件，新增 crewai、kubeai、lobehub。
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHub 上线三大 Skill（`edgeone-clawscan`、`edgeone-skill-scanner`、`aig-scanner`），支持手动停止任务。
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ 可检测 LiteLLM 供应链投毒（严重）；新增 Blinko、New-API 覆盖。
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw 漏洞库新增 281 条 CVE/GHSA 条目。
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — 发布 EdgeOne ClawScan（OpenClaw 安全体检）与 Agent-Scan 框架。
 
-
-👉 [更早版本](../CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)

@@ -242,9 +242,9 @@ MCP Server Scan is used to detect security vulnerabilities in MCP servers.
 #### Request Parameter Description
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| model | object | No | Model configuration; if omitted, falls back to system default model |
-| model.model | string | No | Model name, e.g., "gpt-4"; falls back to system default if omitted |
-| model.token | string | No | API key; falls back to system default if omitted |
+| model | object | Yes | Model configuration |
+| model.model | string | Yes | Model name, e.g., "gpt-4" |
+| model.token | string | Yes | API key |
 | model.base_url | string | No | Base URL, defaults to OpenAI API |
 | thread | integer | No | Concurrent thread count, default 4 |
 | language | string | No | Language code, e.g., "zh" |
@@ -526,9 +526,9 @@ Used to scan AI infra for security vulnerabilities and configuration issues.
 | target | array | Yes | List of target URLs to scan |
 | headers | object | No | Custom request headers |
 | timeout | integer | No | Request timeout (seconds), default 30 |
-| model | object | No | Model configuration for auxiliary analysis; if omitted, falls back to system default model |
-| model.model | string | No | Model name, e.g., "gpt-4"; falls back to system default if omitted |
-| model.token | string | No | API key; falls back to system default if omitted |
+| model | object | No | Model configuration for auxiliary analysis |
+| model.model | string | Yes | Model name, e.g., "gpt-4" |
+| model.token | string | Yes | API key |
 | model.base_url | string | No | Base URL, defaults to OpenAI API |
 
 #### Python Example
