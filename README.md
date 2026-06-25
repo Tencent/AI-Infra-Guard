@@ -71,6 +71,10 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — New version check API endpoint; security scoring switched to absolute deduction model for clearer risk assessment.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Fingerprint library expanded: 39 new AI Web fingerprints added, 18 existing fingerprints enhanced.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Coverage expanded to 68 AI components (added junoclaw, lollms, sglang); 600+ new CVE rules; WebSocket agent provider support for Agent Scan.
+
+<details>
+<summary>Earlier releases</summary>
+
 - **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26 new attack operators (20 single-turn + 6 multi-turn); scanning agents hardened against indirect prompt injection.
 - **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Coverage expanded to 64 AI components (6 new: InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot); vuln database deduplicated and cleaned.
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Coverage expanded to 58 AI components (added FastGPT, Upsonic); vuln database refreshed across 7 components.
@@ -81,6 +85,8 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Detects LiteLLM supply chain attack (CRITICAL); added Blinko & New-API coverage.
 - **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw vulnerability database expanded with 281 new CVE/GHSA entries.
 - **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Launched EdgeOne ClawScan (OpenClaw Security Scan) and Agent-Scan framework.
+
+</details>
 
 👉 [CHANGELOG](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 

@@ -71,6 +71,10 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — カバレッジが68種AIコンポーネントに拡大（junoclaw、lollms、sglangを追加）；600件以上の新規CVEルール追加；Agent ScanがWebSocketプロバイダーをサポート。
+
+<details>
+<summary>過去のリリース</summary>
+
 - **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security：26種の新規攻撃オペレーター（シングルターン20種 + マルチターン6種）；スキャンAgentに間接プロンプトインジェクション防御を追加。
 - **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — カバレッジが64種AIコンポーネントに拡大（InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABotを追加）；脆弱性DBの重複排除とクリーンアップ。
 - **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — カバレッジが58種AIコンポーネントに拡大（FastGPT、Upsonicを追加）；7コンポーネントの脆弱性DBを一括更新。
@@ -81,6 +85,8 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 - **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ LiteLLMサプライチェーン攻撃を検出可能に（重大）；Blinko・New-APIの対応を追加。
 - **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw脆弱性データベースに281件のCVE/GHSAエントリを追加。
 - **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — EdgeOne ClawScan（OpenClaw セキュリティスキャン）とAgent-Scanフレームワークをリリース。
+
+</details>
 
 👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
