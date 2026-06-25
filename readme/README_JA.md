@@ -66,7 +66,7 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 
 ## 🚀 最新情報
 
-- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP スキャンと AI インフラスキャンで `model.token` を省略可能に；省略時はシステムデフォルトモデルを使用。
+- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP スキャンにツールポイズニング・診情窃取・コマンドインジェクションの3件の脆弱性検知ルールを追加；llama.cpp CVEルール6件追加；`model.token`の省略対応（システムデフォルトモデルにフォールバック）。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。

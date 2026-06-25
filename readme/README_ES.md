@@ -66,7 +66,7 @@
 
 ## 🚀 Novedades
 
-- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan y AI Infra Scan ahora permiten omitir `model.token`; usa el modelo predeterminado del sistema si se omite.
+- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 nuevas reglas de detección de amenazas (envenenamiento de herramientas, exfiltración de credenciales, inyección de comandos); 6 nuevas reglas CVE para llama.cpp; `model.token` ahora opcional con fallback al modelo predeterminado del sistema.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 nuevos operadores de ataque single-turn; nueva skill `aig-agent-redteam` para evaluación red-team integral de Agentes.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nuevo endpoint API de verificación de versión; puntuación de seguridad cambiada a modelo de deducción absoluta para una evaluación de riesgos más clara.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de huellas digitales ampliada: 39 nuevas huellas AI Web añadidas, 18 existentes mejoradas.

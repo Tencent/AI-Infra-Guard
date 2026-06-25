@@ -66,7 +66,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 
 ## 🚀 What's New
 
-- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan and AI Infra Scan now fall back to the system default model when `model.token` is omitted.
+- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 new threat detection rules (tool poisoning, credential exfiltration, command injection); 6 new llama.cpp CVE rules; `model.token` now optional with system default fallback.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 new single-turn jailbreak operators; new `aig-agent-redteam` skill for comprehensive Agent red-team assessment.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — New version check API endpoint; security scoring switched to absolute deduction model for clearer risk assessment.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Fingerprint library expanded: 39 new AI Web fingerprints added, 18 existing fingerprints enhanced.
