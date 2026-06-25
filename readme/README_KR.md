@@ -66,22 +66,14 @@ A.I.G 개선에 도움을 주세요! 3~5분만 투자하여 [사용자 피드백
 
 ## 🚀 새로운 소식
 
+- **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 도구 오염지시지·자격 증명 정보 유출·명령 주입 3종 위협 탐지 규칙 추가; llama.cpp CVE 규칙 6종 추가; `model.token` 생략 시 시스템 기본 모델로 자동 대체.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9개 신규 싱글턴 공격 오퍼레이터 추가; Agent 종합 레드팀 평가를 위한 신규 `aig-agent-redteam` skill 추가.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 버전 확인 API 엔드포인트 신규 추가; 보안 점수를 절대 감점 모델로 전환하여 리스크 평가를 더욱 명확히 개선.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 지문 라이브러리 확장: AI Web 지문 39개 신규 추가, 기존 18개 강화.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 68개 AI 컴포넌트로 커버리지 확대(junoclaw, lollms, sglang 추가); 600개 이상의 신규 CVE 규칙 추가; Agent Scan에 WebSocket 프로바이더 지원.
-- **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26개 신규 공격 오퍼레이터(20개 싱글턴 + 6개 멀티턴); 스캔 Agent에 간접 프롬프트 인젝션 방어 추가.
-- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — 64개 AI 컴포넌트로 커버리지 확대(InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot 추가); 취약점 DB 중복 제거 및 정리.
-- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — 58개 AI 컴포넌트로 커버리지 확대(FastGPT, Upsonic 추가); 7개 컴포넌트 취약점 DB 대규모 업데이트.
-- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 노출된 AI Agent 구성 파일 탐지(13개 경로); 탈옥 데이터셋 및 취약점 DB 수동 업데이트 지원.
-- **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 자체 서명 인증서가 있는 HTTPS 모델 엔드포인트를 이제 지원합니다.
-- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — AI 컴포넌트 커버리지가 55개로 확장되었습니다. crewai, kubeai, lobehub가 추가되었습니다.
-- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHub에 3개의 신규 skill 추가(`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) 및 수동 작업 중지 기능이 추가되었습니다.
-- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ LiteLLM 공급망 공격(CRITICAL) 탐지 기능 추가; Blinko 및 New-API 커버리지가 추가되었습니다.
-- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw 취약점 데이터베이스에 281개의 신규 CVE/GHSA 항목이 추가되어 확장되었습니다.
-- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — EdgeOne ClawScan(OpenClaw 보안 스쳪) 및 Agent-Scan 프레임워크 출시.
 
-👉 [CHANGELOG](../CHANGELOG.md) · 🩺 [EdgeOne ClawScan 체험하기](https://matrix.tencent.com/clawscan)
+
+👉 [이전 릴리스](../CHANGELOG.md) · 🩺 [EdgeOne ClawScan 체험하기](https://matrix.tencent.com/clawscan)
 
 
 ## 목차
