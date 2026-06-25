@@ -56,14 +56,14 @@ type ModelParams struct {
 type MCPTaskRequest struct {
 	Prompt string `json:"prompt,omitempty" example:"Enter a URL for remote MCP scan, or leave empty for source-code scan"` // Scan description or MCP server URL
 	Model  struct {
-		Model   string `json:"model" example:"gpt-4"`                         // Model name - required
-		Token   string `json:"token" example:"sk-xxx"`                                   // API key - required
+		Model   string `json:"model,omitempty" example:"gpt-4"`                         // Model name - optional, falls back to system default
+		Token   string `json:"token,omitempty" example:"sk-xxx"`                        // API key - optional, falls back to system default
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
-	} `json:"model"` // Model configuration - required
+	} `json:"model,omitempty"` // Model configuration - optional, falls back to system default
 	Thread      int               `json:"thread,omitempty" example:"4"`              // Concurrent thread count
 	Language    string            `json:"language,omitempty" example:"zh"`           // Language code - optional
 	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // Attachment file path (upload first)
-	Headers     map[string]string `json:"headers,omitempty" example:"{\"Authorization\":\"Bearer token\"}"`
+	Headers     map[string]string `json:"headers,omitempty" example:"{\"Authorization\":\"Bearer token\"}"` // Custom headers
 }
 
 // AIInfraScanTaskRequest represents AI infrastructure scan task request structure
@@ -73,10 +73,10 @@ type AIInfraScanTaskRequest struct {
 	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // Custom request headers
 	Timeout int               `json:"timeout" example:"30"`                                   // Request timeout in seconds
 	Model   struct {
-		Model   string `json:"model" binding:"required" example:"gpt-4"`               // Model name - required
-		Token   string `json:"token" binding:"required" example:"sk-xxx"`              // API key - required
+		Model   string `json:"model,omitempty" example:"gpt-4"`               // Model name - optional, falls back to system default
+		Token   string `json:"token,omitempty" example:"sk-xxx"`              // API key - optional, falls back to system default
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
-	} `json:"model,omitempty"` // Model configuration - optional, used for assisted vulnerability analysis
+	} `json:"model,omitempty"` // Model configuration - optional, falls back to system default
 }
 
 // PromptSecurityTaskRequest represents prompt security test task request structure
@@ -278,13 +278,34 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			})
 			return
 		}
+		// If model or token is empty, fall back to system default model
 		if strings.TrimSpace(req.Model.Model) == "" || strings.TrimSpace(req.Model.Token) == "" {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  1,
-				"message": "invalid parameters: mcp_scan requires model.model and model.token",
-				"data":    nil,
-			})
-			return
+			defaultModel, err := resolveDefaultTaskAPIModel(tm, username)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "invalid parameters: failed to resolve default model: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+			if defaultModel == nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "invalid parameters: model.token is required when no default model is configured",
+					"data":    nil,
+				})
+				return
+			}
+			if strings.TrimSpace(req.Model.Model) == "" {
+				req.Model.Model = defaultModel.Model
+			}
+			if strings.TrimSpace(req.Model.Token) == "" {
+				req.Model.Token = defaultModel.Token
+			}
+			if strings.TrimSpace(req.Model.BaseUrl) == "" {
+				req.Model.BaseUrl = defaultModel.BaseUrl
+			}
 		}
 		// Build task params
 		params := map[string]interface{}{
@@ -321,6 +342,35 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 				"data":    nil,
 			})
 			return
+		}
+		// If model or token is empty, fall back to system default model
+		if strings.TrimSpace(req.Model.Model) == "" || strings.TrimSpace(req.Model.Token) == "" {
+			defaultModel, err := resolveDefaultTaskAPIModel(tm, username)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "invalid parameters: failed to resolve default model: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+			if defaultModel == nil {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "invalid parameters: model.token is required when no default model is configured",
+					"data":    nil,
+				})
+				return
+			}
+			if strings.TrimSpace(req.Model.Model) == "" {
+				req.Model.Model = defaultModel.Model
+			}
+			if strings.TrimSpace(req.Model.Token) == "" {
+				req.Model.Token = defaultModel.Token
+			}
+			if strings.TrimSpace(req.Model.BaseUrl) == "" {
+				req.Model.BaseUrl = defaultModel.BaseUrl
+			}
 		}
 		scanParams := map[string]interface{}{
 			"headers": req.Headers,
@@ -384,7 +434,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 		// Resolve agent YAML: inline content takes priority over stored config.
 		var agentData []byte
 		if strings.TrimSpace(req.AgentConfig) != "" {
-			// Method A: caller supplies YAML inline — no file lookup needed.
+			// Method A: caller supplies YAML inline - no file lookup needed.
 			agentData = []byte(strings.TrimSpace(req.AgentConfig))
 		} else if strings.TrimSpace(req.AgentID) != "" {
 			// Method B: look up pre-saved config by agent_id.
