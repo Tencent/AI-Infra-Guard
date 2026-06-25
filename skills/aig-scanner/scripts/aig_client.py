@@ -329,21 +329,21 @@ def cmd_scan_infra(args: argparse.Namespace) -> None:
 
 
 def cmd_scan_ai_tools(args: argparse.Namespace) -> None:
-    if not args.model or not args.token:
-        _die(
-            "AI Tool / Skills Scan requires --model and --token.\n"
-            "Example: --model gpt-4o --token sk-xxx --base-url https://api.openai.com/v1"
-        )
-
     content: dict[str, Any] = {
-        "model": {
-            "model": args.model,
-            "token": args.token,
-            "base_url": args.base_url or "https://api.openai.com/v1",
-        },
         "thread": args.thread,
         "language": args.language,
     }
+    # model/token are optional; if server has a default model configured, they can be omitted
+    if args.model and args.token:
+        content["model"] = {
+            "model": args.model,
+            "token": args.token,
+            "base_url": args.base_url or "https://api.openai.com/v1",
+        }
+    elif args.model or args.token:
+        _die(
+            "Both --model and --token must be provided together, or omit both to use server default."
+        )
 
     if args.server_url:
         content["prompt"] = args.server_url

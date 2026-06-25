@@ -195,18 +195,18 @@ When input is incomplete, ask only for the minimum missing fields for the select
 
 ### AI Tool / Skills Scan
 
-This flow requires an analysis model configuration.
+This flow uses an analysis model configuration. If the server has a default model configured, `model` and `token` are optional. If not configured server-side, ask the user to provide them.
 
-Ask for:
+Ask for (only if not already provided and server default is unavailable):
 
-- `model`
-- `token`
-- `base_url`
+- `model` (optional if server has default)
+- `token` (optional if server has default)
+- `base_url` (optional, defaults to `https://api.openai.com/v1`)
 
 Use the user-facing label:
 
-- `AI 工具与技能安全扫描需要分析模型配置，请提供：model、token、base_url`
-- `AI Tool / Skills Scan requires an analysis model configuration: model, token, base_url`
+- `AI 工具与技能安全扫描需要分析模型配置，请提供：model、token、base_url（如服务器已配置默认模型，可省略）`
+- `AI Tool / Skills Scan requires an analysis model configuration: model, token, base_url (optional if server has a default model configured)`
 
 Do not call this flow `MCP scan` in user-facing prompts.
 
