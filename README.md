@@ -73,7 +73,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Coverage expanded to 68 AI components (added junoclaw, lollms, sglang); 600+ new CVE rules; WebSocket agent provider support for Agent Scan.
 
 
-👉 [更早版本](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Earlier releases](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
