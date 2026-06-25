@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.15] - 2026-06-25
+
+### Added
+- **API**: Allow omitting model token in mcp_scan and ai_infra_scan, fall back to system default model (f97d707)
+- **Data**: Add 6 llama.cpp CVE rules to the llama-cpp pack (8e0d417)
+- **MCP**: Add 3 MCP threat detection rules: tool poisoning, credential exfiltration, command injection (de57b10)
+
+### Changed
+- **Docs**: Add user feedback survey section to all README files (bf5ed72)
+- **Docs**: Fix vuln total count 1300+ -> 1600+ in ai-infra-scan docs (98d4cd9)
+- **Docs**: Update llama-cpp vuln count 3->9 and severity Low->Medium-High (e7b97bd)
+- **Docs**: Add 9 new single-turn attack operators to AIG-PromptSecurity README (9d6a589)
+- **Docs**: Update openclaw vuln count 628 -> 655 in ai-infra-scan docs (aba3988)
+- **Docs**: Fix zh v4.1.14 wording: single-turn jailbreak operators -> attack methods (e3cf9a6)
+- **Docs**: Remove v4.1.11 What's New entry from all 9 README languages (ec3557d)
+- **Docs**: Add v4.1.14 What's New and restore v4.1.11 entry across all 9 README languages (2c662d0)
+
+### Contributors
+Special thanks to @zhuque, @aigsec, @aigdocs[bot], @boyhack, @DevamShah, @aig-doc-bot, @Nicky, @Adam Lin
+
+---
+
 ## [v4.1.14] - 2026-06-18
 
 ### Added
