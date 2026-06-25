@@ -72,6 +72,21 @@ Ajude-nos a melhorar o A.I.G! Por favor, reserve 3-5 minutos para preencher noss
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de impressões digitais expandida: 39 novas impressões AI Web adicionadas, 18 existentes aprimoradas.
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Cobertura expandida para 68 componentes de IA (adicionados junoclaw, lollms, sglang); 600+ novas regras de CVE; suporte a provider WebSocket para Agent Scan.
 
+<details>
+<summary>Versões anteriores</summary>
+
+- **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security: 26 novos operadores de ataque (20 single-turn + 6 multi-turn); agentes de varredura reforçados contra injeção indireta de prompts.
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — Cobertura expandida para 64 componentes de IA (6 novos: InstructLab, LMDeploy, SuperAGI, Pipecat, Paperclip, QnABot); banco de dados de vulnerabilidades deduplicado e limpo.
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — Cobertura expandida para 58 componentes de IA (adicionados FastGPT, Upsonic); atualização massiva do banco de dados de vulnerabilidades em 7 componentes.
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — Detecta arquivos de configuração de AI Agent expostos (13 caminhos); atualização manual de datasets de jailbreak e bancos de dados de vulnerabilidades.
+- **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — Endpoints de modelo HTTPS com certificados autoassinados agora são suportados.
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — Cobertura expandida para 55 componentes de IA; adicionados crewai, kubeai, lobehub.
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — Três novas skills no ClawHub (`edgeone-clawscan`, `edgeone-skill-scanner`, `aig-scanner`) + parada manual de tarefas.
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ Detecta ataque à cadeia de suprimentos do LiteLLM (CRÍTICO); adicionada cobertura para Blinko & New-API.
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — Base de dados de vulnerabilidades do OpenClaw expandida com 281 novas entradas CVE/GHSA.
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — Lançamento do EdgeOne ClawScan (Varredura de Segurança OpenClaw) e do framework Agent-Scan.
+
+</details>
 
 👉 [Versões anteriores](../CHANGELOG.md) · 🩺 [Experimente o EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 

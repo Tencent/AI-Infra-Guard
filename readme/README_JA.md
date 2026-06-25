@@ -72,6 +72,21 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — カバレッジが68種AIコンポーネントに拡大（junoclaw、lollms、sglangを追加）；600件以上の新規CVEルール追加；Agent ScanがWebSocketプロバイダーをサポート。
 
+<details>
+<summary>過去のリリース</summary>
+
+- **2026-05-21** · [v4.1.9](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.9) — Prompt Security：26種の新規攻撃オペレーター（シングルターン20種 + マルチターン6種）；スキャンAgentに間接プロンプトインジェクション防御を追加。
+- **2026-05-14** · [v4.1.8](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.8) — カバレッジが64種 AIコンポーネントに拡大（6新規：InstructLab、LMDeploy、SuperAGI、Pipecat、Paperclip、QnABot）；脆弱性 DB の重複除去および整理。
+- **2026-04-23** · [v4.1.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.6) — カバレッジが58種 AIコンポーネントに拡大（FastGPT、Upsonicを追加）；7コンポーネントの脆弱性 DBを大幅更新。
+- **2026-04-23** · [v4.1.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.5) — 公開された AI Agent 設定ファイルを検知（13パス）；jailbreak データセットおよび脆弱性 DBの手動更新。
+- **2026-04-17** · [v4.1.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.4) — 自己署名証明書を使用した HTTPS モデルエンドポイントに対応。
+- **2026-04-09** · [v4.1.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.3) — カバレッジが55種 AIコンポーネントに拡大；crewai、kubeai、lobehubを追加。
+- **2026-04-03** · [v4.1.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.2) — ClawHubに3つの新規 Skill（`edgeone-clawscan`、`edgeone-skill-scanner`、`aig-scanner`）を追加；タスクの手動停止。
+- **2026-03-25** · [v4.1.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.1) — ☠️ LiteLLMサプライチェーン攻撃を検知（深刻）；Blinko および New-API のカバレッジを追加。
+- **2026-03-23** · [v4.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1) — OpenClaw 脆弱性データベースに281件の新規 CVE/GHSA エントリを追加。
+- **2026-03-10** · [v4.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.0) — EdgeOne ClawScan（OpenClaw セキュリティスキャン）と Agent-Scan フレームワークをリリース。
+
+</details>
 
 👉 [過去のリリース](../CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
 
