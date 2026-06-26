@@ -26,13 +26,14 @@ class OpenaiAlikeModel(BaseLLM):
     max_trial = 3 
     base_wait_seconds = 0.5
 
-    def __init__(self, model_name: str, base_url: str, api_key: str, max_concurrent: int, *args, **kwargs):
+    def __init__(self, model_name: str, base_url: str, api_key: str, max_concurrent: int, timeout: float = 60.0, *args, **kwargs):
         super().__init__(model_name, base_url, api_key, max_concurrent, *args, **kwargs)
+        self.timeout = timeout
         self.load_model()
     
     def load_model(self):
-        self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
-        self.async_client = AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
+        self.client = OpenAI(base_url=self.base_url, api_key=self.api_key, timeout=self.timeout)
+        self.async_client = AsyncOpenAI(base_url=self.base_url, api_key=self.api_key, timeout=self.timeout)
         self.default_params = {
             "reasoning_effort": "low",
             "frequency_penalty": 1.0,

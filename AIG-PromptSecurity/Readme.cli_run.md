@@ -43,6 +43,25 @@
 - `--show-tool-params`  
   显示指定工具的详细参数信息。需要指定工具名称。
   - 例如：`--show-tool-params Bias` 或 `--show-tool-params Base64`
+
+- `--reasoning-backdoor-dataset`  
+  启动 Reasoning Backdoor Paired Evaluation，传入 JSONL 数据集路径。该评测会对同一样本分别查询 clean prompt 和 trigger prompt，再计算配对指标。
+
+- `--reasoning-trigger-family`  
+  指定触发器构造方式，默认 `cot_tba`。
+
+- `--reasoning-output`  
+  指定 reasoning backdoor JSON 报告路径，同时生成同名前缀的 CSV 明细。
+
+- `--reasoning-oracle-clean`  
+  使用确定性干净 oracle 做阴性对照，不访问外部模型 API。
+
+- `--reasoning-poison-mode`  
+  使用模拟中毒 wrapper 做阳性对照，支持 `truncation`、`step_injection`、`bypass`。
+
+- `--reasoning-self-consistency-samples`  
+  可选多采样信号，默认 `1`，不增加额外查询。设置为 `3` 或更高时，同一 clean/trigger prompt 会重复查询并记录答案分布，用于观察 trigger 条件下是否出现稳定错答或 target 一致性。
+
 ---
 
 ## 2. 场景（scenarios）参数输入规范
@@ -355,5 +374,36 @@ python cli_run.py \
   --choice random \
   --report logs/batch_test_report.txt
 ```
+
+### 7.4 Reasoning Backdoor Paired Evaluation
+
+Reasoning backdoor 评测需要 clean / trigger 配对对照，因此使用专项参数而不是普通 `--scenarios/--techniques/--metric` 三件套。
+
+```bash
+python cli_run.py \
+  --model google/gemini-2.0-flash-001 \
+  --base_url https://example/api \
+  --api_key sk-or-xxxxxx \
+  --max_concurrent 1 \
+  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
+  --reasoning-trigger-family cot_tba \
+  --reasoning-output logs/reasoning_backdoor_report.json
+```
+
+本地阴性/阳性对照：
+
+```bash
+python cli_run.py \
+  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
+  --reasoning-oracle-clean \
+  --reasoning-output logs/reasoning_backdoor_control_clean.json
+
+python cli_run.py \
+  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
+  --reasoning-poison-mode truncation \
+  --reasoning-output logs/reasoning_backdoor_control_truncation.json
+```
+
+详细说明见 `Readme.reasoning_backdoor.md`。
 
 ---
