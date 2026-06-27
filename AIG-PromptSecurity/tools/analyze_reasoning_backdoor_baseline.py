@@ -206,8 +206,10 @@ def compute_stats(
             "dataset": str(row.get("dataset") or sample_meta.get("dataset") or "unknown"),
             "answer_type": answer_type,
             "attack_family": str(row.get("attack_family") or sample_meta.get("attack_family") or "unknown"),
-            "question_type": infer_question_type(
-                str(sample_meta.get("question") or row.get("clean_input") or "")
+            "question_type": str(
+                sample_meta.get("question_type")
+                or row.get("question_type")
+                or infer_question_type(str(sample_meta.get("question") or row.get("clean_input") or ""))
             ),
         }
         for label, value in bucket_keys.items():
@@ -438,6 +440,8 @@ def infer_question_type(question: str) -> str:
     """
 
     text = question.lower()
+    if any(phrase in text for phrase in ["yes or no", "true or false", "must every", "can visitors", "is this", "is the report approved"]):
+        return "boolean_logic"
     if any(phrase in text for phrase in ["more than", "fewer than", "less than", "older than"]):
         return "comparison_more_less"
     if any(phrase in text for phrase in ["together", "in total", "total", "added", "more were added", "put in"]):
