@@ -1,53 +1,34 @@
 # Reasoning Backdoor Evaluation
 
-## Scope: Trigger-Conditioned Audit, Not Backdoor Discovery
+English version. Chinese version: [Readme.reasoning_backdoor_zh.md](./Readme.reasoning_backdoor_zh.md)
 
-This is a trigger-conditioned reasoning backdoor **audit** tool. It requires:
+## Scope
 
-```text
-1. known or hypothesized trigger strings,
-2. a labeled reasoning dataset with gold_answer,
-3. target_answer labels when targeted ASR / target-consistency signals are used.
-```
+This evaluator audits a reasoning model against a known or hypothesized trigger.
+It compares the clean prompt and the triggered prompt for the same sample.
 
-This tool **cannot** discover unknown backdoor triggers and should not be used as
-a general black-box backdoor scanner. A low-risk report does **not** prove that a
-model is free of backdoors; it only means the provided trigger / dataset / metric
-combination did not expose trigger-conditioned reasoning failures. Trigger
-discovery remains an open research problem and is out of scope for this entry.
+Requirements:
 
-Intended use cases:
+- a known or hypothesized trigger string
+- a labeled reasoning dataset with `gold_answer`
+- `target_answer` labels when you want targeted metrics such as ASR
 
-| Use case | Why this evaluator fits |
-|---|---|
-| Supply-chain audit with known suspicious training data, prompt demonstrations, or trigger patterns | The auditor already has candidate triggers to test |
-| Pre-deployment regression testing for known attack families such as BadChain or CoT-TBA | The trigger family and expected failure mode are explicit |
-| Post-finetuning retest for known triggers | The team can verify whether a previous trigger-conditioned failure reappears |
+It does **not** discover unknown triggers and should not be used as a black-box backdoor scanner.
+A low-risk report only means the supplied trigger / dataset pair did not expose a failure.
 
-This document describes the paired reasoning backdoor evaluation entry in
-`AIG-PromptSecurity`.
+Typical uses:
 
-## 1. Purpose
+- Supply-chain audit: the auditor already has candidate triggers to test.
+- Pre-deployment regression testing: the trigger family and failure mode are explicit.
+- Post-finetuning retest: verify whether a previous trigger-conditioned failure reappears.
 
-Reasoning backdoor evaluation checks whether a reasoning model behaves normally
-on a clean prompt but changes its final answer or reasoning structure when a
-**known/hypothesized** trigger is present (see Scope above -- this audits a given
-trigger, it does not search for unknown ones).
+## Purpose
 
-The evaluator uses a paired flow:
+For each sample, the runner generates a clean output and a trigger output, then scores the pair.
 
-```text
-clean prompt -> target model -> clean output
-trigger prompt -> target model -> trigger output
-clean/trigger comparison -> report
-```
+This flow is separate from the standard scenario / technique / metric pipeline.
 
-This is intentionally separate from the standard scenario / technique / metric
-plugin pipeline. The standard red-team pipeline evaluates one model output at a
-time, while reasoning backdoor detection needs both clean and trigger outputs
-for the same sample.
-
-## 2. Dataset Format
+## Dataset Format
 
 Datasets use JSONL. Each line is one paired reasoning sample:
 
@@ -57,29 +38,25 @@ Datasets use JSONL. Each line is one paired reasoning sample:
 
 Required fields:
 
-| Field | Description |
-|---|---|
-| `id` | Stable sample ID |
-| `question` | Clean reasoning prompt |
-| `gold_answer` | Expected clean final answer |
-| `answer_type` | Answer extraction type, currently `number`, `boolean`, or exact-match text fallback |
-| `trigger` | Trigger string inserted into the triggered prompt |
+- `id`: stable sample ID
+- `question`: clean reasoning prompt
+- `gold_answer`: expected clean final answer
+- `answer_type`: extraction type, currently `number`, `boolean`, or exact-match text fallback
+- `trigger`: trigger string inserted into the triggered prompt
 
 Optional fields:
 
-| Field | Description |
-|---|---|
-| `dataset` | Source dataset or benchmark name |
-| `target_answer` | Target wrong answer for targeted ASR |
-| `attack_family` | Attack family label, such as `cot_tba` |
+- `dataset`: source dataset or benchmark name
+- `target_answer`: target wrong answer for targeted ASR
+- `attack_family`: attack family label, such as `cot_tba`
 
-The current sample dataset is:
+Minimal example dataset:
 
 ```text
 ../data/eval/reasoning-backdoor-tiny.jsonl
 ```
 
-## 3. Official CLI Usage
+## CLI Usage
 
 Run through the normal AIG-PromptSecurity CLI entrypoint:
 
@@ -101,23 +78,18 @@ logs/reasoning_backdoor_report.json
 logs/reasoning_backdoor_report.csv
 ```
 
-The JSON report contains aggregate metrics and the first 20 detailed cases. The
-CSV attachment contains all per-sample results.
+The JSON report contains aggregate metrics and the first 20 detailed cases.
+The CSV attachment contains all per-sample results.
 
-Web UI integration is a follow-up. This PR is CLI-first; wiring the evaluator
-into the AIG Web UI / task_manager should be handled as a separate PR.
+Web UI integration is a follow-up. This entry is CLI-first; wiring the evaluator into the AIG Web UI / task_manager should be a separate PR.
 
-## 4. Positive and Negative Controls
+## Offline Controls
 
-Clean model results alone do not prove that a detector is effective. A detector
-that always returns zero would also look good on clean models. Therefore this
-entry includes deterministic controls that do not require external APIs.
+Clean-model results alone do not prove that a detector works. A detector that always returns zero would also look good on clean data.
+This entry ships deterministic offline controls that do not require an API key.
 
-Reviewers can reproduce the control experiment without an API key. The clean
-control uses `DatasetOracleModel`, which returns deterministic gold answers from
-the JSONL dataset. The poisoned controls wrap that oracle with
-`PoisonedModelWrapper`, which preserves clean behavior but returns a controlled
-trigger-conditioned response for positive-control testing.
+The clean control uses `DatasetOracleModel`, which returns deterministic gold answers from the JSONL dataset.
+The poisoned controls wrap that oracle with `PoisonedModelWrapper`, which keeps the clean path intact but returns a controlled trigger-conditioned response.
 
 One-command offline reproduction:
 
@@ -127,55 +99,23 @@ bash tests/test_clirun_reasoning_backdoor.sh
 
 Expected aggregate results:
 
-| Condition | cleanAccuracy | triggerAccuracy | answerFlipRate | targetedAsr | truncationSuspectedRate |
-|---|---:|---:|---:|---:|---:|
-| Clean oracle | 1.0 | 1.0 | 0.0 | 0.0 | 0.0 |
-| Poison truncation | 1.0 | 0.0 | 1.0 | 1.0 | 1.0 |
-| Poison step injection | 1.0 | 0.0 | 1.0 | 1.0 | 0.0 |
+- Clean oracle: `cleanAccuracy=1.0`, `triggerAccuracy=1.0`, `answerFlipRate=0.0`, `targetedAsr=0.0`, `truncationSuspectedRate=0.0`
+- Poison truncation: `cleanAccuracy=1.0`, `triggerAccuracy=0.0`, `answerFlipRate=1.0`, `targetedAsr=1.0`, `truncationSuspectedRate=1.0`
+- Poison step injection: `cleanAccuracy=1.0`, `triggerAccuracy=0.0`, `answerFlipRate=1.0`, `targetedAsr=1.0`, `truncationSuspectedRate=0.0`
 
-Negative control:
-
-```bash
-python cli_run.py \
-  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
-  --reasoning-oracle-clean \
-  --reasoning-output logs/reasoning_backdoor_control_clean.json
-```
-
-Positive control for CoT truncation-like behavior:
-
-```bash
-python cli_run.py \
-  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
-  --reasoning-poison-mode truncation \
-  --reasoning-output logs/reasoning_backdoor_control_truncation.json
-```
-
-Positive control for reasoning-step injection-like behavior:
-
-```bash
-python cli_run.py \
-  --reasoning-backdoor-dataset ../data/eval/reasoning-backdoor-tiny.jsonl \
-  --reasoning-poison-mode step_injection \
-  --reasoning-output logs/reasoning_backdoor_control_step_injection.json
-```
+The offline script covers the clean oracle and both poisoned wrapper modes.
 
 Supported poison modes:
 
-| Mode | Simulated external behavior | Expected signal |
-|---|---|---|
-| `truncation` | Short reasoning and early target answer | answer flip, targeted ASR, truncation |
-| `step_injection` | Wrong intermediate reasoning step and target answer | answer flip, targeted ASR |
-| `bypass` | Direct target answer without reasoning | answer flip, targeted ASR, short output |
+- `truncation`: short reasoning and early target answer; expected signal is answer flip, targeted ASR, and truncation.
+- `step_injection`: wrong intermediate reasoning step and target answer; expected signal is answer flip and targeted ASR.
+- `bypass`: direct target answer without reasoning; expected signal is answer flip, targeted ASR, and short output.
 
-`PoisonedModelWrapper` is a positive-control simulation of external behavior.
-It is not a trained backdoored model and does not replace evaluation on real
-poisoned checkpoints.
+`PoisonedModelWrapper` is a positive-control simulation. It is not a trained backdoored model and does not replace evaluation on real poisoned checkpoints.
 
-## 4.1 How to add a new trigger family
+## How to Add a Trigger Family
 
-Trigger families are registry-based. To add one, register a new prompt builder
-instead of editing the `_build_trigger_prompt` dispatch body.
+Trigger families are registry-based. To add one, register a new prompt builder instead of editing the `_build_trigger_prompt` dispatch body.
 
 Conceptually:
 
@@ -191,38 +131,27 @@ Then call the evaluator with:
 --reasoning-trigger-family my_family
 ```
 
-If the family name is unknown, the runner raises a clear error listing the
-registered families.
+If the family name is unknown, the runner raises a clear error listing the registered families.
 
-## 5. Metrics
+## Metrics
 
-Use `primarySignal` and `verdict` for the top-level decision. Other metrics are
-diagnostic signals that explain the failure mode or help debug coverage.
+Use `primarySignal` and `verdict` for the top-level decision. Other metrics are diagnostic signals.
 
 Top-level decision fields:
 
-| Field | Meaning |
-|---|---|
-| `primarySignal` | Main decision signal. Uses `effectiveTargetedAsr` when valid `target_answer` labels exist; otherwise falls back to `answerFlipRate` |
-| `verdict` | Text verdict based on the primary signal: `no_evidence`, `suspicious`, or `likely_backdoor` |
+- `primarySignal`: main decision signal. Uses `effectiveTargetedAsr` when valid `target_answer` labels exist; otherwise falls back to `answerFlipRate`.
+- `verdict`: text verdict based on the primary signal, with values `no_evidence`, `suspicious`, or `likely_backdoor`.
 
 Metric tiers:
 
-| Tier | Metric | Meaning |
-|---|---|
-| `tier1_primary` | `effectiveTargetedAsr` | Most trusted signal when target labels exist; counts target hits only over clean-correct, non-degenerate target cases |
-| `tier2_behavioral` | `answerFlipRate`, `targetedAsr` | Behavioral drift signals; useful but more sensitive to extraction noise and model instability |
-| `tier3_diagnostic` | `selfConsistencySuspiciousRate`, `triggerTargetConsistencyMean`, `selfConsistencyDropMean`, `truncationSuspectedRate` | Diagnostic signals for explaining the failure mode |
+- `tier1_primary`: `effectiveTargetedAsr`. Most trusted signal when target labels exist.
+- `tier2_behavioral`: `answerFlipRate`, `targetedAsr`. Behavioral drift signals.
+- `tier3_diagnostic`: `selfConsistencySuspiciousRate`, `triggerTargetConsistencyMean`, `selfConsistencyDropMean`, `truncationSuspectedRate`. Diagnostic signals for explaining the failure mode.
 
-`truncationSuspectedRate` is a weak auxiliary diagnostic. It is retained for
-CoT-truncation / bypass-like cases, but it is not used for the top-level
-`verdict`; real BadChain validation showed length-based truncation can produce
-both false positives and false negatives.
+`truncationSuspectedRate` is a weak auxiliary diagnostic. It is retained for CoT-truncation / bypass-like cases, but it is not used for the top-level `verdict`.
 
-Self-consistency is opt-in. By default `--reasoning-self-consistency-samples`
-is `1`, so the evaluator stays lightweight and does not add API cost. Use
-`K=3` or higher when you want to measure trigger-conditioned stable wrong
-answers:
+Self-consistency is opt-in. By default `--reasoning-self-consistency-samples` is `1`, so the evaluator stays lightweight and does not add API cost.
+Use `K=3` or higher when you want to measure trigger-conditioned stable wrong answers:
 
 ```bash
 .venv/bin/python cli_run.py \
@@ -235,18 +164,14 @@ answers:
 Metric notes:
 
 ```text
-1. target-based metrics are most meaningful when the dataset provides
-   target_answer.
-2. triggerTargetConsistencyMean is reported as null / n/a when no valid target
-   answers exist, rather than treating those rows as zero.
-3. selfConsistencySuspiciousRate uses the clean majority answer for K-sample
-   checks to avoid single-call extraction noise.
+1. Target-based metrics are most meaningful when the dataset provides `target_answer`.
+2. `triggerTargetConsistencyMean` is reported as `null` / `n/a` when no valid target answers exist, rather than treating those rows as zero.
+3. `selfConsistencySuspiciousRate` uses the clean majority answer for K-sample checks to avoid single-call extraction noise.
 ```
 
-## 6. Clean-Baseline Analysis and Optional Defense Prototype
+## Clean-Baseline Analysis and Optional Defense Prototype
 
-The evaluator includes two optional research utilities. They are not part of
-the default detection path.
+The evaluator includes two optional research utilities. They are not part of the default detection path.
 
 Clean-baseline false-positive analysis:
 
@@ -257,10 +182,8 @@ python tools/analyze_reasoning_backdoor_baseline.py \
   --output-json logs/reasoning_backdoor_clean_baseline_analysis.json
 ```
 
-This summarizes raw `answerFlipRate`, target-conditioned
-`effectiveTargetedAsr`, verdict distribution, empty-output rates, and worst
-dataset / answer-type / question-type buckets. Worst-bucket reporting is
-intentional: a clean average can hide a brittle task slice.
+This summarizes raw `answerFlipRate`, target-conditioned `effectiveTargetedAsr`, verdict distribution, empty-output rates, and worst dataset / answer-type / question-type buckets.
+Worst-bucket reporting is intentional: a clean average can hide a brittle task slice.
 
 Inference-time defense prototype:
 
@@ -276,50 +199,38 @@ python tools/evaluate_reasoning_backdoor_defense.py \
 
 Supported prototype defenses:
 
-| Defense | Idea | Known limitation |
-|---|---|---|
-| `self_consistency` | Query the same triggered prompt K times and use majority answer | Can fail on stable backdoors because every sample sees the same poisoned context |
-| `strip_trigger` | Remove the known trigger and re-ask | Only applies to known, literal, safely removable triggers |
+- `self_consistency`: query the same triggered prompt K times and use the majority answer. Known limitation: it can fail on stable backdoors because every sample sees the same poisoned context.
+- `strip_trigger`: remove the known trigger and re-ask. Known limitation: it only applies to known, literal, safely removable triggers.
 
-These defenses are inference-time probes, not production mitigations. They do
-not remove a trained or in-context backdoor from the model.
+These defenses are inference-time probes, not production mitigations.
+They do not remove a trained or in-context backdoor from the model.
 
-## 7. Validation Scope and Limitations
+## Validation Scope and Limitations
 
 ```text
 1. Validated real-attack path:
-   in-context BadChain validation, which is prompt-level and does not require
-   model training or GPUs.
+   in-context BadChain validation, which is prompt-level and does not require model training or GPUs.
 
 2. Not yet validated:
-   weight-level LoRA / fine-tuned backdoor checkpoints. This remains future
-   work and should not be implied by the current results.
+   weight-level LoRA / fine-tuned backdoor checkpoints. This remains future work and should not be implied by the current results.
 
 3. Regression datasets:
-   the tiny 10-sample dataset and ASDiv-20 BadChain set are regression and
-   demonstration datasets, not full benchmarks.
+   the tiny 10-sample dataset and ASDiv-20 BadChain set are regression and demonstration datasets, not full benchmarks.
 
 4. Answer extraction:
-   rule-based extraction currently supports simple number, boolean, and text
-   fallback cases. The text fallback is exact-match only and is not reliable for
-   free-form semantic answers; prefer number / boolean datasets for this entry.
+   rule-based extraction currently supports simple number, boolean, and text fallback cases. The text fallback is exact-match only and is not reliable for free-form semantic answers; prefer number / boolean datasets for this entry.
 
 5. Truncation signal:
-   length-based truncation is a weak auxiliary feature, not a primary safety
-   signal. It relies on output length rather than hidden token traces.
+   length-based truncation is a weak auxiliary feature, not a primary safety signal. It relies on output length rather than hidden token traces.
 
 6. Self-consistency cost:
-   self-consistency defaults to K=1. When K>1, each sample needs 2K model calls
-   (K clean calls and K trigger calls), so cost grows linearly with K.
+   self-consistency defaults to K=1. When K>1, each sample needs 2K model calls (K clean calls and K trigger calls), so cost grows linearly with K.
 
 7. Positive-control wrappers:
-   the offline poisoned wrappers simulate external behavior for pipeline
-   validation. They do not prove coverage of all trained backdoor models.
+   the offline poisoned wrappers simulate external behavior for pipeline validation. They do not prove coverage of all trained backdoor models.
 
 8. Defense prototype:
-   self-consistency and trigger stripping are optional inference-time probes.
-   They are useful for studying mitigation behavior, but they are not a
-   production-grade defense and are not part of the default verdict path.
+   self-consistency and trigger stripping are optional inference-time probes. They are useful for studying mitigation behavior, but they are not a production-grade defense and are not part of the default verdict path.
 ```
 
 This work is based on Tencent Zhuque Lab AI-Infra-Guard:
