@@ -268,7 +268,7 @@ Dieses Projekt wird federführend von **Tencent Zhuque Lab** entwickelt, das Tei
 
 Das Team hat namhaften Anbietern wie **NVIDIA, Google und Microsoft** sowie Open-Source-Communities wie **OpenClaw, Linux und Hugging Face** dabei geholfen, zahlreiche kritische Schwachstellen zu beheben, und wurde dafür offiziell anerkannt.
 
-Das Team hat Open-Source-KI-Sicherheitsprodukte wie die KI-Red-Team-Sicherheitstest-Plattform **A.I.G (AI-Infra-Guard)** und den **Zhuque AI Detection Assistant** veröffentlicht. Forschungsergebnisse wurden auf international führenden Sicherheits- und KI-Konferenzen wie **Black Hat, DEF CON, ICLR, CVPR, NeurIPS und ACL** publiziert. Außerdem wurde das Buch *„AI Security: Technology and Practice"* veröffentlicht.
+Das Team hat Open-Source-KI-Sicherheitsprodukte wie die KI-Red-Team-Sicherheitstest-Plattform <b>A.I.G (AI-Infra-Guard)</b> und den **Zhuque AI Detection Assistant** veröffentlicht. Forschungsergebnisse wurden auf international führenden Sicherheits- und KI-Konferenzen wie **Black Hat, DEF CON, ICLR, CVPR, NeurIPS und ACL** publiziert. Außerdem wurde das Buch *„AI Security: Technology and Practice"* veröffentlicht.
 
 ### 👥 Kernmitglieder & Beiträge
 

@@ -268,7 +268,7 @@ Este proyecto está liderado y desarrollado por **Tencent Zhuque Lab**, parte de
 
 El equipo ha ayudado a importantes proveedores como **NVIDIA, Google y Microsoft**, así como a comunidades de código abierto como **OpenClaw, Linux y Hugging Face**, a corregir un gran número de vulnerabilidades críticas, recibiendo agradecimientos públicos oficiales.
 
-El equipo ha lanzado productos de seguridad de IA de código abierto como la plataforma de pruebas de seguridad AI Red Team **A.I.G (AI-Infra-Guard)** y el **Zhuque AI Detection Assistant**. Sus investigaciones se han publicado ampliamente en conferencias internacionales de primer nivel sobre seguridad e IA, como **Black Hat, DEF CON, ICLR, CVPR, NeurIPS y ACL**, y es autor del libro *«AI Security: Technology and Practice»*.
+El equipo ha lanzado productos de seguridad de IA de código abierto como la plataforma de pruebas de seguridad AI Red Team <b>A.I.G (AI-Infra-Guard)</b> y el **Zhuque AI Detection Assistant**. Sus investigaciones se han publicado ampliamente en conferencias internacionales de primer nivel sobre seguridad e IA, como **Black Hat, DEF CON, ICLR, CVPR, NeurIPS y ACL**, y es autor del libro *«AI Security: Technology and Practice»*.
 
 ### 👥 Miembros principales y contribuciones
 
