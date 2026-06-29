@@ -1,0 +1,40 @@
+info:
+  name: OpenClaw
+  cve: GHSA-68xw-r643-9p5w
+  summary: OpenClaw Skill 命令分发可能跳过 before-tool-call 钩子
+  details: >-
+    漏洞概述
+
+
+    Skill 命令分发可能跳过 before-tool-call 钩子。在受影响版本中，通过受影响分发路径路由的 Skill 命令可能在未经 runBeforeToolCallHook 完整覆盖的情况下执行，与其他工具入口点的处理方式不一致。
+
+
+    本安全公告仅适用于上述特定功能和配置。它不改变 OpenClaw 的受信任操作员模型：已认证的 Gateway 操作员、已安装的插件以及有意的本地执行接口仍保持受信任状态，除非跨越了独立的策略、审批、白名单、沙箱或认证边界。
+
+
+    影响
+
+
+    当受影响功能被启用且可访问时，此漏洞可能导致该命令路径缺失基于钩子的审计或策略一致性保障。实际影响取决于操作员的配置，以及低信任级别的输入是否能够到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.6。
+
+
+    缓解措施
+
+
+    在完成修补之前，避免对 Skill 命令仅依赖钩子进行强制策略控制。作为通用加固措施，保持渠道和工具白名单的精简，避免在互不信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: LOW
+  security_advise: >-
+    将 openclaw 升级至 2026.5.6 或更高版本。在完成修补之前，避免对 Skill 命令仅依赖钩子进行强制策略控制。作为通用加固措施，保持渠道和工具白名单的精简，避免在互不信任的用户之间共享同一
+    Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-68xw-r643-9p5w
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-68xw-r643-9p5w

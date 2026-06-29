@@ -1,0 +1,54 @@
+info:
+  name: OpenClaw
+  cve: GHSA-mhq8-78pj-5j79
+  summary: >-
+    OpenClaw POSIX 节点 system.run 安全二进制白名单可被 Shell 展开绕过
+  details: >-
+    漏洞概述
+
+
+    在 POSIX 节点上，OpenClaw 的 system.run 安全二进制（safe-bin）检查可能在 Shell 展开改变命令解释方式之前就通过了校验。一个看似合法的 safe-bin 参数在展开后可能产生额外的 Shell 词组，进而成为文件操作数。
+
+
+    此问题仅限于通过 system.run 进行的已配对 POSIX 节点执行，且须启用 safe-bin 或白名单式自动审批。这不是一个未经认证的节点接管漏洞。
+
+
+    受影响的配置
+
+
+    该漏洞影响以下部署场景：
+
+    - POSIX 节点已与 Gateway 配对
+    - system.run 可被已认证的操作员或 Agent 流程访问
+    - exec 策略使用 safe-bin 或基于白名单的自动审批
+    - 已批准的命令包含可改变 argv 形态的 Shell 展开值
+
+
+    漏洞影响
+
+
+    低权限操作员流程可能导致已批准的 safe-bin 命令读取策略未预期的节点本地文件。视节点进程可访问的本地文件而定，可能导致 OpenClaw 配置数据或其他节点本地信息泄露。
+
+
+    此问题是 argv 验证中的策略执行缺陷，并非所有 safe-bin 命令均不安全的通用声明。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.18。
+
+
+    缓解措施
+
+
+    升级至 openclaw@2026.5.18 或更高版本。在升级之前，请避免对可读取任意路径的命令使用宽泛的 safe-bin 自动审批，对涉及本地文件操作的节点命令优先使用显式审批。
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: >-
+    升级 openclaw 至 2026.5.18 或更高版本。在升级之前，请避免对可读取任意路径的命令使用宽泛的 safe-bin 自动审批，对涉及本地文件操作的节点命令优先使用显式审批。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-mhq8-78pj-5j79
+rule: version < "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-mhq8-78pj-5j79

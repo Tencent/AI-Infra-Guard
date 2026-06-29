@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q7q8-3mgw-q67r
+  summary: OpenClaw Message read actions could skip channel allowlist checks
+  details: >-
+    Summary
+
+
+    Message read actions could skip channel allowlist checks. In affected versions, a lower-trust caller with access to the
+    affected message read action could request messages without the same channel allowlist check used by normal delivery.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could expose messages from a channel that was not intended for
+    that caller. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.19.
+
+
+    Mitigations
+
+
+    limit message read actions to trusted operators and keep channel allowlists narrow. As general hardening, keep channel
+    and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature
+    when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.19, 2026.5.19 or later. limit message read actions to trusted operators and keep channel allowlists
+    narrow. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted
+    users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q7q8-3mgw-q67r
+rule: version <= "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q7q8-3mgw-q67r

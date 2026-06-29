@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p2fh-f5fc-44hr
+  summary: OpenClaw memory-wiki 数据导入功能可通过 operator.write 权限读取本地任意文件
+  details: >-
+    漏洞概述
+
+
+    memory-wiki 数据导入功能可通过 operator.write 权限读取本地任意文件。在受影响的版本中，拥有插件工具 operator.write 访问权限的 Gateway 调用方可读取任意本地文件路径，而非仅限于预期的导入来源。
+
+
+    本公告仅针对所述功能和配置。不影响 OpenClaw 的可信操作员模型：除非跨越独立的策略、审批、白名单、沙箱或认证边界，否则已认证的 Gateway 操作员、已安装的插件及有意设计的本地执行接口仍被视为可信。
+
+
+    漏洞影响
+
+
+    当受影响功能启用且可被访问时，此漏洞可能将本地文件内容导入 wiki 记忆库。实际影响取决于操作员的配置以及低信任输入是否能到达该路径。
+
+
+    修复方案
+
+
+    当本公告列出已修复的 OpenClaw 版本后，更新至该版本或更高版本。如已填写"已修复版本"字段，请使用该版本或更高版本。
+
+
+    缓解措施
+
+
+    在修复前，将 memory-wiki 写入权限限制为可信操作员。作为通用加固措施，保持频道和工具白名单的严格范围，避免多个互不信任的用户共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N
+  severity: MEDIUM
+  security_advise: >-
+    升级 openclaw 至 2026.4.7 或更高版本。在修复前，将 memory-wiki 写入权限限制为可信操作员。作为通用加固措施，保持频道和工具白名单的严格范围，避免多个互不信任的用户共享同一 Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p2fh-f5fc-44hr
+rule: version <= "2026.5.6"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p2fh-f5fc-44hr

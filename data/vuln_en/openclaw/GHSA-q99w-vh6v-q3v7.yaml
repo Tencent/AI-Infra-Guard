@@ -1,0 +1,55 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q99w-vh6v-q3v7
+  summary: >-
+    OpenClaw Pairing-scoped device session could restore revoked node token authority
+  details: >-
+    Summary
+
+
+    In affected releases, a surviving pairing-scoped session for a device could re-establish node token authority after that
+    node token had been revoked. Revocation should require the device to lose that authority unless it is approved again through
+    the normal pairing flow.
+
+
+    This issue affects token revocation and device-role containment. It does not allow unauthenticated device creation.
+
+
+    Affected configurations
+
+
+    This affects deployments where an already paired device keeps a same-device session with pairing-related scope after its
+    node token is revoked.
+
+
+    Impact
+
+
+    A device that should have lost node WebSocket authority could regain it without renewed approval. That weakens revocation
+    as an operator control and can keep node-level access alive longer than intended.
+
+
+    The impact is limited to devices that already had a legitimate pairing/session foothold.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.26.
+
+
+    Mitigations
+
+
+    Upgrade to openclaw@2026.5.26 or later. If a node token was revoked on an older version, restart the gateway and remove/re-pair
+    the affected device to ensure no stale session remains active.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.5.26 or later. Upgrade to openclaw@2026.5.26 or later. If a node token was revoked on an older
+    version, restart the gateway and remove/re-pair the affected device to ensure no stale session remains active.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q99w-vh6v-q3v7
+rule: version < "2026.5.26"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q99w-vh6v-q3v7

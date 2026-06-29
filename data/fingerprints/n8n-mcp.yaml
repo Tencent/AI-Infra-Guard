@@ -1,0 +1,24 @@
+info:
+  name: n8n-mcp
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    n8n-MCP is a Model Context Protocol (MCP) server that provides AI assistants access to n8n node
+    documentation, properties, and operations. When running in HTTP transport mode (MCP_MODE=http),
+    it exposes a Bearer-authenticated MCP endpoint at /mcp and an unauthenticated health check at /health.
+  metadata:
+    product: n8n-mcp
+    vendor: czlonkowski
+http:
+  - method: GET
+    path: '/mcp'
+    matchers:
+      - header="n8n-mcp"
+  # Fingerprint note:
+  # GET /mcp without Authorization header returns 401 with:
+  #   WWW-Authenticate: Bearer realm="n8n-mcp", error="unauthorized"
+  # The realm="n8n-mcp" value is hardcoded in src/utils/auth.ts buildBearerChallenge()
+  # (verified against GitHub source: czlonkowski/n8n-mcp main branch)
+  #
+  # Version extractor: /health endpoint is intentionally minimal (per GHSA-75hx-xj24-mqrw),
+  # version extraction not supported without auth. Version can be inferred from npm package metadata.

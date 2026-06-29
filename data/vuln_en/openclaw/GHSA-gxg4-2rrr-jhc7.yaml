@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gxg4-2rrr-jhc7
+  summary: OpenClaw Hostname checks could treat trailing-dot hosts inconsistently
+  details: >-
+    Summary
+
+
+    Hostname checks could treat trailing-dot hosts inconsistently. In affected versions, a request path that accepts model-
+    or workspace-derived URLs could present the same hostname with a trailing dot and avoid a blocklist comparison.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could reach a destination that the operator expected the hostname
+    policy to block. Practical impact depends on the operator's configuration and whether lower-trust input can reach that
+    path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.26.
+
+
+    Mitigations
+
+
+    keep private-network and metadata destinations blocked at the proxy or network layer until patched. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.26 or later. keep private-network and metadata destinations blocked at the proxy or network
+    layer until patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between
+    mutually untrusted users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gxg4-2rrr-jhc7
+rule: version <= "2026.5.22"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gxg4-2rrr-jhc7

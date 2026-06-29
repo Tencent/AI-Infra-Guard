@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8j37-5w68-wj2g
+  summary: OpenClaw BlueBubbles 发送者策略可能匹配可变的会话标识符
+  details: >-
+    概述
+
+
+    BlueBubbles 发送者策略可能匹配可变的会话标识符。在受影响版本中，能够影响会话级标识符的参与者可能通过会话元数据而非稳定的发送者身份来匹配白名单条目。
+
+
+    本安全公告仅限于上述命名功能及其配置范围。它不改变 OpenClaw 的可信运营者模型：已认证的 Gateway 运营者、已安装的插件以及经过授权的本地执行面仍属于可信范围，除非跨越了独立的策略、审批、白名单、沙箱或认证边界。
+
+
+    影响
+
+
+    当受影响功能被启用且可访问时，可能接收到本应仅限已配置发送者的 Agent 响应。实际影响取决于运营者的配置，以及低信任输入是否能够到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.7。
+
+
+    缓解措施
+
+
+    优先使用稳定的发送者标识符，并在完成修复之前限制 BlueBubbles 群组的访问范围。作为通用加固措施，应保持通道和工具白名单的最小化，避免在互不信任的用户之间共享同一 Gateway，并在不需要该功能时将其禁用。
+  cvss: ''
+  severity: LOW
+  security_advise: >-
+    将 openclaw 升级至 2026.5.7 或更高版本。优先使用稳定的发送者标识符，并在完成修复之前限制 BlueBubbles 群组的访问范围。作为通用加固措施，应保持通道和工具白名单的最小化，避免在互不信任的用户之间共享同一 Gateway，并在不需要该功能时将其禁用。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8j37-5w68-wj2g
+rule: version <= "2026.5.6"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8j37-5w68-wj2g

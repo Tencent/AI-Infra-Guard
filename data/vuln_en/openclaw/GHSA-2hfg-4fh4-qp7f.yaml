@@ -1,0 +1,57 @@
+info:
+  name: OpenClaw
+  cve: GHSA-2hfg-4fh4-qp7f
+  summary: OpenClaw Browser act interactions could bypass private-network navigation checks
+  details: >-
+    Summary
+
+
+    OpenClaw's browser control SSRF checks blocked direct navigation to private or loopback URLs, but some Playwright act
+    interactions could trigger navigation after the initial check. A later browser evaluation could then read from the page
+    reached by that action-triggered navigation.
+
+
+    This issue is specific to browser control actions and private-network navigation policy. Browser evaluation remains an
+    intentional trusted-operator feature when it is used on pages that policy allowed the browser to visit.
+
+
+    Affected configurations
+
+
+    This affects deployments where browser control is enabled and an authenticated browser-control caller can interact with
+    an attacker-controlled page that redirects or navigates the tab to a private-network target through a UI action.
+
+
+    Impact
+
+
+    If the browser reached a private page through an unchecked action-triggered navigation, a caller with browser evaluation
+    capability could read page content that direct navigation policy would have blocked.
+
+
+    The issue does not grant access to OpenClaw without authentication. It bypasses the private-network navigation guard for
+    a specific browser action path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.18.
+
+
+    Mitigations
+
+
+    Upgrade to openclaw@2026.5.18 or later. Before upgrading, restrict browser-control access to trusted operators and avoid
+    using browser control on untrusted pages in environments with sensitive private web services.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.5.18 or later. Upgrade to openclaw@2026.5.18 or later. Before upgrading, restrict browser-control
+    access to trusted operators and avoid using browser control on untrusted pages in environments with sensitive private
+    web services.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-2hfg-4fh4-qp7f
+rule: version < "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-2hfg-4fh4-qp7f

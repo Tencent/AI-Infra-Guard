@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-985f-72mj-8gf7
+  summary: OpenClaw Tool group policy callers could accept unvalidated group IDs
+  details: >-
+    Summary
+
+
+    Tool group policy callers could accept unvalidated group IDs. In affected versions, a caller that can supply a group id
+    to the affected policy resolver could resolve policy for an unvalidated group id.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could apply the wrong group-policy decision for a tool invocation.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.4.25.
+
+
+    Mitigations
+
+
+    avoid exposing group-policy controlled tools to untrusted senders until patched. As general hardening, keep channel and
+    tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when
+    it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.25 or later. avoid exposing group-policy controlled tools to untrusted senders until patched.
+    As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users,
+    and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-985f-72mj-8gf7
+rule: version <= "2026.4.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-985f-72mj-8gf7

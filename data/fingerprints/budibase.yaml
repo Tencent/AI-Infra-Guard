@@ -1,0 +1,24 @@
+info:
+  name: Budibase
+  author: openclaw
+  severity: info
+  desc: Budibase is an open-source low-code platform for building AI agents, automations, and internal applications. It provides an AI Agent builder with LLM integration for creating intelligent business applications.
+  metadata:
+    product: budibase
+    vendor: budibase
+http:
+  - method: GET
+    path: '/builder'
+    matchers:
+      - 'body="<title>Budibase</title>"'
+  - method: GET
+    path: '/'
+    matchers:
+      - 'body="spectrum--medium" && body="/builder/fonts/phosphor-icons"'
+version:
+  - method: GET
+    path: '/api/dev/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([^"]+)"'
