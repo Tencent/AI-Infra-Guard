@@ -516,6 +516,9 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 Merci aux équipes de recherche ayant cité A.I.G dans leurs travaux académiques (19 articles) :
 
+<details>
+<summary>📄 Voir les 19 articles cités</summary>
+
 1. Chenning Li, Pan Hu, Justin Xu et al. **"ADR: An Agentic Detection System for Enterprise Agentic AI Security."** arXiv preprint arXiv:2605.17380 (2026). [[pdf]](http://arxiv.org/abs/2605.17380v1)
 
 2. Zhaojiacheng Zhou. **"Proteus: A Self-Evolving Red Team for Agent Skill Ecosystems."** arXiv preprint arXiv:2605.11891 (2026). [[pdf]](http://arxiv.org/abs/2605.11891v1)
@@ -553,6 +556,8 @@ Merci aux équipes de recherche ayant cité A.I.G dans leurs travaux académique
 18. Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)
 
 19. Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)
+
+</details>
 
 📧 Si vous avez utilisé A.I.G dans vos recherches ou votre produit, ou si nous avons involontairement omis votre publication, n'hésitez pas à nous contacter ! [Contactez-nous ici](#-rejoindre-la-communauté).
 <br>

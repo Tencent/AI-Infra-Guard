@@ -516,6 +516,9 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 학술 연구에서 A.I.G를 인용해 주신 연구팀에 감사드립니다 (19편):
 
+<details>
+<summary>📄 인용된 논문 19편 모두 보기</summary>
+
 1. Chenning Li, Pan Hu, Justin Xu et al. **"ADR: An Agentic Detection System for Enterprise Agentic AI Security."** arXiv preprint arXiv:2605.17380 (2026). [[pdf]](http://arxiv.org/abs/2605.17380v1)
 
 2. Zhaojiacheng Zhou. **"Proteus: A Self-Evolving Red Team for Agent Skill Ecosystems."** arXiv preprint arXiv:2605.11891 (2026). [[pdf]](http://arxiv.org/abs/2605.11891v1)
@@ -553,6 +556,8 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 18. Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)
 
 19. Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)
+
+</details>
 
 📧 연구나 제품에서 A.I.G를 사용하셨거나, 저희가 실수로 귀하의 출판물을 누락했다면 연락 주시기 바랍니다! [문의하기](#-커뮤니티-참여).
 <br>
