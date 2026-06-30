@@ -438,6 +438,7 @@ A.I.G предоставляет полный набор API для создан
 <img src="../img/kingdee.png" alt="kingdee" height="40px">
 <img src="../img/unicom.png" alt="联通数科" height="40px">
 <img src="../img/changan.png" alt="长安汽车" height="40px">
+<img src="../img/tiane.png" alt="天鹅到家" height="35px">
 </div>
 
 <div align="center">
@@ -453,6 +454,7 @@ A.I.G предоставляет полный набор API для создан
 <img src="../img/huazhong.png" alt="华中科技大学" height="45px">
 <img src="../img/南开大学.jpg" alt="南开大学" height="45px">
 <img src="../img/四川大学.png" alt="四川大学" height="40px">
+<img src="../img/Binus_University.svg" alt="Binus University" height="45px">
 </div>
 
 <br>
