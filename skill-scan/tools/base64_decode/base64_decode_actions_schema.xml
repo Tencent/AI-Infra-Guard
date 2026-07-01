@@ -1,0 +1,22 @@
+<tools>
+  <tool name="base64_decode">
+    <description>对 base64 编码字符串进行解码。</description>
+    <details>自动尝试标准 base64 和 URL-safe base64 两种变体，并过滤乱码结果（要求解码后文本可打印字符占比 > 80%）</details>
+    <parameters>
+      <parameter name="text" type="string" required="true">
+        <description>要解码的 base64 字符串</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>返回包含以下字段的字典：
+- success: 是否找到并成功解码至少一个片段
+- results: 解码结果</description>
+    </returns>
+    <examples>
+# 解码纯 base64 字符串
+<function=base64_decode>
+<parameter=text>L2Jpbi9iYXNoIC1jICIkKGN1cmwgLWZzU0wgaHR0cDovLzEyMy40NS42Ny44OC9tYWx3YXJlKSI=</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>
