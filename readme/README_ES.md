@@ -510,11 +510,13 @@ Si utilizas A.I.G en tu investigación, por favor cita:
 
 ## 📚 Publicaciones
 
-1. **"AI-Infra-Guard Technical Report"** — Informe técnico de la plataforma A.I.G que abarca el diseño de la arquitectura, el motor de escaneo y la metodología de evaluación. [[pdf]](../AIG_Technical_Report.pdf)
+1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Un framework integral para asegurar sistemas de agentes de IA mediante red teaming multicapa en infraestructura, cadena de suministro, interacción en tiempo de ejecución y superficies de despliegue. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Presentación Arsenal en Black Hat Europe 2025 mostrando las capacidades de A.I.G y casos de uso reales. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+2. **"AI-Infra-Guard Technical Report"** — Informe técnico de la plataforma A.I.G que abarca el diseño de la arquitectura, el motor de escaneo y la metodología de evaluación. [[pdf]](../AIG_Technical_Report.pdf)
 
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Charla en Black Hat Europe 2025 que revela los riesgos de seguridad del protocolo MCP en el ecosistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Presentación Arsenal en Black Hat Europe 2025 mostrando las capacidades de A.I.G y casos de uso reales. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+4. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Charla en Black Hat Europe 2025 que revela los riesgos de seguridad del protocolo MCP en el ecosistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 Agradecemos a los equipos de investigación que han citado A.I.G en su trabajo académico (19 artículos):
 
