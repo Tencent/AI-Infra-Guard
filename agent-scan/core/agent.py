@@ -56,6 +56,10 @@ _DETECTION_SKILLS: List[str] = [
     "tool-abuse-detection",
     "indirect-injection-detection",
     "authorization-bypass-detection",
+    "direct-injection-detection",
+    "file-path-traversal-detection",
+    "hardcoded-secret-detection",
+    "memory-poisoning-detection",
 ]
 
 # Maximum number of skill workers allowed to call ``dialogue()`` simultaneously.
