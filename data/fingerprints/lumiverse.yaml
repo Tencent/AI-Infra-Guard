@@ -1,0 +1,13 @@
+info:
+  name: Lumiverse
+  author: A.I.G bot
+  severity: info
+  desc: Lumiverse is a self-hosted, full-featured AI chat application built in TypeScript/Bun. It supports roleplay, storytelling, and multi-provider LLM conversations with an MCP extension runtime.
+  metadata:
+    product: lumiverse
+    vendor: prolix-oc
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Lumiverse</title>"

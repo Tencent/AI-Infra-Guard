@@ -1,0 +1,13 @@
+info:
+  name: mem0
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个开源的 AI 记忆层服务，为 AI Agent 和应用提供记忆管理与搜索能力，支持自托管部署。
+  metadata:
+    product: mem0
+    vendor: mem0ai
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="Mem0 REST APIs"

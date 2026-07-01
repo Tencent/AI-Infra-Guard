@@ -1,0 +1,42 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wv26-j37q-2g7p
+  summary: OpenClaw Slack 插件审批使用了 exec 审批门控来处理插件操作
+  details: >-
+    摘要
+
+
+    Slack 插件审批使用了 exec 审批门控来处理插件操作。在受影响版本中，仅被授权进行 exec 审批的 Slack
+    用户，可通过 exec 审批门控来解决插件审批请求。
+
+
+    本安全公告的影响范围限定于所述功能及其配置。它不改变 OpenClaw 的受信任运营者模型：经过身份验证的
+    Gateway 运营者、已安装的插件以及有意开放的本地执行接口，除非额外的策略、审批、白名单、沙箱或鉴权边界被突破，否则仍属可信范围。
+
+
+    影响
+
+
+    当受影响功能启用且可被访问时，此漏洞可能导致插件操作在运营者预期的审批分级机制之外被通过。实际影响程度取决于运营者的配置，以及较低可信度的输入是否能够到达该代码路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.12。
+
+
+    缓解措施
+
+
+    在完成修复升级之前，保持审批白名单的一致性并手动审查 Slack 审批操作。作为通用安全加固措施，保持信道与工具白名单的最小化，避免在互不信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    将 openclaw 升级至 2026.5.12 或更高版本。在完成修复升级之前，保持审批白名单的一致性并手动审查 Slack 审批操作。作为通用安全加固措施，保持信道与工具白名单的最小化，避免在互不信任的用户之间共享同一
+    Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wv26-j37q-2g7p
+rule: version < "2026.5.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wv26-j37q-2g7p

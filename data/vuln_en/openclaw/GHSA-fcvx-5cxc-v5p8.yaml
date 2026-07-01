@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-fcvx-5cxc-v5p8
+  summary: OpenClaw Slack reaction events could ignore reaction notification settings
+  details: >-
+    Summary
+
+
+    Slack reaction events could ignore reaction notification settings. In affected versions, a Slack reaction event delivered
+    to the configured app could enter the agent pipeline even when reaction notifications were disabled.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could trigger unintended agent processing for reaction events.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.12.
+
+
+    Mitigations
+
+
+    disable or restrict Slack reaction event subscriptions until patched if this path is not needed. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  cvss: ''
+  severity: LOW
+  security_advise: >-
+    Upgrade openclaw to 2026.5.12 or later. disable or restrict Slack reaction event subscriptions until patched if this path
+    is not needed. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually
+    untrusted users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-fcvx-5cxc-v5p8
+rule: version <= "2026.5.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-fcvx-5cxc-v5p8

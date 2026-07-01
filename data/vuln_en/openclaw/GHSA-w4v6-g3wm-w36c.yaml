@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w4v6-g3wm-w36c
+  summary: OpenClaw QQBot admin commands could skip DM-only and allowFrom policy
+  details: >-
+    Summary
+
+
+    QQBot admin commands could skip DM-only and allowFrom policy. In affected versions, a QQBot sender able to trigger the
+    exported command could route admin commands without the QQBot-specific DM-only and allowFrom checks.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could run QQBot admin behavior from a sender or context that
+    policy should have blocked. Practical impact depends on the operator's configuration and whether lower-trust input can
+    reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.4.29.
+
+
+    Mitigations
+
+
+    disable exported QQBot admin commands or restrict QQBot access until patched. As general hardening, keep channel and tool
+    allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it
+    is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.29 or later. disable exported QQBot admin commands or restrict QQBot access until patched.
+    As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users,
+    and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w4v6-g3wm-w36c
+rule: version < "2026.4.29"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w4v6-g3wm-w36c

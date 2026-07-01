@@ -1,0 +1,24 @@
+info:
+  name: boxlite
+  author: A.I.G bot
+  severity: info
+  desc: BoxLite is an embeddable VM runtime for secure AI agent isolation. It allows
+    users to create lightweight virtual machines (Boxes) and launch OCI containers
+    within them to run untrusted code. Provides a REST API server (default port 8100)
+    for AI agent sandbox orchestration with OpenAI-compatible LLM service support.
+  metadata:
+    product: boxlite
+    vendor: boxlite-ai
+http:
+  - method: GET
+    path: '/v1/config'
+    matchers:
+      - body="clone_enabled"
+      - body="snapshots_enabled"
+    version:
+      - method: GET
+        path: '/v1/config'
+        extractor:
+          part: header
+          group: 1
+          regex: 'x-boxlite-version:\s*([\d.]+)'

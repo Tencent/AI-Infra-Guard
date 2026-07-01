@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-8mg9-j9cf-54cj
+  summary: OpenClaw Empty-scope device re-pairing could confuse caller scope containment
+  details: >-
+    Summary
+
+
+    Empty-scope device re-pairing could confuse caller scope containment. In affected versions, a device re-pairing request
+    with an empty scope set could skip the intended containment guard during re-pairing.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could restore or retain scopes broader than the caller should
+    grant. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.4.25.
+
+
+    Mitigations
+
+
+    revoke unexpected device sessions and require fresh pairing for suspicious devices until patched. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.25 or later. revoke unexpected device sessions and require fresh pairing for suspicious devices
+    until patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually
+    untrusted users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-8mg9-j9cf-54cj
+rule: version <= "2026.4.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-8mg9-j9cf-54cj

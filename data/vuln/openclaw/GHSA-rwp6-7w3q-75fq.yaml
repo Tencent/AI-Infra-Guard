@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rwp6-7w3q-75fq
+  summary: OpenClaw 配置恢复操作可能以过宽的文件权限还原 openclaw.json
+  details: >-
+    摘要
+
+
+    配置恢复操作可能以过宽的文件权限还原 openclaw.json。在受影响版本中，配置修复后的本地恢复路径，
+    可能导致还原后的配置文件权限比预期更为宽松。
+
+
+    本安全公告的影响范围限定于上述特定功能和配置。它不改变 OpenClaw 的可信操作员模型：经过身份验证的
+    Gateway 操作员、已安装的插件以及预期的本地执行面，在未跨越独立的策略、审批、白名单、沙箱或认证边界的情况下，
+    仍被视为可信实体。
+
+
+    影响
+
+
+    当受影响功能被启用且可访问时，在操作系统权限允许的情况下，本地配置可能被同主机其他用户读取。
+    实际影响取决于操作员的配置，以及低信任级别的输入是否能够到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.4.24。
+
+
+    缓解措施
+
+
+    在修复完成前，在共享主机上执行恢复操作后，检查 openclaw.json 的文件权限。作为常规安全加固措施，
+    应保持通道和工具白名单的严格限制，避免在相互不受信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    将 openclaw 升级至 2026.4.24 或更高版本。在修复完成前，在共享主机上执行恢复操作后，检查 openclaw.json 的文件权限。
+    作为常规安全加固措施，应保持通道和工具白名单的严格限制，避免在相互不受信任的用户之间共享同一 Gateway，
+    并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rwp6-7w3q-75fq
+rule: version == "2026.4.23"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rwp6-7w3q-75fq

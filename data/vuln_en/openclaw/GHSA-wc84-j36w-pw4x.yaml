@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-wc84-j36w-pw4x
+  summary: >-
+    OpenClaw Workspace .env STATE_DIRECTORY could influence bundled runtime dependency roots
+  details: >-
+    Summary
+
+
+    Workspace .env STATE_DIRECTORY could influence bundled runtime dependency roots. In affected versions, a workspace .env
+    in a repository opened by a trusted operator could set STATE_DIRECTORY before runtime dependency root resolution.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could load bundled runtime dependencies from an unintended local
+    state path. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.2.
+
+
+    Mitigations
+
+
+    avoid opening untrusted workspace env files before runtime dependency installation until patched. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.2 or later. avoid opening untrusted workspace env files before runtime dependency installation
+    until patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually
+    untrusted users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-wc84-j36w-pw4x
+rule: version < "2026.5.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-wc84-j36w-pw4x
