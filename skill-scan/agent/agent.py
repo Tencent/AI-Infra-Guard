@@ -108,29 +108,21 @@ _OUTPUT_FORMAT = """## AI Agent OWASP TOP10 漏洞分类
 使用"编号: 名称"格式填写最匹配的分类（如 `T01: 命令注入`）；不在上述分类中的问题填 `other:事件类型`；无问题的文件 `category` 留空,多个分类用,(逗号)分隔。
 
 ## 返回期望
-必须以如下 XML 格式返回：
-<result>
-  <level>malicious|suspicious|normal</level>
-  <reason>给出判断原因详情</reason>
-  <category>ASI01: Agent Goal Hijack</category>
-  <files>
-    <file>
-      <path>文件绝对路径</path>
-      <level>malicious|suspicious|normal</level>
-      <reason>该文件的评级依据，无问题填 clean</reason>
-      <category>ASI01: Agent Goal Hijack</category>
-    </file>
-  </files>
-</result>
-顶层 level 取所有文件中最高等级，顶层 `category` 取所有文件中最严重问题所对应的分类。每个被审计的文件都必须有对应的 <file> 条目。
-优先输出 repo 根目录下的绝对路径，不要虚构不存在的路径。
-只输出 XML，不添加其他文字。"""
+以 Markdown 格式返回审计报告。对于每个确认的漏洞，必须提供：
+- 具体位置：文件路径和行号范围
+- 完整代码片段：显示漏洞的代码段
+- 技术分析：漏洞原理和利用方法
+- 影响评估：可获得的权限和影响范围
+- 修复建议：详细的安全加固方案
+- 攻击路径：具体的利用步骤（如适用）
+严格标准：必须提供完整的漏洞利用路径和影响分析。
+若未发现漏洞，输出"未发现安全漏洞"并简要说明审计覆盖范围。"""
 
 
 _LANGUAGE_DIRECTIVE_EN = """
 
 ## 语言要求 / Language Requirement
-You MUST write ALL textual output in English, including all textual fields in the XML output. Do not use Chinese in the final output.
+You MUST write ALL textual output in English, including all textual fields in the audit report. Do not use Chinese in the final output.
 
 For the risk_type / category field, keep the Txx code but you MUST use the following English category names (do NOT copy the Chinese names from the table above):
 - T01: Command Injection

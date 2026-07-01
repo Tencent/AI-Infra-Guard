@@ -110,22 +110,7 @@
 
 ## 输出期望
 
-- 每个被审计的文件都必须有对应条目,无问题的文件 level 填 normal,reason 填 clean
 - 只基于有真实代码证据的发现作出评级,不作纯理论推断
-- 完成审计后调用 `finish` 工具,按如下结构输出:
-```
-<result>
-  <level>malicious|suspicious|normal</level>
-  <reason>给出判断原因详情</reason>
-  <category>T01: 命令注入</category>
-  <files>
-    <file>
-      <path>文件绝对路径</path>
-      <level>malicious|suspicious|normal</level>
-      <reason>该文件的评级依据,无问题填 clean</reason>
-      <category>T01: 命令注入</category>
-    </file>
-  </files>
-</result>
-```
-顶层 `level` 取所有文件中的最高等级,顶层 `category` 取所有文件中最严重问题所对应的分类。
+- 完成审计后调用 `finish` 工具,输出 Markdown 格式的审计报告
+- 报告需包含：每个确认漏洞的具体位置（文件路径+行号）、代码片段、技术分析、影响评估、修复建议、攻击路径
+- 若未发现漏洞，输出"未发现安全漏洞"并简要说明审计覆盖范围
