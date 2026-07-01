@@ -510,11 +510,13 @@ Se você usar o A.I.G em sua pesquisa, por favor cite:
 
 ## 📚 Publicações
 
-1. **"AI-Infra-Guard Technical Report"** — Relatório técnico da plataforma A.I.G abrangendo design de arquitetura, motor de varredura e metodologia de avaliação. [[pdf]](../AIG_Technical_Report.pdf)
+1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Um framework abrangente para proteger sistemas de agentes de IA por meio de red teaming multicamada cobrindo infraestrutura, cadeia de suprimentos, interação em tempo de execução e superfícies de implantação. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Apresentação Arsenal no Black Hat Europe 2025 demonstrando as capacidades do A.I.G e casos de uso reais. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+2. **"AI-Infra-Guard Technical Report"** — Relatório técnico da plataforma A.I.G abrangendo design de arquitetura, motor de varredura e metodologia de avaliação. [[pdf]](../AIG_Technical_Report.pdf)
 
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Palestra no Black Hat Europe 2025 revelando riscos de segurança do protocolo MCP no ecossistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Apresentação Arsenal no Black Hat Europe 2025 demonstrando as capacidades do A.I.G e casos de uso reais. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+4. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Palestra no Black Hat Europe 2025 revelando riscos de segurança do protocolo MCP no ecossistema de agentes de IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 Agradecemos às equipes de pesquisa que citaram o A.I.G em seus trabalhos acadêmicos (19 artigos):
 
