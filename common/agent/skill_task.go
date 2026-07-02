@@ -141,17 +141,17 @@ func (s *SkillTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	if transport == "code" {
 		argv = append(argv, "--repo", folder)
 		taskTitles = []string{
-			"Info Collection",
-			"Code Audit",
-			"Vulnerability Review",
+			"信息收集 / Info Collection",
+			"代码审计 / Code Audit",
+			"漏洞整理 / Vulnerability Review",
 		}
 	} else {
 		// Reserved for future url-mode support; currently skill-scan is code-only.
 		argv = append(argv, "--repo", folder)
 		taskTitles = []string{
-			"Info Collection",
-			"Code Audit",
-			"Vulnerability Review",
+			"信息收集 / Info Collection",
+			"代码审计 / Code Audit",
+			"漏洞整理 / Vulnerability Review",
 		}
 	}
 

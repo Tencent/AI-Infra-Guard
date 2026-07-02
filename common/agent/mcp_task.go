@@ -149,17 +149,17 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	if transport == "code" {
 		argv = append(argv, "--repo", folder)
 		taskTitles = []string{
-			"Info Collection",
-			"Code Audit",
-			"Vulnerability Review",
+			"信息收集 / Info Collection",
+			"代码审计 / Code Audit",
+			"漏洞整理 / Vulnerability Review",
 		}
 	} else if transport == "url" {
 		argv = append(argv, "--server_url", serverUrl)
 		taskTitles = []string{
-			"Info Collection",
-			"Malicious Testing",
-			"Vulnerability Testing",
-			"Vulnerability Review",
+			"信息收集 / Info Collection",
+			"恶意行为检测 / Malicious Testing",
+			"漏洞检测 / Vulnerability Testing",
+			"漏洞整理 / Vulnerability Review",
 		}
 	}
 
