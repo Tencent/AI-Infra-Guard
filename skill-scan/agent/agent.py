@@ -118,6 +118,36 @@ _OUTPUT_FORMAT = """## AI Agent Skill 风险分类
 若未发现漏洞，输出"未发现安全漏洞"并简要说明审计覆盖范围。"""
 
 
+_OUTPUT_FORMAT_EN = """## AI Agent Skill Risk Classification
+
+During the audit, if issues are found, select the **best matching** label from the following classification:
+
+| ID | Name | Attack Category | Target | Core Attack Method |
+|-----|------|---------|---------|------------|
+| T01 | Skill Instruction Hijacking | Instructions / Skill text | Alters the agent's current session goals or safety constraints when the skill is loaded |
+| T02 | Agent Memory Poisoning | Long-term memory / state storage | Writes attacker-controlled rules into persistent memory so they continue to affect future sessions |
+| T03 | Remote Payload Retrieval and Execution | Code execution channel | Fetches code from an external URL, allowing the effective payload to change after skill review |
+| T04 | Embedded Malicious Code | Skill scripts/ directory | Ships malicious scripts inside the skill package and executes them locally when invoked |
+| T05 | Unauthorized Access and Privilege Escalation | System permissions / access control | Breaks least-privilege boundaries by obtaining permissions beyond the task's legitimate needs |
+| T06 | System Persistence | Startup services / scheduled tasks | Installs cross-session backdoors, hooks, services, or scheduled tasks that survive the skill run |
+| T07 | Tool Hijacking and Spoofing | Local tools / APIs | Modifies, wraps, spoofs, or replaces tools so legitimate-looking calls execute attacker logic |
+| T08 | Insecure Dependencies | Third-party dependencies / supply chain | Introduces malicious packages or components through dependency confusion, typosquatting, or unsafe sources |
+| T09 | Insecure Skill Coding Practices | Skill code / configuration | Exposes exploitable flaws such as hardcoded secrets, command injection, plaintext sensitive data, or unsafe temp files |
+
+Use the "ID: Name" format to fill in the best matching classification (e.g., `T01: Skill Instruction Hijacking`). For issues not in the above classification, fill `other: <event type>`. Leave `category` empty for files with no issues. Multiple classifications are separated by commas.
+
+## Return Expectations
+Return the audit report in Markdown format. For each confirmed vulnerability, you must provide:
+- Specific location: file path and line number range
+- Complete code snippet: the code segment showing the vulnerability
+- Technical analysis: vulnerability principles and exploitation methods
+- Impact assessment: privileges and scope that can be obtained
+- Remediation suggestions: detailed security hardening plan
+- Attack path: specific exploitation steps (if applicable)
+Strict criteria: must provide complete vulnerability exploitation paths and impact analysis.
+If no vulnerabilities are found, output "No security vulnerabilities found" and briefly describe the audit coverage scope."""
+
+
 _LANGUAGE_DIRECTIVE_EN = """
 
 ## 语言要求 / Language Requirement
@@ -213,12 +243,18 @@ class ScanPipeline:
         agent.set_repo_dir(repo_dir)
         await agent.initialize()
 
-        # 构造用户消息
-        user_msg = f"请进行{stage.name}，项目文件夹在 {repo_dir}\n{prompt}"
+        # 构造用户消息（根据 language 选择中/英文引导语）
+        if stage.language == "en":
+            user_msg = f"Please perform {stage.name}, the project folder is at {repo_dir}\n{prompt}"
+        else:
+            user_msg = f"请进行{stage.name}，项目文件夹在 {repo_dir}\n{prompt}"
 
         if inject_repo_tree:
             repo_tree = _build_repo_tree(repo_dir)
-            user_msg += f"\n\n以下是该项目的完整目录结构，供你参考：\n```\n{repo_tree}\n```"
+            if stage.language == "en":
+                user_msg += f"\n\nThe following is the complete directory structure of the project for your reference:\n```\n{repo_tree}\n```"
+            else:
+                user_msg += f"\n\n以下是该项目的完整目录结构，供你参考：\n```\n{repo_tree}\n```"
 
         if inject_pre_scan:
             pre_scan_hints = pre_scan(repo_dir)
@@ -226,7 +262,10 @@ class ScanPipeline:
                 user_msg += f"\n\n{pre_scan_hints}"
 
         if context_data:
-            user_msg += "\n\n有以下背景信息：\n"
+            if stage.language == "en":
+                user_msg += "\n\nThe following background information is provided:\n"
+            else:
+                user_msg += "\n\n有以下背景信息：\n"
             for key, value in context_data.items():
                 user_msg += f"{key}:{value}\n\n"
 
@@ -294,15 +333,30 @@ class Agent:
             return result_meta
 
         # Stage 1: Info Collection
-        info_ret_format = (
-            "生成详细的信息收集报告，Markdown格式，基于输入数据如实总结。"
-            "报告需包含：项目概述、SKILL.md 元数据分析、工具/脚本清单、依赖与资源、"
-            "技术分析（语言/框架/入口）、安全评估（权限需求/网络暴露面）。"
-        )
+        if language == "en":
+            info_ret_format = (
+                "Generate a detailed information collection report in Markdown format, "
+                "based on input data. The report should include: project overview, "
+                "SKILL.md metadata analysis, tools/scripts inventory, dependencies and resources, "
+                "technical analysis (language/framework/entry points), and security assessment "
+                "(permission requirements/network exposure). "
+                "You MUST write the entire report in English."
+            )
+            stage1_name = "Info Collection"
+            ctx_key1 = "Info Collection Report"
+        else:
+            info_ret_format = (
+                "生成详细的信息收集报告，Markdown格式，基于输入数据如实总结。"
+                "报告需包含：项目概述、SKILL.md 元数据分析、工具/脚本清单、依赖与资源、"
+                "技术分析（语言/框架/入口）、安全评估（权限需求/网络暴露面）。"
+                "必须使用中文回复。"
+            )
+            stage1_name = "信息收集"
+            ctx_key1 = "信息收集报告"
         info_collection = await self.pipeline.execute_stage(
             ScanStage(
                 "1",
-                "Info Collection",
+                stage1_name,
                 "agents/project_summary",
                 output_format=info_ret_format,
                 language=language,
@@ -312,26 +366,61 @@ class Agent:
         )
 
         # Stage 2: Code Audit — 复用 SkillTrustBench T01-T09 内核
-        audit_ret_format = _OUTPUT_FORMAT
         if language == "en":
-            audit_ret_format = _OUTPUT_FORMAT + _LANGUAGE_DIRECTIVE_EN
+            audit_ret_format = _OUTPUT_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
+            stage2_name = "Code Audit"
+            ctx_key2 = "Code Audit Report"
+        else:
+            audit_ret_format = _OUTPUT_FORMAT
+            stage2_name = "代码审计"
+            ctx_key2 = "代码审计报告"
         code_audit = await self.pipeline.execute_stage(
             ScanStage(
                 "2",
-                "Code Audit",
+                stage2_name,
                 "agents/code_audit",
                 output_format=audit_ret_format,
                 language=language,
             ),
             repo_dir,
             prompt,
-            {"信息收集报告": info_collection},
+            {ctx_key1: info_collection},
             inject_repo_tree=True,
             inject_pre_scan=True,
         )
 
         # Stage 3: Vulnerability Review
-        review_format = """
+        if language == "en":
+            review_format = """
+Must satisfy the following XML format. Return multiple <vuln> tags for multiple vulnerabilities.
+<vuln>
+  <title>title</title>
+  <desc>
+  <!-- Markdown format vulnerability description -->
+  ## Vulnerability Details
+  **File Location**: 
+  **Vulnerability Type**: 
+  **Risk Level**: 
+
+  ### Technical Analysis
+
+  ### Attack Path
+
+  ### Impact Assessment  
+  </desc>
+  <risk_type>RiskType</risk_type>
+  <level>Level</level>
+  <suggestion>
+  ## Remediation Suggestions
+  </suggestion>
+</vuln>
+If no vulnerabilities or empty, return <empty>
+""".strip()
+            review_format += _LANGUAGE_DIRECTIVE_EN
+            stage3_name = "Vulnerability Review"
+            ctx_key3 = "Code Audit Report"
+        else:
+            review_format = """
 必须满足以下xml格式，多个漏洞返回多个vuln标签
 <vuln>
   <title>title</title>
@@ -355,14 +444,14 @@ class Agent:
   </suggestion>
 </vuln>
 若无漏洞或漏洞为空,返回<empty>
+必须使用中文回复。
 """.strip()
-        if language == "en":
-            review_format += _LANGUAGE_DIRECTIVE_EN
-
+            stage3_name = "漏洞整理"
+            ctx_key3 = "代码审计报告"
         vuln_review = await self.pipeline.execute_stage(
             ScanStage(
                 "3",
-                "Vulnerability Review",
+                stage3_name,
                 "agents/vuln_review",
                 output_format=review_format,
                 output_check_fn=is_vuln_review_output,
@@ -370,7 +459,7 @@ class Agent:
             ),
             repo_dir,
             prompt,
-            {"代码审计报告": code_audit},
+            {ctx_key3: code_audit},
         )
 
         # 提取结果 + 算分
