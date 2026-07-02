@@ -1,0 +1,44 @@
+[project]
+name = "skill-scan"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "loguru==0.7.3",
+  "openai==2.8.1",
+  "pydantic==2.12.4",
+  "python-dotenv==1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.11.5",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+  "prompt",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+]
+ignore = [
+  "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false

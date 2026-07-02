@@ -1204,14 +1204,15 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	// 定义语言相关的文本
 	var texts struct {
 		// 任务类型标题
-		aiInfraScan, mcpScan, modelJailbreak, modelRedteamReport, agentScan, otherTask string
+		aiInfraScan, mcpScan, skillScan, modelJailbreak, modelRedteamReport, agentScan, otherTask string
 		// 其他文本
 		model, prompt, github, sse string
 	}
 
 	if language == "en" {
 		texts.aiInfraScan = "AI Infra Scan - "
-		texts.mcpScan = "AI Tool and Skill Scan - "
+		texts.mcpScan = "MCP Scan - "
+		texts.skillScan = "Skill Scan - "
 		texts.modelJailbreak = "LLM Jailbreaking - "
 		texts.modelRedteamReport = "Jailbreak Evaluation - "
 		texts.agentScan = "Agent Scan - "
@@ -1222,7 +1223,8 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.sse = "SSE:"
 	} else {
 		texts.aiInfraScan = "AI基础设施扫描 - "
-		texts.mcpScan = "AI工具技能扫描 - "
+		texts.mcpScan = "MCP扫描 - "
+		texts.skillScan = "Skill扫描 - "
 		texts.modelJailbreak = "一键越狱任务 - "
 		texts.modelRedteamReport = "大模型安全体检 - "
 		texts.agentScan = "Agent安全扫描 - "
@@ -1289,6 +1291,15 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		}
 		if req.Content != "" {
 			ret += " " + req.Content
+		}
+	case agent.TaskTypeSkillScan:
+		ret = texts.skillScan
+		if len(req.Attachments) > 0 && req.Attachments[0] != "" {
+			ret += tm.extractFileNameFromURL(req.Attachments[0])
+		} else if strings.Contains(req.Content, "github.com") {
+			ret += texts.github + tm.extractFileNameFromURL(req.Content)
+		} else {
+			ret += req.Content
 		}
 	default:
 		ret = texts.otherTask + req.Content

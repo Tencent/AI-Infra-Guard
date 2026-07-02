@@ -19,7 +19,6 @@
 package websocket
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,8 +35,9 @@ import (
 // ---------------------------------------------------------------------------
 
 const (
-	// githubTagsAPI is the GitHub API endpoint for listing repository tags.
-	githubTagsAPI = "https://api.github.com/repos/Tencent/AI-Infra-Guard/tags"
+	// githubReleasesLatestURL is the GitHub releases page that 302-redirects to the latest tag.
+	// Using the HTML page avoids the GitHub REST API rate limit (60 req/h for unauthenticated requests).
+	githubReleasesLatestURL = "https://github.com/Tencent/AI-Infra-Guard/releases/latest"
 
 	// versionCacheTTL controls how long the latest version result is cached.
 	versionCacheTTL = 10 * time.Minute
@@ -121,12 +121,17 @@ func HandleVersionCheck(c *gin.Context) {
 // GitHub tag fetching (with cache)
 // ---------------------------------------------------------------------------
 
-// githubTag represents a single tag from the GitHub API response.
-type githubTag struct {
-	Name string `json:"name"`
-}
-
 // getLatestVersion fetches the latest version tag from GitHub (cached).
+//
+// Instead of calling the GitHub REST API (which is rate-limited to 60 req/h
+// for unauthenticated requests and frequently returns 403), it requests the
+// GitHub releases "latest" page. GitHub responds with a 302 redirect whose
+// Location header contains the tag name (e.g. .../releases/tag/v4.1.11).
+//
+// On any failure (network error, unexpected status, parse error) the function
+// degrades gracefully by returning the currently running version and nil error,
+// so HandleVersionCheck treats it as "already up to date" without surfacing
+// an error to the user.
 func getLatestVersion() (string, error) {
 	// Check cache first.
 	latestVersionCache.mu.RLock()
@@ -137,57 +142,53 @@ func getLatestVersion() (string, error) {
 	}
 	latestVersionCache.mu.RUnlock()
 
-	// Fetch from GitHub.
-	client := &http.Client{Timeout: githubRequestTimeout}
-	req, err := http.NewRequest("GET", githubTagsAPI+"?per_page=10", nil)
-	if err != nil {
-		return "", fmt.Errorf("build request: %w", err)
+	// Request the releases/latest page. GitHub will 302-redirect to
+	// /releases/tag/vX.Y.Z. We disable automatic redirect-following so we
+	// can read the tag name directly from the Location header.
+	client := &http.Client{
+		Timeout: githubRequestTimeout,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse // do not follow redirects automatically
+		},
 	}
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	req, err := http.NewRequest(http.MethodGet, githubReleasesLatestURL, nil)
+	if err != nil {
+		// Degrade: return the current version without error.
+		return version.GetVersion(), nil
+	}
+	req.Header.Set("Accept", "text/html,application/xhtml+xml")
 	req.Header.Set("User-Agent", "AI-Infra-Guard/"+version.GetVersion())
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("request GitHub API: %w", err)
+		// Degrade: return the current version without error.
+		return version.GetVersion(), nil
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
-	}
-
-	var tags []githubTag
-	if err := json.NewDecoder(resp.Body).Decode(&tags); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	if len(tags) == 0 {
-		return "", fmt.Errorf("no tags found in repository")
-	}
-
-	// Find the highest semver tag (tags from GitHub are not guaranteed sorted).
-	latest := ""
-	for _, t := range tags {
-		name := t.Name
-		if !strings.HasPrefix(name, "v") {
-			continue
-		}
-		if latest == "" || compareVersions(latest, name) {
-			latest = name
+	// Expect a 301/302 redirect. Parse the tag from the Location header.
+	// e.g. Location: https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.11
+	if resp.StatusCode == http.StatusMovedPermanently || resp.StatusCode == http.StatusFound {
+		location := resp.Header.Get("Location")
+		if location != "" {
+			idx := strings.LastIndex(location, "/")
+			if idx >= 0 && idx < len(location)-1 {
+				tag := location[idx+1:]
+				if strings.HasPrefix(tag, "v") {
+					// Update cache.
+					latestVersionCache.mu.Lock()
+					latestVersionCache.version = tag
+					latestVersionCache.fetchedAt = time.Now()
+					latestVersionCache.mu.Unlock()
+					return tag, nil
+				}
+			}
 		}
 	}
 
-	if latest == "" {
-		return "", fmt.Errorf("no valid version tags found")
-	}
-
-	// Update cache.
-	latestVersionCache.mu.Lock()
-	latestVersionCache.version = latest
-	latestVersionCache.fetchedAt = time.Now()
-	latestVersionCache.mu.Unlock()
-
-	return latest, nil
+	// Degrade: any unexpected situation returns the current version without error.
+	return version.GetVersion(), nil
 }
 
 // ---------------------------------------------------------------------------
