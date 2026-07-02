@@ -87,25 +87,24 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
     return "\n".join(lines)
 
 
-# OWASP TOP10 漏洞分类表 — skill-scan 专属审计内核
-_OUTPUT_FORMAT = """## AI Agent OWASP TOP10 漏洞分类
+# SkillTrustBench T01-T09 漏洞分类表 — skill-scan 专属审计内核
+_OUTPUT_FORMAT = """## AI Agent Skill 风险分类
 
 在审计过程中，若发现问题，需从以下分类中选取**最匹配的一个**标签标注到对应文件：
 
-| 编号 | 名称        | 典型信号                                                                                                                  |
-|-----|-----------|-----------------------------------------------------------------------------------------------------------------------|
-| T01 | 命令注入      | `eval()`/`exec()` 动态执行外部输入；字符串拼接构造 Shell 命令；`curl\\|sh` 管道执行远程脚本；SKILL.md 安装步骤含混淆命令（base64 decode + exec）或从裸 IP 下载执行文件 |
-| T02 | 权限提升      | `sudo` 执行特权命令；`chmod`/`chown` 修改系统关键资源权限；利用系统配置缺陷突破用户权限边界；子 Agent 继承远超任务所需的权限范围                                       |
-| T03 | 破坏性行动     | `rm`/`dd`/`mkfs` 等高危文件操作；大范围删除文件或格式化磁盘；覆盖关键系统配置；操作不可逆且无二次确认提示                                                         |
-| T04 | 敏感信息外传    | 未声明的 HTTP 请求将本地数据上传至外部服务器；读取私密目录（`~/.cursor`、`~/.ssh`、聊天记录等）后外传；将环境变量通过网络请求泄露                                         |
-| T05 | 用户凭据泄露    | 硬编码 API Key/Token/密码（不论是否仅访问内网）；读取 `.env`、`credentials.json`、`mcp.json` 等凭据文件**并外传**；凭据写入日志；将凭据传递给**非白名单**外部服务。⚠️ 硬编码凭据但**未外传**（或仅访问白名单域名）→ suspicious，**不得判 malicious** |
-| T06 | 认知语境窃取    | 读取并外传 Agent 记忆文件（MEMORY.md 等）；获取系统提示或会话历史；通过提示操控使 AI 主动"泄露"其上下文给攻击者                                                   |
-| T07 | 提示注入      | 文档/代码/元数据中嵌入覆盖 AI 指令的隐藏内容；角色劫持、指令重定向；零宽字符/Unicode 编码混淆指令；越狱模式诱导 Agent 绕过安全限制                                          |
-| T08 | 恶意Skill投毒 | 伪装合法工具但内含隐藏恶意载荷；依赖包拼写劫持；从非官方域名/GitHub 个人账号/pastebin 下载并执行文件；MCP 描述符/agent-card 中注入恶意内容                                |
-| T09 | 持久化后门     | `crontab` 定时任务注入；写入 SSH 授权密钥；注册系统服务或启动项；反弹 Shell；加密货币挖矿；Skill 删除后仍持续活跃的后台进程                                           |
-| T10 | 间接提示注入    | Skill 动态抓取未经验证的外部网页、社交媒体帖子或第三方代码库作为 Agent 的上下文输入，未进行内容清洗（Sanitization）与沙箱隔离，导致提示注入                                    |
+| 编号 | 名称 | 攻击类别 | 依赖目标 | 核心攻击方法 |
+|-----|------|---------|---------|------------|
+| T01 | 技能指令劫持 | Instructions / Skill text | 当 skill 加载时篡改 agent 当前会话目标或安全约束 |
+| T02 | Agent 记忆投毒 | Long-term memory / state storage | 将攻击者控制的规则写入持久记忆，使其持续影响后续会话 |
+| T03 | 远程载荷获取与执行 | Code execution channel | 从外部 URL 获取代码，使有效载荷在 skill 审查后仍可变化 |
+| T04 | 嵌入恶意代码 | Skill scripts/ 目录 | 在 skill 包内携带恶意脚本，调用时本地执行 |
+| T05 | 未授权访问与权限提升 | System permissions / access control | 突破最小权限边界，获取超出任务合法所需的权限 |
+| T06 | 系统持久化 | Startup services / scheduled tasks | 安装跨会话后门、钩子、服务或定时任务，在 skill 运行后仍存活 |
+| T07 | 工具劫持与欺骗 | Local tools / APIs | 修改、包装、伪造或替换工具，使看似合法的调用执行攻击者逻辑 |
+| T08 | 不安全依赖 | Third-party dependencies / supply chain | 通过依赖混淆、拼写劫持或不安全来源引入恶意包或组件 |
+| T09 | 不安全 Skill 编码实践 | Skill code / configuration | 暴露可利用缺陷，如硬编码密钥、命令注入、明文敏感数据、不安全临时文件 |
 
-使用"编号: 名称"格式填写最匹配的分类（如 `T01: 命令注入`）；不在上述分类中的问题填 `other:事件类型`；无问题的文件 `category` 留空,多个分类用,(逗号)分隔。
+使用"编号: 名称"格式填写最匹配的分类（如 `T01: 技能指令劫持`）；不在上述分类中的问题填 `other:事件类型`；无问题的文件 `category` 留空,多个分类用,(逗号)分隔。
 
 ## 返回期望
 以 Markdown 格式返回审计报告。对于每个确认的漏洞，必须提供：
@@ -125,17 +124,16 @@ _LANGUAGE_DIRECTIVE_EN = """
 You MUST write ALL textual output in English, including all textual fields in the audit report. Do not use Chinese in the final output.
 
 For the risk_type / category field, keep the Txx code but you MUST use the following English category names (do NOT copy the Chinese names from the table above):
-- T01: Command Injection
-- T02: Privilege Escalation
-- T03: Destructive Actions
-- T04: Sensitive Data Exfiltration
-- T05: Credential Leakage
-- T06: Cognitive Context Theft
-- T07: Prompt Injection
-- T08: Malicious Skill Poisoning
-- T09: Persistence Backdoor
-- T10: Indirect Prompt Injection
-Example: `T04: Sensitive Data Exfiltration`. For non-listed issues use `other: <event type>` in English."""
+- T01: Skill Instruction Hijacking
+- T02: Agent Memory Poisoning
+- T03: Remote Payload Retrieval and Execution
+- T04: Embedded Malicious Code
+- T05: Unauthorized Access and Privilege Escalation
+- T06: System Persistence
+- T07: Tool Hijacking and Spoofing
+- T08: Insecure Dependencies
+- T09: Insecure Skill Coding Practices
+Example: `T04: Embedded Malicious Code`. For non-listed issues use `other: <event type>` in English."""
 
 
 def is_vuln_review_output(content: str) -> bool:
@@ -263,7 +261,7 @@ class Agent:
         """三阶段安全审计流水线。
 
         Stage 1: Info Collection — 信息收集（SKILL.md 元数据、工具定义、依赖、入口脚本）
-        Stage 2: Code Audit — 代码审计（OWASP TOP10 T01-T10 内核）
+        Stage 2: Code Audit — 代码审计（SkillTrustBench T01-T09 内核）
         Stage 3: Vulnerability Review — 漏洞整理（输出 <vuln> XML）
         """
         result_meta = {
@@ -313,7 +311,7 @@ class Agent:
             prompt,
         )
 
-        # Stage 2: Code Audit — 复用 OWASP TOP10 T01-T10 内核
+        # Stage 2: Code Audit — 复用 SkillTrustBench T01-T09 内核
         audit_ret_format = _OUTPUT_FORMAT
         if language == "en":
             audit_ret_format = _OUTPUT_FORMAT + _LANGUAGE_DIRECTIVE_EN
