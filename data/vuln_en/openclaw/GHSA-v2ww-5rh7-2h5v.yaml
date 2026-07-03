@@ -1,0 +1,64 @@
+info:
+  name: OpenClaw
+  cve: GHSA-v2ww-5rh7-2h5v
+  summary: OpenClaw Linux and macOS exec allowlists skipped configured argument patterns
+  details: >-
+    Summary
+
+
+    OpenClaw's exec allowlist supported optional argPattern entries to restrict the arguments accepted for an allowlisted
+    executable. In affected releases, Linux and macOS gateways skipped argPattern checks and treated a matching executable
+    path as sufficient to satisfy the allowlist.
+
+
+    This meant an operator could configure an allowlist entry that appeared to permit only a narrow argv shape, but OpenClaw
+    would allow other argv for the same executable without an approval prompt when tools.exec.security was set to allowlist.
+
+
+    This issue is limited to direct enforcement of configured argPattern values. OpenClaw's exec approvals remain best-effort
+    guardrails and do not attempt to semantically model every interpreter, loader, package script, shell feature, or transitive
+    file a command may use.
+
+
+    Affected configurations
+
+
+    This affects OpenClaw gateway deployments that meet all of these conditions:
+
+
+    - the gateway runs on Linux or macOS
+
+    - exec is configured with tools.exec.security: "allowlist"
+
+    - at least one exec allowlist entry uses argPattern
+
+    - the allowlisted executable accepts security-relevant arguments or flags
+
+
+    Path-only allowlist entries are not additionally affected by this issue, because those entries intentionally allow any
+    arguments for the matched executable. Windows was not affected by this specific bug because the affected code path already
+    applied argPattern checks on Windows.
+
+
+    Impact
+
+
+    If an untrusted or lower-trust sender can influence a tool-enabled agent to call exec, they may be able to run disallowed
+    arguments for an executable that the operator intended to restrict with argPattern. Depending on the executable, those
+    arguments can cause host-side file access, network access, or command execution that should have required an approval
+    prompt.
+
+
+    The practical impact depends on the operator's allowlist and channel exposure. Examples of higher-risk allowlisted executables
+    include tools with interpreter, loader, subprocess, network, or plugin flags such as...
+  cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: >-
+    Upgrade openclaw to 2026.5.12 or later. Upgrade to openclaw@2026.5.12 or later. Before upgrading, operators who use exec
+    allowlist mode should review entries that combine an executable path with argPattern, especially for interpreter-like
+    or subprocess-capable tools.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-v2ww-5rh7-2h5v
+rule: version < "2026.5.12"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-v2ww-5rh7-2h5v

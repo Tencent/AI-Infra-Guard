@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-vxx3-6hc9-7cc3
+  summary: OpenClaw Combined POSIX shell options could confuse exec revalidation
+  details: >-
+    Summary
+
+
+    Combined POSIX shell options could confuse exec revalidation. In affected versions, a command request using combined shell
+    flags could parse approval-time and execution-time shell options differently.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could run inline shell content without the intended allowlist
+    decision. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.12.
+
+
+    Mitigations
+
+
+    avoid combined shell option forms in allowlisted commands until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.12 or later. avoid combined shell option forms in allowlisted commands until patched. As general
+    hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable
+    the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-vxx3-6hc9-7cc3
+rule: version <= "2026.5.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-vxx3-6hc9-7cc3

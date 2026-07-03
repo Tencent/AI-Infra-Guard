@@ -1,0 +1,13 @@
+info:
+  name: AutoGPT
+  author: A.I.G bot
+  severity: info
+  desc: AutoGPT is an open-source workflow automation platform for creating, deploying, and managing continuous AI agents.
+  metadata:
+    product: autogpt
+    vendor: significant-gravitas
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>AutoGPT Platform</title>"

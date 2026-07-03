@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-gp79-m99v-gjmh
+  summary: OpenClaw Mattermost handlers could fall open when channel type was missing
+  details: >-
+    Summary
+
+
+    Mattermost handlers could fall open when channel type was missing. In affected versions, a Mattermost event missing channel
+    type metadata could continue without applying the intended DM policy decision.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could process a Mattermost event that should have been gated
+    by channel policy. Practical impact depends on the operator's configuration and whether lower-trust input can reach that
+    path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.6.
+
+
+    Mitigations
+
+
+    keep Mattermost bot access restricted and review channel metadata errors until patched. As general hardening, keep channel
+    and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature
+    when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.6 or later. keep Mattermost bot access restricted and review channel metadata errors until
+    patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted
+    users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-gp79-m99v-gjmh
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-gp79-m99v-gjmh

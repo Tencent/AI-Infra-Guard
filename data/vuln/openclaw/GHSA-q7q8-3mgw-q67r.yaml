@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-q7q8-3mgw-q67r
+  summary: OpenClaw 消息读取操作可能绕过频道白名单检查
+  details: >-
+    漏洞概述
+
+
+    消息读取操作可能绕过频道白名单检查。在受影响的版本中，能够访问受影响消息读取操作的低信任调用方可在不经过正常投递所用频道白名单检查的情况下请求消息。
+
+
+    本公告仅针对所述功能和配置。不影响 OpenClaw 的可信操作员模型：除非跨越独立的策略、审批、白名单、沙箱或认证边界，否则已认证的 Gateway 操作员、已安装的插件及有意设计的本地执行接口仍被视为可信。
+
+
+    漏洞影响
+
+
+    当受影响功能启用且可被访问时，此漏洞可能导致调用方获取并非为其设计的频道消息。实际影响取决于操作员的配置以及低信任输入是否能到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.19。
+
+
+    缓解措施
+
+
+    将消息读取操作限制为可信操作员，并保持频道白名单的严格范围。作为通用加固措施，保持频道和工具白名单的严格范围，避免多个互不信任的用户共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    升级 openclaw 至 2026.5.19 或更高版本。将消息读取操作限制为可信操作员，并保持频道白名单的严格范围。作为通用加固措施，保持频道和工具白名单的严格范围，避免多个互不信任的用户共享同一 Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-q7q8-3mgw-q67r
+rule: version <= "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-q7q8-3mgw-q67r

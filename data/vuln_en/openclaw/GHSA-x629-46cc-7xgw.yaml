@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-x629-46cc-7xgw
+  summary: OpenClaw Active Memory write scope could mutate global config
+  details: >-
+    Summary
+
+
+    Active Memory write scope could mutate global config. In affected versions, a Gateway caller with operator.write access
+    to the affected command could change global configuration without requiring operator.admin.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could apply configuration changes beyond the intended write scope.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.6.
+
+
+    Mitigations
+
+
+    limit Active Memory write access to trusted operators until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.6 or later. limit Active Memory write access to trusted operators until patched. As general
+    hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable
+    the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-x629-46cc-7xgw
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-x629-46cc-7xgw

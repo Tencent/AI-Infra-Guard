@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rj6p-xmxr-qj4h
+  summary: OpenClaw MCP loopback could skip owner-only tool policy for non-owner callers
+  details: >-
+    Summary
+
+
+    MCP loopback could skip owner-only tool policy for non-owner callers. In affected versions, a non-owner caller reaching
+    the affected loopback path could skip owner-only tool policy and before-tool-call hooks.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could invoke owner-only behavior through that loopback path.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Resolution
+
+
+    Update to a patched OpenClaw release when one is listed for this advisory. If the Patched versions field is populated,
+    use that version or later.
+
+
+    Mitigations
+
+
+    restrict MCP loopback access to trusted operators until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:L
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.4.24 or later. restrict MCP loopback access to trusted operators until patched. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rj6p-xmxr-qj4h
+rule: version < "2026.4.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rj6p-xmxr-qj4h

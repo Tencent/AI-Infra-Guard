@@ -1,0 +1,39 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c226-q6fx-6j6c
+  summary: OpenClaw macOS Swift 执行白名单遗漏了组合式 POSIX 内联标志
+  details: >-
+    摘要
+
+
+    macOS Swift 执行白名单遗漏了组合式 POSIX 内联标志。在受影响版本中，使用组合式 POSIX 内联命令标志的命令请求，可能绕过对组合标志中内联命令内容的检测。
+
+
+    本安全公告仅针对上述特定功能和配置。它不改变 OpenClaw 的受信任操作者模型：经过身份验证的 Gateway 操作者、已安装的插件以及有意设置的本地执行面仍属可信范围，除非跨越了独立的策略、审批、白名单、沙箱或认证边界。
+
+
+    影响
+
+
+    当受影响功能启用且可被访问时，可能执行预期白名单检查范围之外的 Shell 内容。实际影响取决于操作者的配置以及低信任输入是否能够到达该执行路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.6。
+
+
+    缓解措施
+
+
+    在修复之前，对 macOS 上的组合 Shell 标志形式要求审批确认。作为通用加固措施，保持通道和工具白名单的最小权限范围，避免在相互不信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:N
+  severity: MEDIUM
+  security_advise: >-
+    将 openclaw 升级至 2026.5.6 或更高版本。在修复之前，对 macOS 上的组合 Shell 标志形式要求审批确认。作为通用加固措施，保持通道和工具白名单的最小权限范围，避免在相互不信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c226-q6fx-6j6c
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c226-q6fx-6j6c

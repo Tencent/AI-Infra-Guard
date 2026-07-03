@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-68xw-r643-9p5w
+  summary: OpenClaw Skill-command dispatch could skip before-tool-call hooks
+  details: >-
+    Summary
+
+
+    Skill-command dispatch could skip before-tool-call hooks. In affected versions, a skill command routed through the affected
+    dispatch path could run without the same runBeforeToolCallHook coverage as other tool entry points.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could miss hook-based auditing or policy parity for that command
+    path. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.6.
+
+
+    Mitigations
+
+
+    avoid relying on hook-only enforcement for skill commands until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: ''
+  severity: LOW
+  security_advise: >-
+    Upgrade openclaw to 2026.5.6 or later. avoid relying on hook-only enforcement for skill commands until patched. As general
+    hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable
+    the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-68xw-r643-9p5w
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-68xw-r643-9p5w

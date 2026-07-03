@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-hw9r-h9mr-4jff
+  summary: >-
+    OpenClaw 作用域 chat.send 路由继承可能绕过管理员命令的作用域门控
+  details: >-
+    摘要
+
+
+    部分内部命令处理程序需要 operator.approvals 或 operator.admin 作用域。在受影响版本中，通过继承的外部路由投递的作用域 Gateway chat.send 请求，可能以外部通道命令的身份被评估，同时仍携带较低权限的 Gateway 客户端作用域。
+
+
+    本问题影响作用域 Gateway 客户端，不适用于使用共享密钥 Bearer HTTP 兼容端点的场景（该端点在 OpenClaw 信任模型中被记录为完整操作员面）。
+
+
+    受影响配置
+
+
+    本问题影响以下部署场景：具有 operator.write 权限的作用域 Gateway 调用方，可通过 chat.send 将消息投递至具有继承外部投递路由的会话中。
+
+
+    影响
+
+
+    本应要求 operator.approvals 或 operator.admin 权限的命令，可在此路由上下文中仅凭 operator.write 权限执行。受影响的命令类别包括审批解析及部分管理命令，如插件、配置、MCP、白名单和 ACP 变更操作。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.18。
+
+
+    缓解措施
+
+
+    升级至 openclaw@2026.5.18 或更高版本。升级前，避免向能够将命令投递至带外部路由会话的客户端授予 operator.write 令牌，除非这些客户端已被信任具备类管理员命令效果。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+  severity: HIGH
+  security_advise: >-
+    将 openclaw 升级至 2026.5.18 或更高版本。升级前，避免向能够将命令投递至带外部路由会话的客户端授予 operator.write
+    令牌，除非这些客户端已被信任具备类管理员命令效果。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-hw9r-h9mr-4jff
+rule: version < "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-hw9r-h9mr-4jff

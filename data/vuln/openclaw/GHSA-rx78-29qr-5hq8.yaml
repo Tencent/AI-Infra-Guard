@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rx78-29qr-5hq8
+  summary: OpenClaw 工作区派生的服务 PATH 可能影响 trash 命令的选择
+  details: >-
+    摘要
+
+
+    工作区派生的服务 PATH 可能影响 trash 命令的选择。在受影响版本中，工作区派生的环境路径可能在维护操作期间
+    选择非预期的 trash 可执行文件。
+
+
+    本安全公告的影响范围限定于上述特定功能和配置。它不改变 OpenClaw 的可信操作员模型：经过身份验证的
+    Gateway 操作员、已安装的插件以及预期的本地执行面，在未跨越独立的策略、审批、白名单、沙箱或认证边界的情况下，
+    仍被视为可信实体。
+
+
+    影响
+
+
+    当受影响功能被启用且可访问时，维护任务可能运行操作员非预期路径中的本地可执行文件。实际影响取决于操作员的配置，
+    以及低信任级别的输入是否能够到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.2。
+
+
+    缓解措施
+
+
+    在修复完成前，将维护流程限制在受信任的工作区和固定的服务路径上执行。作为常规安全加固措施，应保持通道和工具白名单的严格限制，
+    避免在相互不受信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    将 openclaw 升级至 2026.5.2 或更高版本。在修复完成前，将维护流程限制在受信任的工作区和固定的服务路径上执行。
+    作为常规安全加固措施，应保持通道和工具白名单的严格限制，避免在相互不受信任的用户之间共享同一 Gateway，
+    并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rx78-29qr-5hq8
+rule: version < "2026.5.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rx78-29qr-5hq8

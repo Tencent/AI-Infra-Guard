@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-p73f-w79w-jqr5
+  summary: OpenClaw Native command authorization could skip owner-command enforcement
+  details: >-
+    Summary
+
+
+    Native command authorization could skip owner-command enforcement. In affected versions, a sender able to trigger native
+    command handling could authorize a native command without enforcing the configured owner-only command policy.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could run an owner-style command from a sender that should not
+    have that command access. Practical impact depends on the operator's configuration and whether lower-trust input can reach
+    that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.6.
+
+
+    Mitigations
+
+
+    keep native command surfaces limited to trusted senders until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.6 or later. keep native command surfaces limited to trusted senders until patched. As general
+    hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable
+    the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-p73f-w79w-jqr5
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-p73f-w79w-jqr5

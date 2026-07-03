@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-w9hf-3pp7-pvxv
+  summary: OpenClaw Exported session HTML could keep unsafe markdown links
+  details: >-
+    Summary
+
+
+    Exported session HTML could keep unsafe markdown links. In affected versions, content rendered into an exported session
+    could preserve unsafe javascript: or data: links in generated HTML.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could run browser-side script if a trusted operator opens the
+    exported file and activates the link. Practical impact depends on the operator's configuration and whether lower-trust
+    input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.12.
+
+
+    Mitigations
+
+
+    do not open exported session HTML from untrusted content in a privileged browser profile until patched. As general hardening,
+    keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected
+    feature when it is not needed.
+  cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.12 or later. do not open exported session HTML from untrusted content in a privileged browser
+    profile until patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between
+    mutually untrusted users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-w9hf-3pp7-pvxv
+rule: version <= "2026.5.7"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-w9hf-3pp7-pvxv

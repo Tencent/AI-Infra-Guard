@@ -1,0 +1,13 @@
+info:
+  name: maxkb
+  author: A.I.G bot
+  severity: info
+  desc: MaxKB (Max Knowledge Brain) is an open-source enterprise AI agent platform supporting RAG knowledge base Q&A, workflow orchestration, and private deployment.
+  metadata:
+    product: maxkb
+    vendor: 1panel-dev
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>MaxKB</title>"

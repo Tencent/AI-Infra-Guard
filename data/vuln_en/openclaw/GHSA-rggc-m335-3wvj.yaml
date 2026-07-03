@@ -1,0 +1,48 @@
+info:
+  name: OpenClaw
+  cve: GHSA-rggc-m335-3wvj
+  summary: >-
+    OpenClaw Same-host trusted-proxy deployments could accept local forged identity headers
+  details: >-
+    Summary
+
+
+    Same-host trusted-proxy deployments could accept local forged identity headers. In affected versions, a local same-host
+    caller that can reach the proxy-facing Gateway port could supply identity headers normally reserved for the trusted proxy.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could receive operator identity associated with the forged headers.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.18.
+
+
+    Mitigations
+
+
+    bind trusted-proxy ingress behind the actual proxy and firewall direct same-host access. As general hardening, keep channel
+    and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature
+    when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.18 or later. bind trusted-proxy ingress behind the actual proxy and firewall direct same-host
+    access. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted
+    users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-rggc-m335-3wvj
+rule: version < "2026.5.18"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-rggc-m335-3wvj

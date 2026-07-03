@@ -1,0 +1,41 @@
+info:
+  name: OpenClaw
+  cve: GHSA-4hpg-mp64-x7xq
+  summary: >-
+    OpenClaw Internal/webchat 命令鉴权可能继承 ownerAllowFrom 的通配符状态
+  details: >-
+    漏洞概述
+
+
+    Internal/webchat 命令鉴权可能继承 ownerAllowFrom 的通配符状态。在受影响版本中，使用受影响内部渠道或 Webchat 路径的发送方可能跨渠道边界继承 ownerAllowFrom 的通配符状态。
+
+
+    本安全公告仅适用于上述特定功能和配置。它不改变 OpenClaw 的受信任操作员模型：已认证的 Gateway 操作员、已安装的插件以及有意的本地执行接口仍保持受信任状态，除非跨越了独立的策略、审批、白名单、沙箱或认证边界。
+
+
+    影响
+
+
+    当受影响功能被启用且可访问时，此漏洞可能导致执行本应限定在特定渠道范围内的 owner 级命令行为。实际影响取决于操作员的配置，以及低信任级别的输入是否能够到达该路径。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.4.25。
+
+
+    缓解措施
+
+
+    在完成修补之前，为每个渠道显式配置 owner 命令白名单。作为通用加固措施，保持渠道和工具白名单的精简，避免在互不信任的用户之间共享同一 Gateway，并在不需要时禁用受影响功能。
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    将 openclaw 升级至 2026.4.25 或更高版本。在完成修补之前，为每个渠道显式配置 owner 命令白名单。作为通用加固措施，保持渠道和工具白名单的精简，避免在互不信任的用户之间共享同一
+    Gateway，并在不需要时禁用受影响功能。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-4hpg-mp64-x7xq
+rule: version <= "2026.4.24"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-4hpg-mp64-x7xq

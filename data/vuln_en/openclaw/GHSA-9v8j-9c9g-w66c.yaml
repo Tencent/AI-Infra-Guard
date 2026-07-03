@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-9v8j-9c9g-w66c
+  summary: OpenClaw Bootstrap token replay could widen pending pairing scopes
+  details: >-
+    Summary
+
+
+    Bootstrap token replay could widen pending pairing scopes. In affected versions, a caller with access to a pending bootstrap
+    token could reuse the token before approval with a broader requested scope set.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could present or retain broader pending pairing authority than
+    intended. Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.12.
+
+
+    Mitigations
+
+
+    treat pairing codes as sensitive and cancel unexpected pending pairings until patched. As general hardening, keep channel
+    and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature
+    when it is not needed.
+  cvss: ''
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.12 or later. treat pairing codes as sensitive and cancel unexpected pending pairings until
+    patched. As general hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted
+    users, and disable the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-9v8j-9c9g-w66c
+rule: version <= "2026.5.10-beta.2"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-9v8j-9c9g-w66c

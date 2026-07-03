@@ -1,0 +1,46 @@
+info:
+  name: OpenClaw
+  cve: GHSA-c226-q6fx-6j6c
+  summary: OpenClaw macOS Swift exec allowlist missed combined POSIX inline flags
+  details: >-
+    Summary
+
+
+    macOS Swift exec allowlist missed combined POSIX inline flags. In affected versions, a command request using combined
+    POSIX inline-command flags could miss inline-command content expressed through combined flags.
+
+
+    This advisory is scoped to the named feature and configuration. It does not change OpenClaw's trusted-operator model:
+    authenticated Gateway operators, installed plugins, and intentional local execution surfaces remain trusted unless a separate
+    policy, approval, allowlist, sandbox, or auth boundary is crossed.
+
+
+    Impact
+
+
+    When the affected feature is enabled and reachable, this could run shell content outside the intended allowlist check.
+    Practical impact depends on the operator's configuration and whether lower-trust input can reach that path.
+
+
+    Patched Versions
+
+
+    The first stable patched version is 2026.5.6.
+
+
+    Mitigations
+
+
+    require approval for combined shell flag forms on macOS until patched. As general hardening, keep channel and tool allowlists
+    narrow, avoid sharing one Gateway between mutually untrusted users, and disable the affected feature when it is not needed.
+  cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:N
+  severity: MEDIUM
+  security_advise: >-
+    Upgrade openclaw to 2026.5.6 or later. require approval for combined shell flag forms on macOS until patched. As general
+    hardening, keep channel and tool allowlists narrow, avoid sharing one Gateway between mutually untrusted users, and disable
+    the affected feature when it is not needed.
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-c226-q6fx-6j6c
+rule: version <= "2026.5.5"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-c226-q6fx-6j6c

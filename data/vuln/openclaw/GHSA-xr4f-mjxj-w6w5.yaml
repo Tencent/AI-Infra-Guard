@@ -1,0 +1,47 @@
+info:
+  name: OpenClaw
+  cve: GHSA-xr4f-mjxj-w6w5
+  summary: OpenClaw 非所有者聊天发送方可签发设备配对引导码
+  details: >-
+    摘要
+
+
+    内置设备配对插件在普通聊天命令接口上暴露了 /pair 端点。在受影响版本中，已获授权的非所有者聊天发送方可在没有
+    owner、admin 或 pairing 权限范围的情况下签发设备配对引导码。
+
+
+    此问题不影响未经身份验证的用户。调用方必须已被允许通过已配置的聊天信道向 Agent 发送命令。
+
+
+    受影响配置
+
+
+    此问题影响以下部署场景：内置设备配对插件已启用，且非所有者发送方被授权使用普通聊天命令（例如在已配置的
+    Telegram、Discord 或 Slack Agent 中）。
+
+
+    影响
+
+
+    非所有者的已授权发送方可创建设置码，并在其过期前使用该码以 operator/node 能力注册设备。该设备将持有持久凭证，直至被手动移除。
+
+
+    已修复版本
+
+
+    首个稳定修复版本为 2026.5.4。
+
+
+    缓解措施
+
+
+    升级至 openclaw@2026.5.4 或更高版本。审查已配对设备列表并移除任何非预期条目。在共享聊天信道中，将命令访问权限限制为应被允许管理设备配对的用户。
+  cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L
+  severity: HIGH
+  security_advise: >-
+    将 openclaw 升级至 2026.5.4 或更高版本。审查已配对设备列表并移除任何非预期条目。在共享聊天信道中，将命令访问权限限制为应被允许管理设备配对的用户。
+  references:
+  - https://github.com/openclaw/openclaw/security/advisories/GHSA-xr4f-mjxj-w6w5
+rule: version < "2026.5.4"
+references:
+- https://github.com/openclaw/openclaw/security/advisories/GHSA-xr4f-mjxj-w6w5
