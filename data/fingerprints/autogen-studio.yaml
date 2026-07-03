@@ -1,0 +1,17 @@
+info:
+  name: autogen-studio
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 微软 AutoGen 多智能体框架的 Web UI 平台，支持团队编排、会话管理和多智能体工作流可视化调试。
+  metadata:
+    product: autogen-studio
+    vendor: microsoft
+http:
+  - method: GET
+    path: '/api/version'
+    matchers:
+      - body="AutoGen Studio API"
+  - method: GET
+    path: '/api/health'
+    matchers:
+      - body="Service is healthy"

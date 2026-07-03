@@ -1,0 +1,17 @@
+info:
+  name: langserve
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: LangChain 官方的 LLM 应用部署工具，基于 FastAPI 将链和代理暴露为 REST API，内置 Playground 交互界面。
+  metadata:
+    product: langserve
+    vendor: langchain-ai
+http:
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="langserve"
+  - method: GET
+    path: '/playground/index.html'
+    matchers:
+      - body="____LANGSERVE_BASE_URL"

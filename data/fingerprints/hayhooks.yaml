@@ -1,0 +1,17 @@
+info:
+  name: hayhooks
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: deepset Haystack 的 REST API 服务，用于部署和管理 Haystack 流水线，支持管道部署、状态查询和 OpenAI 兼容接口。
+  metadata:
+    product: hayhooks
+    vendor: deepset
+http:
+  - method: GET
+    path: '/status'
+    matchers:
+      - body="Hayhooks"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="Hayhooks"
