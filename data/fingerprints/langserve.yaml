@@ -1,8 +1,8 @@
 info:
   name: langserve
-  author: 腾讯朱雀实验室
+  author: Elwood Ying
   severity: info
-  desc: LangChain 官方的 LLM 应用部署工具，基于 FastAPI 将链和代理暴露为 REST API，内置 Playground 交互界面。
+  desc: LangChain's official LLM application deployment tool, built on FastAPI to expose chains and agents as REST APIs with a built-in interactive Playground UI.
   metadata:
     product: langserve
     vendor: langchain-ai
