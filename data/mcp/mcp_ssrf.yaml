@@ -1,0 +1,69 @@
+info:
+  id: "mcp_ssrf"
+  name: "MCP Server-Side Request Forgery (SSRF) Detection"
+  description: "Detect MCP server tools that accept URL or hostname arguments from the caller and fetch them without validating against internal/private network ranges, enabling server-side request forgery."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect Server-Side Request
+  Forgery (SSRF) vulnerabilities in MCP server tools. The agent (or an upstream
+  prompt-injection) controls tool arguments; if a URL or hostname argument reaches
+  an HTTP client or socket without validation, the MCP server can be coerced into
+  accessing internal services, cloud metadata endpoints, or other restricted
+  resources. Require a concrete argument-to-network-request path; only report with
+  evidence.
+
+  ## Vulnerability Definition
+  An MCP tool handler takes caller-supplied arguments containing a URL, hostname,
+  or IP address and passes them to a network client (`fetch`, `axios`, `requests`,
+  `urllib`, raw socket, etc.) without checking the destination against internal or
+  private address ranges. Because tool arguments are model/attacker-influenced,
+  this enables SSRF from the MCP host.
+
+  ## Detection Criteria (require tainted argument -> network sink)
+
+  ### 1. Unvalidated URL fetch
+  **Code Patterns:**
+  - `fetch(args.url)` / `axios.get(args.url)` / `requests.get(params["url"])`
+    with no prior allowlist or IP-range check on the URL.
+  - URL constructed by concatenating a user-supplied host/path:
+    `` `https://${args.host}/${args.path}` `` passed directly to a client.
+  - Tool argument used as the `baseURL` / `endpoint` of an API client without
+    validation.
+
+  ### 2. Internal/private address access
+  **Code Patterns:**
+  - No blocklist for `127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`,
+    `192.168.0.0/16`, `169.254.169.254` (cloud metadata), `::1`, `fc00::/7`.
+  - DNS rebinding exposure: hostname validated but resolution not re-checked
+    after DNS lookup.
+  - Redirect following enabled without re-validating the final destination.
+
+  ### 3. Scheme / protocol confusion
+  **Code Patterns:**
+  - No scheme restriction, allowing `file://`, `gopher://`, `dict://`, `ftp://`
+    schemes to reach local files or internal services.
+  - URL parsing that accepts a user-supplied scheme without an `http`/`https`
+    allowlist.
+
+  ## Strict Judgment Standards
+  - **Fixed URLs**: Do not report hardcoded, constant URLs with no argument
+    interpolation.
+  - **Validated destinations**: Do not report URLs passed through a strict
+    allowlist of domains or a properly implemented SSRF guard (IP-range check +
+    scheme check + redirect-following disabled or re-validated).
+  - **Test/example**: Do not report sample handlers with placeholder URLs.
+
+  ## Output Requirements
+  Only output when finding a concrete SSRF path:
+  - Specific file paths and line numbers for the tainted argument and the sink
+  - The tool parameter name and the exact network call
+  - Technical analysis: how a crafted URL reaches an internal or restricted
+    resource
+  - Impact assessment: what internal endpoints or metadata could be accessed
+  - Remediation: validate destinations against an allowlist, block private/loop
+    back ranges, restrict schemes to http/https, disable or re-validate redirects.
+
+  **Strict Requirement: provide the tainted-argument source and the network sink with line numbers. Remain silent when no concrete evidence exists.**

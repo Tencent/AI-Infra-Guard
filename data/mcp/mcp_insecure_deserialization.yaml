@@ -1,0 +1,72 @@
+info:
+  id: "mcp_insecure_deserialization"
+  name: "MCP Insecure Deserialization Detection"
+  description: "Detect MCP server tools that deserialize caller-supplied data using unsafe serializers (pickle, marshal, eval-based JSON, yaml.load, unserialize) without validation, enabling remote code execution on the MCP host."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect insecure
+  deserialization vulnerabilities in MCP server tools. The agent (or an upstream
+  prompt-injection) controls tool arguments; if those arguments are deserialized
+  using an unsafe serializer, the MCP host can execute attacker-crafted payloads.
+  Require a concrete argument-to-deserialization-sink path; only report with
+  evidence.
+
+  ## Vulnerability Definition
+  An MCP tool handler takes caller-supplied arguments (strings, base64 blobs, or
+  nested objects) and passes them to a deserializer that can instantiate
+  arbitrary objects or execute code — `pickle.loads`, `marshal.loads`,
+  `yaml.load` (unsafe), `unserialize` (PHP), `ObjectInputStream` (Java),
+  `eval`/`Function()` on JSON-like strings — without type/schema validation.
+  Because tool arguments are model/attacker-influenced, this is argument-driven
+  RCE on the MCP host.
+
+  ## Detection Criteria (require tainted argument -> deserialization sink)
+
+  ### 1. Python unsafe deserializers
+  **Code Patterns:**
+  - `pickle.loads(args.data)` / `pickle.load(open(args.file))` on
+    caller-controlled input.
+  - `marshal.loads(args.data)` / `yaml.load(args.data)` without `Loader=SafeLoader`
+    / `yaml.unsafe_load()`.
+  - `dill.loads()` / `shelve.open()` on attacker-influenced data.
+
+  ### 2. JavaScript / dynamic evaluation as deserialization
+  **Code Patterns:**
+  - `eval(args.expr)` / `new Function(args.code)` used to parse a structured
+    argument.
+  - `vm.runInNewContext(args.script)` / `vm.Script` on caller input.
+  - `JSON.parse` followed by `eval` of a contained field.
+
+  ### 3. Other language-specific unsafe deserializers
+  **Code Patterns:**
+  - PHP `unserialize($args['data'])` without `allowed_classes` restriction.
+  - Java `ObjectInputStream.readObject()` on caller-controlled bytes.
+  - .NET `BinaryFormatter.Deserialize()` / `LosFormatter.Deserialize()` on
+    attacker input.
+  - Ruby `Marshal.load(args.data)` / `YAML.load` (unsafe) on caller input.
+
+  ## Strict Judgment Standards
+  - **Safe serializers**: Do not report `json.loads` / `JSON.parse` /
+    `yaml.safe_load` / `yaml.load(..., Loader=SafeLoader)` — these do not
+    instantiate arbitrary objects.
+  - **Trusted data**: Do not report deserialization of server-generated or
+    statically-defined data with no caller influence.
+  - **Type-restricted**: Do not report PHP `unserialize` with `allowed_classes:
+    false` or an explicit allowlist.
+  - **Test/example**: Do not report sample handlers with hardcoded test payloads.
+
+  ## Output Requirements
+  Only output when finding a concrete deserialization path:
+  - Specific file paths and line numbers for the tainted argument and the sink
+  - The tool parameter name and the exact deserialization call
+  - Technical analysis: how a crafted payload achieves code execution or object
+    instantiation
+  - Impact assessment: RCE scope on the MCP host
+  - Remediation: use safe serializers (`json`, `yaml.safe_load`), avoid
+    `eval`/`pickle`/`unserialize` on untrusted data, enforce schema validation,
+    restrict `allowed_classes`.
+
+  **Strict Requirement: provide the tainted-argument source and the deserialization sink with line numbers. Remain silent when no concrete evidence exists.**

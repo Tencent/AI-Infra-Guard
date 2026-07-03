@@ -1,0 +1,71 @@
+info:
+  id: "mcp_path_traversal"
+  name: "MCP Tool Path Traversal Detection"
+  description: "Detect MCP server tools that accept file or directory path arguments and pass them to filesystem APIs without canonicalization or directory-boundary checks, enabling arbitrary file read/write outside the intended scope."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect path-traversal
+  vulnerabilities in MCP server tools. The agent (or an upstream prompt-injection)
+  controls tool arguments; if a path argument reaches a filesystem API without
+  canonicalization or boundary checks, the MCP server can read or write files
+  outside the intended directory. Require a concrete argument-to-filesystem-sink
+  path; only report with evidence.
+
+  ## Vulnerability Definition
+  An MCP tool handler takes caller-supplied arguments containing a file path,
+  directory, or filename and passes them to filesystem APIs (`fs.readFile`,
+  `fs.writeFile`, `open()`, `os.path.join`, `Path.Combine`, etc.) without
+  resolving the absolute path and verifying it stays within an allowed root
+  directory. Because tool arguments are model/attacker-influenced, this enables
+  arbitrary file access on the MCP host.
+
+  ## Detection Criteria (require tainted argument -> filesystem sink)
+
+  ### 1. Unsanitized path to filesystem API
+  **Code Patterns:**
+  - `fs.readFile(args.path)` / `fs.readFile(path.join(baseDir, args.filename))`
+    where `args.filename` contains `../` sequences that escape `baseDir`.
+  - `open(args.file)` / `os.path.join(workdir, user_input)` with no subsequent
+    canonicalization check.
+  - `Path.Combine(root, userInput)` without verifying `result.StartsWith(root)`.
+  - Filename argument used in write/delete APIs: `fs.writeFile`, `fs.unlink`,
+    `os.remove`, `shutil.rmtree` without boundary enforcement.
+
+  ### 2. Missing canonicalization
+  **Code Patterns:**
+  - No call to `path.resolve()` / `fs.realpath()` / `os.path.abspath()` /
+    `os.path.realpath()` before the filesystem operation.
+  - Canonicalized path not compared against the allowed root with a prefix check
+    (e.g., `resolved.startsWith(allowedRoot + sep)`).
+  - Symlink-following without restriction, allowing escape via symlinks.
+
+  ### 3. Template / pattern injection into paths
+  **Code Patterns:**
+  - Path built via string interpolation: `` `${baseDir}/${args.name}.json` ``
+    where `args.name` contains `/` or `..` to traverse directories.
+  - Glob or regex patterns derived from user input that can match files outside
+    the intended scope.
+
+  ## Strict Judgment Standards
+  - **Fixed paths**: Do not report hardcoded, constant file paths with no argument
+    interpolation.
+  - **Properly validated paths**: Do not report paths that are canonicalized and
+    boundary-checked before the filesystem operation.
+  - **Schema-restricted input**: Do not report arguments constrained by a strict
+    schema (e.g., enum of allowed filenames, no path separators allowed).
+  - **Test/example**: Do not report sample handlers with placeholder paths.
+
+  ## Output Requirements
+  Only output when finding a concrete path-traversal path:
+  - Specific file paths and line numbers for the tainted argument and the sink
+  - The tool parameter name and the exact filesystem call
+  - Technical analysis: how a crafted path escapes the intended directory
+  - Impact assessment: which files or directories could be accessed
+  - Remediation: canonicalize paths with `resolve`/`realpath`, enforce a directory
+    boundary check, reject path separators in filename arguments, use a safe
+    allowlist.
+
+  **Strict Requirement: provide the tainted-argument source and the filesystem sink with line numbers. Remain silent when no concrete evidence exists.**
