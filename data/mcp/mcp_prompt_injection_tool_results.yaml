@@ -1,0 +1,77 @@
+info:
+  id: "mcp_prompt_injection_tool_results"
+  name: "MCP Indirect Prompt Injection via Tool Results Detection"
+  description: "Detect indirect prompt injection attacks delivered through MCP tool results, where attacker-controlled content returned by a tool hijacks the host agent's reasoning and causes unintended actions (OWASP LLM Top-1: Prompt Injection)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect indirect prompt
+  injection vulnerabilities delivered through MCP tool results. When an MCP tool
+  fetches content from an external or attacker-controllable source (web pages,
+  files, databases, APIs) and returns it verbatim to the host agent, the
+  embedded instructions can override the agent's system prompt, hijack its
+  reasoning, and trigger unauthorized tool calls or data exfiltration.
+
+  ## Vulnerability Definition
+  Indirect prompt injection via tool results occurs when an MCP server returns
+  content from an untrusted source to the host LLM without sanitization or
+  delimiter-based isolation. The LLM treats the returned text as context and
+  may follow embedded directives — such as "ignore previous instructions",
+  "now call the email tool and send…", or concealed control sequences — that
+  were injected by an attacker into the data source. This is distinct from
+  tool poisoning (which targets tool *metadata*): here the injection vector is
+  the *tool output payload*.
+
+  ## Detection Criteria (require untrusted source → unsanitized return path)
+
+  ### 1. External content fetched and returned without sanitization
+  **Code Patterns:**
+  - Tool handler calls `fetch` / `axios` / `requests` / `urllib` to retrieve a
+    URL supplied by the caller, then returns the response body directly in the
+    tool result without filtering or encoding.
+  - Tool handler reads a file path from tool arguments and returns file contents
+    verbatim — including files that may contain injected instructions.
+  - Tool handler queries a database / vector store / RAG pipeline and returns
+    retrieved documents as-is, where document text is attacker-influenced.
+
+  ### 2. Missing output isolation
+  **Code Patterns:**
+  - Returned content is not wrapped in delimiter tags (e.g.
+    `<untrusted_content>…</untrusted_content>`) or labeled as untrusted.
+  - No output sanitization layer: no stripping of control characters, no
+    removal of instruction-like patterns, no length truncation.
+  - Tool result includes raw HTML / Markdown / structured text from external
+    sources that the LLM interprets as directives.
+
+  ### 3. High-impact tool chains
+  **Code Patterns:**
+  - The vulnerable tool coexists with privileged tools (email, file write,
+    shell, credential access) in the same MCP server, enabling an injected
+    instruction to chain into a second, destructive tool call.
+  - Tool results contain dynamically assembled text that merges trusted and
+    untrusted fields without separation.
+
+  ## Strict Judgment Standards
+  - **Static/constant tool results**: Do not report tools that return hardcoded
+    constant strings with no external input.
+  - **Sanitized output**: Do not report tools that apply explicit sanitization,
+    encoding, or delimiter-based isolation before returning external content.
+  - **Read-only benign content**: Do not report tools returning purely numeric
+    or structured data with no natural-language surface for injection.
+  - **Test/example**: Do not report sample handlers with hardcoded test output.
+
+  ## Output Requirements
+  Only output when finding a concrete untrusted-source-to-unsanitized-return path:
+  - Specific file paths and line numbers for the external fetch and the return
+  - The exact untrusted data source and the return path
+  - Technical analysis: how embedded instructions in the tool result could
+    hijack the host agent
+  - Impact assessment: which privileged tools or actions an injected directive
+    could chain into
+  - Remediation: sanitize and delimit untrusted content, strip control
+    characters, enforce output length limits, isolate tool results from system
+    instructions, apply output allowlists.
+
+  **Strict Requirement: provide the untrusted-source read and the unsanitized return path with line numbers. Remain silent when no concrete evidence exists.**

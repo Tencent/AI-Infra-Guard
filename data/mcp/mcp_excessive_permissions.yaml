@@ -1,0 +1,97 @@
+info:
+  id: "mcp_excessive_permissions"
+  name: "MCP Excessive Permissions Detection"
+  description: "Detect MCP server tools that request or exercise permissions beyond their stated functionality, creating a privileged attack surface where a compromised or prompt-injected agent can access the filesystem, network, shell, or credential stores far beyond the tool's intended scope."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect excessive-permission
+  vulnerabilities in MCP server code. An MCP tool should request only the minimal
+  privileges required for its stated purpose. When a tool holds broad filesystem
+  access, unrestricted network access, shell execution capability, or credential
+  store reads that exceed its functional description, a prompt-injected agent or a
+  malicious tool can leverage those privileges for data exfiltration, lateral
+  movement, or RCE.
+
+  ## Vulnerability Definition
+  Excessive permissions in an MCP server means the codebase grants or exercises
+  capabilities (file read/write, network calls, process spawning, secret access)
+  that are broader than the tool's documented purpose. This violates least-privilege
+  and amplifies the blast radius of any prompt injection or tool poisoning that
+  reaches the agent. Real-world incidents (e.g. CVE-2025-6514 affecting ~500 000
+  developer environments) demonstrate that over-privileged MCP tools are a primary
+  vector for credential leakage and unauthorized shell execution.
+
+  ## Detection Criteria (require concrete over-privileged code path)
+
+  ### 1. Broad filesystem access beyond stated purpose
+  **Code Patterns:**
+  - A tool described as "read a config file" uses recursive directory traversal
+    (`os.walk`, `glob('**/*')`, `fs.readdirSync` with `recursive: true`) across
+    the entire home directory or root.
+  - A tool that reads a specific file type (e.g. images) opens arbitrary paths
+    including `~/.ssh`, `~/.aws/credentials`, `.env`, `.npmrc`, `~/.netrc`
+    without path scoping or allowlist.
+  - Write tools that can overwrite system files or files outside a designated
+    workspace directory.
+
+  ### 2. Unrestricted network access
+  **Code Patterns:**
+  - A tool described as "fetch weather data" makes outbound HTTP requests to
+    dynamically-constructed URLs with no domain allowlist, enabling SSRF or
+    data exfiltration to attacker-controlled endpoints.
+  - Raw socket / TCP / UDP connections created with no destination restriction.
+  - DNS-based exfiltration channels built from tool arguments.
+
+  ### 3. Shell or process execution capability
+  **Code Patterns:**
+  - A tool whose stated purpose does not require shell access nonetheless imports
+    and uses `child_process`, `os.system`, `subprocess`, or `exec` / `spawn`.
+  - Shell execution is available and the tool also accepts user-controlled
+    arguments that could reach the command string.
+  - Tools that dynamically spawn interpreters (`node -e`, `python -c`, `bash -c`)
+    without sandboxing.
+
+  ### 4. Credential / secret store access beyond scope
+  **Code Patterns:**
+  - A tool reads `process.env` / `os.environ` broadly (iterating all keys) when
+    only a single API key is needed.
+  - A tool accesses system keychain, `~/.aws/credentials`, `~/.docker/config.json`,
+    or browser cookie stores when its functionality does not require them.
+  - Credentials are cached or logged in plaintext beyond the immediate API call.
+
+  ### 5. Missing permission scoping mechanisms
+  **Code Patterns:**
+  - No `allowedDirectories` / `allowedPaths` / path-prefix checks before file
+    operations.
+  - No domain allowlist before outbound network requests.
+  - No capability declaration or permission manifest; all tools implicitly share
+    the server process's full privileges.
+
+  ## Strict Judgment Standards
+  - **Purpose-appropriate access**: Do not report a file-reading tool that scopes
+    paths to a designated workspace directory, or a network tool with a domain
+    allowlist.
+  - **Explicitly required shell access**: Do not report a tool whose documented
+    purpose is to run commands (e.g. a terminal tool), provided it applies
+    sandboxing or user confirmation.
+  - **Scoped credential use**: Do not report a tool that reads a single, specific
+    API key from the environment for its stated purpose and does not expose it.
+  - **Test/example**: Do not report test fixtures or example code with no real
+    permission surface.
+
+  ## Output Requirements
+  Only output when finding a concrete over-privileged code path:
+  - Specific file paths and line numbers for the broad permission and its usage
+  - The tool's stated purpose vs. the actual capability exercised
+  - Technical analysis: how the excess permission could be exploited via prompt
+    injection or tool poisoning to escalate impact
+  - Impact assessment: blast radius (files, credentials, network, RCE) if the
+    permission is abused
+  - Remediation: apply least-privilege, scope filesystem paths with allowlists,
+    restrict network destinations, remove unnecessary shell/secret access, add a
+    permission manifest, sandbox tool execution.
+
+  **Strict Requirement: provide the specific over-privileged code path and its line numbers, and contrast it with the tool's stated purpose. Remain silent when no concrete evidence exists.**
