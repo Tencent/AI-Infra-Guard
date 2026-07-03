@@ -1,0 +1,56 @@
+<tools>
+  <tool name="grep">
+    <description>在文件或目录中搜索匹配指定正则模式的文本行。用于在项目代码中查找关键词、函数调用、配置项等。</description>
+    <details>支持正则表达式，默认递归搜索目录下所有文件。结果格式为 "相对路径:行号: 内容"。
+注意事项：
+- 结果最多返回 max_results 条（默认 200）
+- 二进制文件会被跳过（以 errors=ignore 读取）
+- 路径必须在项目范围内</details>
+    <parameters>
+      <parameter name="pattern" type="string" required="true">
+        <description>要搜索的正则表达式模式，例如 "def run" 或 "import os"。</description>
+      </parameter>
+      <parameter name="path" type="string" required="true">
+        <description>要搜索的文件或目录路径。</description>
+      </parameter>
+      <parameter name="recursive" type="boolean" required="false">
+        <description>是否递归搜索子目录，默认 true。</description>
+      </parameter>
+      <parameter name="ignore_case" type="boolean" required="false">
+        <description>是否忽略大小写，默认 false。</description>
+      </parameter>
+      <parameter name="max_results" type="integer" required="false">
+        <description>最大返回结果数，默认 200。</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>返回包含以下字段的字典：
+- pattern: 搜索模式
+- path: 搜索路径
+- matches: 匹配行列表，格式 "路径:行号: 内容"
+- match_count: 匹配数量
+- truncated: 是否因达到 max_results 而截断</description>
+    </returns>
+    <examples>
+# 搜索所有 Python 文件中的函数定义
+<function=grep>
+<parameter=pattern>^def </parameter>
+<parameter=path>/path/to/project/scripts</parameter>
+</function>
+
+# 不区分大小写搜索关键词
+<function=grep>
+<parameter=pattern>skill</parameter>
+<parameter=path>/path/to/project</parameter>
+<parameter=ignore_case>true</parameter>
+</function>
+
+# 只搜索单个文件
+<function=grep>
+<parameter=pattern>TODO</parameter>
+<parameter=path>/path/to/project/SKILL.md</parameter>
+<parameter=recursive>false</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>

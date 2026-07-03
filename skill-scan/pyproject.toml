@@ -1,0 +1,123 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aig-skill-scan"
+version = "0.1.4"
+description = "AI Native Agent Skill security auditing tool - an LLM-driven multi-stage code audit and vulnerability review pipeline"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Tencent Zhuque Lab", email = "ai-infra-guard@tencent.com" },
+]
+maintainers = [
+  { name = "Tencent Zhuque Lab" },
+]
+keywords = [
+  "ai-security",
+  "agent-security",
+  "skill-scan",
+  "red-team",
+  "llm",
+  "audit",
+  "vulnerability",
+  "ai-infra-guard",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Security",
+  "Topic :: Software Development :: Quality Assurance",
+  "Typing :: Typed",
+]
+dependencies = [
+  "loguru==0.7.3",
+  "openai==2.8.1",
+  "pydantic==2.12.4",
+  "python-dotenv==1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.11.5",
+  "build>=1.2",
+  "twine>=5.0",
+]
+
+[project.scripts]
+skill-scan = "skill_scan.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/Tencent/AI-Infra-Guard"
+Repository = "https://github.com/Tencent/AI-Infra-Guard"
+Documentation = "https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan"
+"Bug Tracker" = "https://github.com/Tencent/AI-Infra-Guard/issues"
+"Source Code" = "https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan"
+
+[tool.setuptools]
+# Only package skill_scan itself; exclude the main.py shim, logs/, .venv/, and other dev-only files
+packages = { find = { include = ["skill_scan*"] } }
+
+[tool.setuptools.package-data]
+# Prompt templates (.md) and tool schemas (.xml) are required resources at runtime
+"skill_scan" = ["py.typed"]
+"skill_scan.prompt" = ["*.md"]
+"skill_scan.prompt.agents" = ["*.md"]
+"skill_scan.tools" = ["*.xml"]
+"skill_scan.tools.base64_decode" = ["*.xml"]
+"skill_scan.tools.dir" = ["*.xml"]
+"skill_scan.tools.file" = ["*.xml"]
+"skill_scan.tools.finish" = ["*.xml"]
+"skill_scan.tools.grep" = ["*.xml"]
+"skill_scan.tools.ls" = ["*.xml"]
+"skill_scan.tools.thinking" = ["*.xml"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__", "*.pyc"]
+
+# ===== The sections below are dev-tool configuration; they do not affect packaging =====
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+extend-exclude = [
+  "prompt",
+  ".venv",
+  "logs",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+]
+ignore = [
+  "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["F401"]
+"skill_scan/main.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false

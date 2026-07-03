@@ -1,0 +1,63 @@
+<tools>
+    <tool name="read_file">
+        <description>Read the contents of a file from the filesystem.
+            Use this tool when you need to examine existing files, review code, read configuration files, or access any text-based file content.</description>
+        <details>This tool reads text files with a bounded preview by default.
+            Important notes:
+            - The file must exist and be readable
+            - Binary files cannot be read with this tool
+            - Default budget is max_lines=600 and max_chars=14000
+            - Large files will be truncated instead of returning full content
+            - Prefer using grep to locate relevant code, then read a narrower range
+            - Use relative or absolute file paths</details>
+        <parameters>
+            <parameter name="file_path" type="string" required="true">
+                <description>Path to the file to read. Can be relative to current working directory or absolute path.</description>
+            </parameter>
+            <parameter name="start_line" type="integer" required="false">
+                <description>1-based line number to start reading from. Defaults to 1.</description>
+            </parameter>
+            <parameter name="max_lines" type="integer" required="false">
+                <description>Maximum number of lines to return. Defaults to 600.</description>
+            </parameter>
+            <parameter name="max_chars" type="integer" required="false">
+                <description>Maximum number of characters to return. Defaults to 14000.</description>
+            </parameter>
+            <parameter name="mode" type="string" required="false">
+                <description>Read mode: preview, range, or full. Full mode only succeeds for files within the budget.</description>
+            </parameter>
+        </parameters>
+        <returns type="Dict[str, Any]">
+            <description>Response containing:
+                - success: Whether the file was read successfully
+                - message: Error details when the call fails
+                - path: Resolved file path
+                - start_line/end_line: Returned line range
+                - total_lines: Total number of lines in the file
+                - size_bytes: File size in bytes
+                - returned_chars: Number of returned characters
+                - truncated: Whether the output hit the read budget
+                - summary_hint: Guidance for the next read when truncated
+                - data: Returned file content within the budget</description>
+        </returns>
+        <examples>
+            # Preview a configuration file
+            <function=read_file>
+            <parameter=file_path>config/settings.json</parameter>
+            </function>
+
+            # Read a Python source file from line 120
+            <function=read_file>
+            <parameter=file_path>/home/user/project/main.py</parameter>
+            <parameter=start_line>120</parameter>
+            <parameter=mode>range</parameter>
+            </function>
+
+            # Attempt a full read for a small file
+            <function=read_file>
+            <parameter=file_path>docs/README.md</parameter>
+            <parameter=mode>full</parameter>
+            </function>
+        </examples>
+    </tool>
+</tools>

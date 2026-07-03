@@ -1,0 +1,31 @@
+<tools>
+  <tool name="ls">
+    <description>列出指定目录下的文件和子目录。用于探索项目结构、查看某个目录里有哪些文件。</description>
+    <details>列出目标目录下所有文件和子目录，每条记录注明类型（file/dir）和文件大小。
+注意事项：
+- 只列出一层，不递归（递归请用 dir_tree）
+- 路径必须在项目范围内</details>
+    <parameters>
+      <parameter name="path" type="string" required="true">
+        <description>要列出内容的目录路径，可以是绝对路径或相对路径。</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>返回包含以下字段的字典：
+- path: 目录绝对路径
+- entries: 条目列表，每条格式为 "[file] name  (N bytes)" 或 "[dir] name"
+- count: 条目总数</description>
+    </returns>
+    <examples>
+# 列出项目根目录
+<function=ls>
+<parameter=path>/path/to/project</parameter>
+</function>
+
+# 列出 scripts 子目录
+<function=ls>
+<parameter=path>/path/to/project/scripts</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>

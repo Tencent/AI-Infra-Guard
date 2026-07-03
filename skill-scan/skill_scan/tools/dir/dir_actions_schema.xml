@@ -1,0 +1,34 @@
+<tools>
+  <tool name="dir_tree">
+    <description>以树形结构递归展示目录内容，类似 Unix tree 命令。用于快速了解项目的整体目录结构。</description>
+    <details>递归展示目录下所有文件和子目录，自动忽略 .git、__pycache__、node_modules 等无关目录和编译产物。
+注意事项：
+- max_depth 控制递归深度，默认 4 层
+- 路径必须在项目范围内</details>
+    <parameters>
+      <parameter name="path" type="string" required="true">
+        <description>要展示的目录路径。</description>
+      </parameter>
+      <parameter name="max_depth" type="integer" required="false">
+        <description>最大递归深度，默认 4。</description>
+      </parameter>
+    </parameters>
+    <returns type="Dict[str, Any]">
+      <description>返回包含以下字段的字典：
+- path: 目录绝对路径
+- tree: 树形结构文本，每行一个条目</description>
+    </returns>
+    <examples>
+# 展示项目整体结构
+<function=dir_tree>
+<parameter=path>/path/to/project</parameter>
+</function>
+
+# 只展示 2 层
+<function=dir_tree>
+<parameter=path>/path/to/project</parameter>
+<parameter=max_depth>2</parameter>
+</function>
+    </examples>
+  </tool>
+</tools>

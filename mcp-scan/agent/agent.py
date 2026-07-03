@@ -84,10 +84,16 @@ class ScanPipeline:
         agent.set_repo_dir(repo_dir)
         await agent.initialize()
 
-        # 构造用户消息
-        user_msg = f"请进行{stage.name}，文件夹在 {repo_dir}\n{prompt}"
+        # 构造用户消息（根据 language 选择中/英文引导语）
+        if stage.language == "en":
+            user_msg = f"Please perform {stage.name}, the folder is at {repo_dir}\n{prompt}"
+        else:
+            user_msg = f"请进行{stage.name}，文件夹在 {repo_dir}\n{prompt}"
         if context_data:
-            user_msg += "\n\n有以下背景信息：\n"
+            if stage.language == "en":
+                user_msg += "\n\nThe following background information is provided:\n"
+            else:
+                user_msg += "\n\n有以下背景信息：\n"
             for key, value in context_data.items():
                 user_msg += f"{key}:{value}\n\n"
 
@@ -121,10 +127,16 @@ class ScanPipeline:
         )
         await agent.initialize()
 
-        # 构造用户消息
-        user_msg = f"请进行{stage.name}，进行MCP动态扫描\n{prompt}"
+        # 构造用户消息（根据 language 选择中/英文引导语）
+        if stage.language == "en":
+            user_msg = f"Please perform {stage.name}, conducting MCP dynamic scanning\n{prompt}"
+        else:
+            user_msg = f"请进行{stage.name}，进行MCP动态扫描\n{prompt}"
         if context_data:
-            user_msg += "\n\n有以下背景信息：\n"
+            if stage.language == "en":
+                user_msg += "\n\nThe following background information is provided:\n"
+            else:
+                user_msg += "\n\n有以下背景信息：\n"
             for key, value in context_data.items():
                 user_msg += f"{key}:{value}\n\n"
 
@@ -164,11 +176,18 @@ class Agent:
             "llm": self.llm.model,
         }
         # 1. 信息收集
-        info_ret_format = "生成一份详细的信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
+        if self.language == "en":
+            info_ret_format = "Generate a detailed information collection report in Markdown format. The report should be based on input data and summarized faithfully, ensuring readers (who know nothing about the project) can quickly understand the overall picture. You MUST write the entire report in English."
+            stage1_name = "Info Collection"
+            ctx_key1 = "Info Collection Report"
+        else:
+            info_ret_format = "生成一份详细的信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。必须使用中文回复。"
+            stage1_name = "信息收集"
+            ctx_key1 = "信息收集报告"
         info_collection = await self.pipeline.execute_stage(
             ScanStage(
                 "1",
-                "Info Collection",
+                stage1_name,
                 "agents/project_summary",
                 output_format=info_ret_format,
                 language=self.language,
@@ -178,7 +197,23 @@ class Agent:
         )
 
         # 2. 代码审计
-        audit_ret_format = """
+        if self.language == "en":
+            audit_ret_format = """
+Return in Markdown format.
+For each confirmed vulnerability, you must provide:
+- Specific location: file path and line number range
+- Complete code snippet: the code segment showing the vulnerability
+- Technical analysis: vulnerability principles and exploitation methods
+- Impact assessment: privileges and scope that can be obtained
+- Remediation suggestions: detailed security hardening plan
+- Attack path: specific exploitation steps (if applicable)
+Strict criteria: must provide complete vulnerability exploitation paths and impact analysis.
+You MUST write the entire report in English.
+            """
+            stage2_name = "Code Audit"
+            ctx_key2 = "Code Audit Report"
+        else:
+            audit_ret_format = """
 markdown格式返回
 对于每个确认的漏洞，必须提供：
 - 具体位置：文件路径和行号范围
@@ -188,22 +223,55 @@ markdown格式返回
 - 修复建议：详细的安全加固方案
 - 攻击路径：具体的利用步骤（如适用）
 严格标准：必须提供完整的漏洞利用路径和影响分析。
-        """
+必须使用中文回复。
+            """
+            stage2_name = "代码审计"
+            ctx_key2 = "代码审计报告"
         code_audit = await self.pipeline.execute_stage(
             ScanStage(
                 "2",
-                "Code Audit",
+                stage2_name,
                 "agents/code_audit",
                 output_format=audit_ret_format,
                 language=self.language,
             ),
             repo_dir,
             prompt,
-            {"信息收集报告": info_collection},
+            {ctx_key1: info_collection},
         )
 
         # 3. 漏洞整理
-        review_format = """
+        if self.language == "en":
+            review_format = """
+Must satisfy the following XML format. Return multiple <vuln> tags for multiple vulnerabilities.
+<vuln>
+  <title>title</title>
+  <desc>
+  <!-- Markdown format vulnerability description -->
+  ## Vulnerability Details
+  **File Location**: 
+  **Vulnerability Type**: 
+  **Risk Level**: 
+
+  ### Technical Analysis
+
+  ### Attack Path
+
+  ### Impact Assessment  
+  </desc>
+  <risk_type>RiskType</risk_type>
+  <level>Level</level>
+  <suggestion>
+  ## Remediation Suggestions
+  </suggestion>
+</vuln>
+If no vulnerabilities or empty, return <empty>
+You MUST write all content in English.
+""".strip()
+            stage3_name = "Vulnerability Review"
+            ctx_key3 = "Code Audit Report"
+        else:
+            review_format = """
 必须满足以下xml格式，多个漏洞返回多个vuln标签
 <vuln>
   <title>title</title>
@@ -227,11 +295,14 @@ markdown格式返回
   </suggestion>
 </vuln>
 若无漏洞或漏洞为空,返回<empty>
+必须使用中文回复。
 """.strip()
+            stage3_name = "漏洞整理"
+            ctx_key3 = "代码审计报告"
         vuln_review = await self.pipeline.execute_stage(
             ScanStage(
                 "3",
-                "Vulnerability Review",
+                stage3_name,
                 "agents/vuln_review",
                 output_format=review_format,
                 output_check_fn=is_vuln_review_output,
@@ -239,7 +310,7 @@ markdown格式返回
             ),
             repo_dir,
             prompt,
-            {"代码审计报告": code_audit},
+            {ctx_key3: code_audit},
         )
 
         # 提取与分析结果
@@ -274,11 +345,18 @@ markdown格式返回
             "results": [],
         }
 
-        info_ret_format = "生成一份详细的MCP(model context protocol)信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。"
+        if self.language == "en":
+            info_ret_format = "Generate a detailed MCP (Model Context Protocol) information collection report in Markdown format. The report should be based on input data and summarized faithfully, ensuring readers (who know nothing about the project) can quickly understand the overall picture. You MUST write the entire report in English."
+            stage1_name = "Info Collection"
+            ctx_key1 = "Info Collection Report"
+        else:
+            info_ret_format = "生成一份详细的MCP(model context protocol)信息收集报告，使用Markdown格式。报告需基于输入数据如实总结，确保读者（对项目一无所知）能快速理解项目全貌。必须使用中文回复。"
+            stage1_name = "信息收集"
+            ctx_key1 = "信息收集报告"
         info_collection = await self.pipeline.execute_stage_dynamic(
             ScanStage(
                 "1",
-                "Info Collection",
+                stage1_name,
                 "agents/dynamic/project_summary",
                 output_format=info_ret_format,
                 language=self.language,
@@ -288,7 +366,8 @@ markdown格式返回
         result_meta["readme"] = info_collection
 
         # 漏洞探测
-        vuln_ret_format = """
+        if self.language == "en":
+            vuln_ret_format = """
         ## Output format
 - The output should be in Markdown format. Please Never use any other format, and make sure the output has no format issue.
 - The Markdown document should have the following Chapter:
@@ -307,32 +386,89 @@ markdown格式返回
     # Summarization: 
         ...... (The clear, detailed summary of the security assessment results)
     ```
+You MUST write all content in English.
         """
+            stage2_name = "Malicious Testing"
+            stage3_name = "Vulnerability Testing"
+            stage4_name = "Vulnerability Review"
+        else:
+            vuln_ret_format = """
+        ## Output format
+- The output should be in Markdown format. Please Never use any other format, and make sure the output has no format issue.
+- The Markdown document should have the following Chapter:
+    - "Overview": `YES` or `NO`, representing whether there are any risks analyzed.
+    - "Threats": A list of xml strings, each representing a threat analyzed. Including threat types, confidence scores, and potential impacts.
+    - "Reasons": A list of normal strings, each representing the reason why the corresponding threat is analyzed.
+    - "Summarization": A paragraph summarizing the overall security assessment results.
+- example:
+    ```
+    # Overview
+    - YES
+    # Threats
+        - <threat><tool_name>{{ tool_name }}</tool_name><type>SQL Injection</type><confidence>0.9</confidence><impact>High</impact></threat>
+    # Reasons 
+        - SQL Injection: The tool named {{ tool_name }} detected a potential SQL Injection vulnerability in the input parameter.
+    # Summarization: 
+        ...... (The clear, detailed summary of the security assessment results)
+    ```
+必须使用中文回复。
+        """
+            stage2_name = "恶意行为检测"
+            stage3_name = "漏洞检测"
+            stage4_name = "漏洞整理"
         report1 = await self.pipeline.execute_stage_dynamic(
             ScanStage(
                 "2",
-                "Malicious Testing",
+                stage2_name,
                 "agents/dynamic/malicious_behaviour_testing.md",
                 output_format=vuln_ret_format,
                 language=self.language,
             ),
             prompt,
-            {"信息收集报告": info_collection},
+            {ctx_key1: info_collection},
         )
         report2 = await self.pipeline.execute_stage_dynamic(
             ScanStage(
                 "3",
-                "Vulnerability Testing",
+                stage3_name,
                 "agents/dynamic/vulnerability_testing.md",
                 output_format=vuln_ret_format,
                 language=self.language,
             ),
             prompt,
-            {"信息收集报告": info_collection, "malicious testing": report1},
+            {ctx_key1: info_collection, stage2_name: report1},
         )
 
         # 3. 漏洞整理
-        review_format = """
+        if self.language == "en":
+            review_format = """
+        Must satisfy the following XML format. Return multiple <vuln> tags for multiple vulnerabilities.
+        <vuln>
+          <title>title</title>
+          <desc>
+          <!-- Markdown format vulnerability description -->
+          ## Vulnerability Details
+          **File Location**: 
+          **Vulnerability Type**: 
+          **Risk Level**: 
+
+          ### Technical Analysis
+
+          ### Attack Path
+
+          ### Impact Assessment  
+          </desc>
+          <risk_type>RiskType</risk_type>
+          <level>Level</level>
+          <suggestion>
+          ## Remediation Suggestions
+          </suggestion>
+        </vuln>
+        If no vulnerabilities or empty, return <empty>
+        You MUST write all content in English.
+        """.strip()
+        else:
+            review_format = """
         必须满足以下xml格式，多个漏洞返回多个vuln标签
         <vuln>
           <title>title</title>
@@ -356,18 +492,19 @@ markdown格式返回
           </suggestion>
         </vuln>
         若无漏洞或漏洞为空,返回<empty>
+        必须使用中文回复。
         """.strip()
         vuln_review = await self.pipeline.execute_stage_dynamic(
             ScanStage(
                 "4",
-                "Vulnerability Review",
+                stage4_name,
                 "agents/dynamic/general_analyzing_prompt_template",
                 output_format=review_format,
                 output_check_fn=is_vuln_review_output,
                 language=self.language,
             ),
             prompt,
-            {"malicious testing": report1, "vulnerability testing": report2},
+            {stage2_name: report1, stage3_name: report2},
         )
         # 提取与分析结果
         extractor = VulnerabilityExtractor()

@@ -1,0 +1,17 @@
+# 打包产物
+build/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+
+# setuptools 生成的临时目录
+.eggs/
+
+# 类型检查 / 测试缓存
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# uv 锁文件可按需提交；如不想入库则取消下一行注释
+# uv.lock

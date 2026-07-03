@@ -17,3 +17,5 @@ tests
 # OpenClaw internal workspace file
 openclaw.md
 yamlcheck
+.workbuddy
+.pytest_cache
