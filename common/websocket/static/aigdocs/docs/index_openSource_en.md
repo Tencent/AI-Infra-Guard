@@ -4,7 +4,8 @@
 
 - **OpenClaw Security Assessment**: Through natural language dialogue, let A.I.G give your AI assistant a security checkup and build persistent immunity. [Learn more](https://matrix.tencent.com/clawscan)
 - **Agent Scan**: Quickly connect and scan OWASP Top 10 for Agentic Apps risks for Workflow Agents on platforms such as Dify, Coze, and more.
-- **AI Tool Skill Scan**: Utilizes AI Agents to intelligently identify security threats in MCP Servers and Skills, such as tool poisoning and code vulnerabilities, assisting AI tool developers and app marketplaces in completing security certification before release.
+- **Skill Scan**: Utilizes AI Agents to intelligently identify security threats in Skills, such as tool poisoning and code vulnerabilities, assisting Skill developers and app marketplaces in completing security certification before release.
+- **MCP Scan**: Utilizes AI Agents to intelligently identify security threats in MCP Servers, such as tool poisoning and code vulnerabilities, assisting MCP developers and app marketplaces in completing security certification before release.
 - **Jailbreak Evaluation**: Employs high-quality and diverse evaluation datasets to automatically evaluate the overall security of different large language models when faced with malicious, adversarial, or deceptive prompt inputs. It exports bad cases to support security alignment and guardrail reinforcement.
 - **AI Infra Scan**: Detects known CVE vulnerabilities in the web services of various frameworks and components (e.g., Ollama, ComfyUI) used in AI training, deployment, and application building, through precise fingerprinting.
 
