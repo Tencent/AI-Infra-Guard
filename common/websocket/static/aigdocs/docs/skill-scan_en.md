@@ -111,7 +111,7 @@ In addition to using the A.I.G platform, aig-skill-scan can be installed as a st
 pip install aig-skill-scan
 ```
 
-> Requires Python ≥ 3.12
+> Requires Python ≥ 3.9
 
 ### Command Line Usage
 
