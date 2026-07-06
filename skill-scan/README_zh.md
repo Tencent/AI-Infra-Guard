@@ -1,10 +1,10 @@
-# Skill-Scan
+# aig-skill-scan
 
 **[English](./README.md)** | 中文
 
 > AI Native Agent Skill 安全审计工具 —— LLM 驱动的多阶段代码审计与漏洞复审流水线。
 
-`skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计。它通过三阶段流水线对 Skill 代码进行 LLM 驱动的深度分析：
+`aig-skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计。它通过三阶段流水线对 Skill 代码进行 LLM 驱动的深度分析：
 
 1. **Info Collection** —— 项目结构、语言、入口点识别
 2. **Code Audit** —— 多技能并行审计（数据泄露、工具滥用、间接注入、越权等）
@@ -35,28 +35,29 @@ pip install -e .
 ### 命令行
 
 ```bash
+# 通过环境变量配置 API Key
+export LLM_API_KEY="your-api-key"
+
 # 扫描一个本地 Skill 项目目录
-skill-scan --repo /path/to/your/skill \
-           -m deepseek/deepseek-v3.2-exp \
-           -k $OPENROUTER_API_KEY \
-           -u https://openrouter.ai/api/v1 \
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
            --language zh \
            -o result.json
 
 # 也可以用模块方式调用
-python -m skill_scan --repo /path/to/your/skill -k $OPENROUTER_API_KEY
+python -m skill_scan --repo /path/to/your/skill
 ```
 
 完整参数：
 
 ```
-skill-scan --help
+aig-skill-scan --help
 ```
 
 | 参数 | 说明 | 默认值 |
 | --- | --- | --- |
 | `--repo` | 要扫描的 Skill 项目文件夹路径（必填） | — |
-| `-m, --model` | LLM 模型名称 | `deepseek/deepseek-v3.2-exp` |
+| `-m, --model` | LLM 模型名称 | `deepseek-v4-flash` |
 | `-k, --api_key` | API Key（不传则从环境变量读取） | — |
 | `-u, --base_url` | API 基础 URL | `https://openrouter.ai/api/v1` |
 | `-p, --prompt` | 自定义扫描提示词（可选） | — |
@@ -71,21 +72,23 @@ skill-scan --help
 
 ```python
 import asyncio
+import os
 from skill_scan.agent.agent import Agent
 from skill_scan.utils.llm import LLM
-from skill_scan.utils.llm_manager import LLMManager
 from skill_scan.utils.aig_logger import mcpLogger
 
 async def run():
-    llm = LLM(model="deepseek/deepseek-v3.2-exp",
-              api_key="sk-...",
+    # API Key 只从环境变量读取，不要硬编码在代码中
+    api_key = os.environ.get("LLM_API_KEY")
+    if not api_key:
+        raise RuntimeError("请设置 LLM_API_KEY 环境变量")
+
+    llm = LLM(model="deepseek-v4-flash",
+              api_key=api_key,
               base_url="https://openrouter.ai/api/v1",
               context_window=128_000)
-    mgr = LLMManager(api_key="sk-...", base_url="https://openrouter.ai/api/v1")
-    specialized = mgr.get_specialized_llms(["thinking", "coding"])
 
-    agent = Agent(llm=llm, specialized_llms=specialized,
-                  debug=False, language="zh")
+    agent = Agent(llm=llm, debug=False, language="zh")
     # 如需结构化 JSON 日志（集成到其他系统时），取消下一行注释
     # mcpLogger.enable()
     result = await agent.scan("/path/to/your/skill", "", "zh")
@@ -98,7 +101,7 @@ asyncio.run(run())
 
 ## 配置
 
-所有配置通过环境变量或 `.env` 文件注入。`skill-scan` 会按以下顺序查找 `.env`：
+所有配置通过环境变量或 `.env` 文件注入。`aig-skill-scan` 会按以下顺序查找 `.env`：
 
 1. 包根目录（`site-packages/skill_scan/.env`，安装态一般不用）
 2. 当前工作目录（`./.env`，推荐）
@@ -107,11 +110,10 @@ asyncio.run(run())
 
 | 变量 | 说明 | 默认值 |
 | --- | --- | --- |
-| `OPENROUTER_API_KEY` / `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API Key | — |
-| `LLM_MODEL` / `OPENAI_MODEL` | 默认模型 | `deepseek/deepseek-v3.2-exp` |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API Key（**必须通过环境变量设置，不要硬编码**） | — |
+| `LLM_MODEL` / `OPENAI_MODEL` | 默认模型 | `deepseek-v4-flash` |
 | `LLM_BASE_URL` / `OPENAI_BASE_URL` | 默认 Base URL | `https://openrouter.ai/api/v1` |
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | 主模型上下文窗口 | `128000` |
-| `THINKING_MODEL` / `CODING_MODEL` / `FAST_MODEL` | 专用模型 | gemini-2.5-pro / claude-sonnet-4.5 / gemini-2.0-flash-exp |
 | `LOG_LEVEL` | 日志级别 | `INFO` |
 
 ---
@@ -130,7 +132,6 @@ skill_scan/
 │   └── *_schema.xml    # 工具的 XML schema（给 LLM 看）
 ├── utils/
 │   ├── llm.py          # OpenAI 兼容客户端
-│   ├── llm_manager.py  # 多角色 LLM 管理（thinking/coding/fast）
 │   ├── prompt_manager.py# prompt 模板加载（从 skill_scan/prompt/）
 │   ├── aig_logger.py   # AIG 集成日志（默认关闭，--aig-mode 启用）
 │   ├── extract_vuln.py # <vuln> XML 提取与解析
@@ -175,7 +176,7 @@ python -m build
 
 # 本地安装测试
 pip install dist/aig_skill_scan-0.1.0-py3-none-any.whl
-skill-scan --help
+aig-skill-scan --help
 ```
 
 ---

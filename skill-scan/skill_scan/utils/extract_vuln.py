@@ -17,7 +17,7 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 """
-skill-scan vulnerability information extractor
+aig-skill-scan vulnerability information extractor
 
 Extracts vulnerability results from the <vuln> XML emitted by the LLM and
 converts them into a results list. Mirrors mcp-scan's VulnerabilityExtractor

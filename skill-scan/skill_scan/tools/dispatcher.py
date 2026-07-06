@@ -25,7 +25,7 @@ from skill_scan.utils.loging import logger
 if TYPE_CHECKING:
     from skill_scan.utils.tool_context import ToolContext
 
-# Tool set dedicated to skill-scan
+# Tool set dedicated to aig-skill-scan
 _SKILL_TOOLS = [
     "finish",
     "think",
@@ -38,9 +38,9 @@ _SKILL_TOOLS = [
 
 
 class ToolDispatcher:
-    """Tool dispatcher for skill-scan.
+    """Tool dispatcher for aig-skill-scan.
 
-    skill-scan only uses local tools and does not make remote MCP calls.
+    aig-skill-scan only uses local tools and does not make remote MCP calls.
     """
 
     async def get_all_tools_prompt(self) -> str:

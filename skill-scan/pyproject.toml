@@ -18,7 +18,7 @@ maintainers = [
 keywords = [
   "ai-security",
   "agent-security",
-  "skill-scan",
+  "aig-skill-scan",
   "red-team",
   "llm",
   "audit",
@@ -60,7 +60,7 @@ dev = [
 ]
 
 [project.scripts]
-skill-scan = "skill_scan.main:cli"
+aig-skill-scan = "skill_scan.main:cli"
 
 [project.urls]
 Homepage = "https://github.com/Tencent/AI-Infra-Guard"

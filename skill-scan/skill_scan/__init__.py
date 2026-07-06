@@ -1,4 +1,4 @@
-"""Skill-Scan - AI Native Agent Skill security auditing tool.
+"""aig-skill-scan - AI Native Agent Skill security auditing tool.
 
 A multi-stage security auditing tool for AI Agent Skill projects, performing
 static security analysis via an LLM-driven code audit + vulnerability review

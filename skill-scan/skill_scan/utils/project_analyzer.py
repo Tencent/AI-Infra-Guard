@@ -17,11 +17,11 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 """
-skill-scan project analysis utility module
+aig-skill-scan project analysis utility module
 
 Analyzes the programming language distribution of a project and computes a
 security score. The scoring algorithm mirrors mcp-scan's calc_mcp_score, but
-is adapted to skill-scan's malicious/suspicious/normal three-tier verdict
+is adapted to aig-skill-scan's malicious/suspicious/normal three-tier verdict
 system.
 """
 

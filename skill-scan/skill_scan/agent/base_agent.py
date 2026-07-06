@@ -233,7 +233,7 @@ class BaseAgent:
         # Invoke the tool via the Dispatcher
         tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
 
-        # Format the tool result and append it to history (preserves skill-scan's truncation logic)
+        # Format the tool result and append it to history (preserves aig-skill-scan's truncation logic)
         result_message = self._build_history_tool_result(
             tool_name,
             tool_args,
@@ -275,7 +275,7 @@ class BaseAgent:
         self.history.append({"role": "user", "content": reminder})
         return None
 
-    # Sensitive pattern -> challenge mapping (skill-scan specific)
+    # Sensitive pattern -> challenge mapping (aig-skill-scan specific)
     _CHALLENGE_PATTERNS_ZH = [
         (
             r"curl\s+[^|]*\|\s*(ba)?sh|wget\s+[^|]*\|\s*(ba)?sh",

@@ -21,7 +21,7 @@
 
 保留这个文件是为了兼容 Go 后端（``common/agent/skill_task.go``）通过
 ``uv run --no-project main.py`` 在 ``skill-scan/`` 目录下调用的方式。
-正式发布的 console 入口是 ``skill-scan`` 命令（见 pyproject.toml 的
+正式发布的 console 入口是 ``aig-skill-scan`` 命令（见 pyproject.toml 的
 ``[project.scripts]``），等价于 ``python -m skill_scan``。
 """
 

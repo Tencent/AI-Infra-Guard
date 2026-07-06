@@ -17,10 +17,10 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-"""Skill-Scan CLI entry point.
+"""aig-skill-scan CLI entry point.
 
 Can be run either as a module (``python -m skill_scan``) or as a console
-script (``skill-scan``); also exposes the :func:`main` async entry point
+script (``aig-skill-scan``); also exposes the :func:`main` async entry point
 for programmatic use.
 """
 
@@ -36,7 +36,6 @@ from skill_scan.agent.agent import Agent
 from skill_scan.utils import config
 from skill_scan.utils.aig_logger import mcpLogger
 from skill_scan.utils.llm import LLM
-from skill_scan.utils.llm_manager import LLMManager
 from skill_scan.utils.loging import logger
 
 # Important: import the tools package to trigger tool registration
@@ -46,7 +45,7 @@ _prompts = {"zh": "所有回复都应使用中文。", "en": "All responses shou
 
 _BANNER = """\
 ============================================================
-  Skill-Scan - Agent Skill Security Auditing Tool
+  aig-skill-scan - Agent Skill Security Auditing Tool
   Powered by Tencent Zhuque Lab
   https://github.com/Tencent/AI-Infra-Guard
 ============================================================
@@ -81,7 +80,7 @@ def resolve_runtime_override(args) -> tuple:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments. Pass argv for programmatic/test invocation."""
     parser = argparse.ArgumentParser(
-        prog="skill-scan",
+        prog="aig-skill-scan",
         description=_BANNER,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -153,7 +152,6 @@ async def main() -> None:
 
     # AIG integration mode: enabled via --aig-mode when invoked by the Go backend.
     # When enabled, mcpLogger emits structured JSON to stdout for ParseStdoutLine() to parse.
-    # Disabled by default for standalone use (the `skill-scan` command after pip install)
     # to avoid polluting the terminal.
     if args.aig_mode:
         mcpLogger.enable()
@@ -162,10 +160,10 @@ async def main() -> None:
         resolve_runtime_override(args)
     )
 
-    api_key = override_api_key or os.environ.get("OPENROUTER_API_KEY")
+    api_key = override_api_key
     if not api_key:
         logger.error(
-            "API Key not provided. Use --api_key or set OPENROUTER_API_KEY environment variable."
+            "API Key not provided. Use --api_key or set LLM_API_KEY/OPENAI_API_KEY environment variable."
         )
         sys.exit(1)
 
@@ -181,11 +179,6 @@ async def main() -> None:
     )
     logger.info(f"Main LLM initialized: {model}")
 
-    # Use the main API key as the default
-    llm_manager = LLMManager(api_key=api_key, base_url=base_url)
-    specialized_llms = llm_manager.get_specialized_llms(["thinking", "coding"])
-    logger.info(f"Specialized LLMs configured: {list(specialized_llms.keys())}")
-
     user_prompt = args.prompt.strip()
     lang_prompt = _prompts.get(args.language, "")
     prompt = f"{user_prompt}\n\n{lang_prompt}" if user_prompt else lang_prompt
@@ -194,7 +187,6 @@ async def main() -> None:
 
     agent = Agent(
         llm=llm,
-        specialized_llms=specialized_llms,
         debug=args.debug,
         language=args.language,
     )
@@ -236,7 +228,7 @@ async def main() -> None:
 
 
 def cli() -> None:
-    """Sync entry point used by console_scripts (the ``skill-scan`` command) and ``python -m skill_scan``."""
+    """Sync entry point used by console_scripts (the ``aig-skill-scan`` command) and ``python -m skill_scan``."""
     asyncio.run(main())
 
 

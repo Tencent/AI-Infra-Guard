@@ -87,7 +87,7 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
     return "\n".join(lines)
 
 
-# SkillTrustBench T01-T09 vulnerability classification table -- skill-scan's dedicated audit core
+# SkillTrustBench T01-T09 vulnerability classification table -- aig-skill-scan's dedicated audit core
 _OUTPUT_FORMAT = """## AI Agent Skill 风险分类
 
 在审计过程中，若发现问题，需从以下分类中选取**最匹配的一个**标签标注到对应文件：
@@ -280,7 +280,7 @@ class ScanPipeline:
 
 
 class Agent:
-    """skill-scan's main Agent, the entry point for the three-stage pipeline."""
+    """aig-skill-scan's main Agent, the entry point for the three-stage pipeline."""
 
     def __init__(
         self,

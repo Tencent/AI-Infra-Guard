@@ -54,25 +54,9 @@ def get_env_int(key: str, default: int) -> int:
 
 
 # ===== Primary LLM configuration =====
-DEFAULT_MODEL = get_env("DEFAULT_MODEL", "deepseek/deepseek-v3.2-exp")
+DEFAULT_MODEL = get_env("DEFAULT_MODEL", "deepseek-v4-flash")
 DEFAULT_BASE_URL = get_env("DEFAULT_BASE_URL", "https://openrouter.ai/api/v1")
 DEFAULT_MODEL_CONTEXT_WINDOW = get_env_int("DEFAULT_MODEL_CONTEXT_WINDOW", 128000)
-
-# ===== Specialized LLM configuration =====
-THINKING_MODEL = get_env("THINKING_MODEL", "google/gemini-2.5-pro")
-THINKING_BASE_URL = get_env("THINKING_BASE_URL", DEFAULT_BASE_URL)
-THINKING_API_KEY = get_env("THINKING_API_KEY")
-THINKING_MODEL_CONTEXT_WINDOW = get_env_int("THINKING_MODEL_CONTEXT_WINDOW", 128000)
-
-CODING_MODEL = get_env("CODING_MODEL", "anthropic/claude-sonnet-4.5")
-CODING_BASE_URL = get_env("CODING_BASE_URL", DEFAULT_BASE_URL)
-CODING_API_KEY = get_env("CODING_API_KEY")
-CODING_MODEL_CONTEXT_WINDOW = get_env_int("CODING_MODEL_CONTEXT_WINDOW", 128000)
-
-FAST_MODEL = get_env("FAST_MODEL", "google/gemini-2.0-flash-exp")
-FAST_BASE_URL = get_env("FAST_BASE_URL", DEFAULT_BASE_URL)
-FAST_API_KEY = get_env("FAST_API_KEY")
-FAST_MODEL_CONTEXT_WINDOW = get_env_int("FAST_MODEL_CONTEXT_WINDOW", 128000)
 
 # ===== Debug and logging configuration =====
 LAMINAR_API_KEY = get_env("LAMINAR_API_KEY")
