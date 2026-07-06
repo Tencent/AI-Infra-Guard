@@ -32,6 +32,9 @@ prompt_template: |
   - `marshal.loads(args.data)` / `yaml.load(args.data)` without `Loader=SafeLoader`
     / `yaml.unsafe_load()`.
   - `dill.loads()` / `shelve.open()` on attacker-influenced data.
+  - `jsonpickle.decode(args.data)` on caller-controlled input — jsonpickle can
+    instantiate arbitrary classes via `{"py/object": "..."}` directives,
+    carrying the same RCE risk as pickle.
 
   ### 2. JavaScript / dynamic evaluation as deserialization
   **Code Patterns:**
