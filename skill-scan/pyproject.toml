@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aig-skill-scan"
-version = "0.1.4"
+version = "0.2.0"
 description = "AI Native Agent Skill security auditing tool - an LLM-driven multi-stage code audit and vulnerability review pipeline"
 readme = "README.md"
 requires-python = ">=3.9"
