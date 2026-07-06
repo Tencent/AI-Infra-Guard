@@ -103,7 +103,7 @@ A.I.G's SKILL scanning capability is entirely driven by an AI agent. The accurac
 
 ## Method 3: Install via pip and Scan Standalone
 
-In addition to using the A.I.G platform, skill-scan can be installed as a standalone tool via pip, suitable for CI/CD integration or local batch auditing.
+In addition to using the A.I.G platform, aig-skill-scan can be installed as a standalone tool via pip, suitable for CI/CD integration or local batch auditing.
 
 ### Installation
 
@@ -117,14 +117,12 @@ pip install aig-skill-scan
 
 ```bash
 # Scan a local Skill project directory
-skill-scan --repo /path/to/your/skill \
-           -m deepseek/deepseek-v4-pro \
-           -k $OPENROUTER_API_KEY \
-           -u https://openrouter.ai/api/v1 \
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
            --language en
 
 # Or invoke as a Python module
-python -m skill_scan --repo /path/to/your/skill -k $OPENROUTER_API_KEY
+python -m skill_scan --repo /path/to/your/skill
 ```
 
 ### Command Line Options
@@ -132,7 +130,7 @@ python -m skill_scan --repo /path/to/your/skill -k $OPENROUTER_API_KEY
 | Option | Description | Default |
 | --- | --- | --- |
 | `--repo` | Path to the Skill project directory to scan (required) | — |
-| `-m, --model` | LLM model name | `deepseek/deepseek-v4-pro` |
+| `-m, --model` | LLM model name | `deepseek-v4-flash` |
 | `-k, --api_key` | API key (falls back to env vars if omitted) | — |
 | `-u, --base_url` | API base URL | `https://openrouter.ai/api/v1` |
 | `-p, --prompt` | Custom scan prompt (optional) | — |
@@ -146,11 +144,11 @@ Configuration can also be provided via environment variables or a `.env` file:
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `OPENROUTER_API_KEY` | LLM API key | — |
-| `LLM_MODEL` | Default model | `deepseek/deepseek-v4-pro` |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API key | — |
+| `LLM_MODEL` | Default model | `deepseek-v4-flash` |
 | `LLM_BASE_URL` | Default base URL | `https://openrouter.ai/api/v1` |
 
-For more details, see the [skill-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan).
+For more details, see the [aig-skill-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan).
 
 ## View Scan Status and Results
 ![image-mcp6](./assets/skill6-en.png)![image-mcp7](./assets/skill7-en.png)
