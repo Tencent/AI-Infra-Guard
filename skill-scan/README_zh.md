@@ -4,11 +4,10 @@
 
 > AI Native Agent Skill 安全审计工具 —— LLM 驱动的多阶段代码审计与漏洞复审流水线。
 
-`aig-skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计。它通过三阶段流水线对 Skill 代码进行 LLM 驱动的深度分析：
+`aig-skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计，由 LLM 驱动。
 
-1. **Info Collection** —— 项目结构、语言、入口点识别
-2. **Code Audit** —— 多技能并行审计（数据泄露、工具滥用、间接注入、越权等）
-3. **Vulnerability Review** —— 漏洞去重、误报过滤、严重度评分、报告生成
+- **默认（单阶段）模式**：仅执行 **Code Audit**，直接产出漏洞结果，速度更快，适合独立 CLI 使用。
+- **`--aig-mode`（三阶段）模式**：**Info Collection → Code Audit → Vulnerability Review** 完整流水线，用于 AI-Infra-Guard 平台前端的分步展示，无需手动开启。
 
 漏洞分类对齐 [SkillTrustBench](https://github.com/Tencent/AI-Infra-Guard) T01–T09 分类法，判定标准：`malicious`（明确攻击意图）/ `suspicious`（有漏洞但无明确攻击意图）/ `normal`（良性）。
 
@@ -42,7 +41,7 @@ export LLM_API_KEY="your-api-key"
 aig-skill-scan --repo /path/to/your/skill \
            -m deepseek-v4-flash \
            --language zh \
-           -o result.json
+           -o result.sarif.json
 
 # 也可以用模块方式调用
 python -m skill_scan --repo /path/to/your/skill
@@ -63,19 +62,48 @@ aig-skill-scan --help
 | `-p, --prompt` | 自定义扫描提示词（可选） | — |
 | `--language` | 输出语言：`zh` / `en` | `zh` |
 | `--debug` | 启用 debug 模式 | `false` |
-| `--aig-mode` | 启用 AIG 集成模式（向 stdout 输出结构化 JSON 供 Go 后端解析，单独使用不需要） | `false` |
-| `-o, --output` | 将扫描结果保存为 JSON 文件 | — |
+| `--aig-mode` | 启用 AIG 集成模式：走三阶段流水线，并向 stdout 输出结构化 JSON 供 Go 后端解析（单独使用不需要） | `false` |
+| `-o, --output` | 保存扫描结果文件；**未开启 `--aig-mode` 时为 SARIF 2.1.0 JSON，开启后为内部结构 JSON** | — |
 
-> `--aig-mode` 是给 AI-Infra-Guard 平台后端调用时用的，开启后会向 stdout 输出 `newPlanStep`/`statusUpdate`/`toolUsed` 等结构化 JSON。`pip install` 单独使用时不要开启，否则会污染终端输出。
+> `--aig-mode` 是给 AI-Infra-Guard 平台后端调用时用的，开启后走三阶段流水线（Info Collection → Code Audit → Vulnerability Review），并向 stdout 输出 `newPlanStep`/`statusUpdate`/`toolUsed` 等结构化 JSON，`-o` 保存的也是内部结构 JSON。`pip install` 单独使用时不要开启，否则会污染终端输出。
+
+### 输出格式（SARIF）
+
+**未开启 `--aig-mode`（默认，独立 CLI 使用）时**，`-o` 保存的结果是 [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/) 标准 JSON —— OASIS 静态分析结果交换格式，可被 GitHub Code Scanning、Azure DevOps、GitLab Security Dashboard、VS Code 问题面板等工具原生识别与展示。
+
+```json
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
+  "runs": [{
+    "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.0", "rules": [...]}},
+    "results": [{
+      "ruleId": "T04",
+      "level": "error",
+      "message": {"text": "..."},
+      "locations": [{"physicalLocation": {"artifactLocation": {"uri": "scripts/setup.sh"}, "region": {"startLine": 12, "endLine": 18}}}],
+      "partialFingerprints": {"primaryLocationLineHash": "..."},
+      "fixes": [{"description": {"text": "..."}}]
+    }]
+  }]
+}
+```
+
+- `ruleId` 来自漏洞的 `risk_type`（SkillTrustBench T01–T09 分类编号）
+- `level` 由严重度（Critical/High/Medium/...）归一化映射为 SARIF 的 `error`/`warning`/`note`
+- `locations` 依赖 LLM 输出的可选结构化字段（文件路径 + 行号），无法定位时 `uri` 兜底为 `"."`
+
+`--aig-mode` 模式下 `-o` 保存的仍是原有的内部 JSON 结构（供平台内部消费），不受影响。
 
 ### 程序化调用
 
 ```python
 import asyncio
+import json
 import os
 from skill_scan.agent.agent import Agent
 from skill_scan.utils.llm import LLM
-from skill_scan.utils.aig_logger import mcpLogger
+from skill_scan.utils.sarif_formatter import to_sarif
 
 async def run():
     # API Key 只从环境变量读取，不要硬编码在代码中
@@ -88,11 +116,13 @@ async def run():
               base_url="https://openrouter.ai/api/v1",
               context_window=128_000)
 
-    agent = Agent(llm=llm, debug=False, language="zh")
-    # 如需结构化 JSON 日志（集成到其他系统时），取消下一行注释
-    # mcpLogger.enable()
+    # 单阶段（默认），aig_mode=False
+    agent = Agent(llm=llm, debug=False, language="zh", aig_mode=False)
     result = await agent.scan("/path/to/your/skill", "", "zh")
-    print(result)
+
+    # 转为 SARIF 2.1.0 格式
+    sarif_doc = to_sarif(result, tool_version="0.2.0", language="zh")
+    print(json.dumps(sarif_doc, ensure_ascii=False, indent=2))
 
 asyncio.run(run())
 ```
@@ -122,8 +152,8 @@ asyncio.run(run())
 
 ```
 skill_scan/
-├── agent/              # 三阶段 ScanPipeline 编排
-│   ├── agent.py        # Agent 主类，调度 Info→Audit→Review
+├── agent/              # Agent 扫描流水线（默认单阶段，--aig-mode 时三阶段）
+│   ├── agent.py        # Agent 主类，扫描入口 + 阶段调度
 │   └── base_agent.py   # LLM 循环 + 工具调用基类
 ├── tools/              # XML-schema 工具注册表
 │   ├── registry.py     # @register_tool 装饰器
@@ -135,6 +165,7 @@ skill_scan/
 │   ├── prompt_manager.py# prompt 模板加载（从 skill_scan/prompt/）
 │   ├── aig_logger.py   # AIG 集成日志（默认关闭，--aig-mode 启用）
 │   ├── extract_vuln.py # <vuln> XML 提取与解析
+│   ├── sarif_formatter.py # 内部结果 → SARIF 2.1.0 转换（非 --aig-mode 时使用）
 │   ├── project_analyzer.py # 语言识别 + calc_skill_score
 │   └── pre_scan.py     # 预扫描，生成项目概要
 ├── prompt/             # 打包的 prompt 模板

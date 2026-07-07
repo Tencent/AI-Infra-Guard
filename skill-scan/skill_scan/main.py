@@ -32,11 +32,13 @@ import json
 import os
 import sys
 
+from skill_scan import __version__ as _AIG_SKILL_SCAN_VERSION
 from skill_scan.agent.agent import Agent
 from skill_scan.utils import config
 from skill_scan.utils.aig_logger import mcpLogger
 from skill_scan.utils.llm import LLM
 from skill_scan.utils.loging import logger
+from skill_scan.utils.sarif_formatter import to_sarif
 
 # Important: import the tools package to trigger tool registration
 import skill_scan.tools as _  # isort: skip
@@ -189,6 +191,7 @@ async def main() -> None:
         llm=llm,
         debug=args.debug,
         language=args.language,
+        aig_mode=args.aig_mode,
     )
     try:
         # Validate the project path
@@ -204,10 +207,21 @@ async def main() -> None:
         result = await agent.scan(args.repo, prompt, args.language)
         logger.info(f"Scan completed successfully:\n\n {result}")
 
+        # Non-AIG mode (standalone CLI usage): output is a SARIF 2.1.0 JSON
+        # document so results can be natively consumed by GitHub Code Scanning,
+        # Azure DevOps, GitLab Security Dashboard, VS Code Problems panel, etc.
+        # AIG mode keeps the original internal dict, since the Go backend
+        # consumes it via mcpLogger, not this file.
+        output_data = result
+        if not args.aig_mode:
+            output_data = to_sarif(
+                result, tool_version=_AIG_SKILL_SCAN_VERSION, language=args.language
+            )
+
         if args.output:
             try:
                 with open(args.output, "w", encoding="utf-8") as f:
-                    json.dump(result, f, ensure_ascii=False, indent=2)
+                    json.dump(output_data, f, ensure_ascii=False, indent=2)
                 logger.info(f"Result saved to: {args.output}")
             except OSError as e:
                 logger.error(f"Failed to write output file {args.output}: {e}")

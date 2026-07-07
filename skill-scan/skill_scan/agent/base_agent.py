@@ -215,7 +215,16 @@ class BaseAgent:
             logger.info("Finish tool called, final result formatted.")
 
             mcpLogger.status_update(self.step_id, description, "", "completed")
-            result = await self._format_final_output()
+
+            # If the last assistant response already passes the output check,
+            # return its cleaned content directly — skip the redundant
+            # _format_final_output() LLM round-trip(s).
+            last_msg = self.history[-1]["content"] if self.history else ""
+            if last_msg and self.output_check_fn and self.output_check_fn(clean_content(last_msg)):
+                result = clean_content(last_msg)
+            else:
+                result = await self._format_final_output()
+
             mcpLogger.action_log(tool_id, tool_name, self.step_id, result)
             return result
 

@@ -27,7 +27,7 @@ implementation.
 from __future__ import annotations
 
 import re
-from typing import Optional
+from typing import Any, Optional
 
 
 class VulnerabilityExtractor:
@@ -39,7 +39,7 @@ class VulnerabilityExtractor:
             re.DOTALL,  # Make . match all characters, including newlines
         )
 
-    def extract_vulnerabilities(self, text: str) -> list[dict[str, str]]:
+    def extract_vulnerabilities(self, text: str) -> list[dict[str, Any]]:
         """
         Extract all vulnerability information from the text.
 
@@ -47,7 +47,10 @@ class VulnerabilityExtractor:
             text: Text containing vulnerability information
 
         Returns:
-            A list of vulnerability information dicts
+            A list of vulnerability information dicts. Each dict has the
+            required keys ``title``/``description``/``risk_type``/``level``/
+            ``suggestion``, plus optional ``file``/``line_start``/``line_end``
+            (int) when the LLM provided structured location tags.
         """
         vulnerabilities = []
 
@@ -65,7 +68,7 @@ class VulnerabilityExtractor:
 
         return vulnerabilities
 
-    def _parse_vuln_block(self, block: str, index: int) -> dict[str, str] | None:
+    def _parse_vuln_block(self, block: str, index: int) -> dict[str, Any] | None:
         """Parse a single vuln block"""
 
         # Extract each field
@@ -74,19 +77,33 @@ class VulnerabilityExtractor:
         risk_type = self._extract_tag_content(block, "risk_type")
         level = self._extract_tag_content(block, "level")
         suggestion = self._extract_tag_content(block, "suggestion")
+        # Optional structured location fields (used to populate SARIF
+        # physicalLocation when not running in --aig-mode)
+        file_path = self._extract_tag_content(block, "file")
+        line_start = self._extract_tag_content(block, "line_start")
+        line_end = self._extract_tag_content(block, "line_end")
 
         # Validate required fields
         if not all([title, desc, risk_type]):
             print(f"Vulnerability block #{index} is missing required fields, skipping")
             return None
 
-        return {
+        result: dict[str, Any] = {
             "title": title.strip(),
             "description": desc.strip(),
             "risk_type": risk_type.strip(),
-            "level": level.strip(),
-            "suggestion": suggestion.strip(),
+            "level": (level or "").strip(),
+            "suggestion": (suggestion or "").strip(),
         }
+
+        if file_path and file_path.strip():
+            result["file"] = file_path.strip()
+        if line_start and line_start.strip().lstrip("-").isdigit():
+            result["line_start"] = int(line_start.strip())
+        if line_end and line_end.strip().lstrip("-").isdigit():
+            result["line_end"] = int(line_end.strip())
+
+        return result
 
     def _extract_tag_content(self, text: str, tag: str) -> str | None:
         """Extract the content of the given tag"""

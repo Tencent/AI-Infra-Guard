@@ -4,11 +4,10 @@ English | **[中文](./README_zh.md)**
 
 > AI Native Agent Skill security auditing tool — an LLM-driven multi-stage code audit and vulnerability review pipeline.
 
-`aig-skill-scan` is a subproject of [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard), purpose-built for static security auditing of AI Agent Skill projects (OpenClaw Skills, etc.). It runs a three-stage pipeline powered by LLM-driven deep analysis:
+`aig-skill-scan` is a subproject of [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard), purpose-built for static, LLM-driven security auditing of AI Agent Skill projects (OpenClaw Skills, etc.).
 
-1. **Info Collection** — project structure, language, entry-point identification
-2. **Code Audit** — parallel multi-skill auditing (data leakage, tool abuse, indirect injection, authorization bypass, etc.)
-3. **Vulnerability Review** — deduplication, false-positive filtering, severity scoring, report generation
+- **Default (single-stage) mode**: runs only the **Code Audit** stage and outputs vulnerabilities directly — faster, ideal for standalone CLI use.
+- **`--aig-mode` (three-stage) mode**: the full **Info Collection → Code Audit → Vulnerability Review** pipeline, used for the AI-Infra-Guard platform's step-by-step frontend display; no need to enable it manually otherwise.
 
 Vulnerability classification follows the [SkillTrustBench](https://github.com/Tencent/AI-Infra-Guard) T01–T09 taxonomy. Verdicts: `malicious` (clear attack intent) / `suspicious` (vulnerability present but no clear attack intent) / `normal` (benign).
 
@@ -42,7 +41,7 @@ export LLM_API_KEY="your-api-key"
 aig-skill-scan --repo /path/to/your/skill \
            -m deepseek-v4-flash \
            --language en \
-           -o result.json
+           -o result.sarif.json
 
 # Or invoke as a module
 python -m skill_scan --repo /path/to/your/skill
@@ -63,19 +62,48 @@ aig-skill-scan --help
 | `-p, --prompt` | Custom scan prompt (optional) | — |
 | `--language` | Output language: `zh` / `en` | `zh` |
 | `--debug` | Enable debug mode | `false` |
-| `--aig-mode` | Enable AIG integration mode (emit structured JSON to stdout for the Go backend; not needed for standalone use) | `false` |
-| `-o, --output` | Save the scan result as a JSON file | — |
+| `--aig-mode` | Enable AIG integration mode: run the three-stage pipeline and emit structured JSON to stdout for the Go backend (not needed for standalone use) | `false` |
+| `-o, --output` | Save the scan result to a file; **SARIF 2.1.0 JSON when `--aig-mode` is off, internal-schema JSON when it's on** | — |
 
-> `--aig-mode` is intended for the AI-Infra-Guard platform backend. When enabled, it writes `newPlanStep`/`statusUpdate`/`toolUsed` structured JSON lines to stdout. Do **not** enable it when using `pip install` standalone — it will pollute your terminal with JSON.
+> `--aig-mode` is intended for the AI-Infra-Guard platform backend. When enabled, it runs the three-stage pipeline (Info Collection → Code Audit → Vulnerability Review) and writes `newPlanStep`/`statusUpdate`/`toolUsed` structured JSON lines to stdout; `-o` also saves the internal-schema JSON in this mode. Do **not** enable it when using `pip install` standalone — it will pollute your terminal with JSON.
+
+### Output Format (SARIF)
+
+**When `--aig-mode` is off (default, standalone CLI use)**, the result saved via `-o` is [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/) — the OASIS Static Analysis Results Interchange Format standard JSON, natively consumable by GitHub Code Scanning, Azure DevOps, GitLab Security Dashboard, VS Code's Problems panel, and other SARIF-aware tooling.
+
+```json
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
+  "runs": [{
+    "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.0", "rules": [...]}},
+    "results": [{
+      "ruleId": "T04",
+      "level": "error",
+      "message": {"text": "..."},
+      "locations": [{"physicalLocation": {"artifactLocation": {"uri": "scripts/setup.sh"}, "region": {"startLine": 12, "endLine": 18}}}],
+      "partialFingerprints": {"primaryLocationLineHash": "..."},
+      "fixes": [{"description": {"text": "..."}}]
+    }]
+  }]
+}
+```
+
+- `ruleId` comes from the vulnerability's `risk_type` (the SkillTrustBench T01–T09 category code)
+- `level` is normalized from the free-text severity (Critical/High/Medium/...) into SARIF's `error`/`warning`/`note`
+- `locations` relies on optional structured fields (file path + line numbers) emitted by the LLM; when they can't be determined, `uri` falls back to `"."`
+
+`--aig-mode` mode is unaffected and continues to save the original internal JSON structure via `-o` (consumed by the platform internally).
 
 ### Programmatic Usage
 
 ```python
 import asyncio
+import json
 import os
 from skill_scan.agent.agent import Agent
 from skill_scan.utils.llm import LLM
-from skill_scan.utils.aig_logger import mcpLogger
+from skill_scan.utils.sarif_formatter import to_sarif
 
 async def run():
     # API key must be read from environment variables, never hardcoded
@@ -88,11 +116,13 @@ async def run():
               base_url="https://openrouter.ai/api/v1",
               context_window=128_000)
 
-    agent = Agent(llm=llm, debug=False, language="en")
-    # Uncomment the next line if you need structured JSON logs (e.g. integrating into another system)
-    # mcpLogger.enable()
+    # Single-stage (default), aig_mode=False
+    agent = Agent(llm=llm, debug=False, language="en", aig_mode=False)
     result = await agent.scan("/path/to/your/skill", "", "en")
-    print(result)
+
+    # Convert to SARIF 2.1.0 format
+    sarif_doc = to_sarif(result, tool_version="0.2.0", language="en")
+    print(json.dumps(sarif_doc, ensure_ascii=False, indent=2))
 
 asyncio.run(run())
 ```
@@ -122,8 +152,8 @@ Key environment variables:
 
 ```
 skill_scan/
-├── agent/              # Three-stage ScanPipeline orchestration
-│   ├── agent.py        # Agent class, dispatches Info → Audit → Review
+├── agent/              # Agent scan pipeline (single-stage by default, three-stage with --aig-mode)
+│   ├── agent.py        # Agent class, scan entry point + stage dispatch
 │   └── base_agent.py   # LLM loop + tool-calling base class
 ├── tools/              # XML-schema tool registry
 │   ├── registry.py     # @register_tool decorator
@@ -135,6 +165,7 @@ skill_scan/
 │   ├── prompt_manager.py# Prompt template loader (from skill_scan/prompt/)
 │   ├── aig_logger.py   # AIG integration logger (off by default, enabled via --aig-mode)
 │   ├── extract_vuln.py # <vuln> XML extraction and parsing
+│   ├── sarif_formatter.py # Internal result → SARIF 2.1.0 conversion (used when --aig-mode is off)
 │   ├── project_analyzer.py # Language detection + calc_skill_score
 │   └── pre_scan.py     # Pre-scan, generates project summary
 ├── prompt/             # Packaged prompt templates

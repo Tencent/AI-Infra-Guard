@@ -20,30 +20,60 @@ def sha256_file(file_path: str) -> str:
 
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
+    # Primary format: <function=tool_name>...</function>
     regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    # Fallback format (some LLMs, e.g. DeepSeek, occasionally emit):
+    #   <function>tool_name</function>
+    #   <parameter name="x">...</parameter>
+    alt_regex_pattern = (
+        rf"<{tag_name}>\s*([^<\s]+)\s*</{tag_name}>"
+    )
     named_param_regex_pattern = r'<parameter\s+name="([^"]+)">(.*?)</parameter>'
     legacy_param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
 
-    matches = re.finditer(regex_pattern, content, re.DOTALL)
+    # Pass 1: standard <function=tool_name>...</function>
+    matches = list(re.finditer(regex_pattern, content, re.DOTALL))
     for match in matches:
         fn_name = match.group(1)
         if fn_name == "tool_name":  # Skip few-shot examples
             continue
-
         body = match.group(2)
-
-        args = {}
-        param_matches = list(re.finditer(named_param_regex_pattern, body, re.DOTALL))
-        if not param_matches:
-            param_matches = list(re.finditer(legacy_param_regex_pattern, body, re.DOTALL))
-
-        for param_match in param_matches:
-            p_name = param_match.group(1)
-            p_value = html.unescape(param_match.group(2).strip())
-            args[p_name] = p_value
-
+        args = _extract_params(body, named_param_regex_pattern, legacy_param_regex_pattern)
         results.append({"toolName": fn_name, "args": args})
+
+    if results:
+        return results
+
+    # Pass 2: fallback <function>tool_name</function>
+    alt_matches = list(re.finditer(alt_regex_pattern, content, re.DOTALL))
+    for am in alt_matches:
+        fn_name = am.group(1)
+        if fn_name == "tool_name":
+            continue
+        # Parameters may appear as siblings *after* the function tag;
+        # scan the entire remaining content for any <parameter ...> tags.
+        tail = content[am.end():]
+        args = _extract_params(tail, named_param_regex_pattern, legacy_param_regex_pattern)
+        results.append({"toolName": fn_name, "args": args})
+
     return results
+
+
+def _extract_params(
+    text: str,
+    named_pattern: str,
+    legacy_pattern: str,
+) -> dict[str, str]:
+    """Extract tool parameters from a chunk of text (inside or after a function tag)."""
+    args: dict[str, str] = {}
+    param_matches = list(re.finditer(named_pattern, text, re.DOTALL))
+    if not param_matches:
+        param_matches = list(re.finditer(legacy_pattern, text, re.DOTALL))
+    for pm in param_matches:
+        p_name = pm.group(1)
+        p_value = html.unescape(pm.group(2).strip())
+        args[p_name] = p_value
+    return args
 
 
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:

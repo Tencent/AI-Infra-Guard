@@ -148,6 +148,68 @@ Strict criteria: must provide complete vulnerability exploitation paths and impa
 If no vulnerabilities are found, output "No security vulnerabilities found" and briefly describe the audit coverage scope."""
 
 
+_VULN_XML_FORMAT_ZH = """
+必须满足以下xml格式，多个漏洞返回多个vuln标签
+<vuln>
+  <title>title</title>
+  <desc>
+  <!-- Markdown格式漏洞描述 -->
+  ## 漏洞详情
+  **文件位置**: 
+  **漏洞类型**: 
+  **风险等级**: 
+
+  ### 技术分析
+
+  ### 攻击路径
+
+  ### 影响评估  
+  </desc>
+  <risk_type>RiskType</risk_type>
+  <level>Level</level>
+  <!-- 以下三个为可选的结构化定位字段，用于生成 SARIF 报告；若无法精确定位可留空 -->
+  <file>相对于项目根目录的文件路径，如 scripts/setup.sh</file>
+  <line_start>起始行号，纯数字</line_start>
+  <line_end>结束行号，纯数字，若只有单行可与line_start相同</line_end>
+  <suggestion>
+  ## 修复建议
+  </suggestion>
+</vuln>
+若无漏洞或漏洞为空,返回<empty>
+必须使用中文回复。""".strip()
+
+
+_VULN_XML_FORMAT_EN = """
+Must satisfy the following XML format. Return multiple <vuln> tags for multiple vulnerabilities.
+<vuln>
+  <title>title</title>
+  <desc>
+  <!-- Markdown format vulnerability description -->
+  ## Vulnerability Details
+  **File Location**: 
+  **Vulnerability Type**: 
+  **Risk Level**: 
+
+  ### Technical Analysis
+
+  ### Attack Path
+
+  ### Impact Assessment  
+  </desc>
+  <risk_type>RiskType</risk_type>
+  <level>Level</level>
+  <!-- The following three fields are optional structured location fields used to
+       generate the SARIF report; leave empty if the location cannot be pinpointed -->
+  <file>File path relative to the project root, e.g. scripts/setup.sh</file>
+  <line_start>Starting line number, digits only</line_start>
+  <line_end>Ending line number, digits only; same as line_start if a single line</line_end>
+  <suggestion>
+  ## Remediation Suggestions
+  </suggestion>
+</vuln>
+If no vulnerabilities or empty, return <empty>""".strip()
+
+
 _LANGUAGE_DIRECTIVE_EN = """
 
 ## 语言要求 / Language Requirement
@@ -280,7 +342,13 @@ class ScanPipeline:
 
 
 class Agent:
-    """aig-skill-scan's main Agent, the entry point for the three-stage pipeline."""
+    """aig-skill-scan's main Agent, entry point for the scan pipeline.
+
+    In standalone (non-AIG) mode: single-stage Code Audit that directly
+    outputs <vuln> XML — fast, ~3x quicker than the full pipeline.
+    In AIG mode: three-stage pipeline (Info Collection → Code Audit →
+    Vulnerability Review) for rich frontend step display.
+    """
 
     def __init__(
         self,
@@ -288,20 +356,21 @@ class Agent:
         specialized_llms: dict = None,
         debug: bool = False,
         language: str = "zh",
+        aig_mode: bool = False,
     ):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
         self.language = language
+        self.aig_mode = aig_mode
         self.dispatcher = ToolDispatcher()
         self.pipeline = ScanPipeline(self)
 
     async def scan(self, repo_dir: str, prompt: str, language: str = "zh") -> dict:
-        """Three-stage security audit pipeline.
+        """Security audit pipeline.
 
-        Stage 1: Info Collection -- gathers SKILL.md metadata, tool definitions, dependencies, entry scripts
-        Stage 2: Code Audit -- code audit powered by the SkillTrustBench T01-T09 core
-        Stage 3: Vulnerability Review -- consolidates results (outputs <vuln> XML)
+        Non-AIG mode: single-stage Code Audit → <vuln> XML.
+        AIG mode: Info Collection → Code Audit → Vulnerability Review.
         """
         result_meta = {
             "readme": "",
@@ -332,6 +401,72 @@ class Agent:
             )
             mcpLogger.result_update(result_meta)
             return result_meta
+
+        if self.aig_mode:
+            return await self._scan_three_stage(repo_dir, prompt, language, result_meta)
+        else:
+            return await self._scan_single_stage(repo_dir, prompt, language, result_meta)
+
+    async def _scan_single_stage(
+        self, repo_dir: str, prompt: str, language: str, result_meta: dict
+    ) -> dict:
+        """Single-stage: Code Audit that directly outputs <vuln> XML."""
+
+        if language == "en":
+            stage_name = "Code Audit"
+            output_format = _OUTPUT_FORMAT_EN + "\n\n" + _VULN_XML_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
+        else:
+            stage_name = "代码审计"
+            output_format = _OUTPUT_FORMAT + "\n\n" + _VULN_XML_FORMAT_ZH
+
+        audit_result = await self.pipeline.execute_stage(
+            ScanStage(
+                "1",
+                stage_name,
+                "agents/code_audit",
+                output_format=output_format,
+                output_check_fn=is_vuln_review_output,
+                language=language,
+            ),
+            repo_dir,
+            prompt,
+            inject_repo_tree=True,
+            inject_pre_scan=True,
+        )
+
+        # Extract vuln results from the <vuln> XML output
+        extractor = VulnerabilityExtractor()
+        vuln_results = extractor.extract_vulnerabilities(audit_result)
+
+        # Fallback: if extraction fails, use extract_result as a fallback
+        if not vuln_results:
+            parsed = extract_result(audit_result)
+            if parsed:
+                vuln_results = [parsed]
+
+        elapsed_time = (time.time() - result_meta["start_time"]) / 60
+        logger.info(f"Scan completed, total elapsed time {elapsed_time:.2f} minutes")
+
+        lang_stats = analyze_language(repo_dir)
+        top_language = get_top_language(lang_stats)
+        safety_score = calc_skill_score(vuln_results)
+
+        result_meta.update(
+            {
+                "readme": audit_result,
+                "score": safety_score,
+                "language": top_language,
+                "end_time": time.time(),
+                "results": vuln_results,
+            }
+        )
+        mcpLogger.result_update(result_meta)
+        return result_meta
+
+    async def _scan_three_stage(
+        self, repo_dir: str, prompt: str, language: str, result_meta: dict
+    ) -> dict:
+        """Three-stage pipeline: Info Collection → Code Audit → Vulnerability Review."""
 
         # Stage 1: Info Collection
         if language == "en":
@@ -392,61 +527,11 @@ class Agent:
 
         # Stage 3: Vulnerability Review
         if language == "en":
-            review_format = """
-Must satisfy the following XML format. Return multiple <vuln> tags for multiple vulnerabilities.
-<vuln>
-  <title>title</title>
-  <desc>
-  <!-- Markdown format vulnerability description -->
-  ## Vulnerability Details
-  **File Location**: 
-  **Vulnerability Type**: 
-  **Risk Level**: 
-
-  ### Technical Analysis
-
-  ### Attack Path
-
-  ### Impact Assessment  
-  </desc>
-  <risk_type>RiskType</risk_type>
-  <level>Level</level>
-  <suggestion>
-  ## Remediation Suggestions
-  </suggestion>
-</vuln>
-If no vulnerabilities or empty, return <empty>
-""".strip()
-            review_format += _LANGUAGE_DIRECTIVE_EN
+            review_format = _VULN_XML_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
             stage3_name = "Vulnerability Review"
             ctx_key3 = "Code Audit Report"
         else:
-            review_format = """
-必须满足以下xml格式，多个漏洞返回多个vuln标签
-<vuln>
-  <title>title</title>
-  <desc>
-  <!-- Markdown格式漏洞描述 -->
-  ## 漏洞详情
-  **文件位置**: 
-  **漏洞类型**: 
-  **风险等级**: 
-
-  ### 技术分析
-
-  ### 攻击路径
-
-  ### 影响评估  
-  </desc>
-  <risk_type>RiskType</risk_type>
-  <level>Level</level>
-  <suggestion>
-  ## 修复建议
-  </suggestion>
-</vuln>
-若无漏洞或漏洞为空,返回<empty>
-必须使用中文回复。
-""".strip()
+            review_format = _VULN_XML_FORMAT_ZH
             stage3_name = "漏洞整理"
             ctx_key3 = "代码审计报告"
         vuln_review = await self.pipeline.execute_stage(
