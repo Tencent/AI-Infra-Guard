@@ -73,7 +73,7 @@ A.I.G 개선에 도움을 주세요! 3~5분만 투자하여 [사용자 피드백
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 68개 AI 컴포넌트로 커버리지 확대(junoclaw, lollms, sglang 추가); 600개 이상의 신규 CVE 규칙 추가; Agent Scan에 WebSocket 프로바이더 지원.
 
 
-👉 [이전 릴리스](../CHANGELOG.md) · 🩺 [EdgeOne ClawScan 체험하기](https://matrix.tencent.com/clawscan)
+👉 [이전 릴리스](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## 목차
@@ -92,7 +92,7 @@ A.I.G 개선에 도움을 주세요! 3~5분만 투자하여 [사용자 피드백
 - [⚖️ 라이선스 및 저작권 표시](#️-라이선스-및-저작권-표시)
 <br><br>
 ## 🚀 빠른 시작
-### Docker를 이용한 배포
+### 🐳 Docker를 이용한 배포
 
 | Docker | RAM | 디스크 공간 |
 |:-------|:----|:----------|
@@ -110,7 +110,7 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
-### OpenClaw에서 사용하기
+#### OpenClaw에서 사용하기
 
 OpenClaw 채팅에서 `aig-scanner` skill을 통해 A.I.G를 직접 호출할 수도 있습니다.
 
@@ -148,16 +148,59 @@ docker-compose up -d
 
 </details>
 
-### 온라인 Pro 버전 체험하기
+### ⚡ aig-skill-scan 한 줄 명령어로 설치
+
+Agent Skill 보안 감사 도구로, 기업 CI/CD 파이프라인에 쉽게 통합할 수 있습니다. 취약점 분류는 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 분류 체계에 맞춰져 있습니다. [자세히 보기 →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+
+```bash
+pip install aig-skill-scan
+
+# 환경 변수로 API 키 설정
+export LLM_API_KEY="your-api-key"
+
+# 로컬 Skill 프로젝트 디렉토리 scan
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
+           --language en \
+           -o result.json
+```
+
+### 🌟 온라인 Pro 버전 체험하기
 고급 기능과 향상된 성능을 갖춘 Pro 버전을 경험해 보세요. Pro 버전은 [초대 코드](https://wj.qq.com/s2/25099467/25vn/)가 필요하며, 이슈·풀 리퀘스트·토론을 제출했거나 커뮤니티 성장에 적극적으로 기여한 분들을 우선적으로 제공합니다. 방문: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
 <br>
 
 ## ✨ 주요 기능
 
+### 🔍 aig-skill-scan 성능 및 커버리지
+
+[SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)에서의 다양한 LLM 성능:
+
+| # | 모델 | F1 | Precision | Recall | FPR |
+|:--|:------|:---|:----------|:-------|:----|
+| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
+| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
+| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
+| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
+| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
+
+9가지 Skill 보안 위험 카테고리 커버 (SkillTrustBench T01–T09):
+
+| 계층 | 위험 |
+|:------|:--------|
+| A · 지시 & 메모리 | T01 Skill 지시 하이재킹, T02 메모리 포이즈닝 |
+| B · 코드 실행 | T03 원격 페이로드 다운로드 & 실행, T04 내장 악성 코드 |
+| C · 시스템 권한 | T05 권한 상승 & 비인가 접근, T06 시스템 지속성 |
+| D · 툴체인 & 의존성 | T07 도구 하이재킹 & 위장, T08 안전하지 않은 의존성 |
+| E · Skill 코드 품질 | T09 안전하지 않은 코딩 관행 |
+
+전체 리더보드 및 상세 정보는 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)를 방문하세요.
+
+### 🔬 보안 scan 및 평가
+
 | 기능 | 상세 정보 |
 |:--------|:------------|
-| **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | OpenClaw 보안 위험에 대한 원클릭 평가를 지원합니다. 안전하지 않은 설정, Skill 위험, CVE 취약점 및 개인정보 유출을 탐지합니다. |
+| **[ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | OpenClaw 보안 위험에 대한 원클릭 평가를 지원합니다. 안전하지 않은 설정, Skill 위험, CVE 취약점 및 개인정보 유출을 탐지합니다. |
 | **Agent&nbsp;Scan** | AI Agent 워크플로우의 보안을 평가하도록 설계된 독립적인 다중 Agent 자동화 scan 프레임워크입니다. Dify 및 Coze를 포함한 다양한 플랫폼에서 실행되는 Agent를 원활하게 지원합니다. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 14가지 주요 보안 위험 카테고리를 철저히 탐지합니다. MCP Server와 Agent Skills 모두에 적용됩니다. 소스 코드와 원격 URL 모두에서 유연하게 scan을 지원합니다. |
 | **AI&nbsp;인프라&nbsp;취약점&nbsp;scan** | 100개 이상의 AI 프레임워크 컴포넌트를 정확하게 식별합니다. 1,900개 이상의 알려진 CVE 취약점을 커버합니다. Ollama, ComfyUI, vLLM, n8n, Triton Inference Server 등의 프레임워크를 지원합니다. |
