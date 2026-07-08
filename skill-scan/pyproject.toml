@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aig-skill-scan"
-version = "0.2.0"
+version = "0.2.1"
 description = "AI Native Agent Skill security auditing tool - an LLM-driven multi-stage code audit and vulnerability review pipeline"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "Apache-2.0" }
 authors = [
-  { name = "Tencent Zhuque Lab", email = "ai-infra-guard@tencent.com" },
+  { name = "Tencent Zhuque Lab", email = "zhuque@tencent.com" },
 ]
 maintainers = [
   { name = "Tencent Zhuque Lab" },
