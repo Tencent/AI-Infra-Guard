@@ -136,7 +136,7 @@ python -m skill_scan --repo /path/to/your/skill
 | `-p, --prompt` | Custom scan prompt (optional) | — |
 | `--language` | Output language: `zh` / `en` | `zh` |
 | `--debug` | Enable debug mode | `false` |
-| `-o, --output` | Save the scan result as a JSON file | — |
+| `-o, --output` | Save the scan result to a file; **SARIF 2.1.0 JSON when `--aig-mode` is off, internal-schema JSON when it's on** | — |
 
 ### Environment Variables
 
