@@ -73,7 +73,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Coverage expanded to 68 AI components (added junoclaw, lollms, sglang); 600+ new CVE rules; WebSocket agent provider support for Agent Scan.
 
 
-👉 [Earlier releases](./CHANGELOG.md) · 🩺 [Try EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Earlier releases](./CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Table of Contents
@@ -92,7 +92,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
-### Deployment with Docker
+### 🐳 Deploy A.I.G with Docker
 
 | Docker | RAM | Disk Space |
 |:-------|:----|:----------|
@@ -110,7 +110,7 @@ Once the service is running, you can access the A.I.G web interface at:
 `http://localhost:8088`
 <br>
 
-### Use from OpenClaw
+#### Use from OpenClaw
 
 You can also call A.I.G directly from OpenClaw chat via the `aig-scanner` skill.
 
@@ -123,7 +123,7 @@ Then configure `AIG_BASE_URL` to point to your running A.I.G service.
 For more details, see the [`aig-scanner` README](./skills/aig-scanner/README.md).
 
 <details>
-<summary><strong>📦 More installation options</strong></summary>
+<summary><strong>More installation options</strong></summary>
 
 ### Other Installation Methods
 
@@ -148,16 +148,61 @@ For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getti
 
 </details>
 
-### Try the Online Pro Version
+
+### ⚡ Install aig-skill-scan with a Single Command
+
+Agent Skill security audit tool, easily integrated into enterprise CI/CD pipelines. Vulnerability classification aligns with [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 taxonomy. [Learn more →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+
+```bash
+pip install aig-skill-scan
+
+# Set API key via environment variable
+export LLM_API_KEY="your-api-key"
+
+# Scan a local Skill project directory
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
+           --language en \
+           -o result.json
+```
+
+### 🌟 Try the Online Pro Version
 Experience the Pro version with advanced features and improved performance. The Pro version requires an [invitation code](https://wj.qq.com/s2/25099467/25vn/) and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
+
 <br>
 <br>
 
 ## ✨ Features
 
+### 🔍 aig-skill-scan Performance & Coverage
+
+Performance on [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) with different LLMs:
+
+| # | Model | F1 | Precision | Recall | FPR |
+|:--|:------|:---|:----------|:-------|:----|
+| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
+| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
+| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
+| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
+| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
+
+Covers 9 categories of Skill security risks (SkillTrustBench T01–T09):
+
+| Layer | Risks |
+|:------|:--------|
+| A · Instruction & Memory | T01 Skill Instruction Hijacking, T02 Memory Poisoning |
+| B · Code Execution | T03 Remote Payload Download & Execution, T04 Embedded Malicious Code |
+| C · System Privilege | T05 Privilege Escalation & Unauthorized Access, T06 System Persistence |
+| D · Toolchain & Dependencies | T07 Tool Hijacking & Spoofing, T08 Insecure Dependencies |
+| E · Skill Code Quality | T09 Insecure Coding Practices |
+
+For full leaderboard and details, visit [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/).
+
+### 🔬 Security Scanning & Evaluation
+
 | Feature | More Info |
 |:--------|:------------|
-| **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
+| **[ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
 | **Agent&nbsp;Scan** | This is an independent, multi-agent automated scanning framework. It is designed to evaluate the security of AI agent workflows. It seamlessly supports agents running across various platforms, including Dify and Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 100 AI framework components. It covers more than 1900 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |

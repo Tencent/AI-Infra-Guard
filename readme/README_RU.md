@@ -73,7 +73,7 @@
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Покрытие расширено до 68 AI-компонентов (добавлены junoclaw, lollms, sglang); 600+ новых правил CVE; поддержка WebSocket-провайдера для Agent Scan.
 
 
-👉 [Предыдущие версии](../CHANGELOG.md) · 🩺 [Попробовать EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Предыдущие версии](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## Содержание
@@ -92,7 +92,7 @@
 - [⚖️ Лицензия и атрибуция](#️-лицензия-и-атрибуция)
 <br><br>
 ## 🚀 Быстрый старт
-### Развёртывание с Docker
+### 🐳 Развёртывание с Docker
 
 | Docker | ОЗУ | Дисковое пространство |
 |:-------|:----|:----------|
@@ -110,7 +110,7 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
-### Использование из OpenClaw
+#### Использование из OpenClaw
 
 Вы также можете вызвать A.I.G напрямую из чата OpenClaw через skill `aig-scanner`.
 
@@ -148,16 +148,59 @@ docker-compose up -d
 
 </details>
 
-### Попробуйте онлайн Pro-версию
+### ⚡ Установите aig-skill-scan одной командой
+
+Инструмент аудита безопасности Agent Skills, легко интегрируемый в корпоративные CI/CD пайплайны. Классификация уязвимостей соответствует таксономии [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09. [Подробнее →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+
+```bash
+pip install aig-skill-scan
+
+# Установить API-ключ через переменную окружения
+export LLM_API_KEY="your-api-key"
+
+# Сканировать локальный каталог проекта Skill
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
+           --language en \
+           -o result.json
+```
+
+### 🌟 Попробуйте онлайн Pro-версию
 Оцените Pro-версию с расширенными функциями и улучшенной производительностью. Для входа требуется [пригласительный код](https://wj.qq.com/s2/25099467/25vn/); приоритет предоставляется участникам, создавшим issues, pull request'ы или обсуждения, а также активно помогающим развивать сообщество. Перейти: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
 <br>
 
 ## ✨ Возможности
 
+### 🔍 Производительность и покрытие aig-skill-scan
+
+Производительность на [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) с различными LLM:
+
+| # | Модель | F1 | Precision | Recall | FPR |
+|:--|:------|:---|:----------|:-------|:----|
+| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
+| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
+| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
+| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
+| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
+
+Покрывает 9 категорий рисков безопасности Skills (SkillTrustBench T01–T09):
+
+| Уровень | Риски |
+|:------|:--------|
+| A · Инструкции и память | T01 Перехват инструкций Skill, T02 Отравление памяти |
+| B · Выполнение кода | T03 Загрузка и выполнение удалённой полезной нагрузки, T04 Встроенный вредоносный код |
+| C · Системные привилегии | T05 Повышение привилегий и несанкционированный доступ, T06 Системная персистентность |
+| D · Цепочка инструментов и зависимости | T07 Перехват и подмена инструментов, T08 Небезопасные зависимости |
+| E · Качество кода Skill | T09 Небезопасные практики программирования |
+
+Полный рейтинг и подробности на [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/).
+
+### 🔬 Сканирование безопасности и оценка
+
 | Функция | Подробнее |
 |:--------|:------------|
-| **ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)** | Поддерживает оценку рисков безопасности OpenClaw одним кликом. Обнаруживает небезопасные конфигурации, риски Skill, уязвимости CVE и утечки конфиденциальных данных. |
+| **[ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | Поддерживает оценку рисков безопасности OpenClaw одним кликом. Обнаруживает небезопасные конфигурации, риски Skill, уязвимости CVE и утечки конфиденциальных данных. |
 | **Agent&nbsp;Scan** | Независимый многоагентный автоматизированный фреймворк сканирования, предназначенный для оценки безопасности рабочих процессов AI Agent. Поддерживает агентов, работающих на различных платформах, включая Dify и Coze. |
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Обнаруживает 14 основных категорий рисков безопасности. Применимо как к MCP Server, так и к Agent Skills. Гибко поддерживает сканирование как из исходного кода, так и по удалённым URL. |
 | **Сканирование&nbsp;уязвимостей&nbsp;AI-инфраструктуры** | Точно идентифицирует более 100 компонентов AI-фреймворков. Покрывает более 1900 известных CVE-уязвимостей. Поддерживаемые фреймворки: Ollama, ComfyUI, vLLM, n8n, Triton Inference Server и другие. |

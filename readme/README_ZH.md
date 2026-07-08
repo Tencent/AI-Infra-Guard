@@ -71,7 +71,7 @@
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 覆盖扩展至 68 种 AI 组件（新增 junoclaw、lollms、sglang）；新增 600+ CVE 规则；Agent Scan 支持 WebSocket 接入方式。
 
 
-👉 [更早版本](../CHANGELOG.md) · 🩺 [立即体验 EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
+👉 [更早版本](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
@@ -89,10 +89,10 @@
 - [📄 开源协议](#-开源协议)
 
 ## 🚀 快速开始
-### Docker 一键部署
+### 🐳 使用 Docker 部署 A.I.G
 
 | Docker | 内存 | 磁盘空间 |
-|--------|------|----------|
+|:-------|:----|:----------|
 | 20.10 或更高 | 4GB+ | 10GB+ |
 
 ```bash
@@ -107,7 +107,7 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
-### 在 OpenClaw 中使用
+#### 在 OpenClaw 中使用
 
 你也可以通过 OpenClaw 的 `aig-scanner` skill 直接调用 A.I.G 服务。
 
@@ -120,7 +120,7 @@ clawhub install aig-scanner
 更多说明见：[`aig-scanner` 说明](../skills/aig-scanner/README.zh-CN.md)
 
 <details>
-<summary><strong>📦 更多安装方式</strong></summary>
+<summary><strong>更多安装方式</strong></summary>
 
 ### 其他安装方式
 
@@ -145,20 +145,63 @@ docker-compose up -d
 
 </details>
 
-### 体验在线Pro版
+### ⚡ 一键安装 aig-skill-scan
+
+Agent Skill 安全审计工具，可轻松集成到企业 CI/CD 流水线。漏洞分类对齐 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 分类法。[了解更多 →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+
+```bash
+pip install aig-skill-scan
+
+# 通过环境变量设置 API Key
+export LLM_API_KEY="your-api-key"
+
+# 扫描本地 Skill 项目目录
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
+           --language zh \
+           -o result.json
+```
+
+### 🌟 体验在线Pro版
 体验具有内测及高级功能的Pro版，需要[邀请码](https://wj.qq.com/s2/25099467/25vn/)，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
 <br/>
 <br/>
 
 ## ✨ 功能特性
 
+### 🔍 aig-skill-scan 性能与覆盖范围
+
+使用不同 LLM 在 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) 上的表现：
+
+| # | 模型 | F1 | Precision (精确率) | Recall (召回率) | FPR (误报率) |
+|:--|:------|:---|:----------|:-------|:----|
+| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
+| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
+| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
+| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
+| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
+
+覆盖 9 类 Skill 安全风险（SkillTrustBench T01–T09）：
+
+| 层级 | 攻击类别 |
+|:------|:--------|
+| A — 指令与记忆层 | T01 技能指令劫持、T02 Agent 记忆投毒 |
+| B — 代码执行通道 | T03 远程载荷下载执行、T04 内嵌恶意代码 |
+| C — 系统权限与持久化 | T05 越权访问与提权、T06 系统持久化驻留 |
+| D — 工具链与依赖层 | T07 工具劫持与伪装、T08 不安全依赖 |
+| E — Skill 自身安全质量 | T09 不安全编码 |
+
+完整排行榜与详情请访问 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)。
+
+### 🔬 安全扫描与评估
+
 | 功能模块 | 详情说明 |
 |:--------|:------------|
-| **ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
+| **[ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
 | **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 100+ 种 AI 开源 Web 组件。涵盖 1900+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
-| **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 ||
+| **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 |
 
 <details>
 <summary><strong>其他优势</strong></summary>

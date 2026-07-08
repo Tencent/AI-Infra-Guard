@@ -73,7 +73,7 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 - **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — カバレッジが68種AIコンポーネントに拡大（junoclaw、lollms、sglangを追加）；600件以上の新規CVEルール追加；Agent ScanがWebSocketプロバイダーをサポート。
 
 
-👉 [過去のリリース](../CHANGELOG.md) · 🩺 [EdgeOne ClawScanを試す](https://matrix.tencent.com/clawscan)
+👉 [過去のリリース](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
 
 
 ## 目次
@@ -93,7 +93,7 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 <br><br>
 
 ## クイックスタート
-### Dockerによるデプロイ
+### 🐳 Dockerによるデプロイ
 
 | Docker | RAM | ディスク容量 |
 |:-------|:----|:----------|
@@ -111,7 +111,7 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
-### OpenClawからの使用
+#### OpenClawからの使用
 
 `aig-scanner`スキルを使用して、OpenClawチャットからA.I.Gを直接呼び出すこともできます。
 
@@ -149,16 +149,59 @@ docker-compose up -d
 
 </details>
 
-### オンラインPro版を試す
+### ⚡ aig-skill-scan をワンコマンドでインストール
+
+Agent Skillセキュリティ監査ツール。企業のCI/CDパイプラインに簡単に統合可能。脆弱性分類は[SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09分類法に準拠。[詳細 →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+
+```bash
+pip install aig-skill-scan
+
+# 環境変数でAPIキーを設定
+export LLM_API_KEY="your-api-key"
+
+# ローカルのSkillプロジェクトディレクトリをスキャン
+aig-skill-scan --repo /path/to/your/skill \
+           -m deepseek-v4-flash \
+           --language en \
+           -o result.json
+```
+
+### 🌟 オンラインPro版を試す
 高度な機能と改善されたパフォーマンスを備えたPro版をお試しください。Pro版には[招待コード](https://wj.qq.com/s2/25099467/25vn/)が必要で、Issue、Pull Request、Discussionを提出した方、またはコミュニティの成長に積極的に貢献された方が優先されます。アクセス: [https://aigsec.ai/](https://aigsec.ai/)
 <br>
 <br>
 
 ## 機能一覧
 
+### 🔍 aig-skill-scan パフォーマンスとカバレッジ
+
+[SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) での各LLMの性能：
+
+| # | モデル | F1 | Precision | Recall | FPR |
+|:--|:------|:---|:----------|:-------|:----|
+| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
+| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
+| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
+| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
+| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
+
+9カテゴリのSkillセキュリティリスクをカバー（SkillTrustBench T01–T09）：
+
+| レイヤー | リスク |
+|:------|:--------|
+| A · 命令とメモリ | T01 スキル命令ハイジャック、T02 メモリポイズニング |
+| B · コード実行 | T03 リモートペイロードダウンロード＆実行、T04 埋め込み悪意コード |
+| C · システム権限 | T05 権限昇格＆不正アクセス、T06 システム永続化 |
+| D · ツールチェーン＆依存関係 | T07 ツールハイジャック＆なりすまし、T08 安全でない依存関係 |
+| E · Skillコード品質 | T09 安全でないコーディング |
+
+完全なリーダーボードと詳細は [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) をご覧ください。
+
+### 🔬 セキュリティスキャン＆評価
+
 | 機能 | 詳細 |
 |:--------|:------------|
-| **ClawScan（OpenClawセキュリティスキャン）** | OpenClawのセキュリティリスクのワンクリック評価に対応。安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出します。 |
+| **[ClawScan（OpenClawセキュリティスキャン）](https://matrix.tencent.com/clawscan)** | OpenClawのセキュリティリスクのワンクリック評価に対応。安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出します。 |
 | **Agent Scan** | 独立したマルチエージェント自動スキャンフレームワークです。AIエージェントワークフローのセキュリティを評価するために設計されています。DifyやCozeなど、さまざまなプラットフォームで動作するエージェントをシームレスにサポートします。 |
 | **MCPサーバー＆エージェントスキルスキャン** | 14の主要なセキュリティリスクカテゴリを徹底的に検出します。MCPサーバーとエージェントスキルの両方に適用されます。ソースコードとリモートURLの両方からのスキャンに柔軟に対応します。 |
 | **AIインフラ脆弱性スキャン** | 100以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1900以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
