@@ -76,7 +76,7 @@ aig-skill-scan --help
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
   "runs": [{
-    "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.0", "rules": [...]}},
+    "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.1", "rules": [...]}},
     "results": [{
       "ruleId": "T04",
       "level": "error",
@@ -121,7 +121,7 @@ async def run():
     result = await agent.scan("/path/to/your/skill", "", "en")
 
     # Convert to SARIF 2.1.0 format
-    sarif_doc = to_sarif(result, tool_version="0.2.0", language="en")
+    sarif_doc = to_sarif(result, tool_version="0.2.1", language="en")
     print(json.dumps(sarif_doc, ensure_ascii=False, indent=2))
 
 asyncio.run(run())
