@@ -1,0 +1,55 @@
+info:
+  id: "mcp_ssrf"
+  name: "MCP Tool Server-Side Request Forgery Detection"
+  description: "Detect MCP tools that fetch a URL, host, or address taken from tool-call arguments without validation, letting the agent (or upstream prompt injection) reach internal services, cloud metadata, or the loopback interface (SSRF)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect server-side request forgery (SSRF) in MCP server tools. The agent controls tool arguments; if a URL/host argument reaches a network client without allow-listing, the MCP server becomes an SSRF proxy into the trust boundary it runs in. Require a concrete tainted-argument-to-fetch path; only report with evidence.
+
+  ## Vulnerability Definition
+  SSRF occurs when an MCP tool takes a location argument — URL, hostname, IP, port,
+  or a document/webhook reference — and passes it to an HTTP client, socket, DNS
+  resolver, headless browser, or file/URL loader without restricting the
+  destination. An attacker steers the request to `169.254.169.254` (cloud metadata),
+  `127.0.0.1`, internal hostnames, or non-HTTP schemes.
+
+  ## Detection Criteria (require a tainted argument reaching a network sink)
+
+  ### 1. Unvalidated URL/host argument to a network client
+  **Code Patterns:**
+  - Tool argument flows into `requests.get`, `httpx`, `urllib`, `fetch`, `axios`,
+    `net.Dial`, a headless browser `goto`, or an image/document loader.
+  - No scheme allow-list, no host allow-list, no block of private / link-local /
+    loopback ranges.
+
+  ### 2. Metadata / internal-service reachability
+  **Code Patterns:**
+  - Requests that can resolve to `169.254.169.254`, `metadata.google.internal`,
+    `localhost`, RFC1918 ranges, or container service names.
+
+  ### 3. Redirect / scheme abuse
+  **Code Patterns:**
+  - Following redirects to attacker-chosen hosts, or accepting `file://`, `gopher://`,
+    `dict://`, or similar non-HTTP schemes.
+
+  ## Strict Judgment Standards
+  - **Fixed endpoints**: Do not report calls to a constant, developer-controlled URL
+    with no argument influence on the destination.
+  - **Properly allow-listed fetchers**: Do not report code that validates scheme and
+    host against an allow-list and blocks private ranges before the request.
+  - **Client-side only**: Do not report URLs that are merely returned to the user and
+    never fetched server-side.
+
+  ## Output Requirements
+  Only output when finding concrete SSRF evidence:
+  - Specific file paths and line numbers
+  - The tainted argument and the network sink it reaches
+  - Technical analysis: which internal destinations become reachable
+  - Impact assessment: metadata theft, internal service access, port scanning
+  - Remediation: allow-list scheme and host, resolve-then-check against private
+    ranges, disable redirects, drop non-HTTP schemes.
+
+  **Strict Requirement: show the concrete argument-to-request path. Remain silent when no concrete evidence exists.**
