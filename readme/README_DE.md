@@ -253,7 +253,7 @@ Das Ziel ist die **Netzwerkadresse eines laufenden KI-Dienstes**, den Sie scanne
 1. Starten Sie vLLM normal (z. B. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Klicken Sie in der A.I.G-Weboberfläche auf **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Geben Sie `http://127.0.0.1:8000` ein (oder die IP/den Port, auf dem vLLM lauscht)
-4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1700+ bekannten CVEs ab
+4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1900+ bekannten CVEs ab
 5. Sehen Sie den Bericht ein: Komponentenversion, gefundene Schwachstellen, Schweregrad und Behebungslinks
 
 > 💡 **Tipp**: Um speziell den *Nightly-Build* von vLLM zu scannen, führen Sie diesen Nightly-Build aus und verweisen Sie A.I.G auf dessen Adresse. Der Scanner erkennt die Version automatisch.
