@@ -60,7 +60,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | ollama                  | 29                  | Medium-High |
 |                            | triton-inference-server | 35                  | Medium-High |
 |                            | vllm                    | 63                  | Medium      |
-|                            | xinference              | 3                   | Low         |
+|                            | xinference              | 2                   | Low         |
 |                            | fastchat                | 9                   | Medium      |
 |                            | llama-cpp               | 9                   | Medium-High |
 |                            | llmstudio               | 1                   | Low         |
@@ -81,18 +81,18 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | lobehub                 | 1                   | Medium      |
 |                            | flowise                 | 61                  | Medium      |
 |                            | langfuse                | 4                   | Low         |
-|                            | new-api                 | 2                   | Medium      |
+|                            | new-api                 | 3                   | Medium      |
 |                            | Chuanhugpt              | 27                  | Medium-High |
 |                            | crewai                  | 3                   | Critical    |
-|                            | fastgpt                 | 1                   | Medium      |
+|                            | fastgpt                 | 2                   | Medium      |
 | **Data Processing**        | clickhouse              | 25                  | High        |
 |                            | feast                   | 2                   | Low         |
 |                            | dask                    | 3                   | Low         |
 | **Visualization & UI**     | jupyter-server          | 15                  | Medium-High |
-|                            | jupyterlab              | 8                   | Medium      |
+|                            | jupyterlab              | 9                   | Medium      |
 |                            | jupyter-notebook        | 2                   | Low         |
-| **Workflow Orchestration** | kubeflow                | 4                   | Medium      |
-|                            | ray                     | 10                  | Medium      |
+| **Workflow Orchestration** | kubeflow                | 7                   | Medium      |
+|                            | ray                     | 9                   | Medium      |
 |                            | n8n                     | 48                  | Medium-High |
 |                            | n8n-mcp                 | 3                   | Medium-High |
 |                            | simstudioai             | 9                   | Medium      |
