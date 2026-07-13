@@ -1,0 +1,35 @@
+info:
+  name: mcp-server-kubernetes
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    MCP Server Kubernetes (Flux159/mcp-server-kubernetes) is a Model Context Protocol
+    server for Kubernetes cluster management via kubectl commands. Primarily runs as
+    a stdio-based local tool (npx mcp-server-kubernetes) but optionally supports
+    Streamable HTTP transport when ENABLE_UNSAFE_STREAMABLE_HTTP_TRANSPORT env var
+    is set. Exposes structured tools including kubectl_get, kubectl_describe,
+    kubectl_delete, kubectl_logs, and Helm operations.
+  metadata:
+    product: mcp-server-kubernetes
+    vendor: flux159
+    language: typescript
+    runtime: nodejs
+    package: mcp-server-kubernetes
+    default_transport: stdio
+    optional_transport: streamable-http
+http:
+  - method: POST
+    path: '/mcp'
+    matchers:
+      - body="jsonrpc" && body="kubectl"
+  # Fingerprint note:
+  # POST /mcp with a JSON-RPC tools/list request returns a response whose tool
+  # descriptions reference kubectl operations (kubectl_get, kubectl_describe, etc.).
+  # This only works when ENABLE_UNSAFE_STREAMABLE_HTTP_TRANSPORT=true is set,
+  # which enables the Streamable HTTP transport (non-default).
+  #
+  # Limitation: The default transport is stdio via npx, which cannot be detected
+  # via network fingerprinting. HTTP fingerprinting only applies when the server
+  # is explicitly configured with Streamable HTTP transport.
+  # Version extraction: No dedicated version endpoint. Package version available
+  # via npm registry (mcp-server-kubernetes) or GitHub releases.

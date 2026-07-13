@@ -1,0 +1,34 @@
+info:
+  name: line-desktop-mcp
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    LINE Desktop MCP is a Model Context Protocol (MCP) server that allows AI tools
+    (such as Claude Desktop, n8n) to interact directly with the LINE Desktop application.
+    When running in Streamable HTTP mode (--http-mode), it exposes an MCP endpoint at /mcp
+    and informational endpoints at / and /health. In versions <= 1.1.1, HTTP mode binds to
+    0.0.0.0 by default and has no MCP-layer authentication; version 1.1.2 adds Bearer token
+    auth and defaults to 127.0.0.1 binding.
+  metadata:
+    product: line-desktop-mcp
+    vendor: dtwang
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body='"LINE Desktop MCP Server"'
+  # Fingerprint note:
+  # GET / returns a JSON status object with a unique "server" field:
+  #   {"status":"running","server":"LINE Desktop MCP Server","version":"1.0.0",
+  #    "mcp_endpoint":"/mcp","transport":"Streamable HTTP (MCP 2025-06-18)"}
+  # The "server":"LINE Desktop MCP Server" value is hardcoded in src/server.js
+  # root endpoint handler (verified against GitHub source: dtwang/line-desktop-mcp main branch).
+  #
+  # Vulnerable versions (<= 1.1.1): GET / returns version in "version" field;
+  # POST /mcp without auth returns 200 with jsonrpc response.
+  # Patched versions (>= 1.1.2): POST /mcp without auth returns 401 with
+  #   {"jsonrpc":"2.0","error":{"code":-32001,"message":"Unauthorized: invalid or missing Bearer token"},"id":null}
+  #
+  # Version extractor: The "version" field in GET / response provides the package version,
+  # but this is hardcoded as "1.0.0" in the source and may not reflect the actual npm package version.
+  # For accurate versioning, refer to npm package metadata (line-desktop-mcp) or GitHub releases.

@@ -1,0 +1,23 @@
+info:
+  name: Serena
+  author: AIG
+  severity: info
+  desc: Serena is a powerful MCP toolkit for coding, providing semantic retrieval and editing capabilities - the IDE for your AI agent.
+  metadata:
+    product: serena
+    vendor: oraios
+http:
+  - method: GET
+    path: /heartbeat
+    matchers:
+      - body="{\"status\": \"alive\"}"
+  - method: GET
+    path: /dashboard/
+    matchers:
+      - body="serena"
+    version_extractor:
+      method: GET
+      path: /get_config_overview
+      part: body
+      group: 1
+      regex: '"serena_version":\s*"([^"]+)"'

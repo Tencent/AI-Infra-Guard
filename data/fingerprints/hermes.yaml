@@ -1,0 +1,20 @@
+info:
+  name: hermes
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: Hermes WebUI 是 Hermes Agent 的轻量级 Web 界面，提供浏览器中与 AI Agent 交互的能力。
+  metadata:
+    product: hermes
+    vendor: nesquena
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Hermes</title>" && header="HermesWebUI"
+    version:
+      - method: GET
+        path: '/health'
+        extractor:
+          part: header
+          group: 1
+          regex: 'HermesWebUI/(\d+\.\d+\.\d+)'

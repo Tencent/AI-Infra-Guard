@@ -1,0 +1,15 @@
+info:
+  name: a
+  author: A.I.G bot
+  severity: info
+  desc: A vulnerability was determined in AidanPark openclaw-android up to 0
+  metadata:
+    product: a
+    vendor: a
+http:
+- method: GET
+  path: /
+  matchers:
+  - '# TODO: Agent 需根据产品特征补充 matchers'
+  - '# 示例: body="关键字" 或 header="关键字"'
+'# version': '# TODO: Agent 需根据产品版本接口补充 version extractor'

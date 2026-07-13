@@ -1,0 +1,26 @@
+info:
+  name: ruflo
+  author: A.I.G bot
+  severity: info
+  desc: Ruflo is an open-source AI agent meta-harness that orchestrates 100+ specialized agents
+    with adaptive memory, RAG integration, and native Claude Code/Codex support. It exposes
+    an MCP bridge HTTP service on port 3001 by default.
+  metadata:
+    product: ruflo
+    vendor: ruvnet
+http:
+  - method: GET
+    path: '/health'
+    matchers:
+      - body='"service":"mcp-bridge"' && body='"status":"ok"'
+  - method: GET
+    path: '/mcp-servers'
+    matchers:
+      - body='"url":"/mcp/' && body='"group"'
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"(\d+\.\d+\.\d+)"'

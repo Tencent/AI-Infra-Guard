@@ -1,0 +1,15 @@
+info:
+  name: ibm
+  author: A.I.G bot
+  severity: info
+  desc: IBM Langflow OSS 1
+  metadata:
+    product: ibm
+    vendor: ibm
+http:
+- method: GET
+  path: /
+  matchers:
+  - '# TODO: Agent 需根据产品特征补充 matchers'
+  - '# 示例: body="关键字" 或 header="关键字"'
+'# version': '# TODO: Agent 需根据产品版本接口补充 version extractor'

@@ -1,0 +1,13 @@
+info:
+  name: Cognee
+  author: A.I.G bot
+  severity: info
+  desc: 开源AI记忆平台，提供REST API用于数据认知、向量存储和LLM推理。
+  metadata:
+    product: cognee
+    vendor: cognee
+http:
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="Cognee API" && body="Cognee API with Bearer token and Cookie auth"

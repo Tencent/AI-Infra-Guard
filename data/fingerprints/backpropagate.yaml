@@ -1,0 +1,24 @@
+info:
+  name: backpropagate
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: 一个开源的 LLM 微调工具包，支持单 GPU 训练，提供 Reflex Web UI 训练控制面板。
+  metadata:
+    product: backpropagate
+    vendor: mcp-tool-shop-org
+http:
+  - method: GET
+    path: '/healthz'
+    matchers:
+      - body='"status"' && body='"auth_mode"' && body='"version"'
+  - method: GET
+    path: '/'
+    matchers:
+      - body='backpropagate' && body='--bp-'
+  version:
+    - method: GET
+      path: '/healthz'
+      extractor:
+        part: body
+        group: 1
+        regex: '"version"\s*:\s*"(\d+\.\d+\.?\d*?)"'
