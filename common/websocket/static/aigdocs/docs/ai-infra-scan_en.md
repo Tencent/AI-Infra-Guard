@@ -56,7 +56,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving**          | gradio                  | 49                  | High        |
+| **Model Serving**          | gradio                  | 51                  | High        |
 |                            | ollama                  | 29                  | Medium-High |
 |                            | triton-inference-server | 35                  | Medium-High |
 |                            | vllm                    | 63                  | Medium      |
@@ -72,9 +72,9 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | open-webui              | 51                  | Medium-High |
 |                            | ragflow                 | 12                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 58                  | Medium      |
+|                            | langflow                | 60                  | Medium      |
 |                            | litellm                 | 30                  | Medium      |
-|                            | mlflow                  | 76                  | High        |
+|                            | mlflow                  | 78                  | High        |
 |                            | librechat               | 21                  | Medium      |
 |                            | nextchat                | 8                   | Medium      |
 |                            | lobechat                | 4                   | Medium      |
