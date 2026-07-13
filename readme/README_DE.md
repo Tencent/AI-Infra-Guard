@@ -203,7 +203,7 @@ Vollständige Bestenliste und Details unter [SkillTrustBench](https://matrix.ten
 | **[ClawScan (OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | Unterstützt die Ein-Klick-Bewertung von OpenClaw-Sicherheitsrisiken. Erkennt unsichere Konfigurationen, Skill-Risiken, CVE-Schwachstellen und Datenschutzverletzungen. |
 | **Agent&nbsp;Scan** | Ein eigenständiges, multi-agenten-basiertes automatisiertes Scan-Framework. Es ist darauf ausgelegt, die Sicherheit von KI-Agent-Workflows zu bewerten. Es unterstützt nahtlos Agents, die auf verschiedenen Plattformen laufen, einschließlich Dify und Coze. |
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;Scan** | Erkennt umfassend 14 Hauptkategorien von Sicherheitsrisiken. Die Erkennung gilt sowohl für MCP Server als auch für Agent Skills. Unterstützt flexibel das Scannen aus Quellcode und entfernten URLs. |
-| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 100 KI-Framework-Komponenten. Deckt mehr als 1900 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
+| **AI Infrastructure Vulnerability Scan** | Identifiziert präzise über 100 KI-Framework-Komponenten. Deckt mehr als 1600 bekannte CVE-Schwachstellen ab. Unterstützte Frameworks umfassen Ollama, ComfyUI, vLLM, n8n, Triton Inference Server und weitere. |
 | **Jailbreak&nbsp;Evaluation** | Bewertet Prompt-Sicherheitsrisiken anhand sorgfältig kuratierter Datensätze. Die Evaluation wendet mehrere Angriffsmethoden an, um die Robustheit zu testen. Bietet außerdem detaillierte modellübergreifende Vergleichsmöglichkeiten. |
 
 <details>
@@ -253,7 +253,7 @@ Das Ziel ist die **Netzwerkadresse eines laufenden KI-Dienstes**, den Sie scanne
 1. Starten Sie vLLM normal (z. B. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. Klicken Sie in der A.I.G-Weboberfläche auf **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Geben Sie `http://127.0.0.1:8000` ein (oder die IP/den Port, auf dem vLLM lauscht)
-4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1900+ bekannten CVEs ab
+4. Klicken Sie auf **Scan starten** - A.I.G identifiziert den Dienst und gleicht ihn mit 1600+ bekannten CVEs ab
 5. Sehen Sie den Bericht ein: Komponentenversion, gefundene Schwachstellen, Schweregrad und Behebungslinks
 
 > 💡 **Tipp**: Um speziell den *Nightly-Build* von vLLM zu scannen, führen Sie diesen Nightly-Build aus und verweisen Sie A.I.G auf dessen Adresse. Der Scanner erkennt die Version automatisch.
