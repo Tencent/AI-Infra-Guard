@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **1600+ known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **1700+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -57,9 +57,9 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
 | **Model Serving**          | gradio                  | 49                  | High        |
-|                            | ollama                  | 28                  | Medium-High |
+|                            | ollama                  | 29                  | Medium-High |
 |                            | triton-inference-server | 35                  | Medium-High |
-|                            | vllm                    | 60                  | Medium      |
+|                            | vllm                    | 63                  | Medium      |
 |                            | xinference              | 3                   | Low         |
 |                            | fastchat                | 9                   | Medium      |
 |                            | llama-cpp               | 9                   | Medium-High |
@@ -67,19 +67,19 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | ChatRTX                 | 1                   | Low         |
 |                            | kubeai                  | 1                   | High        |
 | **LLM App Frameworks**     | langchain               | 52                  | High        |
-|                            | dify                    | 31                  | High        |
+|                            | dify                    | 30                  | High        |
 |                            | anythingllm             | 18                  | Medium-High |
-|                            | open-webui              | 49                  | Medium-High |
+|                            | open-webui              | 51                  | Medium-High |
 |                            | ragflow                 | 12                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 50                  | Medium      |
-|                            | litellm                 | 29                  | Medium      |
+|                            | langflow                | 58                  | Medium      |
+|                            | litellm                 | 30                  | Medium      |
 |                            | mlflow                  | 76                  | High        |
 |                            | librechat               | 21                  | Medium      |
 |                            | nextchat                | 8                   | Medium      |
 |                            | lobechat                | 4                   | Medium      |
 |                            | lobehub                 | 1                   | Medium      |
-|                            | flowise                 | 55                  | Medium      |
+|                            | flowise                 | 61                  | Medium      |
 |                            | langfuse                | 4                   | Low         |
 |                            | new-api                 | 2                   | Medium      |
 |                            | Chuanhugpt              | 27                  | Medium-High |
@@ -112,9 +112,9 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
-|                            | praisonai               | 5                   | Medium      |
+|                            | praisonai               | 7                   | Medium      |
 |                            | text-generation-webui   | 1                   | Medium      |
-|                            | openclaw                | 792                 | Medium-High |
+|                            | openclaw                | 795                 | Medium-High |
 |                            | upsonic                 | 1                   | Medium      |
 |                            | instructlab             | 1                   | Low         |
 |                            | lmdeploy                | 3                   | Low         |
@@ -122,7 +122,12 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | pipecat                 | 2                   | Low         |
 |                            | qnabot-on-aws           | 1                   | Low         |
 |                            | superagi                | 1                   | Low         |
-|                    | autogpt                 | 3                   | Medium      |
+|                    | autogpt                 | 4                   | Medium      |
+|                            | crawl4ai                | 4                   | Critical    |
+|                            | hermes                  | 1                   | Critical    |
+|                            | langroid                | 2                   | Critical    |
+|                            | nvidia-trt-llm          | 1                   | High        |
+|                            | ai-code                 | 1                   | Critical    |
 |                            | boxlite                 | 1                   | Medium      |
 |                            | budibase                | 1                   | Medium      |
 |                            | f5-tts                  | 1                   | Medium      |
@@ -133,7 +138,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | sglang                  | 6                   | Medium      |
 |                            | sillytavern             | 5                   | Medium      |
 | **AI Agent Config Security** | AI-Agent-Config       | 1                   | High        |
-| **Total**                  |                         | **1600+**           |             |
+| **Total**                  |                         | **1700+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
