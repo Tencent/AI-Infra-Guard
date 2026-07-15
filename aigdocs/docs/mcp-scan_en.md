@@ -1,17 +1,16 @@
-# AI Tool Protocol Scan
-A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. A.I.G can detect the following common AI tool protocol security risks, with continuous updates:
+# MCP Server Scan
+
+A.I.G leverages AI agents for comprehensive MCP Server and Skills security assessment, supporting both source code audits and remote URL scanning. A.I.G can detect the following common MCP Server security risks, with continuous updates:
 
 <table>
 <thead>
 <tr>
-<th>AI Tool</th>
 <th>Risk Name</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td rowspan="9">MCP Server</td>
 <td>Tool Poisoning Attack</td>
 <td>A malicious MCP Server injects hidden instructions through tool descriptions to manipulate the AI Agent into performing unauthorized actions (e.g., stealing data, executing malicious acts).</td>
 </tr>
@@ -41,59 +40,38 @@ A.I.G leverages AI agents for comprehensive MCP Server and Skills security asses
 </tr>
 <tr>
 <td>Package Name Squatting/Typosquatting</td>
-<td>A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official AI tool name to plant a backdoor.</td>
+<td>A malicious MCP Server uses names, tool names, or descriptions similar to trusted services to trick the AI Agent into making incorrect calls; or a third party squats an official MCP Server name to plant a backdoor.</td>
 </tr>
 <tr>
 <td>Plaintext Key Storage</td>
 <td>The MCP Server hardcodes or stores sensitive keys in plaintext within its code or configuration files, posing a high risk of leakage.</td>
 </tr>
-<tr>
-<td rowspan="5">Skills</td>
-<td>Semantic Hijacking Attack</td>
-<td>Attackers craft a malicious Skill description to semantically override high-frequency user intents (e.g., fixing code bugs or optimizing system performance). When a user issues a vague instruction, the Agent may incorrectly activate the malicious Skill instead of the intended tool.</td>
-</tr>
-<tr>
-<td>Ghost Instruction Attack</td>
-<td>Attackers embed malicious instructions disguised as normal content (e.g., comments or error handling guides) in SKILL.md. When the Agent loads the Skill, these instructions are injected into the context, thereby controlling the LLM to execute malicious operations.</td>
-</tr>
-<tr>
-<td>Malicious Backdoor Script Attack</td>
-<td>The Skill guides the Agent to invoke local scripts containing malicious code, leveraging the Agent's shell privileges to read SSH keys, modify system configurations, install backdoors, or even initiate reverse shell connections.</td>
-</tr>
-<tr>
-<td>Insecure Skills Configuration Risk</td>
-<td>Improper `allowed-tools` configuration allows dangerous operations like Bash execution to run silently without secondary human confirmation.</td>
-</tr>
-<tr>
-<td>Implementation Layer Vulnerabilities</td>
-<td>Vulnerabilities such as command injection and hardcoded keys (observed to be common in internal network Skills).</td>
-</tr>
 </tbody>
 </table>
 
-A.I.G's AI tool Protocol scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
+A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The accuracy and duration of the detection depend on the Large Language Model API selected by the user.
 
-### Add a Model API for AI tool Detection
+### Add a Model API for Detection
 
 ![image-20250717174655353](./assets/image-20250814173229996-en.png)
 
-## Method 1: AI tool Source Code Scan
+## Method 1: MCP Server Source Code Scan
 
-1. Select "AI Tool Protocol Scan"
-2. Upload the AI tool source code as an attachment
+1. Select "MCP Scan"
+2. Upload the MCP Server source code as an attachment
 ![image-mcp4](./assets/mcp4-en.png)
 3. Start Scan
 
 
-## Method 2: Scan an AI tool project from GitHub
-1. Select "AI Tool Protocol Scan"
+## Method 2: Scan an MCP Server project from GitHub
+1. Select "MCP Scan"
 ![image-mcp5](./assets/mcp5-en.png)
 2. Enter the GitHub repository URL in the input box
 3. Start Scan
 
 ## Method 3: Remote MCP Service Scan
 
-1. Select "AI Tool Protocol Scan"
+1. Select "MCP Scan"
 2. Enter the MCP service address (SSE or Streamable HTTP protocol) in the input box, e.g., `http://127.0.0.1:9000/sse`
 3. Start Scan
 ![image-mcp8](./assets/mcp8-en.png)
@@ -102,11 +80,11 @@ A.I.G's AI tool Protocol scanning capability is entirely driven by an AI agent. 
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
 ## Recommended Large Language Model APIs
-- GLM4.6
-- DeepSeek-V3.2
-- Kimi-K2-Instruct
-- Qwen3-Coder-480B
-- Hunyuan-Turbos
+- GLM-5.2
+- DeepSeek-V4
+- Kimi-K2.6
+- Qwen3-Coder-480B-A35B-Instruct
+- Hunyuan-TurboS-Latest
 
 ## Multi-Turn Automated Red Teaming
 
@@ -140,7 +118,7 @@ async def main():
     orch = RedTeamOrchestrator(
         api_key="your-api-key",
         base_url="https://openrouter.ai/api/v1",
-        model="deepseek/deepseek-v3.2-exp",
+        model="deepseek/deepseek-v4-pro",
         repo_dir="path/to/your/mcp/server/repo",
     )
     result = await orch.run("data_exfiltration", strategy_name="crescendo", max_total_rounds=8)
@@ -153,7 +131,7 @@ The red-teaming module code is located in `mcp-scan/redteam/`. Run it from the `
 
 ## MCP Plugins
 
-MCP scanning is powered by on an AI agent that inspects the code. A.I.G. modularizes MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
+MCP scanning is powered by an AI agent that inspects the code. A.I.G. modularizes MCP vulnerabilities into plugins, which can be viewed or edited in the frontend.
 
 ![image-20250814105330552](./assets/image-20250814105330552-en.png)
 
@@ -291,3 +269,4 @@ prompt_template: |
 
   **Strict Requirement: Must provide complete vulnerability exploitation paths and impact analysis. Remain silent when no concrete evidence exists.** 
 ```
+
