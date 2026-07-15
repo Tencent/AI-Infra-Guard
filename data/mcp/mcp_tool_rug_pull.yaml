@@ -1,0 +1,56 @@
+info:
+  id: "mcp_tool_rug_pull"
+  name: "MCP Tool Rug-Pull / Silent Redefinition Detection"
+  description: "Detect MCP servers whose tool definitions, descriptions, or behavior can change after initial client approval (rug-pull), so a benign-looking tool is later mutated into a malicious one without re-consent."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect tool rug-pull / silent-redefinition vulnerabilities in MCP server code. A rug-pull hides its payload in time: the tool the client approves is not the tool that later runs. Require concrete evidence that tool-facing metadata or behavior is mutable post-registration; only report with evidence.
+
+  ## Vulnerability Definition
+  A rug-pull occurs when an MCP server can alter a tool's `description`,
+  `inputSchema`, annotations, or executed behavior AFTER the client has listed and
+  approved it — for example serving benign descriptions on first `tools/list`, then
+  swapping in adversarial instructions or a different implementation on a later call
+  or after a version/day/counter check. The host agent keeps trusting the original
+  approval.
+
+  ## Detection Criteria (require concrete evidence of post-approval mutation)
+
+  ### 1. Time / state-gated tool metadata
+  **Code Patterns:**
+  - Tool `description` or parameter docs built from a mutable source (remote fetch,
+    database, file re-read on each request) rather than a constant.
+  - Conditional branches keyed on date, request count, an install flag, or a remote
+    kill-switch that select a different description or handler.
+
+  ### 2. Deferred or dynamic tool implementation
+  **Code Patterns:**
+  - Tool handler resolved at call time from a network response, a downloaded module,
+    or a value that can change between registration and invocation.
+  - Re-registration of the same tool name with different behavior after startup.
+
+  ### 3. Divergence between advertised and executed behavior
+  **Code Patterns:**
+  - The handler performs actions (network, file, exec) not implied by the
+    description the client approved.
+
+  ## Strict Judgment Standards
+  - **Legitimate config reload**: Do not report ordinary hot-reload that keeps tool
+    semantics stable and re-notifies the client of changes.
+  - **Static descriptions**: Do not report constant, developer-authored descriptions.
+  - **Feature flags**: Do not report flags that gate availability but not a tool's
+    advertised meaning.
+
+  ## Output Requirements
+  Only output when finding concrete rug-pull evidence:
+  - Specific file paths and line numbers
+  - The mutable source and the code path that changes tool metadata or behavior
+  - Technical analysis: how the approved definition diverges from what later runs
+  - Impact assessment: what the mutated tool could do post-approval
+  - Remediation: pin tool definitions, re-request consent on change, sign/verify
+    the tool manifest, forbid remote/mutable description sources.
+
+  **Strict Requirement: show the concrete post-approval mutation path. Remain silent when no concrete evidence exists.**

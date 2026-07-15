@@ -1,0 +1,55 @@
+info:
+  id: "mcp_path_traversal"
+  name: "MCP Tool Path Traversal / Arbitrary File Access Detection"
+  description: "Detect MCP file tools that join tool-call path arguments into filesystem operations without confinement, allowing '..' traversal or absolute paths to read or write files outside the intended root."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect path-traversal / arbitrary-file-access vulnerabilities in MCP server tools. The agent controls path arguments; if they reach a filesystem call without confinement to a root, the server reads or writes arbitrary files. Require a concrete tainted-path-to-filesystem-sink path; only report with evidence.
+
+  ## Vulnerability Definition
+  Path traversal occurs when an MCP tool builds a filesystem path from a tool
+  argument (filename, path, directory) and opens, reads, writes, deletes, or lists
+  it without ensuring the resolved real path stays inside an allowed base directory.
+  `../` sequences, absolute paths, symlinks, or `~` expansion escape the intended
+  root.
+
+  ## Detection Criteria (require a tainted path reaching a filesystem sink)
+
+  ### 1. Unconfined path join
+  **Code Patterns:**
+  - Tool argument concatenated or `os.path.join` / `filepath.Join`-ed into a path
+    passed to `open`, `read_file`, `write_file`, `os.remove`, `readdir`, or a static
+    file server, with no post-resolution containment check.
+
+  ### 2. Missing canonicalization + base-dir check
+  **Code Patterns:**
+  - No `realpath` / `filepath.Abs` + `strings.HasPrefix(base)` (or equivalent) to
+    confirm the resolved path is under the allowed root.
+  - Blocklist-only defenses (stripping `..`) that miss encoded, absolute, or symlink
+    bypasses.
+
+  ### 3. Sensitive-target reachability
+  **Code Patterns:**
+  - Traversal that can reach `/etc/passwd`, `~/.ssh`, `.env`, cloud credential files,
+    or write into startup/config locations.
+
+  ## Strict Judgment Standards
+  - **Confined roots**: Do not report tools that canonicalize the path and verify it
+    is inside a fixed base directory before use.
+  - **Fixed paths**: Do not report filesystem access to constant, non-argument paths.
+  - **Read-only public assets**: Do not report serving a bounded static directory
+    with proper containment.
+
+  ## Output Requirements
+  Only output when finding concrete traversal evidence:
+  - Specific file paths and line numbers
+  - The tainted path argument and the filesystem sink it reaches
+  - Technical analysis: how `..` / absolute / symlink input escapes the root
+  - Impact assessment: which sensitive files can be read or written
+  - Remediation: canonicalize then assert the real path is under an allow-listed
+    base, reject absolute paths and `..`, drop symlink following.
+
+  **Strict Requirement: show the concrete path-to-filesystem-sink path. Remain silent when no concrete evidence exists.**

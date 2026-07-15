@@ -1,0 +1,54 @@
+info:
+  id: "mcp_unsafe_deserialization"
+  name: "MCP Tool Unsafe Deserialization / Model-Load RCE Detection"
+  description: "Detect MCP server code that deserializes tool-call arguments or loaded artifacts with unsafe loaders (pickle, torch.load, yaml.load, marshal, jsonpickle), enabling remote code execution when the input is attacker-influenced."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect unsafe-deserialization vulnerabilities in MCP server code. When attacker-influenced bytes reach an unsafe deserializer, decoding is code execution. Require a concrete tainted-input-to-unsafe-loader path; only report with evidence.
+
+  ## Vulnerability Definition
+  Unsafe deserialization occurs when an MCP server decodes untrusted data — a tool
+  argument, an uploaded artifact, a fetched model or cache file — with a loader that
+  can instantiate arbitrary objects or run code during decode. Examples:
+  `pickle.loads`, `torch.load` (default), `yaml.load` without `SafeLoader`,
+  `marshal.loads`, `jsonpickle.decode`, `dill`, Java/`ObjectInputStream`,
+  `__reduce__`-bearing payloads.
+
+  ## Detection Criteria (require tainted input reaching an unsafe loader)
+
+  ### 1. Unsafe loader on untrusted bytes
+  **Code Patterns:**
+  - Tool argument, request body, or fetched file passed to `pickle.loads`,
+    `torch.load(...)` without `weights_only=True`, `yaml.load` without a safe loader,
+    `marshal.loads`, `dill.loads`, or `jsonpickle`.
+
+  ### 2. Model / cache artifact loading
+  **Code Patterns:**
+  - Loading a model, embedding cache, or checkpoint from an argument-supplied or
+    remote path with a pickle-backed loader (the ModelCache / torch.load class).
+
+  ### 3. Missing integrity / format controls
+  **Code Patterns:**
+  - No signature or hash check before deserializing; no restriction to a safe format
+    (safetensors, JSON, `yaml.safe_load`).
+
+  ## Strict Judgment Standards
+  - **Safe loaders**: Do not report `json.loads`, `yaml.safe_load`, protobuf, or
+    `torch.load(..., weights_only=True)` on validated input.
+  - **Trusted constants**: Do not report deserializing developer-shipped, integrity-
+    checked artifacts with no attacker influence.
+  - **Safetensors**: Do not report safetensors / non-executable format loads.
+
+  ## Output Requirements
+  Only output when finding concrete unsafe-deserialization evidence:
+  - Specific file paths and line numbers
+  - The tainted source and the unsafe loader it reaches
+  - Technical analysis: how a crafted payload achieves code execution on decode
+  - Impact assessment: RCE on the MCP host, scope of compromise
+  - Remediation: use safe formats/loaders, set `weights_only=True`, verify a
+    signature/hash before load, never deserialize untrusted pickle.
+
+  **Strict Requirement: show the concrete input-to-loader path. Remain silent when no concrete evidence exists.**

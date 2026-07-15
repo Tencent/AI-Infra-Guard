@@ -1,0 +1,53 @@
+info:
+  id: "mcp_missing_authentication"
+  name: "MCP Server Missing / Weak Authentication Detection"
+  description: "Detect MCP servers that expose tools over a network transport (HTTP/SSE/streamable) with no authentication, weak static tokens, or bind to non-loopback interfaces, letting any reachable client invoke sensitive tools."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect missing or weak authentication on MCP servers exposed over a network transport. If a networked MCP server invokes sensitive tools without verifying the caller, any reachable party controls the agent's tools. Require concrete evidence of a network-exposed transport lacking real auth; only report with evidence.
+
+  ## Vulnerability Definition
+  This vulnerability occurs when an MCP server serving the HTTP / SSE / streamable
+  transport accepts and executes tool calls without authenticating the client — no
+  token check, a hardcoded/empty token, auth that is parsed but never enforced, or a
+  bind to `0.0.0.0` / a public interface that widens exposure beyond localhost.
+
+  ## Detection Criteria (require a network transport without enforced auth)
+
+  ### 1. Network transport without an auth gate
+  **Code Patterns:**
+  - HTTP/SSE/streamable MCP server route handlers that reach tool dispatch with no
+    credential verification middleware.
+  - Auth header read but not validated, or validation whose failure path still
+    proceeds.
+
+  ### 2. Weak or static credentials
+  **Code Patterns:**
+  - Hardcoded token / API key, empty-string default token, or a comparison that
+    accepts any value.
+
+  ### 3. Over-broad network binding
+  **Code Patterns:**
+  - Server bound to `0.0.0.0` or a public interface without a compensating auth
+    layer, exposing a previously loopback-only server.
+
+  ## Strict Judgment Standards
+  - **Enforced auth**: Do not report servers that verify a token / OAuth / mTLS and
+    reject unauthenticated calls before dispatch.
+  - **Stdio transport**: Do not report stdio-only servers with no network surface.
+  - **Loopback + documented**: Do not report localhost binds that are clearly the
+    intended, non-exposed deployment.
+
+  ## Output Requirements
+  Only output when finding concrete missing/weak-auth evidence:
+  - Specific file paths and line numbers
+  - The exposed transport/route and the absent or ineffective auth check
+  - Technical analysis: how an unauthenticated caller reaches tool execution
+  - Impact assessment: unauthorized tool invocation, data access, lateral movement
+  - Remediation: require and enforce a real credential (OAuth / token / mTLS) before
+    dispatch, bind to loopback by default, fail closed on auth errors.
+
+  **Strict Requirement: show the concrete unauthenticated path to tool execution. Remain silent when no concrete evidence exists.**

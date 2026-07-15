@@ -1,0 +1,54 @@
+info:
+  id: "mcp_sql_injection"
+  name: "MCP Tool SQL Injection Detection"
+  description: "Detect MCP database tools that build SQL from tool-call arguments via string formatting or concatenation instead of parameterized queries, allowing argument-driven SQL injection."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect SQL-injection vulnerabilities in MCP database tools. The agent controls tool arguments; if they are concatenated into SQL instead of bound as parameters, the MCP server executes attacker-shaped queries. Require a concrete tainted-argument-to-query path; only report with evidence.
+
+  ## Vulnerability Definition
+  SQL injection occurs when an MCP tool composes a query string from a tool argument
+  using f-strings, `+` concatenation, `%`/`.format`, or template interpolation, and
+  executes it against a database, rather than passing the argument as a bound
+  parameter. It also covers unsafe identifier interpolation (table/column names) and
+  NoSQL query-object injection.
+
+  ## Detection Criteria (require a tainted argument reaching a query sink)
+
+  ### 1. String-built query from an argument
+  **Code Patterns:**
+  - Tool argument interpolated into a SQL string that reaches `cursor.execute`,
+    `db.query`, `session.execute(text(...))`, an ORM raw-SQL call, or a driver query
+    method.
+  - Interpolated table/column/order-by identifiers taken from arguments.
+
+  ### 2. Missing parameterization
+  **Code Patterns:**
+  - No placeholder binding (`?`, `$1`, `:name`) for argument values; values embedded
+    directly in the statement.
+
+  ### 3. NoSQL / query-object injection
+  **Code Patterns:**
+  - Argument merged into a Mongo/Elasticsearch query object enabling operator
+    injection (`$where`, `$ne`, script queries).
+
+  ## Strict Judgment Standards
+  - **Parameterized queries**: Do not report code that binds argument values via
+    placeholders / prepared statements.
+  - **Validated identifiers**: Do not report identifier use restricted to an
+    allow-list of known table/column names.
+  - **Constant SQL**: Do not report static queries with no argument influence.
+
+  ## Output Requirements
+  Only output when finding concrete SQL-injection evidence:
+  - Specific file paths and line numbers
+  - The tainted argument and the query sink it reaches
+  - Technical analysis: how crafted input alters the executed query
+  - Impact assessment: data exfiltration, modification, auth bypass
+  - Remediation: use parameterized queries / prepared statements, allow-list
+    identifiers, avoid raw string SQL from arguments.
+
+  **Strict Requirement: show the concrete argument-to-query path. Remain silent when no concrete evidence exists.**

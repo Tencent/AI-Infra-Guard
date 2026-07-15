@@ -1,0 +1,54 @@
+info:
+  id: "mcp_resource_prompt_injection"
+  name: "MCP Resource / Prompt Indirect Injection Detection"
+  description: "Detect MCP servers that build resource contents or prompt templates from untrusted external data and return them to the host agent as trusted context, enabling indirect prompt injection through the resources and prompts surfaces (distinct from tool-description poisoning)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect indirect prompt injection via the MCP resources and prompts surfaces. Content the server exposes as a resource or a prompt template is read by the host LLM as trusted context; if it is assembled from untrusted external data without neutralization, it becomes an injection channel. Require concrete evidence that untrusted data reaches resource/prompt output; only report with evidence.
+
+  ## Vulnerability Definition
+  This vulnerability occurs when an MCP server implements `resources/read`,
+  `resources/list` contents, or `prompts/get` templates by concatenating
+  attacker-influenceable data — fetched web pages, files, database rows, other
+  tools' output — into the returned text without delimiting or sanitizing it, so
+  agent-directed instructions embedded in that data are executed by the host model.
+
+  ## Detection Criteria (require untrusted data reaching resource/prompt output)
+
+  ### 1. Untrusted data in resource contents
+  **Code Patterns:**
+  - Resource handlers returning content built from an external fetch, file, or DB row
+    with no separation between data and instructions.
+
+  ### 2. Untrusted data in prompt templates
+  **Code Patterns:**
+  - `prompts/get` responses that interpolate external / argument-derived text into
+    the message body the host will treat as instructions.
+
+  ### 3. Missing neutralization / provenance
+  **Code Patterns:**
+  - No delimiting, escaping, or explicit "data, not instructions" framing; no
+    stripping of control/zero-width characters or fake role markers from the external
+    content.
+
+  ## Strict Judgment Standards
+  - **Static resources**: Do not report constant, developer-authored resource or
+    prompt text.
+  - **Properly delimited data**: Do not report handlers that clearly fence external
+    content as untrusted data and neutralize control characters.
+  - **User-facing only**: Do not report content returned purely for display that the
+    agent does not consume as context.
+
+  ## Output Requirements
+  Only output when finding concrete resource/prompt injection evidence:
+  - Specific file paths and line numbers
+  - The untrusted source and the resource/prompt output it flows into
+  - Technical analysis: how embedded instructions reach the host model as context
+  - Impact assessment: agent goal hijack, data exfiltration, unwanted tool calls
+  - Remediation: fence external content as data, neutralize control/zero-width
+    characters and role markers, keep instructions server-authored and constant.
+
+  **Strict Requirement: show the concrete untrusted-data-to-context path. Remain silent when no concrete evidence exists.**
