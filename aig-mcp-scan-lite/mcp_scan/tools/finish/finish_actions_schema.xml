@@ -1,0 +1,11 @@
+<tools>
+  <tool name="finish">
+    <description>结束当前任务阶段。调用此工具表示你已经完成了分配的工作任务。
+只需在 content 参数中提供一份关于你发现和完成情况的简要说明，BaseAgent 会根据此简述和之前的执行历史自动生成最终格式化的报告。</description>
+    <parameters>
+      <parameter name="content" type="string" required="true">
+        <description>对当前任务完成情况的总结,100字以内。</description>
+      </parameter>
+    </parameters>
+  </tool>
+</tools>
