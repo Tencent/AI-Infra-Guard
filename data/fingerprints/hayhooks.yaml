@@ -1,0 +1,17 @@
+info:
+  name: hayhooks
+  author: Elwood Ying
+  severity: info
+  desc: REST API service for deepset Haystack, used for deploying and managing Haystack pipelines with support for pipeline deployment, status queries, and OpenAI-compatible endpoints.
+  metadata:
+    product: hayhooks
+    vendor: deepset
+http:
+  - method: GET
+    path: '/status'
+    matchers:
+      - body="Hayhooks"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="Hayhooks"

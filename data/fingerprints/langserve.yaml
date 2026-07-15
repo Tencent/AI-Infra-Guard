@@ -1,0 +1,17 @@
+info:
+  name: langserve
+  author: Elwood Ying
+  severity: info
+  desc: LangChain's official LLM application deployment tool, built on FastAPI to expose chains and agents as REST APIs with a built-in interactive Playground UI.
+  metadata:
+    product: langserve
+    vendor: langchain-ai
+http:
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="langserve"
+  - method: GET
+    path: '/playground/index.html'
+    matchers:
+      - body="____LANGSERVE_BASE_URL"

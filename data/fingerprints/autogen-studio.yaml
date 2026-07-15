@@ -1,0 +1,17 @@
+info:
+  name: autogen-studio
+  author: Elwood Ying
+  severity: info
+  desc: Web UI platform for Microsoft AutoGen multi-agent framework, supporting team orchestration, session management, and visual debugging of multi-agent workflows.
+  metadata:
+    product: autogen-studio
+    vendor: microsoft
+http:
+  - method: GET
+    path: '/api/version'
+    matchers:
+      - body="AutoGen Studio API"
+  - method: GET
+    path: '/api/health'
+    matchers:
+      - body="Service is healthy"
