@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **1600+ known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **1900+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -56,44 +56,45 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving**          | gradio                  | 48                  | High        |
-|                            | ollama                  | 28                  | Medium-High |
-|                            | triton-inference-server | 33                  | Medium-High |
-|                            | vllm                    | 47                  | Medium      |
-|                            | xinference              | 3                   | Low         |
+| **Model Serving**          | gradio                  | 51                  | High        |
+|                            | ollama                  | 29                  | Medium-High |
+|                            | triton-inference-server | 35                  | Medium-High |
+|                            | vllm                    | 63                  | Medium      |
+|                            | xinference              | 2                   | Low         |
 |                            | fastchat                | 9                   | Medium      |
 |                            | llama-cpp               | 9                   | Medium-High |
 |                            | llmstudio               | 1                   | Low         |
 |                            | ChatRTX                 | 1                   | Low         |
 |                            | kubeai                  | 1                   | High        |
-| **LLM App Frameworks**     | langchain               | 51                  | High        |
-|                            | dify                    | 25                  | High        |
+| **LLM App Frameworks**     | langchain               | 52                  | High        |
+|                            | dify                    | 30                  | High        |
 |                            | anythingllm             | 18                  | Medium-High |
-|                            | open-webui              | 39                  | Medium-High |
-|                            | ragflow                 | 11                  | Medium      |
+|                            | open-webui              | 51                  | Medium-High |
+|                            | ragflow                 | 12                  | Medium      |
 |                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 32                  | Medium      |
-|                            | litellm                 | 20                  | Medium      |
-|                            | mlflow                  | 66                  | High        |
-|                            | librechat               | 10                  | Medium      |
+|                            | langflow                | 60                  | Medium      |
+|                            | litellm                 | 30                  | Medium      |
+|                            | mlflow                  | 78                  | High        |
+|                            | librechat               | 21                  | Medium      |
 |                            | nextchat                | 8                   | Medium      |
 |                            | lobechat                | 4                   | Medium      |
 |                            | lobehub                 | 1                   | Medium      |
-|                            | flowise                 | 21                  | Medium      |
-|                            | langfuse                | 3                   | Low         |
-|                            | new-api                 | 2                   | Medium      |
+|                            | flowise                 | 61                  | Medium      |
+|                            | langfuse                | 4                   | Low         |
+|                            | new-api                 | 3                   | Medium      |
 |                            | Chuanhugpt              | 27                  | Medium-High |
 |                            | crewai                  | 3                   | Critical    |
-|                            | fastgpt                 | 1                   | Medium      |
+|                            | fastgpt                 | 2                   | Medium      |
 | **Data Processing**        | clickhouse              | 25                  | High        |
 |                            | feast                   | 2                   | Low         |
 |                            | dask                    | 3                   | Low         |
-| **Visualization & UI**     | jupyter-server          | 14                  | Medium-High |
-|                            | jupyterlab              | 8                   | Medium      |
+| **Visualization & UI**     | jupyter-server          | 15                  | Medium-High |
+|                            | jupyterlab              | 9                   | Medium      |
 |                            | jupyter-notebook        | 2                   | Low         |
-| **Workflow Orchestration** | kubeflow                | 4                   | Medium      |
-|                            | ray                     | 10                  | Medium      |
-|                            | n8n                     | 46                  | Medium-High |
+| **Workflow Orchestration** | kubeflow                | 7                   | Medium      |
+|                            | ray                     | 9                   | Medium      |
+|                            | n8n                     | 48                  | Medium-High |
+|                            | n8n-mcp                 | 3                   | Medium-High |
 |                            | simstudioai             | 9                   | Medium      |
 | **Other AI Components**    | comfyui                 | 13                  | Medium      |
 |                            | comfy_mtb               | 1                   | Low         |
@@ -106,23 +107,38 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 |                            | pyload-ng               | 24                  | Medium      |
 |                            | kubepi                  | 5                   | Medium      |
 |                            | llamafactory            | 4                   | Low         |
-|                            | bentoml                 | 2                   | Medium      |
+|                            | bentoml                 | 4                   | Medium      |
 |                            | blinko                  | 1                   | Low         |
 |                            | weknora                 | 2                   | Low         |
 |                            | pinchtab                | 6                   | Medium-High |
 |                            | wallos                  | 1                   | Low         |
-|                            | praisonai               | 2                   | Medium      |
+|                            | praisonai               | 7                   | Medium      |
 |                            | text-generation-webui   | 1                   | Medium      |
-|                            | openclaw                | 655                 | Medium-High |
+|                            | openclaw                | 795                 | Medium-High |
 |                            | upsonic                 | 1                   | Medium      |
 |                            | instructlab             | 1                   | Low         |
-|                            | lmdeploy                | 1                   | Low         |
+|                            | lmdeploy                | 3                   | Low         |
 |                            | paperclip               | 2                   | Medium      |
-|                            | pipecat                 | 1                   | Low         |
+|                            | pipecat                 | 2                   | Low         |
 |                            | qnabot-on-aws           | 1                   | Low         |
 |                            | superagi                | 1                   | Low         |
+|                    | autogpt                 | 4                   | Medium      |
+|                            | crawl4ai                | 4                   | Critical    |
+|                            | hermes                  | 1                   | Critical    |
+|                            | langroid                | 2                   | Critical    |
+|                            | nvidia-trt-llm          | 1                   | High        |
+|                            | ai-code                 | 1                   | Critical    |
+|                            | boxlite                 | 1                   | Medium      |
+|                            | budibase                | 1                   | Medium      |
+|                            | f5-tts                  | 1                   | Medium      |
+|                            | lumiverse               | 1                   | Low         |
+|                            | maxkb                   | 1                   | Medium      |
+|                            | mem0                    | 1                   | Low         |
+|                            | pgadmin                 | 2                   | Medium-High |
+|                            | sglang                  | 6                   | Medium      |
+|                            | sillytavern             | 5                   | Medium      |
 | **AI Agent Config Security** | AI-Agent-Config       | 1                   | High        |
-| **Total**                  |                         | **1600+**           |             |
+| **Total**                  |                         | **1900+**           |             |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
