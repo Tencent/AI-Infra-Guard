@@ -56,6 +56,7 @@ _DETECTION_SKILLS: List[str] = [
     "tool-abuse-detection",
     "indirect-injection-detection",
     "authorization-bypass-detection",
+    "web-exfiltration-detection",
 ]
 
 # Maximum number of skill workers allowed to call ``dialogue()`` simultaneously.
@@ -294,18 +295,18 @@ class ScanPipeline:
                 )
 
         logger.info(
-            f"Starting sequential detection with {len(_DETECTION_SKILLS)} skill workers."
+            f"Starting sequential detection with {len(self.agent_wrapper.skills)} skill workers."
         )
 
         outcomes: list = []
-        for idx, skill in enumerate(_DETECTION_SKILLS):
+        for idx, skill in enumerate(self.agent_wrapper.skills):
             try:
                 result = await _run_skill_worker(skill, idx)
                 outcomes.append(result)
             except Exception as exc:  # noqa: BLE001
                 outcomes.append(exc)
 
-        merged_xml, aggregated_stats = _merge_worker_outcomes(outcomes, _DETECTION_SKILLS)
+        merged_xml, aggregated_stats = _merge_worker_outcomes(outcomes, self.agent_wrapper.skills)
 
         confirmed_count = merged_xml.count("<vuln>")
         logger.info(
@@ -340,6 +341,7 @@ class Agent:
         debug: bool = False,
         language: str = "zh",
         agent_provider: str = "",
+        skills: Optional[List[str]] = None,
     ) -> None:
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
@@ -347,6 +349,7 @@ class Agent:
         self.pipeline = ScanPipeline(self)
         self.language = language
         self.agent_provider: Optional[ProviderOptions] = None
+        self.skills = skills or _DETECTION_SKILLS
 
         if agent_provider:
             client = AIProviderClient()
@@ -388,14 +391,13 @@ class Agent:
         logger.info(f"Stage 1 complete.  Dialogue calls: {info_stats.get('dialogue', 0)}.")
 
         # ------------------------------------------------------------------
-        # Stage 2 — Vulnerability Detection
+        # Stage 2 — Vulnerability Detection (parallel skill workers)
         # ------------------------------------------------------------------
-        vuln_detection, vuln_stats = await self.pipeline.execute_stage(
-            stage=ScanStage("2", "Vulnerability Detection", "agent_vulnerability_detector", language=self.language),
+        vuln_detection, vuln_stats = await self.pipeline.run_parallel_detection(
+            recon_report=info_collection,
             repo_dir=repo_dir,
             prompt=prompt,
             agent_provider=self.agent_provider,
-            context_data={"信息收集报告": info_collection},
         )
         total_dialogue_count += vuln_stats.get("dialogue", 0)
         logger.info(f"Stage 2 complete.  Dialogue calls: {vuln_stats.get('dialogue', 0)}.")

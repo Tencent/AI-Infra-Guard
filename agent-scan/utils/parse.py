@@ -24,7 +24,7 @@ from typing import Any
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
     regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
-    param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
+    param_regex_pattern = r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)</parameter>'
 
     matches = re.finditer(regex_pattern, content, re.DOTALL)
     for match in matches:

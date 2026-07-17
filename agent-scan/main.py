@@ -87,6 +87,13 @@ def parse_args():
     )
 
     parser.add_argument("--language", default="zh", help="Output language (zh/en)")
+
+    parser.add_argument(
+        "--skills",
+        default=None,
+        help="Comma-separated detection skill names to run (e.g. 'web-exfiltration-detection'). "
+             "If not specified, all detection skills will be used."
+    )
     return parser.parse_args()
 
 
@@ -131,7 +138,8 @@ async def main():
         logger.info(f"Custom prompt: {prompt}")
 
     agent = Agent(llm=llm, specialized_llms=specialized_llms,
-                  debug=True, language=args.language, agent_provider=agent_provider)
+                  debug=True, language=args.language, agent_provider=agent_provider,
+                  skills=args.skills.split(",") if args.skills else None)
     try:
         result = await agent.scan(args.repo, prompt)
         logger.info(f"Scan completed successfully:\n\n {result}")

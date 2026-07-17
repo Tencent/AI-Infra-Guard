@@ -1,0 +1,14 @@
+# Provider configuration for the Memory Heist target agent
+# This config tells agent-scan how to connect to the vulnerable agent
+
+providers:
+  - id: "http"
+    config:
+      url: "http://127.0.0.1:18081"
+      endpoint: "/chat"
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        message: "{{prompt}}"
+      transform_response: "reply"
