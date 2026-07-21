@@ -1,276 +1,344 @@
 # MCP-Scan
 
-一个基于 AI Agent 的自动化代码扫描和漏洞检测工具，模仿 Claude Code / Gemini CLI 的工作方式。
+English | **[中文](./README_zh.md)**
 
-## ✨ 特性
+> An AI Agent-driven automated MCP Server security scanning and vulnerability detection tool, developed by Tencent Zhuque Lab.
 
-- **🤖 智能 Agent 系统**: 多阶段自动化扫描流程（信息收集 → 代码审计 → 漏洞整理）
-- **🔍 深度代码分析**: 自动识别项目结构、技术栈和潜在安全漏洞
-- **🎯 专用模型配置**: 支持为不同任务配置专用 LLM（思考、编码、快速响应等）
-- **📊 安全评分系统**: 自动计算项目安全评分和风险等级
-- **🛠️ 可扩展工具系统**: 轻松添加自定义工具和功能
-- **📝 详细日志记录**: 使用 loguru 记录完整的执行过程
-- **🐛 Debug 模式**: 集成 Laminar 追踪功能，方便调试
-- **🕵️ Agent Skill 审计**: 自动识别并审计 Agent Skill 项目的一致性（SKILL.md vs 代码实现）
+## ✨ Features
 
-## 🚀 快速开始
+- **🤖 Intelligent Agent System**: Supports single-stage (fast code audit) and three-stage (Info Collection → Code Audit → Vulnerability Review) scanning modes
+- **🔍 Deep Code Analysis**: Automatically identifies project structure, tech stack, and potential security vulnerabilities
+- **📊 SARIF 2.1.0 Output**: CLI mode outputs SARIF 2.1.0 JSON by default, natively consumable by GitHub Code Scanning, Azure DevOps, VS Code, and more
+- **🔌 AIG Platform Integration**: Interactive scanning via the Web UI with real-time three-stage pipeline results
+- **🎯 Dedicated Model Configuration**: Configure specialized LLMs for different tasks (thinking, coding, fast response, etc.)
+- **📊 Security Scoring System**: Automatically calculates project security scores and risk levels
+- **🛠️ Extensible Tool System**: Easily add custom tools and features
+- **📝 Detailed Logging**: Full execution process logged with loguru
+- **🐛 Debug Mode**: Integrated Laminar tracing for easy debugging
+- **🕵️ Agent Skill Auditing**: Automatically detects and audits Agent Skill project consistency (SKILL.md vs code implementation)
+- **⚡ Static Pre-scan**: Regex-based scanning for high-risk patterns (curl|bash, cloud metadata, credential theft, etc.) before Agent launch, generating prompt injection context
 
-### 1. 克隆项目
+## 🚀 Quick Start
+
+### 1. Clone the Project
 
 ```bash
 git clone <your-repo>
 cd mcp-scan
 ```
 
-### 2. 安装依赖
+### 2. Install Dependencies
 
-推荐使用 `uv`（速度更快，自动管理虚拟环境）：
+Recommended using `uv` (faster, auto-manages virtual environments):
 
 ```bash
 uv sync
 ```
 
-或使用 pip：
+Or using pip:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. 配置环境变量
+### 3. Run a Scan
 
-复制环境变量模板：
+mcp-scan supports two usage modes:
 
-```bash
-cp env.example .env
-```
+#### Mode 1: Standalone CLI (default single-stage mode)
 
-编辑 `.env` 文件，至少设置以下必需的环境变量：
+Outputs SARIF 2.1.0 JSON to stdout by default, suitable for CI/CD integration and fast scanning:
 
 ```bash
-# 必需：OpenRouter API Key
-OPENROUTER_API_KEY=your-api-key-here
-
-# 可选：自定义默认模型和 URL
-DEFAULT_MODEL=deepseek/deepseek-v3.2-exp
-DEFAULT_BASE_URL=https://openrouter.ai/api/v1
-```
-
-> **注意**: `.env` 文件会在程序启动时自动加载，无需手动 `source`。如果你使用系统环境变量，也会被自动识别。
-
-### 4. 运行扫描
-
-扫描指定项目：
-
-```bash
-python main.py --repo /path/to/your/project
-```
-
-使用自定义提示词：
-
-```bash
-python main.py --repo /path/to/your/project --prompt "重点检查 SQL 注入漏洞"
-```
-
-## 📖 使用方法
-
-### 基本命令
-
-```bash
-python main.py --repo <项目路径> [选项]
-```
-
-### 命令行参数
-
-| 参数 | 简写 | 说明 | 默认值 |
-|------|------|------|--------|
-| `--repo` | - | **必需**。要扫描的项目路径 | - |
-| `--prompt` | `-p` | 自定义扫描提示词 | "" |
-| `--model` | `-m` | LLM 模型名称 | `deepseek/deepseek-v3.2-exp` |
-| `--api_key` | `-k` | API Key | 从 `OPENROUTER_API_KEY` 读取 |
-| `--base_url` | `-u` | API 基础 URL | `https://openrouter.ai/api/v1` |
-| `--debug` | - | 启用 debug 模式（包括 Laminar 跟踪） | `False` |
-| `--server_url` | - | 远程 MCP server URL (启用动态分析模式) | `None` |
-| `--header` | - | 自定义 HTTP header (key:value)，可多次使用 | `[]` |
-| `--language` | - | 输出语言 (zh/en) | `zh` |
-
-### 使用示例
-
-```bash
-# 基础扫描
+# Basic scan
 python main.py --repo ./myproject
 
-# 使用特定模型
+# Save results to a file
+python main.py --repo ./myproject -o result.sarif.json
+
+# Use a specific model
 python main.py --repo ./myproject -m "anthropic/claude-3.5-sonnet"
 
-# 使用自定义 API Key
-python main.py --repo ./myproject -k "sk-or-v1-xxxxx"
+# Provide API Key via environment variable (no --api_key needed)
+export LLM_API_KEY="sk-or-v1-xxxxx"
+python main.py --repo ./myproject
 
-# 启用 debug 模式
+# Use a custom prompt
+python main.py --repo ./myproject --prompt "Focus on SQL injection vulnerabilities"
+
+# Enable debug mode
 python main.py --repo ./myproject --debug
 
-# 组合使用
+# Combined usage
 python main.py --repo ./myproject \
   -m "google/gemini-2.5-pro" \
-  -p "重点检查认证和授权相关的安全问题" \
-  --debug
+  -p "Focus on authentication and authorization issues" \
+  --debug \
+  -o report.sarif.json
 
-# 动态分析 (针对运行中的 MCP Server)
+# Dynamic analysis (targeting a running MCP Server)
 python main.py \
   --server_url "http://localhost:8000/sse" \
-  --prompt "测试工具投毒漏洞"
+  --prompt "Test tool poisoning vulnerabilities"
 ```
 
-## ⚙️ 配置说明
+> **CLI mode characteristics**: Uses **single-stage scanning** by default (code audit only, ~3x faster than three-stage), outputs **SARIF 2.1.0** JSON, natively consumable by GitHub Code Scanning, Azure DevOps, GitLab Security Dashboard, VS Code Problems panel, and other SARIF-aware tools.
 
-### 环境变量配置
+#### Mode 2: AIG Platform Web UI (three-stage mode)
 
-所有配置都可以通过环境变量设置。创建 `.env` 文件或在系统中设置环境变量：
+mcp-scan is integrated into the AIG platform, enabling interactive scanning via the Web UI with real-time three-stage pipeline results displayed on the frontend.
 
-#### 主要 LLM 配置
+**Steps:**
+
+1. **Start the AIG Web service and Agent process**
 
 ```bash
-# OpenRouter API Key（必需）
+# Start the Web service
+go build -o ai-infra-guard ./cmd/cli/main.go
+./ai-infra-guard webserver --server 127.0.0.1:8088
+
+# In another terminal, start the Agent process
+go build -o agent ./cmd/agent
+AIG_SERVER=127.0.0.1:8088 ./agent
+```
+
+2. **Use via browser**
+
+Open your browser and navigate to `http://127.0.0.1:8088`:
+
+- Select **MCP Scan** from the left sidebar
+- Add your LLM API Key and model name (e.g., `deepseek-v4-flash`) in **Model Configuration**
+- Choose input method: upload a source code archive (.zip) or enter a GitHub repository URL
+- Click **Start Scan**
+
+3. **View results**
+
+During the scan, the three-stage pipeline (Info Collection → Code Audit → Vulnerability Review) progress and results are displayed in real-time on the Web frontend, culminating in a complete report with vulnerability details, risk levels, and a security score.
+
+> **How it works**: When a scan task is submitted from the Web UI, the Go backend dispatches it to the Agent process, which automatically invokes mcp-scan with `--aig-mode`. Structured JSON logs are output to stdout via `mcpLogger`, parsed by the Go backend, and pushed to the frontend in real-time. Users do not need to manually run the `--aig-mode` command.
+
+## 📖 CLI Options Reference
+
+| Option | Shorthand | Description | Default |
+|--------|-----------|-------------|---------|
+| `--repo` | - | **Required** for static scanning. Path to the project to scan (can be omitted when using `--server_url` for dynamic analysis) | - |
+| `--prompt` | `-p` | Custom scan prompt | "" |
+| `--model` | `-m` | LLM model name | `deepseek/deepseek-v3.2-exp` |
+| `--api_key` | `-k` | API key (falls back to env vars `LLM_API_KEY`/`OPENAI_API_KEY`/`OPENROUTER_API_KEY`) | From env vars |
+| `--base_url` | `-u` | API base URL | `https://openrouter.ai/api/v1` |
+| `--debug` | - | Enable debug mode (includes Laminar tracing) | `False` |
+| `--server_url` | - | Remote MCP server URL (enables dynamic analysis mode) | `None` |
+| `--header` | - | Custom HTTP header (key:value), can be used multiple times | `[]` |
+| `--language` | - | Output language (zh/en) | `zh` |
+| `--aig-mode` | - | Enable AIG integration mode: outputs structured JSON logs for the Go backend. Automatically invoked by the AIG platform; not needed for standalone CLI use | `False` |
+| `--output` | `-o` | Save scan results to a JSON file | `None` |
+
+> **Configuration priority** (high to low): CLI arguments > Environment variables > Code defaults
+
+## 📊 SARIF Output Format
+
+CLI mode outputs **SARIF 2.1.0** JSON by default, containing:
+
+- **rules**: Statically declares the full MCP01–MCP10 + 3 supplemental classification rules (Name Confusion, Rug Pull, Tool Shadowing), always output even if no vulnerabilities are found
+- **results**: Each vulnerability maps to a rule ID, including `level` (error/warning/note), `locations` (file + line number), `partialFingerprints` (dedup hash), and `fixes` (fix suggestions)
+- **properties**: Security score, primary language, LLM used, scan duration
+
+SARIF files can be uploaded directly to GitHub Code Scanning:
+
+```bash
+# GitHub Actions example
+python main.py --repo ./myproject -o results.sarif.json
+# Then use github/codeql-action/upload-sarif@v3 in your workflow
+```
+
+### MCP Risk Classification
+
+mcp-scan uses 10 MCP-specific security risk categories plus 3 supplemental classifications:
+
+| Rule ID | Name | Description |
+|---------|------|-------------|
+| MCP01 | Token & Secret Exposure | Credential theft and key leakage |
+| MCP02 | Privilege Escalation & Scope Creep | Overly broad tool permission definitions |
+| MCP03 | Tool Poisoning Attack | Legitimate tools injected with malicious logic |
+| MCP04 | Supply Chain Attack | Dependency tampering, malicious third-party servers |
+| MCP05 | Command Injection & Execution | Untrusted input constructing system commands |
+| MCP06 | Prompt Injection Attack | Context-injected malicious instructions hijacking the model |
+| MCP07 | Insufficient Auth & Authorization | Missing identity verification leading to privilege escalation |
+| MCP08 | Missing Audit & Telemetry | Lack of tamper-proof call logs |
+| MCP09 | Shadow MCP Server | Unauthorized MCP instances deployed |
+| MCP10 | Context Injection & Over-sharing | Sensitive context leaking across sessions |
+| Name Confusion | Name Confusion Attack | Similar names inducing incorrect tool calls |
+| Rug Pull Attack | Rug Pull Attack | Changing behavior after gaining trust |
+| Tool Shadowing Attack | Tool Shadowing Attack | Redefining same-named tools to override legitimate behavior |
+
+## ⚙️ Configuration
+
+Create a `.env` file or set environment variables in your system. The program auto-loads `.env` on startup and also recognizes system environment variables.
+
+#### Main LLM Configuration
+
+```bash
+# OpenRouter API Key (required)
 OPENROUTER_API_KEY=your-api-key-here
 
-# 默认模型
+# Default model
 DEFAULT_MODEL=deepseek/deepseek-v3.2-exp
 
-# API 基础 URL
+# API base URL
 DEFAULT_BASE_URL=https://openrouter.ai/api/v1
 ```
 
-#### 专用 LLM 配置
+#### Dedicated LLM Configuration
 
-为不同任务配置专用模型，每个模型可以有独立的 API Key 和 Base URL：
+Configure specialized models for different tasks, each with its own API key and base URL:
 
 ```bash
-# Thinking 模型（用于深度推理）
+# Thinking model (for deep reasoning)
 THINKING_MODEL=google/gemini-2.5-pro
 THINKING_BASE_URL=https://openrouter.ai/api/v1
-THINKING_API_KEY=  # 可选，不设置则使用主 API Key
+THINKING_API_KEY=  # Optional, uses main API key if not set
 
-# Coding 模型（用于代码生成和分析）
+# Coding model (for code generation and analysis)
 CODING_MODEL=anthropic/claude-sonnet-4.5
 CODING_BASE_URL=https://openrouter.ai/api/v1
-CODING_API_KEY=  # 可选，不设置则使用主 API Key
+CODING_API_KEY=  # Optional, uses main API key if not set
 ```
 
-#### Debug 和日志配置
+#### Debug & Logging Configuration
 
 ```bash
-# Laminar API Key（用于 debug 模式的追踪）
+# Laminar API Key (for debug mode tracing)
 LAMINAR_API_KEY=your-laminar-api-key
 
-# 日志级别
+# Log level
 LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR
 ```
 
-### 配置优先级
-
-配置的优先级从高到低：
-
-1. 命令行参数（如 `-m`, `-k`, `-u`）
-2. 环境变量
-3. 代码中的默认值
-
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 mcp-scan/
-├── agent/                  # Agent 核心实现
-│   ├── agent.py           # 主 Agent（多阶段扫描流程）
-│   └── base_agent.py      # 基础 Agent 类
-├── tools/                  # 工具模块
-│   ├── registry.py        # 工具注册系统
-│   ├── thinking/          # 思考工具
-│   ├── finish/            # 完成工具
-│   ├── file/              # 文件操作工具
-│   └── execute/           # 代码执行工具
-├── utils/                  # 工具函数
-│   ├── config.py          # 配置管理
-│   ├── llm.py             # LLM 基础封装
-│   ├── llm_manager.py     # LLM 管理器（多模型支持）
-│   ├── loging.py          # 日志配置
-│   ├── parse.py           # XML 解析
-│   ├── project_analyzer.py # 项目分析工具
-│   ├── extract_vuln.py    # 漏洞提取工具
-│   ├── tool_context.py    # 工具上下文
-│   └── aig_logger.py      # 结构化日志记录
-├── prompt/                 # 提示词模板
-│   ├── system_prompt.md   # 系统提示词
-│   ├── agents/            # 各阶段 Agent 提示词
-│       ├── project_summary.md # 信息收集（含 Skill 识别）
-│       ├── code_audit.md      # 代码审计（含 Skill 一致性审计）
-│       └── vuln_review.md     # 漏洞整理
-├── main.py                 # 主入口
-├── requirements.txt        # 依赖列表
-├── env.example            # 环境变量模板
-└── README.md              # 本文档
+├── agent/                  # Agent core implementation
+│   ├── agent.py           # Main Agent (single-stage/three-stage scan dispatch)
+│   └── base_agent.py      # Base Agent class (challenge mechanism + result truncation)
+├── tools/                  # Tool modules
+│   ├── registry.py        # Tool registration system
+│   ├── thinking/          # Thinking tool
+│   ├── finish/            # Finish tool
+│   ├── file/              # File operation tools
+│   └── execute/           # Code execution tools
+├── utils/                  # Utility functions
+│   ├── config.py          # Configuration management
+│   ├── llm.py             # LLM base wrapper
+│   ├── llm_manager.py     # LLM manager (multi-model support)
+│   ├── loging.py          # Logging configuration
+│   ├── parse.py           # XML parsing
+│   ├── project_analyzer.py # Project analysis tools
+│   ├── extract_vuln.py    # Vulnerability extraction (structured file/line localization)
+│   ├── pre_scan.py        # Static pre-scan (14 high-risk pattern regex detection)
+│   ├── sarif_formatter.py # SARIF 2.1.0 formatter (MCP01-MCP10 rule system)
+│   ├── tool_context.py    # Tool context
+│   └── aig_logger.py      # Structured logging
+├── prompt/                 # Prompt templates
+│   ├── system_prompt.md   # System prompt
+│   ├── agents/            # Per-stage Agent prompts
+│       ├── project_summary.md # Info collection (incl. Skill detection)
+│       ├── code_audit.md      # Code audit (incl. Skill consistency audit)
+│       └── vuln_review.md     # Vulnerability review
+├── main.py                 # Main entry (with --aig-mode and SARIF output logic)
+├── pyproject.toml          # Project config (version 0.2.0, Python >=3.9)
+├── py.typed                # PEP 561 type marker
+├── requirements.txt        # Dependencies
+├── env.example            # Environment variable template
+└── README.md              # This document
 ```
 
-## 🔧 工作原理
+## 🔧 How It Works
 
-### 扫描流程
+### Scan Modes
 
-MCP-Scan 采用多阶段自动化流程：
+mcp-scan supports two scanning modes, switched via the `--aig-mode` flag:
+
+#### Single-Stage Mode (CLI default, without `--aig-mode`)
 
 ```
-1. 信息收集 (Information Collection)
-   ├── 分析项目结构
-   ├── 识别技术栈
-   └── 识别项目类型 (普通项目 / Agent Skill)
+1. Static Pre-scan
+   ├── Regex scan for 14 high-risk pattern categories
+   └── Generate prompt injection Agent context
 
-2. 代码审计 (Code Audit)
-   ├── 深度代码分析
-   ├── 识别安全问题
-   └── 若为 Agent Skill，执行一致性审计 (Intent Alignment Check)
+2. Code Audit
+   ├── Inject project directory tree as context
+   ├── LLM-driven deep code analysis
+   ├── Challenge mechanism to detect sensitive patterns in tool results
+   └── Tool result truncation to prevent context overflow
 
-3. 漏洞整理 (Vulnerability Review)
-   ├── 整理发现的漏洞
-   ├── 评估风险等级
-   └── 生成详细报告
+3. Output SARIF 2.1.0 JSON
 ```
 
-### Agent Skill 审计
-如果项目根目录下存在 `SKILL.md`，工具会自动触发 **Agent Skill 一致性审计**：
-- **功能意图一致性**：对比 `SKILL.md` 的描述与 `scripts/` 下的代码实现。
-- **隐形行为检测**：检查代码中是否存在未在描述中提及的隐藏功能。
-- **输出格式验证**：验证代码输出是否符合描述的预期格式。
+~3x faster than three-stage, suitable for CI/CD integration and quick scans.
 
-## 🤝 开发指南
+#### Three-Stage Mode (`--aig-mode`)
 
-建议使用 `uv` 管理本地开发环境，并统一基于 Python 3.12 进行开发与验证。
-初始化开发环境时，可执行：
+```
+1. Information Collection
+   ├── Analyze project structure
+   ├── Identify tech stack
+   └── Identify project type (regular project / Agent Skill)
+
+2. Code Audit
+   ├── Deep code analysis
+   ├── Identify security issues
+   └── If Agent Skill, perform consistency audit (Intent Alignment Check)
+
+3. Vulnerability Review
+   ├── Consolidate discovered vulnerabilities
+   ├── Assess risk levels
+   └── Generate detailed report
+```
+
+Outputs structured JSON to stdout via `mcpLogger` for the AIG platform Go backend to parse.
+
+### Agent Skill Audit
+
+If a `SKILL.md` file exists in the project root, the tool automatically triggers an **Agent Skill consistency audit**:
+- **Intent Alignment**: Compares `SKILL.md` descriptions with code implementations in `scripts/`.
+- **Hidden Behavior Detection**: Checks for hidden functionality not mentioned in the description.
+- **Output Format Validation**: Verifies code output matches the described expected format.
+
+## 🤝 Development
+
+It is recommended to use `uv` for local development environment management (supports Python >=3.9).
+To initialize the dev environment:
 
 ```bash
 uv sync --extra dev --extra test
 ```
 
-提交代码前，建议至少完成以下检查：
+Before committing, it is recommended to run at least:
 
 ```bash
 uv run ruff check . --fix
 uv run ruff format .
 ```
 
-### 运行测试
+### Running Tests
 
 ```bash
 uv run pytest
 ```
 
-### 日志查看
+### Viewing Logs
 
-日志文件位于项目根目录，文件名格式为 `agent_YYYYMMDD_HHMMSS.log`。
+Log files are located in the project root directory, named `agent_YYYYMMDD_HHMMSS.log`.
 
 ## 📄 License
 
 MIT License
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-本项目灵感来源于 Claude Code 和 Gemini CLI。
+Tencent Zhuque Lab AI-Infra-Guard project team.
 
 ---
 
-**注意**: 本工具仅用于合法的安全测试和代码审计。请勿用于未授权的系统测试。
+**Note**: This tool is intended for legitimate security testing and code auditing only. Do not use it for unauthorized system testing.

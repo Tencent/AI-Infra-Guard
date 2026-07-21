@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +16,20 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-"""开发态入口薄壳。
+# 自动导入所有工具模块，触发 @register_tool 装饰器的执行
+from mcp_scan.tools.execute import execute_actions
+from mcp_scan.tools.file import read_file
+from mcp_scan.tools.finish import finish_actions
+from mcp_scan.tools.mcp_tool import call_mcp_tool, list_mcp_prompts, list_mcp_resources, list_mcp_tools
+from mcp_scan.tools.thinking import thinking_actions
 
-保留这个文件是为了兼容 Go 后端（``common/agent/mcp_task.go``）通过
-``uv run --no-project main.py`` 在 ``mcp-scan/`` 目录下调用的方式。
-正式发布的 console 入口是 ``aig-mcp-scan`` 命令（见 pyproject.toml 的
-``[project.scripts]``），等价于 ``python -m mcp_scan``。
-"""
-
-from mcp_scan.main import cli
-
-if __name__ == "__main__":
-    cli()
+__all__ = [
+    "thinking_actions",
+    "finish_actions",
+    "read_file",
+    "execute_actions",
+    "call_mcp_tool",
+    "list_mcp_tools",
+    "list_mcp_prompts",
+    "list_mcp_resources",
+]

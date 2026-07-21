@@ -1,4 +1,4 @@
-from utils.parse import clean_content, parse_tool_invocations
+from mcp_scan.utils.parse import clean_content, parse_tool_invocations
 
 
 def test_parse_standard_finish():
