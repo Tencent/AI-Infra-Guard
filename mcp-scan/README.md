@@ -218,34 +218,42 @@ LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR
 
 ```
 mcp-scan/
-├── agent/                  # Agent core implementation
-│   ├── agent.py           # Main Agent (single-stage/three-stage scan dispatch)
-│   └── base_agent.py      # Base Agent class (challenge mechanism + result truncation)
-├── tools/                  # Tool modules
-│   ├── registry.py        # Tool registration system
-│   ├── thinking/          # Thinking tool
-│   ├── finish/            # Finish tool
-│   ├── file/              # File operation tools
-│   └── execute/           # Code execution tools
-├── utils/                  # Utility functions
-│   ├── config.py          # Configuration management
-│   ├── llm.py             # LLM base wrapper
-│   ├── llm_manager.py     # LLM manager (multi-model support)
-│   ├── loging.py          # Logging configuration
-│   ├── parse.py           # XML parsing
-│   ├── project_analyzer.py # Project analysis tools
-│   ├── extract_vuln.py    # Vulnerability extraction (structured file/line localization)
-│   ├── pre_scan.py        # Static pre-scan (14 high-risk pattern regex detection)
-│   ├── sarif_formatter.py # SARIF 2.1.0 formatter (MCP01-MCP10 rule system)
-│   ├── tool_context.py    # Tool context
-│   └── aig_logger.py      # Structured logging
-├── prompt/                 # Prompt templates
-│   ├── system_prompt.md   # System prompt
-│   ├── agents/            # Per-stage Agent prompts
-│       ├── project_summary.md # Info collection (incl. Skill detection)
-│       ├── code_audit.md      # Code audit (incl. Skill consistency audit)
-│       └── vuln_review.md     # Vulnerability review
-├── main.py                 # Main entry (with --aig-mode and SARIF output logic)
+├── mcp_scan/               # Core package (installable via uv/pip)
+│   ├── agent/             # Agent core implementation
+│   │   ├── agent.py       # Main Agent (single-stage/three-stage scan dispatch)
+│   │   └── base_agent.py  # Base Agent class (challenge mechanism + result truncation)
+│   ├── tools/             # Tool modules
+│   │   ├── registry.py    # Tool registration system
+│   │   ├── thinking/      # Thinking tool
+│   │   ├── finish/        # Finish tool
+│   │   ├── file/          # File operation tools
+│   │   └── execute/       # Code execution tools
+│   ├── utils/             # Utility functions
+│   │   ├── config.py      # Configuration management
+│   │   ├── llm.py         # LLM base wrapper
+│   │   ├── llm_manager.py # LLM manager (multi-model support)
+│   │   ├── loging.py      # Logging configuration
+│   │   ├── parse.py       # XML parsing
+│   │   ├── project_analyzer.py # Project analysis tools
+│   │   ├── extract_vuln.py     # Vulnerability extraction (structured file/line localization)
+│   │   ├── pre_scan.py         # Static pre-scan (14 high-risk pattern regex detection)
+│   │   ├── sarif_formatter.py  # SARIF 2.1.0 formatter (MCP01-MCP10 rule system)
+│   │   ├── tool_context.py     # Tool context
+│   │   └── aig_logger.py       # Structured logging
+│   ├── redteam/           # Multi-turn red-teaming module
+│   │   ├── orchestrator.py # Red-team orchestrator
+│   │   ├── attacker.py    # Attack strategy execution
+│   │   ├── evaluator.py   # Response evaluation
+│   │   └── report.py      # Report generation
+│   ├── prompt/            # Prompt templates
+│   │   ├── system_prompt.md   # System prompt
+│   │   └── agents/            # Per-stage Agent prompts
+│   │       ├── project_summary.md # Info collection (incl. Skill detection)
+│   │       ├── code_audit.md      # Code audit (incl. Skill consistency audit)
+│   │       └── vuln_review.md     # Vulnerability review
+│   ├── main.py            # Package entry (CLI)
+│   └── __main__.py        # python -m mcp_scan entry
+├── main.py                 # Thin shell for AIG Go backend compatibility (uv run main.py)
 ├── pyproject.toml          # Project config (version 0.2.0, Python >=3.9)
 ├── py.typed                # PEP 561 type marker
 ├── requirements.txt        # Dependencies
