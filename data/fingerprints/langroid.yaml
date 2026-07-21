@@ -1,0 +1,21 @@
+info:
+  name: langroid
+  author: A.I.G bot
+  severity: info
+  desc: Langroid is an intuitive, lightweight, extensible Python framework for building LLM-powered applications using a multi-agent programming paradigm, from ex-CMU and UW-Madison researchers.
+  metadata:
+    product: langroid
+    vendor: langroid
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Langroid Chat API" && body="langroid"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="langroid" && body="healthy"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="Langroid Chat UI Backend"

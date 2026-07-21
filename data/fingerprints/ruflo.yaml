@@ -1,0 +1,20 @@
+info:
+  name: ruflo
+  author: A.I.G bot
+  severity: info
+  desc: Ruflo is an agent meta-harness for Claude Code and Codex, providing multi-agent orchestration via MCP bridge and RuVocal Chat UI (SvelteKit) in docker-compose deployment
+  metadata:
+    product: ruflo
+    vendor: ruvnet
+http:
+  - method: GET
+    path: /
+    matchers:
+      - body="RuVocal" && body="ruflo"
+version:
+  - method: GET
+    path: /health
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"([0-9][0-9.a-zA-Z\-]+)"'

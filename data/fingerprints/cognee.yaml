@@ -1,0 +1,28 @@
+info:
+  name: cognee
+  author: A.I.G bot
+  severity: info
+  desc: Cognee is an open-source AI memory platform for AI Agents. It ingests data in any format and builds a self-hosted knowledge graph, giving agents persistent long-term memory across sessions.
+  metadata:
+    product: cognee
+    vendor: topoteretes
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Cognee</title>"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="Cognee API" && body="FastAPI"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"version\"" && body="\"status\""
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\s*"(\d+\.+\d+\.?\d*[^"]*)"'

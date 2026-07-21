@@ -1,0 +1,13 @@
+info:
+  name: crewai
+  author: A.I.G bot
+  severity: info
+  desc: CrewAI 是一个开源的多 AI Agent 编排框架，提供 Crews（自主协作 Agent）和 Flows（事件驱动自动化），支持云控制平面和本地部署。
+  metadata:
+    product: crewai
+    vendor: crewaiinc
+http:
+  - method: GET
+    path: '/auth/login'
+    matchers:
+      - body="CrewAI Studio" && body="app.crewai.com"
