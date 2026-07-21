@@ -138,6 +138,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	argv = append(argv, "--api_key", params.Model.Token)
 	argv = append(argv, "--prompt", params.Content)
 	argv = append(argv, "--debug")
+	argv = append(argv, "--aig-mode")
 	argv = append(argv, "--language", language)
 	if params.Headers != nil {
 		for k, v := range params.Headers {

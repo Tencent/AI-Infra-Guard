@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
-from tools.file.read_file import _is_path_allowed
+from mcp_scan.tools.file.read_file import _is_path_allowed
 
 
 def test_is_path_allowed_blocks_prefix_path_traversal(tmp_path: Path):
