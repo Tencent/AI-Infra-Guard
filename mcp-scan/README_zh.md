@@ -218,34 +218,42 @@ LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR
 
 ```
 mcp-scan/
-├── agent/                  # Agent 核心实现
-│   ├── agent.py           # 主 Agent（单阶段/三阶段扫描分流）
-│   └── base_agent.py      # 基础 Agent 类（含 challenge 机制和结果截断）
-├── tools/                  # 工具模块
-│   ├── registry.py        # 工具注册系统
-│   ├── thinking/          # 思考工具
-│   ├── finish/            # 完成工具
-│   ├── file/              # 文件操作工具
-│   └── execute/           # 代码执行工具
-├── utils/                  # 工具函数
-│   ├── config.py          # 配置管理
-│   ├── llm.py             # LLM 基础封装
-│   ├── llm_manager.py     # LLM 管理器（多模型支持）
-│   ├── loging.py          # 日志配置
-│   ├── parse.py           # XML 解析
-│   ├── project_analyzer.py # 项目分析工具
-│   ├── extract_vuln.py    # 漏洞提取工具（含 file/line 结构化定位）
-│   ├── pre_scan.py        # 静态预扫描（14类高危模式正则检测）
-│   ├── sarif_formatter.py # SARIF 2.1.0 格式化器（MCP01-MCP10 规则体系）
-│   ├── tool_context.py    # 工具上下文
-│   └── aig_logger.py      # 结构化日志记录
-├── prompt/                 # 提示词模板
-│   ├── system_prompt.md   # 系统提示词
-│   ├── agents/            # 各阶段 Agent 提示词
-│       ├── project_summary.md # 信息收集（含 Skill 识别）
-│       ├── code_audit.md      # 代码审计（含 Skill 一致性审计）
-│       └── vuln_review.md     # 漏洞整理
-├── main.py                 # 主入口（含 --aig-mode 和 SARIF 输出逻辑）
+├── mcp_scan/               # 核心包（可通过 uv/pip 安装）
+│   ├── agent/             # Agent 核心实现
+│   │   ├── agent.py       # 主 Agent（单阶段/三阶段扫描分流）
+│   │   └── base_agent.py  # 基础 Agent 类（含 challenge 机制和结果截断）
+│   ├── tools/             # 工具模块
+│   │   ├── registry.py    # 工具注册系统
+│   │   ├── thinking/      # 思考工具
+│   │   ├── finish/        # 完成工具
+│   │   ├── file/          # 文件操作工具
+│   │   └── execute/       # 代码执行工具
+│   ├── utils/             # 工具函数
+│   │   ├── config.py      # 配置管理
+│   │   ├── llm.py         # LLM 基础封装
+│   │   ├── llm_manager.py # LLM 管理器（多模型支持）
+│   │   ├── loging.py      # 日志配置
+│   │   ├── parse.py       # XML 解析
+│   │   ├── project_analyzer.py # 项目分析工具
+│   │   ├── extract_vuln.py     # 漏洞提取工具（含 file/line 结构化定位）
+│   │   ├── pre_scan.py         # 静态预扫描（14类高危模式正则检测）
+│   │   ├── sarif_formatter.py  # SARIF 2.1.0 格式化器（MCP01-MCP10 规则体系）
+│   │   ├── tool_context.py     # 工具上下文
+│   │   └── aig_logger.py       # 结构化日志记录
+│   ├── redteam/           # 多轮自动化红队模块
+│   │   ├── orchestrator.py # 红队编排器
+│   │   ├── attacker.py    # 攻击策略执行
+│   │   ├── evaluator.py   # 响应评估
+│   │   └── report.py      # 报告生成
+│   ├── prompt/            # 提示词模板
+│   │   ├── system_prompt.md   # 系统提示词
+│   │   └── agents/            # 各阶段 Agent 提示词
+│   │       ├── project_summary.md # 信息收集（含 Skill 识别）
+│   │       ├── code_audit.md      # 代码审计（含 Skill 一致性审计）
+│   │       └── vuln_review.md     # 漏洞整理
+│   ├── main.py            # 包入口（CLI）
+│   └── __main__.py        # python -m mcp_scan 入口
+├── main.py                 # AIG Go 后端兼容用的薄层入口 (uv run main.py)
 ├── pyproject.toml          # 项目配置（版本 0.2.0，Python >=3.9）
 ├── py.typed                # PEP 561 类型标记
 ├── requirements.txt        # 依赖列表
