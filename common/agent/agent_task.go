@@ -101,6 +101,7 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	argv = append(argv, "-u", params.EvalModel.BaseUrl)
 	argv = append(argv, "--agent_provider", tmpFile.Name())
 	argv = append(argv, "--language", language)
+	argv = append(argv, "--aig-mode")
 
 	// Define task titles
 	taskTitles := []string{
