@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { isOpenSource } from './env';
+import { enableEvalModel } from './env';
 
 const useMcpServices = () => {
   const { t } = useTranslation();
@@ -69,9 +69,11 @@ const useMcpServices = () => {
     }
   ];
 
-  // In the open-source build, add the "eval model" field to the red-team report / jailbreak evaluation services (local evaluation capability)
+  // Attach the "eval model" field to the red-team report / jailbreak evaluation services
+  // when the scoring-model capability is enabled (controlled by VITE_ENABLE_EVAL_MODEL,
+  // defaults to isOpenSource when unset).
   const mcpServices = baseServices.map(service => {
-    if (isOpenSource && (service.id === 'Model-Redteam-Report' || service.id === 'Model-Jailbreak')) {
+    if (enableEvalModel && (service.id === 'Model-Redteam-Report' || service.id === 'Model-Jailbreak')) {
       return {
         ...service,
         evalModel: 'yes',

@@ -1,6 +1,6 @@
 # 多阶段构建Dockerfile
 # 第一阶段：构建前端
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 # 安装pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -11,7 +11,7 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
 
 # 安装依赖
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # 复制前端源代码
 COPY frontend/ .

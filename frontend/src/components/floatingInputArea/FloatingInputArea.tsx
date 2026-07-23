@@ -12,7 +12,7 @@ import { agentApi } from '../../lib/agentApi';
 import { evaluationApi } from '../../lib/evaluationApi';
 import { ModelItem } from '../../types/model';
 import { shouldShowModelButton, shouldShowEvalModelButton } from '../../utils/taskUtils';
-import { isOpenSource } from '../../config/env';
+import { enableEvalModel } from '../../config/env';
 import { hasMoreFeaturesMenu, maxAttackMethods, extraMoreFeatures } from '../../config/privateModules';
 import { joyrideStyles, getJoyrideLocale as getJoyrideLocaleConfig } from '../../config/joyrideConfig';
 import { getTaskTypeDefaultIdentifier } from '../../config/mcpServices';
@@ -496,7 +496,7 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
           // Check whether the evalModel still exists
           if (selectedEvalModel && !response.data.find(m => m.model_id === selectedEvalModel.model_id)) {
             // If the currently selected evalModel no longer exists, choose the first available model
-            if (onEvalModelSelect && shouldShowEvalModelButton(taskType) && isOpenSource) {
+            if (onEvalModelSelect && shouldShowEvalModelButton(taskType) && enableEvalModel) {
               onEvalModelSelect(response.data[0]);
             }
           }
@@ -521,7 +521,7 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
             }
           }
           // If no evalModel is selected, the model list is not empty and the evalModel button should be shown, select the first one by default
-          if (!selectedEvalModel && response.data.length > 0 && onEvalModelSelect && shouldShowEvalModelButton(taskType) && isOpenSource) {
+          if (!selectedEvalModel && response.data.length > 0 && onEvalModelSelect && shouldShowEvalModelButton(taskType) && enableEvalModel) {
             onEvalModelSelect(response.data[0]);
           }
         }
@@ -635,7 +635,7 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
         }
       }
       // If the evalModel button should be shown and no evalModel is selected, select the first one by default
-      if (shouldShowEvalModelButton(taskType) && isOpenSource && !selectedEvalModel && onEvalModelSelect) {
+      if (shouldShowEvalModelButton(taskType) && enableEvalModel && !selectedEvalModel && onEvalModelSelect) {
         onEvalModelSelect(models[0]);
       }
     }
@@ -909,7 +909,7 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
           const evaluationTargetButton = document.querySelector('[data-joyride="evaluation-target-button"]');
           const evaluationSetButton = document.querySelector('[data-joyride="evaluation-set-button"]');
           const submitButton = document.querySelector('[data-joyride="submit-button"]');
-          const hasAllButtons = evaluationTargetButton && evaluationSetButton && submitButton && (isOpenSource ? evalModelButton : true);
+          const hasAllButtons = evaluationTargetButton && evaluationSetButton && submitButton && (enableEvalModel ? evalModelButton : true);
           if (hasAllButtons || attemptCount >= maxAttempts) {
             if (hasAllButtons) {
               setRunTaskTour(true);
@@ -1122,7 +1122,7 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
   };
 
   // Decide whether the evalModel selection button should be shown
-  const shouldShowEvalModelButtonLocal = shouldShowEvalModelButton(taskType) && isOpenSource;
+  const shouldShowEvalModelButtonLocal = shouldShowEvalModelButton(taskType) && enableEvalModel;
   const { label: modelButtonLabel, hasSelection: hasModelSelection } = getModelButtonLabel();
 
   // Decide whether the HTTP Header configuration button should be shown
@@ -1336,8 +1336,8 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
   // Configure the task onboarding tour steps
   const getTaskTourSteps = (): Step[] => {
     const steps: Step[] = [];
-    // Step 1: scoring-model button (shown only in the openSource build)
-    if (isOpenSource && shouldShowEvalModelButtonLocal) {
+    // Step 1: scoring-model button (shown when the scoring-model feature is enabled)
+    if (enableEvalModel && shouldShowEvalModelButtonLocal) {
       steps.push({
         target: '[data-joyride="eval-model-button"]',
         content: t('floatingInputArea.jailbreakEvaluationTour.evalModel'),
