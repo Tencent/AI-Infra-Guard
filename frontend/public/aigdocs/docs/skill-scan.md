@@ -134,7 +134,7 @@ python -m skill_scan --repo /path/to/your/skill
 | `-p, --prompt` | 自定义扫描提示词（可选） | — |
 | `--language` | 输出语言：`zh` / `en` | `zh` |
 | `--debug` | 启用调试模式 | `false` |
-| `-o, --output` | 将扫描结果保存为 JSON 文件 | — |
+| `-o, --output` | 保存扫描结果；未开启 `--aig-mode` 时为 SARIF 2.1.0 格式，开启后为内部结构 JSON | — |
 
 ### 环境变量配置
 
@@ -153,8 +153,8 @@ python -m skill_scan --repo /path/to/your/skill
 ![image-mcp7](./assets/skill7.png)
 
 ## 推荐使用的大模型API
-- Hy3
 - GLM-5.2
 - DeepSeek-V4
 - Kimi-K2.6
 - Qwen3-Coder-480B-A35B-Instruct
+- Hunyuan-TurboS-Latest

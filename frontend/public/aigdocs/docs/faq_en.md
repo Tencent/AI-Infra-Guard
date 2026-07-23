@@ -151,11 +151,11 @@ Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool call
 > and choose the top-ranked models.
 
 ### 4.2 Recommended Choices for Skill & MCP Scan
-- Hy3
 - GLM-5.2
 - DeepSeek-V4
 - Kimi-K2.6
 - Qwen3-Coder-480B-A35B-Instruct
+- Hunyuan-TurboS-Latest
 
 ### 4.3 Recommended Choices for Jailbreak Evaluation Models
 
@@ -172,7 +172,7 @@ When working with a custom dataset, selecting an appropriate safety evaluation m
 
 #### Scenario
 - **Politically sensitive content testing:**  
-  **Do not** choose Gemini models. Instead, prioritize domestic models such as `Hy3` or `qwen3`. Cloud-based API calls yield better results.  
+  **Do not** choose Gemini models. Instead, prioritize domestic models such as `hunyuan-turbos` or `qwen3`. Cloud-based API calls yield better results.  
 - **National, regional, or racial bias testing:**  
   Gemini models perform best.  
 - **Dangerous weapons or high-risk behavior testing:**  
