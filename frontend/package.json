@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "yes | pnpm install && vite",
     "build": "yes | pnpm install && rm -rf node_modules/.vite-temp && rm -rf dist && tsc -b && vite build --mode openSource",
+    "build:internal": "yes | pnpm install && rm -rf node_modules/.vite-temp && rm -rf dist && tsc -b --project tsconfig.internal.json && vite build --mode production",
     "lint": "yes | pnpm install && eslint .",
     "preview": "yes | pnpm install && vite preview"
   },
