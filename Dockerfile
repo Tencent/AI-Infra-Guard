@@ -1,5 +1,25 @@
 # 多阶段构建Dockerfile
-# 第一阶段：构建Go应用
+# 第一阶段：构建前端
+FROM node:20-alpine AS frontend-builder
+
+# 安装pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app/frontend
+
+# 先复制依赖文件以利用缓存
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 复制前端源代码
+COPY frontend/ .
+
+# 构建前端
+RUN pnpm build
+
+# 第二阶段：构建Go应用
 FROM golang:1.23.2-alpine AS builder
 
 # 设置工作目录
@@ -10,6 +30,10 @@ RUN apk add --no-cache git ca-certificates tzdata
 
 # 复制源代码（包含go.mod和go.sum）
 COPY . .
+
+# 清空旧的static文件并复制前端构建产物
+RUN rm -rf ./common/websocket/static/*
+COPY --from=frontend-builder /app/frontend/dist/ ./common/websocket/static/
 
 # 下载依赖
 RUN go mod download
