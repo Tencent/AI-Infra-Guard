@@ -66,11 +66,11 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 
 ## 🚀 最新情報
 
+- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — フロントエンドをオープンソース化；Agent Scan をスタンドアロン CLI パッケージ（`pip install -e .`）としてリリース，OWASP ASI の全脅威カテゴリをカバーする 10 個の検知スキルを搭載。
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP スキャンにツールポイズニング・診情窃取・コマンドインジェクションの3件の脆弱性検知ルールを追加；llama.cpp CVEルール6件追加；`model.token`の省略対応（システムデフォルトモデルにフォールバック）。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — フィンガープリントライブラリ拡充：AI Web フィンガープリント 39 件新規追加、既存 18 件を強化。
-- **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — カバレッジが68種AIコンポーネントに拡大（junoclaw、lollms、sglangを追加）；600件以上の新規CVEルール追加；Agent ScanがWebSocketプロバイダーをサポート。
 
 
 👉 [過去のリリース](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)

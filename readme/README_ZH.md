@@ -64,11 +64,11 @@
 
 ## 🚀 最新动态
 
+- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — 前端代码开源；Agent Scan 发布为独立 CLI 工具包（`pip install -e .`），包含 10 项覆盖 OWASP ASI 威胁类别的检测技能。
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP 扫描新增 3 条威胁检测规则（工具投毒、凭证窃取、命令注入）；新增 6 条 llama.cpp CVE 规则；扫描配置中 `model.token` 现支持省略，自动回退到系统默认模型。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 指纹库大幅扩充：新增 39 个 AI Web 指纹，增强 18 个现有指纹。
-- **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — 覆盖扩展至 68 种 AI 组件（新增 junoclaw、lollms、sglang）；新增 600+ CVE 规则；Agent Scan 支持 WebSocket 接入方式。
 
 
 👉 [更早版本](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan/)
