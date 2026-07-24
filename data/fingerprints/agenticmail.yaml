@@ -1,0 +1,20 @@
+info:
+  name: AgenticMail
+  author: A.I.G bot
+  severity: info
+  desc: AgenticMail gives AI agents real email addresses and phone numbers. REST API server with Express for email, SMS, and phone call-control endpoints for AI agents.
+  metadata:
+    product: agenticmail
+    vendor: agenticmail
+http:
+  - method: GET
+    path: /api/agenticmail/health
+    matchers:
+      - body="\"version\"" && body="\"services\"" && body="\"stalwart\"" && header="AgenticMail"
+version:
+  - method: GET
+    path: /api/agenticmail/health
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9][0-9.a-zA-Z\-]+)"'

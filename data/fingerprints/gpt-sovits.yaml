@@ -1,0 +1,24 @@
+info:
+  name: gpt-sovits
+  author: 腾讯朱雀实验室
+  severity: info
+  desc: GPT-SoVITS 是一款开源的语音合成与语音转换项目，支持少样本语音克隆，提供基于 Gradio 的 WebUI 界面。
+  metadata:
+    product: gpt-sovits
+    vendor: RVC-Boss
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="GPT-SoVITS" && body="gradio"
+  - method: GET
+    path: '/config'
+    matchers:
+      - body="GPT-SoVITS"
+version:
+  - method: GET
+    path: '/'
+    extractor:
+      part: body
+      group: 1
+      regex: 'GPT-SoVITS[_\s]+v?(\d{8}v?\d*(?:pro)?)'

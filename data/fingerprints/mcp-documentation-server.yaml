@@ -1,0 +1,26 @@
+info:
+  name: mcp-documentation-server
+  author: A.I.G bot
+  severity: info
+  desc: MCP Documentation Server is a TypeScript-based MCP server providing local-first document management and AI-powered semantic search. It exposes an unauthenticated Web UI/API on port 3080.
+  metadata:
+    product: andrea9293
+    vendor: andrea9293
+http:
+  - method: GET
+    path: /
+    matchers:
+      - body="<title>MCP Documentation Server</title>"
+  - method: GET
+    path: /api/documents
+    matchers:
+      - body="documents" && header="application/json"
+# Fingerprint note:
+# The Web UI serves a single-page application at / with <title>MCP Documentation Server</title>.
+# The /api/documents endpoint returns a JSON array of documents (unauthenticated in vulnerable versions).
+# Default port: 3080.
+#
+# Version extraction: No dedicated /version or /health endpoint confirmed.
+# The server name/version can be found in:
+#   - package.json version (not exposed via API)
+#   - npm registry metadata (@andrea9293/mcp-documentation-server)
