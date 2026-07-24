@@ -66,11 +66,11 @@ Helfen Sie uns, A.I.G zu verbessern! Bitte nehmen Sie sich 3-5 Minuten Zeit, um 
 
 ## 🚀 Neuigkeiten
 
+- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Frontend als Open Source veröffentlicht; Agent Scan als eigenständiges CLI-Paket (`pip install -e .`) mit 10 Detection Skills für alle OWASP ASI-Bedrohungskategorien.
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 neue Bedrohungserkennungsregeln (Tool-Poisoning, Credential-Exfiltration, Command-Injection); 6 neue llama.cpp-CVE-Regeln; `model.token` jetzt optional mit Fallback auf das Standard-Systemmodell.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 neue Single-Turn-Angriffsoberatoren; neue `aig-agent-redteam` Skill für umfassende Agent Red-Team-Bewertung.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Neuer API-Endpunkt zur Versionsprüfung; Sicherheitsbewertung auf absolutes Abzugsmodell umgestellt für klarere Risikoeinschätzung.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Fingerprint-Bibliothek erweitert: 39 neue AI-Web-Fingerprints hinzugefügt, 18 bestehende verbessert.
-- **2026-05-28** · [v4.1.10](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.10) — Abdeckung auf 68 KI-Komponenten erweitert (junoclaw, lollms, sglang hinzugefügt); 600+ neue CVE-Regeln; WebSocket-Provider-Unterstützung für Agent Scan.
 
 
 👉 [Ältere Versionen](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
