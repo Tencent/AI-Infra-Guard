@@ -154,7 +154,7 @@ Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool call
 - Hy3
 - GLM-5.2
 - DeepSeek-V4
-- Kimi-K2.6
+- Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
 
 ### 4.3 Recommended Choices for Jailbreak Evaluation Models

@@ -154,7 +154,7 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 - Hy3
 - GLM-5.2
 - DeepSeek-V4
-- Kimi-K2.6
+- Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
 
 ### 4.3 大模型安全体检模型推荐

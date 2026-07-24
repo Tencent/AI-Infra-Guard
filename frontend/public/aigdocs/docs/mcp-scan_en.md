@@ -80,11 +80,11 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 
 ## Recommended Large Language Model APIs
-- Hy3
 - GLM-5.2
 - DeepSeek-V4
 - Kimi-K2.6
 - Qwen3-Coder-480B-A35B-Instruct
+- Hunyuan-TurboS-Latest
 
 ## Multi-Turn Automated Red Teaming
 
@@ -112,7 +112,7 @@ A.I.G includes a built-in multi-turn automated red-teaming module for MCP Server
 
 ```python
 import asyncio
-from redteam import RedTeamOrchestrator, generate_report
+from mcp_scan.redteam import RedTeamOrchestrator, generate_report
 
 async def main():
     orch = RedTeamOrchestrator(
@@ -127,7 +127,7 @@ async def main():
 asyncio.run(main())
 ```
 
-The red-teaming module code is located in `mcp-scan/redteam/`. Run it from the `mcp-scan` project root directory to correctly resolve internal module dependencies.
+The red-teaming module code is located in `mcp-scan/mcp_scan/redteam/`. Install dependencies first (`uv sync` or `pip install -r requirements.txt`) from the `mcp-scan` project root directory.
 
 ## MCP Plugins
 
