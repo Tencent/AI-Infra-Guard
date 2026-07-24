@@ -1,0 +1,96 @@
+# Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Requirement: Any integration or derivative work must explicitly attribute
+# Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
+# documentation or user interface, as detailed in the NOTICE file.
+
+import pytest
+
+from agent_scan.core.agent_adapter.adapter import AIProviderClient
+from agent_scan.tools.dispatcher import ToolDispatcher
+from agent_scan.utils.llm import LLM
+from agent_scan.utils.llm_manager import LLMManager
+from agent_scan.utils.tool_context import ToolContext
+
+
+@pytest.fixture
+def dispatcher():
+    return ToolDispatcher()
+
+
+@pytest.mark.asyncio
+async def test_get_all_tools_prompt(dispatcher):
+    result = await dispatcher.get_all_tools_prompt()  # 异步函数需要 await
+    print(result)
+    assert isinstance(result, str)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_search_skill(dispatcher):
+    result = await dispatcher.call_tool("search_skill", {"query": ""}, None)
+    print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_load_skill(dispatcher):
+    result = await dispatcher.call_tool("load_skill", {"name": "tool-abuse-detection"}, None)
+    print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_dialogue(dispatcher):
+    client = AIProviderClient()
+    agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
+    context = ToolContext(
+        agent_provider=agent_provider,
+    )
+    result = await dispatcher.call_tool("dialogue", {
+        "prompt": "你好你有什么技能"
+    }, context)
+    print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_list_agents(dispatcher):
+    result = await dispatcher.call_tool("list_agents", {}, None)
+    print(result)
+
+
+@pytest.mark.asyncio
+async def test_call_run_task(dispatcher):
+    model = "deepseek/deepseek-v3.2"
+    api_key = "1"
+    base_url = "https://openrouter.ai/api/v1"
+    client = AIProviderClient()
+    agent_provider = client.load_config_from_file("demo_dify.yaml")[0]
+    llm = LLM(model=model, api_key=api_key, base_url=base_url)
+    # 使用主 API Key 作为默认值
+    llm_manager = LLMManager(api_key=api_key, base_url=base_url)
+
+    # 获取专用LLM实例字典
+    specialized_llms = llm_manager.get_specialized_llms(["thinking", "coding"])
+
+    context = ToolContext(
+        llm=llm,
+        specialized_llms=specialized_llms,
+        agent_provider=agent_provider,
+    )
+
+    # Data leakage detection is skill-based, not agent-based
+    # Use load_skill(name="data-leakage-detection") instead of task()
+    result = await dispatcher.call_tool("load_skill", {
+        "name": "data-leakage-detection"
+    }, context)
+    print(result)

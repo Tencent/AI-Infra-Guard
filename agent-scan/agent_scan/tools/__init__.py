@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) 2024-2026 Tencent Zhuque Lab. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +16,27 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-"""开发态入口薄壳。
+# 基于 XML schema 文件自动发现并加载工具模块
+# 规则：{xxx}_schema.xml 对应 {xxx}.py
 
-保留这个文件是为了兼容 Go 后端（``common/agent/agent_task.go``）通过
-``uv run --no-project main.py`` 在 ``agent-scan/`` 目录下调用的方式。
-正式发布的 console 入口是 ``aig-agent-scan`` 命令（见 pyproject.toml 的
-``[project.scripts]``），等价于 ``python -m agent_scan``。
-"""
+import importlib
+from pathlib import Path
 
-from agent_scan.main import cli
+_tools_dir = Path(__file__).parent
+_exclude = {'__pycache__', 'logs'}
 
-if __name__ == "__main__":
-    cli()
+for subdir in _tools_dir.iterdir():
+    if not subdir.is_dir() or subdir.name in _exclude:
+        continue
+    
+    # 查找所有 *_schema.xml 文件
+    for xml_file in subdir.glob('*_schema.xml'):
+        # 从 xxx_schema.xml 提取 xxx
+        module_name = xml_file.stem.removesuffix('_schema')
+        py_file = subdir / f'{module_name}.py'
+        
+        if py_file.exists():
+            try:
+                importlib.import_module(f'agent_scan.tools.{subdir.name}.{module_name}')
+            except ImportError:
+                pass

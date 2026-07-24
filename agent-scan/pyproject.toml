@@ -1,0 +1,130 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aig-agent-scan"
+version = "0.1.0"
+description = "AI Agent Security Scanning Tool - a dynamic black-box security testing tool for running AI Agent platforms"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Tencent Zhuque Lab", email = "zhuque@tencent.com" },
+]
+maintainers = [
+  { name = "Tencent Zhuque Lab" },
+]
+keywords = [
+  "ai-security",
+  "agent-security",
+  "prompt-injection",
+  "llm",
+  "red-team",
+  "vulnerability",
+  "ai-infra-guard",
+  "dynamic-testing",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Security",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "loguru==0.7.3",
+  "mcp>=1.23.0",
+  "openai==2.8.1",
+  "pydantic==2.12.4",
+  "python-dotenv==1.0.0",
+  "PyYAML>=6.0.1",
+  "httpx>=0.27.0",
+  "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.11.5",
+  "build>=1.2",
+  "twine>=5.0",
+]
+test = [
+  "starlette==0.50.0",
+  "uvicorn==0.38.0",
+]
+
+[project.scripts]
+aig-agent-scan = "agent_scan.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/Tencent/AI-Infra-Guard"
+Repository = "https://github.com/Tencent/AI-Infra-Guard"
+Documentation = "https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan"
+"Bug Tracker" = "https://github.com/Tencent/AI-Infra-Guard/issues"
+"Source Code" = "https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan"
+
+[tool.setuptools]
+packages = { find = { include = ["agent_scan*"] } }
+
+[tool.setuptools.package-data]
+"agent_scan" = ["py.typed"]
+"agent_scan.prompt" = ["**/*.md"]
+"agent_scan.prompt.system" = ["*.md"]
+"agent_scan.prompt.system.agents" = ["*.md"]
+"agent_scan.prompt.system.agents.dynamic" = ["*.md"]
+"agent_scan.prompt.skills" = ["**/*.md"]
+"agent_scan.config" = ["*.json"]
+"agent_scan.core.agent_adapter" = ["*.yaml", "*.xml"]
+"agent_scan.tools" = ["*.xml"]
+"agent_scan.tools.batch" = ["*.xml"]
+"agent_scan.tools.dialogue" = ["*.xml"]
+"agent_scan.tools.finish" = ["*.xml"]
+"agent_scan.tools.skill" = ["*.xml"]
+"agent_scan.tools.task" = ["*.xml"]
+"agent_scan.tools.thinking" = ["*.xml"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__", "*.pyc"]
+
+# ===== The sections below are dev-tool configuration; they do not affect packaging =====
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+  "prompt",
+  ".venv",
+  "logs",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+]
+ignore = [
+  "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
