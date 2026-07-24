@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.5.0] - 2026-07-24
+
+### Added
+- **Frontend**: Open-source frontend code with open-source environment configuration (5cb33e22, bed369b2)
+- **Agent-Scan**: Modularize as standalone CLI with AIG integration support (2a18b88e)
+- **Agent-Scan**: Add 4 new detection skills for AI agent security (5f7022fd)
+- **Agent-Scan**: Register 4 new detection skills in _DETECTION_SKILLS (9c2c0f8c)
+- **MCP-Scan**: Modularize with dual-mode support (CLI + AIG Web) (272c56e6)
+- **MCP-Scan**: Add standalone mcp-scan-lite module (d93e69a8)
+- **MCP-Scan**: Add 2 MCP security detection rules (#458)
+- **MCP-Scan**: Add ATR-derived MCP detection rules for further attack surfaces (#469)
+- **Skill-Scan**: Add Agent Skill security auditing support (78ddc07c)
+- **Skill-Scan**: Repackage as standalone PyPI package aig-skill-scan (545ed4b3)
+- **Skill-Scan**: SARIF 2.1.0 output + single-stage optimization (d32a56f6)
+- **Eval**: Add agentic-tool-misuse evaluation dataset (#427)
+- **Data**: Add AIG rules [2026-06-29], [2026-07-13], [2026-07-17]
+- **Data**: Add CVE rules for Jan, Open WebUI, crewai, lobehub components
+- **Data**: Add ai component fingerprints (#459)
+- **Data**: Add missing English vuln rules
+- **Docs**: Add aig-skill-scan and SkillTrustBench to README
+- **Docs**: Add Tiane and Binus University to user acknowledgements
+
+### Changed
+- **Frontend**: Add open-source environment configuration and UI improvements
+- **MCP-Scan**: Remove redundant aig-mcp-scan-lite module (ff4a6b39)
+- **Skill-Scan**: Simplify to single default LLM, rebrand to aig-skill-scan (982d938a)
+- **Skill-Scan**: Stage 2 Code Audit output Markdown report instead of XML (04f48f3c)
+- **Docs**: Update CVE count to 1700+ and fix component counts in ai-infra-scan docs
+- **Docs**: Update component/vuln counts after multiple rules updates
+- **Docs**: Sync new "Securing the AI Agent" paper across all README languages
+- **Docs**: Update readme and technical_report
+- **Docs**: Collapse older What's New entries, keep latest 5 visible
+- **Docs**: Fix CVE count 1600+ -> 1900+ in README_DE and README_RU
+
+### Fixed
+- **Version**: Bypass GitHub API rate limit via releases/latest redirect (7a08609d)
+- **Task Manager**: Classify Skill-Scan and rename MCP label (7be6e7ca)
+- **i18n**: Bilingual stage titles for mcp-scan and skill-scan (0823a530, c8969cc2)
+- **Data**: Remove duplicate OpenClaw/ directories (EN+CN) (a7d53884)
+- **Data**: Remove 4 CVE rules without matching fingerprints (d89e8879)
+- **Data**: Resolve YAML parse errors in 4 vuln rule files (a7af7579)
+- **Data**: Correct info.name to match fingerprint names (case-sensitive) (f7de1bc1, 9552ebfd)
+- **Data**: Fix missing CN translations for multiple CVE rules
+- **Docs**: Fix Python version requirement in skill-scan docs (3.12 -> 3.9) (fff4bb99)
+- **Docs**: Fix EN README CHANGELOG link text from Chinese to English (e21733d6)
+
+### Chore
+- Remove redundant aig-mcp-scan-lite module
+- Add yamlcheck to .gitignore
+- Bump skill-scan version to 0.2.0
+
+### Contributors
+Special thanks to @zhuque, @aigsec, @aigdocs[bot], @boyhack, @Elwood Ying, @DevamShah, @Adam Lin, @fyoungguo, @AIG-Bot
+
+---
+
 ## [v4.1.15] - 2026-06-25
 
 ### Added
