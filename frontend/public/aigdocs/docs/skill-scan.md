@@ -153,8 +153,8 @@ python -m skill_scan --repo /path/to/your/skill
 ![image-mcp7](./assets/skill7.png)
 
 ## 推荐使用的大模型API
+- Hy3
 - GLM-5.2
 - DeepSeek-V4
-- Kimi-K2.6
+- Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
-- Hunyuan-TurboS-Latest

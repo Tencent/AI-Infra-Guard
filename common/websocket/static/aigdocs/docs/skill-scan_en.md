@@ -154,8 +154,8 @@ For more details, see the [aig-skill-scan README](https://github.com/Tencent/AI-
 ![image-mcp6](./assets/skill6-en.png)![image-mcp7](./assets/skill7-en.png)
 
 ## Recommended Large Language Model APIs
+- Hy3
 - GLM-5.2
 - DeepSeek-V4
-- Kimi-K2.6
+- Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
-- Hunyuan-TurboS-Latest

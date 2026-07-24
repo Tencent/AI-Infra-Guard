@@ -151,11 +151,11 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 > 选择当前排名靠前的模型。
 
 ### 4.2 Skill、MCP扫描推荐
+- Hy3
 - GLM-5.2
 - DeepSeek-V4
-- Kimi-K2.6
+- Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
-- Hunyuan-TurboS-Latest
 
 ### 4.3 大模型安全体检模型推荐
 
@@ -172,7 +172,7 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 
 #### 场景
 - **政治敏感内容测试：**  
-  **不要**选择Gemini模型。相反，优先选择国产模型，如`hunyuan-turbos`或`qwen3`。云API调用效果更好。  
+  **不要**选择Gemini模型。相反，优先选择国产模型，如`Hy3`或`qwen3`。云API调用效果更好。  
 - **国家、地区或种族偏见测试：**  
   Gemini模型表现最佳。  
 - **危险武器或高风险行为测试：**  
