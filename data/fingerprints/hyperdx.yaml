@@ -1,0 +1,26 @@
+info:
+  name: hyperdx
+  author: A.I.G bot
+  severity: info
+  desc: HyperDX is an open-source observability platform for logs, metrics, traces,
+    and session replays, built on ClickHouse for high-performance data storage.
+  metadata:
+    product: hyperdx
+    vendor: hyperdxio
+http:
+- method: GET
+  path: /
+  matchers:
+  - body="HyperDX" && body="<title>"
+- method: GET
+  path: /api/v1/search
+  matchers:
+  - status=401 || status=403
+  - body="hyperdx" || body="HyperDX"
+version:
+- method: GET
+  path: /api/version
+  extractor:
+    part: body
+    group: 1
+    regex: '"version":"([0-9]+\.[0-9]+\.[0-9]+[^"]*)"'

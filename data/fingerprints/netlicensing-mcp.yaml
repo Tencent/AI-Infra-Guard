@@ -1,0 +1,30 @@
+info:
+  name: netlicensing-mcp
+  author: A.I.G bot
+  severity: info
+  desc: NetLicensing-MCP is an official MCP (Model Context Protocol) server from Labs64 that enables AI agents to manage software licensing lifecycle via the NetLicensing REST API. It exposes an unauthenticated health endpoint and a Streamable HTTP MCP endpoint.
+  metadata:
+    product: Labs64
+    vendor: Labs64
+http:
+  - method: GET
+    path: /health
+    matchers:
+      - body='"server":"netlicensing-mcp"' && body='"status":"ok"'
+  - method: POST
+    path: /mcp
+    matchers:
+      - body='"netlicensing-mcp"'
+# Fingerprint note:
+# The /health endpoint returns {"status":"ok","server":"netlicensing-mcp"} (unauthenticated).
+# The /mcp endpoint is the Streamable HTTP MCP transport; POST with a JSON-RPC initialize
+# request returns a response referencing "netlicensing-mcp" in the serverInfo.name field.
+# Default port: configurable via MCP_HOST/MCP_PORT env vars.
+#
+# Layer-1 (GitHub source code) verification:
+#   - /health response confirmed in server.py line 130-135 (v0.1.5) and line 166-172 (latest)
+#   - FastMCP("netlicensing-mcp") in server.py line 54 → serverInfo.name in MCP init response
+#
+# Version extraction: No dedicated /version endpoint confirmed.
+# Package version available via PyPI metadata (netlicensing-mcp) or
+# GitHub releases (Labs64/NetLicensing-MCP).

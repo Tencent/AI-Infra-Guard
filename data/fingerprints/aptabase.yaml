@@ -1,0 +1,28 @@
+info:
+  name: aptabase
+  author: A.I.G bot
+  severity: info
+  desc: Aptabase is an open-source, privacy-first analytics platform for apps. It provides a simple API to track events and offers a dashboard to visualize analytics data.
+  metadata:
+    product: aptabase
+    vendor: aptabase
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Aptabase</title>" || body="aptabase" && body="analytics"
+  - method: GET
+    path: '/api/health'
+    matchers:
+      - status==200 && (body="ok" || body="healthy")
+  - method: GET
+    path: '/swagger'
+    matchers:
+      - body="Aptabase" && body="swagger"
+version:
+  - method: GET
+    path: '/api/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\\s*"(\\d+\\.\\d+\\.\\d+[^"]*)"'
