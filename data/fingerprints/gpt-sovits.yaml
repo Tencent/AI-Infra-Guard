@@ -1,6 +1,6 @@
 info:
   name: gpt-sovits
-  author: 腾讯朱雀实验室
+  author: A.I.G bot
   severity: info
   desc: GPT-SoVITS 是一款开源的语音合成与语音转换项目，支持少样本语音克隆，提供基于 Gradio 的 WebUI 界面。
   metadata:

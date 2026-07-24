@@ -1,6 +1,6 @@
 info:
   name: LightRAG
-  author: 腾讯科恩实验室
+  author: A.I.G bot
   severity: info
   desc: LightRAG是一个简单快速的检索增强生成(RAG)框架，提供FastAPI REST API服务，支持文档管理、查询和图操作。
   metadata:

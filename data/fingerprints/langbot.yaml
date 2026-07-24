@@ -1,6 +1,6 @@
 info:
   name: langbot
-  author: Tencent Zhusuo Lab
+  author: A.I.G bot
   severity: info
   desc: LangBot - Production-grade platform for building agentic IM bots
   metadata:
