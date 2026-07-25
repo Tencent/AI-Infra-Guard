@@ -1,3 +1,5 @@
+[![MCP Toplist](https://mcptoplist.com/badge/mcp.so%2FAI-Infra-Guard%2FTencent.svg)](https://mcptoplist.com/server/mcp.so%2FAI-Infra-Guard%2FTencent)
+
 <p align="center">
     <h1 align="center"><img vertical-align="middle" width="400px" src="img/logo-full-new.png" alt="A.I.G"/></h1>
 </p>
