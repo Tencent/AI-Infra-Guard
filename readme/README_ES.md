@@ -66,14 +66,14 @@
 
 ## 🚀 Novedades
 
-- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Frontend publicado como código abierto; Agent Scan lanzado como CLI independiente (`pip install -e .`) con 10 skills de detección que cubren todas las categorías de amenazas OWASP ASI.
+- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Lanzado el mercado de skills de seguridad IA (3 skills oficiales); frontend totalmente open source; motor de escaneo Skill mejorado (9 categorías de riesgo, SkillTrustBench máximo 0.9848); escaneo Skill/MCP/Agent como CLI independiente; biblioteca de vulnerabilidades ampliada a 130 componentes, 1888 reglas
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 nuevas reglas de detección de amenazas (envenenamiento de herramientas, exfiltración de credenciales, inyección de comandos); 6 nuevas reglas CVE para llama.cpp; `model.token` ahora opcional con fallback al modelo predeterminado del sistema.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 nuevos operadores de ataque single-turn; nueva skill `aig-agent-redteam` para evaluación red-team integral de Agentes.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nuevo endpoint API de verificación de versión; puntuación de seguridad cambiada a modelo de deducción absoluta para una evaluación de riesgos más clara.
 - **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Biblioteca de huellas digitales ampliada: 39 nuevas huellas AI Web añadidas, 18 existentes mejoradas.
 
 
-👉 [Versiones anteriores](../CHANGELOG.md) · 🔍 [aig-skill-scan](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) · 🩺 [EdgeOne ClawScan](https://matrix.tencent.com/clawscan)
+👉 [Versiones anteriores](../CHANGELOG.md) · 🛒 [Mercado de Skills de Seguridad IA](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
 
 ## Tabla de Contenidos
