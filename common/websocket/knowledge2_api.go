@@ -984,8 +984,8 @@ func HandleAgentPromptTest(c *gin.Context) {
 }
 
 func HandleAgentTemplate(c *gin.Context) {
-	enConfig := "agent-scan/config/provider_config_en.json"
-	zhConfig := "agent-scan/config/provider_config_zh.json"
+	enConfig := "agent-scan/agent_scan/config/provider_config_en.json"
+	zhConfig := "agent-scan/agent_scan/config/provider_config_zh.json"
 	language := c.DefaultQuery("language", "zh")
 	var data []byte
 	var err error
