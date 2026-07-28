@@ -20,4 +20,4 @@
 from .base_attack import BaseAttack
 
 # from .single_turn import *
-# from .multi_turn import *
+from .multi_turn import *

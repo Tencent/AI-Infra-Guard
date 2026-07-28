@@ -133,7 +133,11 @@ TECHNIQUE_CLASS_MAP = {
     "CrescendoJailbreaking": "deepteam.attacks.multi_turn.CrescendoJailbreaking",
     "LinearJailbreaking": "deepteam.attacks.multi_turn.LinearJailbreaking",
     "SequentialJailbreak": "deepteam.attacks.multi_turn.SequentialJailbreak",
-    "TreeJailbreaking": "deepteam.attacks.multi_turn.TreeJailbreaking"
+    "TreeJailbreaking": "deepteam.attacks.multi_turn.TreeJailbreaking",
+    "ManyShotJailbreaking": "deepteam.attacks.multi_turn.ManyShotJailbreaking",
+    "PAIRJailbreaking": "deepteam.attacks.multi_turn.PAIRJailbreaking",
+    "GoatJailbreaking": "deepteam.attacks.multi_turn.GoatJailbreaking",
+    "ActorAttack": "deepteam.attacks.multi_turn.ActorAttack"
 }
 
 SCENARIO_CLASS_MAP = {

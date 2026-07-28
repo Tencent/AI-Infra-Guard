@@ -16,26 +16,18 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
-from .bad_likert_judge import BadLikertJudge
-from .best_of_n import BestofN
-from .crescendo_jailbreaking import CrescendoJailbreaking
-from .linear_jailbreaking import LinearJailbreaking
-from .sequential_break import SequentialJailbreak
-from .tree_jailbreaking import TreeJailbreaking
-from .many_shot_jailbreaking import ManyShotJailbreaking
-from .pair_jailbreaking import PAIRJailbreaking
-from .goat_jailbreaking import GoatJailbreaking
-from .actor_attack import ActorAttack
+from typing import Literal
+from pydantic import BaseModel
 
-__all__ = [
-    "BadLikertJudge",
-    "BestofN",
-    "CrescendoJailbreaking", 
-    "LinearJailbreaking", 
-    "SequentialJailbreak",
-    "TreeJailbreaking", 
-    "ManyShotJailbreaking",
-    "PAIRJailbreaking",
-    "GoatJailbreaking",
-    "ActorAttack",
-]
+
+class ImprovementPrompt(BaseModel):
+    improvement: str
+    prompt: str
+
+
+class NonRefusal(BaseModel):
+    classification: Literal["Non-refusal", "Refusal"]
+
+
+class Rating(BaseModel):
+    rating: int
