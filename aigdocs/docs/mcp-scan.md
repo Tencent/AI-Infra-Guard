@@ -1,15 +1,13 @@
-# AI工具协议扫描
+# MCP扫描
 
-A.I.G使用了基于AI Agent驱动的AI工具协议检测方案，支持MCP Server、Skills源代码安全审计与远程MCP Server URL安全扫描，可检测以下常见的AI工具协议安全风险，并持续更新：
+A.I.G使用了基于AI Agent驱动的MCP Server安全检测方案，支持MCP Server源代码安全审计与远程MCP Server URL安全扫描，可检测以下常见的MCP Server安全风险，并持续更新：
 
 <table>
 <tr>
-<th>AI工具</th>
 <th>风险名称</th>
 <th>风险说明</th>
 </tr>
 <tr>
-<td rowspan="9">MCP Server</td>
 <td>工具投毒攻击</td>
 <td>恶意MCP Server通过工具描述注入隐藏指令，操纵AI Agent执行未授权操作（例如窃取数据、执行恶意行为）。</td>
 </tr>
@@ -45,54 +43,33 @@ A.I.G使用了基于AI Agent驱动的AI工具协议检测方案，支持MCP Serv
 <td>明文存储密钥</td>
 <td>MCP Server在代码或配置文件中硬编码或明文存储敏感密钥，易导致泄露风险。</td>
 </tr>
-<tr>
-<td rowspan="5">Skills</td>
-<td>语义劫持攻击</td>
-<td>攻击者可以精心构造一个恶意的Skill描述，使其在语义上覆盖高频的用户意图（例如修复代码错误或优化系统性能）。当用户发出模糊指令时，Agent可能会错误地激活恶意Skill而非预期工具。</td>
-</tr>
-<tr>
-<td>幽灵指令攻击</td>
-<td>攻击者在SKILL.md中嵌入伪装成正常内容（如注释或错误处理指南）的恶意指令，Agent加载Skill时这些指令会被注入上下文，从而控制LLM执行恶意操作。</td>
-</tr>
-<tr>
-<td>恶意后门脚本攻击</td>
-<td>Skill引导Agent调用包含恶意代码的本地脚本，利用Agent的Shell权限读取SSH密钥、修改系统配置、安装后门，甚至发起反向Shell连接。</td>
-</tr>
-<tr>
-<td>不安全SKILLS配置风险</td>
-<td>allowed-tools配置不当，无需二次人工确认可以静默执行Bash等危险操作。</td>
-</tr>
-<tr>
-<td>代码实现层漏洞</td>
-<td>如命令注入与密钥硬编码（实测在内网Skills中较为常见）。</td>
-</tr>
 </table>
 
-A.I.G的AI工具协议扫描能力完全由Agent驱动，检测准确性与时长取决于用户选择的大模型API。
+A.I.G的MCP扫描能力完全由Agent驱动，检测准确性与时长取决于用户选择的大模型API。
 
-### 添加用检测AI工具的模型API
+### 添加用于检测的模型API
 
 ![image-20250717174655353](./assets/mcp1.png)
 
 ![image-mcp3](./assets/mcp3.png)
 
-## 方式一：AI工具源代码压缩包扫描
+## 方式一：MCP Server 源代码压缩包扫描
 
-1. 选择“AI工具协议扫描”
+1. 选择"MCP扫描"
 2. 添加附件上传源代码压缩包
 ![image-mcp4](./assets/mcp4.png)
 3. 开始扫描
 
-## 方式二：AI工具代码仓库扫描
+## 方式二：MCP Server 代码仓库扫描
 
-1. 选择“AI工具协议扫描”
+1. 选择"MCP扫描"
 2. 输入框输入代码仓库地址，如：https://github.com/xxx/mcp-server
 3. 开始扫描
 ![image-mcp4](./assets/mcp5.png)
 
 ## 方式三：远程MCP服务扫描
 
-1. 选择“AI工具协议扫描”
+1. 选择"MCP扫描"
 2. 输入框输入MCP服务地址 (SSE或Streamable HTTP协议)，如：http://127.0.0.1:9000/sse
 3. 开始扫描
 ![image-mcp8](./assets/mcp8.png)
@@ -102,11 +79,11 @@ A.I.G的AI工具协议扫描能力完全由Agent驱动，检测准确性与时�
 ![image-mcp7](./assets/mcp7.png)
 
 ## 推荐使用的大模型API
-- GLM4.6
-- DeepSeek-V3.2
-- Kimi-K2-Instruct
-- Qwen3-Coder-480B
-- Hunyuan-Turbos
+- Hy3
+- GLM-5.2
+- DeepSeek-V4
+- Kimi-K3
+- Qwen3-Coder-480B-A35B-Instruct
 
 ## 多轮自动化红队攻击（Multi-Turn Red Team）
 
@@ -134,13 +111,13 @@ A.I.G 内置了面向 MCP Server 的多轮自动化红队攻击子模块，通�
 
 ```python
 import asyncio
-from redteam import RedTeamOrchestrator, generate_report
+from mcp_scan.redteam import RedTeamOrchestrator, generate_report
 
 async def main():
     orch = RedTeamOrchestrator(
         api_key="your-api-key",
         base_url="https://openrouter.ai/api/v1",
-        model="deepseek/deepseek-v3.2-exp",
+        model="deepseek/deepseek-v4-pro",
         repo_dir="path/to/your/mcp/server/repo",
     )
     result = await orch.run("data_exfiltration", strategy_name="crescendo", max_total_rounds=8)
@@ -149,7 +126,7 @@ async def main():
 asyncio.run(main())
 ```
 
-红队模块代码位于 `mcp-scan/redteam/`，运行前需在 `mcp-scan` 项目根目录下执行，以正确解析内部依赖模块。
+红队模块代码位于 `mcp-scan/mcp_scan/redteam/`，运行前需在 `mcp-scan` 项目根目录下安装依赖（`uv sync` 或 `pip install -r requirements.txt`）。
 
 ## MCP 插件
 

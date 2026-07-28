@@ -171,7 +171,8 @@ Agent Security Scan leverages Red Teaming as a Service (RTaaS) driven Agent capa
 
 - **Classification System**: Adopts the OWASP Top 10 for Agentic Applications standard to classify and describe discovered vulnerabilities. The system will continue to incorporate more authoritative security standards (such as CWE, MITRE ATT&CK) to continuously improve the classification system.
 - **Detection Dimensions**: The system features built-in detection capabilities across multiple categories. During scanning, it intelligently probes based on the target Agent's capabilities, executing specific tests only when relevant capabilities are present to minimize ineffective requests. Major detection types include:
-  - **Data Security**: Data leakage detection (system prompt exposure, credential leakage, PII leakage, etc.).
-  - **Injection Attacks**: Indirect injection detection (RAG content injection, document injection, web content injection, etc.).
+  - **Data Security**: Data leakage detection (system prompt exposure, credential leakage, PII leakage, etc.); hardcoded secret detection (sensitive credentials embedded in code or config, etc.).
+  - **Injection Attacks**: Indirect injection detection (RAG content injection, document injection, web content injection, etc.); direct injection detection (direct prompt injection attacks via user input, etc.).
   - **Access Control**: Authorization bypass detection (privilege escalation, administrative function abuse, multi-user data access, etc.).
-  - **Tool Abuse**: Tool misuse detection (SSRF, command execution, file operations, network request abuse, etc.).
+  - **Tool Abuse**: Tool misuse detection (SSRF, command execution, file operations, network request abuse, etc.); file path traversal detection (unauthorized file access via path manipulation, etc.).
+  - **Memory Security**: Memory poisoning detection (injecting malicious instructions into the Agent's long-term memory, etc.).

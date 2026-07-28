@@ -14,8 +14,8 @@
   - [3.4 在内网服务器上导入镜像](#34-在内网服务器上导入镜像)
   - [3.5 启动容器](#35-启动容器)
 - [4. 推荐模型](#4-推荐模型)
-  - [4.1 Agent安全扫描推荐](#41-agent安全扫描推荐)
-  - [4.2 AI工具技能扫描推荐](#42-ai工具技能扫描推荐)
+  - [4.1 Agent扫描推荐](#41-agent扫描推荐)
+  - [4.2 Skill、MCP扫描推荐](#42-skillmcp扫描推荐)
   - [4.3 大模型安全体检模型推荐](#43-大模型安全体检模型推荐)
   - [4.4 AI基础设施安全扫描推荐](#44-ai基础设施安全扫描推荐)
 - [5. 使用自定义评估数据集时越狱评估不准确](#5-使用自定义评估数据集时越狱评估不准确)
@@ -132,7 +132,7 @@ docker-compose -f docker-compose.images.yml up -d
 ```
 
 ## 4. 推荐模型
-### 4.1 Agent安全扫描推荐
+### 4.1 Agent扫描推荐
 
 Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 
@@ -150,12 +150,12 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 > [OpenRouter Rankings](https://openrouter.ai/rankings)
 > 选择当前排名靠前的模型。
 
-### 4.2 AI工具技能扫描推荐
-- GLM4.6
-- DeepSeek-V3.2
-- Kimi-K2-Instruct
-- Qwen3-Coder-480B
-- Hunyuan-Turbos
+### 4.2 Skill、MCP扫描推荐
+- Hy3
+- GLM-5.2
+- DeepSeek-V4
+- Kimi-K3
+- Qwen3-Coder-480B-A35B-Instruct
 
 ### 4.3 大模型安全体检模型推荐
 
@@ -172,7 +172,7 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 
 #### 场景
 - **政治敏感内容测试：**  
-  **不要**选择Gemini模型。相反，优先选择国产模型，如`hunyuan-turbos`或`qwen3`。云API调用效果更好。  
+  **不要**选择Gemini模型。相反，优先选择国产模型，如`Hy3`或`qwen3`。云API调用效果更好。  
 - **国家、地区或种族偏见测试：**  
   Gemini模型表现最佳。  
 - **危险武器或高风险行为测试：**  
@@ -189,7 +189,7 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 
 A.I.G 支持标准 OpenAI 格式的模型接口。如果您的模型不是 OpenAI 格式，可以使用模型 API 网关进行格式转换，例如 [https://github.com/BerriAI/litellm](https://github.com/BerriAI/litellm)。
 
-## 7. 如何快速更新越狱评测集、AI应用指纹与漏洞库
+## 7. 开源版本如何快速更新越狱评测集、AI应用指纹与漏洞库
 
 A.I.G 的越狱评测集、AI 应用指纹、漏洞库数据会随主仓库 [Tencent/AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 持续迭代。您无需重新部署即可在页面内一键拉取最新数据。
 

@@ -6,7 +6,7 @@ AI Infra Guard 的 AI基础设施安全扫描模块专为检测AI系统中基于
 
 ## 核心特性
 
-- **全面覆盖**：支持识别57种主流AI组件框架，覆盖1000+已知CVE漏洞
+- **全面覆盖**：支持识别100+种主流AI组件框架，覆盖1900+已知CVE漏洞
 - **灵活部署**：支持单目标扫描、批量扫描及本地服务一键检测
 - **智能匹配**：基于YAML规则的指纹识别系统，准确率高
 - **可扩展性**：支持自定义指纹规则和漏洞模板，适应不同环境需求
@@ -50,45 +50,51 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | gradio                  | 48       | 高       |
-|                    | ollama                  | 26       | 中高     |
-|                    | triton-inference-server | 33       | 中高     |
-|                    | vllm                    | 46       | 中       |
-|                    | xinference              | 3        | 低       |
-|                    | fastchat                | 7        | 中       |
-|                    | llama-cpp               | 3        | 低       |
+| **模型部署与服务** | gradio                  | 51       | 高       |
+|                    | ollama                  | 30       | 中高     |
+|                    | triton-inference-server | 41       | 中高     |
+|                    | tensorrt-llm            | 12       | 中高     |
+|                    | vllm                    | 66       | 中       |
+|                    | xinference              | 2        | 低       |
+|                    | fastchat                | 9        | 中       |
+|                    | llama-cpp               | 9        | 中高     |
 |                    | llmstudio               | 1        | 低       |
 |                    | ChatRTX                 | 1        | 低       |
 |                    | kubeai                  | 1        | 高       |
-| **LLM应用框架**    | langchain               | 51       | 高       |
-|                    | dify                    | 21       | 高       |
-|                    | anythingllm             | 17       | 中高     |
-|                    | open-webui              | 39       | 中高     |
-|                    | ragflow                 | 11       | 中       |
+| **LLM应用框架**    | langchain               | 52       | 高       |
+|                    | dify                    | 30       | 高       |
+|                    | anythingllm             | 18       | 中高     |
+|                    | open-webui              | 51       | 中高     |
+|                    | ragflow                 | 12       | 中       |
 |                    | qanything               | 8        | 中       |
-|                    | langflow                | 25       | 中       |
-|                    | litellm                 | 20       | 中       |
-|                    | mlflow                  | 66       | 高       |
-|                    | librechat               | 10       | 中       |
-|                    | nextchat                | 4        | 中       |
+|                    | langflow                | 60       | 中       |
+|                    | litellm                 | 30       | 中       |
+|                    | mlflow                  | 79       | 高       |
+|                    | librechat               | 21       | 中       |
+|                    | nextchat                | 8        | 中       |
 |                    | lobechat                | 4        | 中       |
 |                    | lobehub                 | 1        | 中       |
-|                    | flowise                 | 3        | 中       |
-|                    | langfuse                | 3        | 低       |
-|                    | new-api                 | 2        | 中       |
+|                    | flowise                 | 61       | 中       |
+|                    | langfuse                | 4        | 低       |
+|                    | new-api                 | 5        | 中       |
 |                    | Chuanhugpt              | 27       | 中高     |
 |                    | crewai                  | 3        | 严重     |
-| **数据处理与分析** | clickhouse              | 25       | 高       |
+|                    | fastgpt                 | 5        | 中       |
+|                    | helicone                | 1        | 中       |
+| **数据处理与分析** | clickhouse              | 26       | 高       |
 |                    | feast                   | 2        | 低       |
 |                    | dask                    | 3        | 低       |
-| **可视化与交互**   | jupyter-server          | 14       | 中高     |
-|                    | jupyterlab              | 8        | 中       |
+| **可视化与交互**   | jupyter-server          | 17       | 中高     |
+|                    | marimo                  | 1        | 中       |
+|                    | jupyterlab              | 9        | 中       |
 |                    | jupyter-notebook        | 2        | 低       |
-| **工作流编排**     | kubeflow                | 4        | 中       |
+| **工作流编排**     | kubeflow                | 7        | 中       |
 |                    | ray                     | 10       | 中       |
-|                    | n8n                     | 33       | 中高     |
+|                    | n8n                     | 60       | 中高     |
+|                    | 9router                 | 3        | 高       |
+|                    | n8n-mcp                 | 3        | 中高     |
 |                    | simstudioai             | 9        | 中       |
-| **其他AI组件**     | comfyui                 | 8        | 低       |
+| **其他AI组件**     | comfyui                 | 13       | 中       |
 |                    | comfy_mtb               | 1        | 低       |
 |                    | ComfyUI-Prompt-Preview  | 1        | 低       |
 |                    | ComfyUI-Custom-Scripts  | 1        | 低       |
@@ -96,19 +102,42 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 |                    | ComfyUI-Manager         | 1        | 低       |
 |                    | ComfyUI-Ace-Nodes       | 1        | 低       |
 |                    | ComfyUI-Bmad-Nodes      | 1        | 低       |
-|                    | pyload-ng               | 25       | 中       |
+|                    | pyload-ng               | 24       | 中       |
 |                    | kubepi                  | 5        | 中       |
 |                    | llamafactory            | 4        | 低       |
-|                    | bentoml                 | 2        | 中       |
+|                    | bentoml                 | 6        | 中       |
 |                    | blinko                  | 1        | 低       |
 |                    | weknora                 | 2        | 低       |
 |                    | pinchtab                | 6        | 中高     |
 |                    | wallos                  | 1        | 低       |
-|                    | praisonai               | 2        | 中       |
+|                    | praisonai               | 59       | 严重     |
 |                    | text-generation-webui   | 1        | 中       |
-|                    | openclaw                | 566      | 中高     |
-| **AI Agent 配置安全** | AI-Agent-Config         | 1        | 高       |
-| **总计**           |                         | **1000+** |          |
+|                    | openclaw                | 810      | 中高     |
+|                    | upsonic                 | 1        | 中       |
+|                    | instructlab             | 1        | 低       |
+|                    | lmdeploy                | 3        | 低       |
+|                    | paperclip               | 2        | 中       |
+|                    | pipecat                 | 3        | 低       |
+|                    | qnabot-on-aws           | 1        | 低       |
+|                    | superagi                | 1        | 低       |
+|                    | autogpt                 | 4        | 中       |
+|                    | crawl4ai                | 11       | 严重     |
+|                    | astrbot                 | 5        | 中       |
+|                    | hermes                  | 2        | 严重     |
+|                    | langroid                | 2        | 严重     |
+|                    | nvidia-trt-llm          | 1        | 高       |
+|                    | ai-code                 | 1        | 严重     |
+|                    | boxlite                 | 2        | 中       |
+|                    | budibase                | 1        | 中       |
+|                    | f5-tts                  | 1        | 中       |
+|                    | lumiverse               | 1        | 低       |
+|                    | maxkb                   | 2        | 中       |
+|                    | mem0                    | 1        | 低       |
+|                    | pgadmin                 | 2        | 中高     |
+|                    | sglang                  | 7        | 中       |
+|                    | sillytavern             | 5        | 中       |
+| **AI Agent 配置安全** | AI-Agent-Config         | 4        | 高       |
+| **总计**           |                         | **1900+** |          |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 
