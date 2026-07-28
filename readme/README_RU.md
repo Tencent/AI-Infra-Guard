@@ -555,11 +555,9 @@ A.I.G предоставляет полный набор API для создан
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Комплексный фреймворк для защиты систем ИИ-агентов с помощью многоуровневого красного тестирования инфраструктуры, цепочки поставок, взаимодействия во время выполнения и поверхностей развёртывания. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-2. **"AI-Infra-Guard Technical Report"** — Технический отчёт о платформе A.I.G: проектирование архитектуры, сканирующий движок и методология оценки. [[pdf]](../AIG_Technical_Report.pdf)
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Презентация на Black Hat Europe 2025 Arsenal с обзором возможностей A.I.G и реальных сценариев использования. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
-3. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Презентация на Black Hat Europe 2025 Arsenal с обзором возможностей A.I.G и реальных сценариев использования. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
-
-4. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Доклад на Black Hat Europe 2025, раскрывающий риски безопасности протокола MCP в экосистеме ИИ-агентов. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Доклад на Black Hat Europe 2025, раскрывающий риски безопасности протокола MCP в экосистеме ИИ-агентов. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 Благодарим исследовательские команды, цитировавшие A.I.G в своих академических работах (19 работ):
 
@@ -623,5 +621,11 @@ A.I.G предоставляет полный набор API для создан
 
 <div>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
+<a href="https://www.star-history.com/?type=date&repos=Tencent%2FAI-Infra-Guard">
+ <picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&theme=dark&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ </picture>
+</a>
 </div>

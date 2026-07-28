@@ -555,11 +555,9 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 인프라, 공급망, 런타임 인터랙션, 배포 면에 걸쳐 다층 레드 팀이밍을 통해 AI 에이전트 시스템을 보호하는 포괄적인 프레임워크입니다. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-2. **"AI-Infra-Guard Technical Report"** — A.I.G 플랫폼 기술 보고서로, 아키텍처 설계, 스캔 엔진 및 평가 방법론을 다룹니다. [[pdf]](../AIG_Technical_Report.pdf)
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 프레젠테이션으로, A.I.G의 전체 기능과 실전 사례를 소개합니다. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
-3. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 프레젠테이션으로, A.I.G의 전체 기능과 실전 사례를 소개합니다. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
-
-4. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 발표로, AI 에이전트 생태계에서 MCP 프로토콜의 보안 위험을 밝힌 연구입니다. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 발표로, AI 에이전트 생태계에서 MCP 프로토콜의 보안 위험을 밝힌 연구입니다. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 학술 연구에서 A.I.G를 인용해 주신 연구팀에 감사드립니다 (19편):
 
@@ -623,5 +621,11 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 <div>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
+<a href="https://www.star-history.com/?type=date&repos=Tencent%2FAI-Infra-Guard">
+ <picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&theme=dark&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ </picture>
+</a>
 </div>

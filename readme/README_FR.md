@@ -555,11 +555,9 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** - Un framework complet pour sécuriser les systèmes d'agents IA par red teaming multicouche couvrant l'infrastructure, la chaîne d'approvisionnement, les interactions à l'exécution et les surfaces de déploiement. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-2. **"AI-Infra-Guard Technical Report"** - Rapport technique de la plateforme A.I.G couvrant la conception de l'architecture, le moteur de scan et la méthodologie d'évaluation. [[pdf]](../AIG_Technical_Report.pdf)
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** - Présentation Arsenal au Black Hat Europe 2025 présentant les capacités d'A.I.G et des cas d'usage concrets. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
-3. **"AI-Infra-Guard: An AI Red Teaming Platform"** - Présentation Arsenal au Black Hat Europe 2025 présentant les capacités d'A.I.G et des cas d'usage concrets. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
-
-4. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** - Conférence au Black Hat Europe 2025 révélant les risques de sécurité du protocole MCP dans l'écosystème des agents IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** - Conférence au Black Hat Europe 2025 révélant les risques de sécurité du protocole MCP dans l'écosystème des agents IA. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 Merci aux équipes de recherche ayant cité A.I.G dans leurs travaux académiques (19 articles) :
 
@@ -623,5 +621,11 @@ Il est strictement interdit de reconditionner ce projet en tant que produit orig
 
 <div>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Tencent/AI-Infra-Guard&type=Date)](https://star-history.com/#Tencent/AI-Infra-Guard&Date)
+<a href="https://www.star-history.com/?type=date&repos=Tencent%2FAI-Infra-Guard">
+ <picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&theme=dark&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Tencent/AI-Infra-Guard&type=date&legend=top-left&sealed_token=3aux6V5PKs5SBSuoVgw6MReXo5IzleLoV22UkaLZtWuN6kK4PltQDiq-hrtHpF4smNRGO9dbhrjk9Q4m7FWsPPUQqIsQUUrZkwev7vTDanFVCAHfU1qusQ" />
+ </picture>
+</a>
 </div>
