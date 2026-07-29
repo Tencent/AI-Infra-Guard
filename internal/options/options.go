@@ -43,6 +43,7 @@ type Options struct {
 	LocalScan       bool              // 一键检测本地
 	WebServer       bool              // 是否启用WebSocket服务器
 	WebServerAddr   string            // WebSocket服务器地址
+	APICheckerURL   string            // API Checker sidecar 地址；空值表示禁用
 	Headers         multiStringFlag   // HTTP请求头
 	Language        string            // 语言
 	Callback        func(interface{}) `json:"-"` // 回调函数

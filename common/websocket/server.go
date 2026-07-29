@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Tencent/AI-Infra-Guard/common/apichecker"
 	"github.com/Tencent/AI-Infra-Guard/common/trpc"
 	_ "github.com/Tencent/AI-Infra-Guard/docs"
 	version "github.com/Tencent/AI-Infra-Guard/internal/options"
@@ -51,6 +52,30 @@ func RunWebServer(options *version.Options) {
 	log.Infof("Trpc-go initialized successfully: trace_id=system_startup")
 
 	r := gin.Default()
+	if options.APICheckerURL != "" {
+		apiCheckerProxy, proxyErr := apichecker.New(options.APICheckerURL)
+		if proxyErr != nil {
+			log.Errorf("API Checker 代理配置无效: trace_id=system_startup, error=%v", proxyErr)
+		} else {
+			apiCheckerProxy.Register(r)
+			log.Infof(
+				"API Checker proxy initialized: trace_id=system_startup, upstream=%s",
+				options.APICheckerURL,
+			)
+		}
+	}
+	if options.APICheckerURL != "" {
+		apiCheckerProxy, err := apichecker.New(options.APICheckerURL)
+		if err != nil {
+			log.Errorf("API Checker 代理配置无效: trace_id=system_startup, error=%v", err)
+		} else {
+			apiCheckerProxy.Register(r)
+			log.Infof(
+				"API Checker proxy initialized: trace_id=system_startup, upstream=%s",
+				options.APICheckerURL,
+			)
+		}
+	}
 	// 2. 添加中间件
 	//r.Use(middleware.TrpcMiddleware())
 	//r.Use(middleware.RequestLoggerMiddleware()) // 添加请求参数日志中间件

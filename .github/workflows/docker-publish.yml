@@ -20,6 +20,7 @@ env:
   REGISTRY: docker.io
   IMAGE_NAME_SERVER: zhuquelab/aig-server
   IMAGE_NAME_AGENT: zhuquelab/aig-agent
+  IMAGE_NAME_CHECKER: zhuquelab/aig-api-checker
 
 jobs:
   build-and-push:
@@ -133,6 +134,19 @@ jobs:
           flavor: |
             latest=false
 
+      - name: 🏷️ Extract metadata for API Checker image
+        id: meta-checker
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_CHECKER }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=raw,value=${{ env.BUILD_TAG }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'push' && github.ref_name != '' && !contains(github.ref_name, '-')) || (env.IS_MANUAL_BUILD == 'true' && env.TAG_TYPE == 'semantic' && !contains(env.BUILD_TAG, '-')) }}
+          flavor: |
+            latest=false
+
       - name: 🔍 Debug metadata output
         run: |
           echo "🏷️ Server image tags:"
@@ -140,6 +154,9 @@ jobs:
           echo ""
           echo "🏷️ Agent image tags:"
           echo "${{ steps.meta-agent.outputs.tags }}"
+          echo ""
+          echo "🔎 API Checker image tags:"
+          echo "${{ steps.meta-checker.outputs.tags }}"
           echo ""
           echo "📋 Environment variables:"
           echo "  BUILD_TAG: ${{ env.BUILD_TAG }}"
@@ -149,6 +166,7 @@ jobs:
           echo "  Ref: ${{ github.ref }}"
 
       - name: 🐳 Build and push Server image
+        id: build-server
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -161,6 +179,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: 🤖 Build and push Agent image
+        id: build-agent
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -172,10 +191,24 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: 🔎 Build and push API Checker image
+        id: build-checker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./services/api_checker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta-checker.outputs.tags }}
+          labels: ${{ steps.meta-checker.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: 📊 Image digest
         run: |
           echo "Server image digest: ${{ steps.build-server.outputs.digest }}"
           echo "Agent image digest: ${{ steps.build-agent.outputs.digest }}"
+          echo "API Checker image digest: ${{ steps.build-checker.outputs.digest }}"
 
       - name: 📋 Build Summary
         run: |
@@ -194,6 +227,9 @@ jobs:
           echo ""
           echo "🤖 Agent 镜像标签:"
           echo "${{ steps.meta-agent.outputs.tags }}" | sed 's/^/  - /'
+          echo ""
+          echo "🔎 API Checker 镜像标签:"
+          echo "${{ steps.meta-checker.outputs.tags }}" | sed 's/^/  - /'
           echo ""
           if [ "${{ env.IS_MANUAL_BUILD }}" = "true" ]; then
             echo "⚠️  注意: 这是手动触发的构建"

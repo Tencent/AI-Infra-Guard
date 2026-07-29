@@ -1,0 +1,35 @@
+{
+  "description": "Maps normalized color answers in each language to a language-independent canonical color code, enabling the cross-language color analysis (paper1 §cross-lingual; paper2). Extend this file as new answers appear — stats/01-normalize.js reports unmapped color answers in its normalization report; map them here and re-run. Canonical codes are arbitrary English labels, not CSS colors.",
+  "canonical": ["red", "blue", "green", "yellow", "orange", "purple", "violet", "pink", "black", "white", "gray", "brown", "cyan", "turquoise", "magenta", "indigo", "teal", "gold", "silver", "azure", "crimson", "emerald"],
+  "map": {
+    "en": {
+      "red": "red", "blue": "blue", "green": "green", "yellow": "yellow", "orange": "orange",
+      "purple": "purple", "violet": "violet", "pink": "pink", "black": "black", "white": "white",
+      "gray": "gray", "grey": "gray", "brown": "brown", "cyan": "cyan", "turquoise": "turquoise",
+      "magenta": "magenta", "indigo": "indigo", "teal": "teal", "gold": "gold", "silver": "silver",
+      "azure": "azure", "crimson": "crimson", "emerald": "emerald", "scarlet": "red", "navy": "blue"
+    },
+    "ru": {
+      "красный": "red", "синий": "blue", "голубой": "azure", "зелёный": "green", "зеленый": "green",
+      "жёлтый": "yellow", "желтый": "yellow", "оранжевый": "orange", "фиолетовый": "purple",
+      "лиловый": "violet", "розовый": "pink", "чёрный": "black", "черный": "black", "белый": "white",
+      "серый": "gray", "коричневый": "brown", "бирюзовый": "turquoise", "пурпурный": "magenta",
+      "индиго": "indigo", "золотой": "gold", "серебряный": "silver", "багровый": "crimson", "изумрудный": "emerald"
+    },
+    "zh": {
+      "红色": "red", "红": "red", "蓝色": "blue", "蓝": "blue", "绿色": "green", "绿": "green",
+      "黄色": "yellow", "黄": "yellow", "橙色": "orange", "橘色": "orange", "紫色": "purple", "紫": "purple",
+      "粉色": "pink", "粉红色": "pink", "黑色": "black", "黑": "black", "白色": "white", "白": "white",
+      "灰色": "gray", "灰": "gray", "棕色": "brown", "褐色": "brown", "青色": "cyan", "青": "cyan",
+      "绿松石色": "turquoise", "品红": "magenta", "靛蓝": "indigo", "金色": "gold", "银色": "silver",
+      "天蓝色": "azure", "深红": "crimson", "翡翠绿": "emerald"
+    },
+    "ar": {
+      "أحمر": "red", "احمر": "red", "أزرق": "blue", "ازرق": "blue", "أخضر": "green", "اخضر": "green",
+      "أصفر": "yellow", "اصفر": "yellow", "برتقالي": "orange", "بنفسجي": "purple", "أرجواني": "violet",
+      "وردي": "pink", "زهري": "pink", "أسود": "black", "اسود": "black", "أبيض": "white", "ابيض": "white",
+      "رمادي": "gray", "بني": "brown", "سماوي": "azure", "فيروزي": "turquoise", "نيلي": "indigo",
+      "ذهبي": "gold", "فضي": "silver", "قرمزي": "crimson", "زمردي": "emerald"
+    }
+  }
+}
