@@ -1,0 +1,24 @@
+info:
+  name: LightRAG
+  author: A.I.G bot
+  severity: info
+  desc: LightRAG是一个简单快速的检索增强生成(RAG)框架，提供FastAPI REST API服务，支持文档管理、查询和图操作。
+  metadata:
+    product: LightRAG
+    vendor: HKUDS
+http:
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"core_version\"" && body="\"api_version\"" && body="\"auth_mode\""
+  - method: GET
+    path: '/openapi.json'
+    matchers:
+      - body="\"LightRAG Server API\""
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"core_version":"([0-9]+\.[0-9]+\.[0-9]+[^"]*)"'

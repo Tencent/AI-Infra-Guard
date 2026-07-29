@@ -1,0 +1,25 @@
+info:
+  name: AI Copilot
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    AI Copilot is a WordPress plugin by QuadLayers that provides AI-driven
+    chatbot, content generation, and MCP tool capabilities. It integrates with
+    OpenAI GPT models for automated content creation, SEO improvement, and
+    editor utilities, and exposes privileged MCP tools for AI assistant
+    interactions via OAuth-authenticated REST API endpoints.
+  metadata:
+    product: ai-copilot
+    vendor: quadlayers
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="aicp__chatbot" && body="aicp__app"
+version:
+  - method: GET
+    path: '/wp-content/plugins/ai-copilot/readme.txt'
+    extractor:
+      part: body
+      group: 1
+      regex: 'Stable tag:\s*([0-9][0-9.]*)'
