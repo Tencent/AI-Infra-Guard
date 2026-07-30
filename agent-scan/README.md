@@ -9,7 +9,7 @@ English | **[中文](./README_zh.md)**
 - **🤖 Dynamic Black-Box Testing**: Connects to running AI Agent platforms via API, sends crafted test prompts, and analyzes responses
 - **🎯 Multi-Platform Support**: Supports Dify, Coze, OpenAI-compatible apps, Anthropic, Google Gemini, HTTP endpoints, WebSocket, and more
 - **🔍 Three-Stage Pipeline**: Info Collection → Parallel Vulnerability Detection → Vulnerability Review
-- **🛡️ 9 Detection Skills**: Authorization bypass, data leakage, direct/indirect prompt injection, file path traversal, hardcoded secrets, memory poisoning, tool abuse, web exfiltration
+- **🛡️ 10 Detection Skills**: Authorization bypass, data leakage, indirect prompt injection, tool abuse, web exfiltration, agentic supply chain, unexpected code execution, inter-agent communication security, cascading failure, human-agent trust exploit
 - **📊 Structured JSON Report**: CLI mode outputs a comprehensive JSON security report with OWASP ASI mapping
 - **🔌 AIG Platform Integration**: Interactive scanning via the Web UI with real-time pipeline results
 - **🔐 Built-in Injection Defense**: The scanning agent has system-level indirect prompt injection defense
@@ -103,7 +103,7 @@ The Go backend automatically invokes `agent-scan` with `--aig-mode`, so you do *
 | `--repo` | No | Project directory path for optional source code audit |
 | `-p, --prompt` | No | Custom scan prompt |
 | `--language` | No | Output language: `zh` (default) or `en` |
-| `--skills` | No | Comma-separated skill names to run (default: core 5 skills — data-leakage, tool-abuse, indirect-injection, authorization-bypass, web-exfiltration); 9 skills available total |
+| `--skills` | No | Comma-separated skill names to run (default: core 5 skills — data-leakage, tool-abuse, indirect-injection, authorization-bypass, web-exfiltration); 10 skills available total |
 | `--debug` | No | Enable debug mode |
 | `--aig-mode` | No | Enable AIG integration mode (structured JSON logs for Go backend) |
 | `-o, --output` | No | Save result as JSON file |
@@ -265,16 +265,17 @@ agent-scan/
 Stage 1: Info Collection
   └─ Recon agent explores the target agent's capabilities and endpoints
 
-Stage 2: Parallel Vulnerability Detection (9 skills available, 5 run by default)
-  ├─ Skill Worker A: data-leakage-detection          [default]
-  ├─ Skill Worker B: tool-abuse-detection             [default]
-  ├─ Skill Worker C: indirect-injection-detection     [default]
-  ├─ Skill Worker D: authorization-bypass-detection   [default]
-  ├─ Skill Worker E: web-exfiltration-detection       [default]
-  ├─ Skill Worker F: direct-injection-detection       (opt-in via --skills)
-  ├─ Skill Worker G: file-path-traversal-detection    (opt-in via --skills)
-  ├─ Skill Worker H: hardcoded-secret-detection       (opt-in via --skills)
-  └─ Skill Worker I: memory-poisoning-detection       (opt-in via --skills)
+Stage 2: Parallel Vulnerability Detection (10 skills available, 5 run by default)
+  ├─ Skill Worker A: data-leakage-detection             [default]
+  ├─ Skill Worker B: tool-abuse-detection              [default]
+  ├─ Skill Worker C: indirect-injection-detection      [default]
+  ├─ Skill Worker D: authorization-bypass-detection    [default]
+  ├─ Skill Worker E: web-exfiltration-detection        [default]
+  ├─ Skill Worker F: agentic-supply-chain-detection        (opt-in via --skills)
+  ├─ Skill Worker G: unexpected-code-execution-detection  (opt-in via --skills)
+  ├─ Skill Worker H: inter-agent-comm-security-detection (opt-in via --skills)
+  ├─ Skill Worker I: cascading-failure-detection          (opt-in via --skills)
+  └─ Skill Worker J: human-agent-trust-exploit-detection (opt-in via --skills)
   (max 4 concurrent dialogue calls)
 
 Stage 3: Vulnerability Review

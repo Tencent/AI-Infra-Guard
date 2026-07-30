@@ -66,6 +66,7 @@
 
 ## 🚀 Novedades
 
+- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 ataques de jailbreak multi-turno (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 nuevas skills OWASP + detección de exfiltración web (10 skills en total); MCP-Scan: 4 nuevas reglas de seguridad
 - **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Lanzado el mercado de skills de seguridad IA (3 skills oficiales); frontend totalmente open source; motor de escaneo Skill mejorado (9 categorías de riesgo, SkillTrustBench máximo 0.9848); escaneo Skill/MCP/Agent como CLI independiente; biblioteca de vulnerabilidades ampliada a 130 componentes, 1888 reglas
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 nuevas reglas de detección de amenazas (envenenamiento de herramientas, exfiltración de credenciales, inyección de comandos); 6 nuevas reglas CVE para llama.cpp; `model.token` ahora opcional con fallback al modelo predeterminado del sistema.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 nuevos operadores de ataque single-turn; nueva skill `aig-agent-redteam` para evaluación red-team integral de Agentes.
