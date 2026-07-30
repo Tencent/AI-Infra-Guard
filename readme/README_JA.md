@@ -67,7 +67,7 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 ## 🚀 最新情報
 
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation：4種のマルチターン脱獄攻撃追加（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：5つの新OWASP検出スキル + Webデータ流出検出（計10スキル）；MCP-Scan：4つの新セキュリティルール
-- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AIセキュリティスキル市場公開（公式Skill 3種）；フロントエンド全面オープンソース化；Skillスキャンエンジン強化（9種リスク検出、SkillTrustBench最高0.9848）；Skill/MCP/Agentスキャン独立CLI化；脆弱性ライブラリ130コンポーネント・1888ルールに拡大
+- **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AIセキュリティスキル市場公開（公式Skill 3種）；フロントエンド全面オープンソース化；Skillスキャンエンジン強化（9種リスク検出、SkillTrustBench最高0.9848）；Skill/MCP/Agentスキャン独立CLI化；脆弱性ライブラリ130コンポーネント・1888ルールに拡大
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP スキャンにツールポイズニング・診情窃取・コマンドインジェクションの3件の脆弱性検知ルールを追加；llama.cpp CVEルール6件追加；`model.token`の省略対応（システムデフォルトモデルにフォールバック）。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
