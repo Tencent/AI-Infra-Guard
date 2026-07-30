@@ -94,55 +94,17 @@ func TestConfiguredRoutesCanBeRegisteredWithRelayProxy(t *testing.T) {
 	})
 }
 
-func TestConfiguredModelsHideTokensAndRespectUserVisibility(t *testing.T) {
+func TestConfiguredModelDiscoveryReusesLegacyRoute(t *testing.T) {
 	upstream := httptest.NewServer(http.NotFoundHandler())
 	defer upstream.Close()
-
-	proxy := newConfiguredProxyServer(
-		t,
-		upstream.URL,
-		"alice",
-		&database.Model{
-			ModelID:   "alice-model",
-			Username:  "alice",
-			ModelName: "model-a",
-			Token:     "alice-secret",
-			BaseURL:   "https://alice.example.test/v1",
-			Note:      "Alice model",
-		},
-		&database.Model{
-			ModelID:   "public-model",
-			Username:  "public_user",
-			ModelName: "model-public",
-			Token:     "public-secret",
-			BaseURL:   "https://public.example.test/v1",
-			Note:      "Public model",
-		},
-		&database.Model{
-			ModelID:   "bob-model",
-			Username:  "bob",
-			ModelName: "model-b",
-			Token:     "bob-secret",
-			BaseURL:   "https://bob.example.test/v1",
-			Note:      "Bob model",
-		},
-	)
+	proxy := newConfiguredProxyServer(t, upstream.URL, "public_user")
 	defer proxy.Close()
 
 	resp, err := http.Get(proxy.URL + ConfigPrefix + "/configured-models")
 	require.NoError(t, err)
 	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
 
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-	require.Equal(t, "no-store", resp.Header.Get("Cache-Control"))
-	require.Contains(t, string(body), "alice-model")
-	require.Contains(t, string(body), "public-model")
-	require.NotContains(t, string(body), "bob-model")
-	require.NotContains(t, string(body), "alice-secret")
-	require.NotContains(t, string(body), "public-secret")
-	require.NotContains(t, string(body), "bob-secret")
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
 }
 
 func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T) {

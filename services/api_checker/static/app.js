@@ -207,11 +207,17 @@ function aigAuthHeaders() {
 async function loadConfiguredModels() {
   const select = $("#configuredModel");
   try {
-    const response = await fetch("/api/v1/api-checker/configured-models", {headers: aigAuthHeaders()});
+    const response = await fetch("/api/v1/app/models", {headers: aigAuthHeaders()});
     if (response.status === 401) return;
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
-    configuredModels = payload.data?.models || [];
+    const savedModels = Array.isArray(payload.data) ? payload.data : [];
+    configuredModels = savedModels.map(item => ({
+      model_id: item.model_id,
+      name: item.model?.model,
+      base_url: item.model?.base_url,
+      note: item.model?.note || "",
+    })).filter(item => item.model_id && item.name && item.base_url);
     select.innerHTML += configuredModels.map(item =>
       `<option value="${escapeHtml(item.model_id)}">${escapeHtml(item.note ? `${item.name} · ${item.note}` : item.name)}</option>`
     ).join("");

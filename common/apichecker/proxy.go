@@ -119,35 +119,16 @@ func (h *Handler) Register(router gin.IRouter) {
 	router.Any(UIPrefix+"/*path", h.Serve)
 }
 
-// RegisterConfigured mounts authenticated endpoints for selecting credentials
-// already saved in AIG. It must be called before Register.
+// RegisterConfigured mounts the authenticated endpoint for checking with
+// credentials already saved in AIG. Model discovery reuses /api/v1/app/models.
+// It must be called before Register.
 func (h *Handler) RegisterConfigured(router gin.IRouter, auth gin.HandlerFunc) {
 	if h.modelStore == nil {
 		return
 	}
 	group := router.Group(ConfigPrefix)
 	group.Use(auth)
-	group.GET("/configured-models", h.listConfiguredModels)
 	group.POST("/configured-check/stream", h.checkWithConfiguredModel)
-}
-
-func (h *Handler) listConfiguredModels(c *gin.Context) {
-	models, err := h.modelStore.GetUserModels(c.GetString("username"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "读取 AIG 模型配置失败", "data": nil})
-		return
-	}
-	items := make([]gin.H, 0, len(models))
-	for _, model := range models {
-		items = append(items, gin.H{
-			"model_id": model.ModelID,
-			"name":     model.ModelName,
-			"base_url": model.BaseURL,
-			"note":     model.Note,
-		})
-	}
-	c.Header("Cache-Control", "no-store")
-	c.JSON(http.StatusOK, gin.H{"status": 0, "message": "获取模型配置成功", "data": gin.H{"models": items}})
 }
 
 type configuredCheckRequest struct {

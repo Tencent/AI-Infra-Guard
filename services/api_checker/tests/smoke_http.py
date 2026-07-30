@@ -98,6 +98,13 @@ def main() -> int:
         if b"/api-checker/openapi.json" not in docs_body:
             raise AssertionError("Swagger UI did not honor AIG_API_CHECKER_ROOT_PATH")
 
+        _, _, app_js = fetch("/static/app.js")
+        if (
+            b'fetch("/api/v1/app/models"' not in app_js
+            or b"/api/v1/api-checker/configured-models" in app_js
+        ):
+            raise AssertionError("configured model picker did not reuse the legacy model API")
+
         status, content_type, body = post_json(
             "/api/v1/relay/check/stream",
             {
