@@ -338,36 +338,43 @@ func RunWebServer(options *version.Options) {
 	})
 
 	// 静态文件处理
-	r.NoRoute(func(c *gin.Context) {
-		assetPath := "static" + c.Request.URL.Path
-		if c.Request.URL.Path == "/" {
-			assetPath = "static/index.html"
-		}
-
-		assetData, err := staticFS.ReadFile(assetPath)
-		if err != nil {
-			assetData, err = staticFS.ReadFile("static/index.html")
-			if err != nil {
-				c.String(500, "Internal Server Error")
-				return
-			}
-			c.Header("Content-Type", "text/html")
-			c.Data(200, "text/html", assetData)
-			return
-		}
-
-		mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
-		if mimeType == "" {
-			mimeType = "text/plain"
-		}
-		c.Header("Content-Type", mimeType)
-		c.Data(200, mimeType, assetData)
-	})
+	r.NoRoute(serveStaticFallback)
 
 	log.Infof("Starting WebServer: trace_id=system_startup, addr=%s", options.WebServerAddr)
 	if err := r.Run(options.WebServerAddr); err != nil {
 		log.Errorf("Could not start WebSocket server: trace_id=system_startup, error=%s", err)
 	}
+}
+
+func serveStaticFallback(c *gin.Context) {
+	if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+		c.JSON(http.StatusNotFound, gin.H{"detail": "API endpoint not found"})
+		return
+	}
+
+	assetPath := "static" + c.Request.URL.Path
+	if c.Request.URL.Path == "/" {
+		assetPath = "static/index.html"
+	}
+
+	assetData, err := staticFS.ReadFile(assetPath)
+	if err != nil {
+		assetData, err = staticFS.ReadFile("static/index.html")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		c.Header("Content-Type", "text/html")
+		c.Data(http.StatusOK, "text/html", assetData)
+		return
+	}
+
+	mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
+	if mimeType == "" {
+		mimeType = "text/plain"
+	}
+	c.Header("Content-Type", mimeType)
+	c.Data(http.StatusOK, mimeType, assetData)
 }
 
 // 配置身份认证中间件
