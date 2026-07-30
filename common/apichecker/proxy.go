@@ -17,7 +17,8 @@
 // documentation or user interface, as detailed in the NOTICE file.
 
 // Package apichecker exposes the API checker sidecar through the AIG HTTP
-// server without inspecting or buffering sensitive request bodies.
+// server. Detection bodies are bounded and kept only in memory when selecting
+// credentials already stored in AIG.
 package apichecker
 
 import (
@@ -38,9 +39,8 @@ const (
 	// RelayPrefix is forwarded to the checker without changing the path.
 	RelayPrefix = "/api/v1/relay"
 	// UIPrefix is removed before requests are forwarded to the checker.
-	UIPrefix = "/api-checker"
-	// ConfigPrefix contains AIG-only authenticated credential selection APIs.
-	ConfigPrefix = "/api/v1/api-checker"
+	UIPrefix             = "/api-checker"
+	maxCheckRequestBytes = 1 << 20
 )
 
 var forwardedRequestHeaders = []string{
@@ -55,8 +55,9 @@ var forwardedRequestHeaders = []string{
 
 // Handler proxies API checker requests to one configured upstream.
 type Handler struct {
-	proxy      *httputil.ReverseProxy
-	modelStore *database.ModelStore
+	proxy          *httputil.ReverseProxy
+	modelStore     *database.ModelStore
+	configuredAuth gin.HandlerFunc
 }
 
 // New creates an API checker proxy. Upstream must be an absolute HTTP(S) URL,
@@ -109,6 +110,11 @@ func (h *Handler) Serve(c *gin.Context) {
 		c.Redirect(http.StatusPermanentRedirect, location)
 		return
 	}
+	if c.Request.Method == http.MethodPost &&
+		c.Request.URL.Path == RelayPrefix+"/check/stream" {
+		h.serveCheck(c)
+		return
+	}
 	h.proxy.ServeHTTP(c.Writer, c.Request)
 }
 
@@ -119,58 +125,92 @@ func (h *Handler) Register(router gin.IRouter) {
 	router.Any(UIPrefix+"/*path", h.Serve)
 }
 
-// RegisterConfigured mounts the authenticated endpoint for checking with
-// credentials already saved in AIG. Model discovery reuses /api/v1/app/models.
-// It must be called before Register.
-func (h *Handler) RegisterConfigured(router gin.IRouter, auth gin.HandlerFunc) {
-	if h.modelStore == nil {
-		return
+// EnableConfiguredModelResolution enables server-side credential resolution
+// on POST /api/v1/relay/check/stream. Model discovery reuses
+// GET /api/v1/app/models.
+func (h *Handler) EnableConfiguredModelResolution(auth gin.HandlerFunc) {
+	if h.modelStore != nil {
+		h.configuredAuth = auth
 	}
-	group := router.Group(ConfigPrefix)
-	group.Use(auth)
-	group.POST("/configured-check/stream", h.checkWithConfiguredModel)
 }
 
-type configuredCheckRequest struct {
-	ConfiguredModelID string `json:"configured_model_id"`
-	Algorithm         string `json:"algorithm"`
-	Language          string `json:"language"`
-	Iterations        int    `json:"iterations"`
-	NoThink           bool   `json:"no_think"`
+type checkSelector struct {
+	UseConfiguredModel bool   `json:"use_configured_model"`
+	ModelID            string `json:"model_id"`
 }
 
-func (h *Handler) checkWithConfiguredModel(c *gin.Context) {
-	var request configuredCheckRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "请求体字段校验失败"})
+func (h *Handler) serveCheck(c *gin.Context) {
+	body, err := io.ReadAll(io.LimitReader(c.Request.Body, maxCheckRequestBytes+1))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "读取检测请求失败"})
 		return
 	}
-	if strings.TrimSpace(request.ConfiguredModelID) == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "configured_model_id 不能为空"})
+	if len(body) > maxCheckRequestBytes {
+		c.JSON(http.StatusRequestEntityTooLarge, gin.H{"detail": "检测请求体过大"})
 		return
 	}
-	model, err := h.modelStore.GetModelByUser(request.ConfiguredModelID, c.GetString("username"))
+	c.Request.Body = io.NopCloser(bytes.NewReader(body))
+	c.Request.ContentLength = int64(len(body))
+
+	var selector checkSelector
+	if json.Unmarshal(body, &selector) != nil {
+		h.proxy.ServeHTTP(c.Writer, c.Request)
+		return
+	}
+	if !selector.UseConfiguredModel {
+		var payload map[string]interface{}
+		if err := json.Unmarshal(body, &payload); err == nil {
+			delete(payload, "use_configured_model")
+			delete(payload, "model_id")
+			if body, err = json.Marshal(payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"detail": "创建检测请求失败"})
+				return
+			}
+			c.Request.Body = io.NopCloser(bytes.NewReader(body))
+			c.Request.ContentLength = int64(len(body))
+		}
+		h.proxy.ServeHTTP(c.Writer, c.Request)
+		return
+	}
+	if h.modelStore == nil || h.configuredAuth == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "AIG 模型配置不可用"})
+		return
+	}
+	if strings.TrimSpace(selector.ModelID) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "model_id 不能为空"})
+		return
+	}
+	h.configuredAuth(c)
+	if c.IsAborted() {
+		return
+	}
+
+	model, err := h.modelStore.GetModelByUser(selector.ModelID, c.GetString("username"))
 	if err != nil {
 		// Public/system and YAML models are visible through GetUserModels too.
-		model, err = h.resolveVisibleModel(request.ConfiguredModelID, c.GetString("username"))
+		model, err = h.resolveVisibleModel(selector.ModelID, c.GetString("username"))
 	}
 	if err != nil || model == nil {
 		c.JSON(http.StatusNotFound, gin.H{"detail": "模型配置不存在或无权使用"})
 		return
 	}
-	language := strings.TrimSpace(request.Language)
-	if language == "" {
-		language = "zh"
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal(body, &payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "请求体字段校验失败"})
+		return
 	}
-	body, err := json.Marshal(gin.H{
-		"algorithm":  request.Algorithm,
-		"base_url":   model.BaseURL,
-		"api_key":    model.Token,
-		"model":      model.ModelName,
-		"language":   language,
-		"iterations": request.Iterations,
-		"no_think":   request.NoThink,
-	})
+	delete(payload, "use_configured_model")
+	delete(payload, "model_id")
+	payload["base_url"] = model.BaseURL
+	payload["api_key"] = model.Token
+	payload["model"] = model.ModelName
+	language, _ := payload["language"].(string)
+	if strings.TrimSpace(language) == "" {
+		payload["language"] = "zh"
+	}
+
+	body, err = json.Marshal(payload)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "创建检测请求失败"})
 		return
@@ -179,7 +219,7 @@ func (h *Handler) checkWithConfiguredModel(c *gin.Context) {
 	c.Request.ContentLength = int64(len(body))
 	c.Request.URL.Path = RelayPrefix + "/check/stream"
 	c.Request.URL.RawPath = ""
-	h.Serve(c)
+	h.proxy.ServeHTTP(c.Writer, c.Request)
 }
 
 func (h *Handler) resolveVisibleModel(modelID, username string) (*database.Model, error) {

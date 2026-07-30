@@ -12,8 +12,8 @@ AIG WebServer :8088
 ```
 
 这种边界保留了 AIG 的 Go 核心和单二进制扫描能力，同时完整保留 checker 所需的
-NumPy、SciPy、FastAPI 及 A–E 五类 CLI 算法。反向代理不会解析或记录包含 API Key
-的请求体，并对 SSE 响应逐次刷新。
+NumPy、SciPy、FastAPI 及 A–E 五类 CLI 算法。反向代理只在内存中解析有大小限制的
+检测请求，以处理模型配置来源；不会记录或持久化 API Key，并对 SSE 响应逐次刷新。
 
 ## 功能入口
 
@@ -21,9 +21,8 @@ NumPy、SciPy、FastAPI 及 A–E 五类 CLI 算法。反向代理不会解析�
 |---|---|
 | 检测页面 | `http://127.0.0.1:8088/api-checker/` |
 | 模型列表 | `GET /api/v1/relay/models` |
-| quick/full SSE 检测 | `POST /api/v1/relay/check/stream` |
+| quick/full SSE 检测（手动密钥或 AIG 配置） | `POST /api/v1/relay/check/stream` |
 | AIG 已配置模型列表 | `GET /api/v1/app/models`（复用原有接口） |
-| 使用 AIG 已配置密钥检测 | `POST /api/v1/api-checker/configured-check/stream` |
 | A–E 完整 CLI | `ai-infra-guard api-checker ...` |
 | Checker OpenAPI | `/api-checker/docs` |
 
@@ -32,13 +31,27 @@ Ventor QTest 保持为 CLI 能力，避免在匿名 HTTP 请求中触发高成�
 
 检测页面通过原有 `GET /api/v1/app/models` 接口读取 AIG 模型管理中已经保存且当前
 用户可见的配置；该接口只返回掩码后的 `token: "********"`。开始检测时浏览器仅提交
-`configured_model_id`，AIG WebServer 在服务端读取并注入真实 API Key，再把请求
+`use_configured_model: true` 和 `model_id`，AIG WebServer 在服务端读取并注入真实 API Key，再把请求
 转发给 Checker。真实 Key 不会返回浏览器，也不会转发 AIG 会话相关请求头。
 
 检测请求可传 `language: "zh"` 或 `language: "en"`，省略时默认中文。该参数同时
-支持手动密钥接口和 `configured-check/stream` 配置密钥接口，只影响返回结果中的
-`summary` 与 `detail.findings[].title`；字段名和 `pass`、`risk`、`inconclusive`
-等机器枚举保持不变。
+支持手动密钥和 AIG 配置两种来源，只影响返回结果中的 `summary` 与
+`detail.findings[].title`；字段名和 `pass`、`risk`、`inconclusive` 等机器枚举
+保持不变。
+
+手动密钥模式省略 `use_configured_model`（或传 `false`），并继续提交 `base_url`、
+`api_key`、`model`。AIG 配置模式请求示例：
+
+```json
+{
+  "use_configured_model": true,
+  "model_id": "openrouter-model",
+  "algorithm": "quick",
+  "language": "zh",
+  "iterations": 200,
+  "no_think": true
+}
+```
 
 ## 本地运行
 

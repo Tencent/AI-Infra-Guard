@@ -83,7 +83,7 @@ func RunWebServer(options *version.Options) {
 		if proxyErr != nil {
 			log.Errorf("API Checker 代理配置无效: trace_id=system_startup, error=%v", proxyErr)
 		} else {
-			apiCheckerProxy.RegisterConfigured(r, setupIdentityMiddleware())
+			apiCheckerProxy.EnableConfiguredModelResolution(setupIdentityMiddleware())
 			apiCheckerProxy.Register(r)
 			log.Infof(
 				"API Checker proxy initialized: trace_id=system_startup, upstream=%s",

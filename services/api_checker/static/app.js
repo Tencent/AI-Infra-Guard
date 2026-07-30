@@ -410,18 +410,18 @@ async function runDetection() {
 
   showRunning();
   try {
-    const response = await fetch(configuredModelId
-      ? "/api/v1/api-checker/configured-check/stream"
-      : "/api/v1/relay/check/stream", {
+    const response = await fetch("/api/v1/relay/check/stream", {
       method: "POST",
       headers: {"Content-Type": "application/json", ...(configuredModelId ? aigAuthHeaders() : {})},
       body: JSON.stringify(configuredModelId ? {
-        configured_model_id: configuredModelId,
+        use_configured_model: true,
+        model_id: configuredModelId,
         algorithm,
         language: language === "en" ? "en" : "zh",
         iterations: 200,
         no_think: true,
       } : {
+        use_configured_model: false,
         algorithm,
         base_url: baseUrl,
         api_key: apiKey,

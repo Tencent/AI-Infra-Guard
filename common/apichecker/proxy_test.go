@@ -71,7 +71,7 @@ func newConfiguredProxyServer(
 	require.NoError(t, err)
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	handler.RegisterConfigured(router, func(c *gin.Context) {
+	handler.EnableConfiguredModelResolution(func(c *gin.Context) {
 		c.Set("username", username)
 		c.Next()
 	})
@@ -89,22 +89,31 @@ func TestConfiguredRoutesCanBeRegisteredWithRelayProxy(t *testing.T) {
 	require.NoError(t, err)
 	router := gin.New()
 	require.NotPanics(t, func() {
-		handler.RegisterConfigured(router, func(c *gin.Context) { c.Next() })
+		handler.EnableConfiguredModelResolution(func(c *gin.Context) { c.Next() })
 		handler.Register(router)
 	})
 }
 
-func TestConfiguredModelDiscoveryReusesLegacyRoute(t *testing.T) {
+func TestLegacyConfiguredRoutesAreNotRegistered(t *testing.T) {
 	upstream := httptest.NewServer(http.NotFoundHandler())
 	defer upstream.Close()
 	proxy := newConfiguredProxyServer(t, upstream.URL, "public_user")
 	defer proxy.Close()
 
-	resp, err := http.Get(proxy.URL + ConfigPrefix + "/configured-models")
-	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	for _, test := range []struct {
+		method string
+		path   string
+	}{
+		{method: http.MethodGet, path: "/api/v1/api-checker/configured-models"},
+		{method: http.MethodPost, path: "/api/v1/api-checker/configured-check/stream"},
+	} {
+		req, err := http.NewRequest(test.method, proxy.URL+test.path, nil)
+		require.NoError(t, err)
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusNotFound, resp.StatusCode)
+		resp.Body.Close()
+	}
 }
 
 func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T) {
@@ -114,6 +123,8 @@ func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T)
 		APIKey     string `json:"api_key"`
 		Model      string `json:"model"`
 		Language   string `json:"language"`
+		UseConfig  bool   `json:"use_configured_model"`
+		ModelID    string `json:"model_id"`
 		Iterations int    `json:"iterations"`
 		NoThink    bool   `json:"no_think"`
 	}
@@ -145,9 +156,10 @@ func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T)
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		proxy.URL+ConfigPrefix+"/configured-check/stream",
+		proxy.URL+RelayPrefix+"/check/stream",
 		strings.NewReader(`{
-			"configured_model_id": "system-default",
+			"use_configured_model": true,
+			"model_id": "system-default",
 			"algorithm": "quick",
 			"iterations": 50,
 			"no_think": true,
@@ -174,6 +186,8 @@ func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T)
 	require.Equal(t, "stored-secret", forwarded.APIKey)
 	require.Equal(t, "model-a", forwarded.Model)
 	require.Equal(t, "zh", forwarded.Language)
+	require.False(t, forwarded.UseConfig)
+	require.Empty(t, forwarded.ModelID)
 	require.Equal(t, 50, forwarded.Iterations)
 	require.True(t, forwarded.NoThink)
 }
@@ -207,10 +221,10 @@ func TestConfiguredCheckForwardsEnglishResultLanguage(t *testing.T) {
 	defer proxy.Close()
 
 	resp, err := http.Post(
-		proxy.URL+ConfigPrefix+"/configured-check/stream",
+		proxy.URL+RelayPrefix+"/check/stream",
 		"application/json",
 		strings.NewReader(
-			`{"configured_model_id":"system-default","algorithm":"quick","language":"en"}`,
+			`{"use_configured_model":true,"model_id":"system-default","algorithm":"quick","language":"en"}`,
 		),
 	)
 	require.NoError(t, err)
@@ -218,6 +232,30 @@ func TestConfiguredCheckForwardsEnglishResultLanguage(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	require.Equal(t, "en", (<-requestSeen).Language)
+}
+
+func TestConfiguredCheckRequiresModelID(t *testing.T) {
+	upstreamCalled := false
+	upstream := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		upstreamCalled = true
+	}))
+	defer upstream.Close()
+	proxy := newConfiguredProxyServer(t, upstream.URL, "public_user")
+	defer proxy.Close()
+
+	resp, err := http.Post(
+		proxy.URL+RelayPrefix+"/check/stream",
+		"application/json",
+		strings.NewReader(`{"use_configured_model":true,"algorithm":"quick"}`),
+	)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	require.Contains(t, string(body), "model_id")
+	require.False(t, upstreamCalled)
 }
 
 func TestConfiguredCheckRejectsAnotherUsersModel(t *testing.T) {
@@ -242,9 +280,9 @@ func TestConfiguredCheckRejectsAnotherUsersModel(t *testing.T) {
 	defer proxy.Close()
 
 	resp, err := http.Post(
-		proxy.URL+ConfigPrefix+"/configured-check/stream",
+		proxy.URL+RelayPrefix+"/check/stream",
 		"application/json",
-		strings.NewReader(`{"configured_model_id":"bob-model","algorithm":"quick"}`),
+		strings.NewReader(`{"use_configured_model":true,"model_id":"bob-model","algorithm":"quick"}`),
 	)
 	require.NoError(t, err)
 	defer resp.Body.Close()
@@ -293,6 +331,44 @@ func TestRelayModelsJSON(t *testing.T) {
 	details := <-requestSeen
 	require.Equal(t, "/api/v1/relay/models", details.path)
 	require.Equal(t, "algorithm=full", details.query)
+}
+
+func TestManualCheckPayloadPassesThroughUnifiedEndpoint(t *testing.T) {
+	requestSeen := make(chan map[string]interface{}, 1)
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload map[string]interface{}
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&payload))
+		requestSeen <- payload
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer upstream.Close()
+
+	proxy := newProxyServer(t, upstream.URL)
+	defer proxy.Close()
+	payload := `{
+		"use_configured_model": false,
+		"algorithm": "quick",
+		"base_url": "https://manual.example.test/v1",
+		"api_key": "manual-secret",
+		"model": "model-a",
+		"language": "en"
+	}`
+	resp, err := http.Post(
+		proxy.URL+RelayPrefix+"/check/stream",
+		"application/json",
+		strings.NewReader(payload),
+	)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusNoContent, resp.StatusCode)
+	forwarded := <-requestSeen
+	require.NotContains(t, forwarded, "use_configured_model")
+	require.NotContains(t, forwarded, "model_id")
+	require.Equal(t, "https://manual.example.test/v1", forwarded["base_url"])
+	require.Equal(t, "manual-secret", forwarded["api_key"])
+	require.Equal(t, "model-a", forwarded["model"])
+	require.Equal(t, "en", forwarded["language"])
 }
 
 func TestRelaySSEFlushesImmediately(t *testing.T) {

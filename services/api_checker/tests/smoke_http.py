@@ -102,8 +102,12 @@ def main() -> int:
         if (
             b'fetch("/api/v1/app/models"' not in app_js
             or b"/api/v1/api-checker/configured-models" in app_js
+            or b"/api/v1/api-checker/configured-check/stream" in app_js
+            or b"use_configured_model: true" not in app_js
+            or b"use_configured_model: false" not in app_js
+            or b"model_id: configuredModelId" not in app_js
         ):
-            raise AssertionError("configured model picker did not reuse the legacy model API")
+            raise AssertionError("configured model picker did not reuse the unified APIs")
 
         status, content_type, body = post_json(
             "/api/v1/relay/check/stream",
