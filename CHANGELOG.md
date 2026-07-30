@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.5.1] - 2026-07-30
+
+### Added
+- **PromptSecurity**: Add Many-Shot, PAIR, GOAT and ActorAttack multi-turn jailbreak attacks (a4209457)
+- **Agent-Scan**: Add 5 new OWASP detection skills (agentic-supply-chain, cascading-failure, human-agent-trust, inter-agent-comm, unexpected-code-execution) (96d91321, 11f48544)
+- **Agent-Scan**: Add web-exfiltration-detection skill and case2 test (39cddc07)
+- **MCP-Scan**: Add 4 new MCP security detection rules (hardcoded secrets, insecure deserialization) (8db11c70)
+- **Data**: Add AIG rules [2026-07-24] (b80c6289)
+- **Docs**: Add v4.5.0 What's New entry across all 9 README languages (014103f4)
+
+### Fixed
+- Fix(frontend): Prevent checkbox jumping when attack method text is long (1569b30a) — Closes #331
+- Fix: Remove duplicate fingerprint open-webui.yaml (7cb4805a)
+- Fix: Convert cvss dict to string, remove reference from info block (8fe29351)
+- Fix: Unify author to A.I.G bot (bb51fe55)
+
+### Changed
+- Docs: Update v4.5.0 What's New with 5-item summary and revise bottom links across all 9 README languages (31218640)
+- Docs: Replace broken star-history link with sealed_token embed, remove AIG_Technical_Report.pdf (8b3f3d9d)
+
 ## [v4.5.0] - 2026-07-27
 
 ### Added
