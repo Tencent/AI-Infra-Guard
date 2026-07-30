@@ -66,6 +66,7 @@
 
 ## 🚀 Новое
 
+- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — PromptSecurity: 4 мульти-тюрнер атаки джейлбрейка (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 новых OWASP-скиллов + обнаружение web-экстфильтрации (всего 10 скиллов); MCP-Scan: 4 новых правила безопасности; исправления багов (прыжок чекбокса, дубликат fingerprint, формат CVSS)
 - **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Запущен рынок навыков безопасности ИИ (3 официальных skill); фронтенд полностью open source; двигатель сканирования Skill обновлён (9 категорий рисков, SkillTrustBench максимальный 0.9848); сканирование Skill/MCP/Agent как отдельный CLI; библиотека уязвимостей расширена до 130 компонентов, 1888 правил
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 новых правила обнаружения угроз (отравление инструментов, утечка учётных данных, внедрение команд); 6 новых CVE-правил для llama.cpp; `model.token` теперь необязателен — используется системная модель по умолчанию.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 новых одноходовых операторов атак; новый skill `aig-agent-redteam` для комплексной оценки Agent ред тима.
