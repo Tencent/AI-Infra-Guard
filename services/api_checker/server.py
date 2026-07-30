@@ -89,9 +89,63 @@ def _bool_env(name: str, default: bool = False) -> bool:
 ALLOW_HTTP_TARGETS = _bool_env("AIG_API_CHECKER_ALLOW_HTTP")
 ALLOW_PRIVATE_TARGETS = _bool_env("AIG_API_CHECKER_ALLOW_PRIVATE_TARGETS")
 
-VERDICT_CN = {
-    "native": "原生透传", "suspect": "存在可疑", "proxy": "疑似替身",
-    "LOW": "未发现明显风险", "MEDIUM": "存在可疑", "HIGH": "高风险",
+DEFAULT_LANGUAGE = "zh"
+VERDICT_TEXT = {
+    "zh": {
+        "native": "原生透传", "suspect": "存在可疑", "proxy": "疑似替身",
+        "LOW": "未发现明显风险", "MEDIUM": "存在可疑", "HIGH": "高风险",
+    },
+    "en": {
+        "native": "Native passthrough", "suspect": "Suspicious",
+        "proxy": "Suspected substitute", "LOW": "No obvious risk detected",
+        "MEDIUM": "Suspicious behavior detected", "HIGH": "High risk",
+    },
+}
+FINDING_TITLE_TEXT = {
+    "Model list endpoint failed": {
+        "zh": "模型列表接口调用失败",
+        "en": "Model list endpoint failed",
+    },
+    "Requested model not found": {
+        "zh": "未找到请求的模型",
+        "en": "Requested model not found",
+    },
+    "Liveness inconclusive (truncated)": {
+        "zh": "连通性结果不确定（响应被截断）",
+        "en": "Liveness inconclusive (truncated)",
+    },
+    "Relay liveness failed": {
+        "zh": "中转服务连通性检查失败",
+        "en": "Relay liveness failed",
+    },
+    "Model identity family mismatch": {
+        "zh": "模型身份系列不匹配",
+        "en": "Model identity family mismatch",
+    },
+    "Large prompt token delta": {
+        "zh": "提示词 Token 数量偏差过大",
+        "en": "Large prompt token delta",
+    },
+    "Echo inconclusive (truncated)": {
+        "zh": "回显结果不确定（响应被截断）",
+        "en": "Echo inconclusive (truncated)",
+    },
+    "Echo/tool command rewrite suspected": {
+        "zh": "疑似改写回显或工具命令",
+        "en": "Echo/tool command rewrite suspected",
+    },
+    "Stream integrity anomaly": {
+        "zh": "流式响应完整性异常",
+        "en": "Stream integrity anomaly",
+    },
+    "Stream model field mismatch": {
+        "zh": "流式响应模型字段不匹配",
+        "en": "Stream model field mismatch",
+    },
+    "Context truncation suspected": {
+        "zh": "疑似上下文截断",
+        "en": "Context truncation suspected",
+    },
 }
 
 # 模型 ID 含以下关键词即识别为 Claude（Anthropic），不依赖外部传参
@@ -233,6 +287,10 @@ class DetectRequest(BaseModel):
                                         "含 claude/sonnet/opus/haiku/fable 自动识别为 "
                                         "Claude：协议切 anthropic 并自动叠加算法B",
                        examples=["claude-sonnet-4-5-20250514"])
+    language: Literal["zh", "en"] = Field(
+        DEFAULT_LANGUAGE,
+        description="结果文本语言；zh=中文，en=英文。仅影响 summary 和 findings.title",
+    )
 
     # ---- algorithm=full 专用 ----
     iterations: int = Field(200, ge=50, le=500, description="[full] 采样次数")
@@ -453,19 +511,40 @@ def _audit_test_info(probes) -> dict:
     }
 
 
-def _fingerprint_summary(fp: dict) -> str:
-    return (f"最像 {fp.get('best_model', '?')} "
-            f"({(fp.get('_posterior') or 0) * 100:.1f}/100)")
+def _verdict_text(verdict: str, language: str) -> str:
+    return VERDICT_TEXT[language][verdict]
 
 
-def _signature_summary(sig: dict) -> str:
-    return f"[签名] {VERDICT_CN[sig['verdict']]}"
+def _finding_title(title: str, language: str) -> str:
+    translations = FINDING_TITLE_TEXT.get(title)
+    if not translations:
+        return title
+    return translations.get(language, title)
 
 
-def _audit_summary(audit: dict) -> str:
+def _fingerprint_summary(fp: dict, language: str = DEFAULT_LANGUAGE) -> str:
+    best_model = fp.get("best_model", "?")
+    score = (fp.get("_posterior") or 0) * 100
+    if language == "en":
+        return f"Most similar to {best_model} ({score:.1f}/100)"
+    return f"最像 {best_model} ({score:.1f}/100)"
+
+
+def _signature_summary(sig: dict, language: str = DEFAULT_LANGUAGE) -> str:
+    prefix = "[Signature]" if language == "en" else "[签名]"
+    return f"{prefix} {_verdict_text(sig['verdict'], language)}"
+
+
+def _audit_summary(audit: dict, language: str = DEFAULT_LANGUAGE) -> str:
     safety_score = max(0, 100 - int(audit.get("_risk_score", 0)))
-    return (f"{VERDICT_CN[audit['verdict']]} "
-            f"(安全分 {safety_score}/100, 发现 {len(audit['findings'])} 项)")
+    finding_count = len(audit["findings"])
+    verdict = _verdict_text(audit["verdict"], language)
+    if language == "en":
+        finding_label = "finding" if finding_count == 1 else "findings"
+        return (f"{verdict} (safety score {safety_score}/100, "
+                f"{finding_count} {finding_label})")
+    return (f"{verdict} "
+            f"(安全分 {safety_score}/100, 发现 {finding_count} 项)")
 
 
 def _result_score(algorithm: str, parts: dict[str, dict]) -> float:
@@ -478,9 +557,21 @@ def _result_score(algorithm: str, parts: dict[str, dict]) -> float:
     return 0.0
 
 
-def _result_detail(algorithm: str, parts: dict[str, dict]) -> dict:
+def _result_detail(
+    algorithm: str,
+    parts: dict[str, dict],
+    language: str = DEFAULT_LANGUAGE,
+) -> dict:
+    findings = []
+    for finding in parts.get("audit", {}).get("findings", []):
+        localized = dict(finding)
+        localized["title"] = _finding_title(
+            str(localized.get("title", "")),
+            language,
+        )
+        findings.append(localized)
     detail = {
-        "findings": parts.get("audit", {}).get("findings", []),
+        "findings": findings,
         "best_model": "",
         "fingerprint": {},
         "test_info": parts.get("audit", {}).get("test_info", {}),
@@ -554,15 +645,15 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
         summaries = []
         if "audit" in parts:
-            summaries.append(_audit_summary(parts["audit"]))
+            summaries.append(_audit_summary(parts["audit"], req.language))
         if "signature" in parts:
-            summaries.append(_signature_summary(parts["signature"]))
+            summaries.append(_signature_summary(parts["signature"], req.language))
         result = {
             "algorithm": "quick",
             "score": _result_score("quick", parts),
             "overall_verdict": _overall_verdict("quick", parts, errors),
             "summary": " | ".join(summaries),
-            "detail": _result_detail("quick", parts),
+            "detail": _result_detail("quick", parts, req.language),
         }
         return result
 
@@ -609,17 +700,21 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
     summaries = []
     if "signature" in parts:
-        summaries.append(_signature_summary(parts["signature"]))
+        summaries.append(_signature_summary(parts["signature"], req.language))
     if "fingerprint" in parts:
-        summaries.append(f"[指纹] {_fingerprint_summary(parts['fingerprint'])}")
+        prefix = "[Fingerprint]" if req.language == "en" else "[指纹]"
+        summaries.append(
+            f"{prefix} {_fingerprint_summary(parts['fingerprint'], req.language)}"
+        )
     if "audit" in parts:
-        summaries.append(f"[审计] {_audit_summary(parts['audit'])}")
+        prefix = "[Audit]" if req.language == "en" else "[审计]"
+        summaries.append(f"{prefix} {_audit_summary(parts['audit'], req.language)}")
     result = {
         "algorithm": "full",
         "score": _result_score("full", parts),
         "overall_verdict": _overall_verdict("full", parts, errors),
         "summary": " | ".join(summaries),
-        "detail": _result_detail("full", parts),
+        "detail": _result_detail("full", parts, req.language),
     }
     return result
 

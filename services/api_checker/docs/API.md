@@ -68,6 +68,7 @@ algorithm	string	是	—	quick 或 full
 base_url	string	是	—	待测 API 基础 URL，带不带 /v1 均可
 api_key	string	是	—	待测 API 密钥，仅在内存使用
 model	string	是	—	待测模型 ID
+language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title
 iterations	integer	否	200	网页不显示，仅 full 使用，范围为 50–500
 no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型思考
 请求示例
@@ -91,6 +92,7 @@ curl -N -X POST http://21.214.127.143:8000/api/v1/relay/check/stream \
     "base_url": "https://relay.example.com/v1",
     "api_key": "sk-...",
     "model": "claude-sonnet-5",
+    "language": "en",
     "iterations": 200,
     "no_think": true
   }'
@@ -207,12 +209,29 @@ detail.findings[] 字段
 
 {
   "severity": "HIGH",
-  "title": "Relay liveness failed"
+  "title": "中转服务连通性检查失败"
 }
 
 字段	类型	说明
 severity	string	LOW、MEDIUM 或 HIGH
 title	string	风险标题
+
+`language` 省略时默认为 `zh`。传入 `en` 后，`summary` 和
+`detail.findings[].title` 返回英文，例如：
+
+```json
+{
+  "summary": "High risk (safety score 50/100, 1 finding)",
+  "detail": {
+    "findings": [{
+      "severity": "HIGH",
+      "title": "Relay liveness failed"
+    }]
+  }
+}
+```
+
+字段名以及 `overall_verdict` 的 `pass`、`risk`、`inconclusive` 等机器枚举不随语言变化。
 
 4.4 done：正常结束
 成功发送 result 后发送一次，表示服务端不会再发送业务事件。

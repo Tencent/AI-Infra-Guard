@@ -22,11 +22,23 @@ NumPy、SciPy、FastAPI 及 A–E 五类 CLI 算法。反向代理不会解析�
 | 检测页面 | `http://127.0.0.1:8088/api-checker/` |
 | 模型列表 | `GET /api/v1/relay/models` |
 | quick/full SSE 检测 | `POST /api/v1/relay/check/stream` |
+| AIG 已配置模型列表 | `GET /api/v1/api-checker/configured-models` |
+| 使用 AIG 已配置密钥检测 | `POST /api/v1/api-checker/configured-check/stream` |
 | A–E 完整 CLI | `ai-infra-guard api-checker ...` |
 | Checker OpenAPI | `/api-checker/docs` |
 
 HTTP 服务覆盖随机数指纹、Claude Thinking Signature 与中转黑盒审计。PAMELA 和
 Ventor QTest 保持为 CLI 能力，避免在匿名 HTTP 请求中触发高成本批量任务。
+
+检测页面可以选择 AIG 模型管理中已经保存且当前用户可见的配置。浏览器只会收到
+`model_id`、模型名、Base URL 和备注；开始检测时仅提交 `configured_model_id`，
+AIG WebServer 在服务端读取并注入真实 API Key，再把请求转发给 Checker。真实 Key
+不会返回浏览器，也不会转发 AIG 会话相关请求头。
+
+检测请求可传 `language: "zh"` 或 `language: "en"`，省略时默认中文。该参数同时
+支持手动密钥接口和 `configured-check/stream` 配置密钥接口，只影响返回结果中的
+`summary` 与 `detail.findings[].title`；字段名和 `pass`、`risk`、`inconclusive`
+等机器枚举保持不变。
 
 ## 本地运行
 

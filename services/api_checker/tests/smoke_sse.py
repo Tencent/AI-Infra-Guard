@@ -164,16 +164,19 @@ def main() -> int:
             "base_url": f"http://127.0.0.1:{RELAY_PORT}",
             "api_key": "smoke-secret",
             "model": "model-a",
+            "language": "en",
         }
         events = run_detection(quick_payload)
         names = [event for event, _ in events]
         if names != ["start", "result", "done"]:
             raise AssertionError(f"unexpected SSE events: {names}")
         result = events[1][1]["data"]
-        if result["partial_errors"]:
-            raise AssertionError(result["partial_errors"])
         if result["overall_verdict"] != "pass":
             raise AssertionError(result)
+        if result["summary"] != (
+            "No obvious risk detected (safety score 100/100, 0 findings)"
+        ):
+            raise AssertionError(result["summary"])
         if "checks" in result["detail"]:
             raise AssertionError(result["detail"])
         print("events", " -> ".join(names))
@@ -212,11 +215,15 @@ def main() -> int:
             raise AssertionError(rates)
         full_result = full_events[-2][1]["data"]
         if (
-            full_result["partial_errors"]
-            or full_result["overall_verdict"] not in {"pass", "risk", "inconclusive"}
+            full_result["overall_verdict"] not in {"pass", "risk", "inconclusive"}
             or not full_result["detail"]["best_model"]
         ):
             raise AssertionError(full_result)
+        if (
+            not full_result["summary"].startswith("[Fingerprint] ")
+            or " | [Audit] No obvious risk detected " not in full_result["summary"]
+        ):
+            raise AssertionError(full_result["summary"])
         print("full progress", full_names.count("progress"), rates[-1])
         print("best model", full_result["detail"]["best_model"])
         return 0

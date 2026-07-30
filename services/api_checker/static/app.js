@@ -105,7 +105,7 @@ function t(key, values = {}) {
 }
 
 function applyLanguage() {
-  document.documentElement.lang = language === "en" ? "en" : "zh-CN";
+  document.documentElement.lang = language === "en" ? "en" : "zh";
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll("[data-i18n-placeholder]").forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
@@ -289,7 +289,7 @@ function keyFingerprint(value) {
 }
 
 function cacheKey(baseUrl, model, apiKey) {
-  return `aig-result:${algorithm}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
+  return `aig-result:${algorithm}:${language}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
 }
 
 function showRunning() {
@@ -325,9 +325,8 @@ function renderResult(result, cached = false) {
     safe ? "var(--green)" : (inconclusive ? "var(--orange)" : "var(--red)"));
   $("#testedModel").textContent = selectedModel;
   $("#scoreCaption").textContent = t(cached ? "cachedScore" : "currentScore");
-  $("#resultSummary").textContent = language === "zh"
-    ? (result.summary || t("completed"))
-    : t(safe ? "summaryPass" : (inconclusive ? "summaryInconclusive" : "summaryRisk"));
+  $("#resultSummary").textContent = result.summary
+    || t(safe ? "summaryPass" : (inconclusive ? "summaryInconclusive" : "summaryRisk"));
   const testInfo = result.detail?.test_info || {};
   const metric = (value, suffix = "") =>
     value === null || value === undefined ? "—" : `${value}${suffix}`;
@@ -413,6 +412,7 @@ async function runDetection() {
       body: JSON.stringify(configuredModelId ? {
         configured_model_id: configuredModelId,
         algorithm,
+        language: language === "en" ? "en" : "zh",
         iterations: 200,
         no_think: true,
       } : {
@@ -420,6 +420,7 @@ async function runDetection() {
         base_url: baseUrl,
         api_key: apiKey,
         model: selectedModel,
+        language: language === "en" ? "en" : "zh",
         iterations: 200,
         no_think: true,
       }),

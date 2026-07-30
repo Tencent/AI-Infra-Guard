@@ -107,6 +107,22 @@ class ServerContractTests(unittest.TestCase):
         ):
             request.check_url()
 
+    def test_result_language_defaults_to_chinese(self):
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test/v1",
+            api_key="secret",
+            model="model-a",
+        )
+
+        self.assertEqual("zh", request.language)
+        schema = server.app.openapi()["components"]["schemas"]["DetectRequest"]
+        self.assertEqual("zh", schema["properties"]["language"]["default"])
+        self.assertEqual(
+            ["zh", "en"],
+            schema["properties"]["language"]["enum"],
+        )
+
     def test_audit_keeps_probe_results_for_internal_verdict(self):
         result = {
             "verdict": "LOW",
@@ -186,6 +202,87 @@ class ServerContractTests(unittest.TestCase):
         self.assertNotIn("partial_errors", result)
         self.assertNotIn("checks", result["detail"])
         self.assertNotIn("signature", result["detail"])
+
+    def test_quick_result_localizes_summary_and_title(self):
+        audit = {
+            "verdict": "HIGH",
+            "_risk_score": 50,
+            "findings": [{
+                "probe": "liveness",
+                "severity": "HIGH",
+                "title": "Relay liveness failed",
+            }],
+            "probe_results": [{"name": "liveness", "ok": False}],
+        }
+        chinese_request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="model-a",
+        )
+        english_request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="model-a",
+            language="en",
+        )
+
+        with patch.object(server, "_run_audit", return_value=audit):
+            chinese = server._run_detect(chinese_request)
+            english = server._run_detect(english_request)
+
+        self.assertEqual(
+            "高风险 (安全分 50/100, 发现 1 项)",
+            chinese["summary"],
+        )
+        self.assertEqual(
+            "中转服务连通性检查失败",
+            chinese["detail"]["findings"][0]["title"],
+        )
+        self.assertEqual(
+            "High risk (safety score 50/100, 1 finding)",
+            english["summary"],
+        )
+        self.assertEqual(
+            "Relay liveness failed",
+            english["detail"]["findings"][0]["title"],
+        )
+
+    def test_full_result_uses_english_summary_sections(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "findings": [],
+            "probe_results": [{"name": "models", "ok": True}],
+        }
+        fingerprint = {
+            "best_model": "GPT-4o-mini",
+            "_posterior": 0.91,
+            "_forgery_status": "supported",
+        }
+        request = server.DetectRequest(
+            algorithm="full",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="openai/gpt-4o-mini",
+            language="en",
+            iterations=50,
+        )
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit),
+            patch.object(server, "_run_fingerprint", return_value=fingerprint),
+        ):
+            result = server._run_detect(request)
+
+        self.assertEqual("pass", result["overall_verdict"])
+        self.assertEqual(
+            "[Fingerprint] Most similar to GPT-4o-mini (91.0/100) | "
+            "[Audit] No obvious risk detected "
+            "(safety score 100/100, 0 findings)",
+            result["summary"],
+        )
 
     def test_result_detail_does_not_expose_internal_checks_or_signature(self):
         parts = {

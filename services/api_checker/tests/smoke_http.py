@@ -71,16 +71,18 @@ def main() -> int:
     try:
         wait_until_ready(process)
         checks = {
-            "/healthz": "application/json",
-            "/api/v1/relay/models": "application/json",
-            "/ui": "text/html",
-            "/static/app.js": "text/javascript",
-            "/docs": "text/html",
-            "/openapi.json": "application/json",
+            "/healthz": {"application/json"},
+            "/api/v1/relay/models": {"application/json"},
+            "/ui": {"text/html"},
+            # Python's MIME database and Starlette versions legitimately use
+            # either registered JavaScript media type.
+            "/static/app.js": {"application/javascript", "text/javascript"},
+            "/docs": {"text/html"},
+            "/openapi.json": {"application/json"},
         }
-        for path, expected_type in checks.items():
+        for path, expected_types in checks.items():
             status, content_type, body = fetch(path)
-            if status != 200 or content_type != expected_type or not body:
+            if status != 200 or content_type not in expected_types or not body:
                 raise AssertionError(
                     f"{path}: status={status}, type={content_type}, bytes={len(body)}",
                 )

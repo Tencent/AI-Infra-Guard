@@ -153,6 +153,7 @@ func (h *Handler) listConfiguredModels(c *gin.Context) {
 type configuredCheckRequest struct {
 	ConfiguredModelID string `json:"configured_model_id"`
 	Algorithm         string `json:"algorithm"`
+	Language          string `json:"language"`
 	Iterations        int    `json:"iterations"`
 	NoThink           bool   `json:"no_think"`
 }
@@ -176,11 +177,16 @@ func (h *Handler) checkWithConfiguredModel(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"detail": "模型配置不存在或无权使用"})
 		return
 	}
+	language := strings.TrimSpace(request.Language)
+	if language == "" {
+		language = "zh"
+	}
 	body, err := json.Marshal(gin.H{
 		"algorithm":  request.Algorithm,
 		"base_url":   model.BaseURL,
 		"api_key":    model.Token,
 		"model":      model.ModelName,
+		"language":   language,
 		"iterations": request.Iterations,
 		"no_think":   request.NoThink,
 	})
