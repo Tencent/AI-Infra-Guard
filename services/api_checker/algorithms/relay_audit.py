@@ -216,7 +216,7 @@ def probe_echo_rewrite(base_url, key, model):
         return ProbeResult("echo_rewrite", 200 <= status < 300 and expected in text and not suspicious, lat,
             {"status": status, "expected": expected, "actual": text[:500],
              "exact_match": expected in text, "suspicious_terms": suspicious,
-             "response_model": payload.get("model")})
+             "usage": payload.get("usage"), "response_model": payload.get("model")})
     except Exception as e:
         return ProbeResult("echo_rewrite", False, None, error=str(e))
 
@@ -243,7 +243,8 @@ def probe_context_canary(base_url, key, model):
         text = _extract_text(payload)
         return ProbeResult("context_canary", 200 <= status < 300 and e in text, lat,
             {"status": status, "saw_start": s in text, "saw_mid": m in text, "saw_end": e in text,
-             "actual": text.strip()[:300], "response_model": payload.get("model")})
+             "actual": text.strip()[:300], "usage": payload.get("usage"),
+             "response_model": payload.get("model")})
     except Exception as ex:
         return ProbeResult("context_canary", False, None, error=str(ex))
 

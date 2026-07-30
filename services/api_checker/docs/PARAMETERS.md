@@ -508,3 +508,6 @@ Makefile 构建的二进制名为 `server`）。
 > **注意**：算法 B 的 score 越高越**安全**（通过率），算法 C 的 score 越高越**危险**（风险分）。两者方向相反。
 
 HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `score`：`full` 模式为后验百分制，`quick` 模式为安全分 0–100（越高越安全）。
+同时在 `detail.test_info` 返回黑盒生成探针的平均延迟 `latency_ms`、生成速度
+`tokens_per_second`、累计输入 `input_tokens`、累计输出 `output_tokens` 和缓存读取
+`cache_read_tokens`。上游未提供的指标为 `null`。

@@ -373,9 +373,11 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None) -> dict:
         cancel_event=cancel_event,
     )
     _raise_if_cancelled(cancel_event)
+    test_info = _audit_test_info(result["probe_results"])
     return {
         "verdict": result["verdict"],
         "_risk_score": result["score"],
+        "test_info": test_info,
         "findings": [{"probe": f.probe, "severity": f.severity, "title": f.title}
                      for f in result["findings"]],
         "probe_results": [{
@@ -384,6 +386,70 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None) -> dict:
             "latency_ms": probe.latency_ms,
             "error": str(probe.error)[:200] if probe.error else None,
         } for probe in result["probe_results"]],
+    }
+
+
+def _usage_int(usage: dict, *paths: tuple[str, ...]) -> int | None:
+    """读取不同 OpenAI 兼容实现使用的 usage 字段，保留“未提供”和 0 的区别。"""
+    for path in paths:
+        value: Any = usage
+        for key in path:
+            if not isinstance(value, dict) or key not in value:
+                break
+            value = value[key]
+        else:
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0, int(value))
+    return None
+
+
+def _audit_test_info(probes) -> dict:
+    input_total = output_total = cache_total = 0
+    input_seen = output_seen = cache_seen = False
+    generation_latencies = []
+
+    for probe in probes:
+        usage = probe.data.get("usage") if isinstance(probe.data, dict) else None
+        if not isinstance(usage, dict):
+            continue
+        input_tokens = _usage_int(
+            usage, ("prompt_tokens",), ("input_tokens",),
+        )
+        output_tokens = _usage_int(
+            usage, ("completion_tokens",), ("output_tokens",),
+        )
+        cache_read_tokens = _usage_int(
+            usage,
+            ("cache_read_input_tokens",),
+            ("cached_tokens",),
+            ("prompt_tokens_details", "cached_tokens"),
+            ("input_tokens_details", "cached_tokens"),
+        )
+        if input_tokens is not None:
+            input_total += input_tokens
+            input_seen = True
+        if output_tokens is not None:
+            output_total += output_tokens
+            output_seen = True
+        if cache_read_tokens is not None:
+            cache_total += cache_read_tokens
+            cache_seen = True
+        if probe.latency_ms is not None:
+            generation_latencies.append(probe.latency_ms)
+
+    total_generation_ms = sum(generation_latencies)
+    return {
+        "latency_ms": (
+            round(total_generation_ms / len(generation_latencies))
+            if generation_latencies else None
+        ),
+        "tokens_per_second": (
+            round(output_total / (total_generation_ms / 1000), 2)
+            if output_seen and total_generation_ms > 0 else None
+        ),
+        "input_tokens": input_total if input_seen else None,
+        "output_tokens": output_total if output_seen else None,
+        "cache_read_tokens": cache_total if cache_seen else None,
     }
 
 
@@ -413,15 +479,11 @@ def _result_score(algorithm: str, parts: dict[str, dict]) -> float:
 
 
 def _result_detail(algorithm: str, parts: dict[str, dict]) -> dict:
-    signature = parts.get("signature")
     detail = {
         "findings": parts.get("audit", {}).get("findings", []),
         "best_model": "",
-        "signature": ({
-            "verdict": signature["verdict"],
-            "score": signature["_score"],
-        } if signature else {}),
         "fingerprint": {},
+        "test_info": parts.get("audit", {}).get("test_info", {}),
     }
     if algorithm == "full" and parts.get("fingerprint"):
         fingerprint = parts["fingerprint"]
@@ -501,7 +563,6 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             "overall_verdict": _overall_verdict("quick", parts, errors),
             "summary": " | ".join(summaries),
             "detail": _result_detail("quick", parts),
-            "partial_errors": errors,
         }
         return result
 
@@ -559,7 +620,6 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         "overall_verdict": _overall_verdict("full", parts, errors),
         "summary": " | ".join(summaries),
         "detail": _result_detail("full", parts),
-        "partial_errors": errors,
     }
     return result
 

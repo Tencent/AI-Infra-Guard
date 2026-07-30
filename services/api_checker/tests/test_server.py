@@ -127,6 +127,42 @@ class ServerContractTests(unittest.TestCase):
 
         self.assertEqual(123, audit["probe_results"][0]["latency_ms"])
         self.assertTrue(audit["probe_results"][0]["ok"])
+        self.assertEqual(
+            {
+                "latency_ms": None,
+                "tokens_per_second": None,
+                "input_tokens": None,
+                "output_tokens": None,
+                "cache_read_tokens": None,
+            },
+            audit["test_info"],
+        )
+
+    def test_audit_test_info_aggregates_usage_variants(self):
+        probes = [
+            ProbeResult("liveness", True, 1000, data={"usage": {
+                "prompt_tokens": 100,
+                "completion_tokens": 20,
+                "prompt_tokens_details": {"cached_tokens": 40},
+            }}),
+            ProbeResult("identity", True, 500, data={"usage": {
+                "input_tokens": 50,
+                "output_tokens": 10,
+                "cache_read_input_tokens": 25,
+            }}),
+            ProbeResult("models", True, 80, data={"status": 200}),
+        ]
+
+        self.assertEqual(
+            {
+                "latency_ms": 750,
+                "tokens_per_second": 20.0,
+                "input_tokens": 150,
+                "output_tokens": 30,
+                "cache_read_tokens": 65,
+            },
+            server._audit_test_info(probes),
+        )
 
     def test_quick_detect_returns_result_when_audit_succeeds(self):
         audit = {
@@ -147,10 +183,11 @@ class ServerContractTests(unittest.TestCase):
         self.assertEqual("quick", result["algorithm"])
         self.assertEqual(95.0, result["score"])
         self.assertEqual("pass", result["overall_verdict"])
-        self.assertEqual({}, result["partial_errors"])
+        self.assertNotIn("partial_errors", result)
         self.assertNotIn("checks", result["detail"])
+        self.assertNotIn("signature", result["detail"])
 
-    def test_result_detail_only_exposes_aggregate_signature(self):
+    def test_result_detail_does_not_expose_internal_checks_or_signature(self):
         parts = {
             "audit": {
                 "findings": [],
@@ -165,11 +202,9 @@ class ServerContractTests(unittest.TestCase):
         detail = server._result_detail("quick", parts)
 
         self.assertNotIn("checks", detail)
+        self.assertNotIn("signature", detail)
         self.assertNotIn("probe_results", detail)
-        self.assertEqual(
-            {"verdict": "native", "score": 98.5},
-            detail["signature"],
-        )
+        self.assertEqual({}, detail["test_info"])
 
     def test_overall_verdict_rejects_findings_and_partial_results(self):
         safe_audit = {

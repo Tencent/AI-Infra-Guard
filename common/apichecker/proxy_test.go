@@ -29,9 +29,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Tencent/AI-Infra-Guard/pkg/database"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
+
+func TestConfiguredRoutesCanBeRegisteredWithRelayProxy(t *testing.T) {
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer upstream.Close()
+
+	handler, err := NewWithModelStore(upstream.URL, database.NewModelStore(nil))
+	require.NoError(t, err)
+	router := gin.New()
+	require.NotPanics(t, func() {
+		handler.RegisterConfigured(router, func(c *gin.Context) { c.Next() })
+		handler.Register(router)
+	})
+}
 
 func newProxyServer(t *testing.T, upstream string) *httptest.Server {
 	t.Helper()
