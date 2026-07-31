@@ -364,6 +364,41 @@ class ServerContractTests(unittest.TestCase):
         self.assertNotIn("checks", result["detail"])
         self.assertNotIn("signature", result["detail"])
 
+    def test_quick_signature_uses_resolved_model_id(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "_resolved_model": "claude-sonnet-5",
+            "findings": [],
+            "probe_results": [],
+        }
+        signature = {
+            "verdict": "native",
+            "_score": 100,
+        }
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test/v1",
+            api_key="secret",
+            model="anthropic/claude-sonnet-5",
+        )
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit),
+            patch.object(
+                server,
+                "_run_signature",
+                return_value=signature,
+            ) as signature_call,
+        ):
+            result = server._run_detect(request)
+
+        self.assertEqual(
+            "claude-sonnet-5",
+            signature_call.call_args.args[0].model,
+        )
+        self.assertNotIn("_resolved_model", result["detail"])
+
     def test_quick_result_localizes_summary_and_title(self):
         audit = {
             "verdict": "HIGH",
@@ -422,6 +457,7 @@ class ServerContractTests(unittest.TestCase):
         audit = {
             "verdict": "LOW",
             "_risk_score": 0,
+            "_resolved_model": "gpt-4o-mini",
             "findings": [],
             "probe_results": [{"name": "models", "ok": True}],
         }
@@ -441,10 +477,18 @@ class ServerContractTests(unittest.TestCase):
 
         with (
             patch.object(server, "_run_audit", return_value=audit),
-            patch.object(server, "_run_fingerprint", return_value=fingerprint),
+            patch.object(
+                server,
+                "_run_fingerprint",
+                return_value=fingerprint,
+            ) as fingerprint_call,
         ):
             result = server._run_detect(request)
 
+        self.assertEqual(
+            "gpt-4o-mini",
+            fingerprint_call.call_args.args[0].model,
+        )
         self.assertEqual("pass", result["overall_verdict"])
         self.assertEqual(
             "[Fingerprint] Most similar to GPT-4o-mini (91.0/100) | "

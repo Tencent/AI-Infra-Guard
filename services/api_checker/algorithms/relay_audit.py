@@ -126,6 +126,30 @@ def _infer_families(text):
     return [fam for fam, kws in FAMILY_ALIASES.items() if any(kw in low for kw in kws)]
 
 
+def _model_candidates(model):
+    """原始模型优先；带 provider/ 前缀时再尝试去前缀的模型 ID。"""
+    candidates = [model]
+    if "/" in model:
+        unprefixed = model.split("/", 1)[1].strip()
+        if unprefixed and unprefixed != model:
+            candidates.append(unprefixed)
+    return candidates
+
+
+def _resolve_listed_model(model, model_ids):
+    """从 /models 返回值中选择原始或去前缀后的规范 ID。"""
+    canonical = {
+        model_id.lower(): model_id
+        for model_id in model_ids
+        if model_id
+    }
+    for candidate in _model_candidates(model):
+        matched = canonical.get(candidate.lower())
+        if matched:
+            return matched
+    return None
+
+
 def _extract_text(resp):
     try:
         return resp["choices"][0]["message"]["content"] or ""
@@ -254,25 +278,37 @@ def _chat(
     stream=False,
     api_type="openai",
 ):
-    if api_type == "openai-responses":
-        body = {
-            "model": model,
-            "input": messages,
-            "max_output_tokens": max_tokens,
-            "stream": stream,
-        }
-        endpoint = "responses"
-    else:
-        body = {
-            "model": model,
-            "messages": messages,
-            "max_tokens": max_tokens,
-            "stream": stream,
-        }
-        endpoint = "chat/completions"
-    if temp is not None:
-        body["temperature"] = temp
-    return _http_json(f"{base_url.rstrip('/')}/{endpoint}", key, body)
+    candidates = _model_candidates(model)
+    total_latency = 0
+    for index, candidate in enumerate(candidates):
+        if api_type == "openai-responses":
+            body = {
+                "model": candidate,
+                "input": messages,
+                "max_output_tokens": max_tokens,
+                "stream": stream,
+            }
+            endpoint = "responses"
+        else:
+            body = {
+                "model": candidate,
+                "messages": messages,
+                "max_tokens": max_tokens,
+                "stream": stream,
+            }
+            endpoint = "chat/completions"
+        if temp is not None:
+            body["temperature"] = temp
+        status, payload, latency = _http_json(
+            f"{base_url.rstrip('/')}/{endpoint}",
+            key,
+            body,
+        )
+        total_latency += latency
+        has_fallback = index + 1 < len(candidates)
+        if not has_fallback or status not in {400, 404, 422}:
+            return status, payload, total_latency, candidate
+    return status, payload, total_latency, candidates[-1]
 
 
 # ---- 7 个探针 ----
@@ -280,8 +316,11 @@ def probe_models(base_url, key, model, api_type="openai"):
     try:
         status, payload, lat = _http_json(f"{base_url.rstrip('/')}/models", key, method="GET")
         ids = [str(x.get("id", "")) for x in payload.get("data", []) if isinstance(x, dict)] if isinstance(payload.get("data"), list) else []
+        resolved_model = _resolve_listed_model(model, ids)
         return ProbeResult("models", 200 <= status < 300, lat,
-            {"status": status, "model_count": len(ids), "target_model_present": model in ids, "sample_models": ids[:20]})
+            {"status": status, "model_count": len(ids),
+             "target_model_present": resolved_model is not None,
+             "resolved_model": resolved_model, "sample_models": ids[:20]})
     except Exception as e:
         return ProbeResult("models", False, None, error=str(e))
 
@@ -289,14 +328,15 @@ def probe_models(base_url, key, model, api_type="openai"):
 def probe_liveness(base_url, key, model, api_type="openai"):
     expected = f"echo-{_rand_str(6)}-{_rand_str(4)}"
     try:
-        status, payload, lat = _chat(base_url, key, model,
+        status, payload, lat, resolved_model = _chat(base_url, key, model,
             [{"role": "user", "content": f"Reply with exactly: {expected}"}],
             CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
         return ProbeResult("liveness", 200 <= status < 300 and expected in text, lat,
             {"status": status, "expected": expected, "actual": text[:300],
              "finish_reason": _finish_reason(payload), "truncated": _is_truncated(payload),
-             "usage": payload.get("usage"), "response_model": payload.get("model")})
+             "usage": payload.get("usage"), "response_model": payload.get("model"),
+             "resolved_model": resolved_model})
     except Exception as e:
         return ProbeResult("liveness", False, None, error=str(e))
 
@@ -304,14 +344,15 @@ def probe_liveness(base_url, key, model, api_type="openai"):
 def probe_identity(base_url, key, model, api_type="openai"):
     prompt = random.choice(_IDENTITY_PROMPTS)
     try:
-        status, payload, lat = _chat(
+        status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
             CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
         hits = [x for x in IDENTITY_KEYWORDS if x in text.lower()]
         return ProbeResult("identity", 200 <= status < 300, lat,
             {"status": status, "identity_text": text[:500], "identity_families": _infer_families(text),
-             "response_model": payload.get("model"), "usage": payload.get("usage")})
+             "response_model": payload.get("model"), "usage": payload.get("usage"),
+             "resolved_model": resolved_model})
     except Exception as e:
         return ProbeResult("identity", False, None, error=str(e))
 
@@ -320,7 +361,7 @@ def probe_token_delta(base_url, key, model, api_type="openai"):
     word = _rand_str(8)
     prompt = f"Return only the word: {word}"
     try:
-        status, payload, lat = _chat(
+        status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
             5, api_type=api_type)
         usage = payload.get("usage") or {}
@@ -329,7 +370,8 @@ def probe_token_delta(base_url, key, model, api_type="openai"):
         delta = actual - expected if isinstance(actual, int) else None
         return ProbeResult("token_delta", 200 <= status < 300, lat,
             {"status": status, "actual_prompt_tokens": actual, "expected_rough": expected,
-             "delta": delta, "usage": usage, "response_model": payload.get("model")})
+             "delta": delta, "usage": usage, "response_model": payload.get("model"),
+             "resolved_model": resolved_model})
     except Exception as e:
         return ProbeResult("token_delta", False, None, error=str(e))
 
@@ -338,7 +380,7 @@ def probe_echo_rewrite(base_url, key, model, api_type="openai"):
     expected = random.choice(_REAL_PIP_COMMANDS)
     prompt = f"Echo this text exactly, no markdown, no explanation:\n{expected}"
     try:
-        status, payload, lat = _chat(
+        status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
             CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
@@ -347,7 +389,8 @@ def probe_echo_rewrite(base_url, key, model, api_type="openai"):
         return ProbeResult("echo_rewrite", 200 <= status < 300 and expected in text and not suspicious, lat,
             {"status": status, "expected": expected, "actual": text[:500],
              "exact_match": expected in text, "suspicious_terms": suspicious,
-             "usage": payload.get("usage"), "response_model": payload.get("model")})
+             "usage": payload.get("usage"), "response_model": payload.get("model"),
+             "resolved_model": resolved_model})
     except Exception as e:
         return ProbeResult("echo_rewrite", False, None, error=str(e))
 
@@ -422,14 +465,15 @@ def probe_context_canary(base_url, key, model, api_type="openai"):
     filler = "The quick brown fox jumps over the lazy dog. " * 120
     content = f"{s}\n{filler}\n{m}\n{filler}\n{e}\n\nRepeat back ONLY the three canary tokens, each on its own line."
     try:
-        status, payload, lat = _chat(
+        status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": content}],
             CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload)
         return ProbeResult("context_canary", 200 <= status < 300 and e in text, lat,
             {"status": status, "saw_start": s in text, "saw_mid": m in text, "saw_end": e in text,
              "actual": text.strip()[:300], "usage": payload.get("usage"),
-             "response_model": payload.get("model")})
+             "response_model": payload.get("model"),
+             "resolved_model": resolved_model})
     except Exception as ex:
         return ProbeResult("context_canary", False, None, error=str(ex))
 
@@ -489,6 +533,7 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
     started = time.monotonic()
+    active_model = model
     latest_probe_start = max(
         0,
         AUDIT_TOTAL_TIMEOUT_SECONDS - HTTP_TOTAL_TIMEOUT_SECONDS,
@@ -509,15 +554,35 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
                 if on_progress:
                     on_progress(len(results), len(probe_names))
             break
-        results.append(_PROBES[name](base_url, api_key, model, api_type))
+        result = _PROBES[name](base_url, api_key, active_model, api_type)
+        results.append(result)
+        resolved_model = result.data.get("resolved_model")
+        if isinstance(resolved_model, str) and resolved_model:
+            active_model = resolved_model
+            status = result.data.get("status")
+            if (
+                name != "models"
+                and isinstance(status, int)
+                and 200 <= status < 300
+            ):
+                models_result = next((
+                    probe for probe in results
+                    if probe.name == "models"
+                ), None)
+                if models_result is not None and models_result.ok:
+                    # /models 可能是裁剪列表；成功生成比列表缺失更能证明
+                    # 模型可用，避免继续报告“未找到请求的模型”。
+                    models_result.data["target_model_present"] = True
+                    models_result.data["resolved_model"] = resolved_model
         if on_progress:
             on_progress(len(results), len(probe_names))
-    findings = build_findings(results, model)
+    findings = build_findings(results, active_model)
     score = min(100, sum(f.score for f in findings))
     v = "HIGH" if score >= 70 else ("MEDIUM" if score >= 30 else "LOW")
     v_map = {"LOW": "未发现明显风险", "MEDIUM": "存在可疑", "HIGH": "高风险"}
     return {
         "score": score, "verdict": v, "findings": findings,
         "probe_results": results,
+        "resolved_model": active_model,
         "summary": f"{v_map[v]} (分数: {score}/100, 发现: {len(findings)} 项)",
     }

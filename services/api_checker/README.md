@@ -164,6 +164,9 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
 状态；字段名以及 `overall_verdict` 的机器可读枚举保持不变。
 `base_url` 可填写版本根路径，也可直接填写完整的 `/chat/completions` 或
 `/responses` 地址；服务会自动选择对应协议且不会重复拼接路径。
+模型 ID 会优先原样请求；如果 `/models` 中不存在 `provider/model`、但存在去掉
+首段后的 `model`，后续审计、签名和指纹请求会自动使用该规范 ID。对于未提供
+完整模型列表的服务，原始 ID 的 Chat 请求返回 400/404/422 时也会执行同样的回退。
 
 ## 隐私
 

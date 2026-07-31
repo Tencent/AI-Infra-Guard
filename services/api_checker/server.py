@@ -456,6 +456,7 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
     return {
         "verdict": result["verdict"],
         "_risk_score": result["score"],
+        "_resolved_model": result.get("resolved_model") or req.model,
         "test_info": test_info,
         "findings": [{"probe": f.probe, "severity": f.severity, "title": f.title}
                      for f in result["findings"]],
@@ -647,6 +648,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
     if req.algorithm == "quick":
         parts: dict[str, Any] = {}
         errors: dict[str, str] = {}
+        effective_req = req
         try:
             parts["audit"] = _run_audit(
                 req,
@@ -655,6 +657,11 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                 on_progress,
                 openai_type,
             )
+            resolved_model = parts["audit"].get("_resolved_model")
+            if resolved_model and resolved_model != req.model:
+                effective_req = req.model_copy(
+                    update={"model": resolved_model},
+                )
         except DetectionCancelled:
             raise
         except Exception as e:
@@ -662,7 +669,11 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         if claude:                      # 是 Claude → 自动叠加 B（签名验证）
             _, sig_base = anthropic_bases(req.base_url)
             try:
-                parts["signature"] = _run_signature(req, sig_base, cancel_event)
+                parts["signature"] = _run_signature(
+                    effective_req,
+                    sig_base,
+                    cancel_event,
+                )
             except DetectionCancelled:
                 raise
             except Exception as e:
@@ -693,6 +704,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
 
     parts = {}
     errors = {}
+    effective_req = req
     try:
         parts["audit"] = _run_audit(
             req,
@@ -700,20 +712,29 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             cancel_event,
             api_type=openai_type,
         )
+        resolved_model = parts["audit"].get("_resolved_model")
+        if resolved_model and resolved_model != req.model:
+            effective_req = req.model_copy(
+                update={"model": resolved_model},
+            )
     except DetectionCancelled:
         raise
     except Exception as e:
         errors["audit"] = str(e)[:300]
     if claude:                          # 算法 B 隐藏：识别到 Claude 默认启动
         try:
-            parts["signature"] = _run_signature(req, sig_base, cancel_event)
+            parts["signature"] = _run_signature(
+                effective_req,
+                sig_base,
+                cancel_event,
+            )
         except DetectionCancelled:
             raise
         except Exception as e:
             errors["signature"] = str(e)[:300]
     try:
         parts["fingerprint"] = _run_fingerprint(
-            req,
+            effective_req,
             api_type,
             fp_base,
             on_progress,

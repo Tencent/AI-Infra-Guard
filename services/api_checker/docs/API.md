@@ -67,7 +67,7 @@ POST /api/v1/relay/check/stream
 algorithm	string	是	—	quick 或 full
 base_url	string	是	—	待测 API 基础 URL，也可传完整 /chat/completions 或 /responses 地址
 api_key	string	是	—	待测 API 密钥，仅在内存使用
-model	string	是	—	待测模型 ID
+model	string	是	—	待测模型 ID；provider/model 不在 /models 时自动尝试 model
 language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title
 iterations	integer	否	200	网页不显示，仅 full 使用，范围为 50–500
 no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型思考
