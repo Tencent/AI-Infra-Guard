@@ -394,7 +394,7 @@ class ServerContractTests(unittest.TestCase):
             english = server._run_detect(english_request)
 
         self.assertEqual(
-            "高风险 (安全分 50/100, 发现 1 项)",
+            "高风险 (安全分 50/100, 发现 1 项风险)",
             chinese["summary"],
         )
         self.assertEqual(

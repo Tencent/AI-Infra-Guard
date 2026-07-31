@@ -566,7 +566,7 @@ def _audit_summary(audit: dict, language: str = DEFAULT_LANGUAGE) -> str:
         return (f"{verdict} (safety score {safety_score}/100, "
                 f"{finding_count} {finding_label})")
     return (f"{verdict} "
-            f"(安全分 {safety_score}/100, 发现 {finding_count} 项)")
+            f"(安全分 {safety_score}/100, 发现 {finding_count} 项风险)")
 
 
 def _result_score(algorithm: str, parts: dict[str, dict]) -> float:

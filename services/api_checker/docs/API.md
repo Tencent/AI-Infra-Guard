@@ -181,7 +181,7 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
   "data": {
     "algorithm": "quick",
     "score": 100.0,
-    "summary": "未发现明显风险 (安全分 100/100, 发现 0 项)",
+    "summary": "未发现明显风险 (安全分 100/100, 发现 0 项风险)",
     "detail": {
       "findings": [],
       "best_model": "",
