@@ -1,0 +1,21 @@
+info:
+  name: Suna
+  author: A.I.G bot
+  severity: info
+  desc: Suna (Kortix) is an open-source AI command center / AI agent platform with task automation, browser usage, crawler, and code execution capabilities.
+  metadata:
+    product: suna
+    vendor: kortix-ai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="__KORTIX_RUNTIME_CONFIG"
+      - body="AI Command Center"
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"([0-9]+\.[0-9]+\.[0-9]+)"'
