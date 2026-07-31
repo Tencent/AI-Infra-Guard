@@ -101,10 +101,7 @@ VERDICT_TEXT = {
         "MEDIUM": "Suspicious behavior detected", "HIGH": "High risk",
     },
 }
-FINDING_STATUS_TEXT = {
-    "zh": "不通过",
-    "en": "Failed",
-}
+FINDING_FAILED_STATUS = "Failed"
 FINDING_TITLE_TEXT = {
     "Model list endpoint failed": {
         "zh": "模型列表接口调用失败",
@@ -577,7 +574,7 @@ def _result_detail(
     findings = []
     for finding in parts.get("audit", {}).get("findings", []):
         localized = dict(finding)
-        localized["severity"] = FINDING_STATUS_TEXT[language]
+        localized["severity"] = FINDING_FAILED_STATUS
         localized["title"] = _finding_title(
             str(localized.get("title", "")),
             language,

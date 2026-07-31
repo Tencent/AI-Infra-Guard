@@ -241,7 +241,7 @@ class ServerContractTests(unittest.TestCase):
             chinese["detail"]["findings"][0]["title"],
         )
         self.assertEqual(
-            "不通过",
+            "Failed",
             chinese["detail"]["findings"][0]["severity"],
         )
         self.assertEqual(
