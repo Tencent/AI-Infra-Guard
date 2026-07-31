@@ -102,6 +102,37 @@ VERDICT_TEXT = {
     },
 }
 FINDING_FAILED_STATUS = "Failed"
+FINDING_PASSED_STATUS = "Passed"
+PROBE_CHECK_TITLE = {
+    "models": {
+        "zh": "模型列表检查",
+        "en": "Model list check",
+    },
+    "liveness": {
+        "zh": "中转服务连通性检查",
+        "en": "Relay liveness check",
+    },
+    "identity": {
+        "zh": "模型身份检查",
+        "en": "Model identity check",
+    },
+    "token_delta": {
+        "zh": "提示词 Token 差异检查",
+        "en": "Prompt token delta check",
+    },
+    "echo_rewrite": {
+        "zh": "回显与工具命令检查",
+        "en": "Echo and tool command check",
+    },
+    "stream_integrity": {
+        "zh": "流式响应完整性检查",
+        "en": "Stream integrity check",
+    },
+    "context_canary": {
+        "zh": "上下文完整性检查",
+        "en": "Context integrity check",
+    },
+}
 FINDING_TITLE_TEXT = {
     "Model list endpoint failed": {
         "zh": "模型列表接口调用失败",
@@ -545,6 +576,13 @@ def _finding_title(title: str, language: str) -> str:
     return translations.get(language, title)
 
 
+def _probe_status_title(probe: str, passed: bool, language: str) -> str:
+    base = PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
+    if language == "en":
+        return f"{base} {'passed' if passed else 'failed'}"
+    return f"{base}{'通过' if passed else '未通过'}"
+
+
 def _fingerprint_summary(fp: dict, language: str = DEFAULT_LANGUAGE) -> str:
     best_model = fp.get("best_model", "?")
     score = (fp.get("_posterior") or 0) * 100
@@ -586,14 +624,43 @@ def _result_detail(
     language: str = DEFAULT_LANGUAGE,
 ) -> dict:
     findings = []
-    for finding in parts.get("audit", {}).get("findings", []):
-        localized = dict(finding)
-        localized["severity"] = FINDING_FAILED_STATUS
-        localized["title"] = _finding_title(
-            str(localized.get("title", "")),
-            language,
-        )
-        findings.append(localized)
+    audit = parts.get("audit", {})
+    failed_by_probe = {}
+    for finding in audit.get("findings", []):
+        failed_by_probe.setdefault(finding.get("probe"), []).append(finding)
+
+    for probe_result in audit.get("probe_results", []):
+        probe = str(probe_result.get("name") or "")
+        failed = failed_by_probe.pop(probe, [])
+        if failed:
+            for finding in failed:
+                localized = dict(finding)
+                localized["severity"] = FINDING_FAILED_STATUS
+                localized["title"] = _finding_title(
+                    str(localized.get("title", "")),
+                    language,
+                )
+                findings.append(localized)
+        else:
+            passed = bool(probe_result.get("ok"))
+            findings.append({
+                "probe": probe,
+                "severity": (
+                    FINDING_PASSED_STATUS
+                    if passed else FINDING_FAILED_STATUS
+                ),
+                "title": _probe_status_title(probe, passed, language),
+            })
+    for remaining in failed_by_probe.values():
+        for finding in remaining:
+            localized = dict(finding)
+            localized["severity"] = FINDING_FAILED_STATUS
+            localized["title"] = _finding_title(
+                str(localized.get("title", "")),
+                language,
+            )
+            findings.append(localized)
+
     detail = {
         "findings": findings,
         "best_model": "",

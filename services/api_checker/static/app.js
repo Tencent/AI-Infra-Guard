@@ -351,7 +351,7 @@ function renderResult(result, cached = false) {
 
   const items = findings.map(finding => ({
     name: translations[language].probes[finding.probe] || finding.probe || t("auditFinding"),
-    ok: false,
+    ok: finding.severity === "Passed",
     meta: finding.title || finding.severity || t("riskFound"),
   }));
   if (!findings.length) {

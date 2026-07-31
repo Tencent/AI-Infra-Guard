@@ -226,9 +226,15 @@ def main() -> int:
             raise AssertionError(result["summary"])
         if "checks" in result["detail"]:
             raise AssertionError(result["detail"])
+        findings = result["detail"]["findings"]
+        if (
+            len(findings) != 7
+            or any(finding["severity"] != "Passed" for finding in findings)
+        ):
+            raise AssertionError(findings)
         print("events", " -> ".join(names))
         print("quick progress", names.count("progress"), quick_progress[-1])
-        print("findings", len(result["detail"]["findings"]))
+        print("findings", len(findings), "all passed")
         print("score", result["score"])
 
         responses_payload = {
@@ -240,11 +246,17 @@ def main() -> int:
         responses_events = run_detection(responses_payload)
         responses_names = [event for event, _ in responses_events]
         responses_result = responses_events[-2][1]["data"]
+        responses_findings = responses_result["detail"]["findings"]
         if (
             responses_names[-2:] != ["result", "done"]
             or responses_names.count("progress") != 7
             or responses_result["overall_verdict"] != "pass"
             or responses_result["detail"]["test_info"]["cache_read_tokens"] != 0
+            or len(responses_findings) != 7
+            or any(
+                finding["severity"] != "Passed"
+                for finding in responses_findings
+            )
         ):
             raise AssertionError({
                 "events": responses_names,

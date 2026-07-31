@@ -517,5 +517,7 @@ HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `scor
 Anthropic 的 `cache_read_input_tokens`、Chat Completions 的
 `prompt_tokens_details.cached_tokens` 以及 Responses 的
 `input_tokens_details.cached_tokens`；上游未提供的指标为 `null`。
+`detail.findings[]` 返回所有已执行探针；`severity` 使用英文二值状态
+`Passed`/`Failed`，摘要中的风险数量仍只统计失败风险项。
 黑盒审计对单个上游 HTTP 请求设置 60 秒总时限，并对整轮 quick 审计设置
 180 秒总时限，避免上游持续发送少量数据时绕过普通 socket 读超时。

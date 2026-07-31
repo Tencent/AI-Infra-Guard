@@ -515,6 +515,57 @@ class ServerContractTests(unittest.TestCase):
         self.assertNotIn("signature", detail)
         self.assertNotIn("probe_results", detail)
         self.assertEqual({}, detail["test_info"])
+        self.assertEqual("Passed", detail["findings"][0]["severity"])
+        self.assertEqual(
+            "模型列表检查通过",
+            detail["findings"][0]["title"],
+        )
+
+    def test_result_detail_returns_all_probe_statuses(self):
+        parts = {
+            "audit": {
+                "findings": [{
+                    "probe": "identity",
+                    "severity": "LOW",
+                    "title": "Model identity family mismatch",
+                }],
+                "probe_results": [
+                    {"name": "models", "ok": True},
+                    {"name": "identity", "ok": True},
+                    {"name": "stream_integrity", "ok": False},
+                ],
+            },
+        }
+
+        chinese = server._result_detail("quick", parts, "zh")
+        english = server._result_detail("quick", parts, "en")
+
+        self.assertEqual(
+            ["Passed", "Failed", "Failed"],
+            [
+                finding["severity"]
+                for finding in chinese["findings"]
+            ],
+        )
+        self.assertEqual(
+            [
+                "模型列表检查通过",
+                "模型身份系列不匹配",
+                "流式响应完整性检查未通过",
+            ],
+            [
+                finding["title"]
+                for finding in chinese["findings"]
+            ],
+        )
+        self.assertEqual(
+            "Model list check passed",
+            english["findings"][0]["title"],
+        )
+        self.assertEqual(
+            "Stream integrity check failed",
+            english["findings"][2]["title"],
+        )
 
     def test_overall_verdict_rejects_findings_and_partial_results(self):
         safe_audit = {

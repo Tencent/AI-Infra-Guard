@@ -170,7 +170,7 @@ data.completed_rate	number	进度比例，范围 0.0–1.0
 完整结构
 
 event: result
-data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"summary":"未发现明显风险","detail":{"findings":[],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
+data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"summary":"未发现明显风险","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查通过"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
 
 
 格式化后的 JSON：
@@ -183,7 +183,13 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
     "score": 100.0,
     "summary": "未发现明显风险 (安全分 100/100, 发现 0 项风险)",
     "detail": {
-      "findings": [],
+      "findings": [
+        {
+          "probe": "models",
+          "severity": "Passed",
+          "title": "模型列表检查通过"
+        }
+      ],
       "best_model": "",
       "fingerprint": {},
       "test_info": {
@@ -202,7 +208,7 @@ result.data 字段
 algorithm	string	quick 或 full
 score	number	quick 为黑盒审计安全分；full 为指纹后验百分制
 summary	string	一句话检测结论
-detail.findings	array	风险发现；没有风险时为空数组
+detail.findings	array	所有已执行探针的通过/失败状态
 detail.best_model	string	full 的最匹配模型；无结果时为空字符串
 detail.fingerprint	object	full 的后验概率与造假状态；其他模式为空对象
 detail.test_info	object	延迟、生成速度、输入/输出 Token 和缓存读取汇总
@@ -216,8 +222,8 @@ detail.findings[] 字段
 
 字段	类型	说明
 probe	string	探针标识
-severity	string	英文二值状态；风险项统一返回 `Failed`
-title	string	风险标题
+severity	string	英文二值状态：`Passed` 或 `Failed`
+title	string	通过或风险标题
 
 `language` 省略时默认为 `zh`。`severity` 不受语言影响，统一使用英文状态。
 传入 `en` 后，`summary` 和 `detail.findings[].title` 返回英文，例如：
