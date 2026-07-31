@@ -176,3 +176,10 @@ Agent Security Scan leverages Red Teaming as a Service (RTaaS) driven Agent capa
   - **Access Control**: Authorization bypass detection (privilege escalation, administrative function abuse, multi-user data access, etc.).
   - **Tool Abuse**: Tool misuse detection (SSRF, command execution, file operations, network request abuse, etc.); file path traversal detection (unauthorized file access via path manipulation, etc.).
   - **Memory Security**: Memory poisoning detection (injecting malicious instructions into the Agent's long-term memory, etc.).
+  - **Supply Chain Security**: Agentic supply chain detection (malicious injection or backdoors in third-party dependencies, plugins, toolchains, etc.).
+  - **Unexpected Code Execution**: Detection of unauthorized code generation and execution by the Agent (sandbox escape, remote code execution, etc.).
+  - **Inter-Agent Communication Security**: Multi-Agent communication security detection (message hijacking, identity spoofing, unauthorized calls between Agents, etc.).
+  - **Cascading Failure**: Cascading failure detection (single Agent failure triggering chain reactions in multi-Agent systems, leading to large-scale outages or security boundary breaches, etc.).
+  - **Human-Agent Trust Exploit**: Human-Agent trust relationship exploitation detection (social engineering to deceive user authorization, exploiting trust between humans and Agents to bypass security mechanisms, etc.).
+
+  > v4.5.1 adds 5 new OWASP detection skills (Supply Chain Security, Unexpected Code Execution, Inter-Agent Communication Security, Cascading Failure, Human-Agent Trust Exploit) plus Web exfiltration detection, totaling 10 detection skills. The first 5 are default detection items; the latter 5 can be enabled via the `--skills` parameter.
