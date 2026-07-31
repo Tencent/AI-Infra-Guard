@@ -489,10 +489,16 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
     started = time.monotonic()
+    latest_probe_start = max(
+        0,
+        AUDIT_TOTAL_TIMEOUT_SECONDS - HTTP_TOTAL_TIMEOUT_SECONDS,
+    )
     for index, name in enumerate(probe_names):
         if cancel_event is not None and cancel_event.is_set():
             break
-        if time.monotonic() - started >= AUDIT_TOTAL_TIMEOUT_SECONDS:
+        # 为最后一个上游请求预留完整的单请求超时时间，保证整轮审计
+        # 不会因为临界点刚启动一个新探针而突破总时限。
+        if time.monotonic() - started >= latest_probe_start:
             for pending_name in probe_names[index:]:
                 results.append(ProbeResult(
                     pending_name,
