@@ -90,18 +90,47 @@ def _extract_text(resp):
     try:
         return resp["choices"][0]["message"]["content"] or ""
     except Exception:
-        return ""
+        pass
+    output_text = resp.get("output_text")
+    if isinstance(output_text, str):
+        return output_text
+    texts = []
+    for item in resp.get("output", []):
+        if not isinstance(item, dict):
+            continue
+        if item.get("type") == "output_text" and isinstance(item.get("text"), str):
+            texts.append(item["text"])
+        for block in item.get("content", []):
+            if (
+                isinstance(block, dict)
+                and block.get("type") in {"output_text", "text"}
+                and isinstance(block.get("text"), str)
+            ):
+                texts.append(block["text"])
+    return "".join(texts)
 
 
 def _finish_reason(resp):
     try:
         return resp["choices"][0].get("finish_reason")
     except Exception:
-        return None
+        pass
+    if resp.get("status") == "incomplete":
+        details = resp.get("incomplete_details")
+        if isinstance(details, dict):
+            return details.get("reason") or "incomplete"
+        return "incomplete"
+    if resp.get("status") == "completed":
+        return "stop"
+    return None
 
 
 def _is_truncated(resp):
-    return _finish_reason(resp) == "length" and not _extract_text(resp).strip()
+    reason = _finish_reason(resp)
+    return (
+        resp.get("status") == "incomplete"
+        or (reason in {"length", "max_output_tokens"} and not _extract_text(resp).strip())
+    )
 
 
 def _http_json(url, key, body=None, method="POST"):
@@ -145,14 +174,39 @@ def _http_stream(url, key, body):
     return chunks, saw_done, errors, int((time.time() - start) * 1000)
 
 
-def _chat(base_url, key, model, messages, max_tokens=100, temp=0, stream=False):
-    body = {"model": model, "messages": messages, "max_tokens": max_tokens,
-            "temperature": temp, "stream": stream}
-    return _http_json(f"{base_url.rstrip('/')}/chat/completions", key, body)
+def _chat(
+    base_url,
+    key,
+    model,
+    messages,
+    max_tokens=100,
+    temp=None,
+    stream=False,
+    api_type="openai",
+):
+    if api_type == "openai-responses":
+        body = {
+            "model": model,
+            "input": messages,
+            "max_output_tokens": max_tokens,
+            "stream": stream,
+        }
+        endpoint = "responses"
+    else:
+        body = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "stream": stream,
+        }
+        endpoint = "chat/completions"
+    if temp is not None:
+        body["temperature"] = temp
+    return _http_json(f"{base_url.rstrip('/')}/{endpoint}", key, body)
 
 
 # ---- 7 个探针 ----
-def probe_models(base_url, key, model):
+def probe_models(base_url, key, model, api_type="openai"):
     try:
         status, payload, lat = _http_json(f"{base_url.rstrip('/')}/models", key, method="GET")
         ids = [str(x.get("id", "")) for x in payload.get("data", []) if isinstance(x, dict)] if isinstance(payload.get("data"), list) else []
@@ -162,11 +216,12 @@ def probe_models(base_url, key, model):
         return ProbeResult("models", False, None, error=str(e))
 
 
-def probe_liveness(base_url, key, model):
+def probe_liveness(base_url, key, model, api_type="openai"):
     expected = f"echo-{_rand_str(6)}-{_rand_str(4)}"
     try:
         status, payload, lat = _chat(base_url, key, model,
-            [{"role": "user", "content": f"Reply with exactly: {expected}"}], CONTENT_MAX_TOKENS)
+            [{"role": "user", "content": f"Reply with exactly: {expected}"}],
+            CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
         return ProbeResult("liveness", 200 <= status < 300 and expected in text, lat,
             {"status": status, "expected": expected, "actual": text[:300],
@@ -176,10 +231,12 @@ def probe_liveness(base_url, key, model):
         return ProbeResult("liveness", False, None, error=str(e))
 
 
-def probe_identity(base_url, key, model):
+def probe_identity(base_url, key, model, api_type="openai"):
     prompt = random.choice(_IDENTITY_PROMPTS)
     try:
-        status, payload, lat = _chat(base_url, key, model, [{"role": "user", "content": prompt}], CONTENT_MAX_TOKENS)
+        status, payload, lat = _chat(
+            base_url, key, model, [{"role": "user", "content": prompt}],
+            CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
         hits = [x for x in IDENTITY_KEYWORDS if x in text.lower()]
         return ProbeResult("identity", 200 <= status < 300, lat,
@@ -189,13 +246,15 @@ def probe_identity(base_url, key, model):
         return ProbeResult("identity", False, None, error=str(e))
 
 
-def probe_token_delta(base_url, key, model):
+def probe_token_delta(base_url, key, model, api_type="openai"):
     word = _rand_str(8)
     prompt = f"Return only the word: {word}"
     try:
-        status, payload, lat = _chat(base_url, key, model, [{"role": "user", "content": prompt}], 5)
+        status, payload, lat = _chat(
+            base_url, key, model, [{"role": "user", "content": prompt}],
+            5, api_type=api_type)
         usage = payload.get("usage") or {}
-        actual = usage.get("prompt_tokens")
+        actual = usage.get("prompt_tokens", usage.get("input_tokens"))
         expected = max(1, len(prompt) // 4) + 12
         delta = actual - expected if isinstance(actual, int) else None
         return ProbeResult("token_delta", 200 <= status < 300, lat,
@@ -205,11 +264,13 @@ def probe_token_delta(base_url, key, model):
         return ProbeResult("token_delta", False, None, error=str(e))
 
 
-def probe_echo_rewrite(base_url, key, model):
+def probe_echo_rewrite(base_url, key, model, api_type="openai"):
     expected = random.choice(_REAL_PIP_COMMANDS)
     prompt = f"Echo this text exactly, no markdown, no explanation:\n{expected}"
     try:
-        status, payload, lat = _chat(base_url, key, model, [{"role": "user", "content": prompt}], CONTENT_MAX_TOKENS)
+        status, payload, lat = _chat(
+            base_url, key, model, [{"role": "user", "content": prompt}],
+            CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload).strip()
         suspicious = [x for x in ["curl ", "bash ", "sh ", "unknown", "mirror", " -i http", "wget ", "npm ", "eval("]
                        if x in text.lower()]
@@ -221,25 +282,79 @@ def probe_echo_rewrite(base_url, key, model):
         return ProbeResult("echo_rewrite", False, None, error=str(e))
 
 
-def probe_stream(base_url, key, model):
+def probe_stream(base_url, key, model, api_type="openai"):
     n = random.randint(15, 25)
-    body = {"model": model, "messages": [{"role": "user", "content": f"Count from 1 to {n}, separated by spaces."}],
-            "max_tokens": CONTENT_MAX_TOKENS, "temperature": 0, "stream": True}
+    messages = [{
+        "role": "user",
+        "content": f"Count from 1 to {n}, separated by spaces.",
+    }]
+    if api_type == "openai-responses":
+        body = {
+            "model": model,
+            "input": messages,
+            "max_output_tokens": CONTENT_MAX_TOKENS,
+            "stream": True,
+        }
+        endpoint = "responses"
+    else:
+        body = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": CONTENT_MAX_TOKENS,
+            "stream": True,
+        }
+        endpoint = "chat/completions"
     try:
-        chunks, saw_done, errors, lat = _http_stream(f"{base_url.rstrip('/')}/chat/completions", key, body)
-        models = sorted({c.get("model") for c in chunks if isinstance(c, dict) and c.get("model")})
-        return ProbeResult("stream_integrity", saw_done and not errors and len(chunks) > 0, lat,
-            {"chunk_count": len(chunks), "saw_done": saw_done, "json_errors": errors[:5], "stream_models": models})
+        chunks, saw_done, errors, lat = _http_stream(
+            f"{base_url.rstrip('/')}/{endpoint}", key, body)
+        response_events = [
+            chunk for chunk in chunks
+            if isinstance(chunk, dict) and isinstance(chunk.get("response"), dict)
+        ]
+        response_completed = any(
+            chunk.get("type") == "response.completed" for chunk in chunks
+            if isinstance(chunk, dict)
+        )
+        completed = saw_done or (
+            api_type == "openai-responses" and response_completed
+        )
+        models = {
+            chunk.get("model") for chunk in chunks
+            if isinstance(chunk, dict) and chunk.get("model")
+        }
+        models.update(
+            chunk["response"].get("model") for chunk in response_events
+            if chunk["response"].get("model")
+        )
+        usage = next((
+            chunk["response"].get("usage") for chunk in reversed(response_events)
+            if isinstance(chunk["response"].get("usage"), dict)
+        ), None)
+        return ProbeResult(
+            "stream_integrity",
+            completed and not errors and len(chunks) > 0,
+            lat,
+            {
+                "chunk_count": len(chunks),
+                "saw_done": saw_done,
+                "response_completed": response_completed,
+                "json_errors": errors[:5],
+                "stream_models": sorted(models),
+                "usage": usage,
+            },
+        )
     except Exception as e:
         return ProbeResult("stream_integrity", False, None, error=str(e))
 
 
-def probe_context_canary(base_url, key, model):
+def probe_context_canary(base_url, key, model, api_type="openai"):
     s, m, e = f"CANARY_{_rand_str(10)}", f"CANARY_{_rand_str(10)}", f"CANARY_{_rand_str(10)}"
     filler = "The quick brown fox jumps over the lazy dog. " * 120
     content = f"{s}\n{filler}\n{m}\n{filler}\n{e}\n\nRepeat back ONLY the three canary tokens, each on its own line."
     try:
-        status, payload, lat = _chat(base_url, key, model, [{"role": "user", "content": content}], CONTENT_MAX_TOKENS)
+        status, payload, lat = _chat(
+            base_url, key, model, [{"role": "user", "content": content}],
+            CONTENT_MAX_TOKENS, api_type=api_type)
         text = _extract_text(payload)
         return ProbeResult("context_canary", 200 <= status < 300 and e in text, lat,
             {"status": status, "saw_start": s in text, "saw_mid": m in text, "saw_end": e in text,
@@ -299,14 +414,14 @@ def build_findings(results, requested_model):
 
 
 def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
-                    on_progress=None):
+                    on_progress=None, api_type="openai"):
     """运行黑盒审计，返回 {score, verdict, findings, probe_results, summary}"""
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
     for name in probe_names:
         if cancel_event is not None and cancel_event.is_set():
             break
-        results.append(_PROBES[name](base_url, api_key, model))
+        results.append(_PROBES[name](base_url, api_key, model, api_type))
         if on_progress:
             on_progress(len(results), len(probe_names))
     findings = build_findings(results, model)

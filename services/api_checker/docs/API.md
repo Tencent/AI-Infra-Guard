@@ -65,7 +65,7 @@ POST /api/v1/relay/check/stream
 请求体
 字段	类型	必填	默认值	说明
 algorithm	string	是	—	quick 或 full
-base_url	string	是	—	待测 API 基础 URL，带不带 /v1 均可
+base_url	string	是	—	待测 API 基础 URL，也可传完整 /chat/completions 或 /responses 地址
 api_key	string	是	—	待测 API 密钥，仅在内存使用
 model	string	是	—	待测模型 ID
 language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title

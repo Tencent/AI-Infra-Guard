@@ -67,6 +67,30 @@ class ServerContractTests(unittest.TestCase):
             server.normalize_openai_base("https://api.example.test/custom/v2/"),
         )
         self.assertEqual(
+            "https://api.example.test/v1",
+            server.normalize_openai_base(
+                "https://api.example.test/v1/chat/completions"
+            ),
+        )
+        self.assertEqual(
+            "https://api.example.test/api/v3",
+            server.normalize_openai_base(
+                "https://api.example.test/api/v3/responses"
+            ),
+        )
+        self.assertEqual(
+            "openai",
+            server.openai_api_type(
+                "https://api.example.test/v1/chat/completions"
+            ),
+        )
+        self.assertEqual(
+            "openai-responses",
+            server.openai_api_type(
+                "https://api.example.test/api/v3/responses"
+            ),
+        )
+        self.assertEqual(
             ("https://api.example.test/v1", "https://api.example.test"),
             server.anthropic_bases("https://api.example.test/v1"),
         )
@@ -212,6 +236,110 @@ class ServerContractTests(unittest.TestCase):
         ]
 
         self.assertEqual(0, server._audit_test_info(probes)["cache_read_tokens"])
+
+    def test_audit_test_info_supports_provider_usage_matrix(self):
+        cases = {
+            "siliconflow": ({
+                "prompt_tokens": 9,
+                "completion_tokens": 1,
+                "prompt_cache_hit_tokens": 0,
+            }, (9, 1, 0)),
+            "openrouter": ({
+                "prompt_tokens": 12,
+                "completion_tokens": 1,
+                "prompt_tokens_details": {"cached_tokens": 2},
+            }, (12, 1, 2)),
+            "aliyun": ({
+                "prompt_tokens": 15,
+                "completion_tokens": 3,
+            }, (15, 3, None)),
+            "tencent": ({
+                "prompt_tokens": 20,
+                "completion_tokens": 2,
+                "prompt_tokens_details": {"cached_tokens": 4},
+            }, (20, 2, 4)),
+            "volcengine-responses": ({
+                "input_tokens": 20,
+                "output_tokens": 3,
+                "input_tokens_details": {"cached_tokens": 5},
+            }, (20, 3, 5)),
+            "deepseek": ({
+                "prompt_tokens": 9,
+                "completion_tokens": 8,
+                "prompt_cache_hit_tokens": 6,
+            }, (9, 8, 6)),
+            "minimax": ({
+                "prompt_tokens": 46,
+                "completion_tokens": 8,
+                "prompt_tokens_details": {"cached_tokens": 7},
+            }, (46, 8, 7)),
+            "bigmodel": ({
+                "prompt_tokens": 17,
+                "completion_tokens": 8,
+                "prompt_tokens_details": {"cached_tokens": 3},
+            }, (17, 8, 3)),
+            "moonshot": ({
+                "prompt_tokens": 12,
+                "completion_tokens": 8,
+                "cached_tokens": 1,
+            }, (12, 8, 1)),
+        }
+        for provider, (usage, expected) in cases.items():
+            with self.subTest(provider=provider):
+                info = server._audit_test_info([
+                    ProbeResult(
+                        "liveness",
+                        True,
+                        100,
+                        data={"usage": usage},
+                    ),
+                ])
+                self.assertEqual(expected[0], info["input_tokens"])
+                self.assertEqual(expected[1], info["output_tokens"])
+                self.assertEqual(expected[2], info["cache_read_tokens"])
+
+    def test_full_responses_endpoint_selects_responses_protocol(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "findings": [],
+            "probe_results": [{"name": "models", "ok": True}],
+        }
+        fingerprint = {
+            "best_model": "Doubao",
+            "_posterior": 0.9,
+            "_forgery_status": "supported",
+        }
+        request = server.DetectRequest(
+            algorithm="full",
+            base_url="https://api.example.test/api/v3/responses",
+            api_key="secret",
+            model="doubao-test",
+            iterations=50,
+        )
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit) as audit_call,
+            patch.object(
+                server,
+                "_run_fingerprint",
+                return_value=fingerprint,
+            ) as fingerprint_call,
+        ):
+            server._run_detect(request)
+
+        self.assertEqual(
+            "openai-responses",
+            audit_call.call_args.kwargs["api_type"],
+        )
+        self.assertEqual(
+            "openai-responses",
+            fingerprint_call.call_args.args[1],
+        )
+        self.assertEqual(
+            "https://api.example.test/api/v3",
+            fingerprint_call.call_args.args[2],
+        )
 
     def test_quick_detect_returns_result_when_audit_succeeds(self):
         audit = {

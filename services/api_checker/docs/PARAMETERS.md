@@ -514,5 +514,6 @@ HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `scor
 同时在 `detail.test_info` 返回黑盒生成探针的平均延迟 `latency_ms`、生成速度
 `tokens_per_second`、累计输入 `input_tokens`、累计输出 `output_tokens` 和缓存读取
 `cache_read_tokens`。缓存读取兼容 DeepSeek 的 `prompt_cache_hit_tokens`、
-Anthropic 的 `cache_read_input_tokens` 以及 OpenAI 兼容接口的
-`cached_tokens`；上游未提供的指标为 `null`。
+Anthropic 的 `cache_read_input_tokens`、Chat Completions 的
+`prompt_tokens_details.cached_tokens` 以及 Responses 的
+`input_tokens_details.cached_tokens`；上游未提供的指标为 `null`。

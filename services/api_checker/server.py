@@ -187,13 +187,24 @@ def _validate_target_address(hostname: str, port: int | None) -> None:
 #  服务端按各算法模块的端点拼接约定拆成实际使用的 base。
 # ================================================================
 def normalize_openai_base(base_url: str) -> str:
-    """OpenAI 协议统一约定（算法A / 算法C）：base 后拼 /chat/completions、/models。
+    """OpenAI 协议统一约定（算法A / 算法C）：返回版本 base。
 
     - 裸域名（https://api.openai.com）→ 自动补 /v1
     - 已带路径（…/v1、…/api/paas/v4 等自定义版本前缀）→ 原样使用
+    - 完整端点（…/chat/completions、…/responses）→ 去掉端点后缀
     """
     b = base_url.rstrip("/")
+    for suffix in ("/chat/completions", "/responses"):
+        if urlparse(b).path.endswith(suffix):
+            b = b[:-len(suffix)]
+            break
     return b if urlparse(b).path else b + "/v1"
+
+
+def openai_api_type(base_url: str) -> str:
+    """根据用户提交的完整端点选择 Chat Completions 或 Responses 协议。"""
+    path = urlparse(base_url.rstrip("/")).path
+    return "openai-responses" if path.endswith("/responses") else "openai"
 
 
 def anthropic_bases(base_url: str) -> tuple[str, str]:
@@ -421,7 +432,7 @@ def _run_signature(req: DetectRequest, base_url: str, cancel_event=None) -> dict
 
 
 def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
-               on_progress=None) -> dict:
+               on_progress=None, api_type="openai") -> dict:
     """算法 C：黑盒审计 7 探针。base_url 由调度层归一化后传入。
     返回极简：判定 + 评分 + 风险发现（仅严重度+标题）。"""
     def progress(completed, total):
@@ -438,6 +449,7 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
         AUDIT_PROFILE,
         cancel_event=cancel_event,
         on_progress=progress,
+        api_type=api_type,
     )
     _raise_if_cancelled(cancel_event)
     test_info = _audit_test_info(result["probe_results"])
@@ -629,6 +641,7 @@ def _overall_verdict(algorithm: str, parts: dict[str, dict], errors: dict[str, s
 def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict:
     """统一检测调度"""
     claude = is_claude_model(req.model)
+    openai_type = openai_api_type(req.base_url)
 
     # ---- quick：黑盒审计（Claude 时自动叠加算法 B）----
     if req.algorithm == "quick":
@@ -640,6 +653,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                 normalize_openai_base(req.base_url),
                 cancel_event,
                 on_progress,
+                openai_type,
             )
         except DetectionCancelled:
             raise
@@ -674,7 +688,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         api_type = "anthropic"
         fp_base, sig_base = anthropic_bases(req.base_url)
     else:
-        api_type = "openai"
+        api_type = openai_type
         fp_base, sig_base = normalize_openai_base(req.base_url), None
 
     parts = {}
@@ -684,6 +698,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             req,
             normalize_openai_base(req.base_url),
             cancel_event,
+            api_type=openai_type,
         )
     except DetectionCancelled:
         raise

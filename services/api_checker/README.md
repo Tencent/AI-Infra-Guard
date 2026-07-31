@@ -79,7 +79,8 @@ Jensen–Shannon 散度，排名最前即指纹最接近的模型。候选分布
 
 ### C. 中转站黑盒审计（7 探针，源自朱雀实验室 A.I.G）
 
-适用于 OpenAI 兼容中转站（`/v1/models`、`/v1/chat/completions`）：
+适用于 OpenAI 兼容中转站（`/v1/models`、`/v1/chat/completions` 或
+`/v1/responses`）：
 
 | # | 探针 | 检测什么 | 关键风险信号 |
 |---|------|----------|--------------|
@@ -161,6 +162,8 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
 `language` 可选 `zh` 或 `en`，省略时默认中文；该参数控制结果中的 `summary`
 和 `detail.findings[].title`。`detail.findings[].severity` 统一使用英文二值
 状态；字段名以及 `overall_verdict` 的机器可读枚举保持不变。
+`base_url` 可填写版本根路径，也可直接填写完整的 `/chat/completions` 或
+`/responses` 地址；服务会自动选择对应协议且不会重复拼接路径。
 
 ## 隐私
 

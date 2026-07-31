@@ -231,8 +231,10 @@ def _call_api_for_number(api_type, base_url, api_key, model, no_think=False):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
         })
+        # Responses 的默认温度即 1；省略该可选字段可兼容不接受
+        # temperature 的推理模型和 OpenAI-compatible 实现。
         body = {"model": model, "input": [{"role": "user", "content": RANDOM_PROMPT}],
-                "temperature": 1.0, "max_output_tokens": 10}
+                "max_output_tokens": 10}
         _, data = http_post_json(f"{base}/responses", headers, body)
         if "error" not in data:
             msg = next((o for o in data.get("output", []) if o.get("type") == "message"), None)

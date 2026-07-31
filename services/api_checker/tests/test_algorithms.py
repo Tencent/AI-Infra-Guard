@@ -40,6 +40,32 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(0, errors)
         call.assert_not_called()
 
+    def test_responses_fingerprint_omits_optional_temperature(self):
+        response = {
+            "output": [{
+                "type": "message",
+                "content": [{
+                    "type": "output_text",
+                    "text": "7",
+                }],
+            }],
+        }
+        with patch.object(
+            common,
+            "http_post_json",
+            return_value=(200, response),
+        ) as request:
+            result = common._call_api_for_number(
+                "openai-responses",
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+            )
+
+        self.assertEqual("7", result)
+        _, _, body = request.call_args.args
+        self.assertNotIn("temperature", body)
+
 
 class SignatureTests(unittest.TestCase):
     def test_random_fingerprint_uses_shared_stats_function(self):
@@ -88,6 +114,58 @@ class RelayAuditTests(unittest.TestCase):
             [(index, len(probe_names)) for index in range(1, len(probe_names) + 1)],
             progress,
         )
+
+    def test_chat_omits_temperature_and_supports_responses(self):
+        messages = [{"role": "user", "content": "hello"}]
+        with patch.object(
+            relay_audit,
+            "_http_json",
+            return_value=(200, {}, 1),
+        ) as request:
+            relay_audit._chat(
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                messages,
+            )
+            chat_url, _, chat_body = request.call_args.args
+            self.assertEqual(
+                "https://example.test/v1/chat/completions",
+                chat_url,
+            )
+            self.assertNotIn("temperature", chat_body)
+            self.assertEqual(messages, chat_body["messages"])
+
+            relay_audit._chat(
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                messages,
+                api_type="openai-responses",
+            )
+            responses_url, _, responses_body = request.call_args.args
+            self.assertEqual(
+                "https://example.test/v1/responses",
+                responses_url,
+            )
+            self.assertNotIn("temperature", responses_body)
+            self.assertEqual(messages, responses_body["input"])
+            self.assertNotIn("messages", responses_body)
+
+    def test_responses_payload_helpers(self):
+        payload = {
+            "status": "completed",
+            "output": [{
+                "type": "message",
+                "content": [{
+                    "type": "output_text",
+                    "text": "hello",
+                }],
+            }],
+        }
+        self.assertEqual("hello", relay_audit._extract_text(payload))
+        self.assertEqual("stop", relay_audit._finish_reason(payload))
+        self.assertFalse(relay_audit._is_truncated(payload))
 
 
 class PamelaTests(unittest.TestCase):

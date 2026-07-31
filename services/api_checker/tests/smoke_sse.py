@@ -42,22 +42,40 @@ class RelayHandler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self):
-        if self.path != "/v1/chat/completions":
+        if self.path not in {"/v1/chat/completions", "/v1/responses"}:
             self.send_error(404)
             return
         length = int(self.headers.get("Content-Length", "0"))
         request = json.loads(self.rfile.read(length))
-        prompt = request["messages"][-1]["content"]
+        responses_api = self.path == "/v1/responses"
+        prompt = request["input" if responses_api else "messages"][-1]["content"]
 
         if request.get("stream"):
-            chunk = {
-                "model": request["model"],
-                "choices": [{"delta": {"content": "1 2 3"}, "finish_reason": None}],
-            }
-            stream = (
-                f"data: {json.dumps(chunk)}\n\n"
-                "data: [DONE]\n\n"
-            ).encode()
+            if responses_api:
+                chunk = {
+                    "type": "response.completed",
+                    "response": {
+                        "model": request["model"],
+                        "usage": {
+                            "input_tokens": max(1, len(prompt) // 4),
+                            "output_tokens": 5,
+                            "input_tokens_details": {"cached_tokens": 0},
+                        },
+                    },
+                }
+                stream = f"data: {json.dumps(chunk)}\n\n".encode()
+            else:
+                chunk = {
+                    "model": request["model"],
+                    "choices": [{
+                        "delta": {"content": "1 2 3"},
+                        "finish_reason": None,
+                    }],
+                }
+                stream = (
+                    f"data: {json.dumps(chunk)}\n\n"
+                    "data: [DONE]\n\n"
+                ).encode()
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
             self.send_header("Content-Length", str(len(stream)))
@@ -81,17 +99,35 @@ class RelayHandler(BaseHTTPRequestHandler):
         else:
             text = "OK"
 
-        self.send_json({
-            "model": request["model"],
-            "choices": [{
-                "message": {"content": text},
-                "finish_reason": "stop",
-            }],
-            "usage": {
-                "prompt_tokens": max(1, len(prompt) // 4),
-                "completion_tokens": max(1, len(text) // 4),
-            },
-        })
+        if responses_api:
+            self.send_json({
+                "model": request["model"],
+                "status": "completed",
+                "output": [{
+                    "type": "message",
+                    "content": [{
+                        "type": "output_text",
+                        "text": text,
+                    }],
+                }],
+                "usage": {
+                    "input_tokens": max(1, len(prompt) // 4),
+                    "output_tokens": max(1, len(text) // 4),
+                    "input_tokens_details": {"cached_tokens": 0},
+                },
+            })
+        else:
+            self.send_json({
+                "model": request["model"],
+                "choices": [{
+                    "message": {"content": text},
+                    "finish_reason": "stop",
+                }],
+                "usage": {
+                    "prompt_tokens": max(1, len(prompt) // 4),
+                    "completion_tokens": max(1, len(text) // 4),
+                },
+            })
 
 
 def wait_for_checker(process: subprocess.Popen) -> None:
@@ -194,6 +230,31 @@ def main() -> int:
         print("quick progress", names.count("progress"), quick_progress[-1])
         print("findings", len(result["detail"]["findings"]))
         print("score", result["score"])
+
+        responses_payload = {
+            **quick_payload,
+            "base_url": (
+                f"http://127.0.0.1:{RELAY_PORT}/v1/responses"
+            ),
+        }
+        responses_events = run_detection(responses_payload)
+        responses_names = [event for event, _ in responses_events]
+        responses_result = responses_events[-2][1]["data"]
+        if (
+            responses_names[-2:] != ["result", "done"]
+            or responses_names.count("progress") != 7
+            or responses_result["overall_verdict"] != "pass"
+            or responses_result["detail"]["test_info"]["cache_read_tokens"] != 0
+        ):
+            raise AssertionError({
+                "events": responses_names,
+                "result": responses_result,
+            })
+        print(
+            "responses quick",
+            responses_names.count("progress"),
+            responses_result["detail"]["test_info"]["cache_read_tokens"],
+        )
 
         full_payload = {
             **quick_payload,
