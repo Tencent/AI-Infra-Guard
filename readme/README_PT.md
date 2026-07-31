@@ -324,9 +324,10 @@ A equipe lançou produtos de segurança de IA de código aberto, incluindo a pla
 | Líder técnico | **Python** | Desenho da arquitetura geral, desenvolvimento dos módulos centrais e iteração de versões. |
 | Contribuidor principal | **Zona** | Interação frontend, experiência do produto, operação da comunidade e ciclo de feedback dos usuários. |
 | Contribuidor principal | **Fyoung** | Atualização de fingerprints de componentes vulneráveis de AI Infra e construção do sistema de benchmark. |
+| Contribuidor principal | **Xiangfan** | Desenvolvimento de capacidades de segurança para riscos de Skills e cenários de perda de controle de agentes. |
+| Contribuidor principal | **Elwood** | Aprimoramento das capacidades de varredura de segurança de agentes e atualização de relatórios técnicos. |
 | Contribuidor principal | **Robert** | Avaliação de segurança de LLMs e operação de estratégias de avaliação de jailbreak. |
 | Contribuidor principal | **Zoe** | Avaliação de segurança de LLMs, avaliação de jailbreak e desenvolvimento do módulo de integração de modelos. |
-| Contribuidor principal | **Xiangfan** | Desenvolvimento de capacidades de segurança para riscos de Skills e cenários de perda de controle de agentes. |
 | Contribuidor | **Ronin** | Participou do desenvolvimento do scan de segurança de agentes de IA. |
 | Contribuidor | **Rsin** | Participou da operação da comunidade e da comunicação de campanhas. |
 

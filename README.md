@@ -326,9 +326,10 @@ We have released open-source AI security products including the AI Red Team Secu
 | Technical Lead | **Python** | Overall architecture design, core module development, and version iteration. |
 | Core Contributor | **Zona** | Frontend interaction, product experience, community operations, and user-feedback loop. |
 | Core Contributor | **Fyoung** | AI Infra vulnerability component fingerprint updates and Benchmark system construction. |
+| Core Contributor | **Xiangfan** | Security capability development for Skill risks and agent loss-of-control scenarios. |
+| Core Contributor | **Elwood** | Enhancing Agent security scanning capabilities and updating technical reports. |
 | Core Contributor | **Robert** | LLM safety assessment and jailbreak-evaluation strategy operations. |
 | Core Contributor | **Zoe** | LLM safety assessment, jailbreak evaluation, and model-integration module development. |
-| Core Contributor | **Xiangfan** | Security capability development for Skill risks and agent loss-of-control scenarios. |
 | Contributor | **Ronin** | Participated in AI agent security scanning development. |
 | Contributor | **Rsin** | Participated in community operations and campaign communications. |
 
