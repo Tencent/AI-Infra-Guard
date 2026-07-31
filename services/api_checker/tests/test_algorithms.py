@@ -89,13 +89,27 @@ class BaselineTests(unittest.TestCase):
 
     def test_bundled_baselines_are_complete(self):
         baselines = common.load_baselines()
-        self.assertEqual(28, len(baselines))
-        self.assertEqual(28, len({item["model"].lower() for item in baselines}))
+        self.assertEqual(29, len(baselines))
+        self.assertEqual(29, len({item["model"].lower() for item in baselines}))
         for baseline in baselines:
             self.assertEqual(common.NUMBER_RANGE, len(baseline["counts"]))
             self.assertEqual(common.NUMBER_RANGE, len(baseline["distribution"]))
             self.assertEqual(baseline["iterations"], sum(baseline["counts"]))
             self.assertEqual(baseline["iterations"], len(baseline["rawData"]))
+
+    def test_deepseek_flash_keeps_preview_and_current_baselines(self):
+        baselines = {
+            baseline["model"]: baseline
+            for baseline in common.load_baselines()
+        }
+
+        preview = baselines["deepseek-v4-flash-preview"]
+        current = baselines["deepseek-v4-flash"]
+        self.assertEqual("DeepSeek-V4-Flash-Preview", preview["name"])
+        self.assertEqual("DeepSeek-V4-Flash", current["name"])
+        self.assertEqual(496, preview["iterations"])
+        self.assertEqual(496, current["iterations"])
+        self.assertNotEqual(preview["rawData"], current["rawData"])
 
     def test_calculate_stats(self):
         stats = common.calculate_stats([1, 2, 2, 5])

@@ -40,7 +40,7 @@ curl http://21.214.127.143:8000/api/v1/relay/models
         "provider": "openai_compatible"
       }
     ],
-    "total": 28,
+    "total": 29,
     "algorithms": {
       "full": "仅支持 models 列表中的模型，可进行指纹识别和黑盒审计",
       "quick": "支持 models 列表中的模型，不在列表中的模型型号只支持openai格式，进行快速检测"

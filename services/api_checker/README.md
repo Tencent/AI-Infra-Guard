@@ -156,7 +156,7 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
   -d '{"algorithm":"quick","base_url":"https://relay.example.com/v1","api_key":"sk-...","model":"gpt-4o","language":"en"}'
 ```
 
-可通过 `/api/v1/relay/models` 查询 quick/full 检测支持的 28 个参考指纹模型。检测入口为
+可通过 `/api/v1/relay/models` 查询 quick/full 检测支持的 29 个参考指纹模型。检测入口为
 `/api/v1/relay/check/stream`，详见
 [`docs/API.md`](docs/API.md)。
 `language` 可选 `zh` 或 `en`，省略时默认中文；该参数控制结果中的 `summary`

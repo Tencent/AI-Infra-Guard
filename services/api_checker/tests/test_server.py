@@ -10,8 +10,8 @@ from services.api_checker.algorithms.relay_audit import ProbeResult
 class ServerContractTests(unittest.TestCase):
     def test_detectable_models_are_unique_and_stable(self):
         models = server._detectable_models()
-        self.assertEqual(28, len(models))
-        self.assertEqual(28, len({item["id"].lower() for item in models}))
+        self.assertEqual(29, len(models))
+        self.assertEqual(29, len({item["id"].lower() for item in models}))
         self.assertIn(models[0]["provider"], {"anthropic", "openai_compatible"})
 
     def test_models_api_describes_supported_algorithms(self):
