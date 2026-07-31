@@ -56,12 +56,20 @@ if __package__:
     from .algorithms.fingerprint import test_model
     from .algorithms.signature import run_all_checks
     from .algorithms.relay_audit import run_relay_audit
-    from .algorithms.common import load_baselines, DEFAULT_BASELINES_PATH
+    from .algorithms.common import (
+        load_baselines,
+        resolve_baseline_name,
+        DEFAULT_BASELINES_PATH,
+    )
 else:
     from algorithms.fingerprint import test_model
     from algorithms.signature import run_all_checks
     from algorithms.relay_audit import run_relay_audit
-    from algorithms.common import load_baselines, DEFAULT_BASELINES_PATH
+    from algorithms.common import (
+        load_baselines,
+        resolve_baseline_name,
+        DEFAULT_BASELINES_PATH,
+    )
 
 VERSION = "1.7.0"
 FINGERPRINT_CONCURRENCY = 5
@@ -364,14 +372,8 @@ class DetectRequest(BaseModel):
 #  各算法执行
 # ================================================================
 def _resolve_baseline_name(model: str) -> str | None:
-    """用请求 model 自动匹配基准 name。"""
-    model_l = (model or "").lower()
-    for baseline in load_baselines():
-        name = str(baseline.get("name", ""))
-        model_id = str(baseline.get("model", ""))
-        if model_l in {name.lower(), model_id.lower()}:
-            return name
-    return None
+    """把请求模型 ID 映射到 full 指纹数据集的规范 name。"""
+    return resolve_baseline_name(model, load_baselines())
 
 
 class DetectionCancelled(RuntimeError):

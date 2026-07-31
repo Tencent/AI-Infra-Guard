@@ -194,6 +194,55 @@ def load_baselines(filepath=DEFAULT_BASELINES_PATH):
         return []
 
 
+def _model_lookup_key(value):
+    """模型/基线 ID 的比较键：忽略首尾空白和大小写。"""
+    return str(value or "").strip().casefold()
+
+
+def _unprefixed_model_key(value):
+    key = _model_lookup_key(value)
+    if "/" not in key:
+        return key
+    return key.split("/", 1)[1].strip()
+
+
+def resolve_baseline_name(model, baselines):
+    """把运行时模型 ID 映射到 full 指纹数据集的唯一 name。
+
+    优先匹配完整的基线 name/model；仅在完整匹配失败后，才忽略
+    provider/ 前缀，并且只有唯一候选时才返回，防止同名模型错配。
+    """
+    query = _model_lookup_key(model)
+    if not query:
+        return None
+
+    exact_matches = []
+    fallback_matches = []
+    query_unprefixed = _unprefixed_model_key(query)
+    for baseline in baselines:
+        name = str(baseline.get("name", "")).strip()
+        model_id = str(baseline.get("model", "")).strip()
+        if not name:
+            continue
+
+        exact_aliases = {
+            _model_lookup_key(name),
+            _model_lookup_key(model_id),
+        }
+        if query in exact_aliases:
+            exact_matches.append(name)
+
+        fallback_aliases = {
+            _unprefixed_model_key(name),
+            _unprefixed_model_key(model_id),
+        }
+        if query_unprefixed in fallback_aliases:
+            fallback_matches.append(name)
+
+    matches = exact_matches or fallback_matches
+    return matches[0] if len(matches) == 1 else None
+
+
 def append_baseline(baseline, filepath=DEFAULT_BASELINES_PATH):
     baselines = load_baselines(filepath)
     baselines.append(baseline)

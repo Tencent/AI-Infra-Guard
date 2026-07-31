@@ -5,10 +5,88 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from services.api_checker import server
 from services.api_checker.algorithms import common, pamela, relay_audit, signature
 
 
 class BaselineTests(unittest.TestCase):
+    def test_all_bundled_baseline_ids_map_case_insensitively(self):
+        baselines = common.load_baselines()
+        for baseline in baselines:
+            name = baseline["name"]
+            model_id = baseline["model"]
+            aliases = {
+                name.swapcase(),
+                model_id.swapcase(),
+                model_id.split("/", 1)[-1].swapcase(),
+            }
+            for alias in aliases:
+                with self.subTest(name=name, alias=alias):
+                    self.assertEqual(
+                        name,
+                        common.resolve_baseline_name(alias, baselines),
+                    )
+
+    def test_baseline_mapping_accepts_unique_provider_alias(self):
+        baselines = common.load_baselines()
+
+        self.assertEqual(
+            "GPT-4o-mini",
+            common.resolve_baseline_name(
+                "Azure/GPT-4O-MINI",
+                baselines,
+            ),
+        )
+
+    def test_baseline_mapping_rejects_ambiguous_unprefixed_id(self):
+        baselines = [
+            {"name": "Vendor-A", "model": "vendor-a/shared-model"},
+            {"name": "Vendor-B", "model": "vendor-b/shared-model"},
+        ]
+
+        self.assertIsNone(
+            common.resolve_baseline_name("shared-model", baselines),
+        )
+        self.assertEqual(
+            "Vendor-A",
+            common.resolve_baseline_name(
+                "VENDOR-A/SHARED-MODEL",
+                baselines,
+            ),
+        )
+
+    def test_full_fingerprint_passes_mapped_dataset_name(self):
+        request = server.DetectRequest(
+            algorithm="full",
+            base_url="https://api.example.test/v1",
+            api_key="secret",
+            model="Azure/GPT-4O-MINI",
+            iterations=50,
+        )
+        fingerprint_result = {
+            "bayes": {
+                "best_model_name": "GPT-4o-mini",
+                "best_posterior": 0.9,
+                "forgery": {"status": "supported"},
+            },
+        }
+
+        with patch.object(
+            server,
+            "test_model",
+            return_value=fingerprint_result,
+        ) as test_model:
+            server._run_fingerprint(
+                request,
+                "openai",
+                request.base_url,
+            )
+
+        self.assertEqual(
+            "GPT-4o-mini",
+            test_model.call_args.args[8],
+        )
+
     def test_bundled_baselines_are_complete(self):
         baselines = common.load_baselines()
         self.assertEqual(28, len(baselines))

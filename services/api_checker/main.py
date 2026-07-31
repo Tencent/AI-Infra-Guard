@@ -27,13 +27,21 @@ if __package__:
     from .algorithms.signature import run_all_checks
     from .algorithms.relay_audit import run_relay_audit, PROBE_NAMES
     from .algorithms.pamela import match_model, STUDY_A_TASKS, ALL_LANGS, DEFAULT_REFERENCE
-    from .algorithms.common import load_baselines, DEFAULT_BASELINES_PATH
+    from .algorithms.common import (
+        load_baselines,
+        resolve_baseline_name,
+        DEFAULT_BASELINES_PATH,
+    )
 else:
     from algorithms.fingerprint import calibrate, test_model
     from algorithms.signature import run_all_checks
     from algorithms.relay_audit import run_relay_audit, PROBE_NAMES
     from algorithms.pamela import match_model, STUDY_A_TASKS, ALL_LANGS, DEFAULT_REFERENCE
-    from algorithms.common import load_baselines, DEFAULT_BASELINES_PATH
+    from algorithms.common import (
+        load_baselines,
+        resolve_baseline_name,
+        DEFAULT_BASELINES_PATH,
+    )
 
 API_TYPES = ["openai", "openai-responses", "anthropic"]
 
@@ -65,13 +73,7 @@ def _progress():
 
 
 def _baseline_name_for_model(baselines, model):
-    model_l = (model or "").lower()
-    for b in baselines:
-        name = str(b.get("name", ""))
-        model_id = str(b.get("model", ""))
-        if model_l in {name.lower(), model_id.lower()}:
-            return name
-    return None
+    return resolve_baseline_name(model, baselines)
 
 
 # ================================================================
