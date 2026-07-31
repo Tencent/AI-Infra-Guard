@@ -324,9 +324,10 @@ Das Team hat Open-Source-KI-Sicherheitsprodukte wie die KI-Red-Team-Sicherheitst
 | Technischer Leiter | **Python** | Gesamtarchitekturdesign, Entwicklung der Kernmodule und Versionsiteration. |
 | Kernbeitragender | **Zona** | Frontend-Interaktion, Produktnutzererfahrung, Community-Betrieb und Schließen der Nutzer-Feedback-Schleife. |
 | Kernbeitragender | **Fyoung** | Aktualisierung der Fingerprints für KI-Infra-Schwachstellenkomponenten und Aufbau des Benchmark-Systems. |
+| Kernbeitragender | **Xiangfan** | Entwicklung von Sicherheitsfunktionen für Skill-Risiken und Szenarien mit Kontrollverlust von Agenten. |
+| Kernbeitragender | **Elwood** | Verbesserung der Agent-Sicherheitsscanning-Fähigkeiten und Aktualisierung technischer Berichte. |
 | Kernbeitragender | **Robert** | Sicherheit von LLMs und Betrieb der Strategien zur Jailbreak-Bewertung. |
 | Kernbeitragender | **Zoe** | Sicherheit von LLMs, Jailbreak-Bewertung sowie Entwicklung des Modell-Integrationsmoduls. |
-| Kernbeitragender | **Xiangfan** | Entwicklung von Sicherheitsfunktionen für Skill-Risiken und Szenarien mit Kontrollverlust von Agenten. |
 | Beitragender | **Ronin** | Mitwirkung an der Entwicklung des KI-Agenten-Sicherheits-Scans. |
 | Beitragender | **Rsin** | Mitwirkung am Community-Betrieb und an der Kommunikation von Kampagnen. |
 

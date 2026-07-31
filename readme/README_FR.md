@@ -324,9 +324,10 @@ L'équipe a publié des produits de sécurité IA open source tels que la platef
 | Responsable technique | **Python** | Conception de l'architecture globale, développement des modules cœur et itération des versions. |
 | Contributeur principal | **Zona** | Interactions front-end, expérience produit, animation de la communauté et boucle de retours utilisateurs. |
 | Contributeur principal | **Fyoung** | Mise à jour des empreintes des composants vulnérables AI Infra et construction du système de benchmark. |
+| Contributeur principal | **Xiangfan** | Développement des capacités de sécurité pour les risques liés aux Skills et aux scénarios de perte de contrôle des agents. |
+| Contributeur principal | **Elwood** | Amélioration des capacités d'analyse de sécurité des agents et mise à jour des rapports techniques. |
 | Contributeur principal | **Robert** | Évaluation de la sécurité des LLM et opérations sur les stratégies d'évaluation de jailbreak. |
 | Contributeur principal | **Zoe** | Évaluation de la sécurité des LLM, évaluation de jailbreak et développement du module d'intégration des modèles. |
-| Contributeur principal | **Xiangfan** | Développement des capacités de sécurité pour les risques liés aux Skills et aux scénarios de perte de contrôle des agents. |
 | Contributeur | **Ronin** | A participé au développement du scan de sécurité des agents IA. |
 | Contributeur | **Rsin** | A participé à l'animation de la communauté et à la communication des campagnes. |
 
