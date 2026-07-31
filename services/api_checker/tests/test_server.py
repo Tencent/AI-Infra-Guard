@@ -241,12 +241,20 @@ class ServerContractTests(unittest.TestCase):
             chinese["detail"]["findings"][0]["title"],
         )
         self.assertEqual(
+            "不通过",
+            chinese["detail"]["findings"][0]["severity"],
+        )
+        self.assertEqual(
             "High risk (safety score 50/100, 1 finding)",
             english["summary"],
         )
         self.assertEqual(
             "Relay liveness failed",
             english["detail"]["findings"][0]["title"],
+        )
+        self.assertEqual(
+            "Failed",
+            english["detail"]["findings"][0]["severity"],
         )
 
     def test_full_result_uses_english_summary_sections(self):

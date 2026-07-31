@@ -68,7 +68,7 @@ algorithm	string	是	—	quick 或 full
 base_url	string	是	—	待测 API 基础 URL，带不带 /v1 均可
 api_key	string	是	—	待测 API 密钥，仅在内存使用
 model	string	是	—	待测模型 ID
-language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title
+language	string	否	zh	结果文本语言：zh 或 en；影响 summary、findings[].title 和 findings[].severity
 iterations	integer	否	200	网页不显示，仅 full 使用，范围为 50–500
 no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型思考
 请求示例
@@ -209,23 +209,26 @@ detail.test_info	object	延迟、生成速度、输入/输出 Token 和缓存读
 detail.findings[] 字段
 
 {
-  "severity": "HIGH",
+  "probe": "liveness",
+  "severity": "不通过",
   "title": "中转服务连通性检查失败"
 }
 
 字段	类型	说明
-severity	string	LOW、MEDIUM 或 HIGH
+probe	string	探针标识
+severity	string	zh 返回“不通过”；en 返回“Failed”
 title	string	风险标题
 
 `language` 省略时默认为 `zh`。传入 `en` 后，`summary` 和
-`detail.findings[].title` 返回英文，例如：
+`detail.findings[].title`、`detail.findings[].severity` 返回英文，例如：
 
 ```json
 {
   "summary": "High risk (safety score 50/100, 1 finding)",
   "detail": {
     "findings": [{
-      "severity": "HIGH",
+      "probe": "liveness",
+      "severity": "Failed",
       "title": "Relay liveness failed"
     }]
   }
