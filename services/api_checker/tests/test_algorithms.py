@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from services.api_checker.algorithms import common, pamela, signature
+from services.api_checker.algorithms import common, pamela, relay_audit, signature
 
 
 class BaselineTests(unittest.TestCase):
@@ -58,6 +58,36 @@ class SignatureTests(unittest.TestCase):
 
         self.assertTrue(result.passed)
         self.assertIn("均值=", result.detail)
+
+
+class RelayAuditTests(unittest.TestCase):
+    def test_progress_is_reported_after_each_probe(self):
+        progress = []
+        probe_names = relay_audit.PROFILES["quick"]
+        probes = {
+            name: lambda *_args, name=name: relay_audit.ProbeResult(
+                name,
+                True,
+                1,
+            )
+            for name in probe_names
+        }
+
+        with patch.dict(relay_audit._PROBES, probes):
+            relay_audit.run_relay_audit(
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                profile="quick",
+                on_progress=lambda completed, total: progress.append(
+                    (completed, total)
+                ),
+            )
+
+        self.assertEqual(
+            [(index, len(probe_names)) for index in range(1, len(probe_names) + 1)],
+            progress,
+        )
 
 
 class PamelaTests(unittest.TestCase):

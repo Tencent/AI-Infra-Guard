@@ -298,7 +298,8 @@ def build_findings(results, requested_model):
     return findings
 
 
-def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None):
+def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
+                    on_progress=None):
     """运行黑盒审计，返回 {score, verdict, findings, probe_results, summary}"""
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
@@ -306,6 +307,8 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None)
         if cancel_event is not None and cancel_event.is_set():
             break
         results.append(_PROBES[name](base_url, api_key, model))
+        if on_progress:
+            on_progress(len(results), len(probe_names))
     findings = build_findings(results, model)
     score = min(100, sum(f.score for f in findings))
     v = "HIGH" if score >= 70 else ("MEDIUM" if score >= 30 else "LOW")

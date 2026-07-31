@@ -301,6 +301,9 @@ Claude 的 extended thinking API 返回的 `signature` 是 base64 protobuf 封�
 | `base_url` | `str` | 是 | — | 中转 base URL，如 `https://relay.example.com/v1` |
 | `api_key` | `str` | 是 | — | 中转 API Key |
 | `model` | `str` | 是 | — | 购买/声明使用的模型名 |
+| `profile` | `str` | 否 | `"full"` | 探针集合：`quick` / `standard` / `full` |
+| `cancel_event` | `threading.Event` | 否 | `None` | 客户端断连时取消未开始的探针 |
+| `on_progress` | `callable` | 否 | `None` | 每个探针完成后的回调 `fn(completed, total)` |
 
 默认执行完整 7 探针。
 

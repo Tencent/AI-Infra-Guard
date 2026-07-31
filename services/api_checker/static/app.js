@@ -46,7 +46,7 @@ const translations = {
     passed: "通过", abnormal: "异常", checkPassed: "检测通过",
     checkIncomplete: "检查不完整", anomalyFound: "发现异常",
     invalidUrl: "请输入以 http:// 或 https:// 开头的接口地址", apiKeyRequired: "请输入 API Key",
-    modelRequired: "请选择目标模型", fingerprintProgress: "指纹采样进度 {progress}%",
+    modelRequired: "请选择目标模型", fingerprintProgress: "检测进度 {progress}%",
     failed: "检测失败", failedTitle: "检测未完成", noResult: "连接结束，但未收到检测结果",
     summaryPass: "未发现明显风险", summaryRisk: "检测发现异常", summaryInconclusive: "检测结果不完整",
     probes: {
@@ -85,7 +85,7 @@ const translations = {
     passed: "Passed", abnormal: "Issue", checkPassed: "Inspection passed",
     checkIncomplete: "Inspection incomplete", anomalyFound: "Issue detected",
     invalidUrl: "Enter an endpoint beginning with http:// or https://", apiKeyRequired: "Enter an API Key",
-    modelRequired: "Select a target model", fingerprintProgress: "Fingerprint sampling {progress}%",
+    modelRequired: "Select a target model", fingerprintProgress: "Inspection progress {progress}%",
     failed: "Inspection failed", failedTitle: "Inspection did not complete", noResult: "The connection closed before an inspection result was received",
     summaryPass: "No obvious risk detected", summaryRisk: "The inspection detected an issue", summaryInconclusive: "The inspection result is incomplete",
     probes: {

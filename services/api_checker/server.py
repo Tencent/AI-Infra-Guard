@@ -419,9 +419,16 @@ def _run_signature(req: DetectRequest, base_url: str, cancel_event=None) -> dict
     }
 
 
-def _run_audit(req: DetectRequest, base_url: str, cancel_event=None) -> dict:
+def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
+               on_progress=None) -> dict:
     """算法 C：黑盒审计 7 探针。base_url 由调度层归一化后传入。
     返回极简：判定 + 评分 + 风险发现（仅严重度+标题）。"""
+    def progress(completed, total):
+        if on_progress:
+            on_progress({
+                "completed_rate": _completed_rate(completed, total),
+            })
+
     _raise_if_cancelled(cancel_event)
     result = run_relay_audit(
         base_url,
@@ -429,6 +436,7 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None) -> dict:
         req.model,
         AUDIT_PROFILE,
         cancel_event=cancel_event,
+        on_progress=progress,
     )
     _raise_if_cancelled(cancel_event)
     test_info = _audit_test_info(result["probe_results"])
@@ -628,6 +636,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                 req,
                 normalize_openai_base(req.base_url),
                 cancel_event,
+                on_progress,
             )
         except DetectionCancelled:
             raise

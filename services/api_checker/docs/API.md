@@ -145,12 +145,13 @@ data: {"status":0,"message":"started","data":{"algorithm":"quick"}}
 
 字段	类型	说明
 data.algorithm	string	本次检测模式：quick 或 full
-4.2 progress：指纹采样进度
-仅 full 模式的随机数指纹采样阶段会持续发送；quick 模式通常不会发送。
+4.2 progress：检测进度
+full 模式在随机数指纹采样阶段按样本持续发送；quick 模式在 7 个黑盒探针
+逐个完成时发送，因此两种模式都会以 `completed_rate: 1.0` 结束进度阶段。
 结构
 
 event: progress
-data: {"status":0,"message":"progress","data":{"completed":120,"total":200,"success":118,"error":2}}
+data: {"status":0,"message":"progress","data":{"completed_rate":0.66}}
 
 
 
@@ -158,12 +159,12 @@ data: {"status":0,"message":"progress","data":{"completed":120,"total":200,"succ
   "status": 0,
   "message": "progress",
   "data": {
-    "completed_rate": 0.66,
+    "completed_rate": 0.66
   }
 }
 
 字段	类型	说明
-data.completed_rate	integer	进度条
+data.completed_rate	number	进度比例，范围 0.0–1.0
 4.3 result：最终检测结果
 检测至少有一个算法成功时发送一次。
 完整结构

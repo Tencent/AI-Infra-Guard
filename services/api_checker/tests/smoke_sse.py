@@ -168,9 +168,20 @@ def main() -> int:
         }
         events = run_detection(quick_payload)
         names = [event for event, _ in events]
-        if names != ["start", "result", "done"]:
+        if (
+            names[0] != "start"
+            or names[-2:] != ["result", "done"]
+            or names.count("progress") != 7
+        ):
             raise AssertionError(f"unexpected SSE events: {names}")
-        result = events[1][1]["data"]
+        quick_progress = [
+            payload["data"]["completed_rate"]
+            for event, payload in events
+            if event == "progress"
+        ]
+        if quick_progress != sorted(quick_progress) or quick_progress[-1] != 1.0:
+            raise AssertionError(quick_progress)
+        result = events[-2][1]["data"]
         if result["overall_verdict"] != "pass":
             raise AssertionError(result)
         if result["summary"] != (
@@ -180,6 +191,7 @@ def main() -> int:
         if "checks" in result["detail"]:
             raise AssertionError(result["detail"])
         print("events", " -> ".join(names))
+        print("quick progress", names.count("progress"), quick_progress[-1])
         print("findings", len(result["detail"]["findings"]))
         print("score", result["score"])
 
