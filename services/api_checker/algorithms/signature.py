@@ -278,7 +278,7 @@ def _check_model_consistency(model, harvest):
     returned = harvest.get("model", "")
     if not returned:
         return CheckResult("模型名一致性", False, "未返回 model")
-    if returned == model:
+    if str(returned).strip().casefold() == str(model).strip().casefold():
         return CheckResult("模型名一致性", True, f"一致: {model}")
     return CheckResult("模型名一致性", False, f"请求={model}, 返回={returned}")
 

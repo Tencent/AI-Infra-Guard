@@ -69,6 +69,14 @@ class BaselineTests(unittest.TestCase):
 
 
 class SignatureTests(unittest.TestCase):
+    def test_model_consistency_is_case_insensitive(self):
+        result = signature._check_model_consistency(
+            "Claude-Sonnet-5",
+            {"model": " claude-sonnet-5 "},
+        )
+
+        self.assertTrue(result.passed)
+
     def test_random_fingerprint_uses_shared_stats_function(self):
         values = iter(str(number) for number in range(1, 13))
 
@@ -126,7 +134,7 @@ class RelayAuditTests(unittest.TestCase):
             result = relay_audit.probe_models(
                 "https://example.test/v1",
                 "secret",
-                "anthropic/claude-sonnet-5",
+                "Anthropic/CLAUDE-Sonnet-5",
             )
 
         self.assertTrue(result.ok)
@@ -134,6 +142,40 @@ class RelayAuditTests(unittest.TestCase):
         self.assertEqual(
             "claude-sonnet-5",
             result.data["resolved_model"],
+        )
+
+    def test_stream_model_comparison_is_case_insensitive(self):
+        findings = relay_audit.build_findings(
+            [
+                relay_audit.ProbeResult(
+                    "stream_integrity",
+                    True,
+                    1,
+                    data={"stream_models": [" DeepSeek-V4-Pro "]},
+                ),
+            ],
+            "deepseek-v4-pro",
+        )
+
+        self.assertEqual([], findings)
+
+    def test_stream_model_comparison_still_rejects_different_model(self):
+        findings = relay_audit.build_findings(
+            [
+                relay_audit.ProbeResult(
+                    "stream_integrity",
+                    True,
+                    1,
+                    data={"stream_models": ["deepseek-v3"]},
+                ),
+            ],
+            "deepseek-v4-pro",
+        )
+
+        self.assertEqual(1, len(findings))
+        self.assertEqual(
+            "Stream model field mismatch",
+            findings[0].title,
         )
 
     def test_resolved_model_is_used_by_later_probes(self):

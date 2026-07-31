@@ -136,15 +136,20 @@ def _model_candidates(model):
     return candidates
 
 
+def _model_id_key(model):
+    """用于模型 ID 匹配的规范键：忽略首尾空白和大小写。"""
+    return str(model or "").strip().casefold()
+
+
 def _resolve_listed_model(model, model_ids):
     """从 /models 返回值中选择原始或去前缀后的规范 ID。"""
     canonical = {
-        model_id.lower(): model_id
+        _model_id_key(model_id): model_id
         for model_id in model_ids
         if model_id
     }
     for candidate in _model_candidates(model):
-        matched = canonical.get(candidate.lower())
+        matched = canonical.get(_model_id_key(candidate))
         if matched:
             return matched
     return None
@@ -517,7 +522,8 @@ def build_findings(results, requested_model):
         findings.append(Finding("stream_integrity", "MEDIUM", 20, "Stream integrity anomaly", str(stream.error or json.dumps(stream.data)), "检查 SSE 实现"))
     elif stream and stream.ok:
         sm = stream.data.get("stream_models") or []
-        if sm and requested_model not in sm:
+        stream_model_keys = {_model_id_key(model) for model in sm}
+        if sm and _model_id_key(requested_model) not in stream_model_keys:
             findings.append(Finding("stream_integrity", "MEDIUM", 30, "Stream model field mismatch", json.dumps(stream.data), "流内 model 不一致"))
     canary = by.get("context_canary")
     if canary and canary.ok is False and canary.error is None:
