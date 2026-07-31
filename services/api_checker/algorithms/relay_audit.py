@@ -8,6 +8,7 @@
 import json
 import random
 import string
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -16,6 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 
 CONTENT_MAX_TOKENS = 512
+HTTP_TOTAL_TIMEOUT_SECONDS = 60
+AUDIT_TOTAL_TIMEOUT_SECONDS = 180
 
 FAMILY_ALIASES = {
     "openai": ["openai", "gpt", "o1", "o3", "o4", "chatgpt"],
@@ -61,6 +64,43 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 _NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
+class _RequestDeadline:
+    """在 socket 活跃但响应不结束时也能终止整次 HTTP 请求。"""
+
+    def __init__(self, seconds):
+        self._lock = threading.Lock()
+        self._response = None
+        self.expired = False
+        self._timer = threading.Timer(seconds, self._expire)
+        self._timer.daemon = True
+
+    def start(self):
+        self._timer.start()
+
+    def attach(self, response):
+        with self._lock:
+            if self.expired:
+                response.close()
+                raise TimeoutError("HTTP request exceeded total timeout")
+            self._response = response
+
+    def _expire(self):
+        with self._lock:
+            self.expired = True
+            response = self._response
+        if response is not None:
+            response.close()
+
+    def cancel(self):
+        self._timer.cancel()
+        with self._lock:
+            self._response = None
+
+    def raise_if_expired(self):
+        if self.expired:
+            raise TimeoutError("HTTP request exceeded total timeout")
 
 
 @dataclass
@@ -138,19 +178,33 @@ def _http_json(url, key, body=None, method="POST"):
     data = json.dumps(body).encode() if body else None
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     start = time.time()
+    deadline = _RequestDeadline(HTTP_TOTAL_TIMEOUT_SECONDS)
+    deadline.start()
     try:
-        with _NO_REDIRECT_OPENER.open(req, timeout=60) as resp:
+        try:
+            resp = _NO_REDIRECT_OPENER.open(
+                req,
+                timeout=HTTP_TOTAL_TIMEOUT_SECONDS,
+            )
+        except urllib.error.HTTPError as exc:
+            resp = exc
+        deadline.attach(resp)
+        try:
             raw = resp.read().decode("utf-8", "replace")
-            lat = int((time.time() - start) * 1000)
-            return resp.status, (json.loads(raw) if raw.strip() else {}), lat
-    except urllib.error.HTTPError as e:
+        except Exception:
+            deadline.raise_if_expired()
+            raise
+        finally:
+            resp.close()
+        deadline.raise_if_expired()
         lat = int((time.time() - start) * 1000)
-        raw = e.read().decode("utf-8", "replace")
         try:
             payload = json.loads(raw)
         except Exception:
-            payload = {"raw_error": raw[:1000]}
-        return e.code, payload, lat
+            payload = {"raw_error": raw[:1000]} if raw.strip() else {}
+        return resp.status, payload, lat
+    finally:
+        deadline.cancel()
 
 
 def _http_stream(url, key, body):
@@ -159,18 +213,34 @@ def _http_stream(url, key, body):
     req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers, method="POST")
     chunks, errors, saw_done = [], [], False
     start = time.time()
-    with _NO_REDIRECT_OPENER.open(req, timeout=60) as resp:
-        for line in resp:
-            line = line.decode("utf-8", "replace").strip()
-            if not line.startswith("data:"):
-                continue
-            payload = line[5:].strip()
-            if payload == "[DONE]":
-                saw_done = True; break
-            try:
-                chunks.append(json.loads(payload))
-            except Exception:
-                errors.append(payload[:300])
+    deadline = _RequestDeadline(HTTP_TOTAL_TIMEOUT_SECONDS)
+    deadline.start()
+    try:
+        resp = _NO_REDIRECT_OPENER.open(
+            req,
+            timeout=HTTP_TOTAL_TIMEOUT_SECONDS,
+        )
+        deadline.attach(resp)
+        try:
+            for line in resp:
+                line = line.decode("utf-8", "replace").strip()
+                if not line.startswith("data:"):
+                    continue
+                payload = line[5:].strip()
+                if payload == "[DONE]":
+                    saw_done = True; break
+                try:
+                    chunks.append(json.loads(payload))
+                except Exception:
+                    errors.append(payload[:300])
+        except Exception:
+            deadline.raise_if_expired()
+            raise
+        finally:
+            resp.close()
+        deadline.raise_if_expired()
+    finally:
+        deadline.cancel()
     return chunks, saw_done, errors, int((time.time() - start) * 1000)
 
 
@@ -418,8 +488,20 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
     """运行黑盒审计，返回 {score, verdict, findings, probe_results, summary}"""
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
-    for name in probe_names:
+    started = time.monotonic()
+    for index, name in enumerate(probe_names):
         if cancel_event is not None and cancel_event.is_set():
+            break
+        if time.monotonic() - started >= AUDIT_TOTAL_TIMEOUT_SECONDS:
+            for pending_name in probe_names[index:]:
+                results.append(ProbeResult(
+                    pending_name,
+                    False,
+                    None,
+                    error="audit exceeded total timeout",
+                ))
+                if on_progress:
+                    on_progress(len(results), len(probe_names))
             break
         results.append(_PROBES[name](base_url, api_key, model, api_type))
         if on_progress:

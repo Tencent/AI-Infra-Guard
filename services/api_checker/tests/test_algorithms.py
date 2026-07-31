@@ -1,8 +1,9 @@
 import json
 import threading
+import time
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from services.api_checker.algorithms import common, pamela, relay_audit, signature
 
@@ -166,6 +167,74 @@ class RelayAuditTests(unittest.TestCase):
         self.assertEqual("hello", relay_audit._extract_text(payload))
         self.assertEqual("stop", relay_audit._finish_reason(payload))
         self.assertFalse(relay_audit._is_truncated(payload))
+
+    def test_http_json_enforces_total_deadline(self):
+        class BlockingResponse:
+            status = 200
+
+            def __init__(self):
+                self.closed = threading.Event()
+
+            def read(self):
+                self.closed.wait(1)
+                return b"{}"
+
+            def close(self):
+                self.closed.set()
+
+        started = time.monotonic()
+        with (
+            patch.object(
+                relay_audit,
+                "HTTP_TOTAL_TIMEOUT_SECONDS",
+                0.01,
+            ),
+            patch.object(
+                relay_audit._NO_REDIRECT_OPENER,
+                "open",
+                return_value=BlockingResponse(),
+            ),
+        ):
+            with self.assertRaises(TimeoutError):
+                relay_audit._http_json(
+                    "https://example.test/v1/models",
+                    "secret",
+                    method="GET",
+                )
+        self.assertLess(time.monotonic() - started, 0.5)
+
+    def test_audit_total_deadline_marks_pending_probes(self):
+        probes = {
+            name: Mock()
+            for name in relay_audit.PROFILES["quick"]
+        }
+        progress = []
+        with (
+            patch.dict(relay_audit._PROBES, probes),
+            patch.object(
+                relay_audit,
+                "AUDIT_TOTAL_TIMEOUT_SECONDS",
+                -1,
+            ),
+        ):
+            result = relay_audit.run_relay_audit(
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                profile="quick",
+                on_progress=lambda completed, total: progress.append(
+                    (completed, total)
+                ),
+            )
+
+        self.assertEqual(3, len(result["probe_results"]))
+        self.assertTrue(all(
+            probe.error == "audit exceeded total timeout"
+            for probe in result["probe_results"]
+        ))
+        self.assertEqual([(1, 3), (2, 3), (3, 3)], progress)
+        for probe in probes.values():
+            probe.assert_not_called()
 
 
 class PamelaTests(unittest.TestCase):
