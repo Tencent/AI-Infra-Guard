@@ -180,6 +180,39 @@ class ServerContractTests(unittest.TestCase):
             server._audit_test_info(probes),
         )
 
+    def test_audit_test_info_reads_deepseek_cache_hits(self):
+        probes = [
+            ProbeResult("liveness", True, 200, data={"usage": {
+                "prompt_tokens": 96,
+                "completion_tokens": 4,
+                "prompt_cache_hit_tokens": 64,
+                "prompt_cache_miss_tokens": 32,
+            }}),
+        ]
+
+        self.assertEqual(
+            {
+                "latency_ms": 200,
+                "tokens_per_second": 20.0,
+                "input_tokens": 96,
+                "output_tokens": 4,
+                "cache_read_tokens": 64,
+            },
+            server._audit_test_info(probes),
+        )
+
+    def test_audit_test_info_keeps_zero_deepseek_cache_hits(self):
+        probes = [
+            ProbeResult("identity", True, 100, data={"usage": {
+                "prompt_tokens": 12,
+                "completion_tokens": 2,
+                "prompt_cache_hit_tokens": 0,
+                "prompt_cache_miss_tokens": 12,
+            }}),
+        ]
+
+        self.assertEqual(0, server._audit_test_info(probes)["cache_read_tokens"])
+
     def test_quick_detect_returns_result_when_audit_succeeds(self):
         audit = {
             "verdict": "LOW",

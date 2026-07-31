@@ -487,6 +487,7 @@ def _audit_test_info(probes) -> dict:
         )
         cache_read_tokens = _usage_int(
             usage,
+            ("prompt_cache_hit_tokens",),
             ("cache_read_input_tokens",),
             ("cached_tokens",),
             ("prompt_tokens_details", "cached_tokens"),
