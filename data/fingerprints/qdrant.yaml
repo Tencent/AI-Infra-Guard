@@ -1,0 +1,24 @@
+info:
+  name: qdrant
+  author: unauth.dev
+  severity: info
+  desc: Qdrant is an open-source vector database and similarity search engine for embedding-based AI applications.
+  metadata:
+    product: qdrant
+    vendor: qdrant
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="qdrant - vector search engine"
+  - method: GET
+    path: '/collections'
+    matchers:
+      - body="\"result\"" && body="\"collections\"" && body="\"status\":\"ok\""
+version:
+  - method: GET
+    path: '/'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"(\d+\.\d+\.?\d+?)"'
