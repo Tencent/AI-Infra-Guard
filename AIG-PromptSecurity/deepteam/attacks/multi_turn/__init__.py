@@ -22,6 +22,10 @@ from .crescendo_jailbreaking import CrescendoJailbreaking
 from .linear_jailbreaking import LinearJailbreaking
 from .sequential_break import SequentialJailbreak
 from .tree_jailbreaking import TreeJailbreaking
+from .many_shot_jailbreaking import ManyShotJailbreaking
+from .pair_jailbreaking import PAIRJailbreaking
+from .goat_jailbreaking import GoatJailbreaking
+from .actor_attack import ActorAttack
 
 __all__ = [
     "BadLikertJudge",
@@ -30,4 +34,8 @@ __all__ = [
     "LinearJailbreaking", 
     "SequentialJailbreak",
     "TreeJailbreaking", 
+    "ManyShotJailbreaking",
+    "PAIRJailbreaking",
+    "GoatJailbreaking",
+    "ActorAttack",
 ]

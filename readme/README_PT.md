@@ -66,7 +66,8 @@ Ajude-nos a melhorar o A.I.G! Por favor, reserve 3-5 minutos para preencher noss
 
 ## 🚀 Novidades
 
-- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Mercado de skills de segurança IA lançado (3 skills oficiais); frontend totalmente open source; motor de scan Skill aprimorado (9 categorias de risco, SkillTrustBench topo 0.9848); scan Skill/MCP/Agent como CLI independente; biblioteca de vulnerabilidades expandida para 130 componentes, 1888 regras
+- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 ataques de jailbreak multi-turno (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 novas skills OWASP + detecção de exfiltração web (10 skills no total); MCP-Scan: 4 novas regras de segurança
+- **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — Mercado de skills de segurança IA lançado (3 skills oficiais); frontend totalmente open source; motor de scan Skill aprimorado (9 categorias de risco, SkillTrustBench topo 0.9848); scan Skill/MCP/Agent como CLI independente; biblioteca de vulnerabilidades expandida para 130 componentes, 1888 regras
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 novas regras de detecção de ameaças (envenenamento de ferramentas, exfiltração de credenciais, injeção de comandos); 6 novas regras CVE para llama.cpp; `model.token` agora opcional com fallback para o modelo padrão do sistema.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 novos operadores de ataque single-turn; nova skill `aig-agent-redteam` para avaliação red-team abrangente de Agentes.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Novo endpoint de API para verificação de versão; pontuação de segurança alterada para modelo de dedução absoluta para avaliação de riscos mais clara.
@@ -323,9 +324,10 @@ A equipe lançou produtos de segurança de IA de código aberto, incluindo a pla
 | Líder técnico | **Python** | Desenho da arquitetura geral, desenvolvimento dos módulos centrais e iteração de versões. |
 | Contribuidor principal | **Zona** | Interação frontend, experiência do produto, operação da comunidade e ciclo de feedback dos usuários. |
 | Contribuidor principal | **Fyoung** | Atualização de fingerprints de componentes vulneráveis de AI Infra e construção do sistema de benchmark. |
+| Contribuidor principal | **Xiangfan** | Desenvolvimento de capacidades de segurança para riscos de Skills e cenários de perda de controle de agentes. |
+| Contribuidor principal | **Elwood** | Aprimoramento das capacidades de varredura de segurança de agentes e atualização de relatórios técnicos. |
 | Contribuidor principal | **Robert** | Avaliação de segurança de LLMs e operação de estratégias de avaliação de jailbreak. |
 | Contribuidor principal | **Zoe** | Avaliação de segurança de LLMs, avaliação de jailbreak e desenvolvimento do módulo de integração de modelos. |
-| Contribuidor principal | **Xiangfan** | Desenvolvimento de capacidades de segurança para riscos de Skills e cenários de perda de controle de agentes. |
 | Contribuidor | **Ronin** | Participou do desenvolvimento do scan de segurança de agentes de IA. |
 | Contribuidor | **Rsin** | Participou da operação da comunidade e da comunicação de campanhas. |
 

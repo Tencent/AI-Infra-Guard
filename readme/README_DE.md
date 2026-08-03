@@ -66,7 +66,8 @@ Helfen Sie uns, A.I.G zu verbessern! Bitte nehmen Sie sich 3-5 Minuten Zeit, um 
 
 ## 🚀 Neuigkeiten
 
-- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI-Security-Skill-Markt gestartet (3 offizielle Skills); Frontend vollständig Open Source; Skill-Scan-Engine aktualisiert (9 Risikokategorien, SkillTrustBench Top-Wert 0.9848); Skill/MCP/Agent-Scan als eigenständige CLI; Schwachstellenbibliothek auf 130 Komponenten, 1888 Regeln erweitert
+- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 Multi-Turn-Jailbreak-Angriffe (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 neue OWASP-Skills + Web-Exfiltration-Erkennung (insgesamt 10 Skills); MCP-Scan: 4 neue Sicherheitsregeln
+- **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI-Security-Skill-Markt gestartet (3 offizielle Skills); Frontend vollständig Open Source; Skill-Scan-Engine aktualisiert (9 Risikokategorien, SkillTrustBench Top-Wert 0.9848); Skill/MCP/Agent-Scan als eigenständige CLI; Schwachstellenbibliothek auf 130 Komponenten, 1888 Regeln erweitert
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 neue Bedrohungserkennungsregeln (Tool-Poisoning, Credential-Exfiltration, Command-Injection); 6 neue llama.cpp-CVE-Regeln; `model.token` jetzt optional mit Fallback auf das Standard-Systemmodell.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 neue Single-Turn-Angriffsoberatoren; neue `aig-agent-redteam` Skill für umfassende Agent Red-Team-Bewertung.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Neuer API-Endpunkt zur Versionsprüfung; Sicherheitsbewertung auf absolutes Abzugsmodell umgestellt für klarere Risikoeinschätzung.
@@ -323,9 +324,10 @@ Das Team hat Open-Source-KI-Sicherheitsprodukte wie die KI-Red-Team-Sicherheitst
 | Technischer Leiter | **Python** | Gesamtarchitekturdesign, Entwicklung der Kernmodule und Versionsiteration. |
 | Kernbeitragender | **Zona** | Frontend-Interaktion, Produktnutzererfahrung, Community-Betrieb und Schließen der Nutzer-Feedback-Schleife. |
 | Kernbeitragender | **Fyoung** | Aktualisierung der Fingerprints für KI-Infra-Schwachstellenkomponenten und Aufbau des Benchmark-Systems. |
+| Kernbeitragender | **Xiangfan** | Entwicklung von Sicherheitsfunktionen für Skill-Risiken und Szenarien mit Kontrollverlust von Agenten. |
+| Kernbeitragender | **Elwood** | Verbesserung der Agent-Sicherheitsscanning-Fähigkeiten und Aktualisierung technischer Berichte. |
 | Kernbeitragender | **Robert** | Sicherheit von LLMs und Betrieb der Strategien zur Jailbreak-Bewertung. |
 | Kernbeitragender | **Zoe** | Sicherheit von LLMs, Jailbreak-Bewertung sowie Entwicklung des Modell-Integrationsmoduls. |
-| Kernbeitragender | **Xiangfan** | Entwicklung von Sicherheitsfunktionen für Skill-Risiken und Szenarien mit Kontrollverlust von Agenten. |
 | Beitragender | **Ronin** | Mitwirkung an der Entwicklung des KI-Agenten-Sicherheits-Scans. |
 | Beitragender | **Rsin** | Mitwirkung am Community-Betrieb und an der Kommunikation von Kampagnen. |
 

@@ -64,7 +64,8 @@
 
 ## 🚀 最新动态
 
-- **2026-07-24** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI安全技能市场上线（3款官方Skill）；前端全面开源；Skill扫描引擎升级（9类风险检测，SkillTrustBench最高0.9848）；Skill/MCP/Agent扫描独立CLI化；漏洞库扩展至130组件、1888规则
+- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — 大模型安全体检(Jailbreak Evaluation)：新增 4 种多轮越狱攻击（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：新增 5 个 OWASP 检测技能 + Web 数据外传检测（共 10 个技能）；MCP-Scan：新增 4 条安全检测规则
+- **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI安全技能市场上线（3款官方Skill）；前端全面开源；Skill扫描引擎升级（9类风险检测，SkillTrustBench最高0.9848）；Skill/MCP/Agent扫描独立CLI化；漏洞库扩展至130组件、1888规则
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP 扫描新增 3 条威胁检测规则（工具投毒、凭证窃取、命令注入）；新增 6 条 llama.cpp CVE 规则；扫描配置中 `model.token` 现支持省略，自动回退到系统默认模型。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
@@ -318,9 +319,10 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 | 技术负责人 | **Python** | 负责整体架构设计、核心模块研发与版本迭代。 |
 | 核心贡献者 | **Zona** | 负责前端交互与产品体验、社区运营及用户反馈闭环。 |
 | 核心贡献者 | **Fyoung** | 负责 AI Infra 漏洞组件指纹更新与 Benchmark 体系构建。 |
+| 核心贡献者 | **Xiangfan** | 负责 Skill 与 Agent 失控相关安全能力研发。 |
+| 核心贡献者 | **Elwood** | 负责 Agent 安全扫描的能力提升与技术报告更新。 |
 | 核心贡献者 | **Robert** | 负责大模型安全评估（越狱评测）策略运营。 |
 | 核心贡献者 | **Zoe** | 负责大模型安全评估（越狱评测）与模型接入模块研发。 |
-| 核心贡献者 | **Xiangfan** | 负责 Skill 与 Agent 失控相关安全能力研发。 |
 | 贡献者 | **Ronin** | 参与 AI 智能体安全扫描研发。 |
 | 贡献者 | **Rsin** | 参与社区运营与活动宣发。 |
 
