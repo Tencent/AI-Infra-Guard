@@ -221,7 +221,8 @@ def main() -> int:
         if result["overall_verdict"] != "pass":
             raise AssertionError(result)
         if result["summary"] != (
-            "No obvious risk detected (safety score 100/100, 0 findings)"
+            "Overall inspection passed (overall score 100/100): "
+            "black-box audit 100/100"
         ):
             raise AssertionError(result["summary"])
         if "checks" in result["detail"]:
@@ -230,6 +231,7 @@ def main() -> int:
         if (
             len(findings) != 7
             or any(finding["severity"] != "Passed" for finding in findings)
+            or any("passed" in finding["title"].lower() for finding in findings)
         ):
             raise AssertionError(findings)
         print("events", " -> ".join(names))
@@ -293,11 +295,20 @@ def main() -> int:
         ):
             raise AssertionError(progress_events)
         progress_values = [payload["data"] for payload in progress_events]
-        if any(set(value) != {"completed_rate"} for value in progress_values):
+        expected_progress_fields = {"completed", "total", "success", "error"}
+        if any(set(value) != expected_progress_fields for value in progress_values):
             raise AssertionError(progress_values)
-        rates = [value["completed_rate"] for value in progress_values]
-        if rates != sorted(rates) or rates[-1] != 1.0:
-            raise AssertionError(rates)
+        completed_values = [value["completed"] for value in progress_values]
+        if (
+            completed_values != sorted(completed_values)
+            or completed_values[-1] != 50
+            or any(value["total"] != 50 for value in progress_values)
+            or any(
+                value["success"] + value["error"] != value["completed"]
+                for value in progress_values
+            )
+        ):
+            raise AssertionError(progress_values)
         full_result = full_events[-2][1]["data"]
         if (
             full_result["overall_verdict"] not in {"pass", "risk", "inconclusive"}
@@ -305,11 +316,21 @@ def main() -> int:
         ):
             raise AssertionError(full_result)
         if (
-            not full_result["summary"].startswith("[Fingerprint] ")
-            or " | [Audit] No obvious risk detected " not in full_result["summary"]
+            not full_result["summary"].startswith(
+                "Overall inspection "
+            )
+            or "black-box audit 100/100" not in full_result["summary"]
+            or "fingerprint: " not in full_result["summary"]
         ):
             raise AssertionError(full_result["summary"])
-        print("full progress", full_names.count("progress"), rates[-1])
+        fingerprint_findings = [
+            finding
+            for finding in full_result["detail"]["findings"]
+            if finding["probe"] == "fingerprint"
+        ]
+        if len(fingerprint_findings) != 1:
+            raise AssertionError(full_result["detail"]["findings"])
+        print("full progress", full_names.count("progress"), completed_values[-1])
         print("best model", full_result["detail"]["best_model"])
         return 0
     finally:

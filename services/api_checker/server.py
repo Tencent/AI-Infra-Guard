@@ -408,10 +408,13 @@ def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
                      on_progress=None, cancel_event=None) -> dict:
     """算法 A：随机数指纹测试。api_type/base_url 由调度层按模型 ID 推导后传入。
     返回极简：最像的模型 +（可选）造假判定。"""
-    def progress(completed, total, _success, _error):
+    def progress(completed, total, success, error):
         if on_progress:
             on_progress({
-                "completed_rate": _completed_rate(completed, total),
+                "completed": completed,
+                "total": total,
+                "success": success,
+                "error": error,
             })
 
     _raise_if_cancelled(cancel_event)
@@ -458,9 +461,20 @@ def _run_signature(req: DetectRequest, base_url: str, cancel_event=None) -> dict
         _raise_if_cancelled(cancel_event)
         raise
     _raise_if_cancelled(cancel_event)
+    failed_checks = []
+    for check in result.get("checks", []):
+        if getattr(check, "passed", False):
+            continue
+        failed_checks.append({
+            "name": str(getattr(check, "name", "Signature")),
+            "detail": str(getattr(check, "detail", ""))[:200],
+            "critical": bool(getattr(check, "critical", False)),
+        })
+    failed_checks.sort(key=lambda check: not check["critical"])
     return {
         "verdict": result["verdict"],
         "_score": round(result["score"], 1),
+        "_failed_checks": failed_checks,
     }
 
 
@@ -580,9 +594,11 @@ def _finding_title(title: str, language: str) -> str:
 
 def _probe_status_title(probe: str, passed: bool, language: str) -> str:
     base = PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
+    if passed:
+        return base
     if language == "en":
-        return f"{base} {'passed' if passed else 'failed'}"
-    return f"{base}{'通过' if passed else '未通过'}"
+        return f"{base} failed"
+    return f"{base}未通过"
 
 
 def _fingerprint_summary(fp: dict, language: str = DEFAULT_LANGUAGE) -> str:
@@ -610,14 +626,107 @@ def _audit_summary(audit: dict, language: str = DEFAULT_LANGUAGE) -> str:
             f"(安全分 {safety_score}/100, 发现 {finding_count} 项风险)")
 
 
-def _result_score(algorithm: str, parts: dict[str, dict]) -> float:
-    if algorithm == "full" and parts.get("fingerprint"):
-        return round(float(parts["fingerprint"].get("_posterior") or 0) * 100, 1)
-    if algorithm == "quick" and parts.get("audit"):
-        return round(max(0.0, 100.0 - float(parts["audit"].get("_risk_score") or 0)), 1)
+def _result_score(
+    algorithm: str,
+    parts: dict[str, dict],
+    errors: dict[str, str] | None = None,
+) -> float:
+    scores = []
+    if parts.get("audit"):
+        scores.append(
+            max(
+                0.0,
+                100.0 - float(parts["audit"].get("_risk_score") or 0),
+            )
+        )
     if parts.get("signature"):
-        return round(float(parts["signature"].get("_score") or 0), 1)
-    return 0.0
+        scores.append(float(parts["signature"].get("_score") or 0))
+    if algorithm == "full" and parts.get("fingerprint"):
+        scores.append(
+            float(parts["fingerprint"].get("_posterior") or 0) * 100
+        )
+    if errors:
+        scores.append(0.0)
+    return round(min(scores), 1) if scores else 0.0
+
+
+def _signature_finding(
+    signature: dict,
+    language: str = DEFAULT_LANGUAGE,
+) -> dict:
+    verdict = str(signature.get("verdict") or "suspect")
+    passed = verdict == "native"
+    score = float(signature.get("_score") or 0)
+    verdict_text = _verdict_text(verdict, language)
+    failed_checks = signature.get("_failed_checks") or []
+
+    if language == "en":
+        label = (
+            "Claude signature verification"
+            if passed else "Claude signature verification failed"
+        )
+        title = (
+            f"{label}: "
+            f"{verdict_text} ({score:.0f}/100)"
+        )
+        reason_prefix = "Reasons: "
+        separator = "; "
+    else:
+        label = "Claude 签名验证" if passed else "Claude 签名验证未通过"
+        title = (
+            f"{label}："
+            f"{verdict_text}（{score:.0f}/100）"
+        )
+        reason_prefix = "原因："
+        separator = "；"
+
+    if failed_checks:
+        reasons = []
+        for check in failed_checks[:3]:
+            name = str(check.get("name") or "Signature")
+            detail = str(check.get("detail") or "").strip()
+            reasons.append(f"{name}: {detail}" if detail else name)
+        title = f"{title}{separator}{reason_prefix}" + separator.join(reasons)
+
+    return {
+        "probe": "signature",
+        "severity": (
+            FINDING_PASSED_STATUS
+            if passed else FINDING_FAILED_STATUS
+        ),
+        "title": title,
+    }
+
+
+def _fingerprint_finding(
+    fingerprint: dict,
+    language: str = DEFAULT_LANGUAGE,
+) -> dict:
+    posterior = float(fingerprint.get("_posterior") or 0)
+    score = posterior * 100
+    forgery_status = str(fingerprint.get("_forgery_status") or "")
+    best_model = str(fingerprint.get("best_model") or "?")
+    passed = posterior >= 0.85 and forgery_status == "supported"
+
+    if language == "en":
+        label = "Model fingerprint" if passed else "Model fingerprint failed"
+        title = f"{label}: best match {best_model} ({score:.0f}/100)"
+        if not passed and forgery_status:
+            title += f", status: {forgery_status}"
+    else:
+        label = "模型指纹" if passed else "模型指纹未通过"
+        title = f"{label}：最匹配 {best_model}（{score:.0f}/100）"
+        if not passed and forgery_status:
+            title += f"，状态：{forgery_status}"
+
+    return {
+        "probe": "fingerprint",
+        "severity": (
+            FINDING_PASSED_STATUS
+            if passed else FINDING_FAILED_STATUS
+        ),
+        "title": title,
+    }
 
 
 def _result_detail(
@@ -662,6 +771,14 @@ def _result_detail(
                 language,
             )
             findings.append(localized)
+
+    signature = parts.get("signature")
+    if signature:
+        findings.append(_signature_finding(signature, language))
+
+    fingerprint = parts.get("fingerprint")
+    if algorithm == "full" and fingerprint:
+        findings.append(_fingerprint_finding(fingerprint, language))
 
     detail = {
         "findings": findings,
@@ -708,6 +825,95 @@ def _overall_verdict(algorithm: str, parts: dict[str, dict], errors: dict[str, s
     return "pass"
 
 
+def _result_summary(
+    algorithm: str,
+    parts: dict[str, dict],
+    errors: dict[str, str],
+    language: str = DEFAULT_LANGUAGE,
+) -> str:
+    overall_verdict = _overall_verdict(algorithm, parts, errors)
+    score = _result_score(algorithm, parts, errors)
+    components = []
+
+    audit = parts.get("audit")
+    if audit:
+        audit_score = max(
+            0.0,
+            100.0 - float(audit.get("_risk_score") or 0),
+        )
+        if language == "en":
+            components.append(f"black-box audit {audit_score:.0f}/100")
+        else:
+            components.append(f"黑盒审计 {audit_score:.0f}/100")
+
+    signature = parts.get("signature")
+    if signature:
+        signature_score = float(signature.get("_score") or 0)
+        signature_verdict = _verdict_text(
+            str(signature.get("verdict") or "suspect"),
+            language,
+        )
+        if language == "en":
+            components.append(
+                f"Claude signature: {signature_verdict} "
+                f"({signature_score:.0f}/100)"
+            )
+        else:
+            components.append(
+                f"Claude 签名：{signature_verdict}"
+                f"（{signature_score:.0f}/100）"
+            )
+
+    fingerprint = parts.get("fingerprint")
+    if algorithm == "full" and fingerprint:
+        fingerprint_score = (
+            float(fingerprint.get("_posterior") or 0) * 100
+        )
+        best_model = fingerprint.get("best_model") or "?"
+        if language == "en":
+            components.append(
+                f"fingerprint: {best_model} "
+                f"({fingerprint_score:.0f}/100)"
+            )
+        else:
+            components.append(
+                f"模型指纹：{best_model}"
+                f"（{fingerprint_score:.0f}/100）"
+            )
+
+    if errors:
+        component_names = {
+            "audit": {"zh": "黑盒审计", "en": "black-box audit"},
+            "signature": {"zh": "Claude 签名", "en": "Claude signature"},
+            "fingerprint": {"zh": "模型指纹", "en": "fingerprint"},
+        }
+        failed = [
+            component_names.get(name, {}).get(language, name)
+            for name in errors
+        ]
+        if language == "en":
+            components.append(f"incomplete: {', '.join(failed)}")
+        else:
+            components.append(f"未完成：{'、'.join(failed)}")
+
+    if language == "en":
+        headline = {
+            "pass": "Overall inspection passed",
+            "risk": "Overall inspection found a risk",
+            "inconclusive": "Overall inspection is incomplete",
+        }[overall_verdict]
+        suffix = f": {'; '.join(components)}" if components else ""
+        return f"{headline} (overall score {score:.0f}/100){suffix}"
+
+    headline = {
+        "pass": "综合检测通过",
+        "risk": "综合检测发现异常",
+        "inconclusive": "综合检测不完整",
+    }[overall_verdict]
+    suffix = f"：{'；'.join(components)}" if components else ""
+    return f"{headline}（综合分 {score:.0f}/100）{suffix}"
+
+
 def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict:
     """统一检测调度"""
     claude = is_claude_model(req.model)
@@ -749,16 +955,18 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                 errors["signature"] = str(e)[:300]
         if not parts:
             raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
-        summaries = []
-        if "audit" in parts:
-            summaries.append(_audit_summary(parts["audit"], req.language))
-        if "signature" in parts:
-            summaries.append(_signature_summary(parts["signature"], req.language))
+        score = _result_score("quick", parts, errors)
+        overall_verdict = _overall_verdict("quick", parts, errors)
         result = {
             "algorithm": "quick",
-            "score": _result_score("quick", parts),
-            "overall_verdict": _overall_verdict("quick", parts, errors),
-            "summary": " | ".join(summaries),
+            "score": score,
+            "overall_verdict": overall_verdict,
+            "summary": _result_summary(
+                "quick",
+                parts,
+                errors,
+                req.language,
+            ),
             "detail": _result_detail("quick", parts, req.language),
         }
         return result
@@ -815,22 +1023,18 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         errors["fingerprint"] = str(e)[:300]
     if not parts:
         raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
-    summaries = []
-    if "signature" in parts:
-        summaries.append(_signature_summary(parts["signature"], req.language))
-    if "fingerprint" in parts:
-        prefix = "[Fingerprint]" if req.language == "en" else "[指纹]"
-        summaries.append(
-            f"{prefix} {_fingerprint_summary(parts['fingerprint'], req.language)}"
-        )
-    if "audit" in parts:
-        prefix = "[Audit]" if req.language == "en" else "[审计]"
-        summaries.append(f"{prefix} {_audit_summary(parts['audit'], req.language)}")
+    score = _result_score("full", parts, errors)
+    overall_verdict = _overall_verdict("full", parts, errors)
     result = {
         "algorithm": "full",
-        "score": _result_score("full", parts),
-        "overall_verdict": _overall_verdict("full", parts, errors),
-        "summary": " | ".join(summaries),
+        "score": score,
+        "overall_verdict": overall_verdict,
+        "summary": _result_summary(
+            "full",
+            parts,
+            errors,
+            req.language,
+        ),
         "detail": _result_detail("full", parts, req.language),
     }
     return result

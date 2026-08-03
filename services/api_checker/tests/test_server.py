@@ -57,6 +57,43 @@ class ServerContractTests(unittest.TestCase):
         self.assertEqual(0.66, server._completed_rate(66, 100))
         self.assertEqual(1.0, server._completed_rate(101, 100))
 
+    def test_fingerprint_progress_preserves_sample_counts(self):
+        request = server.DetectRequest(
+            algorithm="full",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="model-a",
+        )
+        progress_events = []
+
+        def fake_test_model(*args):
+            progress = args[6]
+            progress(120, 200, 118, 2)
+            return {
+                "bayes": {
+                    "best_model_name": "model-a",
+                    "best_posterior": 0.9,
+                },
+            }
+
+        with (
+            patch.object(server, "test_model", side_effect=fake_test_model),
+            patch.object(server, "_resolve_baseline_name", return_value="model-a"),
+        ):
+            server._run_fingerprint(
+                request,
+                "openai",
+                "https://api.example.test/v1",
+                progress_events.append,
+            )
+
+        self.assertEqual([{
+            "completed": 120,
+            "total": 200,
+            "success": 118,
+            "error": 2,
+        }], progress_events)
+
     def test_base_url_normalization(self):
         self.assertEqual(
             "https://api.example.test/v1",
@@ -429,7 +466,7 @@ class ServerContractTests(unittest.TestCase):
             english = server._run_detect(english_request)
 
         self.assertEqual(
-            "高风险 (安全分 50/100, 发现 1 项风险)",
+            "综合检测发现异常（综合分 50/100）：黑盒审计 50/100",
             chinese["summary"],
         )
         self.assertEqual(
@@ -441,7 +478,8 @@ class ServerContractTests(unittest.TestCase):
             chinese["detail"]["findings"][0]["severity"],
         )
         self.assertEqual(
-            "High risk (safety score 50/100, 1 finding)",
+            "Overall inspection found a risk (overall score 50/100): "
+            "black-box audit 50/100",
             english["summary"],
         )
         self.assertEqual(
@@ -491,9 +529,8 @@ class ServerContractTests(unittest.TestCase):
         )
         self.assertEqual("pass", result["overall_verdict"])
         self.assertEqual(
-            "[Fingerprint] Most similar to GPT-4o-mini (91.0/100) | "
-            "[Audit] No obvious risk detected "
-            "(safety score 100/100, 0 findings)",
+            "Overall inspection passed (overall score 91/100): "
+            "black-box audit 100/100; fingerprint: GPT-4o-mini (91/100)",
             result["summary"],
         )
 
@@ -517,9 +554,93 @@ class ServerContractTests(unittest.TestCase):
         self.assertEqual({}, detail["test_info"])
         self.assertEqual("Passed", detail["findings"][0]["severity"])
         self.assertEqual(
-            "模型列表检查通过",
+            "模型列表检查",
             detail["findings"][0]["title"],
         )
+        self.assertEqual("Passed", detail["findings"][1]["severity"])
+        self.assertEqual(
+            "Claude 签名验证：原生透传（98/100）",
+            detail["findings"][1]["title"],
+        )
+
+    def test_signature_failure_caps_score_and_explains_risk(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "findings": [],
+            "probe_results": [
+                {"name": "models", "ok": True},
+                {"name": "liveness", "ok": True},
+            ],
+        }
+        signature = {
+            "verdict": "proxy",
+            "_score": 35,
+            "_failed_checks": [{
+                "name": "Thinking Signature",
+                "detail": "未返回 signature",
+                "critical": True,
+            }],
+        }
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="claude-sonnet-5",
+        )
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit),
+            patch.object(server, "_run_signature", return_value=signature),
+        ):
+            result = server._run_detect(request)
+
+        self.assertEqual(35.0, result["score"])
+        self.assertEqual("risk", result["overall_verdict"])
+        self.assertEqual(
+            "综合检测发现异常（综合分 35/100）：黑盒审计 100/100；"
+            "Claude 签名：疑似替身（35/100）",
+            result["summary"],
+        )
+        signature_finding = result["detail"]["findings"][-1]
+        self.assertEqual("signature", signature_finding["probe"])
+        self.assertEqual("Failed", signature_finding["severity"])
+        self.assertIn(
+            "原因：Thinking Signature: 未返回 signature",
+            signature_finding["title"],
+        )
+
+    def test_incomplete_component_controls_summary(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "findings": [],
+            "probe_results": [{"name": "models", "ok": True}],
+        }
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="claude-sonnet-5",
+        )
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit),
+            patch.object(
+                server,
+                "_run_signature",
+                side_effect=RuntimeError("signature unavailable"),
+            ),
+        ):
+            result = server._run_detect(request)
+
+        self.assertEqual("inconclusive", result["overall_verdict"])
+        self.assertEqual(
+            "综合检测不完整（综合分 0/100）：黑盒审计 100/100；"
+            "未完成：Claude 签名",
+            result["summary"],
+        )
+        self.assertEqual(0.0, result["score"])
 
     def test_result_detail_returns_all_probe_statuses(self):
         parts = {
@@ -549,7 +670,7 @@ class ServerContractTests(unittest.TestCase):
         )
         self.assertEqual(
             [
-                "模型列表检查通过",
+                "模型列表检查",
                 "模型身份系列不匹配",
                 "流式响应完整性检查未通过",
             ],
@@ -559,12 +680,40 @@ class ServerContractTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            "Model list check passed",
+            "Model list check",
             english["findings"][0]["title"],
         )
         self.assertEqual(
             "Stream integrity check failed",
             english["findings"][2]["title"],
+        )
+
+    def test_full_result_returns_fingerprint_status(self):
+        parts = {
+            "audit": {
+                "findings": [],
+                "probe_results": [{"name": "models", "ok": True}],
+            },
+            "fingerprint": {
+                "best_model": "DeepSeek-V4-Flash",
+                "_posterior": 0.97,
+                "_forgery_status": "supported",
+            },
+        }
+
+        chinese = server._result_detail("full", parts, "zh")
+        english = server._result_detail("full", parts, "en")
+        self.assertEqual(
+            {
+                "probe": "fingerprint",
+                "severity": "Passed",
+                "title": "模型指纹：最匹配 DeepSeek-V4-Flash（97/100）",
+            },
+            chinese["findings"][-1],
+        )
+        self.assertEqual(
+            "Model fingerprint: best match DeepSeek-V4-Flash (97/100)",
+            english["findings"][-1]["title"],
         )
 
     def test_overall_verdict_rejects_findings_and_partial_results(self):

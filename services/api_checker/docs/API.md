@@ -146,12 +146,12 @@ data: {"status":0,"message":"started","data":{"algorithm":"quick"}}
 字段	类型	说明
 data.algorithm	string	本次检测模式：quick 或 full
 4.2 progress：检测进度
-full 模式在随机数指纹采样阶段按样本持续发送；quick 模式在 7 个黑盒探针
-逐个完成时发送，因此两种模式都会以 `completed_rate: 1.0` 结束进度阶段。
+full 模式在随机数指纹采样阶段按样本持续发送，包含已完成、总数、成功数和
+错误数；quick 模式在 7 个黑盒探针逐个完成时发送 `completed_rate`。
 结构
 
 event: progress
-data: {"status":0,"message":"progress","data":{"completed_rate":0.66}}
+data: {"status":0,"message":"progress","data":{"completed":120,"total":200,"success":118,"error":2}}
 
 
 
@@ -159,18 +159,25 @@ data: {"status":0,"message":"progress","data":{"completed_rate":0.66}}
   "status": 0,
   "message": "progress",
   "data": {
-    "completed_rate": 0.66
+    "completed": 120,
+    "total": 200,
+    "success": 118,
+    "error": 2
   }
 }
 
 字段	类型	说明
-data.completed_rate	number	进度比例，范围 0.0–1.0
+data.completed	integer	已完成的指纹样本数（full 模式）
+data.total	integer	指纹样本总数（full 模式）
+data.success	integer	成功采集的指纹样本数（full 模式）
+data.error	integer	采集失败的指纹样本数（full 模式）
+data.completed_rate	number	黑盒探针进度比例，范围 0.0–1.0（quick 模式）
 4.3 result：最终检测结果
 检测至少有一个算法成功时发送一次。
 完整结构
 
 event: result
-data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"summary":"未发现明显风险","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查通过"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
+data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","summary":"综合检测通过（综合分 100/100）：黑盒审计 100/100","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
 
 
 格式化后的 JSON：
@@ -181,13 +188,14 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
   "data": {
     "algorithm": "quick",
     "score": 100.0,
-    "summary": "未发现明显风险 (安全分 100/100, 发现 0 项风险)",
+    "overall_verdict": "pass",
+    "summary": "综合检测通过（综合分 100/100）：黑盒审计 100/100",
     "detail": {
       "findings": [
         {
           "probe": "models",
           "severity": "Passed",
-          "title": "模型列表检查通过"
+          "title": "模型列表检查"
         }
       ],
       "best_model": "",
@@ -206,9 +214,10 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
 result.data 字段
 字段	类型	说明
 algorithm	string	quick 或 full
-score	number	quick 为黑盒审计安全分；full 为指纹后验百分制
+score	number	已完成组件中最低的可信分；有组件执行失败时为 0
+overall_verdict	string	综合判定：pass、risk 或 inconclusive
 summary	string	一句话检测结论
-detail.findings	array	所有已执行探针的通过/失败状态
+detail.findings	array	所有已执行探针、Claude 签名及 full 模型指纹的通过/失败状态
 detail.best_model	string	full 的最匹配模型；无结果时为空字符串
 detail.fingerprint	object	full 的后验概率与造假状态；其他模式为空对象
 detail.test_info	object	延迟、生成速度、输入/输出 Token 和缓存读取汇总
@@ -225,12 +234,18 @@ probe	string	探针标识
 severity	string	英文二值状态：`Passed` 或 `Failed`
 title	string	通过或风险标题
 
+顶层 `score` 统一为“越高越可信”。黑盒审计先将风险分转换为安全分
+`100 - risk_score`；Claude 签名使用算法 B 的通过分；full 模式的模型指纹使用
+后验百分制。存在多个组件时取最低分，避免出现签名判定为“疑似替身”但综合分仍为
+100 的矛盾结果。若签名未通过，对应 `probe: "signature"` 的标题会包含签名评分和
+最多三个失败原因。
+
 `language` 省略时默认为 `zh`。`severity` 不受语言影响，统一使用英文状态。
 传入 `en` 后，`summary` 和 `detail.findings[].title` 返回英文，例如：
 
 ```json
 {
-  "summary": "High risk (safety score 50/100, 1 finding)",
+  "summary": "Overall inspection found a risk (overall score 50/100): black-box audit 50/100",
   "detail": {
     "findings": [{
       "probe": "liveness",

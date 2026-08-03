@@ -53,6 +53,8 @@ const translations = {
       models: "模型列表一致性", liveness: "基础聊天可用性", identity: "模型身份一致性",
       token_delta: "隐藏 Prompt 注入", echo_rewrite: "输出与命令改写",
       stream_integrity: "流式响应完整性", context_canary: "长上下文截断",
+      signature: "Claude 签名真实性",
+      fingerprint: "模型指纹",
     },
   },
   en: {
@@ -92,6 +94,8 @@ const translations = {
       models: "Model list consistency", liveness: "Basic chat availability", identity: "Model identity consistency",
       token_delta: "Hidden prompt injection", echo_rewrite: "Output and command rewriting",
       stream_integrity: "Streaming response integrity", context_canary: "Long-context truncation",
+      signature: "Claude signature authenticity",
+      fingerprint: "Model fingerprint",
     },
   },
 };
@@ -295,7 +299,7 @@ function keyFingerprint(value) {
 }
 
 function cacheKey(baseUrl, model, apiKey) {
-  return `aig-result:${algorithm}:${language}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
+  return `aig-result:v3:${algorithm}:${language}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
 }
 
 function showRunning() {
@@ -445,7 +449,9 @@ async function runDetection() {
       buffer = parseSseChunk(buffer, (event, payload) => {
         if (event === "progress") {
           const progress = payload.data || {};
-          const completedRate = Number(progress.completed_rate || 0);
+          const completedRate = progress.completed_rate !== undefined
+            ? Number(progress.completed_rate || 0)
+            : Number(progress.completed || 0) / Math.max(1, Number(progress.total || 0));
           $("#emptyState p").textContent = t("fingerprintProgress", {progress: Math.round(completedRate * 100)});
         } else if (event === "result") {
           finalResult = payload.data;

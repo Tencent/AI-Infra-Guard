@@ -510,7 +510,11 @@ Makefile 构建的二进制名为 `server`）。
 
 > **注意**：算法 B 的 score 越高越**安全**（通过率），算法 C 的 score 越高越**危险**（风险分）。两者方向相反。
 
-HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `score`：`full` 模式为后验百分制，`quick` 模式为安全分 0–100（越高越安全）。
+HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `score`：
+统一为 0–100 且越高越可信。黑盒审计使用 `100 - risk_score`，Signature 使用算法
+B 的通过分，full 模式的指纹使用后验百分制；多个已完成组件取最低分，任一组件执行
+失败时综合分为 0。这样综合分与 `overall_verdict`、摘要保持一致，不会在 Signature
+判定异常时仍显示 100 分。
 同时在 `detail.test_info` 返回黑盒生成探针的平均延迟 `latency_ms`、生成速度
 `tokens_per_second`、累计输入 `input_tokens`、累计输出 `output_tokens` 和缓存读取
 `cache_read_tokens`。缓存读取兼容 DeepSeek 的 `prompt_cache_hit_tokens`、
@@ -518,6 +522,8 @@ Anthropic 的 `cache_read_input_tokens`、Chat Completions 的
 `prompt_tokens_details.cached_tokens` 以及 Responses 的
 `input_tokens_details.cached_tokens`；上游未提供的指标为 `null`。
 `detail.findings[]` 返回所有已执行探针；`severity` 使用英文二值状态
-`Passed`/`Failed`，摘要中的风险数量仍只统计失败风险项。
+`Passed`/`Failed`。通过项标题只保留检查名称，状态由 `severity` 表达；Claude
+Signature 和 full 模式模型指纹分别作为 `probe: "signature"`、
+`probe: "fingerprint"` 返回，失败标题包含具体判定信息。
 黑盒审计对单个上游 HTTP 请求设置 60 秒总时限，并对整轮 quick 审计设置
 180 秒总时限，避免上游持续发送少量数据时绕过普通 socket 读超时。
