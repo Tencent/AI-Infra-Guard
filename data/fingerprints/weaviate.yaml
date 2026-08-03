@@ -1,0 +1,20 @@
+info:
+  name: weaviate
+  author: unauth.dev
+  severity: info
+  desc: Weaviate is an open-source vector database with semantic search and generative AI modules.
+  metadata:
+    product: weaviate
+    vendor: weaviate
+http:
+  - method: GET
+    path: '/v1/meta'
+    matchers:
+      - body="\"hostname\"" && body="\"version\"" && body="\"modules\""
+version:
+  - method: GET
+    path: '/v1/meta'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":"(\d+\.\d+\.?\d+?)"'
