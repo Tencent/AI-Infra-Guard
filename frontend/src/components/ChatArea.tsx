@@ -35,7 +35,8 @@ import {
   Trash2,
   Pause,
   SearchCode,
-  Sparkles
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -116,6 +117,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [terminateLoading, setTerminateLoading] = useState(false);
   const [terminateError, setTerminateError] = useState<string | undefined>(undefined);
+  const [resumeLoading, setResumeLoading] = useState(false);
   const [showTerminateConfirm, setShowTerminateConfirm] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelItem | undefined>(undefined);
   const [selectedModels, setSelectedModels] = useState<ModelItem[]>([]);
@@ -1204,6 +1206,34 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
     }
   };
 
+  // 断点续跑：复用原 sessionId 重新分发任务，跳过已完成阶段
+  const handleResumeTask = async () => {
+    if (!currentTask) return;
+    setResumeLoading(true);
+    try {
+      const response = await fetch(`/api/v1/app/tasks/${currentTask?.id}/resume`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const result = await response.json();
+      if (result.status === 0) {
+        toast.success(result.message || t('chatArea.resumeSuccess'));
+        // 重新建立 SSE 连接以接收续跑事件（连接已存在则自动跳过）
+        setTimeout(() => {
+          establishSSEConnection(currentTask?.id || '', '', [], currentTask?.type || 'Skill-Scan');
+        }, 100);
+      } else {
+        toast.error(result.message || t('chatArea.resumeFailed'));
+      }
+    } catch (error) {
+      toast.error(t('chatArea.resumeFailed'));
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
   // Get the message icon
   const getMessageIcon = (type: Message['type']) => {
     switch (type) {
@@ -1812,6 +1842,18 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                         </span>
                       </div>
                       <div>{message.content}</div>
+                      {(currentTask?.type === 'Skill-Scan' || currentTask?.type === 'Mcp-Scan') && (
+                        <Button
+                          onClick={handleResumeTask}
+                          disabled={resumeLoading}
+                          variant="destructive"
+                          size="sm"
+                          className="mt-3"
+                        >
+                          <RefreshCw className={`w-4 h-4 mr-1.5 ${resumeLoading ? 'animate-spin' : ''}`} />
+                          {resumeLoading ? t('chatArea.resuming') : t('chatArea.resumeTask')}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

@@ -19,3 +19,4 @@ openclaw.md
 yamlcheck
 .workbuddy
 .pytest_cache
+.pi-subagents

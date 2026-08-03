@@ -19,6 +19,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -26,8 +27,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/pkg/database"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 	"trpc.group/trpc-go/trpc-go/log"
@@ -322,6 +325,107 @@ func HandleTaskCreate(c *gin.Context, tm *TaskManager) {
 		"data": gin.H{
 			"sessionId": req.SessionID,
 			"title":     title,
+		},
+	})
+}
+
+// 断点续跑接口：复用原 sessionId 重新分发任务
+// Python 扫描端通过 task_id（即 sessionId）落盘阶段结果，续跑时自动跳过已完成阶段
+func HandleResumeTask(c *gin.Context, tm *TaskManager) {
+	traceID := getTraceID(c)
+	sessionId := c.Param("sessionId")
+
+	// 验证sessionId格式
+	if !isValidSessionID(sessionId) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "无效的会话ID格式",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 1. 从数据库读取原任务
+	session, err := tm.taskStore.GetSession(sessionId)
+	if err != nil || session == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "任务不存在，无法续跑",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 2. 仅允许失败或终止的任务续跑
+	if session.Status != TaskStatusError && session.Status != TaskStatusTerminated {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "仅失败或终止的任务支持断点续跑",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 重建任务请求（复用原 sessionId，模型参数等保持不变）
+	var params map[string]interface{}
+	if len(session.Params) > 0 {
+		if err := json.Unmarshal(session.Params, &params); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  1,
+				"message": "读取任务参数失败: " + err.Error(),
+				"data":    nil,
+			})
+			return
+		}
+	}
+	if params == nil {
+		params = make(map[string]interface{})
+	}
+	var attachments []string
+	if len(session.Attachments) > 0 {
+		if err := json.Unmarshal(session.Attachments, &attachments); err != nil {
+			log.Errorf("解析任务附件失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
+		}
+	}
+
+	req := &TaskCreateRequest{
+		ID:             uuid.New().String(),
+		SessionID:      sessionId,
+		Username:       session.Username,
+		Task:           session.TaskType,
+		Timestamp:      time.Now().UnixMilli(),
+		Content:        session.Content,
+		Params:         params,
+		Attachments:    attachments,
+		CountryIsoCode: session.CountryIsoCode,
+	}
+
+	// 4. 更新任务状态为执行中
+	if err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusDoing); err != nil {
+		log.Errorf("更新任务状态失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
+	}
+
+	// 5. 存储任务到内存并重新分发
+	tm.mu.Lock()
+	tm.tasks[sessionId] = req
+	tm.mu.Unlock()
+
+	if err := tm.dispatchTask(sessionId, traceID); err != nil {
+		tm.cleanupFailedTask(sessionId, traceID)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  1,
+			"message": "续跑任务分发失败: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	log.Infof("任务续跑成功: trace_id=%s, sessionId=%s", traceID, sessionId)
+	c.JSON(http.StatusOK, gin.H{
+		"status":  0,
+		"message": "任务续跑成功",
+		"data": gin.H{
+			"sessionId": sessionId,
 		},
 	})
 }

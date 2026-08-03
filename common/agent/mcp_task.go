@@ -140,6 +140,7 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 	argv = append(argv, "--debug")
 	argv = append(argv, "--aig-mode")
 	argv = append(argv, "--language", language)
+	argv = append(argv, "--task_id", request.SessionId)
 	if params.Headers != nil {
 		for k, v := range params.Headers {
 			argv = append(argv, "--header", fmt.Sprintf("%s:%s", k, v))
