@@ -66,11 +66,16 @@ POST /api/v1/relay/check/stream
 字段	类型	必填	默认值	说明
 algorithm	string	是	—	quick 或 full
 base_url	string	是	—	待测 API 基础 URL，也可传完整 /chat/completions 或 /responses 地址
-api_key	string	是	—	待测 API 密钥，仅在内存使用
+api_key	string	是	—	待测 API 密钥；原文仅在内存使用，日志记录后 3 位和 SHA-256
 model	string	是	—	待测模型 ID；provider/model 不在 /models 时自动尝试 model
 language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title
 iterations	integer	否	200	网页不显示，仅 full 使用，范围为 50–500
 no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型思考
+
+客户端可选传入 `X-Request-ID` 请求头（仅允许 1–64 位字母、数字、点、下划线和
+连字符）；未传或格式不合法时服务端自动生成。响应头中的 `X-Request-ID` 可用于
+关联结构化日志。
+
 请求示例
 快速检测：
 
@@ -179,7 +184,7 @@ data.error	integer	失败请求数；风险命中但请求成功时不计为错�
 完整结构
 
 event: result
-data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","summary":"综合检测通过（综合分 100/100）：黑盒审计 100/100","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
+data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","summary":"综合检查通过（100/100）","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
 
 
 格式化后的 JSON：
@@ -191,7 +196,7 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
     "algorithm": "quick",
     "score": 100.0,
     "overall_verdict": "pass",
-    "summary": "综合检测通过（综合分 100/100）：黑盒审计 100/100",
+    "summary": "综合检查通过（100/100）",
     "detail": {
       "findings": [
         {
@@ -218,7 +223,7 @@ result.data 字段
 algorithm	string	quick 或 full
 score	number	已完成组件中最低的可信分；有组件执行失败时为 0
 overall_verdict	string	综合判定：pass、risk 或 inconclusive
-summary	string	一句话检测结论
+summary	string	简短综合结论，仅包含总体状态和分数
 detail.findings	array	所有已执行探针、专项风险条件、Claude 签名及 full 模型指纹的状态
 detail.best_model	string	full 的最匹配模型；无结果时为空字符串
 detail.fingerprint	object	full 的后验概率与造假状态；其他模式为空对象
@@ -255,7 +260,7 @@ quick 非 Claude 18 项、quick + Claude 19 项、full 非 Claude 19 项、full 
 
 ```json
 {
-  "summary": "Overall inspection found a risk (overall score 50/100): black-box audit 50/100",
+  "summary": "Overall check found issues (50/100)",
   "detail": {
     "findings": [{
       "probe": "liveness",
@@ -301,6 +306,35 @@ status	integer	固定为 1
 message	string	运行时错误摘要，最长 500 字符
 error 没有 data 字段，且发送后连接结束。
 
+5. 结构化日志
+
+HTTP 检测主流程以单行 JSON 写入 stdout，Docker 环境由日志驱动统一收集。默认
+日志级别为 `INFO`，可通过 `AIG_API_CHECKER_LOG_LEVEL` 设置为 `DEBUG`、`WARNING`
+或 `ERROR`。`DEBUG` 会额外记录每次进度事件。
+
+主要事件包括：`detection_received`、`detection_accepted`、`detection_started`、
+`detection_progress`、`detection_component_failed`、`detection_completed`、
+`detection_failed`、`detection_cancelled`、`detection_rejected` 和
+`client_disconnected`。
+
+API Key 原文不会写入日志，仅记录：
+
+- `api_key_suffix`：最后 3 位。
+- `api_key_sha256`：完整 SHA-256 十六进制摘要，用于关联同一个 Key 的多次检测。
+
+完成日志还包含 `request_id`、检测模式、模型、目标地址、耗时、综合分、总体判定、
+finding 数量和 full 模式最匹配模型。例如：
+
+```json
+{"timestamp":"2026-08-04T08:00:00.000+00:00","level":"INFO","service":"aig-api-checker","event":"detection_completed","request_id":"71b19f8bcb924dda","algorithm":"full","model":"glm-5","api_key_suffix":"xyz","api_key_sha256":"<64位SHA-256>","base_url":"https://relay.example.com/v1","duration_ms":12345,"score":100.0,"overall_verdict":"pass","findings_count":19,"best_model":"GLM-5.2"}
+```
+
+查看当前容器日志：
+
+```bash
+docker logs -f aig-api-checker-pr511
+```
+
 6. Python SSE 客户端示例
 
 import json
@@ -341,3 +375,6 @@ HTTP 状态码	场景	响应示例
 409	基准库为空时请求 full	{"detail":"基准库为空，请先用 CLI 标定..."}
 422	请求体字段校验失败	{"detail":"some error:xxxxxx"}
 这些 HTTP 错误不会建立 SSE 事件流。
+
+服务默认允许最多 20 个检测任务同时运行，可通过 `AIG_API_CHECKER_MAX_JOBS` 调整。
+超过上限且没有空闲执行槽时返回 HTTP 429；当前实现不提供任务等待队列。

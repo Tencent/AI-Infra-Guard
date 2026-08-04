@@ -32,14 +32,19 @@ anthropic_bases）。
 
 import os
 import asyncio
+import hashlib
 import json
 import ipaddress
+import logging
 import queue
 import re
 import socket
+import sys
 import threading
 import time
+import uuid
 from dataclasses import asdict, is_dataclass
+from datetime import datetime, timezone
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -83,6 +88,56 @@ AUDIT_PROFILE = "full"
 QUICK_AUDIT_REQUEST_COUNT = 7
 
 
+def _log_level() -> tuple[str, int]:
+    name = os.environ.get("AIG_API_CHECKER_LOG_LEVEL", "INFO").upper()
+    level = getattr(logging, name, None)
+    if not isinstance(level, int):
+        return "INFO", logging.INFO
+    return name, level
+
+
+LOG_LEVEL_NAME, LOG_LEVEL = _log_level()
+LOGGER = logging.getLogger("aig.api_checker")
+LOGGER.setLevel(LOG_LEVEL)
+LOGGER.propagate = False
+if not LOGGER.handlers:
+    _log_handler = logging.StreamHandler(sys.stdout)
+    _log_handler.setFormatter(logging.Formatter("%(message)s"))
+    LOGGER.addHandler(_log_handler)
+
+
+def _log_event(level: int, event: str, **fields: Any) -> None:
+    payload = {
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "level": logging.getLevelName(level),
+        "service": "aig-api-checker",
+        "event": event,
+    }
+    payload.update({key: value for key, value in fields.items() if value is not None})
+    LOGGER.log(
+        level,
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str),
+    )
+
+
+def _api_key_log_fields(api_key: str) -> dict[str, str]:
+    return {
+        "api_key_suffix": api_key[-3:],
+        "api_key_sha256": hashlib.sha256(api_key.encode("utf-8")).hexdigest(),
+    }
+
+
+def _request_id(value: str | None) -> str:
+    if value and re.fullmatch(r"[A-Za-z0-9._-]{1,64}", value):
+        return value
+    return uuid.uuid4().hex
+
+
+def _redact_log_text(value: Any, api_key: str) -> str:
+    text = str(value)
+    return text.replace(api_key, "[REDACTED]") if api_key else text
+
+
 def _positive_int_env(name: str, default: int) -> int:
     try:
         return max(1, int(os.environ.get(name, str(default))))
@@ -90,7 +145,7 @@ def _positive_int_env(name: str, default: int) -> int:
         return default
 
 
-MAX_CONCURRENT_JOBS = _positive_int_env("AIG_API_CHECKER_MAX_JOBS", 2)
+MAX_CONCURRENT_JOBS = _positive_int_env("AIG_API_CHECKER_MAX_JOBS", 20)
 DETECTION_SLOTS = threading.BoundedSemaphore(MAX_CONCURRENT_JOBS)
 
 
@@ -429,7 +484,8 @@ class DetectRequest(BaseModel):
                          "算法B(加密级signature)不单独可选，模型ID识别为 Claude 时自动启用")
     base_url: str = Field(..., min_length=1, description="待测 API 基础 URL",
                           examples=["https://relay.example.com/v1"])
-    api_key: str = Field(..., min_length=1, description="API 密钥（仅内存使用，不写盘不记录）",
+    api_key: str = Field(..., min_length=1,
+                         description="API 密钥（原文仅内存使用；日志仅记录后 3 位和 SHA-256）",
                          examples=["sk-..."])
     model: str = Field(..., min_length=1, description="模型名称，仅支持 models 接口返回的列表。"
                                         "含 claude/sonnet/opus/haiku/fable 自动识别为 "
@@ -918,88 +974,29 @@ def _result_summary(
 ) -> str:
     overall_verdict = _overall_verdict(algorithm, parts, errors)
     score = _result_score(algorithm, parts, errors)
-    components = []
-
-    audit = parts.get("audit")
-    if audit:
-        audit_score = max(
-            0.0,
-            100.0 - float(audit.get("_risk_score") or 0),
-        )
-        if language == "en":
-            components.append(f"black-box audit {audit_score:.0f}/100")
-        else:
-            components.append(f"黑盒审计 {audit_score:.0f}/100")
-
-    signature = parts.get("signature")
-    if signature:
-        signature_score = float(signature.get("_score") or 0)
-        signature_verdict = _verdict_text(
-            str(signature.get("verdict") or "suspect"),
-            language,
-        )
-        if language == "en":
-            components.append(
-                f"Claude signature: {signature_verdict} "
-                f"({signature_score:.0f}/100)"
-            )
-        else:
-            components.append(
-                f"Claude 签名：{signature_verdict}"
-                f"（{signature_score:.0f}/100）"
-            )
-
-    fingerprint = parts.get("fingerprint")
-    if algorithm == "full" and fingerprint:
-        fingerprint_score = (
-            float(fingerprint.get("_posterior") or 0) * 100
-        )
-        best_model = fingerprint.get("best_model") or "?"
-        if language == "en":
-            components.append(
-                f"fingerprint: {best_model} "
-                f"({fingerprint_score:.0f}/100)"
-            )
-        else:
-            components.append(
-                f"模型指纹：{best_model}"
-                f"（{fingerprint_score:.0f}/100）"
-            )
-
-    if errors:
-        component_names = {
-            "audit": {"zh": "黑盒审计", "en": "black-box audit"},
-            "signature": {"zh": "Claude 签名", "en": "Claude signature"},
-            "fingerprint": {"zh": "模型指纹", "en": "fingerprint"},
-        }
-        failed = [
-            component_names.get(name, {}).get(language, name)
-            for name in errors
-        ]
-        if language == "en":
-            components.append(f"incomplete: {', '.join(failed)}")
-        else:
-            components.append(f"未完成：{'、'.join(failed)}")
 
     if language == "en":
         headline = {
-            "pass": "Overall inspection passed",
-            "risk": "Overall inspection found a risk",
-            "inconclusive": "Overall inspection is incomplete",
+            "pass": "Overall check passed",
+            "risk": "Overall check found issues",
+            "inconclusive": "Overall check incomplete",
         }[overall_verdict]
-        suffix = f": {'; '.join(components)}" if components else ""
-        return f"{headline} (overall score {score:.0f}/100){suffix}"
+        return f"{headline} ({score:.0f}/100)"
 
     headline = {
-        "pass": "综合检测通过",
-        "risk": "综合检测发现异常",
-        "inconclusive": "综合检测不完整",
+        "pass": "综合检查通过",
+        "risk": "综合检查发现异常",
+        "inconclusive": "综合检查未完成",
     }[overall_verdict]
-    suffix = f"：{'；'.join(components)}" if components else ""
-    return f"{headline}（综合分 {score:.0f}/100）{suffix}"
+    return f"{headline}（{score:.0f}/100）"
 
 
-def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict:
+def _run_detect(
+    req: DetectRequest,
+    on_progress=None,
+    cancel_event=None,
+    on_component_error=None,
+) -> dict:
     """统一检测调度"""
     claude = is_claude_model(req.model)
     openai_type = openai_api_type(req.base_url)
@@ -1057,6 +1054,8 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             raise
         except Exception as e:
             errors["audit"] = str(e)[:300]
+            if on_component_error:
+                on_component_error("audit", e)
         if claude:                      # 是 Claude → 自动叠加 B（签名验证）
             _, sig_base = anthropic_bases(req.base_url)
             try:
@@ -1070,6 +1069,8 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                 raise
             except Exception as e:
                 errors["signature"] = str(e)[:300]
+                if on_component_error:
+                    on_component_error("signature", e)
         if not parts:
             raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
         score = _result_score("quick", parts, errors)
@@ -1115,6 +1116,8 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         raise
     except Exception as e:
         errors["audit"] = str(e)[:300]
+        if on_component_error:
+            on_component_error("audit", e)
     if claude:                          # 算法 B 隐藏：识别到 Claude 默认启动
         try:
             parts["signature"] = _run_signature(
@@ -1126,6 +1129,8 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
             raise
         except Exception as e:
             errors["signature"] = str(e)[:300]
+            if on_component_error:
+                on_component_error("signature", e)
     try:
         parts["fingerprint"] = _run_fingerprint(
             effective_req,
@@ -1138,6 +1143,8 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         raise
     except Exception as e:
         errors["fingerprint"] = str(e)[:300]
+        if on_component_error:
+            on_component_error("fingerprint", e)
     if not parts:
         raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
     score = _result_score("full", parts, errors)
@@ -1157,30 +1164,74 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
     return result
 
 
-async def _stream_detect(req: DetectRequest, request: Request, release_slot=None):
+async def _stream_detect(
+    req: DetectRequest,
+    request: Request,
+    release_slot=None,
+    log_context: dict[str, Any] | None = None,
+):
     events: queue.Queue[str | None] = queue.Queue()
     cancel_event = threading.Event()
+    context = dict(log_context or {})
 
     def emit(event: str, payload: Any):
         events.put(_sse(event, payload))
 
     def progress(payload: dict):
         emit("progress", _envelope(payload, "progress"))
+        _log_event(logging.DEBUG, "detection_progress", **context, **payload)
 
     def worker():
+        started = time.monotonic()
+        _log_event(logging.INFO, "detection_started", **context)
+
+        def component_error(component: str, error: Exception):
+            _log_event(
+                logging.WARNING,
+                "detection_component_failed",
+                **context,
+                component=component,
+                error_type=type(error).__name__,
+                error=_redact_log_text(error, req.api_key)[:500],
+            )
+
         try:
             emit("start", _envelope({"algorithm": req.algorithm}, "started"))
             result = _run_detect(
                 req,
                 on_progress=progress,
                 cancel_event=cancel_event,
+                on_component_error=component_error,
             )
             emit("result", _envelope(result))
             emit("done", _envelope(message="done"))
+            _log_event(
+                logging.INFO,
+                "detection_completed",
+                **context,
+                duration_ms=round((time.monotonic() - started) * 1000),
+                score=result.get("score"),
+                overall_verdict=result.get("overall_verdict"),
+                findings_count=len(result.get("detail", {}).get("findings", [])),
+                best_model=result.get("detail", {}).get("best_model") or None,
+            )
         except DetectionCancelled:
-            pass
+            _log_event(
+                logging.WARNING,
+                "detection_cancelled",
+                **context,
+                duration_ms=round((time.monotonic() - started) * 1000),
+            )
         except Exception as e:
             emit("error", _envelope(message=str(e)[:500], status=1))
+            _log_event(
+                logging.ERROR,
+                "detection_failed",
+                **context,
+                duration_ms=round((time.monotonic() - started) * 1000),
+                error_type=type(e).__name__,
+                error=_redact_log_text(e, req.api_key)[:500],
+            )
         finally:
             events.put(None)
             if release_slot:
@@ -1191,6 +1242,7 @@ async def _stream_detect(req: DetectRequest, request: Request, release_slot=None
     try:
         while True:
             if await request.is_disconnected():
+                _log_event(logging.INFO, "client_disconnected", **context)
                 break
             try:
                 item = await asyncio.to_thread(events.get, True, 1.0)
@@ -1224,12 +1276,41 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def request_validation_error_handler(
-    _request: Request,
+    request: Request,
     exc: RequestValidationError,
 ) -> JSONResponse:
+    request_id = _request_id(request.headers.get("X-Request-ID"))
+    request.state.request_id = request_id
+    detail = _validation_error_detail(exc.errors())
+    _log_event(
+        logging.WARNING,
+        "request_validation_failed",
+        request_id=request_id,
+        path=request.url.path,
+        client_ip=request.client.host if request.client else None,
+        error=detail,
+    )
     return JSONResponse(
         status_code=422,
-        content={"detail": _validation_error_detail(exc.errors())},
+        content={"detail": detail},
+        headers={"X-Request-ID": request_id},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException,
+) -> JSONResponse:
+    request_id = getattr(request.state, "request_id", None)
+    if not request_id:
+        request_id = _request_id(request.headers.get("X-Request-ID"))
+    headers = dict(exc.headers or {})
+    headers["X-Request-ID"] = request_id
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=headers,
     )
 
 
@@ -1243,7 +1324,8 @@ if CORS_ORIGINS:
         CORSMiddleware,
         allow_origins=CORS_ORIGINS,
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
     )
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -1280,6 +1362,7 @@ def healthz():
         "allow_http_targets": ALLOW_HTTP_TARGETS,
         "allow_private_targets": ALLOW_PRIVATE_TARGETS,
         "public_root_path": PUBLIC_ROOT_PATH,
+        "log_level": LOG_LEVEL_NAME,
     }
 
 
@@ -1309,16 +1392,63 @@ def api_relay_models():
     },
 )
 async def api_relay_check_stream(req: DetectRequest, request: Request):
-    await asyncio.to_thread(req.check_url)
+    request_id = _request_id(request.headers.get("X-Request-ID"))
+    request.state.request_id = request_id
+    log_context = {
+        "request_id": request_id,
+        "algorithm": req.algorithm,
+        "model": req.model,
+        "language": req.language,
+        "client_ip": request.client.host if request.client else None,
+        **_api_key_log_fields(req.api_key),
+    }
+    _log_event(logging.INFO, "detection_received", **log_context)
+    try:
+        await asyncio.to_thread(req.check_url)
+    except HTTPException as exc:
+        _log_event(
+            logging.WARNING,
+            "detection_rejected",
+            **log_context,
+            status_code=exc.status_code,
+            reason=_redact_log_text(exc.detail, req.api_key),
+        )
+        raise
+    log_context["base_url"] = req.base_url
     if req.algorithm == "full" and not load_baselines():
-        raise HTTPException(409, f"基准库为空，请先用 CLI 标定: python main.py calibrate "
-                                 f"（基准文件: {DEFAULT_BASELINES_PATH}）")
+        detail = (f"基准库为空，请先用 CLI 标定: python main.py calibrate "
+                  f"（基准文件: {DEFAULT_BASELINES_PATH}）")
+        _log_event(
+            logging.WARNING,
+            "detection_rejected",
+            **log_context,
+            status_code=409,
+            reason=detail,
+        )
+        raise HTTPException(409, detail)
     if not DETECTION_SLOTS.acquire(blocking=False):
+        _log_event(
+            logging.WARNING,
+            "detection_rejected",
+            **log_context,
+            status_code=429,
+            reason="detection capacity exhausted",
+        )
         raise HTTPException(429, "检测任务已满，请稍后重试")
+    _log_event(logging.INFO, "detection_accepted", **log_context)
     return StreamingResponse(
-        _stream_detect(req, request, release_slot=DETECTION_SLOTS.release),
+        _stream_detect(
+            req,
+            request,
+            release_slot=DETECTION_SLOTS.release,
+            log_context=log_context,
+        ),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "X-Request-ID": request_id,
+        },
     )
 
 

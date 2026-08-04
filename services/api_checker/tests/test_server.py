@@ -1,3 +1,7 @@
+import asyncio
+import hashlib
+import json
+import logging
 import unittest
 from unittest.mock import patch
 
@@ -64,6 +68,62 @@ class ServerContractTests(unittest.TestCase):
             "success": 5,
             "error": 1,
         }, server._quick_progress(6, 14, 5, 1))
+
+    def test_api_key_log_identity_contains_only_suffix_and_sha256(self):
+        api_key = "sk-test-super-secret-xyz"
+        fields = server._api_key_log_fields(api_key)
+
+        self.assertEqual("xyz", fields["api_key_suffix"])
+        self.assertEqual(
+            hashlib.sha256(api_key.encode("utf-8")).hexdigest(),
+            fields["api_key_sha256"],
+        )
+        self.assertNotIn(api_key, json.dumps(fields))
+
+        with patch.object(server.LOGGER, "log") as log:
+            server._log_event(
+                logging.INFO,
+                "detection_received",
+                request_id="request-1",
+                **fields,
+            )
+        payload_text = log.call_args.args[1]
+        payload = json.loads(payload_text)
+        self.assertEqual("detection_received", payload["event"])
+        self.assertEqual("request-1", payload["request_id"])
+        self.assertNotIn(api_key, payload_text)
+
+    def test_request_id_and_log_redaction(self):
+        self.assertEqual("trace-123", server._request_id("trace-123"))
+        generated = server._request_id("invalid request id")
+        self.assertRegex(generated, r"^[0-9a-f]{32}$")
+        self.assertEqual(
+            "upstream rejected [REDACTED]",
+            server._redact_log_text(
+                "upstream rejected secret-key",
+                "secret-key",
+            ),
+        )
+
+    def test_http_errors_return_request_id(self):
+        request = server.Request({
+            "type": "http",
+            "method": "POST",
+            "path": "/api/v1/relay/check/stream",
+            "headers": [(b"x-request-id", b"trace-http-error")],
+            "query_string": b"",
+            "scheme": "http",
+            "server": ("testserver", 80),
+            "client": ("127.0.0.1", 12345),
+        })
+        response = asyncio.run(server.http_exception_handler(
+            request,
+            HTTPException(429, "busy"),
+        ))
+
+        self.assertEqual(429, response.status_code)
+        self.assertEqual("trace-http-error", response.headers["X-Request-ID"])
+        self.assertEqual({"detail": "busy"}, json.loads(response.body))
 
     def test_fingerprint_progress_preserves_sample_counts(self):
         request = server.DetectRequest(
@@ -556,7 +616,7 @@ class ServerContractTests(unittest.TestCase):
             english = server._run_detect(english_request)
 
         self.assertEqual(
-            "综合检测发现异常（综合分 50/100）：黑盒审计 50/100",
+            "综合检查发现异常（50/100）",
             chinese["summary"],
         )
         self.assertIn(
@@ -568,8 +628,7 @@ class ServerContractTests(unittest.TestCase):
             chinese["detail"]["findings"],
         )
         self.assertEqual(
-            "Overall inspection found a risk (overall score 50/100): "
-            "black-box audit 50/100",
+            "Overall check found issues (50/100)",
             english["summary"],
         )
         self.assertIn(
@@ -581,7 +640,7 @@ class ServerContractTests(unittest.TestCase):
             english["detail"]["findings"],
         )
 
-    def test_full_result_uses_english_summary_sections(self):
+    def test_full_result_uses_concise_english_summary(self):
         audit = {
             "verdict": "LOW",
             "_risk_score": 0,
@@ -619,8 +678,7 @@ class ServerContractTests(unittest.TestCase):
         )
         self.assertEqual("pass", result["overall_verdict"])
         self.assertEqual(
-            "Overall inspection passed (overall score 91/100): "
-            "black-box audit 100/100; fingerprint: GPT-4o-mini (91/100)",
+            "Overall check passed (91/100)",
             result["summary"],
         )
 
@@ -692,8 +750,7 @@ class ServerContractTests(unittest.TestCase):
         self.assertEqual(35.0, result["score"])
         self.assertEqual("risk", result["overall_verdict"])
         self.assertEqual(
-            "综合检测发现异常（综合分 35/100）：黑盒审计 100/100；"
-            "Claude 签名：疑似替身（35/100）",
+            "综合检查发现异常（35/100）",
             result["summary"],
         )
         signature_finding = result["detail"]["findings"][-1]
@@ -714,6 +771,7 @@ class ServerContractTests(unittest.TestCase):
             api_key="secret",
             model="claude-sonnet-5",
         )
+        component_errors = []
 
         with (
             patch.object(server, "_run_audit", return_value=audit),
@@ -723,12 +781,20 @@ class ServerContractTests(unittest.TestCase):
                 side_effect=RuntimeError("signature unavailable"),
             ),
         ):
-            result = server._run_detect(request)
+            result = server._run_detect(
+                request,
+                on_component_error=lambda component, error: (
+                    component_errors.append((component, str(error)))
+                ),
+            )
 
         self.assertEqual("inconclusive", result["overall_verdict"])
         self.assertEqual(
-            "综合检测不完整（综合分 0/100）：黑盒审计 100/100；"
-            "未完成：Claude 签名",
+            [("signature", "signature unavailable")],
+            component_errors,
+        )
+        self.assertEqual(
+            "综合检查未完成（0/100）",
             result["summary"],
         )
         self.assertEqual(0.0, result["score"])

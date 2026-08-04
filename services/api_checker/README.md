@@ -168,15 +168,30 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
 首段后的 `model`，后续审计、签名和指纹请求会自动使用该规范 ID。对于未提供
 完整模型列表的服务，原始 ID 的 Chat 请求返回 400/404/422 时也会执行同样的回退。
 
+## 日志
+
+HTTP 检测主流程输出单行 JSON 结构化日志到 stdout，Docker 可通过
+`docker logs -f aig-api-checker-pr511` 查看。日志覆盖任务接收、开始、组件错误、
+完成、取消、拒绝和客户端断开，并记录请求 ID、模式、模型、目标地址、耗时、分数、
+判定和 finding 数量。默认级别为 `INFO`，可通过
+`AIG_API_CHECKER_LOG_LEVEL=DEBUG|INFO|WARNING|ERROR` 调整；`DEBUG` 额外记录进度。
+
+API Key 原文不会进入日志，仅写入 `api_key_suffix`（最后 3 位）和
+`api_key_sha256`（完整 SHA-256），用于安全地关联同一个 Key 的多次检测。客户端可
+通过 `X-Request-ID` 请求头传入关联 ID，服务端也会在响应头返回最终请求 ID。
+
 ## 隐私
 
 - **本地执行**：检测逻辑在本地运行；被测模型 API 仍可能按调用量收费
-- **API key 不留存**：HTTP 检测的 Key 仅在任务内存中使用；QTest
-  `--dump-config` 只写环境变量占位符，导出文件权限为 `0600`
+- **API Key 原文不留存**：HTTP 检测只在任务内存中使用原文；结构化日志仅保留
+  最后 3 位和 SHA-256。QTest `--dump-config` 只写环境变量占位符，导出文件权限为
+  `0600`
 - **代码开源**：完整源码可审计
 
 HTTP 服务默认只允许公网 HTTPS 目标。可信内网或本机测试可显式设置
 `AIG_API_CHECKER_ALLOW_HTTP=1`、`AIG_API_CHECKER_ALLOW_PRIVATE_TARGETS=1`。
+同时运行的检测任务默认上限为 20，可通过 `AIG_API_CHECKER_MAX_JOBS` 调整；超过
+上限且没有空闲执行槽时返回 HTTP 429。
 
 ## 项目结构
 

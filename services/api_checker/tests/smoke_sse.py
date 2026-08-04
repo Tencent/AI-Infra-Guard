@@ -158,15 +158,21 @@ def parse_events(body: str) -> list[tuple[str, dict]]:
 
 
 def run_detection(payload: dict) -> list[tuple[str, dict]]:
+    request_id = f"smoke-{payload['algorithm']}-{payload['model']}"
     request = urllib.request.Request(
         CHECKER_URL + "/api/v1/relay/check/stream",
         data=json.dumps(payload).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "X-Request-ID": request_id,
+        },
         method="POST",
     )
     with urllib.request.urlopen(request, timeout=60) as response:
         if response.headers.get_content_type() != "text/event-stream":
             raise AssertionError(response.headers.get("Content-Type"))
+        if response.headers.get("X-Request-ID") != request_id:
+            raise AssertionError(response.headers.get("X-Request-ID"))
         body = response.read().decode()
     if payload["api_key"] in body:
         raise AssertionError("API key leaked into SSE output")
@@ -234,8 +240,7 @@ def main() -> int:
         if result["overall_verdict"] != "pass":
             raise AssertionError(result)
         if result["summary"] != (
-            "Overall inspection passed (overall score 100/100): "
-            "black-box audit 100/100"
+            "Overall check passed (100/100)"
         ):
             raise AssertionError(result["summary"])
         if "checks" in result["detail"]:
@@ -328,13 +333,13 @@ def main() -> int:
             or not full_result["detail"]["best_model"]
         ):
             raise AssertionError(full_result)
-        if (
-            not full_result["summary"].startswith(
-                "Overall inspection "
-            )
-            or "black-box audit 100/100" not in full_result["summary"]
-            or "fingerprint: " not in full_result["summary"]
-        ):
+        expected_summary = {
+            "pass": "Overall check passed",
+            "risk": "Overall check found issues",
+            "inconclusive": "Overall check incomplete",
+        }[full_result["overall_verdict"]]
+        expected_summary += f" ({full_result['score']:.0f}/100)"
+        if full_result["summary"] != expected_summary:
             raise AssertionError(full_result["summary"])
         fingerprint_findings = [
             finding

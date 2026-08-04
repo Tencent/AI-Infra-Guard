@@ -170,6 +170,7 @@ func TestConfiguredCheckInjectsStoredCredentialsWithoutLeakingThem(t *testing.T)
 	)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Request-ID", "trace-api-checker-123")
 	req.Header.Set("Authorization", "Bearer aig-session")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -560,6 +561,7 @@ func TestProxyDoesNotForwardAIGSessionHeaders(t *testing.T) {
 	require.NoError(t, err)
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Request-ID", "trace-api-checker-123")
 	req.Header.Set("Authorization", "Bearer aig-session")
 	req.Header.Set("Cookie", "session=aig-session")
 	req.Header.Set("X-APIKey", "aig-api-key")
@@ -573,6 +575,7 @@ func TestProxyDoesNotForwardAIGSessionHeaders(t *testing.T) {
 	got := <-headersSeen
 	require.Equal(t, "text/event-stream", got.Get("Accept"))
 	require.Equal(t, "application/json", got.Get("Content-Type"))
+	require.Equal(t, "trace-api-checker-123", got.Get("X-Request-ID"))
 	require.Empty(t, got.Get("Authorization"))
 	require.Empty(t, got.Get("Cookie"))
 	require.Empty(t, got.Get("X-APIKey"))

@@ -51,6 +51,7 @@ var forwardedRequestHeaders = []string{
 	"If-None-Match",
 	"Range",
 	"User-Agent",
+	"X-Request-ID",
 }
 
 // Handler proxies API checker requests to one configured upstream.
