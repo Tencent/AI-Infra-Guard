@@ -54,7 +54,10 @@ from pydantic import BaseModel, Field
 
 if __package__:
     from .algorithms.fingerprint import test_model
-    from .algorithms.signature import run_all_checks
+    from .algorithms.signature import (
+        SIGNATURE_QUICK_REQUEST_COUNT,
+        run_all_checks,
+    )
     from .algorithms.relay_audit import run_relay_audit
     from .algorithms.common import (
         load_baselines,
@@ -63,7 +66,10 @@ if __package__:
     )
 else:
     from algorithms.fingerprint import test_model
-    from algorithms.signature import run_all_checks
+    from algorithms.signature import (
+        SIGNATURE_QUICK_REQUEST_COUNT,
+        run_all_checks,
+    )
     from algorithms.relay_audit import run_relay_audit
     from algorithms.common import (
         load_baselines,
@@ -74,6 +80,7 @@ else:
 VERSION = "1.7.0"
 FINGERPRINT_CONCURRENCY = 5
 AUDIT_PROFILE = "full"
+QUICK_AUDIT_REQUEST_COUNT = 7
 
 
 def _positive_int_env(name: str, default: int) -> int:
@@ -187,6 +194,96 @@ FINDING_TITLE_TEXT = {
         "en": "Context truncation suspected",
     },
 }
+SPECIALIZED_RISK_CHECKS = [
+    {
+        "probe": "models",
+        "failed_title": "Model list endpoint failed",
+        "title": {
+            "zh": "模型列表接口调用检查",
+            "en": "Model list endpoint check",
+        },
+    },
+    {
+        "probe": "models",
+        "failed_title": "Requested model not found",
+        "title": {
+            "zh": "请求模型存在性检查",
+            "en": "Requested model presence check",
+        },
+    },
+    {
+        "probe": "liveness",
+        "failed_title": "Liveness inconclusive (truncated)",
+        "title": {
+            "zh": "连通性响应截断检查",
+            "en": "Liveness truncation check",
+        },
+    },
+    {
+        "probe": "liveness",
+        "failed_title": "Relay liveness failed",
+        "title": {
+            "zh": "中转服务连通性专项检查",
+            "en": "Relay liveness risk check",
+        },
+    },
+    {
+        "probe": "identity",
+        "failed_title": "Model identity family mismatch",
+        "title": {
+            "zh": "模型身份系列匹配检查",
+            "en": "Model identity family match check",
+        },
+    },
+    {
+        "probe": "token_delta",
+        "failed_title": "Large prompt token delta",
+        "title": {
+            "zh": "提示词 Token 数量偏差检查",
+            "en": "Prompt token delta risk check",
+        },
+    },
+    {
+        "probe": "echo_rewrite",
+        "failed_title": "Echo inconclusive (truncated)",
+        "title": {
+            "zh": "回显响应截断检查",
+            "en": "Echo truncation check",
+        },
+    },
+    {
+        "probe": "echo_rewrite",
+        "failed_title": "Echo/tool command rewrite suspected",
+        "title": {
+            "zh": "回显与工具命令改写检查",
+            "en": "Echo and tool command rewrite check",
+        },
+    },
+    {
+        "probe": "stream_integrity",
+        "failed_title": "Stream integrity anomaly",
+        "title": {
+            "zh": "流式响应异常检查",
+            "en": "Stream anomaly check",
+        },
+    },
+    {
+        "probe": "stream_integrity",
+        "failed_title": "Stream model field mismatch",
+        "title": {
+            "zh": "流式响应模型字段匹配检查",
+            "en": "Stream model field match check",
+        },
+    },
+    {
+        "probe": "context_canary",
+        "failed_title": "Context truncation suspected",
+        "title": {
+            "zh": "上下文截断检查",
+            "en": "Context truncation check",
+        },
+    },
+]
 
 # 模型 ID 含以下关键词即识别为 Claude（Anthropic），不依赖外部传参
 CLAUDE_MODEL_KEYWORDS = ("claude", "sonnet", "opus", "haiku", "fable")
@@ -404,6 +501,16 @@ def _completed_rate(completed: int, total: int) -> float:
     return round(min(1.0, max(0.0, completed / total)), 2)
 
 
+def _quick_progress(completed: int, total: int, success: int,
+                    error: int) -> dict:
+    return {
+        "completed": completed,
+        "total": total,
+        "success": success,
+        "error": error,
+    }
+
+
 def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
                      on_progress=None, cancel_event=None) -> dict:
     """算法 A：随机数指纹测试。api_type/base_url 由调度层按模型 ID 推导后传入。
@@ -443,7 +550,8 @@ def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
     return out
 
 
-def _run_signature(req: DetectRequest, base_url: str, cancel_event=None) -> dict:
+def _run_signature(req: DetectRequest, base_url: str, cancel_event=None,
+                   on_progress=None) -> dict:
     """算法 B（隐藏）：加密级 signature 检测，仅 Anthropic。
     skip_fingerprint=True：其内部 30 次指纹采样由算法 A 的大采样覆盖，避免重复。
     返回极简：判定 + 评分。"""
@@ -456,6 +564,7 @@ def _run_signature(req: DetectRequest, base_url: str, cancel_event=None) -> dict
             skip_fingerprint=True,
             skip_latency=False,
             cancel_event=cancel_event,
+            on_progress=on_progress,
         )
     except Exception:
         _raise_if_cancelled(cancel_event)
@@ -482,11 +591,14 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
                on_progress=None, api_type="openai") -> dict:
     """算法 C：黑盒审计 7 探针。base_url 由调度层归一化后传入。
     返回极简：判定 + 评分 + 风险发现（仅严重度+标题）。"""
-    def progress(completed, total):
+    def progress(completed, total, success, error):
         if on_progress:
-            on_progress({
-                "completed_rate": _completed_rate(completed, total),
-            })
+            on_progress(_quick_progress(
+                completed,
+                total,
+                success,
+                error,
+            ))
 
     _raise_if_cancelled(cancel_event)
     result = run_relay_audit(
@@ -495,8 +607,8 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
         req.model,
         AUDIT_PROFILE,
         cancel_event=cancel_event,
-        on_progress=progress,
         api_type=api_type,
+        on_request_progress=progress,
     )
     _raise_if_cancelled(cancel_event)
     test_info = _audit_test_info(result["probe_results"])
@@ -593,12 +705,7 @@ def _finding_title(title: str, language: str) -> str:
 
 
 def _probe_status_title(probe: str, passed: bool, language: str) -> str:
-    base = PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
-    if passed:
-        return base
-    if language == "en":
-        return f"{base} failed"
-    return f"{base}未通过"
+    return PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
 
 
 def _fingerprint_summary(fp: dict, language: str = DEFAULT_LANGUAGE) -> str:
@@ -656,45 +763,16 @@ def _signature_finding(
 ) -> dict:
     verdict = str(signature.get("verdict") or "suspect")
     passed = verdict == "native"
-    score = float(signature.get("_score") or 0)
-    verdict_text = _verdict_text(verdict, language)
-    failed_checks = signature.get("_failed_checks") or []
-
-    if language == "en":
-        label = (
-            "Claude signature verification"
-            if passed else "Claude signature verification failed"
-        )
-        title = (
-            f"{label}: "
-            f"{verdict_text} ({score:.0f}/100)"
-        )
-        reason_prefix = "Reasons: "
-        separator = "; "
-    else:
-        label = "Claude 签名验证" if passed else "Claude 签名验证未通过"
-        title = (
-            f"{label}："
-            f"{verdict_text}（{score:.0f}/100）"
-        )
-        reason_prefix = "原因："
-        separator = "；"
-
-    if failed_checks:
-        reasons = []
-        for check in failed_checks[:3]:
-            name = str(check.get("name") or "Signature")
-            detail = str(check.get("detail") or "").strip()
-            reasons.append(f"{name}: {detail}" if detail else name)
-        title = f"{title}{separator}{reason_prefix}" + separator.join(reasons)
-
     return {
         "probe": "signature",
         "severity": (
             FINDING_PASSED_STATUS
             if passed else FINDING_FAILED_STATUS
         ),
-        "title": title,
+        "title": (
+            "Claude signature verification"
+            if language == "en" else "Claude 签名验证"
+        ),
     }
 
 
@@ -703,21 +781,8 @@ def _fingerprint_finding(
     language: str = DEFAULT_LANGUAGE,
 ) -> dict:
     posterior = float(fingerprint.get("_posterior") or 0)
-    score = posterior * 100
     forgery_status = str(fingerprint.get("_forgery_status") or "")
-    best_model = str(fingerprint.get("best_model") or "?")
     passed = posterior >= 0.85 and forgery_status == "supported"
-
-    if language == "en":
-        label = "Model fingerprint" if passed else "Model fingerprint failed"
-        title = f"{label}: best match {best_model} ({score:.0f}/100)"
-        if not passed and forgery_status:
-            title += f", status: {forgery_status}"
-    else:
-        label = "模型指纹" if passed else "模型指纹未通过"
-        title = f"{label}：最匹配 {best_model}（{score:.0f}/100）"
-        if not passed and forgery_status:
-            title += f"，状态：{forgery_status}"
 
     return {
         "probe": "fingerprint",
@@ -725,7 +790,10 @@ def _fingerprint_finding(
             FINDING_PASSED_STATUS
             if passed else FINDING_FAILED_STATUS
         ),
-        "title": title,
+        "title": (
+            "Model fingerprint check"
+            if language == "en" else "模型指纹检查"
+        ),
     }
 
 
@@ -736,41 +804,58 @@ def _result_detail(
 ) -> dict:
     findings = []
     audit = parts.get("audit", {})
-    failed_by_probe = {}
+    triggered = {}
     for finding in audit.get("findings", []):
-        failed_by_probe.setdefault(finding.get("probe"), []).append(finding)
+        key = (
+            str(finding.get("probe") or ""),
+            str(finding.get("title") or ""),
+        )
+        triggered[key] = finding
 
+    executed_probes = set()
     for probe_result in audit.get("probe_results", []):
         probe = str(probe_result.get("name") or "")
-        failed = failed_by_probe.pop(probe, [])
-        if failed:
-            for finding in failed:
-                localized = dict(finding)
-                localized["severity"] = FINDING_FAILED_STATUS
-                localized["title"] = _finding_title(
-                    str(localized.get("title", "")),
-                    language,
-                )
-                findings.append(localized)
-        else:
-            passed = bool(probe_result.get("ok"))
+        executed_probes.add(probe)
+        passed = bool(probe_result.get("ok"))
+        findings.append({
+            "probe": probe,
+            "severity": (
+                FINDING_PASSED_STATUS
+                if passed else FINDING_FAILED_STATUS
+            ),
+            "title": _probe_status_title(probe, passed, language),
+        })
+
+    for risk_check in SPECIALIZED_RISK_CHECKS:
+        probe = risk_check["probe"]
+        if probe not in executed_probes:
+            continue
+        key = (probe, risk_check["failed_title"])
+        finding = triggered.pop(key, None)
+        if finding:
             findings.append({
                 "probe": probe,
-                "severity": (
-                    FINDING_PASSED_STATUS
-                    if passed else FINDING_FAILED_STATUS
-                ),
-                "title": _probe_status_title(probe, passed, language),
+                "severity": FINDING_FAILED_STATUS,
+                "title": risk_check["title"][language],
             })
-    for remaining in failed_by_probe.values():
-        for finding in remaining:
-            localized = dict(finding)
-            localized["severity"] = FINDING_FAILED_STATUS
-            localized["title"] = _finding_title(
-                str(localized.get("title", "")),
-                language,
-            )
-            findings.append(localized)
+        else:
+            findings.append({
+                "probe": probe,
+                "severity": FINDING_PASSED_STATUS,
+                "title": risk_check["title"][language],
+            })
+
+    for remaining in triggered.values():
+        localized = dict(remaining)
+        localized["severity"] = FINDING_FAILED_STATUS
+        localized["title"] = PROBE_CHECK_TITLE.get(
+            str(localized.get("probe") or ""),
+            {},
+        ).get(
+            language,
+            str(localized.get("probe") or "Unknown audit check"),
+        )
+        findings.append(localized)
 
     signature = parts.get("signature")
     if signature:
@@ -924,12 +1009,43 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
         parts: dict[str, Any] = {}
         errors: dict[str, str] = {}
         effective_req = req
+        audit_progress = None
+        signature_progress = None
+        audit_request_state = {
+            "completed": 0,
+            "total": QUICK_AUDIT_REQUEST_COUNT,
+            "success": 0,
+            "error": 0,
+        }
+        if on_progress:
+            def audit_progress(payload: dict):
+                audit_request_state.update(payload)
+                total = payload["total"]
+                if claude:
+                    total += SIGNATURE_QUICK_REQUEST_COUNT
+                on_progress(_quick_progress(
+                    payload["completed"],
+                    total,
+                    payload["success"],
+                    payload["error"],
+                ))
+
+            if claude:
+                def signature_progress(completed: int, total: int,
+                                       success: int, error: int):
+                    on_progress(_quick_progress(
+                        audit_request_state["completed"] + completed,
+                        audit_request_state["total"] + total,
+                        audit_request_state["success"] + success,
+                        audit_request_state["error"] + error,
+                    ))
+
         try:
             parts["audit"] = _run_audit(
                 req,
                 normalize_openai_base(req.base_url),
                 cancel_event,
-                on_progress,
+                audit_progress,
                 openai_type,
             )
             resolved_model = parts["audit"].get("_resolved_model")
@@ -948,6 +1064,7 @@ def _run_detect(req: DetectRequest, on_progress=None, cancel_event=None) -> dict
                     effective_req,
                     sig_base,
                     cancel_event,
+                    signature_progress,
                 )
             except DetectionCancelled:
                 raise

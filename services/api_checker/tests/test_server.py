@@ -57,6 +57,14 @@ class ServerContractTests(unittest.TestCase):
         self.assertEqual(0.66, server._completed_rate(66, 100))
         self.assertEqual(1.0, server._completed_rate(101, 100))
 
+    def test_quick_progress_preserves_actual_request_counts(self):
+        self.assertEqual({
+            "completed": 6,
+            "total": 14,
+            "success": 5,
+            "error": 1,
+        }, server._quick_progress(6, 14, 5, 1))
+
     def test_fingerprint_progress_preserves_sample_counts(self):
         request = server.DetectRequest(
             algorithm="full",
@@ -436,6 +444,88 @@ class ServerContractTests(unittest.TestCase):
         )
         self.assertNotIn("_resolved_model", result["detail"])
 
+    def test_quick_claude_progress_combines_actual_requests(self):
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "findings": [],
+            "probe_results": [],
+        }
+        signature = {
+            "verdict": "native",
+            "_score": 100,
+        }
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test",
+            api_key="secret",
+            model="claude-sonnet-5",
+        )
+        progress = []
+
+        def fake_audit(_req, _base_url, _cancel_event, on_progress, _api_type):
+            for completed in range(1, server.QUICK_AUDIT_REQUEST_COUNT + 1):
+                on_progress({
+                    "completed": completed,
+                    "total": server.QUICK_AUDIT_REQUEST_COUNT,
+                    "success": completed,
+                    "error": 0,
+                })
+            return audit
+
+        def fake_signature(_req, _base_url, _cancel_event, on_progress):
+            for completed in range(
+                1,
+                server.SIGNATURE_QUICK_REQUEST_COUNT + 1,
+            ):
+                on_progress(
+                    completed,
+                    server.SIGNATURE_QUICK_REQUEST_COUNT,
+                    completed,
+                    0,
+                )
+            return signature
+
+        with (
+            patch.object(server, "_run_audit", side_effect=fake_audit),
+            patch.object(server, "_run_signature", side_effect=fake_signature),
+        ):
+            server._run_detect(request, on_progress=progress.append)
+
+        total_requests = (
+            server.QUICK_AUDIT_REQUEST_COUNT
+            + server.SIGNATURE_QUICK_REQUEST_COUNT
+        )
+        expected = [
+            server._quick_progress(
+                completed,
+                total_requests,
+                completed,
+                0,
+            )
+            for completed in range(1, server.QUICK_AUDIT_REQUEST_COUNT + 1)
+        ]
+        expected.extend(
+            server._quick_progress(
+                server.QUICK_AUDIT_REQUEST_COUNT + completed,
+                total_requests,
+                server.QUICK_AUDIT_REQUEST_COUNT + completed,
+                0,
+            )
+            for completed in range(
+                1,
+                server.SIGNATURE_QUICK_REQUEST_COUNT + 1,
+            )
+        )
+
+        self.assertEqual(expected, progress)
+        self.assertEqual({
+            "completed": 14,
+            "total": 14,
+            "success": 14,
+            "error": 0,
+        }, progress[-1])
+
     def test_quick_result_localizes_summary_and_title(self):
         audit = {
             "verdict": "HIGH",
@@ -469,26 +559,26 @@ class ServerContractTests(unittest.TestCase):
             "综合检测发现异常（综合分 50/100）：黑盒审计 50/100",
             chinese["summary"],
         )
-        self.assertEqual(
-            "中转服务连通性检查失败",
-            chinese["detail"]["findings"][0]["title"],
-        )
-        self.assertEqual(
-            "Failed",
-            chinese["detail"]["findings"][0]["severity"],
+        self.assertIn(
+            {
+                "probe": "liveness",
+                "severity": "Failed",
+                "title": "中转服务连通性专项检查",
+            },
+            chinese["detail"]["findings"],
         )
         self.assertEqual(
             "Overall inspection found a risk (overall score 50/100): "
             "black-box audit 50/100",
             english["summary"],
         )
-        self.assertEqual(
-            "Relay liveness failed",
-            english["detail"]["findings"][0]["title"],
-        )
-        self.assertEqual(
-            "Failed",
-            english["detail"]["findings"][0]["severity"],
+        self.assertIn(
+            {
+                "probe": "liveness",
+                "severity": "Failed",
+                "title": "Relay liveness risk check",
+            },
+            english["detail"]["findings"],
         )
 
     def test_full_result_uses_english_summary_sections(self):
@@ -557,10 +647,14 @@ class ServerContractTests(unittest.TestCase):
             "模型列表检查",
             detail["findings"][0]["title"],
         )
-        self.assertEqual("Passed", detail["findings"][1]["severity"])
+        signature_finding = next(
+            finding for finding in detail["findings"]
+            if finding["probe"] == "signature"
+        )
+        self.assertEqual("Passed", signature_finding["severity"])
         self.assertEqual(
-            "Claude 签名验证：原生透传（98/100）",
-            detail["findings"][1]["title"],
+            "Claude 签名验证",
+            signature_finding["title"],
         )
 
     def test_signature_failure_caps_score_and_explains_risk(self):
@@ -605,10 +699,7 @@ class ServerContractTests(unittest.TestCase):
         signature_finding = result["detail"]["findings"][-1]
         self.assertEqual("signature", signature_finding["probe"])
         self.assertEqual("Failed", signature_finding["severity"])
-        self.assertIn(
-            "原因：Thinking Signature: 未返回 signature",
-            signature_finding["title"],
-        )
+        self.assertEqual("Claude 签名验证", signature_finding["title"])
 
     def test_incomplete_component_controls_summary(self):
         audit = {
@@ -662,21 +753,21 @@ class ServerContractTests(unittest.TestCase):
         english = server._result_detail("quick", parts, "en")
 
         self.assertEqual(
-            ["Passed", "Failed", "Failed"],
+            ["Passed", "Passed", "Failed"],
             [
                 finding["severity"]
-                for finding in chinese["findings"]
+                for finding in chinese["findings"][:3]
             ],
         )
         self.assertEqual(
             [
                 "模型列表检查",
-                "模型身份系列不匹配",
-                "流式响应完整性检查未通过",
+                "模型身份检查",
+                "流式响应完整性检查",
             ],
             [
                 finding["title"]
-                for finding in chinese["findings"]
+                for finding in chinese["findings"][:3]
             ],
         )
         self.assertEqual(
@@ -684,9 +775,83 @@ class ServerContractTests(unittest.TestCase):
             english["findings"][0]["title"],
         )
         self.assertEqual(
-            "Stream integrity check failed",
+            "Stream integrity check",
             english["findings"][2]["title"],
         )
+        self.assertIn(
+            {
+                "probe": "identity",
+                "severity": "Failed",
+                "title": "模型身份系列匹配检查",
+            },
+            chinese["findings"],
+        )
+
+    def test_all_18_audit_checks_return_passed_or_failed(self):
+        probe_results = [
+            {"name": probe, "ok": True}
+            for probe in server.PROBE_CHECK_TITLE
+        ]
+        safe_parts = {
+            "audit": {
+                "findings": [],
+                "probe_results": probe_results,
+            },
+        }
+
+        chinese = server._result_detail("full", safe_parts, "zh")["findings"]
+        english = server._result_detail("full", safe_parts, "en")["findings"]
+        self.assertEqual(18, len(chinese))
+        self.assertTrue(all(item["severity"] == "Passed" for item in chinese))
+        self.assertTrue(all("通过" not in item["title"] for item in chinese))
+        self.assertTrue(all(item["severity"] == "Passed" for item in english))
+        self.assertTrue(all("passed" not in item["title"].lower() for item in english))
+
+        for risk_check in server.SPECIALIZED_RISK_CHECKS:
+            with self.subTest(risk=risk_check["failed_title"]):
+                parts = {
+                    "audit": {
+                        "findings": [{
+                            "probe": risk_check["probe"],
+                            "severity": "HIGH",
+                            "title": risk_check["failed_title"],
+                        }],
+                        "probe_results": probe_results,
+                    },
+                }
+                result = server._result_detail("full", parts, "zh")["findings"]
+                failures = [
+                    item for item in result
+                    if item["severity"] == "Failed"
+                ]
+                self.assertEqual(1, len(failures))
+                self.assertEqual(
+                    risk_check["title"]["zh"],
+                    failures[0]["title"],
+                )
+
+        for failed_probe in server.PROBE_CHECK_TITLE:
+            with self.subTest(base_probe=failed_probe):
+                failed_results = [
+                    {"name": item["name"], "ok": item["name"] != failed_probe}
+                    for item in probe_results
+                ]
+                parts = {
+                    "audit": {
+                        "findings": [],
+                        "probe_results": failed_results,
+                    },
+                }
+                result = server._result_detail("full", parts, "zh")["findings"]
+                self.assertIn({
+                    "probe": failed_probe,
+                    "severity": "Failed",
+                    "title": server._probe_status_title(
+                        failed_probe,
+                        False,
+                        "zh",
+                    ),
+                }, result)
 
     def test_full_result_returns_fingerprint_status(self):
         parts = {
@@ -707,12 +872,12 @@ class ServerContractTests(unittest.TestCase):
             {
                 "probe": "fingerprint",
                 "severity": "Passed",
-                "title": "模型指纹：最匹配 DeepSeek-V4-Flash（97/100）",
+                "title": "模型指纹检查",
             },
             chinese["findings"][-1],
         )
         self.assertEqual(
-            "Model fingerprint: best match DeepSeek-V4-Flash (97/100)",
+            "Model fingerprint check",
             english["findings"][-1]["title"],
         )
 

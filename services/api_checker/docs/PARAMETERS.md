@@ -241,6 +241,7 @@ Claude 的 extended thinking API 返回的 `signature` 是 base64 protobuf 封�
 | `model` | `str` | 是 | — | 模型名 |
 | `skip_fingerprint` | `bool` | 否 | `False` | 跳过随机数指纹检测（省时） |
 | `skip_latency` | `bool` | 否 | `False` | 跳过延迟检测 |
+| `on_progress` | `callable` | 否 | `None` | 每个上游请求完成后的回调 `fn(completed, total, success, error)` |
 
 **输出**：`dict`
 
@@ -304,6 +305,7 @@ Claude 的 extended thinking API 返回的 `signature` 是 base64 protobuf 封�
 | `profile` | `str` | 否 | `"full"` | 探针集合：`quick` / `standard` / `full` |
 | `cancel_event` | `threading.Event` | 否 | `None` | 客户端断连时取消未开始的探针 |
 | `on_progress` | `callable` | 否 | `None` | 每个探针完成后的回调 `fn(completed, total)` |
+| `on_request_progress` | `callable` | 否 | `None` | 每个实际 HTTP 请求完成后的回调 `fn(completed, total, success, error)` |
 
 默认执行完整 7 探针。
 
@@ -521,9 +523,12 @@ B 的通过分，full 模式的指纹使用后验百分制；多个已完成组�
 Anthropic 的 `cache_read_input_tokens`、Chat Completions 的
 `prompt_tokens_details.cached_tokens` 以及 Responses 的
 `input_tokens_details.cached_tokens`；上游未提供的指标为 `null`。
-`detail.findings[]` 返回所有已执行探针；`severity` 使用英文二值状态
-`Passed`/`Failed`。通过项标题只保留检查名称，状态由 `severity` 表达；Claude
-Signature 和 full 模式模型指纹分别作为 `probe: "signature"`、
-`probe: "fingerprint"` 返回，失败标题包含具体判定信息。
+`detail.findings[]` 返回所有已执行探针及其专项风险条件；`severity` 使用英文二值
+状态 `Passed`/`Failed`。无论状态如何，`title` 都只返回中性的检查项名称，不包含
+“通过”“失败”“异常”等结论，列表图标可直接由 `severity` 决定。统一清单共定义
+20 项；完整执行 7 个黑盒探针会返回其中 18 项审计检查（7 项基础状态 + 11 项专项
+条件），Claude Signature 和 full 模式模型指纹分别作为 `probe: "signature"`、
+`probe: "fingerprint"` 追加。因此四种组合的实际返回数量依次为：quick 非 Claude
+18 项、quick + Claude 19 项、full 非 Claude 19 项、full + Claude 20 项。
 黑盒审计对单个上游 HTTP 请求设置 60 秒总时限，并对整轮 quick 审计设置
 180 秒总时限，避免上游持续发送少量数据时绕过普通 socket 读超时。

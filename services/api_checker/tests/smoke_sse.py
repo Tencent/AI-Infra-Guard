@@ -211,11 +211,24 @@ def main() -> int:
         ):
             raise AssertionError(f"unexpected SSE events: {names}")
         quick_progress = [
-            payload["data"]["completed_rate"]
+            payload["data"]
             for event, payload in events
             if event == "progress"
         ]
-        if quick_progress != sorted(quick_progress) or quick_progress[-1] != 1.0:
+        quick_completed = [value["completed"] for value in quick_progress]
+        if (
+            any(
+                set(value) != {"completed", "total", "success", "error"}
+                for value in quick_progress
+            )
+            or quick_completed != sorted(quick_completed)
+            or quick_completed[-1] != 7
+            or any(value["total"] != 7 for value in quick_progress)
+            or any(
+                value["success"] + value["error"] != value["completed"]
+                for value in quick_progress
+            )
+        ):
             raise AssertionError(quick_progress)
         result = events[-2][1]["data"]
         if result["overall_verdict"] != "pass":
@@ -229,13 +242,13 @@ def main() -> int:
             raise AssertionError(result["detail"])
         findings = result["detail"]["findings"]
         if (
-            len(findings) != 7
+            len(findings) != 18
             or any(finding["severity"] != "Passed" for finding in findings)
             or any("passed" in finding["title"].lower() for finding in findings)
         ):
             raise AssertionError(findings)
         print("events", " -> ".join(names))
-        print("quick progress", names.count("progress"), quick_progress[-1])
+        print("quick progress", names.count("progress"), quick_completed[-1])
         print("findings", len(findings), "all passed")
         print("score", result["score"])
 
@@ -254,7 +267,7 @@ def main() -> int:
             or responses_names.count("progress") != 7
             or responses_result["overall_verdict"] != "pass"
             or responses_result["detail"]["test_info"]["cache_read_tokens"] != 0
-            or len(responses_findings) != 7
+            or len(responses_findings) != 18
             or any(
                 finding["severity"] != "Passed"
                 for finding in responses_findings

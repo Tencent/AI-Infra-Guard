@@ -186,6 +186,136 @@ class SignatureTests(unittest.TestCase):
         self.assertTrue(result.passed)
         self.assertIn("均值=", result.detail)
 
+    def test_all_checks_report_each_network_request(self):
+        passed = signature.CheckResult(
+            "Thinking Signature",
+            True,
+            "signature ok",
+            2.0,
+            True,
+        )
+        progress = []
+
+        def one_request(*args):
+            args[-1](True)
+            return passed
+
+        def latency_requests(*args):
+            callback = args[-1]
+            for _ in range(3):
+                callback(True)
+            return passed
+
+        with (
+            patch.object(
+                signature,
+                "_check_thinking_signature",
+                return_value=(passed, {"signature": "test"}),
+            ),
+            patch.object(
+                signature,
+                "_check_replay",
+                side_effect=one_request,
+            ),
+            patch.object(
+                signature,
+                "_check_response_headers",
+                side_effect=one_request,
+            ),
+            patch.object(
+                signature,
+                "_check_system_prompt",
+                side_effect=one_request,
+            ),
+            patch.object(
+                signature,
+                "_check_latency",
+                side_effect=latency_requests,
+            ),
+        ):
+            signature.run_all_checks(
+                "https://example.test",
+                "secret",
+                "claude-test",
+                skip_fingerprint=True,
+                skip_latency=False,
+                on_progress=lambda completed, total, success, error: progress.append(
+                    (completed, total, success, error)
+                ),
+            )
+
+        self.assertEqual(
+            [
+                (
+                    completed,
+                    signature.SIGNATURE_QUICK_REQUEST_COUNT,
+                    completed,
+                    0,
+                )
+                for completed in range(
+                    1,
+                    signature.SIGNATURE_QUICK_REQUEST_COUNT + 1,
+                )
+            ],
+            progress,
+        )
+
+    def test_signature_progress_removes_skipped_replay_request(self):
+        failed = signature.CheckResult(
+            "Thinking Signature",
+            False,
+            "no signature",
+            2.0,
+            True,
+        )
+        passed = signature.CheckResult("mock", True, "ok")
+        progress = []
+
+        def one_request(*args):
+            args[-1](True)
+            return passed
+
+        def latency_requests(*args):
+            callback = args[-1]
+            for _ in range(3):
+                callback(True)
+            return passed
+
+        with (
+            patch.object(
+                signature,
+                "_check_thinking_signature",
+                return_value=(failed, {}),
+            ),
+            patch.object(
+                signature,
+                "_check_response_headers",
+                side_effect=one_request,
+            ),
+            patch.object(
+                signature,
+                "_check_system_prompt",
+                side_effect=one_request,
+            ),
+            patch.object(
+                signature,
+                "_check_latency",
+                side_effect=latency_requests,
+            ),
+        ):
+            signature.run_all_checks(
+                "https://example.test",
+                "secret",
+                "claude-test",
+                skip_fingerprint=True,
+                on_progress=lambda completed, total, success, error: progress.append(
+                    (completed, total, success, error)
+                ),
+            )
+
+        self.assertEqual((1, 6, 1, 0), progress[0])
+        self.assertEqual((6, 6, 6, 0), progress[-1])
+
 
 class RelayAuditTests(unittest.TestCase):
     def test_model_candidates_strip_provider_prefix(self):
@@ -284,7 +414,7 @@ class RelayAuditTests(unittest.TestCase):
                 },
             )
 
-        def generation_probe(_base_url, _key, model, _api_type):
+        def generation_probe(_base_url, _key, model, _api_type, _on_request):
             seen_models.append(model)
             return relay_audit.ProbeResult("generation", True, 1)
 
@@ -330,7 +460,7 @@ class RelayAuditTests(unittest.TestCase):
                 },
             )
 
-        def identity_probe(_base_url, _key, model, _api_type):
+        def identity_probe(_base_url, _key, model, _api_type, _on_request):
             self.assertEqual("kimi-k2.6", model)
             return relay_audit.ProbeResult(
                 "identity",
@@ -381,6 +511,46 @@ class RelayAuditTests(unittest.TestCase):
             [(index, len(probe_names)) for index in range(1, len(probe_names) + 1)],
             progress,
         )
+
+    def test_request_progress_counts_fallback_attempt(self):
+        progress = []
+
+        def models_probe(_base, _key, _model, _api_type, on_request):
+            on_request(True)
+            return relay_audit.ProbeResult("models", True, 1)
+
+        def liveness_probe(_base, _key, _model, _api_type, on_request):
+            on_request(False)
+            on_request(True)
+            return relay_audit.ProbeResult("liveness", True, 1)
+
+        def identity_probe(_base, _key, _model, _api_type, on_request):
+            on_request(True)
+            return relay_audit.ProbeResult("identity", True, 1)
+
+        with patch.dict(relay_audit._PROBES, {
+            "models": models_probe,
+            "liveness": liveness_probe,
+            "identity": identity_probe,
+        }):
+            relay_audit.run_relay_audit(
+                "https://example.test/v1",
+                "secret",
+                "provider/model-a",
+                profile="quick",
+                on_request_progress=(
+                    lambda completed, total, success, error: progress.append(
+                        (completed, total, success, error)
+                    )
+                ),
+            )
+
+        self.assertEqual([
+            (1, 3, 1, 0),
+            (2, 3, 1, 1),
+            (3, 4, 2, 1),
+            (4, 4, 3, 1),
+        ], progress)
 
     def test_chat_omits_temperature_and_supports_responses(self):
         messages = [{"role": "user", "content": "hello"}]

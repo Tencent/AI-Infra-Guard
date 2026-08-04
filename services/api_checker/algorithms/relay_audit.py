@@ -202,13 +202,14 @@ def _is_truncated(resp):
     )
 
 
-def _http_json(url, key, body=None, method="POST"):
+def _http_json(url, key, body=None, method="POST", on_request=None):
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "aig-api-checker/1.0"}
     data = json.dumps(body).encode() if body else None
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     start = time.time()
     deadline = _RequestDeadline(HTTP_TOTAL_TIMEOUT_SECONDS)
     deadline.start()
+    notified = False
     try:
         try:
             resp = _NO_REDIRECT_OPENER.open(
@@ -231,12 +232,19 @@ def _http_json(url, key, body=None, method="POST"):
             payload = json.loads(raw)
         except Exception:
             payload = {"raw_error": raw[:1000]} if raw.strip() else {}
+        if on_request:
+            on_request(200 <= resp.status < 300)
+            notified = True
         return resp.status, payload, lat
+    except Exception:
+        if on_request and not notified:
+            on_request(False)
+        raise
     finally:
         deadline.cancel()
 
 
-def _http_stream(url, key, body):
+def _http_stream(url, key, body, on_request=None):
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json",
                "Accept": "text/event-stream", "User-Agent": "aig-api-checker/1.0"}
     req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers, method="POST")
@@ -244,6 +252,7 @@ def _http_stream(url, key, body):
     start = time.time()
     deadline = _RequestDeadline(HTTP_TOTAL_TIMEOUT_SECONDS)
     deadline.start()
+    notified = False
     try:
         resp = _NO_REDIRECT_OPENER.open(
             req,
@@ -268,6 +277,13 @@ def _http_stream(url, key, body):
         finally:
             resp.close()
         deadline.raise_if_expired()
+        if on_request:
+            on_request(True)
+            notified = True
+    except Exception:
+        if on_request and not notified:
+            on_request(False)
+        raise
     finally:
         deadline.cancel()
     return chunks, saw_done, errors, int((time.time() - start) * 1000)
@@ -282,6 +298,7 @@ def _chat(
     temp=None,
     stream=False,
     api_type="openai",
+    on_request=None,
 ):
     candidates = _model_candidates(model)
     total_latency = 0
@@ -308,6 +325,7 @@ def _chat(
             f"{base_url.rstrip('/')}/{endpoint}",
             key,
             body,
+            on_request=on_request,
         )
         total_latency += latency
         has_fallback = index + 1 < len(candidates)
@@ -317,9 +335,14 @@ def _chat(
 
 
 # ---- 7 个探针 ----
-def probe_models(base_url, key, model, api_type="openai"):
+def probe_models(base_url, key, model, api_type="openai", on_request=None):
     try:
-        status, payload, lat = _http_json(f"{base_url.rstrip('/')}/models", key, method="GET")
+        status, payload, lat = _http_json(
+            f"{base_url.rstrip('/')}/models",
+            key,
+            method="GET",
+            on_request=on_request,
+        )
         ids = [str(x.get("id", "")) for x in payload.get("data", []) if isinstance(x, dict)] if isinstance(payload.get("data"), list) else []
         resolved_model = _resolve_listed_model(model, ids)
         return ProbeResult("models", 200 <= status < 300, lat,
@@ -330,12 +353,12 @@ def probe_models(base_url, key, model, api_type="openai"):
         return ProbeResult("models", False, None, error=str(e))
 
 
-def probe_liveness(base_url, key, model, api_type="openai"):
+def probe_liveness(base_url, key, model, api_type="openai", on_request=None):
     expected = f"echo-{_rand_str(6)}-{_rand_str(4)}"
     try:
         status, payload, lat, resolved_model = _chat(base_url, key, model,
             [{"role": "user", "content": f"Reply with exactly: {expected}"}],
-            CONTENT_MAX_TOKENS, api_type=api_type)
+            CONTENT_MAX_TOKENS, api_type=api_type, on_request=on_request)
         text = _extract_text(payload).strip()
         return ProbeResult("liveness", 200 <= status < 300 and expected in text, lat,
             {"status": status, "expected": expected, "actual": text[:300],
@@ -346,12 +369,12 @@ def probe_liveness(base_url, key, model, api_type="openai"):
         return ProbeResult("liveness", False, None, error=str(e))
 
 
-def probe_identity(base_url, key, model, api_type="openai"):
+def probe_identity(base_url, key, model, api_type="openai", on_request=None):
     prompt = random.choice(_IDENTITY_PROMPTS)
     try:
         status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
-            CONTENT_MAX_TOKENS, api_type=api_type)
+            CONTENT_MAX_TOKENS, api_type=api_type, on_request=on_request)
         text = _extract_text(payload).strip()
         hits = [x for x in IDENTITY_KEYWORDS if x in text.lower()]
         return ProbeResult("identity", 200 <= status < 300, lat,
@@ -362,13 +385,13 @@ def probe_identity(base_url, key, model, api_type="openai"):
         return ProbeResult("identity", False, None, error=str(e))
 
 
-def probe_token_delta(base_url, key, model, api_type="openai"):
+def probe_token_delta(base_url, key, model, api_type="openai", on_request=None):
     word = _rand_str(8)
     prompt = f"Return only the word: {word}"
     try:
         status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
-            5, api_type=api_type)
+            5, api_type=api_type, on_request=on_request)
         usage = payload.get("usage") or {}
         actual = usage.get("prompt_tokens", usage.get("input_tokens"))
         expected = max(1, len(prompt) // 4) + 12
@@ -381,13 +404,13 @@ def probe_token_delta(base_url, key, model, api_type="openai"):
         return ProbeResult("token_delta", False, None, error=str(e))
 
 
-def probe_echo_rewrite(base_url, key, model, api_type="openai"):
+def probe_echo_rewrite(base_url, key, model, api_type="openai", on_request=None):
     expected = random.choice(_REAL_PIP_COMMANDS)
     prompt = f"Echo this text exactly, no markdown, no explanation:\n{expected}"
     try:
         status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": prompt}],
-            CONTENT_MAX_TOKENS, api_type=api_type)
+            CONTENT_MAX_TOKENS, api_type=api_type, on_request=on_request)
         text = _extract_text(payload).strip()
         suspicious = [x for x in ["curl ", "bash ", "sh ", "unknown", "mirror", " -i http", "wget ", "npm ", "eval("]
                        if x in text.lower()]
@@ -400,7 +423,7 @@ def probe_echo_rewrite(base_url, key, model, api_type="openai"):
         return ProbeResult("echo_rewrite", False, None, error=str(e))
 
 
-def probe_stream(base_url, key, model, api_type="openai"):
+def probe_stream(base_url, key, model, api_type="openai", on_request=None):
     n = random.randint(15, 25)
     messages = [{
         "role": "user",
@@ -424,7 +447,11 @@ def probe_stream(base_url, key, model, api_type="openai"):
         endpoint = "chat/completions"
     try:
         chunks, saw_done, errors, lat = _http_stream(
-            f"{base_url.rstrip('/')}/{endpoint}", key, body)
+            f"{base_url.rstrip('/')}/{endpoint}",
+            key,
+            body,
+            on_request=on_request,
+        )
         response_events = [
             chunk for chunk in chunks
             if isinstance(chunk, dict) and isinstance(chunk.get("response"), dict)
@@ -465,14 +492,14 @@ def probe_stream(base_url, key, model, api_type="openai"):
         return ProbeResult("stream_integrity", False, None, error=str(e))
 
 
-def probe_context_canary(base_url, key, model, api_type="openai"):
+def probe_context_canary(base_url, key, model, api_type="openai", on_request=None):
     s, m, e = f"CANARY_{_rand_str(10)}", f"CANARY_{_rand_str(10)}", f"CANARY_{_rand_str(10)}"
     filler = "The quick brown fox jumps over the lazy dog. " * 120
     content = f"{s}\n{filler}\n{m}\n{filler}\n{e}\n\nRepeat back ONLY the three canary tokens, each on its own line."
     try:
         status, payload, lat, resolved_model = _chat(
             base_url, key, model, [{"role": "user", "content": content}],
-            CONTENT_MAX_TOKENS, api_type=api_type)
+            CONTENT_MAX_TOKENS, api_type=api_type, on_request=on_request)
         text = _extract_text(payload)
         return ProbeResult("context_canary", 200 <= status < 300 and e in text, lat,
             {"status": status, "saw_start": s in text, "saw_mid": m in text, "saw_end": e in text,
@@ -534,17 +561,44 @@ def build_findings(results, requested_model):
 
 
 def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
-                    on_progress=None, api_type="openai"):
+                    on_progress=None, api_type="openai",
+                    on_request_progress=None):
     """运行黑盒审计，返回 {score, verdict, findings, probe_results, summary}"""
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
     started = time.monotonic()
     active_model = model
+    request_completed = 0
+    request_success = 0
+    request_error = 0
+    request_total = len(probe_names)
     latest_probe_start = max(
         0,
         AUDIT_TOTAL_TIMEOUT_SECONDS - HTTP_TOTAL_TIMEOUT_SECONDS,
     )
     for index, name in enumerate(probe_names):
+        probe_request_count = 0
+
+        def request_done(ok):
+            nonlocal probe_request_count
+            nonlocal request_completed, request_success, request_error
+            nonlocal request_total
+            probe_request_count += 1
+            if probe_request_count > 1:
+                request_total += 1
+            request_completed += 1
+            if ok:
+                request_success += 1
+            else:
+                request_error += 1
+            if on_request_progress:
+                on_request_progress(
+                    request_completed,
+                    request_total,
+                    request_success,
+                    request_error,
+                )
+
         if cancel_event is not None and cancel_event.is_set():
             break
         # 为最后一个上游请求预留完整的单请求超时时间，保证整轮审计
@@ -560,7 +614,13 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
                 if on_progress:
                     on_progress(len(results), len(probe_names))
             break
-        result = _PROBES[name](base_url, api_key, active_model, api_type)
+        result = _PROBES[name](
+            base_url,
+            api_key,
+            active_model,
+            api_type,
+            request_done,
+        )
         results.append(result)
         resolved_model = result.data.get("resolved_model")
         if isinstance(resolved_model, str) and resolved_model:
