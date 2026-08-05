@@ -92,12 +92,10 @@ class TargetRunner:
         client: AsyncOpenAI,
         model: str,
         repo_dir: Optional[str] = None,
-        temperature: float = 0.3,
     ):
         self.client = client
         self.model = model
         self.repo_dir = repo_dir or ""
-        self.temperature = temperature
         self._context: Optional[str] = None
 
     def set_repo(self, repo_dir: str) -> None:
@@ -142,6 +140,5 @@ class TargetRunner:
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            temperature=self.temperature,
         )
         return (response.choices[0].message.content or "").strip()
