@@ -1,7 +1,5 @@
 AIG API Checker HTTP API
 ●版本：v1.7.0
-●默认地址：http://21.214.127.143:8000
-●示例Web 检测页：http://21.214.127.143:8000/ui
 ●Swagger 文档：/docs
 ●API 前缀：/api/v1
 测试结果仅供参考，不能作为商业纠纷、退款索赔的绝对法律或事实依据。
@@ -20,7 +18,7 @@ GET /api/v1/relay/models
 模型列表从 baselines.json 动态读取。Claude 和 GPT 系列排在前面，同系列中
  版本号较新的型号优先。请求示例
 
-curl http://21.214.127.143:8000/api/v1/relay/models
+curl http://localhost:8000/api/v1/relay/models
 
 响应结构
 
@@ -79,7 +77,7 @@ no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型
 请求示例
 快速检测：
 
-curl -N -X POST http://21.214.127.143:8000/api/v1/relay/check/stream \
+curl -N -X POST http://localhost:8000/api/v1/relay/check/stream \
   -H "Content-Type: application/json" \
   -d '{
     "algorithm": "quick",
@@ -90,7 +88,7 @@ curl -N -X POST http://21.214.127.143:8000/api/v1/relay/check/stream \
 
 完整检测：
 
-curl -N -X POST http://21.214.127.143:8000/api/v1/relay/check/stream \
+curl -N -X POST http://localhost:8000/api/v1/relay/check/stream \
   -H "Content-Type: application/json" \
   -d '{
     "algorithm": "full",
@@ -153,9 +151,10 @@ data.algorithm	string	本次检测模式：quick 或 full
 4.2 progress：检测进度
 full 模式在随机数指纹采样阶段按样本持续发送，包含已完成、总数、成功数和
 错误数。quick 模式使用相同的四字段结构，但统计的是真实上游 HTTP 请求：普通
-quick 正常为 7 次；Claude quick 正常为 14 次（7 次黑盒审计 + 7 次 Signature
-请求）。未获取到 signature 时会跳过回放请求，total 会变为 13；模型 ID 回退重试
-会相应增加 total。
+quick 正常为 8 次（7 次黑盒审计 + 1 次大模型总结）；Claude quick 正常为 15 次
+（7 次黑盒审计 + 7 次 Signature + 1 次大模型总结）。未获取到 signature 时会跳过
+回放请求，total 会变为 14；模型 ID 回退重试会相应增加 total。总结请求失败时仍会
+计入 error，并使用本地多语言兜底总结，不改变检测评分和判定。
 结构
 
 event: progress
@@ -184,7 +183,7 @@ data.error	integer	失败请求数；风险命中但请求成功时不计为错�
 完整结构
 
 event: result
-data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","summary":"综合检查通过（100/100）","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
+data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","summary":"综合评分100/100，各项检测均表现正常","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
 
 
 格式化后的 JSON：
@@ -196,7 +195,7 @@ data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,
     "algorithm": "quick",
     "score": 100.0,
     "overall_verdict": "pass",
-    "summary": "综合检查通过（100/100）",
+    "summary": "综合评分100/100，各项检测均表现正常",
     "detail": {
       "findings": [
         {
@@ -223,11 +222,32 @@ result.data 字段
 algorithm	string	quick 或 full
 score	number	已完成组件中最低的可信分；有组件执行失败时为 0
 overall_verdict	string	综合判定：pass、risk 或 inconclusive
-summary	string	简短综合结论，仅包含总体状态和分数
-detail.findings	array	所有已执行探针、专项风险条件、Claude 签名及 full 模型指纹的状态
+summary	string	由被测大模型根据评分和检查结果生成的简短结论；中文约 20～30 字，包含评分及主要降分原因
+detail.findings	array	所有适用且证据充分的探针、专项风险条件、Claude 签名及 full 模型指纹状态
 detail.best_model	string	full 的最匹配模型；无结果时为空字符串
-detail.fingerprint	object	full 的后验概率与造假状态；其他模式为空对象
+detail.fingerprint	object	full 的后验概率、造假状态及分布动画数据；其他模式为空对象
 detail.test_info	object	延迟、生成速度、输入/输出 Token 和缓存读取汇总
+
+`detail.fingerprint` 在 full 成功完成时包含以下字段：
+
+字段	类型	说明
+posterior	number	在一定置信度下，系统认为的模型识别概率，范围 0～1
+runner_up_model	string | null	后验概率第二高的候选模型
+runner_up_posterior	number | null	第二候选模型的后验概率，范围 0～1
+evidence_level	string | null	第一、第二候选之间的贝叶斯证据强度分级
+forgery_status	string	声明模型的统计指纹状态
+sample_size	integer	形成实测分布的有效样本数
+candidate_count	integer	本次参与匹配的参考指纹数量
+range	integer[]	采样数字范围，当前为 `[1, 355]`
+observed_distribution	number[]	实测样本聚合为 48 桶后的概率分布
+reference_distribution	number[]	最匹配参考指纹聚合为 48 桶后的概率分布
+distribution_overlap	number	两条聚合曲线的概率质量交集，范围 0～1；仅用于解释曲线重合程度
+largest_deviation	object	差异最大的分桶，包含 `range`、`observed`、`reference` 和 `difference`
+
+`posterior` 表示在一定置信度下，系统认为的模型识别概率。两组聚合分布、
+`distribution_overlap` 和 `largest_deviation` 用于前端展示实测指纹与匹配基准之间的
+分布差异。
+
 detail.findings[] 字段
 
 {
@@ -241,26 +261,45 @@ probe	string	探针标识
 severity	string	英文二值状态：`Passed` 或 `Failed`
 title	string	中性的检查项名称；不包含通过、失败或异常结论
 
-统一 findings 清单共定义 20 项：7 项基础探针状态、11 项专项风险条件、Claude
-Signature 和模型指纹。黑盒审计完整执行 7 个探针时固定返回前 18 项；专项风险触发
-时对应项为 `severity: "Failed"`，未触发时仍返回同一项并标记为
-`severity: "Passed"`，两种状态使用相同的中性 `title`。各模式实际返回数量为：
-quick 非 Claude 18 项、quick + Claude 19 项、full 非 Claude 19 项、full + Claude
-20 项。若整轮检测因超时只执行了部分探针，则只返回已执行探针包含的检查项。
+统一 findings 候选清单共定义 20 项：7 项基础探针状态、11 项专项风险条件、Claude
+Signature 和模型指纹。只有检查适用且证据充分时才会返回：风险触发为
+`severity: "Failed"`，未触发为 `severity: "Passed"`；不适用、未实际执行或证据
+不足时不返回，不增加第三种状态。两种返回状态使用相同的中性 `title`。
+
+各模式最大返回数量为：quick 非 Claude 18 项、quick + Claude 19 项、full 非
+Claude 19 项、full + Claude 20 项。实际数量可能更少。例如身份响应无法识别模型
+系列、流式响应未提供 model 字段，或者前置接口失败时，依赖这些证据的专项检查会
+被省略。Claude Signature 只有内部结果完整时才返回；任一已执行的内部检查失败，
+该项返回 `Failed`。模型指纹缺少后验概率或造假状态时同样不返回。
 
 顶层 `score` 统一为“越高越可信”。黑盒审计先将风险分转换为安全分
-`100 - risk_score`；Claude 签名使用算法 B 的通过分；full 模式的模型指纹使用
-后验百分制。存在多个组件时取最低分，避免出现签名判定为“疑似替身”但综合分仍为
-100 的矛盾结果。Signature 和模型指纹项也使用中性标题，具体状态统一由
+`100 - risk_score`；Claude 签名使用算法 B 的通过分且最多扣 20 分；full 模式的模型指纹使用
+声明模型可信分：支持声明时为后验百分制，已知替身或未知异常时为
+`min((1 - posterior) × 100, 50)`。存在多个组件时取最低分，避免出现高置信识别出替身却仍
+得到 100 分的矛盾结果。若最高后验候选就是声明模型且后验不低于 85%，仅 G²
+绝对分布漂移不会再被当作模型替换失败。Signature 和模型指纹项使用中性标题，具体状态统一由
 `severity` 表达；综合评分和判定信息仍在顶层 `score`、`overall_verdict`、`summary`
 以及 `detail.fingerprint` 中返回。
 
+返回字段遵循强制一致性约束：任一已确认风险组件的分数最高为 50；高置信替身按
+反向后验计分；组件结果缺失或格式不完整按 0 分处理。已确认风险优先于其他组件的
+“检查不完整”，因此不会出现 finding 已失败但总体仍显示通过或仅显示不完整的情况。
+若内部审计 verdict 已为 risk 却没有对应失败项，响应会保守地返回一条
+`probe: "audit"` 的一致性失败项，确保总体判定与明细同向。
+
 `language` 省略时默认为 `zh`。`severity` 不受语言影响，统一使用英文状态。
+生成总结时会把综合评分、组件评分、未通过检查项和未完成组件交给当前被测模型，
+要求只返回一句话。低于 100 分时指出一个主要降分原因；100 分时说明各项检查正常。
+总结使用与 `language` 一致的语言。服务端会校验总结是否与最终 verdict 一致：risk
+必须明确说明风险或异常，inconclusive 必须说明证据不足或结果不完整，pass 不得声明
+存在异常。若额外的总结请求失败、返回空文本、格式不合规或语义与 verdict 冲突，
+服务端会返回基于同一组字段生成的本地多语言兜底文本，且不会把检测改为失败。
+
 传入 `en` 后，`summary` 和 `detail.findings[].title` 返回英文，例如：
 
 ```json
 {
-  "summary": "Overall check found issues (50/100)",
+  "summary": "Overall score 50/100, reduced mainly by observed relay connectivity failures.",
   "detail": {
     "findings": [{
       "probe": "liveness",
@@ -340,7 +379,7 @@ docker logs -f aig-api-checker-pr511
 import json
 import requests
 
-url = "http://21.214.127.143:8000/api/v1/relay/check/stream"
+url = "http://localhost:8000/api/v1/relay/check/stream"
 payload = {
     "algorithm": "quick",
     "base_url": "https://relay.example.com/v1",

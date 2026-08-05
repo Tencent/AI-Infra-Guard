@@ -67,7 +67,7 @@ class BaselineTests(unittest.TestCase):
             "bayes": {
                 "best_model_name": "GPT-4o-mini",
                 "best_posterior": 0.9,
-                "forgery": {"status": "supported"},
+                "forgery": {"status": "unknown_anomaly"},
             },
         }
 
@@ -76,7 +76,7 @@ class BaselineTests(unittest.TestCase):
             "test_model",
             return_value=fingerprint_result,
         ) as test_model:
-            server._run_fingerprint(
+            result = server._run_fingerprint(
                 request,
                 "openai",
                 request.base_url,
@@ -85,6 +85,20 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(
             "GPT-4o-mini",
             test_model.call_args.args[8],
+        )
+        self.assertEqual("supported", result["_forgery_status"])
+
+    def test_full_fingerprint_keeps_unknown_anomaly_for_a_different_model(self):
+        self.assertEqual(
+            "unknown_anomaly",
+            server._effective_forgery_status(
+                {
+                    "best_model_name": "model-b",
+                    "best_posterior": 1.0,
+                    "forgery": {"status": "unknown_anomaly"},
+                },
+                "model-a",
+            ),
         )
 
     def test_bundled_baselines_are_complete(self):
@@ -161,6 +175,13 @@ class BaselineTests(unittest.TestCase):
 
 
 class SignatureTests(unittest.TestCase):
+    def test_signature_score_deduction_is_capped_at_twenty(self):
+        self.assertEqual(80.0, signature._capped_signature_score(0))
+        self.assertEqual(80.0, signature._capped_signature_score(79.9))
+        self.assertEqual(80.0, signature._capped_signature_score(80))
+        self.assertEqual(92.5, signature._capped_signature_score(92.5))
+        self.assertEqual(100.0, signature._capped_signature_score(120))
+
     def test_model_consistency_is_case_insensitive(self):
         result = signature._check_model_consistency(
             "Claude-Sonnet-5",
@@ -303,7 +324,7 @@ class SignatureTests(unittest.TestCase):
                 side_effect=latency_requests,
             ),
         ):
-            signature.run_all_checks(
+            result = signature.run_all_checks(
                 "https://example.test",
                 "secret",
                 "claude-test",
@@ -315,6 +336,8 @@ class SignatureTests(unittest.TestCase):
 
         self.assertEqual((1, 6, 1, 0), progress[0])
         self.assertEqual((6, 6, 6, 0), progress[-1])
+        self.assertEqual(80.0, result["score"])
+        self.assertEqual("proxy", result["verdict"])
 
 
 class RelayAuditTests(unittest.TestCase):
@@ -399,6 +422,28 @@ class RelayAuditTests(unittest.TestCase):
             "Stream model field mismatch",
             findings[0].title,
         )
+
+    def test_unexecuted_and_insufficient_probes_do_not_create_risks(self):
+        findings = relay_audit.build_findings(
+            [
+                relay_audit.ProbeResult(
+                    "liveness",
+                    False,
+                    None,
+                    data={"not_executed": True},
+                    error="audit exceeded total timeout",
+                ),
+                relay_audit.ProbeResult(
+                    "echo_rewrite",
+                    False,
+                    None,
+                    error="request timed out",
+                ),
+            ],
+            "model-a",
+        )
+
+        self.assertEqual([], findings)
 
     def test_resolved_model_is_used_by_later_probes(self):
         seen_models = []

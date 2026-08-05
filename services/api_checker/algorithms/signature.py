@@ -20,6 +20,13 @@ SUSPECT_KEYWORDS = ["kiro", "amazon q", "bedrock", "nova", "titan", "guardrails"
 SIGNATURE_CHECK_COUNT = 11
 SIGNATURE_QUICK_REQUEST_COUNT = 7
 SIGNATURE_FINGERPRINT_REQUEST_COUNT = 30
+SIGNATURE_MAX_DEDUCTION = 20.0
+
+
+def _capped_signature_score(raw_score):
+    """签名组件最多扣 20 分，同时将异常输入约束到百分制。"""
+    bounded = max(0.0, min(100.0, float(raw_score)))
+    return max(100.0 - SIGNATURE_MAX_DEDUCTION, bounded)
 
 
 # ================================================================
@@ -471,11 +478,16 @@ def run_all_checks(base_url, api_key, model, skip_fingerprint=False, skip_latenc
         checks.append(step())
     total_w = sum(c.weight for c in checks)
     passed_w = sum(c.weight for c in checks if c.passed)
-    score = passed_w / total_w * 100 if total_w else 0
+    raw_score = passed_w / total_w * 100 if total_w else 0
+    score = _capped_signature_score(raw_score)
     critical_failed = [c for c in checks if c.critical and not c.passed]
     if critical_failed:
-        verdict = "proxy" if score < 50 else "suspect"
+        verdict = "proxy" if raw_score < 50 else "suspect"
     else:
-        verdict = "native" if score >= 85 else ("suspect" if score >= 60 else "proxy")
+        verdict = (
+            "native"
+            if raw_score >= 85
+            else ("suspect" if raw_score >= 60 else "proxy")
+        )
     summary = {"native": "原生透传", "suspect": "存在可疑", "proxy": "疑似替身"}[verdict]
     return {"verdict": verdict, "score": score, "checks": checks, "summary": f"{summary} (评分: {score:.0f}/100)"}

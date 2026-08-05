@@ -54,7 +54,7 @@
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 |------|------|:----:|--------|------|
 | `api_type` | `str` | 是 | — | `"openai"` / `"openai-responses"` / `"anthropic"` |
-| `base_url` | `str` | 是 | — | API 基础 URL，如 `https://api.openai.com/v1` |
+| `base_url` | `str` | 是 | — | API 基础 URL，如 `https://api.example.com/v1` |
 | `api_key` | `str` | 是 | — | API 密钥（内存使用，不写盘） |
 | `model` | `str` | 是 | — | 模型名称，如 `gpt-4o` |
 | `iterations` | `int` | 否 | `200` | 采样次数，范围 50–500 |
@@ -248,17 +248,17 @@ Claude 的 extended thinking API 返回的 `signature` 是 base64 protobuf 封�
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `verdict` | `str` | 判定结果：`"native"` / `"suspect"` / `"proxy"` |
-| `score` | `float` | 综合评分 0–100 |
+| `score` | `float` | 对外签名评分 80–100，最多扣 20 分 |
 | `checks` | `list[CheckResult]` | 11 项检测详细结果 |
 | `summary` | `str` | 一句话摘要 |
 
-**判定逻辑**：
+**判定逻辑**（阈值使用限幅前的原始加权分，避免扣分上限改变风险结论）：
 
 | 条件 | verdict | 含义 |
 |------|---------|------|
-| 加密级检测全通过且 score ≥ 85 | `native` | 原生透传 |
-| 加密级检测全通过且 score ≥ 60 | `suspect` | 存在可疑 |
-| 加密级检测失败且 score < 50 | `proxy` | 疑似替身 |
+| 加密级检测全通过且原始分 ≥ 85 | `native` | 原生透传 |
+| 加密级检测全通过且原始分 ≥ 60 | `suspect` | 存在可疑 |
+| 加密级检测失败且原始分 < 50 | `proxy` | 疑似替身 |
 | 其他 | `suspect` | 存在可疑 |
 
 ### 3.5 11 项检测项明细
@@ -293,7 +293,7 @@ Claude 的 extended thinking API 返回的 `signature` 是 base64 protobuf 封�
 
 ### 原理
 
-源自腾讯朱雀实验室 A.I.G 的 `relay_mini_audit`，通过 7 个黑盒探针检测 OpenAI 兼容中转站的隐蔽篡改行为。纯标准库实现，API key 全程脱敏。
+通过 7 个黑盒探针检测 OpenAI 兼容中转站的隐蔽篡改行为。纯标准库实现，API key 全程脱敏。
 
 ### 4.1 主审计函数：`run_relay_audit()`
 
@@ -496,8 +496,8 @@ Makefile 构建的二进制名为 `server`）。
 
 | 参数 | 说明 | 示例 |
 |------|------|------|
-| `base_url` | API 基础 URL | `https://api.anthropic.com` 或 `https://relay.example.com/v1` |
-| `api_key` | API 密钥（内存使用，不写盘） | `sk-ant-...` |
+| `base_url` | API 基础 URL | `https://api.example.com/v1` |
+| `api_key` | API 密钥（内存使用，不写盘） | `<api-key>` |
 | `model` | 模型名称 | `claude-sonnet-4-5-20250514` |
 
 ### 8.4 通用输出汇总
@@ -513,22 +513,33 @@ Makefile 构建的二进制名为 `server`）。
 > **注意**：算法 B 的 score 越高越**安全**（通过率），算法 C 的 score 越高越**危险**（风险分）。两者方向相反。
 
 HTTP SSE 接口 `POST /api/v1/relay/check/stream` 对外返回一个顶层 `score`：
-统一为 0–100 且越高越可信。黑盒审计使用 `100 - risk_score`，Signature 使用算法
-B 的通过分，full 模式的指纹使用后验百分制；多个已完成组件取最低分，任一组件执行
-失败时综合分为 0。这样综合分与 `overall_verdict`、摘要保持一致，不会在 Signature
-判定异常时仍显示 100 分。
+统一为 0–100 且越高越可信。黑盒审计使用 `100 - risk_score`；Signature 使用算法
+B 的通过分且最多扣 20 分；full 模式的指纹在支持声明时使用后验百分制，在已知替身或未知异常时
+使用 `min((1 - posterior) × 100, 50)`。多个已完成组件取最低分，任一组件执行失败时综合分
+为 0。这样综合分与 `overall_verdict`、摘要保持一致，不会在高置信识别出替身时仍
+显示 100 分。最高后验候选与声明模型一致且后验不低于 85% 时，G² 绝对分布漂移
+作为同模型采样漂移处理，不单独判定模型被替换。
+full 模式还在 `detail.fingerprint` 中分别返回身份后验概率、第二候选、曲线重合度和
+最大局部偏差。身份后验概率表示在一定置信度下，系统认为的模型识别概率；曲线重合度
+由前端展示用的 48 桶聚合分布计算。
+Signature 的风险判定仍按未截断的原始证据分计算，不因 80 分下限而改判；证据完整
+时签名组件分范围为 80–100，判定风险时为 80。除 Signature 外，任一已确认风险组件
+的分数最高为 50，缺失或格式不完整的组件按 0 分处理；已确认风险优先于其他组件未完成。模型生成的总结必须与最终 verdict 语义一致，
+否则回退为服务端确定性总结。
 同时在 `detail.test_info` 返回黑盒生成探针的平均延迟 `latency_ms`、生成速度
 `tokens_per_second`、累计输入 `input_tokens`、累计输出 `output_tokens` 和缓存读取
 `cache_read_tokens`。缓存读取兼容 DeepSeek 的 `prompt_cache_hit_tokens`、
 Anthropic 的 `cache_read_input_tokens`、Chat Completions 的
 `prompt_tokens_details.cached_tokens` 以及 Responses 的
 `input_tokens_details.cached_tokens`；上游未提供的指标为 `null`。
-`detail.findings[]` 返回所有已执行探针及其专项风险条件；`severity` 使用英文二值
-状态 `Passed`/`Failed`。无论状态如何，`title` 都只返回中性的检查项名称，不包含
-“通过”“失败”“异常”等结论，列表图标可直接由 `severity` 决定。统一清单共定义
-20 项；完整执行 7 个黑盒探针会返回其中 18 项审计检查（7 项基础状态 + 11 项专项
-条件），Claude Signature 和 full 模式模型指纹分别作为 `probe: "signature"`、
-`probe: "fingerprint"` 追加。因此四种组合的实际返回数量依次为：quick 非 Claude
-18 项、quick + Claude 19 项、full 非 Claude 19 项、full + Claude 20 项。
+`detail.findings[]` 只返回适用且证据充分的探针及专项风险条件；`severity` 使用英文
+二值状态 `Passed`/`Failed`。证据不足、未执行或不适用的检查直接省略，不引入第三
+种状态。无论状态如何，`title` 都只返回中性的检查项名称，不包含“通过”“失败”
+“异常”等结论，列表图标可直接由 `severity` 决定。统一候选清单共定义 20 项；
+7 个黑盒探针对应最多 18 项审计检查（7 项基础状态 + 11 项专项条件），Claude
+Signature 和 full 模式模型指纹分别作为 `probe: "signature"`、
+`probe: "fingerprint"` 追加。因此四种组合的最大返回数量依次为：quick 非 Claude
+18 项、quick + Claude 19 项、full 非 Claude 19 项、full + Claude 20 项；实际数量
+取决于本轮获得的有效证据。
 黑盒审计对单个上游 HTTP 请求设置 60 秒总时限，并对整轮 quick 审计设置
 180 秒总时限，避免上游持续发送少量数据时绕过普通 socket 读超时。

@@ -1,6 +1,9 @@
 """
 算法 D：PAMELA 单 token 分布指纹（移植自 pamela-publish-py 的 match.py + normalize.py）。
 
+参考论文：Tomas Bruckner, “One Token Is Enough: Fingerprinting and Verifying Large
+Language Models from Single-Token Output Distributions”, arXiv:2607.10252 (2026)。
+
 原理：用 PAMELA 研究的 study-A 探针任务（随机数字/字母/单词/颜色/动物/城市/抛硬币等
 paper==1 的 10 个任务）在多语言（en/ru/zh/ar）下采样模型的单 token 回答分布，
 作为行为指纹；与已发布的参考指纹库（pamela-publish-data/results/distributions.json）

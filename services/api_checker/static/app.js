@@ -49,12 +49,27 @@ const translations = {
     modelRequired: "请选择目标模型", fingerprintProgress: "检测进度 {progress}%",
     failed: "检测失败", failedTitle: "检测未完成", noResult: "连接结束，但未收到检测结果",
     summaryPass: "未发现明显风险", summaryRisk: "检测发现异常", summaryInconclusive: "检测结果不完整",
+    distributionMatch: "指纹分布匹配", fingerprintJourneyTitle: "从采样分布推算模型身份",
+    observedDistribution: "本次实测", referenceDistribution: "匹配基准",
+    validSamples: "{count} 个有效样本", compareBaselines: "与 {count} 个参考指纹逐一比对",
+    inferredModel: "最终推算模型", posteriorConfidence: "身份推断置信度",
+    confidenceExplanation: "在一定置信度下，系统认为的识别概率。",
+    curveOverlap: "曲线重合度", curveOverlapHigh: "整体高度重合",
+    curveOverlapMedium: "整体接近，存在局部偏差", curveOverlapLow: "存在较明显偏差",
+    largestDeviation: "最大局部偏差", deviationShares: "{min}–{max}：实测 {observed}% / 基准 {reference}%",
+    deviationDifference: "相差 {difference} 个百分点", runnerUp: "第二候选",
+    noRunnerUp: "无有效第二候选", fingerprintSupported: "身份推断稳定；局部曲线偏差未触发模型替换告警。",
+    fingerprintRisk: "曲线差异已影响身份判断，请结合模型指纹告警进一步核查。",
+    fingerprintInconclusive: "当前证据不足以稳定判断，建议增加采样后重新检测。",
+    sampledStep: "生成实测分布", matchedStep: "叠加基准指纹", inferredStep: "输出推算结果",
+    numberRange: "数字选择范围 {min}–{max}",
     probes: {
       models: "模型列表一致性", liveness: "基础聊天可用性", identity: "模型身份一致性",
       token_delta: "隐藏 Prompt 注入", echo_rewrite: "输出与命令改写",
       stream_integrity: "流式响应完整性", context_canary: "长上下文截断",
       signature: "Claude 签名真实性",
       fingerprint: "模型指纹",
+      audit: "黑盒审计",
     },
   },
   en: {
@@ -90,12 +105,27 @@ const translations = {
     modelRequired: "Select a target model", fingerprintProgress: "Inspection progress {progress}%",
     failed: "Inspection failed", failedTitle: "Inspection did not complete", noResult: "The connection closed before an inspection result was received",
     summaryPass: "No obvious risk detected", summaryRisk: "The inspection detected an issue", summaryInconclusive: "The inspection result is incomplete",
+    distributionMatch: "Fingerprint distribution match", fingerprintJourneyTitle: "Infer model identity from the sample distribution",
+    observedDistribution: "Observed", referenceDistribution: "Matched baseline",
+    validSamples: "{count} valid samples", compareBaselines: "Compared with {count} reference fingerprints",
+    inferredModel: "Inferred model", posteriorConfidence: "Identity confidence",
+    confidenceExplanation: "The identification probability inferred by the system at the stated confidence level.",
+    curveOverlap: "Curve overlap", curveOverlapHigh: "Highly overlapping overall",
+    curveOverlapMedium: "Close overall with local deviations", curveOverlapLow: "Noticeable deviations present",
+    largestDeviation: "Largest local deviation", deviationShares: "{min}–{max}: observed {observed}% / baseline {reference}%",
+    deviationDifference: "{difference} percentage points apart", runnerUp: "Runner-up",
+    noRunnerUp: "No valid runner-up", fingerprintSupported: "Identity inference is stable; local curve deviations did not trigger a substitution alert.",
+    fingerprintRisk: "Curve differences affected identity inference. Review the fingerprint alert for details.",
+    fingerprintInconclusive: "Evidence is not yet sufficient for a stable decision. Run again with more samples.",
+    sampledStep: "Build observed distribution", matchedStep: "Overlay baseline", inferredStep: "Return inference",
+    numberRange: "Number range {min}–{max}",
     probes: {
       models: "Model list consistency", liveness: "Basic chat availability", identity: "Model identity consistency",
       token_delta: "Hidden prompt injection", echo_rewrite: "Output and command rewriting",
       stream_integrity: "Streaming response integrity", context_canary: "Long-context truncation",
       signature: "Claude signature authenticity",
       fingerprint: "Model fingerprint",
+      audit: "Black-box audit",
     },
   },
 };
@@ -299,7 +329,7 @@ function keyFingerprint(value) {
 }
 
 function cacheKey(baseUrl, model, apiKey) {
-  return `aig-result:v3:${algorithm}:${language}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
+  return `aig-result:v5:${algorithm}:${language}:${baseUrl}:${model}:${keyFingerprint(apiKey)}`;
 }
 
 function showRunning() {
@@ -319,7 +349,144 @@ function finishButton() {
   startButton.querySelector("span").textContent = t("startCheck");
 }
 
+function distributionPaths(values, scaleMax, width = 640, height = 104) {
+  const points = values.map((value, index) => {
+    const x = index * width / Math.max(1, values.length - 1);
+    const y = height - 5 - (Number(value) / scaleMax) * (height - 12);
+    return [Number(x.toFixed(2)), Number(y.toFixed(2))];
+  });
+  const line = points.map(([x, y], index) => `${index ? "L" : "M"}${x},${y}`).join(" ");
+  return {line, area: `M0,${height} ${line.replace(/^M/, "L")} L${width},${height} Z`};
+}
+
+function fingerprintAssessment(overlap) {
+  if (overlap >= 0.9) return t("curveOverlapHigh");
+  if (overlap >= 0.75) return t("curveOverlapMedium");
+  return t("curveOverlapLow");
+}
+
+function renderFingerprintJourney(result, animate = false) {
+  const journey = $("#fingerprintJourney");
+  const fingerprint = result.algorithm === "full" ? result.detail?.fingerprint : null;
+  const observed = fingerprint?.observed_distribution;
+  const reference = fingerprint?.reference_distribution;
+  const valid = Array.isArray(observed) && observed.length > 1
+    && Array.isArray(reference) && reference.length === observed.length
+    && [...observed, ...reference].every(value => Number.isFinite(Number(value)) && Number(value) >= 0);
+  if (!valid) {
+    journey.className = "fingerprint-journey hidden";
+    journey.innerHTML = "";
+    return;
+  }
+
+  const maximum = Math.max(...observed, ...reference, 0.000001);
+  const observedPaths = distributionPaths(observed, maximum);
+  const referencePaths = distributionPaths(reference, maximum);
+  const range = Array.isArray(fingerprint.range) && fingerprint.range.length === 2
+    ? fingerprint.range : [1, 355];
+  const sampleSize = Math.max(0, Number(fingerprint.sample_size) || 0);
+  const candidateCount = Math.max(0, Number(fingerprint.candidate_count) || 0);
+  const posterior = Math.max(0, Math.min(1, Number(fingerprint.posterior) || 0));
+  const overlapValue = Number(fingerprint.distribution_overlap);
+  const overlap = Number.isFinite(overlapValue)
+    ? Math.max(0, Math.min(1, overlapValue)) : 0;
+  const deviation = fingerprint.largest_deviation || {};
+  const deviationRange = Array.isArray(deviation.range) && deviation.range.length === 2
+    ? deviation.range : range;
+  const observedShare = Math.max(0, Number(deviation.observed) || 0) * 100;
+  const referenceShare = Math.max(0, Number(deviation.reference) || 0) * 100;
+  const difference = Math.max(0, Number(deviation.difference) || 0) * 100;
+  const runnerUpModel = fingerprint.runner_up_model || "";
+  const runnerUpPosteriorValue = Number(fingerprint.runner_up_posterior);
+  const hasRunnerUp = runnerUpModel && Number.isFinite(runnerUpPosteriorValue);
+  const runnerUpPosterior = hasRunnerUp
+    ? Math.max(0, Math.min(1, runnerUpPosteriorValue)) : 0;
+  const forgeryStatus = fingerprint.forgery_status;
+  const decisionState = forgeryStatus === "supported"
+    ? "supported"
+    : (["suspected_known", "unknown_anomaly"].includes(forgeryStatus) ? "risk" : "inconclusive");
+  const decisionText = t(decisionState === "supported"
+    ? "fingerprintSupported"
+    : (decisionState === "risk" ? "fingerprintRisk" : "fingerprintInconclusive"));
+  const bestModel = result.detail?.best_model || "—";
+  const chartLabel = `${t("observedDistribution")} / ${t("referenceDistribution")}`;
+
+  journey.className = "fingerprint-journey";
+  journey.innerHTML = `
+    <div class="fingerprint-head">
+      <div>
+        <span class="fingerprint-kicker">${escapeHtml(t("distributionMatch"))}</span>
+        <h4>${escapeHtml(t("fingerprintJourneyTitle"))}</h4>
+      </div>
+      <div class="fingerprint-legend" aria-hidden="true">
+        <span><i></i>${escapeHtml(t("observedDistribution"))}</span>
+        <span><i></i>${escapeHtml(t("referenceDistribution"))}</span>
+      </div>
+    </div>
+    <div class="fingerprint-flow">
+      <div class="fingerprint-chart-wrap">
+        <div class="fingerprint-chart-meta">
+          <strong>${escapeHtml(t("validSamples", {count: sampleSize}))}</strong>
+          <span>${escapeHtml(t("compareBaselines", {count: candidateCount}))}</span>
+        </div>
+        <svg class="fingerprint-chart" viewBox="0 0 640 104" preserveAspectRatio="none"
+             role="img" aria-label="${escapeHtml(chartLabel)}">
+          <path class="fingerprint-grid" d="M0 26 H640 M0 52 H640 M0 78 H640"></path>
+          <path class="fingerprint-area observed" d="${observedPaths.area}"></path>
+          <path class="fingerprint-area reference" d="${referencePaths.area}"></path>
+          <path class="fingerprint-line observed" pathLength="1" d="${observedPaths.line}"></path>
+          <path class="fingerprint-line reference" pathLength="1" d="${referencePaths.line}"></path>
+        </svg>
+        <div class="fingerprint-axis">
+          <span>${escapeHtml(range[0])}</span>
+          <span>${escapeHtml(t("numberRange", {min: range[0], max: range[1]}))}</span>
+          <span>${escapeHtml(range[1])}</span>
+        </div>
+      </div>
+      <div class="fingerprint-connector" aria-hidden="true"><span></span></div>
+      <div class="fingerprint-inference">
+        <span>ƒ</span>
+        <small>${escapeHtml(t("inferredModel"))}</small>
+        <strong title="${escapeHtml(bestModel)}">${escapeHtml(bestModel)}</strong>
+        <div class="fingerprint-confidence">
+          <em>${escapeHtml(t("posteriorConfidence"))}</em>
+          <b>${(posterior * 100).toFixed(1)}%</b>
+        </div>
+        <p class="fingerprint-confidence-note">${escapeHtml(t("confidenceExplanation"))}</p>
+      </div>
+    </div>
+    <div class="fingerprint-details">
+      <article class="fingerprint-detail">
+        <span>${escapeHtml(t("curveOverlap"))}</span>
+        <strong>${(overlap * 100).toFixed(1)}%</strong>
+        <small>${escapeHtml(fingerprintAssessment(overlap))}</small>
+      </article>
+      <article class="fingerprint-detail">
+        <span>${escapeHtml(t("largestDeviation"))}</span>
+        <strong>${escapeHtml(t("deviationDifference", {difference: difference.toFixed(1)}))}</strong>
+        <small>${escapeHtml(t("deviationShares", {
+          min: deviationRange[0], max: deviationRange[1],
+          observed: observedShare.toFixed(1), reference: referenceShare.toFixed(1),
+        }))}</small>
+      </article>
+      <article class="fingerprint-detail">
+        <span>${escapeHtml(t("runnerUp"))}</span>
+        <strong title="${escapeHtml(runnerUpModel)}">${escapeHtml(hasRunnerUp ? runnerUpModel : "—")}</strong>
+        <small>${escapeHtml(hasRunnerUp ? `${(runnerUpPosterior * 100).toFixed(1)}%` : t("noRunnerUp"))}</small>
+      </article>
+    </div>
+    <div class="fingerprint-decision ${decisionState}"><i>${decisionState === "supported" ? "✓" : "!"}</i><span>${escapeHtml(decisionText)}</span></div>
+    <div class="fingerprint-steps" aria-hidden="true">
+      <span class="fingerprint-step"><i>1</i>${escapeHtml(t("sampledStep"))}</span>
+      <span class="fingerprint-step"><i>2</i>${escapeHtml(t("matchedStep"))}</span>
+      <span class="fingerprint-step"><i>3</i>${escapeHtml(t("inferredStep"))}</span>
+    </div>`;
+  void journey.offsetWidth;
+  journey.classList.add(animate ? "is-animating" : "is-complete");
+}
+
 function renderResult(result, cached = false) {
+  const animateFingerprint = !cached && result !== lastRenderedResult;
   lastRenderedResult = result;
   lastRenderedCached = cached;
   const findings = result.detail?.findings || [];
@@ -353,6 +520,8 @@ function renderResult(result, cached = false) {
       <strong>${escapeHtml(value)}</strong>
     </div>`).join("");
 
+  renderFingerprintJourney(result, animateFingerprint);
+
   const items = findings.map(finding => ({
     name: translations[language].probes[finding.probe] || finding.probe || t("auditFinding"),
     ok: finding.severity === "Passed",
@@ -361,8 +530,8 @@ function renderResult(result, cached = false) {
   if (!findings.length) {
     items.push({
       name: t(inconclusive ? "integrity" : "audit"),
-      ok: !inconclusive,
-      meta: t(inconclusive ? "incomplete" : "noRisk"),
+      ok: safe,
+      meta: t(safe ? "noRisk" : (inconclusive ? "incomplete" : "riskFound")),
     });
   }
   $("#checkList").innerHTML = items.map(item => `

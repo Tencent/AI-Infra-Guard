@@ -106,6 +106,79 @@ h1 em { color: var(--green-dark); font-style: normal; }
 .summary-card { padding: 16px 18px; border-left: 3px solid var(--green); border-radius: 8px 14px 14px 8px; background: var(--soft); }
 .summary-card span { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
 .summary-card p { margin: 6px 0 0; line-height: 1.6; font-size: 13px; }
+.fingerprint-journey { margin-bottom: 14px; padding: 16px 18px 14px; border: 1px solid #dce9e1; border-radius: 16px; background: linear-gradient(145deg, #fbfefc, #f4faf7); overflow: hidden; }
+.fingerprint-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 12px; }
+.fingerprint-kicker { display: block; margin-bottom: 4px; color: var(--green-dark); font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+.fingerprint-head h4 { margin: 0; font-size: 13px; }
+.fingerprint-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; color: var(--muted); font-size: 9px; }
+.fingerprint-legend span { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.fingerprint-legend i { width: 16px; height: 3px; border-radius: 2px; background: var(--green); }
+.fingerprint-legend span:last-child i { background: #5b6ee1; }
+.fingerprint-flow { display: grid; grid-template-columns: minmax(0, 1fr) 38px 230px; align-items: stretch; gap: 10px; }
+.fingerprint-chart-wrap { min-width: 0; }
+.fingerprint-chart-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 20px; color: var(--muted); font-size: 9px; }
+.fingerprint-chart-meta strong { color: var(--ink); font-size: 10px; }
+.fingerprint-chart { display: block; width: 100%; height: 104px; overflow: visible; }
+.fingerprint-grid { fill: none; stroke: #dfe9e3; stroke-width: 1; stroke-dasharray: 3 5; vector-effect: non-scaling-stroke; }
+.fingerprint-line { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.fingerprint-line.observed { stroke: var(--green); }
+.fingerprint-line.reference { stroke: #5b6ee1; }
+.fingerprint-area { opacity: 0; }
+.fingerprint-area.observed { fill: rgba(10,203,117,.10); }
+.fingerprint-area.reference { fill: rgba(91,110,225,.07); }
+.fingerprint-axis { display: flex; justify-content: space-between; color: #95a39b; font-family: ui-monospace, monospace; font-size: 8px; }
+.fingerprint-connector { position: relative; min-height: 126px; overflow: hidden; }
+.fingerprint-connector:before { content: ""; position: absolute; top: 50%; left: 2px; right: 4px; height: 1px; background: #bfd4c8; }
+.fingerprint-connector:after { content: ""; position: absolute; top: calc(50% - 4px); right: 2px; width: 7px; height: 7px; border-top: 1px solid #8fb3a0; border-right: 1px solid #8fb3a0; transform: rotate(45deg); }
+.fingerprint-connector span { position: absolute; z-index: 1; top: calc(50% - 4px); left: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(10,203,117,.12); opacity: 0; }
+.fingerprint-inference { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 14px; border: 1px solid #d9e7df; border-radius: 13px; background: #fff; box-shadow: 0 10px 26px rgba(23,54,37,.06); opacity: 0; transform: translateX(10px) scale(.98); }
+.fingerprint-inference > span { display: grid; place-items: center; width: 25px; height: 25px; margin-bottom: 9px; border-radius: 8px; color: #fff; background: var(--ink); font-size: 12px; font-weight: 900; }
+.fingerprint-inference small { color: var(--muted); font-size: 9px; }
+.fingerprint-inference strong { margin: 4px 0 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.fingerprint-confidence { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 9px; border-top: 1px solid var(--line); }
+.fingerprint-confidence em { color: var(--muted); font-style: normal; font-size: 9px; }
+.fingerprint-confidence b { color: var(--green-dark); font-size: 14px; font-variant-numeric: tabular-nums; }
+.fingerprint-confidence-note { margin: 7px 0 0; color: var(--muted); font-size: 8px; line-height: 1.5; }
+.fingerprint-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.fingerprint-detail { min-width: 0; padding: 10px 12px; border: 1px solid #dfe9e3; border-radius: 11px; background: rgba(255,255,255,.72); }
+.fingerprint-detail span, .fingerprint-detail strong, .fingerprint-detail small { display: block; }
+.fingerprint-detail span { margin-bottom: 5px; color: var(--muted); font-size: 8px; font-weight: 700; }
+.fingerprint-detail strong { overflow: hidden; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-variant-numeric: tabular-nums; }
+.fingerprint-detail small { margin-top: 4px; color: var(--muted); font-size: 8px; line-height: 1.45; }
+.fingerprint-decision { display: flex; align-items: center; gap: 7px; margin-top: 9px; padding: 8px 10px; border-radius: 10px; color: #53635b; background: #edf3f0; font-size: 9px; line-height: 1.5; }
+.fingerprint-decision i { display: grid; place-items: center; flex: none; width: 16px; height: 16px; border-radius: 50%; color: #fff; background: #819087; font-style: normal; font-size: 9px; font-weight: 900; }
+.fingerprint-decision.supported { color: #317055; background: var(--green-soft); }
+.fingerprint-decision.supported i { background: var(--green); }
+.fingerprint-decision.risk { color: #a33c43; background: #fff0f1; }
+.fingerprint-decision.risk i { background: var(--red); }
+.fingerprint-decision.inconclusive { color: #89631f; background: #fff5db; }
+.fingerprint-decision.inconclusive i { background: var(--orange); }
+.fingerprint-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.fingerprint-step { display: flex; align-items: center; gap: 6px; color: #9ba8a1; font-size: 9px; transition: color .25s; }
+.fingerprint-step i { display: grid; place-items: center; flex: none; width: 15px; height: 15px; border: 1px solid #d5dfd9; border-radius: 50%; background: #fff; font-style: normal; font-size: 8px; transition: .25s; }
+.fingerprint-journey.is-complete .fingerprint-line { stroke-dashoffset: 0; }
+.fingerprint-journey.is-complete .fingerprint-area { opacity: 1; }
+.fingerprint-journey.is-complete .fingerprint-inference { opacity: 1; transform: none; }
+.fingerprint-journey.is-complete .fingerprint-step { color: var(--ink); }
+.fingerprint-journey.is-complete .fingerprint-step i { border-color: var(--green); color: #fff; background: var(--green); }
+.fingerprint-journey.is-animating .fingerprint-line.observed { animation: fingerprint-draw .75s ease-out .15s forwards; }
+.fingerprint-journey.is-animating .fingerprint-area.observed { animation: fingerprint-fill .45s ease-out .65s forwards; }
+.fingerprint-journey.is-animating .fingerprint-line.reference { animation: fingerprint-draw .8s ease-out 1.05s forwards; }
+.fingerprint-journey.is-animating .fingerprint-area.reference { animation: fingerprint-fill .45s ease-out 1.55s forwards; }
+.fingerprint-journey.is-animating .fingerprint-connector span { animation: fingerprint-travel .75s ease-in-out 1.8s forwards; }
+.fingerprint-journey.is-animating .fingerprint-inference { animation: fingerprint-result .4s ease-out 2.35s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(1) { animation: fingerprint-step .25s ease-out .2s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(2) { animation: fingerprint-step .25s ease-out 1.1s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(3) { animation: fingerprint-step .25s ease-out 2.4s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(1) i { animation: fingerprint-step-dot .25s ease-out .2s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(2) i { animation: fingerprint-step-dot .25s ease-out 1.1s forwards; }
+.fingerprint-journey.is-animating .fingerprint-step:nth-child(3) i { animation: fingerprint-step-dot .25s ease-out 2.4s forwards; }
+@keyframes fingerprint-draw { to { stroke-dashoffset: 0; } }
+@keyframes fingerprint-fill { to { opacity: 1; } }
+@keyframes fingerprint-travel { 0% { opacity: 0; transform: translateX(0); } 20% { opacity: 1; } 100% { opacity: 1; transform: translateX(28px); } }
+@keyframes fingerprint-result { to { opacity: 1; transform: none; } }
+@keyframes fingerprint-step { to { color: var(--ink); } }
+@keyframes fingerprint-step-dot { to { border-color: var(--green); color: #fff; background: var(--green); } }
 .test-info { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
 .metric-card { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
 .metric-card span, .metric-card strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -135,6 +208,18 @@ h1 em { color: var(--green-dark); font-style: normal; }
   .primary-button { justify-content: center; }
   .score-column { border-right: 0; border-bottom: 1px solid var(--line); }
   .test-info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fingerprint-flow { grid-template-columns: 1fr; }
+  .fingerprint-connector { min-height: 26px; transform: rotate(90deg); }
+  .fingerprint-inference { min-height: 116px; }
+  .fingerprint-details { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fingerprint-journey.is-animating .fingerprint-line { animation: none; stroke-dashoffset: 0; }
+  .fingerprint-journey.is-animating .fingerprint-area { animation: none; opacity: 1; }
+  .fingerprint-journey.is-animating .fingerprint-connector span { animation: none; opacity: 1; left: 28px; }
+  .fingerprint-journey.is-animating .fingerprint-inference { animation: none; opacity: 1; transform: none; }
+  .fingerprint-journey.is-animating .fingerprint-step { animation: none; color: var(--ink); }
+  .fingerprint-journey.is-animating .fingerprint-step i { animation: none; border-color: var(--green); color: #fff; background: var(--green); }
 }
 .configured-model-field {
   grid-column: 1 / -1;

@@ -5,7 +5,7 @@ aig_api_checker — AI 模型指纹识别 + 中转站检测工具
 5 个算法：
   A. 随机数指纹      — 让模型随机选数字1-355，统计分布区分模型
   B. 加密级Signature — Claude thinking signature AEAD验证（Anthropic专用）
-  C. 黑盒审计7探针   — 朱雀AIG中转站篡改检测（OpenAI兼容通用）
+  C. 黑盒审计7探针   — 中转站篡改检测（OpenAI兼容通用）
   D. PAMELA分布指纹  — 单token回答分布 JSD 匹配已发布指纹库（OpenAI兼容通用）
   E. Ventor QTest     — 基于 logprobs 与信息熵的供应商一致性量化检验
 
@@ -212,7 +212,7 @@ def detect_flow():
 #  算法 C：黑盒审计 7 探针
 # ================================================================
 def audit_flow():
-    print("\n=== 算法C: 中转站黑盒审计 (朱雀AIG 7探针) ===")
+    print("\n=== 算法C: 中转站黑盒审计 (7探针) ===")
     base_url = _input("中转 base URL (如 https://relay.example.com/v1): ")
     api_key  = _input("API Key: ")
     model    = _input("模型名称: ")
@@ -325,7 +325,7 @@ def run_cli():
     print("\n  [1] 标定官方模型基准      (算法A 随机数指纹)")
     print("  [2] 测试第三方API         (算法A 随机数指纹)")
     print("  [3] 中转站加密级检测      (算法B signature+10项)")
-    print("  [4] 中转站黑盒审计        (算法C 朱雀7探针)")
+    print("  [4] 中转站黑盒审计        (算法C 7探针)")
     print("  [5] 查看已保存基准")
     print("  [6] PAMELA分布指纹匹配    (算法D 单token分布JSD)")
     print("  [7] Ventor供应商一致性检验 (算法E Z-test/logprobs)")

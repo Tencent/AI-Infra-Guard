@@ -60,11 +60,18 @@ from pydantic import BaseModel, Field
 if __package__:
     from .algorithms.fingerprint import test_model
     from .algorithms.signature import (
+        SIGNATURE_MAX_DEDUCTION,
         SIGNATURE_QUICK_REQUEST_COUNT,
         run_all_checks,
+        simple_completion,
     )
-    from .algorithms.relay_audit import run_relay_audit
+    from .algorithms.relay_audit import (
+        _chat as relay_chat_completion,
+        _extract_text as extract_relay_text,
+        run_relay_audit,
+    )
     from .algorithms.common import (
+        calculate_distribution,
         load_baselines,
         resolve_baseline_name,
         DEFAULT_BASELINES_PATH,
@@ -72,11 +79,18 @@ if __package__:
 else:
     from algorithms.fingerprint import test_model
     from algorithms.signature import (
+        SIGNATURE_MAX_DEDUCTION,
         SIGNATURE_QUICK_REQUEST_COUNT,
         run_all_checks,
+        simple_completion,
     )
-    from algorithms.relay_audit import run_relay_audit
+    from algorithms.relay_audit import (
+        _chat as relay_chat_completion,
+        _extract_text as extract_relay_text,
+        run_relay_audit,
+    )
     from algorithms.common import (
+        calculate_distribution,
         load_baselines,
         resolve_baseline_name,
         DEFAULT_BASELINES_PATH,
@@ -86,6 +100,7 @@ VERSION = "1.7.0"
 FINGERPRINT_CONCURRENCY = 5
 AUDIT_PROFILE = "full"
 QUICK_AUDIT_REQUEST_COUNT = 7
+SUMMARY_REQUEST_COUNT = 1
 
 
 def _log_level() -> tuple[str, int]:
@@ -567,6 +582,26 @@ def _quick_progress(completed: int, total: int, success: int,
     }
 
 
+def _effective_forgery_status(bayes: dict, claimed_name: str | None) -> Any:
+    """把绝对分布漂移与模型替换区分开，避免同模型高置信命中被误报。"""
+    forgery = bayes.get("forgery") or {}
+    status = forgery.get("status")
+    best_name = str(bayes.get("best_model_name") or "").strip().casefold()
+    claimed_key = str(claimed_name or "").strip().casefold()
+    posterior = bayes.get("best_posterior")
+    if (
+        status == "unknown_anomaly"
+        and claimed_key
+        and best_name == claimed_key
+        and _is_number(posterior)
+        and float(posterior) >= 0.85
+    ):
+        # G² 对参考分布的绝对偏移更敏感；当相对识别明确命中声明模型时，
+        # 这属于同模型分布漂移，不应作为“模型被替换”的失败项。
+        return "supported"
+    return status
+
+
 def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
                      on_progress=None, cancel_event=None) -> dict:
     """算法 A：随机数指纹测试。api_type/base_url 由调度层按模型 ID 推导后传入。
@@ -581,6 +616,7 @@ def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
             })
 
     _raise_if_cancelled(cancel_event)
+    claimed_name = _resolve_baseline_name(req.model)
     result = test_model(
         api_type,
         base_url,
@@ -590,20 +626,122 @@ def _run_fingerprint(req: DetectRequest, api_type: str, base_url: str,
         FINGERPRINT_CONCURRENCY,
         progress,
         req.no_think,
-        _resolve_baseline_name(req.model),
+        claimed_name,
         cancel_event,
     )
     _raise_if_cancelled(cancel_event)
     if "error" in result:
         raise RuntimeError(str(result["error"]))
     bayes = result["bayes"] or {}
-    forgery = bayes.get("forgery") or {}
+    visualization = _fingerprint_visualization(
+        result.get("results"),
+        bayes.get("best_model_name"),
+    )
     out = {
         "best_model": bayes.get("best_model_name"),
         "_posterior": bayes.get("best_posterior"),
-        "_forgery_status": forgery.get("status"),
+        "_runner_up_model": bayes.get("second_model_name"),
+        "_runner_up_posterior": next((
+            candidate.get("posterior")
+            for candidate in bayes.get("top5", [])
+            if candidate.get("name") == bayes.get("second_model_name")
+        ), None),
+        "_evidence_level": bayes.get("evidence_level"),
+        "_forgery_status": _effective_forgery_status(bayes, claimed_name),
     }
+    if visualization:
+        out["_visualization"] = visualization
     return out
+
+
+def _fingerprint_visualization(
+    test_results: Any,
+    best_model: Any,
+    bucket_count: int = 48,
+) -> dict | None:
+    """为网页动画生成紧凑的实测/参考分布，不暴露逐次原始回答。"""
+    if not isinstance(test_results, list) or not test_results or not best_model:
+        return None
+
+    valid_results = [
+        value for value in test_results
+        if isinstance(value, int) and not isinstance(value, bool)
+        and 1 <= value <= 355
+    ]
+    if not valid_results:
+        return None
+
+    baselines = load_baselines()
+    best_key = str(best_model).strip().casefold()
+    baseline = next((
+        item for item in baselines
+        if best_key in {
+            str(item.get("name") or "").strip().casefold(),
+            str(item.get("model") or "").strip().casefold(),
+        }
+    ), None)
+    reference = baseline.get("distribution") if baseline else None
+    if (
+        not isinstance(reference, list)
+        or len(reference) != 355
+        or any(
+            not isinstance(value, (int, float)) or isinstance(value, bool)
+            for value in reference
+        )
+    ):
+        return None
+
+    observed = calculate_distribution(valid_results)
+    buckets = max(8, min(int(bucket_count), len(observed)))
+
+    def aggregate(distribution: list) -> list[float]:
+        output = [0.0] * buckets
+        for index, value in enumerate(distribution):
+            bucket = min(buckets - 1, index * buckets // len(distribution))
+            output[bucket] += max(0.0, float(value))
+        total = sum(output)
+        if total <= 0:
+            return output
+        return [value / total for value in output]
+
+    observed_buckets = aggregate(observed)
+    reference_buckets = aggregate(reference)
+    differences = [
+        abs(observed_value - reference_value)
+        for observed_value, reference_value
+        in zip(observed_buckets, reference_buckets)
+    ]
+    largest_index = int(np.argmax(differences))
+    range_size = len(observed)
+    largest_range = [
+        (largest_index * range_size + buckets - 1) // buckets + 1,
+        ((largest_index + 1) * range_size + buckets - 1) // buckets,
+    ]
+    distribution_overlap = sum(
+        min(observed_value, reference_value)
+        for observed_value, reference_value
+        in zip(observed_buckets, reference_buckets)
+    )
+
+    return {
+        "sample_size": len(valid_results),
+        "candidate_count": len(baselines),
+        "range": [1, 355],
+        "observed_distribution": [
+            round(value, 6) for value in observed_buckets
+        ],
+        "reference_distribution": [
+            round(value, 6) for value in reference_buckets
+        ],
+        # 分箱后两条曲线的概率质量交集，便于解释图形差异；不参与身份判定。
+        "distribution_overlap": round(distribution_overlap, 4),
+        "largest_deviation": {
+            "range": largest_range,
+            "observed": round(observed_buckets[largest_index], 4),
+            "reference": round(reference_buckets[largest_index], 4),
+            "difference": round(differences[largest_index], 4),
+        },
+    }
 
 
 def _run_signature(req: DetectRequest, base_url: str, cancel_event=None,
@@ -680,6 +818,7 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
             "ok": probe.ok,
             "latency_ms": probe.latency_ms,
             "error": str(probe.error)[:200] if probe.error else None,
+            "data": dict(probe.data or {}),
         } for probe in result["probe_results"]],
     }
 
@@ -764,6 +903,127 @@ def _probe_status_title(probe: str, passed: bool, language: str) -> str:
     return PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _probe_attempted(probe_result: dict) -> bool:
+    data = probe_result.get("data") or {}
+    return not bool(data.get("not_executed"))
+
+
+def _successful_probe_response(data: dict) -> bool:
+    status = data.get("status")
+    return _is_number(status) and 200 <= int(status) < 300
+
+
+def _base_probe_evaluable(probe_result: dict) -> bool:
+    if not _probe_attempted(probe_result):
+        return False
+    probe = str(probe_result.get("name") or "")
+    data = probe_result.get("data") or {}
+    if probe in {"models", "stream_integrity"}:
+        return True
+    if probe == "liveness":
+        return not bool(data.get("truncated"))
+    if probe == "identity":
+        return (
+            _successful_probe_response(data)
+            and bool(str(data.get("identity_text") or "").strip())
+        )
+    if probe == "token_delta":
+        return (
+            _successful_probe_response(data)
+            and _is_number(data.get("delta"))
+        )
+    if probe == "echo_rewrite":
+        return (
+            _successful_probe_response(data)
+            and isinstance(data.get("truncated"), bool)
+            and not data["truncated"]
+            and isinstance(data.get("exact_match"), bool)
+            and isinstance(data.get("suspicious_terms"), list)
+        )
+    if probe == "context_canary":
+        return (
+            _successful_probe_response(data)
+            and isinstance(data.get("saw_end"), bool)
+            and (
+                data["saw_end"]
+                or data.get("truncated") is False
+            )
+        )
+    return False
+
+
+def _specialized_risk_evaluable(
+    risk_check: dict,
+    probe_result: dict,
+) -> bool:
+    if not _probe_attempted(probe_result):
+        return False
+    data = probe_result.get("data") or {}
+    failed_title = risk_check["failed_title"]
+
+    if failed_title == "Model list endpoint failed":
+        return True
+    if failed_title == "Requested model not found":
+        return (
+            bool(probe_result.get("ok"))
+            and isinstance(data.get("target_model_present"), bool)
+        )
+    if failed_title == "Liveness inconclusive (truncated)":
+        return (
+            _successful_probe_response(data)
+            and isinstance(data.get("truncated"), bool)
+        )
+    if failed_title == "Relay liveness failed":
+        return (
+            bool(probe_result.get("ok"))
+            or not bool(data.get("truncated"))
+        )
+    if failed_title == "Model identity family mismatch":
+        return (
+            bool(probe_result.get("ok"))
+            and bool(data.get("requested_families"))
+            and bool(data.get("identity_families"))
+        )
+    if failed_title == "Large prompt token delta":
+        return (
+            bool(probe_result.get("ok"))
+            and _is_number(data.get("delta"))
+        )
+    if failed_title == "Echo inconclusive (truncated)":
+        return (
+            _successful_probe_response(data)
+            and isinstance(data.get("truncated"), bool)
+        )
+    if failed_title == "Echo/tool command rewrite suspected":
+        return (
+            _successful_probe_response(data)
+            and data.get("truncated") is False
+            and isinstance(data.get("exact_match"), bool)
+            and isinstance(data.get("suspicious_terms"), list)
+        )
+    if failed_title == "Stream integrity anomaly":
+        return True
+    if failed_title == "Stream model field mismatch":
+        return (
+            bool(probe_result.get("ok"))
+            and bool(data.get("stream_models"))
+        )
+    if failed_title == "Context truncation suspected":
+        return (
+            _successful_probe_response(data)
+            and isinstance(data.get("saw_end"), bool)
+            and (
+                data["saw_end"]
+                or data.get("truncated") is False
+            )
+        )
+    return False
+
+
 def _fingerprint_summary(fp: dict, language: str = DEFAULT_LANGUAGE) -> str:
     best_model = fp.get("best_model", "?")
     score = (fp.get("_posterior") or 0) * 100
@@ -796,29 +1056,88 @@ def _result_score(
 ) -> float:
     scores = []
     if parts.get("audit"):
-        scores.append(
-            max(
-                0.0,
-                100.0 - float(parts["audit"].get("_risk_score") or 0),
-            )
-        )
+        scores.append(_audit_score(parts["audit"]))
     if parts.get("signature"):
-        scores.append(float(parts["signature"].get("_score") or 0))
+        scores.append(_signature_score(parts["signature"]))
     if algorithm == "full" and parts.get("fingerprint"):
-        scores.append(
-            float(parts["fingerprint"].get("_posterior") or 0) * 100
-        )
+        scores.append(_fingerprint_score(parts["fingerprint"]))
     if errors:
         scores.append(0.0)
     return round(min(scores), 1) if scores else 0.0
 
 
+def _audit_has_risk(audit: dict) -> bool:
+    return (
+        audit.get("verdict") != "LOW"
+        or bool(audit.get("findings"))
+        or any(
+            not probe.get("ok")
+            for probe in audit.get("probe_results", [])
+            if _base_probe_evaluable(probe)
+        )
+    )
+
+
+def _audit_score(audit: dict) -> float:
+    risk_score = audit.get("_risk_score")
+    if not _is_number(risk_score):
+        return 0.0
+    score = max(
+        0.0,
+        min(100.0, 100.0 - float(risk_score)),
+    )
+    # 防御内部状态不一致：只要审计结论已是风险，组件分就不能仍为满分。
+    return round(min(score, 50.0) if _audit_has_risk(audit) else score, 1)
+
+
+def _signature_score(signature: dict) -> float:
+    finding = _signature_finding(signature)
+    if finding is None:
+        return 0.0
+    score_value = signature.get("_score")
+    if not _is_number(score_value):
+        return 0.0
+    minimum_score = 100.0 - SIGNATURE_MAX_DEDUCTION
+    score = max(
+        minimum_score,
+        min(100.0, float(score_value)),
+    )
+    if finding["severity"] == FINDING_FAILED_STATUS:
+        # 风险判定与扣分解耦：失败仍判风险，但签名最多影响综合分 20 分。
+        score = minimum_score
+    return round(score, 1)
+
+
+def _fingerprint_score(fingerprint: dict) -> float:
+    """将“识别置信度”转换为“声明模型可信分”，避免替身高置信时反得高分。"""
+    posterior_value = fingerprint.get("_posterior")
+    if not _is_number(posterior_value):
+        return 0.0
+    posterior = max(
+        0.0,
+        min(1.0, float(posterior_value)),
+    )
+    status = fingerprint.get("_forgery_status")
+    if status == "supported":
+        return round(posterior * 100, 1)
+    if status in {"suspected_known", "unknown_anomaly"}:
+        return round(min((1.0 - posterior) * 100, 50.0), 1)
+    return 0.0
+
+
 def _signature_finding(
     signature: dict,
     language: str = DEFAULT_LANGUAGE,
-) -> dict:
+) -> dict | None:
     verdict = str(signature.get("verdict") or "suspect")
-    passed = verdict == "native"
+    failed_checks = signature.get("_failed_checks")
+    if (
+        verdict not in {"native", "suspect", "proxy"}
+        or not _is_number(signature.get("_score"))
+        or not isinstance(failed_checks, list)
+    ):
+        return None
+    passed = verdict == "native" and not failed_checks
     return {
         "probe": "signature",
         "severity": (
@@ -835,9 +1154,19 @@ def _signature_finding(
 def _fingerprint_finding(
     fingerprint: dict,
     language: str = DEFAULT_LANGUAGE,
-) -> dict:
-    posterior = float(fingerprint.get("_posterior") or 0)
-    forgery_status = str(fingerprint.get("_forgery_status") or "")
+) -> dict | None:
+    posterior_value = fingerprint.get("_posterior")
+    forgery_status = fingerprint.get("_forgery_status")
+    if (
+        not _is_number(posterior_value)
+        or forgery_status not in {
+            "supported",
+            "suspected_known",
+            "unknown_anomaly",
+        }
+    ):
+        return None
+    posterior = float(posterior_value)
     passed = posterior >= 0.85 and forgery_status == "supported"
 
     return {
@@ -868,10 +1197,12 @@ def _result_detail(
         )
         triggered[key] = finding
 
-    executed_probes = set()
+    probe_results = {}
     for probe_result in audit.get("probe_results", []):
         probe = str(probe_result.get("name") or "")
-        executed_probes.add(probe)
+        probe_results[probe] = probe_result
+        if not _base_probe_evaluable(probe_result):
+            continue
         passed = bool(probe_result.get("ok"))
         findings.append({
             "probe": probe,
@@ -884,10 +1215,13 @@ def _result_detail(
 
     for risk_check in SPECIALIZED_RISK_CHECKS:
         probe = risk_check["probe"]
-        if probe not in executed_probes:
+        probe_result = probe_results.get(probe)
+        if not probe_result:
             continue
         key = (probe, risk_check["failed_title"])
         finding = triggered.pop(key, None)
+        if not _specialized_risk_evaluable(risk_check, probe_result):
+            continue
         if finding:
             findings.append({
                 "probe": probe,
@@ -913,13 +1247,38 @@ def _result_detail(
         )
         findings.append(localized)
 
+    if (
+        _audit_has_risk(audit)
+        and not any(
+            finding.get("severity") == FINDING_FAILED_STATUS
+            for finding in findings
+        )
+    ):
+        # 防御上游审计 verdict/findings 不一致：risk 响应必须至少有一个失败项。
+        consistency_finding = {
+            "probe": "audit",
+            "severity": FINDING_FAILED_STATUS,
+            "title": (
+                "Black-box audit consistency check"
+                if language == "en" else "黑盒审计综合检查"
+            ),
+        }
+        if findings:
+            findings[0] = consistency_finding
+        else:
+            findings.append(consistency_finding)
+
     signature = parts.get("signature")
     if signature:
-        findings.append(_signature_finding(signature, language))
+        signature_finding = _signature_finding(signature, language)
+        if signature_finding:
+            findings.append(signature_finding)
 
     fingerprint = parts.get("fingerprint")
     if algorithm == "full" and fingerprint:
-        findings.append(_fingerprint_finding(fingerprint, language))
+        fingerprint_finding = _fingerprint_finding(fingerprint, language)
+        if fingerprint_finding:
+            findings.append(fingerprint_finding)
 
     detail = {
         "findings": findings,
@@ -932,37 +1291,52 @@ def _result_detail(
         detail["best_model"] = fingerprint.get("best_model") or ""
         detail["fingerprint"] = {
             "posterior": fingerprint.get("_posterior"),
+            "runner_up_model": fingerprint.get("_runner_up_model"),
+            "runner_up_posterior": fingerprint.get("_runner_up_posterior"),
+            "evidence_level": fingerprint.get("_evidence_level"),
             "forgery_status": fingerprint.get("_forgery_status"),
         }
+        visualization = fingerprint.get("_visualization")
+        if visualization:
+            detail["fingerprint"].update(visualization)
     return detail
 
 
 def _overall_verdict(algorithm: str, parts: dict[str, dict], errors: dict[str, str]) -> str:
-    if errors:
-        return "inconclusive"
+    risk = False
+    incomplete = bool(errors)
     audit = parts.get("audit")
     if not audit:
-        return "inconclusive"
-    if (
-        audit.get("verdict") != "LOW"
-        or audit.get("findings")
-        or any(not probe.get("ok") for probe in audit.get("probe_results", []))
-    ):
-        return "risk"
+        incomplete = True
+    else:
+        if not _is_number(audit.get("_risk_score")):
+            incomplete = True
+        if _audit_has_risk(audit):
+            risk = True
     signature = parts.get("signature")
-    if signature and signature.get("verdict") != "native":
-        return "risk"
+    if signature:
+        signature_finding = _signature_finding(signature)
+        if signature_finding is None:
+            incomplete = True
+        elif signature_finding["severity"] == FINDING_FAILED_STATUS:
+            risk = True
     if algorithm == "full" and not parts.get("fingerprint"):
-        return "inconclusive"
+        incomplete = True
     if algorithm == "full":
-        fingerprint = parts["fingerprint"]
-        if float(fingerprint.get("_posterior") or 0) < 0.85:
-            return "inconclusive"
-        forgery_status = fingerprint.get("_forgery_status")
-        if forgery_status in {"suspected_known", "unknown_anomaly"}:
-            return "risk"
-        if forgery_status != "supported":
-            return "inconclusive"
+        fingerprint = parts.get("fingerprint")
+        if fingerprint:
+            posterior = fingerprint.get("_posterior")
+            if not _is_number(posterior) or float(posterior) < 0.85:
+                incomplete = True
+            forgery_status = fingerprint.get("_forgery_status")
+            if forgery_status in {"suspected_known", "unknown_anomaly"}:
+                risk = True
+            elif forgery_status != "supported":
+                incomplete = True
+    if risk:
+        return "risk"
+    if incomplete:
+        return "inconclusive"
     return "pass"
 
 
@@ -974,21 +1348,218 @@ def _result_summary(
 ) -> str:
     overall_verdict = _overall_verdict(algorithm, parts, errors)
     score = _result_score(algorithm, parts, errors)
+    score_text = _summary_score_text(score)
+    component_names = {
+        "audit": {"zh": "黑盒审计", "en": "black-box audit"},
+        "signature": {"zh": "签名验证", "en": "signature verification"},
+        "fingerprint": {"zh": "模型指纹", "en": "model fingerprint"},
+    }
+
+    component_scores = _summary_component_scores(parts)
+    component = min(component_scores, key=component_scores.get) if component_scores else "audit"
+    reason = component_names.get(component, {}).get(language, component)
 
     if language == "en":
-        headline = {
-            "pass": "Overall check passed",
-            "risk": "Overall check found issues",
-            "inconclusive": "Overall check incomplete",
-        }[overall_verdict]
-        return f"{headline} ({score:.0f}/100)"
+        if overall_verdict == "risk":
+            return f"Overall score {score_text}; a risk was detected in {reason}."
+        if overall_verdict == "inconclusive":
+            return f"Overall score {score_text}; evidence was insufficient, so the result is inconclusive."
+        if score == 100.0:
+            return f"Overall score {score_text}; all evaluated checks performed normally."
+        return f"Overall score {score_text}; checks passed with lower confidence in {reason}."
 
-    headline = {
-        "pass": "综合检查通过",
-        "risk": "综合检查发现异常",
-        "inconclusive": "综合检查未完成",
-    }[overall_verdict]
-    return f"{headline}（{score:.0f}/100）"
+    if overall_verdict == "risk":
+        return f"综合评分{score_text}，检测发现异常，主要涉及{reason}"
+    if overall_verdict == "inconclusive":
+        return f"综合评分{score_text}，检测证据不足，结果不完整"
+    if score == 100.0:
+        return f"综合评分{score_text}，各项检测均表现正常"
+    return f"综合评分{score_text}，检测通过，但{reason}置信度较低"
+
+
+def _summary_score_text(score: float) -> str:
+    rounded = round(float(score), 1)
+    value = f"{rounded:.0f}" if rounded.is_integer() else f"{rounded:.1f}"
+    return f"{value}/100"
+
+
+def _summary_component_scores(parts: dict[str, dict]) -> dict[str, float]:
+    scores = {}
+    audit = parts.get("audit")
+    if audit:
+        scores["audit"] = _audit_score(audit)
+    signature = parts.get("signature")
+    if signature:
+        scores["signature"] = _signature_score(signature)
+    fingerprint = parts.get("fingerprint")
+    if fingerprint:
+        scores["fingerprint"] = _fingerprint_score(fingerprint)
+    return scores
+
+
+def _summary_prompt(
+    algorithm: str,
+    parts: dict[str, dict],
+    errors: dict[str, str],
+    language: str,
+) -> str:
+    detail = _result_detail(algorithm, parts, language)
+    payload = {
+        "score": _result_score(algorithm, parts, errors),
+        "score_text": _summary_score_text(
+            _result_score(algorithm, parts, errors),
+        ),
+        "overall_verdict": _overall_verdict(algorithm, parts, errors),
+        "component_scores": _summary_component_scores(parts),
+        "failed_checks": [
+            finding["title"]
+            for finding in detail["findings"]
+            if finding["severity"] == FINDING_FAILED_STATUS
+        ],
+        "incomplete_components": list(errors),
+    }
+    data = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    if language == "en":
+        return (
+            "Write one concise English inspection summary using only the JSON below. "
+            "Use 12-20 words and copy score_text exactly. If the score is "
+            "below 100, state the single main reason that reduced it. Follow overall_verdict: "
+            "risk must explicitly say a risk or failure was detected; inconclusive must say "
+            "the evidence or result is incomplete; pass must say the checks passed. "
+            "Never describe failed or incomplete checks as normal. Output only the summary, with no label, "
+            f"list, quotation marks, or markdown. JSON: {data}"
+        )
+    return (
+        "仅根据下方 JSON 写一句中文检测总结。控制在20至30个汉字左右，必须包含"
+        "JSON 中的 score_text，不得改写。严格遵循 overall_verdict：risk 必须明确说明发现异常或风险；"
+        "inconclusive 必须说明证据不足或结果不完整；pass 必须说明检测通过。不得把失败或未完成项描述为"
+        "正常。只输出总结，不要标题、列表、引号或Markdown。"
+        f"JSON：{data}"
+    )
+
+
+def _clean_model_summary(text: str, score: float, language: str) -> str:
+    cleaned = re.sub(r"```(?:json|text)?|```", "", str(text or ""), flags=re.I)
+    cleaned = " ".join(line.strip() for line in cleaned.splitlines() if line.strip())
+    cleaned = re.sub(r"^(总结|检测总结|Summary)\s*[:：]\s*", "", cleaned, flags=re.I)
+    cleaned = cleaned.strip(" \t\r\n\"'“”‘’")
+    score_text = _summary_score_text(score)
+    if score_text not in cleaned:
+        raise ValueError("model summary omitted the exact score")
+    if language == "zh":
+        length = len(re.sub(r"\s+", "", cleaned))
+        if not 16 <= length <= 36:
+            raise ValueError(f"Chinese model summary length out of range: {length}")
+    else:
+        word_count = len(cleaned.split())
+        if not 6 <= word_count <= 24:
+            raise ValueError(f"English model summary length out of range: {word_count}")
+    return cleaned
+
+
+def _summary_matches_verdict(text: str, verdict: str, language: str) -> bool:
+    lowered = text.casefold()
+    if language == "zh":
+        normal_claims = ("各项检测均表现正常", "各项正常", "未发现异常", "未发现风险")
+        risk_signals = ("异常", "风险", "失败", "未通过", "替换", "嫌疑")
+        incomplete_signals = ("证据不足", "不完整", "未完成", "无法判定")
+        pass_signals = ("通过", "正常", "可信", "支持声明")
+    else:
+        normal_claims = ("all checks were normal", "no risk", "no issue", "no anomaly")
+        risk_signals = ("risk", "failure", "failed", "issue", "anomaly", "substitut")
+        incomplete_signals = ("incomplete", "inconclusive", "insufficient", "could not")
+        pass_signals = ("passed", "normal", "trusted", "supported")
+
+    claims_normal = any(phrase in lowered for phrase in normal_claims)
+    if verdict == "risk":
+        return not claims_normal and any(signal in lowered for signal in risk_signals)
+    if verdict == "inconclusive":
+        return not claims_normal and any(signal in lowered for signal in incomplete_signals)
+    has_risk_signal = any(signal in lowered for signal in risk_signals)
+    return (
+        not any(signal in lowered for signal in incomplete_signals)
+        and (claims_normal or not has_risk_signal)
+        and any(signal in lowered for signal in pass_signals)
+    )
+
+
+def _run_summary_completion(
+    req: DetectRequest,
+    prompt: str,
+    base_url: str,
+    api_type: str,
+    claude: bool,
+    on_request=None,
+    cancel_event=None,
+) -> str:
+    _raise_if_cancelled(cancel_event)
+    if claude:
+        try:
+            result = simple_completion(
+                base_url,
+                req.api_key,
+                req.model,
+                prompt,
+                max_tokens=100,
+                temperature=0,
+            )
+        except Exception:
+            if on_request:
+                on_request(False)
+            raise
+        if "error" in result or not str(result.get("text") or "").strip():
+            if on_request:
+                on_request(False)
+            raise RuntimeError(str(result.get("error") or "empty summary response")[:300])
+        if on_request:
+            on_request(True)
+        text = str(result["text"])
+    else:
+        status, payload, _, _ = relay_chat_completion(
+            base_url,
+            req.api_key,
+            req.model,
+            [{"role": "user", "content": prompt}],
+            max_tokens=100,
+            temp=0,
+            api_type=api_type,
+            on_request=on_request,
+        )
+        if not 200 <= status < 300:
+            raise RuntimeError(f"summary request returned HTTP {status}")
+        text = extract_relay_text(payload)
+        if not text.strip():
+            raise RuntimeError("summary response was empty")
+    _raise_if_cancelled(cancel_event)
+    return text
+
+
+def _model_result_summary(
+    req: DetectRequest,
+    algorithm: str,
+    parts: dict[str, dict],
+    errors: dict[str, str],
+    base_url: str,
+    api_type: str,
+    claude: bool,
+    on_request=None,
+    cancel_event=None,
+) -> str:
+    score = _result_score(algorithm, parts, errors)
+    text = _run_summary_completion(
+        req,
+        _summary_prompt(algorithm, parts, errors, req.language),
+        base_url,
+        api_type,
+        claude,
+        on_request,
+        cancel_event,
+    )
+    summary = _clean_model_summary(text, score, req.language)
+    verdict = _overall_verdict(algorithm, parts, errors)
+    if not _summary_matches_verdict(summary, verdict, req.language):
+        raise ValueError("model summary contradicts computed verdict")
+    return summary
 
 
 def _run_detect(
@@ -1008,34 +1579,63 @@ def _run_detect(
         effective_req = req
         audit_progress = None
         signature_progress = None
+        summary_progress = None
         audit_request_state = {
             "completed": 0,
             "total": QUICK_AUDIT_REQUEST_COUNT,
             "success": 0,
             "error": 0,
         }
+        signature_request_state = {
+            "completed": 0,
+            "total": SIGNATURE_QUICK_REQUEST_COUNT if claude else 0,
+            "success": 0,
+            "error": 0,
+        }
+        summary_request_state = {
+            "completed": 0,
+            "total": SUMMARY_REQUEST_COUNT,
+            "success": 0,
+            "error": 0,
+        }
         if on_progress:
+            def combined_progress():
+                states = (
+                    audit_request_state,
+                    signature_request_state,
+                    summary_request_state,
+                )
+                on_progress(_quick_progress(
+                    sum(state["completed"] for state in states),
+                    sum(state["total"] for state in states),
+                    sum(state["success"] for state in states),
+                    sum(state["error"] for state in states),
+                ))
+
             def audit_progress(payload: dict):
                 audit_request_state.update(payload)
-                total = payload["total"]
-                if claude:
-                    total += SIGNATURE_QUICK_REQUEST_COUNT
-                on_progress(_quick_progress(
-                    payload["completed"],
-                    total,
-                    payload["success"],
-                    payload["error"],
-                ))
+                combined_progress()
 
             if claude:
                 def signature_progress(completed: int, total: int,
                                        success: int, error: int):
-                    on_progress(_quick_progress(
-                        audit_request_state["completed"] + completed,
-                        audit_request_state["total"] + total,
-                        audit_request_state["success"] + success,
-                        audit_request_state["error"] + error,
-                    ))
+                    signature_request_state.update({
+                        "completed": completed,
+                        "total": total,
+                        "success": success,
+                        "error": error,
+                    })
+                    combined_progress()
+
+            def summary_progress(ok: bool):
+                summary_request_state["completed"] += 1
+                if summary_request_state["completed"] > summary_request_state["total"]:
+                    summary_request_state["total"] += 1
+                if ok:
+                    summary_request_state["success"] += 1
+                else:
+                    summary_request_state["error"] += 1
+                combined_progress()
 
         try:
             parts["audit"] = _run_audit(
@@ -1075,16 +1675,29 @@ def _run_detect(
             raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
         score = _result_score("quick", parts, errors)
         overall_verdict = _overall_verdict("quick", parts, errors)
+        summary = _result_summary("quick", parts, errors, req.language)
+        try:
+            summary = _model_result_summary(
+                effective_req,
+                "quick",
+                parts,
+                errors,
+                sig_base if claude else normalize_openai_base(req.base_url),
+                "anthropic" if claude else openai_type,
+                claude,
+                summary_progress,
+                cancel_event,
+            )
+        except DetectionCancelled:
+            raise
+        except Exception as e:
+            if on_component_error:
+                on_component_error("summary", e)
         result = {
             "algorithm": "quick",
             "score": score,
             "overall_verdict": overall_verdict,
-            "summary": _result_summary(
-                "quick",
-                parts,
-                errors,
-                req.language,
-            ),
+            "summary": summary,
             "detail": _result_detail("quick", parts, req.language),
         }
         return result
@@ -1149,16 +1762,28 @@ def _run_detect(
         raise RuntimeError("; ".join(f"{k}: {v}" for k, v in errors.items()))
     score = _result_score("full", parts, errors)
     overall_verdict = _overall_verdict("full", parts, errors)
+    summary = _result_summary("full", parts, errors, req.language)
+    try:
+        summary = _model_result_summary(
+            effective_req,
+            "full",
+            parts,
+            errors,
+            sig_base if claude else fp_base,
+            "anthropic" if claude else api_type,
+            claude,
+            cancel_event=cancel_event,
+        )
+    except DetectionCancelled:
+        raise
+    except Exception as e:
+        if on_component_error:
+            on_component_error("summary", e)
     result = {
         "algorithm": "full",
         "score": score,
         "overall_verdict": overall_verdict,
-        "summary": _result_summary(
-            "full",
-            parts,
-            errors,
-            req.language,
-        ),
+        "summary": summary,
         "detail": _result_detail("full", parts, req.language),
     }
     return result

@@ -84,7 +84,36 @@ class RelayHandler(BaseHTTPRequestHandler):
             self.wfile.flush()
             return
 
-        if "Reply with exactly:" in prompt:
+        if "inspection summary" in prompt and '"score":' in prompt:
+            score_match = re.search(r'"score":([0-9.]+)', prompt)
+            score_text_match = re.search(r'"score_text":"([^"]+)"', prompt)
+            verdict_match = re.search(
+                r'"overall_verdict":"([^"]+)"',
+                prompt,
+            )
+            if not score_match or not score_text_match or not verdict_match:
+                raise AssertionError(
+                    f"summary prompt omitted score or verdict: {prompt}"
+                )
+            score = float(score_match.group(1))
+            score_text = score_text_match.group(1)
+            verdict = verdict_match.group(1)
+            if verdict == "risk":
+                text = (
+                    f"Overall score {score_text}; a risk was detected in the "
+                    "evaluated checks and requires review."
+                )
+            elif verdict == "inconclusive":
+                text = (
+                    f"Overall score {score_text}; evidence was insufficient, so "
+                    "the result remains incomplete and inconclusive."
+                )
+            else:
+                text = (
+                    f"Overall score {score_text}; all evaluated checks passed "
+                    "with consistent security signals."
+                )
+        elif "Reply with exactly:" in prompt:
             text = prompt.split("Reply with exactly:", 1)[1].strip()
         elif "Return only the word:" in prompt:
             text = prompt.split("Return only the word:", 1)[1].strip()
@@ -213,7 +242,7 @@ def main() -> int:
         if (
             names[0] != "start"
             or names[-2:] != ["result", "done"]
-            or names.count("progress") != 7
+            or names.count("progress") != 8
         ):
             raise AssertionError(f"unexpected SSE events: {names}")
         quick_progress = [
@@ -228,8 +257,8 @@ def main() -> int:
                 for value in quick_progress
             )
             or quick_completed != sorted(quick_completed)
-            or quick_completed[-1] != 7
-            or any(value["total"] != 7 for value in quick_progress)
+            or quick_completed[-1] != 8
+            or any(value["total"] != 8 for value in quick_progress)
             or any(
                 value["success"] + value["error"] != value["completed"]
                 for value in quick_progress
@@ -240,14 +269,15 @@ def main() -> int:
         if result["overall_verdict"] != "pass":
             raise AssertionError(result)
         if result["summary"] != (
-            "Overall check passed (100/100)"
+            "Overall score 100/100; all evaluated checks passed with consistent "
+            "security signals."
         ):
             raise AssertionError(result["summary"])
         if "checks" in result["detail"]:
             raise AssertionError(result["detail"])
         findings = result["detail"]["findings"]
         if (
-            len(findings) != 18
+            len(findings) != 17
             or any(finding["severity"] != "Passed" for finding in findings)
             or any("passed" in finding["title"].lower() for finding in findings)
         ):
@@ -269,10 +299,10 @@ def main() -> int:
         responses_findings = responses_result["detail"]["findings"]
         if (
             responses_names[-2:] != ["result", "done"]
-            or responses_names.count("progress") != 7
+            or responses_names.count("progress") != 8
             or responses_result["overall_verdict"] != "pass"
             or responses_result["detail"]["test_info"]["cache_read_tokens"] != 0
-            or len(responses_findings) != 18
+            or len(responses_findings) != 17
             or any(
                 finding["severity"] != "Passed"
                 for finding in responses_findings
@@ -333,12 +363,27 @@ def main() -> int:
             or not full_result["detail"]["best_model"]
         ):
             raise AssertionError(full_result)
-        expected_summary = {
-            "pass": "Overall check passed",
-            "risk": "Overall check found issues",
-            "inconclusive": "Overall check incomplete",
-        }[full_result["overall_verdict"]]
-        expected_summary += f" ({full_result['score']:.0f}/100)"
+        score_value = float(full_result["score"])
+        score_text = (
+            f"{score_value:.0f}/100"
+            if score_value.is_integer()
+            else f"{score_value:.1f}/100"
+        )
+        if full_result["overall_verdict"] == "risk":
+            expected_summary = (
+                f"Overall score {score_text}; a risk was detected in the evaluated "
+                "checks and requires review."
+            )
+        elif full_result["overall_verdict"] == "inconclusive":
+            expected_summary = (
+                f"Overall score {score_text}; evidence was insufficient, so the "
+                "result remains incomplete and inconclusive."
+            )
+        else:
+            expected_summary = (
+                f"Overall score {score_text}; all evaluated checks passed with "
+                "consistent security signals."
+            )
         if full_result["summary"] != expected_summary:
             raise AssertionError(full_result["summary"])
         fingerprint_findings = [
@@ -346,7 +391,18 @@ def main() -> int:
             for finding in full_result["detail"]["findings"]
             if finding["probe"] == "fingerprint"
         ]
-        if len(fingerprint_findings) != 1:
+        forgery_status = full_result["detail"]["fingerprint"].get(
+            "forgery_status"
+        )
+        if (
+            len(fingerprint_findings) > 1
+            or any(
+                finding["severity"] not in {"Passed", "Failed"}
+                for finding in fingerprint_findings
+            )
+            or (forgery_status is None and fingerprint_findings)
+            or (forgery_status is not None and len(fingerprint_findings) != 1)
+        ):
             raise AssertionError(full_result["detail"]["findings"])
         print("full progress", full_names.count("progress"), completed_values[-1])
         print("best model", full_result["detail"]["best_model"])

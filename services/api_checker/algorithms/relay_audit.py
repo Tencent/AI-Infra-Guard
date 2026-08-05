@@ -1,8 +1,7 @@
 """
 算法 C：中转站黑盒审计（OpenAI 兼容通用）
 ==========================================
-源自腾讯朱雀实验室 A.I.G（Apache-2.0），7 个探针检测中转站篡改行为。
-纯标准库 urllib 实现。
+通过 7 个探针检测中转站篡改行为，使用纯标准库 urllib 实现。
 """
 
 import json
@@ -379,6 +378,7 @@ def probe_identity(base_url, key, model, api_type="openai", on_request=None):
         hits = [x for x in IDENTITY_KEYWORDS if x in text.lower()]
         return ProbeResult("identity", 200 <= status < 300, lat,
             {"status": status, "identity_text": text[:500], "identity_families": _infer_families(text),
+             "requested_families": _infer_families(model),
              "response_model": payload.get("model"), "usage": payload.get("usage"),
              "resolved_model": resolved_model})
     except Exception as e:
@@ -417,6 +417,8 @@ def probe_echo_rewrite(base_url, key, model, api_type="openai", on_request=None)
         return ProbeResult("echo_rewrite", 200 <= status < 300 and expected in text and not suspicious, lat,
             {"status": status, "expected": expected, "actual": text[:500],
              "exact_match": expected in text, "suspicious_terms": suspicious,
+             "finish_reason": _finish_reason(payload),
+             "truncated": _is_truncated(payload),
              "usage": payload.get("usage"), "response_model": payload.get("model"),
              "resolved_model": resolved_model})
     except Exception as e:
@@ -503,6 +505,8 @@ def probe_context_canary(base_url, key, model, api_type="openai", on_request=Non
         text = _extract_text(payload)
         return ProbeResult("context_canary", 200 <= status < 300 and e in text, lat,
             {"status": status, "saw_start": s in text, "saw_mid": m in text, "saw_end": e in text,
+             "finish_reason": _finish_reason(payload),
+             "truncated": _is_truncated(payload),
              "actual": text.strip()[:300], "usage": payload.get("usage"),
              "response_model": payload.get("model"),
              "resolved_model": resolved_model})
@@ -518,7 +522,11 @@ _PROBES = {"models": probe_models, "liveness": probe_liveness, "identity": probe
 # ---- 风险判定 ----
 def build_findings(results, requested_model):
     findings = []
-    by = {r.name: r for r in results}
+    by = {
+        r.name: r
+        for r in results
+        if not bool((r.data or {}).get("not_executed"))
+    }
     m = by.get("models")
     if m and not m.ok:
         findings.append(Finding("models", "MEDIUM", 20, "Model list endpoint failed", str(m.error or m.data), "确认支持 GET /v1/models"))
@@ -541,7 +549,12 @@ def build_findings(results, requested_model):
         if isinstance(d, int) and d > 200:
             findings.append(Finding("token_delta", "MEDIUM", 25, "Large prompt token delta", json.dumps(delta.data), "可能注入隐藏指令"))
     echo = by.get("echo_rewrite")
-    if echo and not echo.ok:
+    if (
+        echo
+        and not echo.ok
+        and isinstance(echo.data.get("status"), int)
+        and 200 <= echo.data["status"] < 300
+    ):
         sev, sc, title = ("LOW", 5, "Echo inconclusive (truncated)") if echo.data.get("truncated") else ("HIGH", 35, "Echo/tool command rewrite suspected")
         findings.append(Finding("echo_rewrite", sev, sc, title, str(echo.error or json.dumps(echo.data)), "避免用于编码工作流"))
     stream = by.get("stream_integrity")
@@ -609,6 +622,7 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
                     pending_name,
                     False,
                     None,
+                    data={"not_executed": True},
                     error="audit exceeded total timeout",
                 ))
                 if on_progress:

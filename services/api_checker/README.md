@@ -77,7 +77,7 @@ Jensen–Shannon 散度，排名最前即指纹最接近的模型。候选分布
 | 10 | token 计数校验 | 辅助 | input/output token 比例合理性 |
 | 11 | 延迟特征 | 辅助 | 原生 API vs 中转的延迟差异模式 |
 
-### C. 中转站黑盒审计（7 探针，源自朱雀实验室 A.I.G）
+### C. 中转站黑盒审计（7 探针）
 
 适用于 OpenAI 兼容中转站（`/v1/models`、`/v1/chat/completions` 或
 `/v1/responses`）：
@@ -128,7 +128,7 @@ AIG 统一命令入口为 `ai-infra-guard api-checker ...`（别名
 python main.py calibrate   # 标定官方模型基准（随机数指纹）
 python main.py test        # 测试第三方 API（随机数指纹匹配）
 python main.py detect      # 中转站加密级检测（thinking signature）
-python main.py audit       # 中转站黑盒审计（朱雀 7 探针）
+python main.py audit       # 中转站黑盒审计（7 探针）
 python main.py pamela      # PAMELA 单token分布指纹匹配（JSD）
 python main.py qtest run   # Ventor QTest（使用内置默认配置）
 python main.py qtest run --config path/to/config.yaml
@@ -158,10 +158,14 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
 
 可通过 `/api/v1/relay/models` 查询 quick/full 检测支持的 29 个参考指纹模型。检测入口为
 `/api/v1/relay/check/stream`，详见
-[`docs/API.md`](docs/API.md)。
+[`docs/API.md`](docs/API.md)。常见风险、检测原理、结果解释和使用建议参见
+[`docs/FAQ.md`](docs/FAQ.md)。
 `language` 可选 `zh` 或 `en`，省略时默认中文；该参数控制结果中的 `summary`
 和 `detail.findings[].title`。`detail.findings[].severity` 统一使用英文二值
 状态；字段名以及 `overall_verdict` 的机器可读枚举保持不变。
+`summary` 由当前被测大模型根据评分、组件评分和未通过检查项生成：中文约
+20～30 字，英文保持同等简洁；低于 100 分时说明一个主要降分原因。该步骤会新增
+一次上游请求；若生成失败则自动使用同语言的本地兜底文本，不影响检测评分和判定。
 `base_url` 可填写版本根路径，也可直接填写完整的 `/chat/completions` 或
 `/responses` 地址；服务会自动选择对应协议且不会重复拼接路径。
 模型 ID 会优先原样请求；如果 `/models` 中不存在 `provider/model`、但存在去掉
@@ -233,6 +237,6 @@ services/api_checker/
 
 ## 致谢
 
-- thinking signature 分析基于 [open-open-reasoning](https://git.woa.com/xiangfanwu/mono-repo) 项目的逆向研究
 - 随机数指纹算法基于 [hlwy-ai-checker](https://github.com/hanlinwenyuan/hlwy-ai-checker)
-- 中转站黑盒审计探针源自腾讯朱雀实验室 [A.I.G (AI-Infra-Guard)](https://github.com/Tencent/AI-Infra-Guard)（Apache-2.0）
+- PAMELA 单 token 分布指纹实现参考 Tomas Bruckner 的论文
+  [One Token Is Enough: Fingerprinting and Verifying Large Language Models from Single-Token Output Distributions](https://arxiv.org/abs/2607.10252)
