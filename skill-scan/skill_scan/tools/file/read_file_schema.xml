@@ -6,6 +6,7 @@
             Important notes:
             - The file must exist and be readable
             - Binary files cannot be read with this tool
+            - Non-UTF-8 text is decoded into data; reversible mojibake is also returned in security_views
             - Default budget is max_lines=600 and max_chars=14000
             - Large files will be truncated instead of returning full content
             - Prefer using grep to locate relevant code, then read a narrower range
@@ -38,6 +39,8 @@
                 - returned_chars: Number of returned characters
                 - truncated: Whether the output hit the read budget
                 - summary_hint: Guidance for the next read when truncated
+                - encoding: Detected primary character encoding
+                - security_warnings/security_views: Encoding warnings and reversibly recovered text that must be audited
                 - data: Returned file content within the budget</description>
         </returns>
         <examples>

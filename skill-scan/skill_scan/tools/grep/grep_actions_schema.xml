@@ -4,7 +4,7 @@
     <details>支持正则表达式，默认递归搜索目录下所有文件。结果格式为 "相对路径:行号: 内容"。
 注意事项：
 - 结果最多返回 max_results 条（默认 200）
-- 二进制文件会被跳过（以 errors=ignore 读取）
+- 二进制文件会被跳过；非 UTF-8 与可逆乱码内容会通过安全解码视图搜索
 - 路径必须在项目范围内</details>
     <parameters>
       <parameter name="pattern" type="string" required="true">

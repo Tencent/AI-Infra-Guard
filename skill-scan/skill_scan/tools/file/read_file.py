@@ -3,11 +3,13 @@ from typing import Any
 
 from skill_scan.tools.registry import register_tool
 from skill_scan.utils.loging import logger
+from skill_scan.utils.text_decoder import TextDecodeError, read_text_file
 from skill_scan.utils.tool_context import ToolContext
 
 _DEFAULT_MAX_LINES = 600
 _DEFAULT_MAX_CHARS = 14000
 _ALLOWED_MODES = {'preview', 'range', 'full'}
+_SECURITY_VIEW_MAX_CHARS = 4000
 
 
 @register_tool
@@ -82,34 +84,42 @@ def read_file(
         requested_mode = mode
         if requested_mode == 'full':
             start_line = 1
+        decoded = read_text_file(abs_path)
+        security_warnings = []
+        if decoded.encoding not in {'utf-8', 'utf-8-sig'}:
+            security_warnings.append(f'Non-UTF-8 text decoded as {decoded.encoding}.')
+        if decoded.recovered_text:
+            security_warnings.append(
+                'SECURITY WARNING: reversible UTF-16 mojibake detected; '
+                'audit the recovered text.'
+            )
         lines = []
         total_lines = 0
         returned_chars = 0
         returned_lines = 0
         end_line = start_line - 1
         char_limited = False
-        with open(abs_path, 'r', encoding='utf-8') as f:
-            for line_no, line in enumerate(f, start=1):
-                total_lines = line_no
-                if line_no < start_line:
-                    continue
-                if returned_lines >= max_lines:
-                    continue
-                if returned_chars >= max_chars:
-                    char_limited = True
-                    continue
-                remaining_chars = max_chars - returned_chars
-                if len(line) > remaining_chars:
-                    lines.append(line[:remaining_chars])
-                    returned_chars += remaining_chars
-                    returned_lines += 1
-                    end_line = line_no
-                    char_limited = True
-                    continue
-                lines.append(line)
-                returned_chars += len(line)
+        for line_no, line in enumerate(decoded.text.splitlines(keepends=True), start=1):
+            total_lines = line_no
+            if line_no < start_line:
+                continue
+            if returned_lines >= max_lines:
+                continue
+            if returned_chars >= max_chars:
+                char_limited = True
+                continue
+            remaining_chars = max_chars - returned_chars
+            if len(line) > remaining_chars:
+                lines.append(line[:remaining_chars])
+                returned_chars += remaining_chars
                 returned_lines += 1
                 end_line = line_no
+                char_limited = True
+                continue
+            lines.append(line)
+            returned_chars += len(line)
+            returned_lines += 1
+            end_line = line_no
         if total_lines == 0:
             logger.info(f'Read file: {abs_path} (empty file)')
             return {
@@ -123,6 +133,9 @@ def read_file(
                 'returned_chars': 0,
                 'truncated': False,
                 'summary_hint': '',
+                'encoding': decoded.encoding,
+                'security_warnings': security_warnings,
+                'security_views': [],
                 'data': '',
             }
         if start_line > total_lines:
@@ -146,9 +159,19 @@ def read_file(
                 'with a narrower start_line range.'
             )
         content = ''.join(lines)
+        security_views = []
+        if decoded.recovered_text:
+            view_lines = decoded.recovered_text.splitlines(keepends=True)
+            selected = ''.join(view_lines[start_line - 1:start_line - 1 + max_lines])
+            selected = selected[:_SECURITY_VIEW_MAX_CHARS]
+            if selected:
+                security_views.append(
+                    f'[recovered reversible mojibake ({decoded.recovery})]\n{selected}'
+                )
         logger.info(
             f'Read file: {abs_path} '
-            f'(mode={effective_mode}, lines={returned_lines}, chars={len(content)}, truncated={truncated})'
+            f'(encoding={decoded.encoding}, mode={effective_mode}, lines={returned_lines}, '
+            f'chars={len(content)}, truncated={truncated})'
         )
         return {
             'path': abs_path,
@@ -161,9 +184,12 @@ def read_file(
             'returned_chars': len(content),
             'truncated': truncated,
             'summary_hint': summary_hint,
+            'encoding': decoded.encoding,
+            'security_warnings': security_warnings,
+            'security_views': security_views,
             'data': content,
         }
-    except UnicodeDecodeError:
+    except (UnicodeDecodeError, TextDecodeError):
         return {
             'success': False,
             'message': f'Failed to decode file {file_path}. File may be binary.',
