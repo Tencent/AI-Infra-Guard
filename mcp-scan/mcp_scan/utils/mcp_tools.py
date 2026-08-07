@@ -25,7 +25,7 @@ from typing import Any, Literal
 
 from mcp import ClientSession
 from mcp.client.sse import sse_client
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.streamable_http import streamable_http_client
 
 
 class MCPTools:
@@ -59,7 +59,7 @@ class MCPTools:
         if self.transport == "sse":
             ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
-            ctx = streamablehttp_client(url=self.url, headers=self.headers)  # type: ignore
+            ctx = streamable_http_client(url=self.url, headers=self.headers)  # type: ignore
         else:
             raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
