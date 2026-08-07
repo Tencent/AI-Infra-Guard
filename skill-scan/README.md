@@ -167,7 +167,8 @@ skill_scan/
 │   ├── extract_vuln.py # <vuln> XML extraction and parsing
 │   ├── sarif_formatter.py # Internal result → SARIF 2.1.0 conversion (used when --aig-mode is off)
 │   ├── project_analyzer.py # Language detection + calc_skill_score
-│   └── pre_scan.py     # Pre-scan, generates project summary
+│   ├── text_decoder.py # Bounded text decoding with charset smuggling detection
+│   └── pre_scan.py     # Pre-scan: project summary + charset/encoding anomaly detection
 ├── prompt/             # Packaged prompt templates
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md
