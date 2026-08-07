@@ -93,8 +93,7 @@ class ProviderOptions(BaseModel):
         >>> options = ProviderOptions(
         ...     id="openai:gpt-4",
         ...     config=ProviderConfig(
-        ...         apiKey="sk-...",
-        ...         temperature=0.7
+        ...         apiKey="sk-..."
         ...     )
         ... )
     """
@@ -1434,7 +1433,6 @@ class AIProviderClient:
             base = ProviderOptions(
                 id="openai:gpt-4",
                 config=ProviderConfig(
-                    temperature=0.7,
                     max_tokens=1000
                 )
             )
@@ -1443,14 +1441,13 @@ class AIProviderClient:
             override = ProviderOptions(
                 id="openai:gpt-4-turbo",
                 config=ProviderConfig(
-                    temperature=0.9,
                     apiKey="sk-custom-key"
                 )
             )
             
             # Merge configurations
             updated = client.update_config(base, override)
-            # Result: id="openai:gpt-4-turbo", temperature=0.9, max_tokens=1000, apiKey="sk-custom-key"
+            # Result: id="openai:gpt-4-turbo", max_tokens=1000, apiKey="sk-custom-key"
         """
         # Convert to dict for easier manipulation
         base_dict = base_provider.model_dump(exclude_none=False)

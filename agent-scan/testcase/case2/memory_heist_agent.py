@@ -124,7 +124,6 @@ def call_llm_with_tools(messages: list) -> dict:
                 "messages": messages,
                 "tools": TOOL_DEFINITIONS,
                 "tool_choice": "auto",
-                "temperature": 0.7,
                 "max_tokens": 2000,
             },
         )

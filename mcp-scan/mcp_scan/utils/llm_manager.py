@@ -77,7 +77,6 @@ class LLMManager:
         self,
         purpose: str,
         model: str,
-        temperature: float = 0.7,
         base_url: str | None = None,
         api_key: str | None = None,
     ) -> None:
@@ -87,13 +86,11 @@ class LLMManager:
         Args:
             purpose: 用途标识（如 "thinking", "coding"）
             model: 模型名称
-            temperature: 温度参数
             base_url: API 基础 URL（可选，不提供则使用默认）
             api_key: API 密钥（可选，不提供则使用默认）
         """
         self._custom_configs[purpose] = {
             "model": model,
-            "temperature": temperature,
             "base_url": base_url,
             "api_key": api_key,
         }
@@ -124,8 +121,6 @@ class LLMManager:
             llm_config = self._custom_configs[purpose].copy()
         elif purpose in self.DEFAULT_CONFIGS:
             llm_config = self.DEFAULT_CONFIGS[purpose].copy()
-            if "temperature" not in llm_config:
-                llm_config["temperature"] = 0.7
 
         if llm_config is None:
             logger.warning(f"No configuration found for purpose '{purpose}'")
@@ -145,7 +140,6 @@ class LLMManager:
                 base_url=base_url,
                 context_window=context_window,
             )
-            llm.temperature = llm_config.get("temperature", 0.7)
             self._llm_instances[purpose] = llm
             logger.info(
                 f"Created LLM instance for purpose '{purpose}': {llm_config['model']} @ {base_url}"
@@ -245,13 +239,11 @@ if __name__ == "__main__":
     manager.configure(
         "thinking",
         "deepseek/deepseek-reasoner",
-        temperature=0.3,
         base_url="https://api.deepseek.com/v1",  # 可选：使用专门的 base_url
     )
     manager.configure(
         "coding",
         "anthropic/claude-3.5-sonnet",
-        temperature=0.5,
         # 不指定 base_url，使用默认值
     )
 
