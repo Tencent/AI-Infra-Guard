@@ -41,6 +41,21 @@ After the project is running, you can access `http://localhost:8088/docs/index.h
 - **Content-Type**: `application/json`
 - **Authentication**: Pass authentication information through request headers
 
+## Model and API Relay Checker
+
+The API Checker is exposed through the A.I.G WebServer at these same-origin
+paths:
+
+- `GET /api/v1/relay/models`
+- `POST /api/v1/relay/check/stream`
+- `/api-checker/` for the web interface
+- `/api-checker/docs` for the checker's OpenAPI documentation
+
+The checker runs as an independent Python sidecar. Its request and response
+contract, SSE progress format, configuration, and security boundaries are
+documented in [docs/api-checker-integration.md](docs/api-checker-integration.md)
+and [services/api_checker/docs/API.md](services/api_checker/docs/API.md).
+
 ## Common Response Format
 
 All API interfaces follow a unified response format:

@@ -149,7 +149,6 @@ For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getti
 
 </details>
 
-
 ### ⚡ Install aig-skill-scan with a Single Command
 
 Agent Skill security audit tool, easily integrated into enterprise CI/CD pipelines. Vulnerability classification aligns with [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 taxonomy. [Learn more →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
@@ -167,9 +166,27 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+Docker deployment exposes the checker UI at
+`http://127.0.0.1:8088/api-checker/`. To run the checker and unified CLI from
+source:
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+See the [API Checker integration guide](docs/api-checker-integration.md) for
+the sidecar architecture, HTTP API, configuration, and security boundaries.
+
 ### 🌟 Try the Online Pro Version
 Experience the Pro version with advanced features and improved performance. The Pro version requires an [invitation code](https://wj.qq.com/s2/25099467/25vn/) and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
-
 <br>
 <br>
 
@@ -208,6 +225,7 @@ For full leaderboard and details, visit [SkillTrustBench](https://matrix.tencent
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 100 AI framework components. It covers more than 1900 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
 | **Jailbreak&nbsp;Evaluation** | It assesses prompt security risks using carefully curated datasets. The evaluation applies multiple attack methods to test robustness. It also provides detailed cross-model comparison capabilities. |
+| **Model and API Relay Checker** | Model fingerprinting, Claude Signature verification, relay black-box auditing, PAMELA, and Ventor QTest. |
 
 <details>
 <summary><strong>💎 Additional Benefits</strong></summary>

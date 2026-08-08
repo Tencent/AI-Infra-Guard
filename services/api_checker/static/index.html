@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI 模型真实性与 API 中转安全检测" data-i18n-content="metaDescription">
+  <title data-i18n="pageTitle">AIG 模型检测</title>
+  <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow"><span></span> AIG RELAY INSPECTOR</div>
+        <h1 data-i18n-html="heroTitle">确认你调用的，<em>真是那个模型</em></h1>
+        <p data-i18n="heroDescription">结合模型指纹、协议特征与七项黑盒探针，检查 API 中转服务是否存在替换、改写或截断。</p>
+      </div>
+      <div class="hero-actions">
+        <div class="language-switch" role="group" aria-label="语言" data-i18n-aria-label="language">
+          <button class="language active" type="button" data-language="zh">中文</button>
+          <button class="language" type="button" data-language="en">EN</button>
+        </div>
+        <div class="status-pill"><i></i> <span data-i18n="serviceReady">本地检测服务已就绪</span></div>
+      </div>
+    </header>
+
+    <section class="panel config-panel">
+      <div class="section-head">
+        <div><span class="step">01</span><h2 data-i18n="configureTarget">配置检测目标</h2></div>
+        <div class="mode-switch" role="group" aria-label="检测模式" data-i18n-aria-label="detectionMode">
+          <button class="mode active" data-mode="quick" data-i18n="quickCheck">快速检测</button>
+          <button class="mode" data-mode="full" data-i18n="fullFingerprint">完整指纹</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field configured-model-field">
+          <span data-i18n="configuredCredential">使用 AIG 已配置密钥</span>
+          <div class="input-wrap">
+            <select id="configuredModel">
+              <option value="" data-i18n="manualApi">手动填写 API 信息</option>
+            </select>
+          </div>
+          <small id="configuredModelHint" data-i18n="configuredHint">登录 AIG 后可直接选择模型配置，密钥不会发送到浏览器。</small>
+        </label>
+        <label class="field">
+          <span data-i18n="apiAddress">API 接口地址</span>
+          <div class="input-wrap">
+            <svg aria-hidden="true"><use href="#link-icon"></use></svg>
+            <input id="baseUrl" type="url" placeholder="https://api.example.com" autocomplete="url">
+          </div>
+        </label>
+        <label class="field" id="apiKeyField">
+          <span>API Key</span>
+          <div class="input-wrap">
+            <svg aria-hidden="true"><use href="#key-icon"></use></svg>
+            <input id="apiKey" type="password" placeholder="sk-••••••••••••" autocomplete="off">
+            <button id="toggleKey" class="icon-button" type="button" aria-label="显示 API Key" data-i18n-aria-label="showApiKey" data-i18n="show">显示</button>
+          </div>
+        </label>
+      </div>
+
+      <label class="field model-input">
+        <span data-i18n="targetModel">目标模型 ID</span>
+        <div class="input-wrap">
+          <input id="modelInput" type="text" placeholder="可输入任意兼容模型，或从下方参考基准中选择" data-i18n-placeholder="modelPlaceholder"
+                 autocomplete="off" spellcheck="false">
+        </div>
+      </label>
+      <div class="model-heading">
+        <span data-i18n="referenceBaselines">参考指纹基准</span>
+        <small id="modelCount" data-i18n="loadingModels">正在读取模型列表…</small>
+      </div>
+      <div id="modelList" class="model-list" role="radiogroup" aria-label="目标模型"></div>
+
+      <div class="action-row">
+        <p><svg aria-hidden="true"><use href="#shield-icon"></use></svg><span data-i18n="securityNotice">HTTP 检测的 API Key 仅在任务内存中使用；导出的 QTest 配置只保存环境变量占位符。</span></p>
+        <label class="cache-option"><input id="useCache" type="checkbox"><span></span><em data-i18n="reuseCache">复用 10 分钟内检测结果</em></label>
+        <button id="startButton" class="primary-button" type="button">
+          <span data-i18n="startCheck">开始检测</span><svg aria-hidden="true"><use href="#arrow-icon"></use></svg>
+        </button>
+      </div>
+    </section>
+
+    <section id="resultPanel" class="panel result-panel" aria-live="polite">
+      <div class="section-head">
+        <div><span class="step">02</span><h2 data-i18n="resultTitle">检测结果</h2></div>
+        <div id="resultBadge" class="result-badge idle" data-i18n="waiting">等待检测</div>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div class="radar"><span></span><span></span><i></i></div>
+        <h3 data-i18n="waitingTitle">等待开始检测</h3>
+        <p data-i18n="waitingDescription">选择模型并填写 API 信息，检测结果将在这里实时呈现。</p>
+      </div>
+
+      <div id="resultContent" class="result-content hidden">
+        <aside class="score-column">
+          <div id="scoreRing" class="score-ring" style="--score:0">
+            <div><strong id="scoreValue">0</strong><span>/100</span></div>
+          </div>
+          <h3 id="testedModel">—</h3>
+          <p id="scoreCaption" data-i18n="scoreCaption">综合检测评分</p>
+        </aside>
+        <div class="check-column">
+          <section id="fingerprintJourney" class="fingerprint-journey hidden" aria-live="polite"></section>
+          <div class="summary-card">
+            <span data-i18n="conclusion">检测结论</span>
+            <p id="resultSummary">—</p>
+          </div>
+          <div id="testInfo" class="test-info" aria-label="测试信息" data-i18n-aria-label="testInfo"></div>
+          <div id="checkList" class="check-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="alert"></div>
+
+  <svg class="svg-defs" aria-hidden="true">
+    <symbol id="link-icon" viewBox="0 0 24 24"><path d="M10.2 13.8a4.5 4.5 0 0 0 6.4.1l2-2a4.5 4.5 0 0 0-6.4-6.4l-1.1 1.1m2.7 3.6a4.5 4.5 0 0 0-6.4-.1l-2 2a4.5 4.5 0 0 0 6.4 6.4l1.1-1.1"/></symbol>
+    <symbol id="key-icon" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-2 2 2 2m-5 1 2 2"/></symbol>
+    <symbol id="shield-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  </svg>
+  <script src="./static/app.js" defer></script>
+</body>
+</html>

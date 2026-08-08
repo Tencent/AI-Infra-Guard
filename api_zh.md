@@ -41,6 +41,19 @@ A.I.G(AI-Infra-Guard) 提供了一套完整的API接口，用于AI基础设施�
 - **Content-Type**: `application/json`
 - **认证方式**: 通过请求头传递认证信息
 
+## 模型与 API 中转检测
+
+API Checker 通过 A.I.G WebServer 提供以下同源入口：
+
+- `GET /api/v1/relay/models`
+- `POST /api/v1/relay/check/stream`
+- `/api-checker/`：检测页面
+- `/api-checker/docs`：Checker OpenAPI 文档
+
+Checker 作为独立 Python sidecar 运行。请求响应契约、SSE 进度格式、配置和安全边界
+详见 [docs/api-checker-integration.md](docs/api-checker-integration.md) 与
+[services/api_checker/docs/API.md](services/api_checker/docs/API.md)。
+
 ## 通用响应格式
 
 所有API接口都遵循统一的响应格式：
