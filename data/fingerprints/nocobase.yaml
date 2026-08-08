@@ -1,0 +1,20 @@
+info:
+  name: nocobase
+  author: A.I.G bot
+  severity: info
+  desc: NocoBase - Open-source AI + no-code platform for building business systems.
+  metadata:
+    product: nocobase
+    vendor: nocobase
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - 'body="__nocobase_api_base_url__"'
+  - method: GET
+    path: '/api/app:getInfo'
+    matchers:
+      - 'body="\"lang\":" && body="\"theme\":" && body="\"version\":" && body="\"database\":"'
+    version:
+      - '"([^"]+)".*"name":"main"'
+      - '"version":"([^"]+)"'
