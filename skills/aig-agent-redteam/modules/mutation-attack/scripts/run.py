@@ -23,7 +23,7 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 sys.path.insert(0, str(THIS_DIR))
 
 from common.llm_client import LLMClient  # noqa: E402
-from prompt_generator import render  # noqa: E402
+from render_operator import render  # noqa: E402
 from select_operators import load_registry, select_operators  # noqa: E402
 
 
@@ -52,7 +52,7 @@ def build_findings(
         token = os.environ.get("AIG_TARGET_TOKEN", "")
     if not token:
         return {
-            "module": "model-attack",
+            "module": "mutation-attack",
             "target": f"{model}@{base_url}",
             "started_at": started,
             "ended_at": datetime.now(timezone.utc).isoformat(),
@@ -65,7 +65,7 @@ def build_findings(
         client = LLMClient(model=model, token=token, base_url=base_url, timeout=45.0)
     except Exception as e:
         return {
-            "module": "model-attack",
+            "module": "mutation-attack",
             "target": f"{model}@{base_url}",
             "started_at": started,
             "ended_at": datetime.now(timezone.utc).isoformat(),
@@ -122,7 +122,7 @@ def build_findings(
         _update_hall_of_fame(model, [f["operator"] for f in successful], MODULE_DIR)
 
     return {
-        "module": "model-attack",
+        "module": "mutation-attack",
         "target": f"{model}@{base_url}",
         "started_at": started,
         "ended_at": ended,
@@ -214,7 +214,7 @@ def main():
     if not token:
         print("error: missing token. Set env AIG_TARGET_TOKEN or pass --token", file=sys.stderr)
         out_data = {
-            "module": "model-attack",
+            "module": "mutation-attack",
             "target": f"{args.model}@{args.base_url}",
             "started_at": datetime.now(timezone.utc).isoformat(),
             "ended_at": datetime.now(timezone.utc).isoformat(),
@@ -228,7 +228,7 @@ def main():
         print(f"  → wrote (skipped) {out}")
         sys.exit(0)
 
-    registry = load_registry(MODULE_DIR / "data" / "operator_registry.json")
+    registry = load_registry(MODULE_DIR / "operators")
     ops = select_operators(registry, goal_type="content", profile=args.profile, top_n=args.top_n)
     print(f"Selected operators: {ops}", file=sys.stderr)
 
@@ -244,7 +244,7 @@ def main():
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2, ensure_ascii=False))
-    print(f"\nmodel-attack: tested {result['stats']['operators_run']} operator-runs")
+    print(f"\nmutation-attack: tested {result['stats']['operators_run']} operator-runs")
     print(f"  successful jailbreaks: {result['stats'].get('successful_jailbreaks', 0)}")
     print(f"  → wrote {out}")
 

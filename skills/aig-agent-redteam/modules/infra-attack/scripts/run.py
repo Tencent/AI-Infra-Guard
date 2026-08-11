@@ -89,7 +89,7 @@ def run(target: str, fp_dir: Path, vuln_dir: Path, data_source: str = "bundled")
         })
         operators_run += 1
 
-        # Cascade: if it's a known LLM-serving infra, propose model-attack
+        # Cascade: if it's a known LLM-serving infra, propose mutation-attack
         if fp_match.product.lower() in {"ollama", "vllm", "lmstudio", "fastchat", "huggingface-tgi", "anythingllm"}:
             cascade.append({
                 "target_types": ["llm_endpoint"],

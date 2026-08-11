@@ -17,26 +17,26 @@ from pathlib import Path
 THIS_DIR = Path(__file__).resolve().parent
 
 # Default module priority order.
-# Dynamic Agent boundary testing is handled by workflow-attack. Model-attack is
-# reserved for bare LLM endpoints or explicit model-level benchmarks.
+# mutation-attack is the unified variant-testing module: it covers bare LLM
+# endpoints, tool/RAG/MCP-equipped Agents, and business products alike —
+# the target's send/observe interface is what varies, not the module choice.
 MODULE_PRIORITY = [
     "infra-attack",
     "code-attack",
-    "workflow-attack",
-    "model-attack",
+    "mutation-attack",
 ]
 
 # Default module mapping by target type prefix.
 # The Agent may override these decisions based on context.
 TYPE_MODULE_MAP: dict[str, list[str]] = {
-    "self":           ["code-attack", "workflow-attack"],
+    "self":           ["code-attack", "mutation-attack"],
     "http_service":   ["infra-attack"],
     "code_repository":["code-attack"],
-    "mcp_server":     ["code-attack", "workflow-attack"],
-    "skill_package":  ["code-attack", "workflow-attack"],
-    "agent_definition": ["workflow-attack", "infra-attack"],
-    "agent_endpoint":  ["workflow-attack", "infra-attack"],
-    "llm_endpoint":    ["model-attack"],
+    "mcp_server":     ["code-attack", "mutation-attack"],
+    "skill_package":  ["code-attack", "mutation-attack"],
+    "agent_definition": ["mutation-attack", "infra-attack"],
+    "agent_endpoint":  ["mutation-attack", "infra-attack"],
+    "llm_endpoint":    ["mutation-attack"],
 }
 
 
@@ -78,7 +78,7 @@ def build_plan(profile: dict) -> dict:
                     "cascade_from": None,
                 })
 
-    # Cascade modules (e.g., infra found Ollama → add model-attack)
+    # Cascade modules (e.g., infra found Ollama → add mutation-attack)
     for cascade in profile.get("cascade_targets", []):
         for ct in cascade.get("target_types", []):
             for m in modules_for_target_type(ct):
