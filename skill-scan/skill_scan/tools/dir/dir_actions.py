@@ -4,8 +4,13 @@ from skill_scan.tools.registry import register_tool
 from skill_scan.utils.loging import logger
 from skill_scan.utils.tool_context import ToolContext
 
-_IGNORED_DIRS = {'.git', '__pycache__', 'node_modules', '.venv', 'venv', '.idea', '.mypy_cache'}
-_IGNORED_EXTS = {'.pyc', '.pyo', '.pyd'}
+_IGNORED_DIRS = {'.git', 'node_modules', '.venv', 'venv', '.idea', '.mypy_cache'}
+# Compiled Python bytecode (.pyc/.pyo/.pyd) is deliberately surfaced rather than
+# hidden: Python executes these at import time independently of any .py source,
+# so the LLM must be able to discover and flag them. __pycache__ is likewise
+# shown so the agent is not blind to attacker-controlled executable artifacts.
+_IGNORED_EXTS = set()
+_FLAG_EXTS = {'.pyc', '.pyo', '.pyd'}
 
 
 def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, lines: list[str]):
@@ -25,7 +30,10 @@ def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, line
     for idx, name in enumerate(all_entries):
         is_last = idx == len(all_entries) - 1
         connector = '└── ' if is_last else '├── '
-        lines.append(f'{prefix}{connector}{name}')
+        suffix = ''
+        if os.path.splitext(name)[1] in _FLAG_EXTS:
+            suffix = '  ⚠[compiled-bytecode]'
+        lines.append(f'{prefix}{connector}{name}{suffix}')
         full = os.path.join(root, name)
         if os.path.isdir(full):
             extension = '    ' if is_last else '│   '

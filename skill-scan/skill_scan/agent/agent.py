@@ -30,7 +30,6 @@ from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score
 from skill_scan.utils.prompt_manager import prompt_manager
 
 _TREE_SKIP_DIRS = {
-    "__pycache__",
     ".git",
     "node_modules",
     ".venv",
@@ -40,7 +39,11 @@ _TREE_SKIP_DIRS = {
     ".next",
     ".nuxt",
 }
-_TREE_SKIP_EXTS = {".pyc", ".pyo", ".pyd"}
+# Compiled Python bytecode is deliberately NOT skipped: Python executes .pyc at
+# import time independently of any .py source, so it must stay visible to the
+# audit. Flagged separately via _TREE_FLAG_EXTS for an explicit warning.
+_TREE_SKIP_EXTS = set()
+_TREE_FLAG_EXTS = {".pyc", ".pyo", ".pyd"}
 _TREE_SKIP_FILES = {"_VERDICT.txt", "_GROUND_TRUTH.txt", "_EVAL.txt"}
 
 _METADATA_FILENAMES = {".DS_Store", "._DS_Store", "Thumbs.db", "desktop.ini", "._.DS_Store"}
@@ -67,6 +70,7 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
     """Generate a repo directory tree string to inject directly into the initial prompt"""
     lines = []
     total = 0
+    has_bytecode = False
     for root, dirs, files in os.walk(repo_dir):
         dirs[:] = sorted(d for d in dirs if d not in _TREE_SKIP_DIRS)
         rel_root = os.path.relpath(root, repo_dir)
@@ -75,15 +79,30 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
         folder_name = os.path.basename(root) if rel_root != "." else "."
         lines.append(f"{indent}{folder_name}/")
         for fname in sorted(files):
-            if os.path.splitext(fname)[1] in _TREE_SKIP_EXTS:
-                continue
             if fname in _TREE_SKIP_FILES:
+                continue
+            ext = os.path.splitext(fname)[1].lower()
+            if ext in _TREE_FLAG_EXTS:
+                has_bytecode = True
+                if total >= max_files:
+                    lines.append(f"{indent}  ... (超过 {max_files} 个文件，已截断)")
+                    if has_bytecode:
+                        lines.append(f"{indent}  ⚠ 检测到已编译 Python 字节码(.pyc/.pyo/.pyd)，Python 在导入时直接执行，需在审计中核实其来源与可信度")
+                    return "\n".join(lines)
+                lines.append(f"{indent}  {fname}  ⚠[compiled-bytecode]")
+                total += 1
+                continue
+            if ext in _TREE_SKIP_EXTS:
                 continue
             if total >= max_files:
                 lines.append(f"{indent}  ... (超过 {max_files} 个文件，已截断)")
+                if has_bytecode:
+                    lines.append(f"{indent}  ⚠ 检测到已编译 Python 字节码(.pyc/.pyo/.pyd)，Python 在导入时直接执行，需在审计中核实其来源与可信度")
                 return "\n".join(lines)
             lines.append(f"{indent}  {fname}")
             total += 1
+    if has_bytecode:
+        lines.append(f"\n⚠ 检测到已编译 Python 字节码(.pyc/.pyo/.pyd)：Python 在导入时直接执行这些文件（独立于任何 .py 源码），请在审计中核实其来源与可信度，警惕无对应源码的 .pyc（携带任意代码执行的已知绕过手法）。")
     return "\n".join(lines)
 
 

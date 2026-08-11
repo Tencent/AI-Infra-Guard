@@ -87,10 +87,39 @@ _PATTERNS: List[Tuple[str, re.Pattern, str]] = [
 ]
 
 # Directories and files to skip
-_SKIP_DIRS = {'__pycache__', '.git', 'node_modules', '.venv', 'venv', 'dist', 'build'}
-_SKIP_EXTS = {'.pyc', '.pyo', '.pyd', '.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
+# NOTE: compiled Python bytecode (.pyc/.pyo/.pyd) and __pycache__ are deliberately
+# NOT excluded here. Python loads .pyc at import time regardless of the matching
+# .py source, so a malicious skill can ship a clean .py decoy plus a malicious
+# .pyc (PEP 552 UNCHECKED_HASH) and achieve code execution. The static regex
+# pass must inspect bytecode text (string constants are readable via the
+# errors='ignore' decode) so such payloads are not invisible to the scanner.
+_SKIP_DIRS = {'.git', 'node_modules', '.venv', 'venv', 'dist', 'build'}
+_SKIP_EXTS = {'.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
+# Executable/compiled artifacts that must be surfaced to the audit (not skipped)
+# but additionally flagged via _FLAG_EXTS so the agent is explicitly warned.
+_FLAG_EXTS = {'.pyc', '.pyo', '.pyd'}
 _SKIP_FILES = {'_VERDICT.txt', '_GROUND_TRUTH.txt', '_EVAL.txt'}
 _MAX_FILE_SIZE = 512 * 1024  # 512KB
+
+
+def _collect_bytecode_warnings(repo_dir: str) -> List[str]:
+    """Return a list of compiled-bytecode paths that warrant explicit attention.
+
+    Python executes `.pyc`/`.pyo`/`.pyd` at import time regardless of whether a
+    matching `.py` source is present. A compiled artifact with no corresponding
+    source is the classic skill-scanner bypass signature, so we surface every
+    such file (relative path) for the agent to verify.
+    """
+    warnings: List[str] = []
+    for root, dirs, files in os.walk(repo_dir):
+        dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+        for fname in files:
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in _FLAG_EXTS:
+                continue
+            rel_path = os.path.relpath(os.path.join(root, fname), repo_dir)
+            warnings.append(rel_path)
+    return warnings
 
 
 def pre_scan(repo_dir: str) -> str:
@@ -112,6 +141,9 @@ def pre_scan(repo_dir: str) -> str:
             try:
                 if os.path.getsize(fpath) > _MAX_FILE_SIZE:
                     continue
+                # Compiled bytecode is scanned as text: string constants embedded
+                # in the marshal'd code object (e.g. os.system, exfil URLs) remain
+                # legible through the errors='ignore' decode.
                 with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
             except (PermissionError, OSError):
@@ -138,6 +170,12 @@ def pre_scan(repo_dir: str) -> str:
     if not findings:
         return ''
 
+    # Surface compiled Python bytecode as an explicit audit signal. A .pyc that
+    # has no corresponding .py source (or was built with PEP 552 UNCHECKED_HASH)
+    # is exactly the artifact class Python executes at import time and which the
+    # scanner must never blind itself to.
+    bytecode_warnings = _collect_bytecode_warnings(repo_dir)
+
     # Build the hint text
     lines = ['\u26a0\ufe0f The static pre-scan found the following patterns that warrant special attention; please focus the audit on whether these behaviors are necessary and what risks they pose:\n']
     for f in findings:
@@ -145,6 +183,12 @@ def pre_scan(repo_dir: str) -> str:
         for line_no, line_text in f['evidence']:
             lines.append(f'  - L{line_no}: `{line_text}`')
     lines.append('\nWhen auditing, please assess whether these behaviors exceed the minimum privileges necessary for the Skill\'s declared functionality.')
+
+    if bytecode_warnings:
+        lines.append('\n---\n')
+        lines.append('\u26a0\ufe0f **Compiled Python bytecode detected** — Python loads `.pyc`/`.pyo`/`.pyd` at import time independently of any `.py` source. These files are within the scanner\'s audit scope and a `.pyc` lacking a matching `.py` source (or built with PEP 552 `UNCHECKED_HASH`) is a known scanner-bypass technique that can carry arbitrary executable code. Verify every compiled artifact is expected and trustworthy.')
+        for w in bytecode_warnings:
+            lines.append(f'  - `{w}`')
 
     result = '\n'.join(lines)
     logger.info(f'Pre-scan found {len(findings)} high-risk pattern hit(s)')
