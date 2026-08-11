@@ -56,94 +56,121 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving**          | gradio                  | 51                  | High        |
-|                            | ollama                  | 30                  | Medium-High |
-|                            | triton-inference-server | 41                  | Medium-High |
-|                            | tensorrt-llm            | 12                  | Medium-High |
-|                            | vllm                    | 66                  | Medium      |
-|                            | xinference              | 2                   | Low         |
-|                            | fastchat                | 9                   | Medium      |
-|                            | llama-cpp               | 9                   | Medium-High |
-|                            | llmstudio               | 1                   | Low         |
-|                            | ChatRTX                 | 1                   | Low         |
-|                            | kubeai                  | 1                   | High        |
-| **LLM App Frameworks**     | langchain               | 52                  | High        |
-|                            | dify                    | 30                  | High        |
-|                            | anythingllm             | 18                  | Medium-High |
-|                            | open-webui              | 51                  | Medium-High |
-|                            | ragflow                 | 12                  | Medium      |
-|                            | qanything               | 8                   | Medium      |
-|                            | langflow                | 60                  | Medium      |
-|                            | litellm                 | 30                  | Medium      |
-|                            | mlflow                  | 79                  | High        |
-|                            | librechat               | 21                  | Medium      |
-|                            | nextchat                | 8                   | Medium      |
-|                            | lobechat                | 4                   | Medium      |
-|                            | lobehub                 | 1                   | Medium      |
-|                            | flowise                 | 61                  | Medium      |
-|                            | langfuse                | 4                   | Low         |
-|                            | new-api                 | 5                   | Medium      |
-|                            | Chuanhugpt              | 27                  | Medium-High |
-|                            | crewai                  | 3                   | Critical    |
-|                            | fastgpt                 | 5                   | Medium      |
-|                            | helicone                | 1                   | Medium      |
-| **Data Processing**        | clickhouse              | 26                  | High        |
-|                            | feast                   | 2                   | Low         |
-|                            | dask                    | 3                   | Low         |
-| **Visualization & UI**     | jupyter-server          | 17                  | Medium-High |
-|                            | marimo                  | 1                   | Medium      |
-|                            | jupyterlab              | 9                   | Medium      |
-|                            | jupyter-notebook        | 2                   | Low         |
-| **Workflow Orchestration** | kubeflow                | 7                   | Medium      |
-|                            | ray                     | 10                  | Medium      |
-|                            | n8n                     | 60                  | Medium-High |
-|                            | 9router                 | 3                   | High        |
-|                            | n8n-mcp                 | 3                   | Medium-High |
-|                            | simstudioai             | 9                   | Medium      |
-| **Other AI Components**    | comfyui                 | 13                  | Medium      |
-|                            | comfy_mtb               | 1                   | Low         |
-|                            | ComfyUI-Prompt-Preview  | 1                   | Low         |
-|                            | ComfyUI-Custom-Scripts  | 1                   | Low         |
-|                            | ComfyUI-Impact-Pack     | 1                   | Low         |
-|                            | ComfyUI-Manager         | 1                   | Low         |
-|                            | ComfyUI-Ace-Nodes       | 1                   | Low         |
-|                            | ComfyUI-Bmad-Nodes      | 1                   | Low         |
-|                            | pyload-ng               | 24                  | Medium      |
-|                            | kubepi                  | 5                   | Medium      |
-|                            | llamafactory            | 4                   | Low         |
-|                            | bentoml                 | 6                   | Medium      |
-|                            | blinko                  | 1                   | Low         |
-|                            | weknora                 | 2                   | Low         |
-|                            | pinchtab                | 6                   | Medium-High |
-|                            | wallos                  | 1                   | Low         |
-|                            | praisonai               | 59                  | Critical    |
-|                            | text-generation-webui   | 1                   | Medium      |
-|                            | openclaw                | 810                 | Medium-High |
-|                            | upsonic                 | 1                   | Medium      |
-|                            | instructlab             | 1                   | Low         |
-|                            | lmdeploy                | 3                   | Low         |
-|                            | paperclip               | 2                   | Medium      |
-|                            | pipecat                 | 3                   | Low         |
-|                            | qnabot-on-aws           | 1                   | Low         |
-|                            | superagi                | 1                   | Low         |
-|                    | autogpt                 | 4                   | Medium      |
-|                            | crawl4ai                | 11                  | Critical    |
-|                            | astrbot                 | 5                   | Medium      |
-|                            | hermes                  | 2                   | Critical    |
-|                            | langroid                | 2                   | Critical    |
-|                            | nvidia-trt-llm          | 1                   | High        |
-|                            | ai-code                 | 1                   | Critical    |
-|                            | boxlite                 | 2                   | Medium      |
-|                            | budibase                | 1                   | Medium      |
-|                            | f5-tts                  | 1                   | Medium      |
-|                            | lumiverse               | 1                   | Low         |
-|                            | maxkb                   | 2                   | Medium      |
-|                            | mem0                    | 1                   | Low         |
-|                            | pgadmin                 | 2                   | Medium-High |
-|                            | sglang                  | 7                   | Medium      |
-|                            | sillytavern             | 5                   | Medium      |
-| **AI Agent Config Security** | AI-Agent-Config       | 4                   | High        |
-| **Total**                  |                         | **1900+**           |             |
+| **Model Serving** | vllm | 67 | Medium |
+| | gradio | 51 | High |
+| | triton-inference-server | 41 | Medium-High |
+| | ollama | 32 | Medium-High |
+| | tensorrt-llm | 12 | Medium-High |
+| | fastchat | 9 | Medium |
+| | llama-cpp | 9 | Medium-High |
+| | Xinference | 3 | Low |
+| | ChatRTX | 1 | Low |
+| | huggingface-tgi | 1 | Medium-High |
+| | kubeai | 1 | High |
+| | llmstudio | 1 | Low |
+| | localai | 1 | Medium |
+| | tensorzero | 1 | Low |
+| **LLM App Frameworks** | openwebui | 86 | Medium-High |
+| | langflow | 79 | Medium |
+| | mlflow | 79 | High |
+| | flowise | 61 | Medium |
+| | langchain | 52 | High |
+| | open-webui | 44 | Medium-High |
+| | Dify | 31 | High |
+| | LiteLLM | 31 | Medium |
+| | Chuanhugpt | 27 | Medium-High |
+| | librechat | 21 | Medium |
+| | anythingllm | 18 | Medium-High |
+| | ragflow | 12 | Medium |
+| | nextchat | 8 | Medium |
+| | qanything | 8 | Medium |
+| | fastgpt | 6 | Medium |
+| | new-api | 5 | Medium |
+| | LobeChat | 4 | Medium |
+| | crewai | 4 | Critical |
+| | langfuse | 4 | Low |
+| | chuanhuchatgpt | 1 | Medium |
+| | helicone | 1 | Medium |
+| | lobehub | 1 | Medium |
+| **Data Processing** | clickhouse | 26 | High |
+| | dask | 3 | Low |
+| | feast | 3 | Low |
+| **Visualization & UI** | jupyter-server | 19 | Medium-High |
+| | jupyterlab | 9 | Medium |
+| | jupyter-notebook | 2 | Low |
+| | marimo | 1 | Medium |
+| **Workflow Orchestration** | n8n | 60 | Medium-High |
+| | ray | 12 | Medium |
+| | simstudioai | 9 | Medium |
+| | kubeflow | 8 | Medium |
+| | n8n-mcp | 4 | Medium-High |
+| | 9router | 3 | High |
+| **Other AI Components** | openclaw | 655 | Medium-High |
+| | praisonai | 107 | Critical |
+| | pyload-ng | 24 | Medium |
+| | astrbot | 14 | Medium |
+| | comfyui | 13 | Medium |
+| | crawl4ai | 11 | Critical |
+| | sglang | 9 | Medium |
+| | bentoml | 6 | Medium |
+| | pinchtab | 6 | Medium-High |
+| | kubepi | 5 | Medium |
+| | sillytavern | 5 | Medium |
+| | autogpt | 4 | Medium |
+| | flyto2 | 4 | Medium |
+| | llamafactory | 4 | Low |
+| | lmdeploy | 4 | Low |
+| | lollms | 4 | Medium |
+| | pipecat | 3 | Low |
+| | agenticmail | 2 | Medium |
+| | boxlite | 2 | Medium |
+| | hermes | 2 | Critical |
+| | instructlab | 2 | Low |
+| | jan | 2 | Low |
+| | junoclaw | 2 | Medium |
+| | langroid | 2 | Critical |
+| | maxkb | 2 | Medium |
+| | mcp | 2 | Medium |
+| | mcp sse | 2 | Medium |
+| | paperclip | 2 | Medium |
+| | weknora | 2 | Low |
+| | pgadmin | 2 | Medium-High |
+| | Clawdbot Gateway | 1 | Medium |
+| | ComfyUI-Ace-Nodes | 1 | Low |
+| | ComfyUI-Bmad-Nodes | 1 | Low |
+| | ComfyUI-Custom-Scripts | 1 | Low |
+| | ComfyUI-Impact-Pack | 1 | Low |
+| | ComfyUI-Manager | 1 | Low |
+| | ComfyUI-Prompt-Preview | 1 | Low |
+| | agentic-flow | 1 | Medium |
+| | ai-chatbot | 1 | Medium |
+| | ai-code | 1 | Critical |
+| | ai-copilot | 1 | Medium |
+| | ai-engine-wordpress | 1 | Medium |
+| | blinko | 1 | Low |
+| | comfy_mtb | 1 | Low |
+| | f5-tts | 1 | Medium |
+| | gpt-sovits | 1 | Medium |
+| | guardrails-ai | 1 | Medium |
+| | langbot | 1 | Low |
+| | lightrag | 1 | Low |
+| | lumiverse | 1 | Low |
+| | mcp-documentation-server | 1 | Medium |
+| | mcp-pinot | 1 | Medium |
+| | mcp-server-kubernetes | 1 | Medium |
+| | mem0 | 1 | Low |
+| | netlicensing-mcp | 1 | Medium |
+| | network-ai | 1 | Medium |
+| | nvidia-trt-llm | 1 | High |
+| | qnabot-on-aws | 1 | Low |
+| | suna | 1 | Medium |
+| | superagi | 1 | Low |
+| | text-generation-webui | 1 | Medium |
+| | upsonic | 1 | Medium |
+| | wallos | 1 | Low |
+| | budibase | 1 | Medium |
+| **AI Agent Config Security** | AI-Agent-Config | 4 | High |
+| **Total** | | **1914+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
