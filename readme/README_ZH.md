@@ -69,8 +69,6 @@
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP 扫描新增 3 条威胁检测规则（工具投毒、凭证窃取、命令注入）；新增 6 条 llama.cpp CVE 规则；扫描配置中 `model.token` 现支持省略，自动回退到系统默认模型。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — 新增版本检查 API 端点；安全评分切换为绝对扣分模型，风险评估更清晰直观。
-- **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — 指纹库大幅扩充：新增 39 个 AI Web 指纹，增强 18 个现有指纹。
-
 
 👉 [更早版本](../CHANGELOG.md) · 🛒 [AI安全技能市场](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
