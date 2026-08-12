@@ -12,14 +12,6 @@ metadata: {"author": "Tencent Zhuque Lab", "repo": "https://github.com/tencent/A
 
 少用脚本。Agent 自身负责安全推理、攻击链构造、变异、复核、评级和报告；脚本只是确定性辅助，不是安全判断来源。
 
-> **v5.0.0 变更**：`modules/mutation-attack/`（原 `model-attack`，已与 `workflow-attack` 合并）的变异引擎
-> 重构为算子库化架构——79 个策略算子（L1，`modules/mutation-attack/operators/*.md`，一文件一算子）+
-> 13 种编码变换（L2，`encodings.py`，支持链式组合）+ 防御信号速查表（`operators/_signals.md`）。
-> 该模块统一处理裸模型、带工具/RAG/MCP 的 Agent 与业务产品的动态变异测试，不再按"打模型还是打
-> 产品"分模块——只需定义 target 的 send/observe 接口。详见「两段式选算子」与
-> `modules/mutation-attack/MODULE.md`。旧的 `operator_registry.json` + `prompt_generator.py` 双文件
-> 维护模式已废弃，元数据现内嵌在各算子 md 的 frontmatter 中。
-
 ## 操作原则
 
 1. **授权优先**：确认用户拥有目标或被授权测试，所有动作必须在约定范围内。
