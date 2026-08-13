@@ -4,8 +4,15 @@ from skill_scan.tools.registry import register_tool
 from skill_scan.utils.loging import logger
 from skill_scan.utils.tool_context import ToolContext
 
-_IGNORED_DIRS = {'.git', '__pycache__', 'node_modules', '.venv', 'venv', '.idea', '.mypy_cache'}
-_IGNORED_EXTS = {'.pyc', '.pyo', '.pyd'}
+_IGNORED_DIRS = {'.git', 'node_modules', '.venv', 'venv', '.idea', '.mypy_cache'}
+# NOTE: We deliberately NO LONGER ignore `__pycache__` and compiled extensions
+# (.pyc/.pyo/.pyd). CPython executes `.pyc` at import time independently of any
+# `.py` source (see PEP 552 UNCHECKED_HASH), so a malicious skill could ship a
+# clean `.py` decoy plus a malicious `.pyc` and receive a false SAFE verdict.
+# Tracked as GitHub Issue #531. Compiled artifacts are surfaced with a
+# `[compiled-bytecode]` marker so the auditing LLM can see them.
+_IGNORED_EXTS = set()
+_COMPILED_EXTS = {'.pyc', '.pyo', '.pyd'}
 
 
 def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, lines: list[str]):
@@ -25,7 +32,8 @@ def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, line
     for idx, name in enumerate(all_entries):
         is_last = idx == len(all_entries) - 1
         connector = '└── ' if is_last else '├── '
-        lines.append(f'{prefix}{connector}{name}')
+        marker = ' [compiled-bytecode]' if os.path.splitext(name)[1] in _COMPILED_EXTS else ''
+        lines.append(f'{prefix}{connector}{name}{marker}')
         full = os.path.join(root, name)
         if os.path.isdir(full):
             extension = '    ' if is_last else '│   '

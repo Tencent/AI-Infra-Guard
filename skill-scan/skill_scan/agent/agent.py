@@ -30,7 +30,6 @@ from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score
 from skill_scan.utils.prompt_manager import prompt_manager
 
 _TREE_SKIP_DIRS = {
-    "__pycache__",
     ".git",
     "node_modules",
     ".venv",
@@ -40,7 +39,13 @@ _TREE_SKIP_DIRS = {
     ".next",
     ".nuxt",
 }
-_TREE_SKIP_EXTS = {".pyc", ".pyo", ".pyd"}
+# NOTE: `__pycache__` is intentionally NO LONGER skipped. Compiled bytecode
+# (.pyc/.pyo/.pyd) is executed by CPython at import time even without a `.py`
+# source (PEP 552 UNCHECKED_HASH), so hiding it from the audit tree lets a
+# malicious skill bypass aig-skill-scan. Tracked as GitHub Issue #531.
+# Compiled artifacts are surfaced with a `[compiled-bytecode]` marker.
+_TREE_SKIP_EXTS = set()
+_COMPILED_EXTS = {".pyc", ".pyo", ".pyd"}
 _TREE_SKIP_FILES = {"_VERDICT.txt", "_GROUND_TRUTH.txt", "_EVAL.txt"}
 
 _METADATA_FILENAMES = {".DS_Store", "._DS_Store", "Thumbs.db", "desktop.ini", "._.DS_Store"}
@@ -75,6 +80,13 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
         folder_name = os.path.basename(root) if rel_root != "." else "."
         lines.append(f"{indent}{folder_name}/")
         for fname in sorted(files):
+            if os.path.splitext(fname)[1] in _COMPILED_EXTS:
+                if total >= max_files:
+                    lines.append(f"{indent}  ... (超过 {max_files} 个文件，已截断)")
+                    return "\n".join(lines)
+                lines.append(f"{indent}  {fname} [compiled-bytecode]")
+                total += 1
+                continue
             if os.path.splitext(fname)[1] in _TREE_SKIP_EXTS:
                 continue
             if fname in _TREE_SKIP_FILES:

@@ -86,9 +86,17 @@ _PATTERNS: list[tuple[str, re.Pattern, str]] = [
     ),
 ]
 
-# Directories and files to skip
-_SKIP_DIRS = {'__pycache__', '.git', 'node_modules', '.venv', 'venv', 'dist', 'build'}
-_SKIP_EXTS = {'.pyc', '.pyo', '.pyd', '.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
+# Directories to skip (compiled bytecode dirs are NOT skipped -- see note below)
+_SKIP_DIRS = {'.git', 'node_modules', '.venv', 'venv', 'dist', 'build'}
+# Compiled Python bytecode (.pyc/.pyo/.pyd) is NO LONGER skipped. CPython runs
+# `.pyc` at import time without any `.py` source (PEP 552 UNCHECKED_HASH), so a
+# malicious skill could ship a clean `.py` decoy plus a malicious `.pyc` and get
+# a false SAFE verdict. Tracked as GitHub Issue #531. Bytecode still embeds
+# readable string constants (the payload), so scanning it as text surfaces
+# exfil/injection patterns. We surface every compiled artifact as an explicit
+# warning in addition to normal pattern matching.
+_SKIP_EXTS = {'.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
+_COMPILED_EXTS = {'.pyc', '.pyo', '.pyd'}
 _SKIP_FILES = {'_VERDICT.txt', '_GROUND_TRUTH.txt', '_EVAL.txt'}
 _MAX_FILE_SIZE = 512 * 1024  # 512KB
 
@@ -122,9 +130,37 @@ def pre_scan(repo_dir: str) -> str:
                     continue
                 decoded = read_text_file(fpath)
             except (PermissionError, OSError, TextDecodeError):
+                # Compiled artifacts that fail to decode as text are still a
+                # signal worth flagging explicitly (see Issue #531).
+                if ext in _COMPILED_EXTS:
+                    rel_path = os.path.relpath(fpath, repo_dir)
+                    findings.append({
+                        'file': rel_path,
+                        'pattern': 'compiled_bytecode',
+                        'description': (
+                            'Compiled Python bytecode (.pyc/.pyo/.pyd) present in the '
+                            'skill package. CPython executes it at import time regardless '
+                            'of any .py source (PEP 552 UNCHECKED_HASH); inspect it for '
+                            'hidden malicious code before trusting this skill'
+                        ),
+                        'evidence': [],
+                    })
                 continue
 
             rel_path = os.path.relpath(fpath, repo_dir)
+            # Explicitly warn on compiled bytecode even if no pattern matches.
+            if ext in _COMPILED_EXTS:
+                findings.append({
+                    'file': rel_path,
+                    'pattern': 'compiled_bytecode',
+                    'description': (
+                        'Compiled Python bytecode (.pyc/.pyo/.pyd) present in the skill '
+                        'package. CPython executes it at import time regardless of any .py '
+                        'source (PEP 552 UNCHECKED_HASH); inspect it for hidden malicious '
+                        'code before trusting this skill'
+                    ),
+                    'evidence': [],
+                })
             if decoded.encoding not in {'utf-8', 'utf-8-sig'}:
                 findings.append({
                     'file': rel_path,
