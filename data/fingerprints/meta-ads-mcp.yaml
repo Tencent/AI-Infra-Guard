@@ -1,0 +1,22 @@
+info:
+  name: meta-ads-mcp
+  author: A.I.G bot
+  severity: critical
+  desc: Meta Ads MCP is a Model Context Protocol (MCP) server by pipeboard-co that lets AI assistants run Meta Ads. It exposes a Streamable HTTP transport endpoint at /mcp (FastMCP/Starlette). Versions prior to 1.0.109 allow unauthenticated access to MCP tool handlers.
+  metadata:
+    product: pipeboard-co
+    vendor: pipeboard-co
+http:
+  - method: POST
+    path: /mcp
+    matchers:
+      - body="jsonrpc" && body="meta-ads"
+    data: '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"meta":{}},"id":1}'
+# Fingerprint note:
+# The MCP server runs via `python -m meta_ads_mcp --transport streamable-http`.
+# The serverInfo.name in the JSON-RPC initialize response is "meta-ads" (set by FastMCP("meta-ads")).
+# Vulnerable versions (<1.0.109) return a 200 JSON-RPC response with serverInfo.name "meta-ads" to unauthenticated requests.
+# Patched versions (>=1.0.109) return 401 with body containing "X-PIPEBOARD-API-TOKEN" and "STREAMABLE_HTTP_SETUP.md".
+#
+# Version extraction: NOT possible — serverInfo.version reports the MCP SDK version (e.g. "1.23.0"), not the product version.
+# This is a partial fingerprint (matchers only, no version extractor).
