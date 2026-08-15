@@ -19,8 +19,9 @@ def write_file(file_path: str, content: str, context: ToolContext = None) -> dic
     """
     try:
         # Create the directory if it does not exist
-        directory = os.path.dirname(file_path)
-        if not directory.startswith(context.folder):
+        directory = os.path.realpath(os.path.dirname(file_path))
+        folder = os.path.realpath(context.folder)
+        if os.path.commonpath([directory, folder]) != folder:
             return {
                 "success": False,
                 "message": f"Path is not allowed: {file_path}"
