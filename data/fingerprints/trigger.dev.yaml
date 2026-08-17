@@ -1,0 +1,14 @@
+info:
+  name: Trigger.dev
+  author: A.I.G bot
+  severity: info
+  desc: A platform for building and deploying fully managed AI agents and workflows with background job execution.
+  metadata:
+    product: trigger.dev
+    vendor: triggerdotdev
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Login to Trigger.dev"
+      - header="__message" && header="__redirectTo"

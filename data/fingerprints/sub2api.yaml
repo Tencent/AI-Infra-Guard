@@ -1,0 +1,32 @@
+info:
+  name: sub2api
+  author: A.I.G bot
+  severity: info
+  desc: Sub2API is a multi-tenant AI API gateway platform that distributes and manages API quotas from AI product subscriptions (ChatGPT/Codex OAuth, OpenAI platform keys, Gemini, Grok).
+  metadata:
+    product: sub2api
+    vendor: wei-shaw
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Sub2API - AI API Gateway</title>"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"status\"" && body="\"ok\""
+  - method: GET
+    path: '/setup/status'
+    matchers:
+      - body="\"needs_setup\"" && body="\"step\""
+  - method: GET
+    path: '/api/v1/settings/public'
+    matchers:
+      - body="\"version\"" && body="\"registration_enabled\""
+version:
+  - method: GET
+    path: '/api/v1/settings/public'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\s*"([^"]+)"'
