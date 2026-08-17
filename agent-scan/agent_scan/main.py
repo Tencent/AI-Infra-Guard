@@ -168,6 +168,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Save the scan result as a JSON file (optional, e.g. -o result.json)",
     )
 
+    parser.add_argument(
+        "--task_id",
+        default=None,
+        help="AIG task ID, used as the checkpoint directory key for resumable scans "
+        "(keep the same ID when resuming after a failure)",
+    )
+
     return parser.parse_args(argv)
 
 
@@ -227,6 +234,7 @@ async def main() -> None:
         language=args.language,
         agent_provider=agent_provider,
         skills=args.skills.split(",") if args.skills else None,
+        task_id=args.task_id,
     )
     try:
         logger.info(f"Starting scan on: {args.repo}")
