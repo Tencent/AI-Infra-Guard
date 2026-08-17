@@ -4,7 +4,7 @@
 AI Infra Security Scan identifies known vulnerabilities (e.g., CVEs) in web services of AI infrastructure components  through precise fingerprint matching. This enables rapid detection of security gaps, empowering teams to mitigate risks proactively and maintain   secure, stable AI operations.
 
 ## Core Features
-- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **1900+ known vulnerabilities** (CVEs).  
+- **Comprehensive Coverage**: Identifies **100+ mainstream AI frameworks**, covering **2000+ known vulnerabilities** (CVEs).  
 - **Flexible Deployment**: Supports **single-target**, **batch**, and **local service ** scanning.  
 - **Intelligent Matching**: **YAML-based fingerprint rules** ensure high-precision detection accuracy.  
 - **Extensibility**: Enables **custom vulnerability templates** and **fingerprint rules** for specialized deployment scenarios.
@@ -170,7 +170,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | wallos | 1 | Low |
 | | budibase | 1 | Medium |
 | **AI Agent Config Security** | AI-Agent-Config | 4 | High |
-| **Total** | | **1914+** | |
+| **Total** | | **2020+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
