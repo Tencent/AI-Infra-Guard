@@ -81,7 +81,7 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 
 ## Recommended Large Language Model APIs
 - Hy3
-- GLM-5.2
+- GLM-5.3
 - DeepSeek-V4
 - Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
