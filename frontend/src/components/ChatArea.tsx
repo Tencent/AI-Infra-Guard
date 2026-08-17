@@ -1211,6 +1211,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
     if (!currentTask) return;
     setResumeLoading(true);
     try {
+      // 先重建 SSE 连接（连接已存在则自动跳过）：后端会等待连接建立后再分发任务，
+      // 提前建连避免续跑初期 agent 产生的事件丢失
+      establishSSEConnection(currentTask?.id || '', '', [], currentTask?.type || 'Skill-Scan');
       const response = await fetch(`/api/v1/app/tasks/${currentTask?.id}/resume`, {
         method: 'POST',
         headers: {
@@ -1220,10 +1223,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
       const result = await response.json();
       if (result.status === 0) {
         toast.success(result.message || t('chatArea.resumeSuccess'));
-        // 重新建立 SSE 连接以接收续跑事件（连接已存在则自动跳过）
-        setTimeout(() => {
-          establishSSEConnection(currentTask?.id || '', '', [], currentTask?.type || 'Skill-Scan');
-        }, 100);
       } else {
         toast.error(result.message || t('chatArea.resumeFailed'));
       }
@@ -1842,7 +1841,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                         </span>
                       </div>
                       <div>{message.content}</div>
-                      {(currentTask?.type === 'Skill-Scan' || currentTask?.type === 'Mcp-Scan') && (
+                      {(currentTask?.type === 'Skill-Scan' || currentTask?.type === 'Mcp-Scan' || currentTask?.type === 'Agent-Scan') && (
                         <Button
                           onClick={handleResumeTask}
                           disabled={resumeLoading}

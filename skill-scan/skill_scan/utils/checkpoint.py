@@ -24,8 +24,11 @@
 """
 
 import json
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # 默认断点根目录，可通过环境变量 AIG_CHECKPOINT_DIR 覆盖
 DEFAULT_CHECKPOINT_DIR = os.environ.get("AIG_CHECKPOINT_DIR", "checkpoints")
@@ -51,10 +54,24 @@ class CheckpointManager:
         """指定阶段是否已有落盘结果。"""
         return self._stage_file(stage_id).is_file()
 
-    def load(self, stage_id: str) -> str:
-        """读取指定阶段的落盘结果。"""
-        data = json.loads(self._stage_file(stage_id).read_text(encoding="utf-8"))
-        return data.get("content", "")
+    def load(self, stage_id: str) -> str | None:
+        """读取指定阶段的落盘结果。
+
+        文件损坏（如写入中断、断电）或不可读时，记录告警、删除损坏
+        文件并返回 ``None``；调用方应将其视为未命中，重新执行该阶段，
+        避免续跑时反复读到损坏文件形成死循环。
+        """
+        path = self._stage_file(stage_id)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return data.get("content", "")
+        except (json.JSONDecodeError, OSError, AttributeError):
+            logger.warning("checkpoint 文件损坏，已删除并视为未命中: %s", path)
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            return None
 
     def save(self, stage_id: str, content: str) -> None:
         """将阶段结果落盘。"""

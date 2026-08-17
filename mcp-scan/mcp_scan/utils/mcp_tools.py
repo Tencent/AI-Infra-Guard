@@ -34,9 +34,9 @@ except Exception:
     _MCP_MAJOR = 0
 
 if _MCP_MAJOR >= 2:
-    # mcp SDK >= 2.0：streamable_http_client 不再接受 headers 参数，需通过 httpx2.AsyncClient 传入
+    # mcp SDK >= 2.0：streamable_http_client 不再接受 headers 参数，需通过 httpx.AsyncClient 传入
     from mcp.client.streamable_http import streamable_http_client
-    import httpx2
+    import httpx
 
     _USE_NEW_STREAMABLE_API = True
 else:  # mcp SDK < 2.0 兼容
@@ -78,8 +78,8 @@ class MCPTools:
             ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
             if _USE_NEW_STREAMABLE_API:
-                # mcp SDK >= 2.0：headers 通过 httpx2.AsyncClient 传入
-                http_client = httpx2.AsyncClient(headers=self.headers)
+                # mcp SDK >= 2.0：headers 通过 httpx.AsyncClient 传入
+                http_client = httpx.AsyncClient(headers=self.headers)
                 ctx = streamable_http_client(url=self.url, http_client=http_client)
             else:
                 ctx = streamablehttp_client(url=self.url, headers=self.headers)  # type: ignore

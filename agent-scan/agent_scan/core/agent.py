@@ -219,12 +219,13 @@ class ScanPipeline:
 
         # 断点续跑：若该阶段已有落盘结果，直接跳过执行
         if self.checkpoint is not None and self.checkpoint.has(stage.stage_id):
-            logger.info(f"=== 阶段 {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
             result = self.checkpoint.load(stage.stage_id)
-            # 模拟阶段完成日志，保证 UI 进度展示一致
-            scanLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
-            scanLogger.status_update(stage.stage_id, stage.name, "", "completed")
-            return result, {}
+            if result is not None:
+                logger.info(f"=== 阶段 {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
+                # 模拟阶段完成日志，保证 UI 进度展示一致
+                scanLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
+                scanLogger.status_update(stage.stage_id, stage.name, "", "completed")
+                return result, {}
 
         result, stats = await run_agent(
             description=stage.name,
@@ -300,11 +301,12 @@ class ScanPipeline:
 
             # 断点续跑：该 skill 已有落盘结果时直接跳过
             if self.checkpoint is not None and self.checkpoint.has(stage_id):
-                logger.info(f"=== 阶段 {stage_id}: Skill Worker {skill_name} 命中断点，跳过执行 ===")
                 result_text = self.checkpoint.load(stage_id)
-                scanLogger.new_plan_step(stepId=stage_id, stepName=f"Skill Worker: {skill_name}")
-                scanLogger.status_update(stage_id, f"Skill Worker: {skill_name}", "", "completed")
-                return result_text, {}
+                if result_text is not None:
+                    logger.info(f"=== 阶段 {stage_id}: Skill Worker {skill_name} 命中断点，跳过执行 ===")
+                    scanLogger.new_plan_step(stepId=stage_id, stepName=f"Skill Worker: {skill_name}")
+                    scanLogger.status_update(stage_id, f"Skill Worker: {skill_name}", "", "completed")
+                    return result_text, {}
 
             async with semaphore:
                 result_text, stats = await run_agent(

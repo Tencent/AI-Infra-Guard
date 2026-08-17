@@ -284,12 +284,13 @@ class ScanPipeline:
         logger.info(f"=== Stage {stage.stage_id}: {stage.name} ===")
         mcpLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
 
-        # 断点续跑：若该阶段已有落盘结果，直接跳过执行
+        # 断点续跑：若该阶段已有落盘结果，直接跳过执行；load 返回 None（文件损坏）时视为未命中
         if self.checkpoint is not None and self.checkpoint.has(stage.stage_id):
-            logger.info(f"=== Stage {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
             result = self.checkpoint.load(stage.stage_id)
-            self.results[stage.name] = result
-            return result
+            if result is not None:
+                logger.info(f"=== Stage {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
+                self.results[stage.name] = result
+                return result
 
         # Load the prompt template
         instruction = prompt_manager.load_template(stage.template)
