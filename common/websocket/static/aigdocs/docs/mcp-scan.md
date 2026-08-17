@@ -80,7 +80,7 @@ A.I.G的MCP扫描能力完全由Agent驱动，检测准确性与时长取决于�
 
 ## 推荐使用的大模型API
 - Hy3
-- GLM-5.2
+- GLM-5.3
 - DeepSeek-V4
 - Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
