@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v4.5.2] - 2026-08-11
+## [v4.5.2] - 2026-08-17
 
 ### Added
 - **Research**: Add SkillJack project (536340d5, 78ae6df1)
 - **Data**: Add AIG rules [2026-07-31] (3d9af43d)
 - **Data**: Add GET-only fingerprints for Qdrant, Chroma, and Weaviate (d54543c4)
+
+### Refactored
+- Refactor(skills/aig-agent-redteam): v5.0.0 mutation engine refactor + merge workflow-attack into mutation-attack (e989411f)
 
 ### Fixed
 - Fix(mcp-scan): Prevent RCE via prompt injection in dynamic scan mode (9ebcff15)
@@ -21,13 +24,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix(data): Correct CVE-2026-61428 version rule to version < "4.6.78" (16ed3967)
 
 ### Changed
+- Docs: Sync component tables and agent-scan detection skills (788ae096)
+- Docs(skill-scan): Add text_decoder.py to project structure, update pre_scan description (17365158)
+- Docs: Trim What's New to latest 5 entries across all 9 README languages (cbe58e69)
 - Docs: Reorder Xiangfan after Fyoung and add Elwood to Core Members across 9 README languages (5c29b242)
 - Docs: Fix v4.5.0 release date from 2026-07-24 to 2026-07-27 across 9 README languages (a41187e1)
 - Docs: Rename PromptSecurity to Jailbreak Evaluation in v4.5.1 What's New; remove bug fix entries (240bc3a1)
 - Docs: Add v4.5.1 What's New entry across 9 README languages; update agent-scan skill list (ca2c2f23)
+- Chore(skills): Remove outdated v5.0.0 changelog from aig-agent-redteam SKILL.md (1c14dcd4)
 
 ### Contributors
-Special thanks to @Elwood Ying, @xiangfanwu, @zhuque, @hiddingtrojans, @AIG-Bot, @aig-doc-bot
+Special thanks to @Elwood Ying, @xiangfanwu, @zhuque, @hiddingtrojans, @NY1024, @kexinoh, @feiyang666, @AIG-Bot, @aig-doc-bot
 
 ---
 
