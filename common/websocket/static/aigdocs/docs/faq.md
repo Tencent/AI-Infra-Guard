@@ -139,11 +139,11 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 **最优性能：**
 - Claude-4.6-Opus
 - Gemini-3.1-Pro
-- GLM-5.1
+- GLM-5.3
 
 **性价比之选：**
 - Qwen-3.6
-- Kimi-2.5
+- Kimi-K3
 - Gemini-3-Flash
 
 > 模型迭代速度较快，建议定期参考
@@ -152,7 +152,7 @@ Agent Scan 依赖 LLM 的**多步推理、工具调用和任务规划**能力。
 
 ### 4.2 Skill、MCP扫描推荐
 - Hy3
-- GLM-5.2
+- GLM-5.3
 - DeepSeek-V4
 - Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct
