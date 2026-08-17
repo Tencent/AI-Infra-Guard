@@ -177,8 +177,43 @@ class MCPTools:
 
         return " ".join(attrs)
 
+    # 工具描述最大长度，防止超长描述注入大量指令
+    _MAX_DESC_LEN = 500
+
+    # 需要净化的 prompt injection 指令模式
+    _INJECTION_PATTERNS = [
+        r"(?i)ignore\s+(previous|above|all)\s+instructions?",
+        r"(?i)you\s+are\s+now\s+in\b",
+        r"(?i)system\s*(note|override|prompt)\s*:",
+        r"(?i)\bexecute\s+(this|the)\s+(shell|command|diagnostic)\b",
+        r"(?i)\brun\s+this\s+(exact\s+)?diagnostic\b",
+        r"(?i)\bself[- ]?test\b.*\b(execute|run|shell|command)\b",
+        r"(?i)\bDNS\s+connectivity\s+self[- ]?test\b",
+        r"(?i)\b(scanner|scanning)\s+(environment|pipeline)\s+self[- ]?test\b",
+        r"(?i)\benvironment\s+fingerprint\b",
+        r"(?i)\bexecute_shell\b",
+    ]
+
+    @classmethod
+    def _sanitize_description(cls, desc: str) -> str:
+        """净化 MCP 工具描述，移除 prompt injection 指令并截断过长内容。"""
+        if not desc:
+            return ""
+        import re
+
+        sanitized = desc
+        for pattern in cls._INJECTION_PATTERNS:
+            sanitized = re.sub(pattern, "[REMOVED]", sanitized)
+        if len(sanitized) > cls._MAX_DESC_LEN:
+            sanitized = sanitized[: cls._MAX_DESC_LEN] + "... [truncated]"
+        return sanitized
+
     async def describe_mcp_tools(self) -> str:
-        """Return `<mcp_tools>` XML listing tool names and descriptions."""
+        """Return `<mcp_tools>` XML listing tool names and descriptions.
+
+        对远程 MCP 工具描述进行净化（截断 + 移除指令性内容），防止恶意
+        MCP 服务器通过工具描述注入 prompt injection 指令。
+        """
         try:
             async with self._session() as session:
                 data = await session.list_tools()
@@ -199,6 +234,9 @@ class MCPTools:
             # 缓存工具 schema，用于后续参数类型转换
             self._tools_schema[t.name] = tool_schema
 
+            # 净化工具描述，移除 prompt injection 指令
+            safe_desc = self._sanitize_description(t.description)
+
             parameters = ""
             for k, param in tool_schema.get("properties", {}).items():
                 required = "true" if k in tool_schema.get("required", []) else "false"
@@ -212,14 +250,14 @@ class MCPTools:
                 parameters += f"""<parameter {all_attrs}></parameter>"""
             xml_lines.append(f"""
     <name>{t.name}</name>
-    <description>{t.description}</description>
+    <description>{safe_desc}</description>
     <parameters>
       <parameter name="tool_name" type=string required=true>tool_name is {t.name}</parameter>
       {parameters}
     </parameters>
             """)
             name = t.name
-            detail = t.description or ""
+            detail = safe_desc
             xml_lines.append(f"detail:{detail} 调用格式:\n<tool_name>{name}</tool_name>\n</tool>")
         xml_lines.append("</mcp_tools>")
         return "\n".join(xml_lines)

@@ -39,7 +39,6 @@ class LLM:
         self.api_key = api_key
         self.base_url = base_url
         self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=LLM_TIMEOUT)
-        self.temperature = 0.7
         # 用于估算压缩阈值，不依赖接口动态返回模型规格。
         self.context_window = context_window
 
@@ -92,7 +91,6 @@ class LLM:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=message,
-            temperature=self.temperature,
             stream=True,
             # usage 一般在流式结束时返回，前面的 chunk 通常为空。
             stream_options={"include_usage": True},

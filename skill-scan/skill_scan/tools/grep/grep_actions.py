@@ -1,8 +1,10 @@
 import os
 import re
-from typing import Any, Optional
+from typing import Any
+
 from skill_scan.tools.registry import register_tool
 from skill_scan.utils.loging import logger
+from skill_scan.utils.text_decoder import TextDecodeError, read_text_file
 from skill_scan.utils.tool_context import ToolContext
 
 
@@ -57,16 +59,23 @@ def grep(
         def search_file(file_path: str):
             nonlocal files_searched
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    for line_no, line in enumerate(f, start=1):
+                decoded = read_text_file(file_path)
+                texts = [(decoded.text, '')]
+                if decoded.recovered_text:
+                    texts.append((
+                        decoded.recovered_text,
+                        f' [recovered reversible mojibake ({decoded.recovery})]',
+                    ))
+                for text, view_label in texts:
+                    for line_no, line in enumerate(text.splitlines(), start=1):
                         if compiled.search(line):
                             rel = os.path.relpath(file_path,
                                                   abs_path if os.path.isdir(abs_path) else os.path.dirname(abs_path))
-                            matches.append(f'{rel}:{line_no}: {line.rstrip()}')
+                            matches.append(f'{rel}:{line_no}{view_label}: {line.rstrip()}')
                             if len(matches) >= max_results:
                                 return True
                 files_searched += 1
-            except (PermissionError, OSError):
+            except (PermissionError, OSError, TextDecodeError):
                 pass
             return False
 

@@ -8,12 +8,12 @@ injected into the Agent as supporting evidence for its judgment.
 
 import os
 import re
-from typing import List, Tuple
 
 from skill_scan.utils.loging import logger
+from skill_scan.utils.text_decoder import TextDecodeError, read_text_file
 
 # High-risk pattern definitions: (pattern name, regex, description)
-_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
+_PATTERNS: list[tuple[str, re.Pattern, str]] = [
     (
         'curl_pipe_exec',
         re.compile(r'curl\s+.*\|\s*(ba)?sh|wget\s+.*\|\s*(ba)?sh|curl\s+-[^|]*\|\s*(python|ruby|perl)', re.IGNORECASE),
@@ -93,12 +93,20 @@ _SKIP_FILES = {'_VERDICT.txt', '_GROUND_TRUTH.txt', '_EVAL.txt'}
 _MAX_FILE_SIZE = 512 * 1024  # 512KB
 
 
+def _preview(text: str, limit: int) -> list[tuple[int, str]]:
+    return [
+        (line_no, line.strip()[:120])
+        for line_no, line in enumerate(text.splitlines(), 1)
+        if line.strip()
+    ][:limit]
+
+
 def pre_scan(repo_dir: str) -> str:
     """
     Run a static pre-scan of the project and return the security audit hint text.
     Returns an empty string if no high-risk patterns are found.
     """
-    findings: List[dict] = []
+    findings: list[dict] = []
 
     for root, dirs, files in os.walk(repo_dir):
         dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
@@ -112,15 +120,40 @@ def pre_scan(repo_dir: str) -> str:
             try:
                 if os.path.getsize(fpath) > _MAX_FILE_SIZE:
                     continue
-                with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-            except (PermissionError, OSError):
+                decoded = read_text_file(fpath)
+            except (PermissionError, OSError, TextDecodeError):
                 continue
 
             rel_path = os.path.relpath(fpath, repo_dir)
-            for pattern_name, regex, description in _PATTERNS:
-                matches = regex.findall(content)
-                if matches:
+            if decoded.encoding not in {'utf-8', 'utf-8-sig'}:
+                findings.append({
+                    'file': rel_path,
+                    'pattern': 'non_utf8_text',
+                    'description': (
+                        f'Non-UTF-8 file detected ({decoded.encoding}); inspect the decoded '
+                        'content for encoding-based content smuggling'
+                    ),
+                    'evidence': _preview(decoded.text, 1),
+                })
+
+            contents = [(decoded.text, f'decoded as {decoded.encoding}')]
+            if decoded.recovered_text:
+                label = f'recovered reversible mojibake ({decoded.recovery})'
+                contents.append((decoded.recovered_text, label))
+                findings.append({
+                    'file': rel_path,
+                    'pattern': 'reversible_mojibake',
+                    'description': (
+                        'Reversible mojibake can reconstruct hidden content at runtime '
+                        f'using {decoded.recovery}'
+                    ),
+                    'evidence': _preview(decoded.recovered_text, 3),
+                })
+
+            for content, label in contents:
+                for pattern_name, regex, description in _PATTERNS:
+                    if not regex.search(content):
+                        continue
                     # Collect the lines where the match occurred
                     lines_hit = []
                     for i, line in enumerate(content.splitlines(), 1):
@@ -131,7 +164,7 @@ def pre_scan(repo_dir: str) -> str:
                     findings.append({
                         'file': rel_path,
                         'pattern': pattern_name,
-                        'description': description,
+                        'description': f'{description} (matched in {label})',
                         'evidence': lines_hit,
                     })
 

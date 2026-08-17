@@ -42,11 +42,9 @@ class EvaluatorAgent:
         self,
         client: AsyncOpenAI,
         model: str,
-        temperature: float = 0.2,
     ):
         self.client = client
         self.model = model
-        self.temperature = temperature
 
     def _build_messages(
         self,
@@ -89,7 +87,6 @@ class EvaluatorAgent:
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            temperature=self.temperature,
         )
         content = (response.choices[0].message.content or "").strip()
         if not content:

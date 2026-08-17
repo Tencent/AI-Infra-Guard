@@ -50,94 +50,121 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | gradio                  | 51       | 高       |
-|                    | ollama                  | 30       | 中高     |
-|                    | triton-inference-server | 41       | 中高     |
-|                    | tensorrt-llm            | 12       | 中高     |
-|                    | vllm                    | 66       | 中       |
-|                    | xinference              | 2        | 低       |
-|                    | fastchat                | 9        | 中       |
-|                    | llama-cpp               | 9        | 中高     |
-|                    | llmstudio               | 1        | 低       |
-|                    | ChatRTX                 | 1        | 低       |
-|                    | kubeai                  | 1        | 高       |
-| **LLM应用框架**    | langchain               | 52       | 高       |
-|                    | dify                    | 30       | 高       |
-|                    | anythingllm             | 18       | 中高     |
-|                    | open-webui              | 51       | 中高     |
-|                    | ragflow                 | 12       | 中       |
-|                    | qanything               | 8        | 中       |
-|                    | langflow                | 60       | 中       |
-|                    | litellm                 | 30       | 中       |
-|                    | mlflow                  | 79       | 高       |
-|                    | librechat               | 21       | 中       |
-|                    | nextchat                | 8        | 中       |
-|                    | lobechat                | 4        | 中       |
-|                    | lobehub                 | 1        | 中       |
-|                    | flowise                 | 61       | 中       |
-|                    | langfuse                | 4        | 低       |
-|                    | new-api                 | 5        | 中       |
-|                    | Chuanhugpt              | 27       | 中高     |
-|                    | crewai                  | 3        | 严重     |
-|                    | fastgpt                 | 5        | 中       |
-|                    | helicone                | 1        | 中       |
-| **数据处理与分析** | clickhouse              | 26       | 高       |
-|                    | feast                   | 2        | 低       |
-|                    | dask                    | 3        | 低       |
-| **可视化与交互**   | jupyter-server          | 17       | 中高     |
-|                    | marimo                  | 1        | 中       |
-|                    | jupyterlab              | 9        | 中       |
-|                    | jupyter-notebook        | 2        | 低       |
-| **工作流编排**     | kubeflow                | 7        | 中       |
-|                    | ray                     | 10       | 中       |
-|                    | n8n                     | 60       | 中高     |
-|                    | 9router                 | 3        | 高       |
-|                    | n8n-mcp                 | 3        | 中高     |
-|                    | simstudioai             | 9        | 中       |
-| **其他AI组件**     | comfyui                 | 13       | 中       |
-|                    | comfy_mtb               | 1        | 低       |
-|                    | ComfyUI-Prompt-Preview  | 1        | 低       |
-|                    | ComfyUI-Custom-Scripts  | 1        | 低       |
-|                    | ComfyUI-Impact-Pack     | 1        | 低       |
-|                    | ComfyUI-Manager         | 1        | 低       |
-|                    | ComfyUI-Ace-Nodes       | 1        | 低       |
-|                    | ComfyUI-Bmad-Nodes      | 1        | 低       |
-|                    | pyload-ng               | 24       | 中       |
-|                    | kubepi                  | 5        | 中       |
-|                    | llamafactory            | 4        | 低       |
-|                    | bentoml                 | 6        | 中       |
-|                    | blinko                  | 1        | 低       |
-|                    | weknora                 | 2        | 低       |
-|                    | pinchtab                | 6        | 中高     |
-|                    | wallos                  | 1        | 低       |
-|                    | praisonai               | 59       | 严重     |
-|                    | text-generation-webui   | 1        | 中       |
-|                    | openclaw                | 810      | 中高     |
-|                    | upsonic                 | 1        | 中       |
-|                    | instructlab             | 1        | 低       |
-|                    | lmdeploy                | 3        | 低       |
-|                    | paperclip               | 2        | 中       |
-|                    | pipecat                 | 3        | 低       |
-|                    | qnabot-on-aws           | 1        | 低       |
-|                    | superagi                | 1        | 低       |
-|                    | autogpt                 | 4        | 中       |
-|                    | crawl4ai                | 11       | 严重     |
-|                    | astrbot                 | 5        | 中       |
-|                    | hermes                  | 2        | 严重     |
-|                    | langroid                | 2        | 严重     |
-|                    | nvidia-trt-llm          | 1        | 高       |
-|                    | ai-code                 | 1        | 严重     |
-|                    | boxlite                 | 2        | 中       |
-|                    | budibase                | 1        | 中       |
-|                    | f5-tts                  | 1        | 中       |
-|                    | lumiverse               | 1        | 低       |
-|                    | maxkb                   | 2        | 中       |
-|                    | mem0                    | 1        | 低       |
-|                    | pgadmin                 | 2        | 中高     |
-|                    | sglang                  | 7        | 中       |
-|                    | sillytavern             | 5        | 中       |
-| **AI Agent 配置安全** | AI-Agent-Config         | 4        | 高       |
-| **总计**           |                         | **1900+** |          |
+| **模型部署与服务** | vllm | 67 | 中 |
+| | gradio | 51 | 高 |
+| | triton-inference-server | 41 | 中高 |
+| | ollama | 32 | 中高 |
+| | tensorrt-llm | 12 | 中高 |
+| | fastchat | 9 | 中 |
+| | llama-cpp | 9 | 中高 |
+| | Xinference | 3 | 低 |
+| | ChatRTX | 1 | 低 |
+| | huggingface-tgi | 1 | 中高 |
+| | kubeai | 1 | 高 |
+| | llmstudio | 1 | 低 |
+| | localai | 1 | 中 |
+| | tensorzero | 1 | 低 |
+| **LLM应用框架** | openwebui | 86 | 中高 |
+| | langflow | 79 | 中 |
+| | mlflow | 79 | 高 |
+| | flowise | 61 | 中 |
+| | langchain | 52 | 高 |
+| | open-webui | 44 | 中高 |
+| | Dify | 31 | 高 |
+| | LiteLLM | 31 | 中 |
+| | Chuanhugpt | 27 | 中高 |
+| | librechat | 21 | 中 |
+| | anythingllm | 18 | 中高 |
+| | ragflow | 12 | 中 |
+| | nextchat | 8 | 中 |
+| | qanything | 8 | 中 |
+| | fastgpt | 6 | 中 |
+| | new-api | 5 | 中 |
+| | LobeChat | 4 | 中 |
+| | crewai | 4 | 严重 |
+| | langfuse | 4 | 低 |
+| | chuanhuchatgpt | 1 | 中 |
+| | helicone | 1 | 中 |
+| | lobehub | 1 | 中 |
+| **数据处理与分析** | clickhouse | 26 | 高 |
+| | dask | 3 | 低 |
+| | feast | 3 | 低 |
+| **可视化与交互** | jupyter-server | 19 | 中高 |
+| | jupyterlab | 9 | 中 |
+| | jupyter-notebook | 2 | 低 |
+| | marimo | 1 | 中 |
+| **工作流编排** | n8n | 60 | 中高 |
+| | ray | 12 | 中 |
+| | simstudioai | 9 | 中 |
+| | kubeflow | 8 | 中 |
+| | n8n-mcp | 4 | 中高 |
+| | 9router | 3 | 高 |
+| **其他AI组件** | openclaw | 655 | 中高 |
+| | praisonai | 107 | 严重 |
+| | pyload-ng | 24 | 中 |
+| | astrbot | 14 | 中 |
+| | comfyui | 13 | 中 |
+| | crawl4ai | 11 | 严重 |
+| | sglang | 9 | 中 |
+| | bentoml | 6 | 中 |
+| | pinchtab | 6 | 中高 |
+| | kubepi | 5 | 中 |
+| | sillytavern | 5 | 中 |
+| | autogpt | 4 | 中 |
+| | flyto2 | 4 | 中 |
+| | llamafactory | 4 | 低 |
+| | lmdeploy | 4 | 低 |
+| | lollms | 4 | 中 |
+| | pipecat | 3 | 低 |
+| | agenticmail | 2 | 中 |
+| | boxlite | 2 | 中 |
+| | hermes | 2 | 严重 |
+| | instructlab | 2 | 低 |
+| | jan | 2 | 低 |
+| | junoclaw | 2 | 中 |
+| | langroid | 2 | 严重 |
+| | maxkb | 2 | 中 |
+| | mcp | 2 | 中 |
+| | mcp sse | 2 | 中 |
+| | paperclip | 2 | 中 |
+| | weknora | 2 | 低 |
+| | pgadmin | 2 | 中高 |
+| | Clawdbot Gateway | 1 | 中 |
+| | ComfyUI-Ace-Nodes | 1 | 低 |
+| | ComfyUI-Bmad-Nodes | 1 | 低 |
+| | ComfyUI-Custom-Scripts | 1 | 低 |
+| | ComfyUI-Impact-Pack | 1 | 低 |
+| | ComfyUI-Manager | 1 | 低 |
+| | ComfyUI-Prompt-Preview | 1 | 低 |
+| | agentic-flow | 1 | 中 |
+| | ai-chatbot | 1 | 中 |
+| | ai-code | 1 | 严重 |
+| | ai-copilot | 1 | 中 |
+| | ai-engine-wordpress | 1 | 中 |
+| | blinko | 1 | 低 |
+| | comfy_mtb | 1 | 低 |
+| | f5-tts | 1 | 中 |
+| | gpt-sovits | 1 | 中 |
+| | guardrails-ai | 1 | 中 |
+| | langbot | 1 | 低 |
+| | lightrag | 1 | 低 |
+| | lumiverse | 1 | 低 |
+| | mcp-documentation-server | 1 | 中 |
+| | mcp-pinot | 1 | 中 |
+| | mcp-server-kubernetes | 1 | 中 |
+| | mem0 | 1 | 低 |
+| | netlicensing-mcp | 1 | 中 |
+| | network-ai | 1 | 中 |
+| | nvidia-trt-llm | 1 | 高 |
+| | qnabot-on-aws | 1 | 低 |
+| | suna | 1 | 中 |
+| | superagi | 1 | 低 |
+| | text-generation-webui | 1 | 中 |
+| | upsonic | 1 | 中 |
+| | wallos | 1 | 低 |
+| | budibase | 1 | 中 |
+| **AI Agent 配置安全** | AI-Agent-Config | 4 | 高 |
+| **总计** | | **1914+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 

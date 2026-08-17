@@ -71,8 +71,6 @@ Aidez-nous à améliorer A.I.G ! Veuillez prendre 3 à 5 minutes pour remplir no
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan : 3 nouvelles règles de détection de menaces (empoisonnement d'outils, exfiltration de crédentiels, injection de commandes) ; 6 nouvelles règles CVE pour llama.cpp ; `model.token` désormais optionnel avec repli sur le modèle système par défaut.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security : 9 nouveaux opérateurs d'attaque single-turn ; nouvelle skill `aig-agent-redteam` pour une évaluation red-team complète des Agents.
 - **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — Nouvel endpoint API de vérification de version ; scoring de sécurité basculé vers un modèle de déduction absolue pour une évaluation des risques plus claire.
-- **2026-06-08** · [v4.1.12](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.12) — Bibliothèque d'empreintes étendue : 39 nouvelles empreintes AI Web ajoutées, 18 existantes améliorées.
-
 
 👉 [Versions précédentes](../CHANGELOG.md) · 🛒 [Marché des Skills de Sécurité IA](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 

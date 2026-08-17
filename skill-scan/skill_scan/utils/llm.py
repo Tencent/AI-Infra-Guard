@@ -48,7 +48,6 @@ class LLM:
             timeout=LLM_TIMEOUT,
             default_headers=default_headers if default_headers else None,
         )
-        self.temperature = 0.7
         self.context_window = context_window
 
     def chat(self, message: list[dict], p=False, ret_usage=False) -> str | tuple[str, dict]:
@@ -100,7 +99,6 @@ class LLM:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=message,
-            temperature=self.temperature,
             stream=True,
             stream_options={"include_usage": True},
         )

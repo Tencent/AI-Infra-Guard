@@ -46,7 +46,6 @@ class LLM:
         self.api_key = api_key
         self.base_url = base_url
         self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=LLM_TIMEOUT)
-        self.temperature = 0.7
 
     async def chat_async(self, message: List[dict], language: str = "zh") -> str:
         """Non-blocking wrapper around :meth:`chat` for use inside async contexts.
@@ -169,8 +168,7 @@ class LLM:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=message,
-                temperature=self.temperature,
-                stream=True
+                stream=True,
             )
 
             for chunk in response:

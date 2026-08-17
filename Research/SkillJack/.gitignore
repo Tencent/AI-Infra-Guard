@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+config_local.py
+# Output results (generated at runtime, not tracked)
+results/
+*.log
+.DS_Store

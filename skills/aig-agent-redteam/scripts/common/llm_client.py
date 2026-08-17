@@ -1,4 +1,4 @@
-"""OpenAI-compatible LLM client for model-attack.
+"""OpenAI-compatible LLM client for mutation-attack.
 
 Minimal wrapper that supports:
 - Single-turn chat

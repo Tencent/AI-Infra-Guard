@@ -167,7 +167,8 @@ skill_scan/
 │   ├── extract_vuln.py # <vuln> XML 提取与解析
 │   ├── sarif_formatter.py # 内部结果 → SARIF 2.1.0 转换（非 --aig-mode 时使用）
 │   ├── project_analyzer.py # 语言识别 + calc_skill_score
-│   └── pre_scan.py     # 预扫描，生成项目概要
+│   ├── text_decoder.py # 有界文本解码，带字符集走私检测
+│   └── pre_scan.py     # 预扫描：生成项目概要 + 编码异常检测
 ├── prompt/             # 打包的 prompt 模板
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md
