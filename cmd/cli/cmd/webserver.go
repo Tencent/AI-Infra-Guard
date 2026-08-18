@@ -19,6 +19,7 @@
 package cmd
 
 import (
+	"os"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/websocket"
@@ -30,6 +31,7 @@ import (
 // 为webserverCmd定义标志变量
 var (
 	webServerAddr string
+	apiCheckerURL string
 )
 
 // webserverCmd 表示webserver子命令
@@ -49,6 +51,7 @@ var webserverCmd = &cobra.Command{
 			AdvTemplates:  "data/vuln",
 			WebServer:     true,
 			WebServerAddr: webServerAddr,
+			APICheckerURL: apiCheckerURL,
 		}
 		// 设置日志级别
 		websocket.RunWebServer(webOptions)
@@ -60,4 +63,17 @@ func init() {
 
 	// 设置webserver子命令的标志
 	webserverCmd.Flags().StringVar(&webServerAddr, "server", "127.0.0.1:8088", "WebSocket服务器地址")
+	webserverCmd.Flags().StringVar(
+		&apiCheckerURL,
+		"api-checker-url",
+		defaultAPICheckerURL(),
+		"API Checker 服务地址（传空值可禁用）",
+	)
+}
+
+func defaultAPICheckerURL() string {
+	if value, ok := os.LookupEnv("AIG_API_CHECKER_URL"); ok {
+		return value
+	}
+	return "http://127.0.0.1:8000"
 }

@@ -149,6 +149,7 @@ jobs:
           echo "  Ref: ${{ github.ref }}"
 
       - name: 🐳 Build and push Server image
+        id: build-server
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -161,6 +162,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: 🤖 Build and push Agent image
+        id: build-agent
         uses: docker/build-push-action@v5
         with:
           context: .

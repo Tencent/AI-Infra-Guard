@@ -88,6 +88,7 @@ ENV UPLOAD_DIR=/app/uploads
 ENV DB_PATH=/app/db/tasks.db
 ENV TZ=Asia/Shanghai
 ENV PYTHONUNBUFFERED=1
+ENV AIG_API_CHECKER_URL=http://agent:8000
 
 # 暴露端口
 EXPOSE 8088
@@ -100,4 +101,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD pgrep ai-infra-guard || exit 1
 
 # 启动命令
-CMD ["/app/start.sh"] 
+CMD ["/app/start.sh"]

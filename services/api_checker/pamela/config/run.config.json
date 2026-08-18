@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "description": "Execution configuration for the data-collection runner (run/run-experiment.js). A 'cell' is one combination of model x task x language x temperature; 'reps' completions are collected per cell. Change 'reps' only between runs, never inside one (the resume logic keys on rep index).",
+  "request": {
+    "description": "Per-request settings. max_tokens is deliberately tiny — answers are single words; anything longer is coded invalid anyway. Set to 16 (from 12) because OpenAI chat models reject max_output_tokens<16; 16 is their documented minimum and does not change any observed distribution (valid answers are 1-6 tokens). This is a deviation from the OSF preregistration (which stated 12), documented in paper1. top_p left at default 1.0.",
+    "max_tokens": 16,
+    "timeout_ms": 90000,
+    "concurrency": 16,
+    "max_retries": 5,
+    "backoff_base_ms": 2000,
+    "backoff_max_ms": 60000
+  },
+  "temperatures": {
+    "description": "Sampling plan. t=1.0 estimates the response DISTRIBUTION (the fingerprint); t=0.0 gives a deterministic fingerprint — 3 reps to verify determinism, not to sample.",
+    "pilot": [
+      { "t": 1.0, "reps": 20 },
+      { "t": 0.0, "reps": 3 }
+    ],
+    "main": [
+      { "t": 1.0, "reps": 30 },
+      { "t": 0.0, "reps": 3 }
+    ]
+  },
+  "pilot": {
+    "description": "Pilot scope (v3). Model slugs MUST be validated against data/models-catalog.json (npm run assess-models warns about unknown slugs). Spans 5 distinct families at low cost, incl. three co-family large+small pairs (nemotron, qwen, deepseek) so intra- vs inter-family separation is estimable from the pilot. HISTORY: pilot-01 (':free' twins) hit OpenRouter's account-level free-models-per-day cap; pilot-02 (paid twins) surfaced that paid endpoints enable hidden reasoning by default, burning the 12-token budget (empty completions) — fixed by reasoning:{enabled:false} in lib.js, and mandatory-reasoning models (gpt-oss pair) were excluded study-wide (PI decision, see exclusion rules); replaced by the qwen *-2507 instruct pair. See data/runs/pilot-0{1,2}/manifest.json notes.",
+    "models": [
+      "nvidia/nemotron-3-ultra-550b-a55b",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "qwen/qwen3-235b-a22b-2507",
+      "qwen/qwen3-30b-a3b-instruct-2507",
+      "deepseek/deepseek-v4-pro",
+      "deepseek/deepseek-v4-flash",
+      "meta-llama/llama-3.3-70b-instruct",
+      "google/gemma-4-31b-it"
+    ],
+    "tasks": "all",
+    "languages": ["en", "ru", "zh", "ar"]
+  },
+  "main": {
+    "description": "Main run scope. Models come from config/models.selected.json (produced by npm run assess-models, then manually reviewed — set 'included': false to drop a model). Frontier-priced models (see 'expensive_input_threshold_usd_per_mtok') get reduced reps to control cost.",
+    "models_file": "config/models.selected.json",
+    "tasks": "all",
+    "languages": ["en", "ru", "zh", "ar"],
+    "expensive_input_threshold_usd_per_mtok": 5.0,
+    "expensive_reps_factor": 0.5
+  },
+  "provenance": {
+    "description": "Recorded into each run's manifest.json for reproducibility.",
+    "record_git_commit": true,
+    "record_prompts_hash": true,
+    "record_config_hash": true
+  }
+}
