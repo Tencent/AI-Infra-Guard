@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Tencent/AI-Infra-Guard/common/apichecker"
 	"github.com/Tencent/AI-Infra-Guard/common/trpc"
 	_ "github.com/Tencent/AI-Infra-Guard/docs"
 	version "github.com/Tencent/AI-Infra-Guard/internal/options"
@@ -77,6 +78,19 @@ func RunWebServer(options *version.Options) {
 	}
 	// 自动添加模型
 	modelStore.AutoAddModels()
+	if options.APICheckerURL != "" {
+		apiCheckerProxy, proxyErr := apichecker.NewWithModelStore(options.APICheckerURL, modelStore)
+		if proxyErr != nil {
+			log.Errorf("API Checker 代理配置无效: trace_id=system_startup, error=%v", proxyErr)
+		} else {
+			apiCheckerProxy.EnableConfiguredModelResolution(setupIdentityMiddleware())
+			apiCheckerProxy.Register(r)
+			log.Infof(
+				"API Checker proxy initialized: trace_id=system_startup, upstream=%s",
+				options.APICheckerURL,
+			)
+		}
+	}
 
 	// 初始化AgentManager
 	agentManager := NewAgentManager()
@@ -324,36 +338,46 @@ func RunWebServer(options *version.Options) {
 	})
 
 	// 静态文件处理
-	r.NoRoute(func(c *gin.Context) {
-		assetPath := "static" + c.Request.URL.Path
-		if c.Request.URL.Path == "/" {
-			assetPath = "static/index.html"
-		}
-
-		assetData, err := staticFS.ReadFile(assetPath)
-		if err != nil {
-			assetData, err = staticFS.ReadFile("static/index.html")
-			if err != nil {
-				c.String(500, "Internal Server Error")
-				return
-			}
-			c.Header("Content-Type", "text/html")
-			c.Data(200, "text/html", assetData)
-			return
-		}
-
-		mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
-		if mimeType == "" {
-			mimeType = "text/plain"
-		}
-		c.Header("Content-Type", mimeType)
-		c.Data(200, mimeType, assetData)
-	})
+	r.NoRoute(serveStaticFallback)
 
 	log.Infof("Starting WebServer: trace_id=system_startup, addr=%s", options.WebServerAddr)
 	if err := r.Run(options.WebServerAddr); err != nil {
 		log.Errorf("Could not start WebSocket server: trace_id=system_startup, error=%s", err)
 	}
+}
+
+func serveStaticFallback(c *gin.Context) {
+	path := c.Request.URL.Path
+	if strings.HasPrefix(path, "/api/") ||
+		path == apichecker.ServicePrefix ||
+		strings.HasPrefix(path, apichecker.ServicePrefix+"/") {
+		c.JSON(http.StatusNotFound, gin.H{"detail": "API endpoint not found"})
+		return
+	}
+
+	assetPath := "static" + path
+	if path == "/" {
+		assetPath = "static/index.html"
+	}
+
+	assetData, err := staticFS.ReadFile(assetPath)
+	if err != nil {
+		assetData, err = staticFS.ReadFile("static/index.html")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		c.Header("Content-Type", "text/html")
+		c.Data(http.StatusOK, "text/html", assetData)
+		return
+	}
+
+	mimeType := mime.TypeByExtension(filepath.Ext(assetPath))
+	if mimeType == "" {
+		mimeType = "text/plain"
+	}
+	c.Header("Content-Type", mimeType)
+	c.Data(http.StatusOK, mimeType, assetData)
 }
 
 // 配置身份认证中间件
