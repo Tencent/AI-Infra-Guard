@@ -1,0 +1,11 @@
+{
+  "runs": 14560,
+  "j_r": {
+    "full_rate": 5.6,
+    "partial_rate": 2.0
+  },
+  "j_l": {
+    "full_rate": 5.3,
+    "partial_rate": 7.3
+  }
+}

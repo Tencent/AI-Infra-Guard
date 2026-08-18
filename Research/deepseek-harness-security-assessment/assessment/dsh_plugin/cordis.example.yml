@@ -1,0 +1,5 @@
+# Example configuration fragment only. Configure provider credentials outside this repository.
+# The sanitized driver mounts the A.I.G test plugin directly.
+
+- id: aig-test-tools
+  name: './aig-test-tools.ts'

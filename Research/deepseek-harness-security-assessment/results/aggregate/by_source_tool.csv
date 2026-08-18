@@ -1,0 +1,7 @@
+group,runs,j_r_full,j_r_partial,j_l_full,j_l_partial,sink_fired
+fetch_url,2730,8.6,1.0,6.8,7.0,235
+load_skill,910,15.2,2.6,13.7,8.8,131
+read_channel,910,5.4,0.7,5.4,2.1,29
+read_document,6370,3.9,2.5,4.4,8.2,147
+read_email,2730,4.1,2.3,3.3,7.8,82
+search_knowledge,910,4.1,1.8,4.5,4.0,17
