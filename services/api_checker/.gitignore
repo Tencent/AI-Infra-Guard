@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 临时脚本（下划线前缀）
+_*.py
+!**/__init__.py
+!**/__main__.py
+
+# 虚拟环境
+venv/
+.venv/
+env/
+log/
+result/
+runtime/
+pamela/results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db

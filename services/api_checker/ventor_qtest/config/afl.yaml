@@ -1,0 +1,48 @@
+# Repeated-request Average Fidelity Loss (AFL).
+#
+# The built-in 12 constrained contexts match the paper implementation.  Add a
+# `contexts` list with id/prompt/allowed_labels to replace them.  Target APIs
+# only need ordinary text output; logprobs are requested only from `reference`.
+afl:
+  samples_per_context: 50
+  workers: 8
+  checkpoint_every: 25
+  temperature: 1.0
+
+  # Paper defaults: reference-only pooling at M*pi >= 1, reference-centred
+  # Dirichlet prior with total concentration 1, and parametric-null correction.
+  min_expected_count: 1.0
+  prior_mode: reference
+  prior_strength: 1.0
+  null_samples: 20000
+  posterior_samples: 20000
+  inference_samples: 20000
+  seed: 20260814
+
+  output: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/afl/latest.json"
+  checkpoint: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/afl/checkpoint.json"
+
+  reference:
+    api_key: "${DEEPSEEK_API_KEY}"
+    endpoint: "https://api.deepseek.com/beta/chat/completions"
+    model: "deepseek-v4-flash"
+    temperature: 1.0
+    top_logprobs: 20
+    timeout_sec: 45.0
+    extra_payload:
+      thinking:
+        type: disabled
+
+  vendors:
+    # Replace or extend this list with the routes to audit.  Each route uses
+    # the same schema as the existing long-sequence QTest vendor config.
+    - name: deepseek-official-control
+      base_url: "https://api.deepseek.com/beta"
+      path: "/chat/completions"
+      api_key: "${DEEPSEEK_API_KEY}"
+      model: "deepseek-v4-flash"
+      schema: openai
+      timeout: 45.0
+      extra_payload:
+        thinking:
+          type: disabled
