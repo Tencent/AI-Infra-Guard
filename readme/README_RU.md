@@ -553,6 +553,8 @@ A.I.G предоставляет полный набор API для создан
 
 ## 📚 Публикации
 
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Открытый код, наборы данных и артефакты наших исследовательских работ.
+
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Комплексный фреймворк для защиты систем ИИ-агентов с помощью многоуровневого красного тестирования инфраструктуры, цепочки поставок, взаимодействия во время выполнения и поверхностей развёртывания. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
 2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Презентация на Black Hat Europe 2025 Arsenal с обзором возможностей A.I.G и реальных сценариев использования. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)

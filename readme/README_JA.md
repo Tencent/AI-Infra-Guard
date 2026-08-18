@@ -554,6 +554,8 @@ A.I.G プロジェクトに貢献してくださったすべての開発者の�
 
 ## 📚 論文
 
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 研究成果のオープンソースコード、データセット、成果物。
+
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — AI エージェントシステムのセキュリティを破る多層レッドチーミングの総合フレームワーク。インフラ、サプライチェーン、ランタイムインタラクション、デプロイメント面をカバー。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
 2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal でのプレゼンテーション。A.I.G の全体的な機能と実例を紹介。[[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)

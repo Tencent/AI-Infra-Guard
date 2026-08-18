@@ -553,6 +553,8 @@ Wenn Sie A.I.G in Ihrer Forschung verwenden, zitieren Sie bitte:
 
 ## 📚 Publikationen
 
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Open-Source-Code, Datensätze und Artefakte aus unserer Forschungsarbeit.
+
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Ein umfassendes Framework zur Absicherung von KI-Agentensystemen durch mehrschichtiges Red Teaming in den Bereichen Infrastruktur, Lieferkette, Laufzeitinteraktion und Deployment. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
 2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal-Präsentation mit einer Übersicht über die Fähigkeiten von A.I.G und praxisnahe Anwendungsfälle. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)

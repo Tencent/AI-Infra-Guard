@@ -553,6 +553,8 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 ## 📚 논문
 
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 연구 작업의 오픈소스 코드, 데이터셋 및 산출물.
+
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 인프라, 공급망, 런타임 인터랙션, 배포 면에 걸쳐 다층 레드 팀이밍을 통해 AI 에이전트 시스템을 보호하는 포괄적인 프레임워크입니다. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
 2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 프레젠테이션으로, A.I.G의 전체 기능과 실전 사례를 소개합니다. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
