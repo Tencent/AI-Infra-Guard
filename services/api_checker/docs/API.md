@@ -1,0 +1,422 @@
+AIG API Checker HTTP API
+●版本：v1.7.0
+●Swagger 文档：/docs
+●API 前缀：/api/v1
+测试结果仅供参考，不能作为商业纠纷、退款索赔的绝对法律或事实依据。
+1. 接口总览
+方法	路径	说明
+GET	/api/v1/relay/models	获取当前支持完整指纹识别的模型列表
+POST	/api/v1/relay/check/stream	API 中转检查 SSE 流式接口
+检测算法
+algorithm	检测内容
+quick	C：黑盒审计 8 探针；Claude 模型自动叠加 B
+full	A：随机数指纹 + C：黑盒审计 8 探针；Claude 模型自动叠加 B
+模型 ID 包含 sonnet、opus、haiku 或 fable 时，不区分大小写地识别为
+ Claude，并自动叠加算法 B（Thinking Signature 验证）。
+2. 获取可检测模型
+GET /api/v1/relay/models
+模型列表从 baselines.json 动态读取。Claude 和 GPT 系列排在前面，同系列中
+ 版本号较新的型号优先。请求示例
+
+curl http://localhost:8000/api/v1/relay/models
+
+响应结构
+
+{
+  "status": 0,
+  "message": "success",
+  "data": {
+    "models": [
+      {
+        "id": "anthropic/claude-sonnet-5",
+        "name": "Claude-Sonnet-5",
+        "provider": "anthropic"
+      },
+      {
+        "id": "openai/gpt-5.6-sol",
+        "name": "GPT-5.6-Sol",
+        "provider": "openai_compatible"
+      }
+    ],
+    "total": 29,
+    "algorithms": {
+      "full": "仅支持 models 列表中的模型，可进行指纹识别和黑盒审计",
+      "quick": "支持 models 列表中的模型，不在列表中的模型型号只支持openai格式，进行快速检测"
+    }
+  }
+}
+
+字段	类型	说明
+status	integer	0 表示成功
+message	string	响应消息
+data.models	array	可进行完整指纹识别的模型
+data.models[].id	string	请求检测接口时使用的模型 ID
+data.models[].name	string	模型显示名称
+data.models[].provider	string	anthropic 或 openai_compatible
+data.total	integer	模型总数
+data.algorithms	object	两种检测模式的能力说明
+
+3. API 中转检查 SSE
+POST /api/v1/relay/check/stream
+检测通常需要 30 秒到数分钟。接口返回 text/event-stream，客户端需要保持连接，
+ 逐条处理 SSE 事件，直到收到 done 或 error。
+请求体
+字段	类型	必填	默认值	说明
+algorithm	string	是	—	quick 或 full
+base_url	string	是	—	待测 API 基础 URL，也可传完整 /chat/completions 或 /responses 地址
+api_key	string	是	—	待测 API 密钥；原文仅在内存使用，日志记录后 3 位和 SHA-256
+model	string	是	—	待测模型 ID；provider/model 不在 /models 时自动尝试 model
+language	string	否	zh	结果文本语言：zh 或 en；影响 summary 和 findings[].title
+iterations	integer	否	200	网页不显示，仅 full 使用，范围为 50–500
+no_think	boolean	否	true	网页不显示，仅 full 使用，是否关闭模型思考
+
+客户端可选传入 `X-Request-ID` 请求头（仅允许 1–64 位字母、数字、点、下划线和
+连字符）；未传或格式不合法时服务端自动生成。响应头中的 `X-Request-ID` 可用于
+关联结构化日志。
+
+请求示例
+快速检测：
+
+curl -N -X POST http://localhost:8000/api/v1/relay/check/stream \
+  -H "Content-Type: application/json" \
+  -d '{
+    "algorithm": "quick",
+    "base_url": "https://relay.example.com/v1",
+    "api_key": "sk-...",
+    "model": "gpt-5.6-sol"
+  }'
+
+完整检测：
+
+curl -N -X POST http://localhost:8000/api/v1/relay/check/stream \
+  -H "Content-Type: application/json" \
+  -d '{
+    "algorithm": "full",
+    "base_url": "https://relay.example.com/v1",
+    "api_key": "sk-...",
+    "model": "claude-sonnet-5",
+    "language": "en",
+    "iterations": 200,
+    "no_think": true
+  }'
+
+SSE 通用信封
+每个 SSE 事件由 event 和 data 两部分组成。data 是 JSON：
+
+event: <事件名称>
+data: {"status":0,"message":"...","data":{}}
+
+
+字段	类型	说明
+status	integer	0 表示成功，1 表示失败
+message	string	当前阶段或错误消息
+data	object	阶段数据；没有数据的事件不包含该字段
+服务端连接空闲超过约 15 秒时，可能发送 SSE 注释作为保活：
+
+: keepalive
+
+
+保活行不是业务事件，客户端应忽略。
+
+4. SSE 的 5 个阶段
+SSE 定义了 start、progress、result、done、error 五种阶段事件。
+正常流程：
+
+start → progress（0 到多次）→ result → done
+
+失败流程：
+
+start → progress（0 到多次）→ error
+
+error 是异常终止事件。当前实现发送 error 后不会再发送 done。
+4.1 start：检测开始
+每次检测固定发送一次。
+结构
+
+event: start
+data: {"status":0,"message":"started","data":{"algorithm":"quick"}}
+
+
+
+{
+  "status": 0,
+  "message": "started",
+  "data": {
+    "algorithm": "quick"
+  }
+}
+
+字段	类型	说明
+data.algorithm	string	本次检测模式：quick 或 full
+4.2 progress：检测进度
+full 模式在随机数指纹采样阶段按样本持续发送，包含已完成、总数、成功数和
+错误数。quick 模式使用相同的四字段结构，但统计的是真实上游 HTTP 请求：普通
+quick 正常为 9 次（8 次黑盒审计 + 1 次大模型总结）；Claude quick 正常为 16 次
+（8 次黑盒审计 + 7 次 Signature + 1 次大模型总结）。未获取到 signature 时会跳过
+回放请求，total 会变为 15；模型 ID 回退重试会相应增加 total。总结请求失败时仍会
+计入 error，并使用本地多语言兜底总结，不改变检测评分和判定。
+结构
+
+event: progress
+data: {"status":0,"message":"progress","data":{"completed":120,"total":200,"success":118,"error":2}}
+
+
+
+{
+  "status": 0,
+  "message": "progress",
+  "data": {
+    "completed": 120,
+    "total": 200,
+    "success": 118,
+    "error": 2
+  }
+}
+
+字段	类型	说明
+data.completed	integer	已完成数；quick 模式为实际完成的 HTTP 请求数
+data.total	integer	总数；quick 模式按实际计划请求数动态计算
+data.success	integer	成功请求数
+data.error	integer	失败请求数；风险命中但请求成功时不计为错误
+4.3 result：最终检测结果
+检测至少有一个算法成功时发送一次。
+完整结构
+
+event: result
+data: {"status":0,"message":"success","data":{"algorithm":"quick","score":100.0,"overall_verdict":"pass","risk_level":"none","summary":"综合评分100/100，各项检测均表现正常","detail":{"findings":[{"probe":"models","severity":"Passed","title":"模型列表检查"}],"best_model":"","fingerprint":{},"test_info":{"latency_ms":750,"tokens_per_second":20.0,"input_tokens":150,"output_tokens":30,"cache_read_tokens":65}}}}
+
+
+格式化后的 JSON：
+
+{
+  "status": 0,
+  "message": "success",
+  "data": {
+    "algorithm": "quick",
+    "score": 100.0,
+    "overall_verdict": "pass",
+    "risk_level": "none",
+    "summary": "综合评分100/100，各项检测均表现正常",
+    "detail": {
+      "findings": [
+        {
+          "probe": "models",
+          "severity": "Passed",
+          "title": "模型列表检查"
+        }
+      ],
+      "best_model": "",
+      "fingerprint": {},
+      "test_info": {
+        "latency_ms": 750,
+        "tokens_per_second": 20.0,
+        "input_tokens": 150,
+        "output_tokens": 30,
+        "cache_read_tokens": 65
+      }
+    }
+  }
+}
+
+result.data 字段
+字段	类型	说明
+algorithm	string	quick 或 full
+score	number	已完成组件中最低的可信分；模型指纹缺失或执行失败时为 50，其他组件执行失败时为 0
+overall_verdict	string	综合判定：pass、risk 或 inconclusive
+risk_level	string	风险标签：risk 时安全分低于 30 为 high、30～69.9 为 medium、70 及以上为 low；pass 为 none；inconclusive 为 unknown
+summary	string	由被测大模型根据评分和检查结果生成的简短结论；中文约 20～30 字，包含评分及主要降分原因
+detail.findings	array	所有适用且证据充分的探针、专项风险条件、Claude 签名及 full 模型指纹状态
+detail.best_model	string	full 的最匹配模型；无结果时为空字符串
+detail.fingerprint	object	full 的后验概率、造假状态及分布动画数据；其他模式为空对象
+detail.test_info	object	延迟、生成速度、输入/输出 Token 和缓存读取汇总
+`detail.fingerprint` 在 full 成功完成时包含以下字段：
+
+字段	类型	说明
+posterior	number	在一定置信度下，系统认为的模型识别概率，范围 0～1
+runner_up_model	string | null	后验概率第二高的候选模型
+runner_up_posterior	number | null	第二候选模型的后验概率，范围 0～1
+evidence_level	string | null	第一、第二候选之间的贝叶斯证据强度分级
+forgery_status	string	声明模型的统计指纹状态
+sample_size	integer	形成实测分布的有效样本数
+candidate_count	integer	本次参与匹配的参考指纹数量
+range	integer[]	采样数字范围，当前为 `[1, 355]`
+observed_distribution	number[]	实测样本聚合为 48 桶后的概率分布
+reference_distribution	number[]	最匹配参考指纹聚合为 48 桶后的概率分布
+distribution_overlap	number	两条聚合曲线的概率质量交集，范围 0～1；仅用于解释曲线重合程度
+largest_deviation	object	差异最大的分桶，包含 `range`、`observed`、`reference` 和 `difference`
+
+`posterior` 表示在一定置信度下，系统认为的模型识别概率。两组聚合分布、
+`distribution_overlap` 和 `largest_deviation` 用于前端展示实测指纹与匹配基准之间的
+分布差异。
+
+detail.glitch_fingerprint	object	Glitch Token 的成功/失败编号及候选模型家族
+detail.findings[] 字段
+
+{
+  "probe": "liveness",
+  "severity": "Failed",
+  "title": "中转服务连通性专项检查"
+}
+
+字段	类型	说明
+probe	string	探针标识
+severity	string	英文二值状态：`Passed` 或 `Failed`
+title	string	中性的检查项名称；不包含通过、失败或异常结论
+
+统一 findings 候选清单共定义 22 项：8 项基础探针状态、12 项专项风险条件、Claude
+Signature 和模型指纹。只有检查适用且证据充分时才会返回：风险触发为
+`severity: "Failed"`，未触发为 `severity: "Passed"`；不适用、未实际执行或证据
+不足时不返回，不增加第三种状态。两种返回状态使用相同的中性 `title`。
+
+各模式最大返回数量为：quick 非 Claude 20 项、quick + Claude 21 项、full 非
+Claude 21 项、full + Claude 22 项。实际数量可能更少。例如身份响应无法识别模型
+系列、流式响应未提供 model 字段，或者前置接口失败时，依赖这些证据的专项检查会
+被省略。Claude Signature 只有内部结果完整时才返回；任一已执行的内部检查失败，
+该项返回 `Failed`。模型指纹缺少后验概率或造假状态时同样不返回。
+
+顶层 `score` 统一为“越高越可信”。黑盒审计先将风险分转换为安全分
+`100 - risk_score`；Claude 签名使用算法 B 的通过分且最多扣 20 分；full 模式的模型指纹使用
+声明模型可信分：支持声明时为后验百分制，已知替身或未知异常时先按
+`min((1 - posterior) × 100, 50)` 计算，最终设置 70 分下限，即最多扣 30 分。存在多个组件时取最低分，避免出现高置信识别出替身却仍
+得到 100 分的矛盾结果。若最高后验候选就是声明模型且后验不低于 85%，仅 G²
+绝对分布漂移不会再被当作模型替换失败。Signature 和模型指纹项使用中性标题，具体状态统一由
+`severity` 表达；综合评分和判定信息仍在顶层 `score`、`overall_verdict`、`risk_level`、`summary`
+以及 `detail.fingerprint` 中返回。
+
+返回字段遵循强制一致性约束：除 Claude 签名和模型指纹外，任一已确认风险组件的分数最高为
+50；模型指纹的有效结果限制为 70～100 分，但风险状态仍由原始证据独立判定；模型指纹结果缺失、
+格式不完整或执行失败按 50 分处理，其他组件的同类情况按 0 分处理。已确认风险优先于其他组件的
+“检查不完整”，因此不会出现 finding 已失败但总体仍显示通过或仅显示不完整的情况。
+若内部审计 verdict 已为 risk 却没有对应失败项，响应会保守地返回一条
+`probe: "audit"` 的一致性失败项，确保总体判定与明细同向。
+
+`language` 省略时默认为 `zh`。`severity` 不受语言影响，统一使用英文状态。
+生成总结时会把综合评分、组件评分、未通过检查项和未完成组件交给当前被测模型，
+要求只返回一句话。低于 100 分时指出一个主要降分原因；100 分时说明各项检查正常。
+总结使用与 `language` 一致的语言。服务端会校验总结是否与最终 verdict 一致：risk
+必须明确说明风险或异常，inconclusive 必须说明证据不足或结果不完整，pass 不得声明
+存在异常。若额外的总结请求失败、返回空文本、格式不合规或语义与 verdict 冲突，
+服务端会返回基于同一组字段生成的本地多语言兜底文本，且不会把检测改为失败。
+
+传入 `en` 后，`summary` 和 `detail.findings[].title` 返回英文，例如：
+
+```json
+{
+  "summary": "Overall score 50/100, reduced mainly by observed relay connectivity failures.",
+  "detail": {
+    "findings": [{
+      "probe": "liveness",
+      "severity": "Failed",
+      "title": "Relay liveness risk check"
+    }]
+  }
+}
+```
+
+字段名以及 `overall_verdict`、`risk_level` 的机器枚举不随语言变化。
+
+4.4 done：正常结束
+成功发送 result 后发送一次，表示服务端不会再发送业务事件。
+结构
+
+event: done
+data: {"status":0,"message":"done"}
+
+
+
+{
+  "status": 0,
+  "message": "done"
+}
+
+done 没有 data 字段。
+4.5 error：异常结束
+当所有检测算法均失败，或检测调度发生未处理异常时发送一次。
+结构
+
+event: error
+data: {"status":1,"message":"audit: HTTP 401; fingerprint: 样本不足(12/40)"}
+
+
+{
+  "status": 1,
+  "message": "audit: HTTP 401; fingerprint: 样本不足(12/40)"
+}
+
+字段	类型	说明
+status	integer	固定为 1
+message	string	运行时错误摘要，最长 500 字符
+error 没有 data 字段，且发送后连接结束。
+
+5. 结构化日志
+
+HTTP 检测主流程以单行 JSON 写入 stdout，Docker 环境由日志驱动统一收集。默认
+日志级别为 `INFO`，可通过 `AIG_API_CHECKER_LOG_LEVEL` 设置为 `DEBUG`、`WARNING`
+或 `ERROR`。`DEBUG` 会额外记录每次进度事件。
+
+主要事件包括：`detection_received`、`detection_accepted`、`detection_started`、
+`detection_progress`、`detection_component_failed`、`detection_completed`、
+`detection_failed`、`detection_cancelled`、`detection_rejected` 和
+`client_disconnected`。
+
+API Key 原文不会写入日志，仅记录：
+
+- `api_key_suffix`：最后 3 位。
+- `api_key_sha256`：完整 SHA-256 十六进制摘要，用于关联同一个 Key 的多次检测。
+
+完成日志还包含 `request_id`、检测模式、模型、目标地址、耗时、综合分、总体判定、
+finding 数量和 full 模式最匹配模型。例如：
+
+```json
+{"timestamp":"2026-08-04T08:00:00.000+00:00","level":"INFO","service":"aig-api-checker","event":"detection_completed","request_id":"71b19f8bcb924dda","algorithm":"full","model":"glm-5","api_key_suffix":"xyz","api_key_sha256":"<64位SHA-256>","base_url":"https://relay.example.com/v1","duration_ms":12345,"score":100.0,"overall_verdict":"pass","risk_level":"none","findings_count":19,"best_model":"GLM-5.2"}
+```
+
+查看当前容器日志：
+
+```bash
+docker logs -f ai-infra-guard-agent
+```
+
+6. Python SSE 客户端示例
+
+import json
+import requests
+
+url = "http://localhost:8000/api/v1/relay/check/stream"
+payload = {
+    "algorithm": "quick",
+    "base_url": "https://relay.example.com/v1",
+    "api_key": "sk-...",
+    "model": "gpt-5.6-sol",
+}
+
+with requests.post(url, json=payload, stream=True, timeout=900) as response:
+    response.raise_for_status()
+    event_name = None
+
+    for raw_line in response.iter_lines(decode_unicode=True):
+        if not raw_line or raw_line.startswith(":"):
+            continue
+
+        if raw_line.startswith("event:"):
+            event_name = raw_line.removeprefix("event:").strip()
+            continue
+
+        if raw_line.startswith("data:"):
+            envelope = json.loads(raw_line.removeprefix("data:").strip())
+            print(event_name, envelope)
+
+            if event_name in {"done", "error"}:
+                break
+
+
+7. HTTP 错误
+SSE 开始前发生的请求错误使用普通 HTTP JSON 响应：
+HTTP 状态码	场景	响应示例
+400	base_url 不是 HTTP(S) URL	{"detail":"base_url 必须以 http:// 或 https:// 开头"}
+409	基准库为空时请求 full	{"detail":"基准库为空，请先用 CLI 标定..."}
+422	请求体字段校验失败	{"detail":"some error:xxxxxx"}
+这些 HTTP 错误不会建立 SSE 事件流。
+
+服务默认允许最多 20 个检测任务同时运行，可通过 `AIG_API_CHECKER_MAX_JOBS` 调整。
+超过上限且没有空闲执行槽时返回 HTTP 429；当前实现不提供任务等待队列。
