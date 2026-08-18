@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Phase 4: Aggregator.
+"""Aggregator.
 
-Collects all module_findings.json under reports/<run_id>/ and produces:
+Collects all module *_findings.json under reports/<run_id>/ and produces:
 - aggregated_findings.json (raw merged)
 - summary.json (severity counts, module breakdown)
 
-Final report.md is composed by the host agent following SKILL.md Rule 5 (报告生成与内容规范);
+Final report.md is composed by the host agent following references/report_requirements.md;
 this script just prepares the structured input.
 """
 from __future__ import annotations

@@ -22,7 +22,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-import yaml
+try:
+    import yaml
+except ImportError as e:  # pragma: no cover - depends on environment
+    raise ImportError(
+        "infra-attack 依赖 PyYAML 解析指纹规则，请先安装：pip install pyyaml"
+    ) from e
 
 THIS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(THIS_DIR.parent.parent.parent / "scripts"))
