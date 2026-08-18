@@ -18,8 +18,15 @@ from pathlib import Path
 
 
 AIG_REPO = "https://github.com/tencent/AI-Infra-Guard.git"
+
+# 若本 skill 以 skills/aig-agent-redteam/ 的形式位于 AI-Infra-Guard 仓库内，
+# 优先解析仓库内 data/；否则退到 cwd 附近的常见克隆位置（均会经 _as_data_dir 校验）。
+_SKILL_SCRIPTS_DIR = Path(__file__).resolve().parent
+_REPO_ROOT = _SKILL_SCRIPTS_DIR.parents[2]  # <repo>/ 根目录（skill 在仓库内时）
+
 DEFAULT_LOCAL_ROOTS = [
-    Path("/Users/python/Downloads/sec-page/AI-Infra-Guard"),
+    _REPO_ROOT,
+    Path.cwd() / "data",
     Path.cwd().parent / "AI-Infra-Guard",
 ]
 
