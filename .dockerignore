@@ -31,6 +31,17 @@ trpc.log
 .DS_Store
 Thumbs.db
 
+# Python runtime artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.venv/
+services/api_checker/log/
+services/api_checker/result/
+services/api_checker/runtime/
+services/api_checker/pamela/results/
+services/api_checker/tests/
+
 # 运行时数据目录（通过卷挂载）
 uploads/
 db/
@@ -42,6 +53,9 @@ img/
 License.txt
 !README.md
 !CHANGELOG.md
+!services/api_checker/requirements.txt
+!services/api_checker/THIRD_PARTY_NOTICES.md
+!services/api_checker/pamela/reference/README.md
 
 # GitHub Actions配置
 .github/
