@@ -1,0 +1,4 @@
+# This release intentionally does not vendor pikit or any LLM API client.
+# Install the A.I.G prompt-injection evaluation dependency separately.
+# pip install pikit
+matplotlib>=3.8
