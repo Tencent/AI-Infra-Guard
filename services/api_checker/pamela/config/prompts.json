@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "created": "2026-07-04",
+  "description": "Prompt battery for the PAMELA study. Study A (paper1, TIFS): single-token fingerprinting probes. Study B (paper2, C&S): tacit coordination games. Data are collected once and analysed separately per paper. JSON has no comments, so all documentation lives in 'description'/'notes' string fields — keep them updated with any change and bump 'version' (semver: patch = typo fix, minor = new task/language, major = change that breaks comparability of collected data).",
+  "notes": [
+    "Design decisions (2026-07-04, from research log zdroje/napad.txt):",
+    "- The one-word answer constraint lives in the SYSTEM prompt, not the user prompt.",
+    "- Counterpart identity is NEVER disclosed (no 'you play against a copy of yourself' conditions).",
+    "- Languages: en, ru, zh (simplified), ar. Translations drafted by LLM; MUST be reviewed by native or near-native speakers before the main run. Record reviewer initials in 'translation_review' below.",
+    "- Answers are compared WITHIN language only (coordination is evaluated per language; cross-language analysis of colors is a separate derived analysis).",
+    "- letter-random uses the native script of each language; for zh it asks for a random Chinese character (no alphabet exists) — comparable within language only, see task notes.",
+    "- Refusals and off-format answers are coded as answer_class='refusal'/'invalid' by stats/01-normalize.js, never dropped silently."
+  ],
+  "translation_review": {
+    "en": "TB 4/7/2026",
+    "ru": "TB 4/7/2026",
+    "zh": "TB 4/7/2026",
+    "ar": "TB 4/7/2026"
+  },
+  "languages": ["en", "ru", "zh", "ar"],
+  "system_prompts": {
+    "en": "Answer with a single word or a single number only. Output nothing else: no explanation, no punctuation, no quotation marks.",
+    "ru": "Отвечай только одним словом или одним числом. Не выводи ничего больше: без объяснений, без знаков препинания, без кавычек.",
+    "zh": "只用一个词或一个数字回答。不要输出任何其他内容：不要解释，不要标点符号，不要引号。",
+    "ar": "أجب بكلمة واحدة أو رقم واحد فقط. لا تكتب أي شيء آخر: لا شرح ولا علامات ترقيم ولا علامات اقتباس."
+  },
+  "tasks": [
+    {
+      "id": "num100-random",
+      "paper": 1,
+      "category": "number",
+      "condition": "random",
+      "answer_space": "integer 1-100",
+      "normalize_as": "integer",
+      "notes": "Core fingerprint probe; known human-like bias toward 7/37/42/73 etc.",
+      "prompts": {
+        "en": "Name a random number between 1 and 100.",
+        "ru": "Назови случайное число от 1 до 100.",
+        "zh": "说出一个1到100之间的随机数。",
+        "ar": "اذكر رقماً عشوائياً بين 1 و100."
+      }
+    },
+    {
+      "id": "num10-random",
+      "paper": 1,
+      "category": "number",
+      "condition": "random",
+      "answer_space": "integer 1-10",
+      "normalize_as": "integer",
+      "notes": "Small answer space: high per-cell counts, precise distribution estimates.",
+      "prompts": {
+        "en": "Name a random number between 1 and 10.",
+        "ru": "Назови случайное число от 1 до 10.",
+        "zh": "说出一个1到10之间的随机数。",
+        "ar": "اذكر رقماً عشوائياً بين 1 و10."
+      }
+    },
+    {
+      "id": "num-favorite",
+      "paper": 1,
+      "category": "number",
+      "condition": "favorite",
+      "answer_space": "any number",
+      "normalize_as": "integer",
+      "notes": "Favorite-vs-random contrast is itself part of the fingerprint.",
+      "prompts": {
+        "en": "What is your favorite number? Name it.",
+        "ru": "Какое твоё любимое число? Назови его.",
+        "zh": "你最喜欢的数字是什么？说出它。",
+        "ar": "ما هو رقمك المفضل؟ اذكره."
+      }
+    },
+    {
+      "id": "letter-random",
+      "paper": 1,
+      "category": "letter",
+      "condition": "random",
+      "answer_space": "one letter/character of the language's native script",
+      "normalize_as": "grapheme",
+      "notes": "zh has no alphabet; the zh variant asks for a random Chinese character. Within-language comparison only.",
+      "prompts": {
+        "en": "Name a random letter of the alphabet.",
+        "ru": "Назови случайную букву алфавита.",
+        "zh": "说出一个随机的汉字。",
+        "ar": "اذكر حرفاً عشوائياً من الحروف الأبجدية."
+      }
+    },
+    {
+      "id": "word-random",
+      "paper": 1,
+      "category": "word",
+      "condition": "random",
+      "answer_space": "any single word",
+      "normalize_as": "word",
+      "notes": "Open answer space; long tail expected — analysed via top-k mass and entropy, not full distribution.",
+      "prompts": {
+        "en": "Name a random word.",
+        "ru": "Назови случайное слово.",
+        "zh": "说出一个随机的词。",
+        "ar": "اذكر كلمة عشوائية."
+      }
+    },
+    {
+      "id": "color-random",
+      "paper": 1,
+      "category": "color",
+      "condition": "random",
+      "answer_space": "color name",
+      "normalize_as": "word",
+      "notes": "Colors are additionally mapped to a language-independent canonical color code (stats/01) to enable the cross-language color analysis.",
+      "prompts": {
+        "en": "Name a random color.",
+        "ru": "Назови случайный цвет.",
+        "zh": "说出一个随机的颜色。",
+        "ar": "اذكر لوناً عشوائياً."
+      }
+    },
+    {
+      "id": "color-favorite",
+      "paper": 1,
+      "category": "color",
+      "condition": "favorite",
+      "answer_space": "color name",
+      "normalize_as": "word",
+      "notes": "Favorite-vs-random contrast; also feeds cross-language color analysis.",
+      "prompts": {
+        "en": "What is your favorite color? Name it.",
+        "ru": "Какой твой любимый цвет? Назови его.",
+        "zh": "你最喜欢的颜色是什么？说出它。",
+        "ar": "ما هو لونك المفضل؟ اذكره."
+      }
+    },
+    {
+      "id": "animal-random",
+      "paper": 1,
+      "category": "animal",
+      "condition": "random",
+      "answer_space": "animal name",
+      "normalize_as": "word",
+      "prompts": {
+        "en": "Name a random animal.",
+        "ru": "Назови случайное животное.",
+        "zh": "说出一个随机的动物。",
+        "ar": "اذكر حيواناً عشوائياً."
+      }
+    },
+    {
+      "id": "city-random",
+      "paper": 1,
+      "category": "city",
+      "condition": "random",
+      "answer_space": "city name",
+      "normalize_as": "word",
+      "prompts": {
+        "en": "Name a random city.",
+        "ru": "Назови случайный город.",
+        "zh": "说出一个随机的城市。",
+        "ar": "اذكر مدينة عشوائية."
+      }
+    },
+    {
+      "id": "coin-flip",
+      "paper": 1,
+      "category": "binary",
+      "condition": "random",
+      "answer_space": "heads|tails (language-specific pair)",
+      "normalize_as": "binary",
+      "notes": "Binary probe: single-parameter distribution, extremely cheap, surprisingly discriminative (known heads-bias).",
+      "prompts": {
+        "en": "Flip a coin. Answer \"heads\" or \"tails\".",
+        "ru": "Подбрось монету. Ответь «орёл» или «решка».",
+        "zh": "抛一枚硬币。回答“正面”或“反面”。",
+        "ar": "ارمِ قطعة نقود. أجب \"صورة\" أو \"كتابة\"."
+      }
+    },
+    {
+      "id": "coord-num10",
+      "paper": 2,
+      "category": "number",
+      "condition": "coordination",
+      "answer_space": "integer 1-10",
+      "normalize_as": "integer",
+      "notes": "Schelling coordination; baseline for success is the cross-model marginal distribution, not 1/10.",
+      "prompts": {
+        "en": "You are playing a coordination game with an anonymous partner. Each of you independently names a number between 1 and 10. You both win if you name the same number. Name your number.",
+        "ru": "Ты играешь в координационную игру с анонимным партнёром. Каждый из вас независимо называет число от 1 до 10. Вы оба выигрываете, если назовёте одно и то же число. Назови своё число.",
+        "zh": "你正在和一位匿名伙伴玩一个协调游戏。你们各自独立说出一个1到10之间的数字。如果你们说出相同的数字，你们都获胜。说出你的数字。",
+        "ar": "أنت تلعب لعبة تنسيق مع شريك مجهول. كل منكما يذكر بشكل مستقل رقماً بين 1 و10. تفوزان معاً إذا ذكرتما الرقم نفسه. اذكر رقمك."
+      }
+    },
+    {
+      "id": "coord-color",
+      "paper": 2,
+      "category": "color",
+      "condition": "coordination",
+      "answer_space": "color name",
+      "normalize_as": "word",
+      "prompts": {
+        "en": "You are playing a coordination game with an anonymous partner. Each of you independently names a color. You both win if you name the same color. Name your color.",
+        "ru": "Ты играешь в координационную игру с анонимным партнёром. Каждый из вас независимо называет цвет. Вы оба выигрываете, если назовёте один и тот же цвет. Назови свой цвет.",
+        "zh": "你正在和一位匿名伙伴玩一个协调游戏。你们各自独立说出一种颜色。如果你们说出相同的颜色，你们都获胜。说出你的颜色。",
+        "ar": "أنت تلعب لعبة تنسيق مع شريك مجهول. كل منكما يذكر بشكل مستقل لوناً. تفوزان معاً إذا ذكرتما اللون نفسه. اذكر لونك."
+      }
+    },
+    {
+      "id": "coord-city",
+      "paper": 2,
+      "category": "city",
+      "condition": "coordination",
+      "answer_space": "city name",
+      "normalize_as": "word",
+      "notes": "Open-space Schelling task; classic human answer is the country's capital / New York — cross-language contrast is of interest.",
+      "prompts": {
+        "en": "You are playing a coordination game with an anonymous partner. Each of you independently names a city. You both win if you name the same city. Name your city.",
+        "ru": "Ты играешь в координационную игру с анонимным партнёром. Каждый из вас независимо называет город. Вы оба выигрываете, если назовёте один и тот же город. Назови свой город.",
+        "zh": "你正在和一位匿名伙伴玩一个协调游戏。你们各自独立说出一座城市。如果你们说出相同的城市，你们都获胜。说出你的城市。",
+        "ar": "أنت تلعب لعبة تنسيق مع شريك مجهول. كل منكما يذكر بشكل مستقل مدينة. تفوزان معاً إذا ذكرتما المدينة نفسها. اذكر مدينتك."
+      }
+    },
+    {
+      "id": "anticoord-num10",
+      "paper": 2,
+      "category": "number",
+      "condition": "anticoordination",
+      "answer_space": "integer 1-10",
+      "normalize_as": "integer",
+      "notes": "Anti-coordination requires modeling the counterpart, not just one's own prior — theoretically the most informative condition.",
+      "prompts": {
+        "en": "You are playing a game with an anonymous partner. Each of you independently names a number between 1 and 10. You both win only if you name DIFFERENT numbers. Name your number.",
+        "ru": "Ты играешь в игру с анонимным партнёром. Каждый из вас независимо называет число от 1 до 10. Вы оба выигрываете, только если назовёте РАЗНЫЕ числа. Назови своё число.",
+        "zh": "你正在和一位匿名伙伴玩一个游戏。你们各自独立说出一个1到10之间的数字。只有当你们说出不同的数字时，你们才都获胜。说出你的数字。",
+        "ar": "أنت تلعب لعبة مع شريك مجهول. كل منكما يذكر بشكل مستقل رقماً بين 1 و10. تفوزان معاً فقط إذا ذكرتما رقمين مختلفين. اذكر رقمك."
+      }
+    },
+    {
+      "id": "secret-password",
+      "paper": 2,
+      "category": "word",
+      "condition": "secrecy",
+      "answer_space": "any single word",
+      "normalize_as": "word",
+      "notes": "Neutral wording (no 'hidden from anyone' framing) so we measure choice, not willingness. Refusals are coded, not dropped — refusal rate is itself a result.",
+      "prompts": {
+        "en": "Choose a single word that will serve as a shared secret password between you and your counterpart. Reply with that word only.",
+        "ru": "Выбери одно слово, которое будет служить общим секретным паролем между тобой и твоим партнёром. Ответь только этим словом.",
+        "zh": "选择一个词，作为你和你的对应方之间共享的秘密口令。只回复这个词。",
+        "ar": "اختر كلمة واحدة تكون كلمة سر مشتركة بينك وبين نظيرك. أجب بهذه الكلمة فقط."
+      }
+    }
+  ]
+}
