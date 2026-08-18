@@ -71,7 +71,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
 | | Dify | 34 | 高 |
-| | LiteLLM | 31 | 中 |
+| | LiteLLM | 34 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
 | | anythingllm | 19 | 中高 |
@@ -80,7 +80,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | qanything | 8 | 中 |
 | | fastgpt | 6 | 中 |
 | | new-api | 5 | 中 |
-| | LobeChat | 4 | 中 |
+| | LobeChat | 5 | 中 |
 | | crewai | 4 | 严重 |
 | | langfuse | 4 | 低 |
 | | chuanhuchatgpt | 1 | 中 |
@@ -129,7 +129,6 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | mcp sse | 2 | 中 |
 | | paperclip | 2 | 中 |
 | | weknora | 2 | 低 |
-| | pgadmin | 2 | 中高 |
 | | Clawdbot Gateway | 1 | 中 |
 | | ComfyUI-Ace-Nodes | 1 | 低 |
 | | ComfyUI-Bmad-Nodes | 1 | 低 |
@@ -162,8 +161,6 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | superagi | 1 | 低 |
 | | text-generation-webui | 1 | 中 |
 | | upsonic | 1 | 中 |
-| | wallos | 1 | 低 |
-| | budibase | 1 | 中 |
 | | nocobase | 1 | 严重 |
 | | sub2api | 1 | 高 |
 | | trigger.dev | 1 | 严重 |

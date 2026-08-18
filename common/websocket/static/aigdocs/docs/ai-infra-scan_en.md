@@ -77,7 +77,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
 | | Dify | 34 | High |
-| | LiteLLM | 31 | Medium |
+| | LiteLLM | 34 | Medium |
 | | Chuanhugpt | 27 | Medium-High |
 | | librechat | 21 | Medium |
 | | anythingllm | 19 | Medium-High |
@@ -86,7 +86,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | qanything | 8 | Medium |
 | | fastgpt | 6 | Medium |
 | | new-api | 5 | Medium |
-| | LobeChat | 4 | Medium |
+| | LobeChat | 5 | Medium |
 | | crewai | 4 | Critical |
 | | langfuse | 4 | Low |
 | | chuanhuchatgpt | 1 | Medium |
@@ -135,7 +135,6 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | mcp sse | 2 | Medium |
 | | paperclip | 2 | Medium |
 | | weknora | 2 | Low |
-| | pgadmin | 2 | Medium-High |
 | | Clawdbot Gateway | 1 | Medium |
 | | ComfyUI-Ace-Nodes | 1 | Low |
 | | ComfyUI-Bmad-Nodes | 1 | Low |
@@ -168,8 +167,6 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | superagi | 1 | Low |
 | | text-generation-webui | 1 | Medium |
 | | upsonic | 1 | Medium |
-| | wallos | 1 | Low |
-| | budibase | 1 | Medium |
 | | nocobase | 1 | Critical |
 | | sub2api | 1 | High |
 | | trigger.dev | 1 | Critical |
