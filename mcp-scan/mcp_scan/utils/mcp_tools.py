@@ -19,13 +19,13 @@
 import asyncio
 import json
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-from datetime import timedelta
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Any, Literal
 
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamable_http_client
+from mcp.shared._httpx_utils import create_mcp_http_client
 
 
 class MCPTools:
@@ -56,22 +56,29 @@ class MCPTools:
         if not self.url:
             raise ValueError("MCP server url is required")
 
-        if self.transport == "sse":
-            ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
-        elif self.transport == "streamable-http":
-            ctx = streamable_http_client(url=self.url, headers=self.headers)  # type: ignore
-        else:
-            raise ValueError(f"Unsupported transport protocol: {self.transport}")
+        async with AsyncExitStack() as stack:
+            if self.transport == "sse":
+                transport_ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
+            elif self.transport == "streamable-http":
+                http_client = create_mcp_http_client(headers=self.headers)
+                await stack.enter_async_context(http_client)
+                transport_ctx = streamable_http_client(
+                    url=self.url,
+                    http_client=http_client,
+                )
+            else:
+                raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
-        async with ctx as session_params:  # type: ignore
+            session_params = await stack.enter_async_context(transport_ctx)
             read, write = session_params[0:2]
-            async with ClientSession(
+            session = ClientSession(
                 read,
                 write,
-                read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
-            ) as session:  # type: ignore
-                await session.initialize()
-                yield session
+                read_timeout_seconds=float(self.timeout_seconds),
+            )
+            await stack.enter_async_context(session)
+            await session.initialize()
+            yield session
 
     def _build_parameter_attributes(self, param: dict[str, Any]) -> str:
         """构建参数的 XML 属性字符串，包含所有 schema 信息"""
