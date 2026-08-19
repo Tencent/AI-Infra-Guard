@@ -18,11 +18,13 @@
 
 import asyncio
 import json
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from typing import Any, Literal
 
+import httpx
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamable_http_client
@@ -41,7 +43,7 @@ class MCPTools:
             headers = {}
         self.url = url
         self.transport = transport
-        self.timeout_seconds = 10
+        self.timeout_seconds = int(os.environ.get("MCP_TIMEOUT_SECONDS", "30"))
         self.headers = headers
         # 缓存工具 schema，用于参数类型转换
         self._tools_schema: dict[str, dict[str, Any]] = {}
@@ -59,7 +61,12 @@ class MCPTools:
         if self.transport == "sse":
             ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
-            ctx = streamable_http_client(url=self.url, headers=self.headers)  # type: ignore
+            # MCP SDK 1.28+ 的 streamable_http_client 不接受 headers 参数，
+            # 需要通过 http_client 参数传入带 headers 的自定义 httpx 客户端
+            http_client = httpx.AsyncClient(headers=self.headers) if self.headers else None
+            ctx = streamable_http_client(
+                url=self.url, http_client=http_client
+            )  # type: ignore
         else:
             raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
