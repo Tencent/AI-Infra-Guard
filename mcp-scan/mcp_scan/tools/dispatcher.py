@@ -50,6 +50,9 @@ class ToolDispatcher:
         self.mcp_tools_manager: MCPTools | None = None
         self.mcp_transport = None
         self.mcp_headers = mcp_headers
+        # Last error seen across all attempted transports, so callers can surface
+        # *why* the connection failed instead of a bare "Failed to connect".
+        self.last_connect_error: Exception | None = None
 
     async def _ensure_mcp_manager(self) -> MCPTools | None:
         if not self.mcp_server_url:
@@ -70,10 +73,15 @@ class ToolDispatcher:
                     f"ToolDispatcher: MCP tools manager initialized with transport: {transport}"
                 )
                 return self.mcp_tools_manager
-            except Exception:
+            except Exception as e:
+                self.last_connect_error = e
+                logger.debug(f"ToolDispatcher: transport '{transport}' failed: {e}")
                 continue
 
-        logger.error(f"ToolDispatcher: Failed to connect to MCP server: {self.mcp_server_url}")
+        logger.error(
+            f"ToolDispatcher: Failed to connect to MCP server: {self.mcp_server_url} "
+            f"(tried transports: {transports}); last error: {self.last_connect_error}"
+        )
         return None
 
     async def get_all_tools_prompt(self) -> str:
@@ -88,7 +96,8 @@ class ToolDispatcher:
             prompt = get_tools_prompt(list(_DYNAMIC_SAFE_TOOLS))
             manager = await self._ensure_mcp_manager()
             if not manager:
-                raise RuntimeError("Failed to connect to MCP server")
+                detail = f": {self.last_connect_error}" if self.last_connect_error else ""
+                raise RuntimeError(f"Failed to connect to MCP server{detail}")
             try:
                 mcp_prompt = await manager.describe_mcp_tools()
                 mcp_remote_prompt = prompt_manager.format_prompt(
