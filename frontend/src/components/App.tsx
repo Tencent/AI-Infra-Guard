@@ -11,11 +11,12 @@ import JailbreakDetailPanel from './detailPanel/JailbreakDetailPanel';
 import AgentScanDetailPanel from './detailPanel/AgentScanDetailPanel';
 import HelpDocumentPage from '../pages/HelpDocumentPage';
 import ReportPage from '../pages/ReportPage';
+import LLMProxyDetectPage from '../pages/LLMProxyDetectPage';
 import { ExecutionStep, MCPScanResult, InfraScanResult, RedteamReportResult, JailbreakResult, AgentScanResult } from '../types';
 import { Toaster } from './ui/sonner';
 import WelcomeAnimation from './WelcomeAnimation';
 import { env } from '../config/env';
-import { isDocSiteMode, extraRoutes } from '../config/privateModules';
+import { isDocSiteMode, extraRoutes } from '@/config/privateModules';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 
 const AppContent: React.FC = () => {
@@ -396,6 +397,7 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/report/:sessionId" element={<ReportPage />} />
+      <Route path="/poison-detect" element={<LLMProxyDetectPage />} />
       <Route
         path="/*"
         element={

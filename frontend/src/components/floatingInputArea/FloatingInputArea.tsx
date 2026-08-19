@@ -13,7 +13,7 @@ import { evaluationApi } from '../../lib/evaluationApi';
 import { ModelItem } from '../../types/model';
 import { shouldShowModelButton, shouldShowEvalModelButton } from '../../utils/taskUtils';
 import { enableEvalModel } from '../../config/env';
-import { hasMoreFeaturesMenu, maxAttackMethods, extraMoreFeatures } from '../../config/privateModules';
+import { hasMoreFeaturesMenu, maxAttackMethods, extraMoreFeatures } from '@/config/privateModules';
 import { joyrideStyles, getJoyrideLocale as getJoyrideLocaleConfig } from '../../config/joyrideConfig';
 import { getTaskTypeDefaultIdentifier } from '../../config/mcpServices';
 import HttpHeaderDialog from '../HttpHeaderDialog';
@@ -247,16 +247,11 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
   
   // State related to the onboarding tour
   const [runTour, setRunTour] = useState(false);
-  // "AI Security Skill Market" NEW badge visibility: hidden once the user has clicked the button
-  const [showSkillMarketBadge, setShowSkillMarketBadge] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('hasSeenSkillMarket') !== 'true';
-  });
+  // Persist the "AI Security Skill Market" first-visit flag (badge already removed from UI)
   const dismissSkillMarketBadge = () => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('hasSeenSkillMarket', 'true');
     }
-    setShowSkillMarketBadge(false);
   };
   // State related to the task-type onboarding tour
   const [runTaskTour, setRunTaskTour] = useState(false);
@@ -2685,20 +2680,19 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
                 return (
                   <React.Fragment key={service.id}>
                     {service.id === 'Agent-Scan' && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type='button'
-                            className="relative flex flex-row items-center gap-1.5 px-5 py-2 transition-all duration-150 focus:outline-none focus:ring-0 active:outline-none hover:bg-rose-50 cursor-pointer outline-none bg-white rounded-full border border-rose-100 shadow-sm"
-                            data-joyride="skill-market"
-                            onClick={() => {
-                              dismissSkillMarketBadge();
-                              window.open('https://matrix.tencent.com/skill-market', '_blank');
-                            }}
-                          >
-                            <Sparkles className="w-4 h-4 text-rose-500" />
-                            <span className="text-xs font-medium text-rose-400" style={{ fontSize: '12px' }}>{t('floatingInputArea.buttons.skillMarket')}</span>
-                            {showSkillMarketBadge && (
+                      <>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type='button'
+                              className="relative flex flex-row items-center gap-1.5 px-5 py-2 transition-all duration-150 focus:outline-none focus:ring-0 active:outline-none hover:bg-rose-50 cursor-pointer outline-none bg-white rounded-full border border-rose-100 shadow-sm"
+                              data-joyride="poison-detect"
+                              onClick={() => {
+                                window.open('/poison-detect', '_blank');
+                              }}
+                            >
+                              <Sparkles className="w-4 h-4 text-rose-500" />
+                              <span className="text-xs font-medium text-rose-400" style={{ fontSize: '12px' }}>{t('floatingInputArea.buttons.poisonDetect')}</span>
                               <span
                                 aria-label="new feature"
                                 className="absolute -top-2 -right-2 flex items-center justify-center select-none pointer-events-none"
@@ -2710,13 +2704,32 @@ const FloatingInputArea: React.FC<FloatingInputAreaProps> = ({
                                   {t('floatingInputArea.buttons.skillMarketNewBadge')}
                                 </span>
                               </span>
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{t('floatingInputArea.tooltips.skillMarketDescription')}</p>
-                        </TooltipContent>
-                      </Tooltip>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{t('floatingInputArea.tooltips.poisonDetectDescription')}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type='button'
+                              className="relative flex flex-row items-center gap-1.5 px-5 py-2 transition-all duration-150 focus:outline-none focus:ring-0 active:outline-none hover:bg-gray-100 cursor-pointer outline-none bg-white rounded-full border border-gray-100 shadow-sm"
+                              data-joyride="skill-market"
+                              onClick={() => {
+                                dismissSkillMarketBadge();
+                                window.open('https://matrix.tencent.com/skill-market', '_blank');
+                              }}
+                            >
+                              <Sparkles className="w-5 h-5 text-cyan-500" />
+                              <span className="text-xs font-medium text-gray-500" style={{ fontSize: '12px' }}>{t('floatingInputArea.buttons.skillMarket')}</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{t('floatingInputArea.tooltips.skillMarketDescription')}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </>
                     )}
                     <Tooltip>
                       <TooltipTrigger asChild>

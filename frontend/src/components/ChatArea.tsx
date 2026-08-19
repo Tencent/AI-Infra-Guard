@@ -16,7 +16,7 @@ import FloatingInputArea from './floatingInputArea/FloatingInputArea';
 import StarPrompt from './StarPrompt';
 import { shouldShowModelButton } from '../utils/taskUtils';
 import { uploadFile } from '../utils/uploadUtils';
-import { businessPartners, showBusinessPartners, PracticeShowcase } from '../config/privateModules';
+import { businessPartners, showBusinessPartners, PracticeShowcase } from '@/config/privateModules';
 import { useMcpServices } from '../config/mcpServices';
 import { 
   Paperclip, 
