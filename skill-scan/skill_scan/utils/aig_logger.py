@@ -87,7 +87,23 @@ class McpLogger:
         if isinstance(content, BaseModel):
             content.timestamp = str(time.time())
             content = content.model_dump()
+        # Strip lone surrogate characters (\udc00-\udfff) that can appear when
+        # reading filenames with non-UTF-8 bytes from the OS (surrogateescape).
+        # Without this, pydantic's model_dump_json() raises UnicodeEncodeError
+        # because UTF-8 does not allow surrogates.
+        content = self._strip_surrogates(content)
         self.logger.info(AgentMsg(type=type, content=content).model_dump_json())
+
+    @staticmethod
+    def _strip_surrogates(obj):
+        """Recursively remove lone surrogate characters from strings in obj."""
+        if isinstance(obj, str):
+            return obj.encode('utf-8', 'replace').decode('utf-8')
+        if isinstance(obj, dict):
+            return {k: McpLogger._strip_surrogates(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [McpLogger._strip_surrogates(i) for i in obj]
+        return obj
 
     def new_plan_step(self, stepId: str, stepName: str):
         self._log("newPlanStep", newPlanStep(stepId=stepId, title=stepName))

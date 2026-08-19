@@ -73,8 +73,22 @@ class ToolDispatcher:
                     ret += f"<{k}>\n{items}\n</{k}>\n"
                 else:
                     ret += f"<{k}>{v}</{k}>\n"
-            return ret
-        return str(result)
+            return self._strip_surrogates(ret)
+        return self._strip_surrogates(str(result))
+
+    @staticmethod
+    def _strip_surrogates(s: str) -> str:
+        """Remove lone surrogate characters that arise from non-UTF-8 filenames.
+
+        Python's os.walk()/os.listdir() decodes filenames using 'surrogateescape'
+        error handler, producing lone surrogates (\\udc00-\\udfff) for bytes that
+        are not valid UTF-8. These would crash JSON serialization downstream and
+        pollute the LLM context, so we replace them with '?' here.
+        """
+        try:
+            return s.encode('utf-8', 'replace').decode('utf-8')
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            return s.encode('utf-8', 'ignore').decode('utf-8')
 
     async def close(self):
         pass
