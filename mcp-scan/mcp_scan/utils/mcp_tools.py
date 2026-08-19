@@ -18,6 +18,7 @@
 
 import asyncio
 import json
+import os
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Any, Literal
@@ -41,7 +42,7 @@ class MCPTools:
             headers = {}
         self.url = url
         self.transport = transport
-        self.timeout_seconds = 10
+        self.timeout_seconds = int(os.environ.get("MCP_TIMEOUT_SECONDS", "30"))
         self.headers = headers
         # 缓存工具 schema，用于参数类型转换
         self._tools_schema: dict[str, dict[str, Any]] = {}
