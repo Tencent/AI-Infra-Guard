@@ -1,3 +1,6 @@
+version: '3.8'
+
+
 services:
   webserver:
     image: zhuquelab/aig-server:latest
@@ -9,7 +12,6 @@ services:
       - UPLOAD_DIR=/app/uploads
       - DB_PATH=/app/db/tasks.db
       - TZ=Asia/Shanghai
-      - AIG_API_CHECKER_URL=http://agent:8000
     volumes:
       - ./data:/app/data
       - ./db:/app/db
@@ -17,55 +19,31 @@ services:
       - ./uploads:/app/uploads
     networks:
       - ai-infra-guard-network
-    depends_on:
-      agent:
-        condition: service_healthy
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8088/" ]
+      test: [ "CMD", "curl",  "http://localhost:8088/" ]
       interval: 30s
       timeout: 3s
       retries: 3
   agent:
     image: zhuquelab/aig-agent:latest
     container_name: ai-infra-guard-agent
-    expose:
-      - "8000"
     environment:
       - TZ=Asia/Shanghai
       - AIG_SERVER=webserver:8088
-      - AIG_API_CHECKER_ROOT_PATH=/api-checker
-      - AIG_API_CHECKER_DATA_DIR=/api-checker-data
-      - AIG_API_CHECKER_MAX_JOBS=${AIG_API_CHECKER_MAX_JOBS:-20}
-      - AIG_API_CHECKER_ALLOW_HTTP=${AIG_API_CHECKER_ALLOW_HTTP:-0}
-      - AIG_API_CHECKER_ALLOW_PRIVATE_TARGETS=${AIG_API_CHECKER_ALLOW_PRIVATE_TARGETS:-0}
-      - AIG_API_CHECKER_CORS_ORIGINS=${AIG_API_CHECKER_CORS_ORIGINS:-}
     cap_add:
       - SYS_ADMIN
     security_opt:
       - seccomp:unconfined
     shm_size: '2gb'
-    volumes:
-      - api-checker-data:/api-checker-data
     networks:
       - ai-infra-guard-network
     restart: always
-    healthcheck:
-      test:
-        - CMD
-        - gosu
-        - agent:agent
-        - /app/api-checker-venv/bin/python
-        - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()"
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
+    depends_on:
+      webserver:
+        condition: service_healthy
 
 networks:
   ai-infra-guard-network:
     driver: bridge
     name: ai-infra-guard-network
-volumes:
-  api-checker-data:
