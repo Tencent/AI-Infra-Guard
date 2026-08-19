@@ -6,6 +6,11 @@ module.exports = {
 		'./components/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
+		// Private overlay (internal build) — scan classes used by internal-only
+		// components such as PracticeAndResearch, AttackLeaderboardApp, etc.,
+		// otherwise those classes are purged from the final CSS and the layout
+		// collapses in the internal production build.
+		'./private/**/*.{ts,tsx}',
 	],
 	theme: {
 		container: {

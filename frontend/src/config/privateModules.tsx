@@ -109,12 +109,20 @@ export const protectDefaultModel: boolean = false;
 export const maxAttackMethods: number | null = null;
 
 /**
- * Whether the "standalone documentation site" mode is enabled
- * (previously the openSourceDoc environment).
- * Defaults to false in the open-source build; can be set to true for
- * `vite --mode docSite` scenarios.
+ * Whether the "standalone documentation site" mode is enabled.
+ *
+ * When true, App.tsx renders ONLY the user-manual page (HelpDocumentPage)
+ * and skips the login / chat / scan / report functionality entirely — i.e.
+ * the app becomes a pure documentation site.
+ *
+ * The open-source doc variant (VITE_APP_ENV === 'openSourceDoc', built with
+ * `vite --mode openSourceDoc`, the openSourceDoc export) enables this so the
+ * published artifact contains just the user manual. The regular open-source
+ * and development builds keep it false. The private overlay may also override
+ * this for an internal docSite.
  */
-export const isDocSiteMode: boolean = false;
+export const isDocSiteMode: boolean =
+  import.meta.env.VITE_APP_ENV === 'openSourceDoc';
 
 /**
  * Documentation variant identifier used as the suffix when

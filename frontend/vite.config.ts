@@ -194,15 +194,17 @@ export default defineConfig(({ mode }) => {
   // Dev proxy target: prefer VITE_DEV_PROXY_TARGET, fall back to localhost if unset.
   const devProxyTarget = env.VITE_DEV_PROXY_TARGET || 'http://localhost:8088';
 
-  const aliases: Record<string, string> = {
-    '@': path.resolve(__dirname, './src'),
-  };
+  // Alias entries. NOTE: order matters — more specific entries (longer prefixes)
+  // MUST come before more generic ones, because vite matches aliases in order.
+  // If '@' is placed before '@/config/privateModules', the bare '@' prefix will
+  // match first and the private overlay override will never take effect.
+  const aliases: { find: string | RegExp; replacement: string }[] = [];
+
   // If a private/ directory exists, allow imports via @private/xxx and (in non-openSource
   // modes) automatically point the bridge module @/config/privateModules to the private
   // implementation, overriding the default no-op stubs.
   const privateDir = path.resolve(__dirname, 'private');
   if (fs.existsSync(privateDir)) {
-    aliases['@private'] = privateDir;
     if (mode !== 'openSource') {
       // Try both .tsx / .ts extensions (.tsx contains JSX bridge components such as
       // AppShell / AuthGate).
@@ -212,10 +214,15 @@ export default defineConfig(({ mode }) => {
       ];
       const privateModulesFile = candidates.find(f => fs.existsSync(f));
       if (privateModulesFile) {
-        aliases['@/config/privateModules'] = privateModulesFile;
+        // Must be registered BEFORE the generic '@' alias below.
+        aliases.push({ find: '@/config/privateModules', replacement: privateModulesFile });
       }
     }
+    aliases.push({ find: '@private', replacement: privateDir });
   }
+
+  // Generic '@' alias — always registered last so more specific entries win.
+  aliases.push({ find: '@', replacement: path.resolve(__dirname, './src') });
 
   return {
     base: env.VITE_BASENAME || '/',

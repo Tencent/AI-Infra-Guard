@@ -694,6 +694,7 @@
       "selectTaskTypeFirst": "请先输入@调用检测智能体",
       "clawScan": "OpenClaw安全体检",
       "skillMarket": "AI 安全技能市场",
+      "poisonDetect": "大模型API投毒检测",
       "skillMarketNewBadge": "新",
       "helpDocument": "用户指南",
       "selectFile": "选择文件",
@@ -784,6 +785,7 @@
       "supportedFileTypesDescription": "支持的文件类型:",
       "clawScanDescription": "一键通过自然语言对话，让A.I.G给你的AI助手做安全体检，并建立持久免疫能力。",
       "skillMarketDescription": "AI 安全技能市场：一站式获取安全 Skill，覆盖 OpenClaw、通用 Agent Skill 与 AI 基础设施安全场景。",
+      "poisonDetectDescription": "大模型 API 投毒检测：识别中转代理是否被劫持、篡改或投毒，快速评估 API 服务的真实性与安全风险。",
       "behavioralControlAttackDescription": "行为控制攻击会与大模型进行交互以获取增强的攻击Prompt，单条运行时间相较于编码攻击会慢2~3倍",
       "aiInfraModelHint": "如需检测AI未鉴权，请选择多模态大模型，推荐模型GPT5/Gemini Pro/Sonnet4.5。"
     },
@@ -974,5 +976,195 @@
     "agentPrompt": "安装此 Skill: https://github.com/Tencent/AI-Infra-Guard 中的 skills.md，基于该 skill 检查本地 OpenClaw 的安全性。",
     "copy": "复制",
     "copied": "已复制"
+  },
+  "llmProxyDetect": {
+    "page": {
+      "title": "大模型 API 投毒检测",
+    "subtitle": "配置您的 LLM 中转代理参数，进行诊断审计与安全验证。",
+      "heroBadge": "API 安全诊断与审计"
+    },
+    "targetEndpoint": {
+      "title": "检测目标",
+      "llmModel": "选择要检测的模型",
+      "selectModelPlaceholder": "请选择模型",
+      "loading": "加载中…",
+      "platformModelsGroup": "已接入模型",
+      "builtInModelsGroup": "其他模型",
+      "noBuiltInModels": "暂无其他模型",
+      "customOption": "更多模型",
+      "scanMode": "扫描模式",
+      "scanModeQuick": "快速扫描",
+      "scanModeFull": "全面扫描",
+      "platformSelectedTitle": "已选择平台接入模型，无需填写 URL 与 API Key",
+      "platformSelectedDesc": "检测将直接使用平台保存的连接配置（Endpoint / API Key），无需手动填写。",
+      "endpointLabelPlatform": "API 地址",
+      "apiKeyLabelPlatform": "API Key",
+      "relayApiUrl": "中转站 API 地址",
+      "relayApiUrlPlaceholder": "请填写中转站 Base URL，例如 https://api.openai.com/v1",
+      "apiKey": "API Key / 授权令牌",
+  "apiKeyPlaceholder": "sk-xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeySecurityHint": "仅本次检测使用，不会存储或转发",
+      "customModelName": "模型名称",
+      "customModelPlaceholder": "请输入非内置/非内测的模型名称，例如 my-custom-model",
+      "resetDefaults": "重置",
+      "startDetection": "开始检测",
+      "detecting": "检测中..."
+    },
+    "validation": {
+      "selectModel": "请选择要检测的 LLM 模型",
+      "fillCustomModel": "请填写模型名称",
+      "fillRelayUrl": "请填写中转站 API URL",
+      "fillApiKey": "请填写 API Key"
+    },
+    "principle": {
+      "badge": "Core Technology",
+ "heroTitle": "纯黑盒探测 · 统计指纹 · 协议深度校验",
+      "heroSubtitle": "无需接触中转站的源码与内部配置，通过标准 API 通道下发多维探针，结合贝叶斯统计与协议级校验，输出可复现、可解释的风险证据链。",
+      "card1": {
+              "tag": "快速扫描",
+   "title": "多维黑盒探针",
+"desc": "30 秒内暴露常见风险。以 7 类正交探针并发下发，从连通性、身份、Token、回显、流式、上下文六个维度交叉验证响应真实性。",
+    "points": [
+        "模型列表与身份自报：识别模型缺失、假模型与身份伪造",
+          "Token 偏差与回显命令：捕捉计费异常与提示词注入痕迹",
+          "SSE 流完整性与 Canary 长上下文：暴露丢包截断与偷工减料"
+    ]
+      },
+      "card2": {
+  "tag": "全面扫描",
+   "title": "大模型统计指纹",
+ "desc": "精准识别掺假与替身模型。在 1~355 区间重复采样，基于 Dirichlet 平滑与 Multinomial 后验预测，将实测分布与参考基准做贝叶斯对比。",
+        "points": [
+          "对数贝叶斯因子 + G² 异常值双重推断",
+          "在已声明模型、已知替身、未知异常之间给出可解释判定",
+     "结果配 355 维分布对比图，偏差点、置信度一目了然"
+        ]
+      },
+      "card3": {
+     "tag": "Claude 专属",
+        "title": "协议级深度校验",
+        "desc": "思维链签名与元数据交叉校验。针对 Extended Thinking，解析 signature 封装并回放至 API 二次验证，防伪装。",
+      "points": [
+          "Signature 结构解析与密文特征回放验证",
+   "thinking_tokens、stop_reason、响应头多维交叉比对",
+          "结合延迟与系统提示词特征，深度识别协议级伪造"
+        ]
+   },
+      "advantagesTitle": "四大平台优势",
+      "advantages": {
+        "blackbox": {
+   "title": "纯黑盒无侵入",
+      "desc": "不依赖中转站源码，仅通过标准接口探测，零配置接入即用。"
+        },
+  "evidence": {
+        "title": "多维证据链",
+       "desc": "指纹、协议、元数据深度交叉印证，构建完整证据链，杜绝单点误判。"
+        },
+        "fingerprint": {
+ "title": "统计学可解释",
+    "desc": "输出严谨置信度、候选替身与偏差区间，结论完全可复现可追溯。"
+        },
+     "report": {
+          "title": "一键专业报告",
+          "desc": "自动生成双语可视化分析报告，支持导出 PDF，直接用于合规与验收。"
+   }
+      },
+   "footnote": "* 指纹检测提供统计学证据，结果可能受模型版本更新、系统提示词、温度参数及中转站动态路由等因素影响。"
+    },
+    "overlay": {
+      "connecting": "正在连接检测服务…",
+      "running": "检测进行中…",
+      "failed": "检测失败",
+      "completed": "检测完成",
+      "hint": "检测通常需要 30 秒到数分钟，请保持页面打开。",
+      "waitingEvents": "等待服务端事件…",
+      "cancel": "取消检测",
+      "close": "关闭",
+      "retry": "重新检测",
+      "stageConnecting": "正在连接检测服务…",
+      "stageRunning": "检测进行中…",
+      "stageStarted": "检测已开始（模式：{{mode}}）",
+      "stageSampling": "指纹采样中 {{percent}}%",
+      "stageGeneratingReport": "检测完成，正在生成报告…",
+      "stageAborted": "检测异常终止",
+      "requestFailedHttp": "请求失败（HTTP {{status}}）",
+      "requestFailedDefault": "检测请求失败",
+      "detectFailedDefault": "检测失败",
+      "logResultPrefix": "[result] 安全分 {{score}} · {{summary}}",
+      "logDoneOk": "[done] 检测正常结束"
+    },
+    "report": {
+      "title": "大模型 API 投毒检测报告",
+      "relayAddress": "中转站地址:",
+      "detectionAlgorithm": "扫描模式:",
+      "detectionTime": "检测时间:",
+      "algorithmQuick": "快速扫描",
+      "algorithmFull": "全面扫描",
+      "exportReport": "导出报告",
+      "runNewAudit": "重新检测",
+      "overallHealth": "检测结果",
+      "outOf": "/100",
+      "scoreRisk": "检测到风险",
+      "scoreRiskHigh": "检测到高风险",
+      "scoreRiskMedium": "检测到中风险",
+      "scoreRiskLow": "检测到低风险",
+      "scoreNormal": "运行正常",
+      "modelAuthenticity": "模型身份验证",
+      "modelAuthenticityDesc": "校验服务方标识头与负载签名的一致性。",
+      "metrics": {
+        "ttft": "延迟",
+        "tokensPerSec": "Tokens/秒",
+        "inputTokens": "输入 Tokens",
+        "outputTokens": "输出 Tokens",
+        "cacheReadTokens": "缓存读取 Tokens"
+      },
+      "badgeRisk": "风险",
+      "badgeRiskHigh": "高风险",
+      "badgeRiskMedium": "中风险",
+      "badgeRiskLow": "低风险",
+      "badgeVerified": "已验证",
+      "targetIdentity": "检测目标",
+      "actualIdentity": "实际模型",
+      "notIdentified": "未识别 (N/A)",
+      "confidenceLow": "低置信度",
+      "confidenceMid": "中置信度",
+      "confidenceHigh": "高置信度",
+      "anomalyFindings": "检测详情",
+      "passedCount": "{{count}} 项通过",
+      "failedCount": "{{count}} 项未通过",
+      "colItem": "检测项",
+      "colDescription": "说明",
+      "colResult": "检测结果",
+      "verdictPass": "通过",
+      "verdictFail": "不通过",
+      "noFindings": "暂无异常发现",
+"poweredBy": "技术支持：",
+      "fingerprint": {
+        "badge": "指纹分布匹配",
+        "title": "从采样分布推算模型身份",
+        "sampleSize": "{{count}} 个有效样本",
+      "candidateHint": "与 {{count}} 个参考指纹逐一比对",
+    "legendObserved": "本次实测",
+        "legendReference": "匹配基准",
+        "finalModel": "最终推算模型",
+        "confidence": "身份推断置信度",
+     "confidenceDesc": "在一定置信度下，系统认为的识别概率。",
+    "overlapTitle": "曲线重合度",
+        "overlapDescHigh": "整体高度重合",
+    "overlapDescMid": "整体接近，存在局部偏差",
+        "overlapDescLow": "存在较明显偏差",
+        "deviationTitle": "最大局部偏差",
+        "deviationValue": "相差 {{diff}} 个百分点",
+        "deviationDesc": "{{start}}–{{end}}：实测 {{observed}}% / 基准 {{reference}}%",
+ "runnerUpTitle": "第二候选模型",
+        "runnerUpDesc": "置信度 {{percent}}%",
+  "verdictStable": "身份推断稳定，局部曲线偏差未触发模型替换告警。",
+      "verdictMismatch": "曲线差异已影响身份判断，请结合模型指纹告警进一步核查",
+      "verdictInsufficient": "当前证据不足以稳定判断，建议增加采样后重新检测",
+        "stepGenerate": "生成实测分布",
+        "stepOverlay": "叠加基准指纹",
+        "stepOutput": "输出推算结果"
+      }
+    }
   }
 }
