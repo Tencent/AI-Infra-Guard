@@ -1136,8 +1136,12 @@ def _audit_score(audit: dict) -> float:
         0.0,
         min(100.0, 100.0 - float(risk_score)),
     )
-    # 防御内部状态不一致：只要审计结论已是风险，组件分就不能仍为满分。
-    return round(min(score, 50.0) if _audit_has_risk(audit) else score, 1)
+    # _risk_score 已包含各审计项的加权扣分。仅在上游状态不一致（已经
+    # 判定有风险但没有给出任何扣分）时使用防御性兜底，避免一个 LOW
+    # 风险项也被无条件压到 50 分。
+    if _audit_has_risk(audit) and score == 100.0:
+        score = 50.0
+    return round(score, 1)
 
 
 def _signature_score(signature: dict) -> float:

@@ -684,6 +684,37 @@ class ServerContractTests(unittest.TestCase):
             100.0,
         )
 
+        weighted_identity_risk = {
+            "verdict": "LOW",
+            "_risk_score": 15,
+            "findings": [{
+                "probe": "identity",
+                "severity": "LOW",
+                "title": "Model identity family mismatch",
+            }],
+            "probe_results": [{
+                "name": "identity",
+                "ok": True,
+                "data": {
+                    "status": 200,
+                    "identity_text": "I am GPT-5.",
+                    "requested_families": ["anthropic"],
+                    "identity_families": ["openai"],
+                },
+            }],
+        }
+        self.assertEqual(85.0, server._audit_score(weighted_identity_risk))
+        self.assertEqual(
+            85.0,
+            server._result_score("quick", {"audit": weighted_identity_risk}),
+        )
+        self.assertEqual(
+            "risk",
+            server._overall_verdict(
+                "quick", {"audit": weighted_identity_risk}, {},
+            ),
+        )
+
         inconsistent_audit = {
             "verdict": "HIGH",
             "_risk_score": 0,
