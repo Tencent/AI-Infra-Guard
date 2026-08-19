@@ -66,9 +66,10 @@ COPY --from=builder /app/CHANGELOG.md .
 # 复制数据文件到容器中
 COPY --from=builder /app/data ./data
 
-# 复制agent-scan目录并安装Python依赖
+# 复制agent-scan目录并使用uv安装Python依赖
 COPY ./agent-scan /app/agent-scan
-RUN pip install --no-cache-dir -r /app/agent-scan/requirements.txt
+RUN cd /app/agent-scan \
+    && /usr/local/bin/uv sync --no-dev
 
 # 复制启动脚本到镜像中
 COPY start.sh /app/start.sh
