@@ -583,6 +583,9 @@ markdown格式返回
             "start_time": time.time(),
             "end_time": 0,
             "results": [],
+            "mcp_protocol_version": "",
+            "mcp_negotiation_type": "",
+            "mcp_transport": "",
         }
 
         if self.language == "en":
@@ -709,5 +712,16 @@ You MUST write all content in English.
                 "results": vuln_results,
             }
         )
+
+        # 记录实际协商的 MCP 协议版本和传输类型
+        if (
+            self.dispatcher
+            and self.dispatcher.mcp_tools_manager
+        ):
+            mgr = self.dispatcher.mcp_tools_manager
+            result_meta["mcp_protocol_version"] = mgr.negotiated_protocol_version or ""
+            result_meta["mcp_negotiation_type"] = mgr.negotiation_type or ""
+            result_meta["mcp_transport"] = mgr.transport or ""
+
         mcpLogger.result_update(result_meta)
         return result_meta
