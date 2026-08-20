@@ -18,31 +18,17 @@
 
 import asyncio
 import json
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from typing import Any, Literal
 
+import httpx
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 
-import importlib.metadata
-
-try:
-    _MCP_MAJOR = int(importlib.metadata.version("mcp").split(".")[0])
-except Exception:
-    _MCP_MAJOR = 0
-
-if _MCP_MAJOR >= 2:
-    # mcp SDK >= 2.0：streamable_http_client 不再接受 headers 参数，需通过 httpx.AsyncClient 传入
-    from mcp.client.streamable_http import streamable_http_client
-    import httpx
-
-    _USE_NEW_STREAMABLE_API = True
-else:  # mcp SDK < 2.0 兼容
-    from mcp.client.streamable_http import streamablehttp_client
-
-    _USE_NEW_STREAMABLE_API = False
+from mcp.client.streamable_http import streamable_http_client
 
 
 class MCPTools:
@@ -58,7 +44,7 @@ class MCPTools:
             headers = {}
         self.url = url
         self.transport = transport
-        self.timeout_seconds = 10
+        self.timeout_seconds = int(os.environ.get("MCP_TIMEOUT_SECONDS", "30"))
         self.headers = headers
         # 缓存工具 schema，用于参数类型转换
         self._tools_schema: dict[str, dict[str, Any]] = {}
@@ -77,17 +63,14 @@ class MCPTools:
         if self.transport == "sse":
             ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
-            if _USE_NEW_STREAMABLE_API:
-                # mcp SDK >= 2.0：headers 通过 httpx.AsyncClient 传入
-                http_client = httpx.AsyncClient(headers=self.headers)
-                ctx = streamable_http_client(url=self.url, http_client=http_client)
-            else:
-                ctx = streamablehttp_client(url=self.url, headers=self.headers)  # type: ignore
+            # MCP SDK 1.28+ 的 streamable_http_client 不接受 headers 参数，
+            # 需要通过 http_client 参数传入带 headers 的自定义 httpx 客户端
+            http_client = httpx.AsyncClient(headers=self.headers) if self.headers else None
+            ctx = streamable_http_client(
+                url=self.url, http_client=http_client
+            )  # type: ignore
         else:
             raise ValueError(f"Unsupported transport protocol: {self.transport}")
-
-        # mcp SDK >= 2.0 的 read_timeout_seconds 为 float 秒数；旧版为 timedelta
-        read_timeout = self.timeout_seconds if _USE_NEW_STREAMABLE_API else timedelta(seconds=self.timeout_seconds)
 
         try:
             async with ctx as session_params:  # type: ignore
@@ -95,12 +78,12 @@ class MCPTools:
                 async with ClientSession(
                     read,
                     write,
-                    read_timeout_seconds=read_timeout,
+                    read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
                 ) as session:  # type: ignore
                     await session.initialize()
                     yield session
         finally:
-            # 新版 SDK 需要自行关闭传入的 http_client（旧版由 ctx 内部管理）
+            # 调用方传入的 http_client 由调用方负责关闭（SDK 不接管其生命周期）
             if http_client is not None:
                 await http_client.aclose()
 

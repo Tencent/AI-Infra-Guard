@@ -6,7 +6,7 @@ AI Infra Guard 的 AI基础设施安全扫描模块专为检测AI系统中基于
 
 ## 核心特性
 
-- **全面覆盖**：支持识别100+种主流AI组件框架，覆盖1900+已知CVE漏洞
+- **全面覆盖**：支持识别100+种主流AI组件框架，覆盖2000+已知CVE漏洞
 - **灵活部署**：支持单目标扫描、批量扫描及本地服务一键检测
 - **智能匹配**：基于YAML规则的指纹识别系统，准确率高
 - **可扩展性**：支持自定义指纹规则和漏洞模板，适应不同环境需求
@@ -50,7 +50,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | vllm | 67 | 中 |
+| **模型部署与服务** | vllm | 72 | 中 |
 | | gradio | 51 | 高 |
 | | triton-inference-server | 41 | 中高 |
 | | ollama | 32 | 中高 |
@@ -64,23 +64,23 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | llmstudio | 1 | 低 |
 | | localai | 1 | 中 |
 | | tensorzero | 1 | 低 |
-| **LLM应用框架** | openwebui | 86 | 中高 |
-| | langflow | 79 | 中 |
+| **LLM应用框架** | openwebui | 87 | 中高 |
+| | langflow | 111 | 中 |
 | | mlflow | 79 | 高 |
-| | flowise | 61 | 中 |
+| | flowise | 97 | 中 |
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
-| | Dify | 31 | 高 |
-| | LiteLLM | 31 | 中 |
+| | Dify | 34 | 高 |
+| | LiteLLM | 34 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
-| | anythingllm | 18 | 中高 |
+| | anythingllm | 19 | 中高 |
 | | ragflow | 12 | 中 |
 | | nextchat | 8 | 中 |
 | | qanything | 8 | 中 |
 | | fastgpt | 6 | 中 |
 | | new-api | 5 | 中 |
-| | LobeChat | 4 | 中 |
+| | LobeChat | 5 | 中 |
 | | crewai | 4 | 严重 |
 | | langfuse | 4 | 低 |
 | | chuanhuchatgpt | 1 | 中 |
@@ -90,27 +90,28 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | dask | 3 | 低 |
 | | feast | 3 | 低 |
 | **可视化与交互** | jupyter-server | 19 | 中高 |
-| | jupyterlab | 9 | 中 |
+| | jupyterlab | 12 | 中 |
 | | jupyter-notebook | 2 | 低 |
-| | marimo | 1 | 中 |
+| | marimo | 2 | 中 |
 | **工作流编排** | n8n | 60 | 中高 |
 | | ray | 12 | 中 |
 | | simstudioai | 9 | 中 |
 | | kubeflow | 8 | 中 |
 | | n8n-mcp | 4 | 中高 |
 | | 9router | 3 | 高 |
-| **其他AI组件** | openclaw | 655 | 中高 |
-| | praisonai | 107 | 严重 |
+| **其他AI组件** | openclaw | 657 | 中高 |
+| | praisonai | 112 | 严重 |
 | | pyload-ng | 24 | 中 |
 | | astrbot | 14 | 中 |
 | | comfyui | 13 | 中 |
 | | crawl4ai | 11 | 严重 |
-| | sglang | 9 | 中 |
+| | sglang | 15 | 中 |
 | | bentoml | 6 | 中 |
 | | pinchtab | 6 | 中高 |
 | | kubepi | 5 | 中 |
 | | sillytavern | 5 | 中 |
-| | autogpt | 4 | 中 |
+| | dynamo | 5 | 高 |
+| | autogpt | 5 | 中 |
 | | flyto2 | 4 | 中 |
 | | llamafactory | 4 | 低 |
 | | lmdeploy | 4 | 低 |
@@ -123,12 +124,11 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | jan | 2 | 低 |
 | | junoclaw | 2 | 中 |
 | | langroid | 2 | 严重 |
-| | maxkb | 2 | 中 |
+| | maxkb | 3 | 中 |
 | | mcp | 2 | 中 |
 | | mcp sse | 2 | 中 |
 | | paperclip | 2 | 中 |
 | | weknora | 2 | 低 |
-| | pgadmin | 2 | 中高 |
 | | Clawdbot Gateway | 1 | 中 |
 | | ComfyUI-Ace-Nodes | 1 | 低 |
 | | ComfyUI-Bmad-Nodes | 1 | 低 |
@@ -147,7 +147,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | gpt-sovits | 1 | 中 |
 | | guardrails-ai | 1 | 中 |
 | | langbot | 1 | 低 |
-| | lightrag | 1 | 低 |
+| | lightrag | 2 | 低 |
 | | lumiverse | 1 | 低 |
 | | mcp-documentation-server | 1 | 中 |
 | | mcp-pinot | 1 | 中 |
@@ -161,10 +161,11 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | superagi | 1 | 低 |
 | | text-generation-webui | 1 | 中 |
 | | upsonic | 1 | 中 |
-| | wallos | 1 | 低 |
-| | budibase | 1 | 中 |
+| | nocobase | 1 | 严重 |
+| | sub2api | 1 | 高 |
+| | trigger.dev | 1 | 严重 |
 | **AI Agent 配置安全** | AI-Agent-Config | 4 | 高 |
-| **总计** | | **1914+** | |
+| **总计** | | **2020+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 

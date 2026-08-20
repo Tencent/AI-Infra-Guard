@@ -139,11 +139,11 @@ Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool call
 **Best Performance:**
 - Claude-4.6-Opus
 - Gemini-3.1-Pro
-- GLM-5.1
+- GLM-5.3
 
 **Cost-Effective Choices:**
 - Qwen-3.6
-- Kimi-2.5
+- Kimi-K3
 - Gemini-3-Flash
 
 > Models iterate quickly. It is recommended to regularly refer to
@@ -152,7 +152,7 @@ Agent Scan relies on the LLM's capabilities in **multi-step reasoning, tool call
 
 ### 4.2 Recommended Choices for Skill & MCP Scan
 - Hy3
-- GLM-5.2
+- GLM-5.3
 - DeepSeek-V4
 - Kimi-K3
 - Qwen3-Coder-480B-A35B-Instruct

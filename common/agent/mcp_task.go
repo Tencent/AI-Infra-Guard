@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -128,7 +129,13 @@ func (m *McpTask) Execute(ctx context.Context, request TaskRequest, callbacks Ta
 			return fmt.Errorf("folder does not exist or is not a directory: %s", folder)
 		}
 	} else if transport == "url" {
-		serverUrl = params.Content
+		// Extract pure URL from user input (user may type "帮我扫描 https://..." with a prefix)
+		urlRe := regexp.MustCompile(`https?://[^\s]+`)
+		if match := urlRe.FindString(params.Content); match != "" {
+			serverUrl = match
+		} else {
+			serverUrl = params.Content
+		}
 	}
 
 	var argv []string = make([]string, 0)

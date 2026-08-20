@@ -699,6 +699,7 @@
       "selectTaskTypeFirst": "Please enter @ to call detection agent first",
       "clawScan": "OpenClaw Security Assessment",
       "skillMarket": "AI Security Skill Marketplace",
+      "poisonDetect": "LLM API Poisoning Detection",
       "skillMarketNewBadge": "NEW",
       "helpDocument": "User Guide",
       "selectFile": "Select File",
@@ -789,6 +790,7 @@
       "supportedFileTypesDescription": "Supported file types:",
       "clawScanDescription": "Through natural language dialogue, let A.I.G give your AI assistant a security checkup and build persistent immunity.",
       "skillMarketDescription": "AI Security Skill Marketplace: one-stop access to security skills covering OpenClaw, general Agent Skills and AI infrastructure security.",
+      "poisonDetectDescription": "LLM API Poisoning Detection: identify whether a relay proxy has been hijacked, tampered with, or poisoned, and quickly assess the authenticity and security risks of the API service.",
       "behavioralControlAttackDescription": "Behavioral control attacks interact with LLM to obtain enhanced attack prompts, with execution time approximately 2-3 times slower than encoding attacks",
       "aiInfraModelHint": "Select a MLLM to detect unauthenticated vulnerabilities, recommended GPT5/Gemini Pro/Sonnet4.5."
     },
@@ -979,5 +981,195 @@
     "agentPrompt": "Install the skill from https://github.com/Tencent/AI-Infra-Guard (skills.md), then use it to audit local OpenClaw security.",
     "copy": "Copy",
     "copied": "Copied"
+  },
+  "llmProxyDetect": {
+    "page": {
+      "title": "LLM API Poisoning Detection",
+      "subtitle": "Configure your LLM proxy parameters for diagnostic auditing and security verification.",
+        "heroBadge": "API Security Diagnostic & Audit"
+    },
+    "targetEndpoint": {
+      "title": "Detection Target",
+      "llmModel": "Select a model to detect",
+      "selectModelPlaceholder": "Select model",
+      "loading": "Loading…",
+      "platformModelsGroup": "Platform-configured models",
+      "builtInModelsGroup": "Other models",
+      "noBuiltInModels": "No built-in detectable models available",
+      "customOption": "More Model",
+      "scanMode": "Scan Mode",
+      "scanModeQuick": "Quick Scan",
+      "scanModeFull": "Full Scan",
+      "platformSelectedTitle": "Platform-configured model selected. URL and API Key are not required.",
+      "platformSelectedDesc": "The detection will directly use the saved connection configuration (Endpoint / API Key). Manual input is not needed.",
+      "endpointLabelPlatform": "API URL",
+      "apiKeyLabelPlatform": "API Key",
+      "relayApiUrl": "Relay API URL",
+      "relayApiUrlPlaceholder": "Enter the relay Base URL, e.g. https://api.openai.com/v1",
+      "apiKey": "API Key / Authorization Token",
+"apiKeyPlaceholder": "sk-xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeySecurityHint": "Used for this scan only. Never stored or forwarded.",
+      "customModelName": "Model Name",
+      "customModelPlaceholder": "Enter a non-built-in / non-preset model name, e.g. my-custom-model",
+      "resetDefaults": "Reset",
+      "startDetection": "Start Detection",
+      "detecting": "Detecting..."
+    },
+    "validation": {
+      "selectModel": "Please select an LLM model to detect",
+      "fillCustomModel": "Please fill in the model name",
+      "fillRelayUrl": "Please fill in the Relay API URL",
+      "fillApiKey": "Please fill in the API Key"
+    },
+    "principle": {
+      "badge": "Core Technology",
+    "heroTitle": "Pure Black-box · Statistical Fingerprint · Protocol-level Verification",
+      "heroSubtitle": "No access to relay source code or internal config required. Multi-dimensional probes delivered through the standard API channel, combined with Bayesian statistics and protocol-level checks, produce a reproducible and explainable evidence chain.",
+      "card1": {
+        "tag": "QUICK MODE",
+    "title": "Multi-dimensional Black-box Probes",
+      "desc": "Expose common risks within 30 seconds. Seven orthogonal probes are fired in parallel, cross-validating response authenticity across liveness, identity, token accounting, echo, streaming and long-context integrity.",
+        "points": [
+ "Model list & identity self-report: catch missing models, fakes and identity forgery",
+      "Token delta & echo commands: detect billing anomalies and prompt-injection traces",
+        "SSE integrity & long-context canary: uncover packet loss, truncation and silent trimming"
+  ]
+  },
+      "card2": {
+      "tag": "FULL MODE",
+            "title": "LLM Statistical Fingerprint",
+        "desc": "Precisely identify look-alike and substituted models. Repeated sampling over the 1–355 range with Dirichlet smoothing and Multinomial posterior prediction is Bayesian-compared against a reference baseline.",
+        "points": [
+          "Log Bayes factor + G² outlier statistics for dual-track inference",
+    "Explainable verdict across declared model, known substitute or unknown anomaly",
+          "355-bucket distribution overlay with deviation hotspots and confidence at a glance"
+  ]
+      },
+      "card3": {
+     "tag": "CLAUDE ONLY",
+        "title": "Protocol-level Deep Verification",
+   "desc": "Chain-of-thought signature & metadata cross-check. For Extended Thinking, parse the signature envelope and replay it against the API for second-round verification — defeating spoofing.",
+        "points": [
+  "Signature structure parsing & cipher-feature replay verification",
+       "Cross-checks thinking_tokens, stop_reason and response headers",
+      "Combined with latency and system-prompt features to deeply detect protocol-level forgery"
+     ]
+   },
+      "advantagesTitle": "Four Platform Advantages",
+  "advantages": {
+        "blackbox": {
+       "title": "Pure Black-box, Zero Intrusion",
+    "desc": "No source-code access needed. Only standard API endpoints are probed — plug and play with zero configuration."
+        },
+        "evidence": {
+          "title": "Multi-source Evidence Chain",
+    "desc": "Fingerprint, protocol and metadata cross-corroborate to form a complete evidence chain, eliminating single-point misjudgment."
+     },
+      "fingerprint": {
+    "title": "Statistically Explainable",
+   "desc": "Outputs rigorous confidence, runner-up candidates and deviation ranges — fully reproducible and traceable."
+     },
+   "report": {
+          "title": "One-click Professional Report",
+     "desc": "Automatically generates bilingual, visual analysis reports with PDF export — ready for compliance and acceptance."
+   }
+  },
+      "footnote": "* Fingerprinting provides statistical evidence. Results may be affected by model updates, system prompts, temperature settings, and dynamic routing on the relay side."
+    },
+    "overlay": {
+      "connecting": "Connecting to detection service…",
+      "running": "Detection in progress…",
+      "failed": "Detection failed",
+      "completed": "Detection completed",
+      "hint": "Detection typically takes 30 seconds to several minutes. Please keep this page open.",
+      "waitingEvents": "Waiting for server events…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "retry": "Retry",
+      "stageConnecting": "Connecting to detection service…",
+      "stageRunning": "Detection in progress…",
+      "stageStarted": "Detection started (mode: {{mode}})",
+      "stageSampling": "Fingerprint sampling {{percent}}%",
+      "stageGeneratingReport": "Detection finished, generating report…",
+      "stageAborted": "Detection aborted",
+      "requestFailedHttp": "Request failed (HTTP {{status}})",
+      "requestFailedDefault": "Detection request failed",
+      "detectFailedDefault": "Detection failed",
+      "logResultPrefix": "[result] Security score {{score}} · {{summary}}",
+      "logDoneOk": "[done] Detection finished normally"
+    },
+    "report": {
+      "title": "LLM API Poisoning Detection Report",
+      "relayAddress": "Relay Address:",
+      "detectionAlgorithm": "Scan Mode:",
+      "detectionTime": "Detection Time:",
+      "algorithmQuick": "Quick Scan",
+      "algorithmFull": "Full Scan",
+      "exportReport": "Export Report",
+      "runNewAudit": "Run New Audit",
+      "overallHealth": "Detection Result",
+      "outOf": "/100",
+      "scoreRisk": "Risk Detected",
+      "scoreRiskHigh": "High Risk Detected",
+      "scoreRiskMedium": "Medium Risk Detected",
+      "scoreRiskLow": "Low Risk Detected",
+      "scoreNormal": "Operating Normally",
+      "modelAuthenticity": "Model Authenticity",
+      "modelAuthenticityDesc": "Verification of provider identity headers vs payload signatures.",
+      "metrics": {
+        "ttft": "TTFT",
+        "tokensPerSec": "Tokens/sec",
+        "inputTokens": "Input Tokens",
+        "outputTokens": "Output Tokens",
+        "cacheReadTokens": "Cache Read Tokens"
+      },
+      "badgeRisk": "Risk",
+      "badgeRiskHigh": "High Risk",
+      "badgeRiskMedium": "Medium Risk",
+      "badgeRiskLow": "Low Risk",
+      "badgeVerified": "Verified",
+      "targetIdentity": "Detection Target",
+      "actualIdentity": "Actual Model",
+      "notIdentified": "Unidentified (N/A)",
+      "confidenceLow": "Low confidence",
+      "confidenceMid": "Medium confidence",
+      "confidenceHigh": "High confidence",
+      "anomalyFindings": "Detection Details",
+      "passedCount": "{{count}} Passed",
+      "failedCount": "{{count}} Failed",
+      "colItem": "Item",
+      "colDescription": "Description",
+      "colResult": "Result",
+      "verdictPass": "Passed",
+      "verdictFail": "Failed",
+  "noFindings": "No anomaly findings",
+      "poweredBy": "Powered by:",
+      "fingerprint": {
+ "badge": "Fingerprint Match",
+        "title": "Infer model identity from sampling distribution",
+        "sampleSize": "{{count}} valid samples",
+        "candidateHint": "Compared against {{count}} reference fingerprints",
+        "legendObserved": "Observed",
+     "legendReference": "Reference",
+        "finalModel": "Predicted Model",
+        "confidence": "Identity Confidence",
+        "confidenceDesc": "Estimated probability under the current confidence level.",
+               "overlapTitle": "Distribution Overlap",
+   "overlapDescHigh": "Highly aligned overall",
+        "overlapDescMid": "Overall similar with local deviations",
+    "overlapDescLow": "Noticeable divergence detected",
+  "deviationTitle": "Largest Local Deviation",
+     "deviationValue": "{{diff}} pp difference",
+        "deviationDesc": "{{start}}–{{end}}: observed {{observed}}% / reference {{reference}}%",
+  "runnerUpTitle": "Runner-up Model",
+ "runnerUpDesc": "Confidence {{percent}}%",
+        "verdictStable": "Identity inference is stable; local deviations did not trigger a model-replacement alert.",
+    "verdictMismatch": "Distribution deviation has affected identity inference. Please cross-check with the model fingerprint alert.",
+        "verdictInsufficient": "Current evidence is insufficient for a stable conclusion. Please collect more samples and retry.",
+        "stepGenerate": "Generate observed distribution",
+        "stepOverlay": "Overlay reference fingerprint",
+  "stepOutput": "Output inference result"
+      }
+    }
   }
 }

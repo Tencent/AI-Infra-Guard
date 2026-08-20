@@ -275,10 +275,10 @@ const AttackMethodSelector: React.FC<AttackMethodSelectorProps> = ({
           </Button>
           
           {/* Attack-method selection menu */}
-          <div className={`absolute left-0 bg-white border border-gray-200 rounded-lg shadow-lg w-auto transition-all duration-200 ${showMenu ? 'opacity-100 visible' : 'opacity-0 invisible'} ${menuPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`} style={{zIndex: 30, maxHeight: '300px', minWidth: '300px', maxWidth: '480px'}} onMouseEnter={handleSubmenuEnter}>
+          <div className={`absolute left-0 bg-white border border-gray-200 rounded-lg shadow-lg w-auto transition-all duration-200 ${showMenu ? 'opacity-100 visible' : 'opacity-0 invisible'} ${menuPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`} style={{zIndex: 30, maxHeight: '300px', minWidth: '300px'}} onMouseEnter={handleSubmenuEnter}>
             <div className='flex' style={{maxHeight: '300px'}}>
               {/* Strategy list */}
-              <div className='flex-1 border-r border-gray-200 overflow-hidden' style={{minWidth: '150px', maxWidth: '220px'}} onMouseEnter={handleSubmenuEnter}>
+              <div className='flex-1 border-r border-gray-200' style={{minWidth: '150px'}} onMouseEnter={handleSubmenuEnter}>
                 <div className='p-2'>
                   <div 
                     className='space-y-1 overflow-y-auto' 
@@ -299,12 +299,12 @@ const AttackMethodSelector: React.FC<AttackMethodSelectorProps> = ({
                       const strategyElement = (
                         <div
                           key={strategy.id}
-                          className={`flex items-center justify-between p-2 hover:bg-gray-100 rounded cursor-pointer text-gray-600 overflow-hidden ${hoveredStrategy === strategy.id ? 'bg-blue-50' : ''}`}
+                          className={`flex items-center justify-between p-2 hover:bg-gray-100 rounded cursor-pointer text-gray-600 ${hoveredStrategy === strategy.id ? 'bg-blue-50' : ''}`}
                           onMouseEnter={() => handleStrategyHover(strategy.id)}
                           onMouseLeave={(e) => handleStrategyLeave(e)}
                         >
                           <div className='flex items-center gap-1'>
-                            <span className='text-sm font-medium text-gray-600 truncate' title={i18n.language.startsWith('zh') ? strategy.typeCn : strategy.type}>
+                            <span className='text-sm font-medium text-gray-600 truncate'>
                               {i18n.language.startsWith('zh') ? strategy.typeCn : strategy.type}
                             </span>
                             {isBehavioralControl && (
@@ -336,7 +336,7 @@ const AttackMethodSelector: React.FC<AttackMethodSelectorProps> = ({
               
               {/* Method list */}
               {hoveredStrategy && (
-                <div className='flex-1 overflow-hidden' style={{minWidth: '150px', maxWidth: '260px'}} onMouseEnter={handleSubmenuEnter}>
+                <div className='flex-1' style={{minWidth: '150px'}} onMouseEnter={handleSubmenuEnter}>
                   <div className='p-2'>
                     <div 
                       className='space-y-1 overflow-y-auto' 
@@ -359,13 +359,13 @@ const AttackMethodSelector: React.FC<AttackMethodSelectorProps> = ({
                           return (
                             <div
                               key={method.id}
-                              className={`flex items-center space-x-2 p-2 hover:bg-gray-100 rounded cursor-pointer text-gray-600 overflow-hidden ${isSelected ? 'bg-blue-50 border border-blue-200' : ''}`}
+                              className={`flex items-center space-x-2 p-2 hover:bg-gray-100 rounded cursor-pointer text-gray-600 ${isSelected ? 'bg-blue-50 border border-blue-200' : ''}`}
                               onClick={() => handleMethodSelect(method.id)}
                             >
-                              <div className={`w-4 h-4 flex-shrink-0 border rounded flex items-center justify-center ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}>
+                              <div className={`w-4 h-4 border rounded flex items-center justify-center ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}>
                                 {isSelected && <Check className='w-3 h-3 text-white' />}
                               </div>
-                              <span className='text-sm font-medium text-gray-600 truncate' title={i18n.language.startsWith('zh') ? method.typeCn : method.type}>
+                              <span className='text-sm font-medium text-gray-600 truncate'>
                                 {i18n.language.startsWith('zh') ? method.typeCn : method.type}
                               </span>
                             </div>

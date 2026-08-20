@@ -66,11 +66,11 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 
 ## 🚀 What's New
 
+- **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan: .pyc bytecode bypass detection + charset smuggling defense; MCP-Scan: RCE prevention via tool whitelisting in dynamic mode; new SkillJack research project; vuln library expanded to 2000+ CVE rules.
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 multi-turn jailbreak attacks (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 new OWASP skills + web-exfiltration detection (10 skills total); MCP-Scan: 4 new security rules
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI Security Skill Market launched (3 official skills); frontend fully open-sourced; Skill scan engine upgraded (9 risk categories, SkillTrustBench top score 0.9848); Skill/MCP/Agent scan as standalone CLI; vuln library expanded to 130 components, 1888 rules
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 new threat detection rules (tool poisoning, credential exfiltration, command injection); 6 new llama.cpp CVE rules; `model.token` now optional with system default fallback.
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 new single-turn jailbreak operators; new `aig-agent-redteam` skill for comprehensive Agent red-team assessment.
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — New version check API endpoint; security scoring switched to absolute deduction model for clearer risk assessment.
 
 👉 [Earlier releases](./CHANGELOG.md) · 🛒 [AI Security Skill Market](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
@@ -147,7 +147,6 @@ For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getti
 
 </details>
 
-
 ### ⚡ Install aig-skill-scan with a Single Command
 
 Agent Skill security audit tool, easily integrated into enterprise CI/CD pipelines. Vulnerability classification aligns with [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 taxonomy. [Learn more →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
@@ -165,9 +164,29 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+The checker frontend is deployed separately. Docker deployment keeps the
+checker APIs available at `GET /api/v1/relay/models` and
+`POST /api/v1/relay/check/stream`; API documentation is available at
+`http://127.0.0.1:8088/api-checker/docs`. To run the checker and unified CLI
+from source:
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+See the [API Checker integration guide](docs/api-checker-integration.md) for
+the Agent-embedded runtime architecture, HTTP API, configuration, and security boundaries.
+
 ### 🌟 Try the Online Pro Version
 Experience the Pro version with advanced features and improved performance. The Pro version requires an [invitation code](https://wj.qq.com/s2/25099467/25vn/) and is prioritized for contributors who have submitted issues, pull requests, or discussions, or actively help grow the community. Visit: [https://aigsec.ai/](https://aigsec.ai/).
-
 <br>
 <br>
 
@@ -204,8 +223,9 @@ For full leaderboard and details, visit [SkillTrustBench](https://matrix.tencent
 | **[ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | Supports one-click evaluation of OpenClaw security risks. It detects insecure configurations, Skill risks, CVE vulnerabilities, and privacy leakage.  |
 | **Agent&nbsp;Scan** | This is an independent, multi-agent automated scanning framework. It is designed to evaluate the security of AI agent workflows. It seamlessly supports agents running across various platforms, including Dify and Coze. |
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | It thoroughly detects 14 major categories of security risks. The detection applies to both MCP Servers and Agent Skills. It flexibly supports scanning from both source code and remote URLs. |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 100 AI framework components. It covers more than 1900 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
+| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | This scanner precisely identifies over 100 AI framework components. It covers more than 2000 known CVE vulnerabilities. Supported frameworks include Ollama, ComfyUI, vLLM, n8n, Triton Inference Server and more. |
 | **Jailbreak&nbsp;Evaluation** | It assesses prompt security risks using carefully curated datasets. The evaluation applies multiple attack methods to test robustness. It also provides detailed cross-model comparison capabilities. |
+| **Model and API Relay Checker** | Model fingerprinting, Claude Signature verification, relay black-box auditing, PAMELA, and Ventor QTest. |
 
 <details>
 <summary><strong>💎 Additional Benefits</strong></summary>
@@ -254,7 +274,7 @@ The target is the **network address of a running AI service** you want to scan -
 1. Start vLLM normally (e.g. `python -m vllm.entrypoints.api_server --model meta-llama/...`)
 2. In the A.I.G web UI, click **"AI基础设施安全扫描 / AI Infra Scan"**
 3. Enter `http://127.0.0.1:8000` (or the IP/port where vLLM is listening)
-4. Click **Start Scan** - A.I.G will fingerprint the service and match it against 1900+ known CVEs
+4. Click **Start Scan** - A.I.G will fingerprint the service and match it against 2000+ known CVEs
 5. View the report: component version, matched vulnerabilities, severity, and remediation links
 
 > 💡 **Tip**: To scan the *nightly* build of vLLM specifically, just run that nightly build and point A.I.G at its address. The scanner detects the version automatically.
@@ -555,6 +575,8 @@ If you use A.I.G in your research, please cite:
 <br>
 
 ## 📚 Papers
+
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Open-source code, datasets, and artifacts from our research work.
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — A comprehensive framework for securing AI agent systems through multi-layer red teaming across infrastructure, supply chain, runtime interaction, and deployment surfaces. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](./Securing_the_AI_Agent.pdf)
 

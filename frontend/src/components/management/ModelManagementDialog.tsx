@@ -16,7 +16,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { modelApi } from '../../lib/modelApi';
 import { ModelItem, Model } from '../../types/model';
-import { protectDefaultModel } from '../../config/privateModules';
+import { protectDefaultModel } from '@/config/privateModules';
 import { maskToken } from '../../utils/tokenUtils';
 import { joyrideStyles, getJoyrideLocale } from '../../config/joyrideConfig';
 

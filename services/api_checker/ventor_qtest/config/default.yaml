@@ -1,0 +1,323 @@
+# Default configuration mirroring the legacy `main.py` constants.
+tests:
+  - name: kimi-k2-multi
+    result_dir: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/json"
+    # questions: leave empty or omit to auto-generate with random examples at runtime.
+    questions: []
+    runs_per_question: 2
+    digits: 100
+    temperature: 0.6
+    top_logprobs: 20
+    vendor_max_workers: 2
+    max_inflight_ref_requests: 6
+    align_tester_temperature: true
+    tester:
+      api_key: "${MOONSHOT_API_KEY}"
+      base_url: "https://api.moonshot.cn/v1/chat/completions"
+      model: "kimi-k2-0905-preview"
+      temperature: 0.6
+      top_logprobs: 20
+      max_workers: 2
+      request_delay: 0.3
+      timeout_sec: 45.0
+    vendors:
+      - name: "kimi-k2-self"
+        base_url: "https://api.moonshot.cn/"
+        path: "/v1/chat/completions"
+        api_key: "${MOONSHOT_API_KEY}"
+        model: "kimi-k2-0905-preview"
+        schema: "openai"
+      - name: "kimi-k2-turbo"
+        base_url: "https://api.moonshot.cn/"
+        path: "/v1/chat/completions"
+        api_key: "${MOONSHOT_API_KEY}"
+        model: "kimi-k2-turbo-preview"
+        schema: "openai"
+      - name: "siliconflow-free"
+        base_url: "https://api.siliconflow.cn"
+        path: "/v1/chat/completions"
+        api_key: "${SILICONFLOW_API_KEY}"
+        model: "moonshotai/Kimi-K2-Instruct-0905"
+        schema: "openai"
+      - name: "siliconflow-pro"
+        base_url: "https://api.siliconflow.cn"
+        path: "/v1/chat/completions"
+        api_key: "${SILICONFLOW_API_KEY}"
+        model: "Pro/moonshotai/Kimi-K2-Instruct-0905"
+        schema: "openai"
+      - name: "chutes"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "chutes/fp8"
+          allow_fallbacks: false
+      - name: "deepinfra"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "deepinfra/fp4"
+          allow_fallbacks: false
+      - name: "fireworks"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "fireworks/fp8"
+          allow_fallbacks: false
+      - name: "novita"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "novita/fp8"
+          allow_fallbacks: false
+      - name: "atlas-cloud"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "atlas-cloud/fp8"
+          allow_fallbacks: false
+      - name: "baseten"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "baseten/fp4"
+          allow_fallbacks: false
+      - name: "together"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "together"
+          allow_fallbacks: false
+      - name: "groq"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "groq"
+          allow_fallbacks: false
+      - name: "wandb"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2-0905"
+        schema: "openai"
+        provider:
+          order:
+            - "wandb/fp8"
+          allow_fallbacks: false
+    payload:
+      official_baseline_vendor: "kimi-k2-self"
+  - name: kimi-k2.5-multi
+    result_dir: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/json"
+    # questions: leave empty or omit to auto-generate with random examples at runtime.
+    questions: []
+    runs_per_question: 2
+    digits: 100
+    temperature: 0.6
+    top_logprobs: 20
+    vendor_max_workers: 2
+    max_inflight_ref_requests: 6
+    align_tester_temperature: true
+    tester:
+      api_key: "${MOONSHOT_API_KEY}"
+      base_url: "https://api.moonshot.cn/v1/chat/completions"
+      model: "kimi-k2.5"
+      temperature: 0.6
+      top_logprobs: 20
+      max_workers: 2
+      request_delay: 0.3
+      timeout_sec: 45.0
+      extra_payload:
+        thinking:
+          type: "disabled"
+    vendors:
+      - name: "k2.5-self"
+        base_url: "https://api.moonshot.cn/"
+        path: "/v1/chat/completions"
+        api_key: "${MOONSHOT_API_KEY}"
+        model: "kimi-k2.5"
+        schema: "openai"
+      - name: "k2.5-deepinfra"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "deepinfra"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-chutes"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "chutes/int4"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-together"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "together"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-siliconflow"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "siliconflow/fp8"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-atlas-cloud"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "atlas-cloud/int4"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-novita"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "novita"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-parasail"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "parasail/int4"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-gmicloud"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "gmicloud/int4"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-moonshotai"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "moonshotai"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-fireworks"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "fireworks"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-baseten"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "baseten/fp4"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+      - name: "k2.5-venice"
+        base_url: "https://openrouter.ai"
+        path: "/api/v1/chat/completions"
+        api_key: "${OPENROUTER_API_KEY}"
+        model: "moonshotai/kimi-k2.5"
+        schema: "openai"
+        provider:
+          order:
+            - "venice"
+          allow_fallbacks: false
+        extra_payload:
+          reasoning_effort: "none"
+    payload:
+      official_baseline_vendor: "k2.5-self"
+report:
+  patterns:
+    - "${AIG_API_CHECKER_DATA_DIR}/qtest/result/json/*.json"
+  output_rank_csv: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/summary/vendors_rank.csv"
+  output_long_csv: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/summary/runs_long.csv"
+  output_json: "${AIG_API_CHECKER_DATA_DIR}/qtest/result/summary/vendors_rank.json"
+  sort_by: "mean_abs_Z"
+  descending: false

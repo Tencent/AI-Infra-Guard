@@ -55,7 +55,7 @@ def dir_tree(path: str, max_depth: int = 4, context: ToolContext = None) -> dict
         abs_path = os.path.realpath(path)
         if context and context.folder:
             folder = os.path.realpath(context.folder)
-            if not abs_path.startswith(folder):
+            if os.path.commonpath([abs_path, folder]) != folder:
                 return {
                     'success': False,
                     'message': f'Path is not allowed: {path}',

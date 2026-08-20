@@ -66,11 +66,11 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 
 ## 🚀 最新情報
 
+- **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan：.pyc バイトコードバイパス検出 + 文字セットスマグリング防御；MCP-Scan：ダイナミックモードでツールホワイトリストによる RCE 防止；新規 SkillJack 研究プロジェクト；脆弱性ライブラリを 2000+ CVE ルールに拡大。
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation：4種のマルチターン脱獄攻撃追加（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：5つの新OWASP検出スキル + Webデータ流出検出（計10スキル）；MCP-Scan：4つの新セキュリティルール
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AIセキュリティスキル市場公開（公式Skill 3種）；フロントエンド全面オープンソース化；Skillスキャンエンジン強化（9種リスク検出、SkillTrustBench最高0.9848）；Skill/MCP/Agentスキャン独立CLI化；脆弱性ライブラリ130コンポーネント・1888ルールに拡大
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP スキャンにツールポイズニング・診情窃取・コマンドインジェクションの3件の脆弱性検知ルールを追加；llama.cpp CVEルール6件追加；`model.token`の省略対応（システムデフォルトモデルにフォールバック）。
 - **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 種の新規シングルターン警戒オペレーター追加；包括的な Agent レッドチーム評価に対応する新規 `aig-agent-redteam` skill を追加。
-- **2026-06-11** · [v4.1.13](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.13) — バージョンチェック API エンドポイントを新規追加；セキュリティスコアリングを絶対減点モデルに切り替え、リスク評価をより明確に。
 
 👉 [過去のリリース](../CHANGELOG.md) · 🛒 [AIセキュリティスキル市場](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
@@ -203,7 +203,7 @@ aig-skill-scan --repo /path/to/your/skill \
 | **[ClawScan（OpenClawセキュリティスキャン）](https://matrix.tencent.com/clawscan)** | OpenClawのセキュリティリスクのワンクリック評価に対応。安全でない設定、スキルリスク、CVE脆弱性、プライバシー漏洩を検出します。 |
 | **Agent Scan** | 独立したマルチエージェント自動スキャンフレームワークです。AIエージェントワークフローのセキュリティを評価するために設計されています。DifyやCozeなど、さまざまなプラットフォームで動作するエージェントをシームレスにサポートします。 |
 | **MCPサーバー＆エージェントスキルスキャン** | 14の主要なセキュリティリスクカテゴリを徹底的に検出します。MCPサーバーとエージェントスキルの両方に適用されます。ソースコードとリモートURLの両方からのスキャンに柔軟に対応します。 |
-| **AIインフラ脆弱性スキャン** | 100以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。1900以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
+| **AIインフラ脆弱性スキャン** | 100以上のAIフレームワークコンポーネントを正確に識別するスキャナーです。2000以上の既知のCVE脆弱性をカバーしています。対応フレームワークにはOllama、ComfyUI、vLLM、n8n、Triton Inference Serverなどが含まれます。 |
 | **ジェイルブレイク評価** | 厳選されたデータセットを使用してプロンプトのセキュリティリスクを評価します。堅牢性をテストするために複数の攻撃手法を適用します。また、詳細なモデル間比較機能も提供します。 |
 
 <details>
@@ -253,7 +253,7 @@ aig-skill-scan --repo /path/to/your/skill \
 1. 通常通りvLLMを起動（例：`python -m vllm.entrypoints.api_server --model ...`）
 2. A.I.G UIで「**AIインフラ脆弱性スキャン**」をクリック
 3. ターゲット欄に `http://127.0.0.1:8000`（vLLMが実際にリッスンしているIP/ポート）を入力
-4. 「スキャン開始」をクリック — A.I.Gがコンポーネントバージョンを自動識別し、1900以上の既知CVEと照合
+4. 「スキャン開始」をクリック — A.I.Gがコンポーネントバージョンを自動識別し、2000以上の既知CVEと照合
 5. レポートを確認：コンポーネントバージョン、検出脆弱性、深刻度、および修復リンク
 
 > 💡 **ヒント**：vLLMのnightlyビルドをスキャンする場合は、そのnightlyビルドを起動してアドレスを入力するだけです。スキャナーがバージョンを自動検出します。
@@ -553,6 +553,8 @@ A.I.G プロジェクトに貢献してくださったすべての開発者の�
 <br>
 
 ## 📚 論文
+
+> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 研究成果のオープンソースコード、データセット、成果物。
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — AI エージェントシステムのセキュリティを破る多層レッドチーミングの総合フレームワーク。インフラ、サプライチェーン、ランタイムインタラクション、デプロイメント面をカバー。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 

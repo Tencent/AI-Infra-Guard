@@ -7,3 +7,4 @@ own subdirectory, with its own README, dependencies, and license notes.
 ## Projects
 
 - [`SkillJack/`](./SkillJack) — Persistent Skill Backdoors in Self-Evolving Agents.
+- [`deepseek-harness-security-assessment/`](./deepseek-harness-security-assessment) — Indirect prompt-injection assessment of DeepSeek Harness.

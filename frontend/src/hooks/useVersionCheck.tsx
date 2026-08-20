@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { systemApi, AIG_RELEASE_URL } from '../lib/systemApi';
-import { enableVersionCheck } from '../config/privateModules';
+import { enableVersionCheck } from '@/config/privateModules';
 
 // Last notified version info (avoids repeated popups for the same version on the same day)
 const LAST_NOTIFIED_KEY = 'aig_version_last_notified';

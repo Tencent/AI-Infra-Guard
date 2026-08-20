@@ -9,6 +9,7 @@ dependencies = [
     "deepeval>=2.9.7,<3.7.6",
     "ecoji>=0.1.1",
     "grpcio>=1.67.1",
+    "httpx>=0.27.0",
     "jieba>=0.42.1",
     "loguru>=0.7.3",
     "openai>=1.76.2",

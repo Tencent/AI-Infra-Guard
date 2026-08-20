@@ -17,7 +17,15 @@ node_modules
 
 # OpenClaw internal workspace file
 openclaw.md
+.xac/
 yamlcheck
 .workbuddy
 .pytest_cache
 .pi-subagents
+services/api_checker/.venv/
+services/api_checker/log/
+services/api_checker/result/
+services/api_checker/runtime/
+services/api_checker/pamela/results/
+services/**/__pycache__/
+services/**/*.pyc

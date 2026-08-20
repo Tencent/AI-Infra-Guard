@@ -72,7 +72,7 @@ class ToolDispatcher:
                 return self.mcp_tools_manager
             except Exception as e:
                 logger.warning(
-                    f"ToolDispatcher: transport {transport} connect failed: {e}"
+                    f"ToolDispatcher: transport '{transport}' failed for {self.mcp_server_url}: {type(e).__name__}: {e}"
                 )
                 continue
 

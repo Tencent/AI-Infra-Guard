@@ -1,0 +1,13 @@
+info:
+  name: Milvus
+  author: A.I.G bot
+  severity: info
+  desc: Milvus is an open-source vector database built for AI and LLM applications, providing scalable similarity search. It exposes a management/metrics HTTP server on port 9091 with a built-in WebUI.
+  metadata:
+    product: milvus
+    vendor: milvus-io
+http:
+  - method: GET
+    path: /webui/
+    matchers:
+      - body="<title>Milvus Management</title>" && body="milvus-logo"

@@ -1,0 +1,20 @@
+# Runtime configuration and credentials
+.env
+*.env
+*.key
+*.pem
+# Local credential files
+auth.info
+
+# Generated outputs
+runs/
+logs/
+results/*.jsonl
+results/raw/
+
+# Python / Node build artifacts
+__pycache__/
+*.py[cod]
+node_modules/
+.sessions/
+.DS_Store
