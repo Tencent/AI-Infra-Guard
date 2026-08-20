@@ -18,6 +18,7 @@
 
 import asyncio
 import json
+import logging
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -28,6 +29,11 @@ import httpx
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamable_http_client
+
+logger = logging.getLogger(__name__)
+
+# Modern protocol versions that use server/discover instead of initialize handshake
+_MODERN_PROTOCOL_VERSIONS = {"2026-07-28"}
 
 
 class MCPTools:
@@ -47,6 +53,9 @@ class MCPTools:
         self.headers = headers
         # 缓存工具 schema，用于参数类型转换
         self._tools_schema: dict[str, dict[str, Any]] = {}
+        # 记录实际协商的协议版本和握手类型（modern/legacy）
+        self.negotiated_protocol_version: str | None = None
+        self.negotiation_type: str | None = None  # "modern" or "legacy"
 
     async def close(self) -> None:
         # Stateless wrapper: each operation uses a short-lived session.
@@ -77,8 +86,50 @@ class MCPTools:
                 write,
                 read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
             ) as session:  # type: ignore
-                await session.initialize()
+                await self._negotiate_protocol(session)
                 yield session
+
+    async def _negotiate_protocol(self, session: ClientSession) -> None:
+        """Auto-negotiate MCP protocol version.
+
+        Tries the modern ``server/discover`` probe first (MCP 2026-07-28+).
+        If the server does not support it, falls back to the legacy
+        ``initialize`` handshake. Records the negotiated protocol version
+        and negotiation type (modern/legacy) for reporting.
+        """
+        # Try modern protocol: server/discover
+        try:
+            discover_result = await session.discover()
+            if discover_result is not None:
+                proto_ver = getattr(discover_result, "protocolVersion", None)
+                if proto_ver:
+                    proto_ver = str(proto_ver)
+                self.negotiated_protocol_version = proto_ver or "2026-07-28"
+                self.negotiation_type = "modern"
+                logger.info(
+                    "MCP protocol negotiated (modern): version=%s, transport=%s",
+                    self.negotiated_protocol_version,
+                    self.transport,
+                )
+                return
+        except Exception as e:
+            logger.debug(
+                "Modern protocol discovery failed (%s), falling back to legacy initialize",
+                type(e).__name__,
+            )
+
+        # Fallback: legacy initialize handshake
+        init_result = await session.initialize()
+        proto_ver = getattr(init_result, "protocolVersion", None)
+        if proto_ver:
+            proto_ver = str(proto_ver)
+        self.negotiated_protocol_version = proto_ver or "2025-11-25"
+        self.negotiation_type = "legacy"
+        logger.info(
+            "MCP protocol negotiated (legacy): version=%s, transport=%s",
+            self.negotiated_protocol_version,
+            self.transport,
+        )
 
     def _build_parameter_attributes(self, param: dict[str, Any]) -> str:
         """构建参数的 XML 属性字符串，包含所有 schema 信息"""

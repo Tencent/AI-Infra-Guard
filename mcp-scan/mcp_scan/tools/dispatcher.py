@@ -69,6 +69,12 @@ class ToolDispatcher:
                 logger.info(
                     f"ToolDispatcher: MCP tools manager initialized with transport: {transport}"
                 )
+                # 记录实际协商的协议版本和握手类型
+                if manager.negotiated_protocol_version:
+                    logger.info(
+                        f"ToolDispatcher: MCP protocol version: {manager.negotiated_protocol_version} "
+                        f"(type: {manager.negotiation_type}, transport: {transport})"
+                    )
                 return self.mcp_tools_manager
             except Exception as e:
                 logger.warning(
