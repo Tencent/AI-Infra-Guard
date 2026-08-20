@@ -33,6 +33,10 @@ logger = logging.getLogger(__name__)
 # 默认断点根目录，可通过环境变量 AIG_CHECKPOINT_DIR 覆盖
 DEFAULT_CHECKPOINT_DIR = os.environ.get("AIG_CHECKPOINT_DIR", "checkpoints")
 
+# checkpoint 文件格式版本；schema 变更时递增，
+# 旧版本/无版本字段的文件在 load 时视为未命中，重新执行该阶段
+CHECKPOINT_VERSION = 1
+
 
 class CheckpointManager:
     """管理单个任务（task_id）的多阶段结果落盘与恢复。"""
@@ -57,13 +61,20 @@ class CheckpointManager:
     def load(self, stage_id: str) -> str | None:
         """读取指定阶段的落盘结果。
 
-        文件损坏（如写入中断、断电）或不可读时，记录告警、删除损坏
-        文件并返回 ``None``；调用方应将其视为未命中，重新执行该阶段，
-        避免续跑时反复读到损坏文件形成死循环。
+        文件损坏（如写入中断、断电）、不可读或版本不匹配时，记录告警、
+        删除损坏文件并返回 ``None``；调用方应将其视为未命中，重新执行
+        该阶段，避免续跑时反复读到损坏/过期文件形成死循环。
         """
         path = self._stage_file(stage_id)
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
+            if data.get("version") != CHECKPOINT_VERSION:
+                logger.warning("checkpoint 版本不匹配，已删除并视为未命中: %s", path)
+                try:
+                    path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+                return None
             return data.get("content", "")
         except (json.JSONDecodeError, OSError, AttributeError):
             logger.warning("checkpoint 文件损坏，已删除并视为未命中: %s", path)
@@ -78,7 +89,14 @@ class CheckpointManager:
         self._task_dir.mkdir(parents=True, exist_ok=True)
         tmp_file = self._stage_file(stage_id).with_suffix(".json.tmp")
         tmp_file.write_text(
-            json.dumps({"stage_id": stage_id, "content": content}, ensure_ascii=False),
+            json.dumps(
+                {
+                    "stage_id": stage_id,
+                    "version": CHECKPOINT_VERSION,
+                    "content": content,
+                },
+                ensure_ascii=False,
+            ),
             encoding="utf-8",
         )
         tmp_file.replace(self._stage_file(stage_id))
