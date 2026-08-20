@@ -26,6 +26,7 @@ from contextlib import asynccontextmanager
 import httpx
 from mcp import ClientSession
 from mcp.client.sse import sse_client
+
 from mcp.client.streamable_http import streamable_http_client
 
 
@@ -53,6 +54,7 @@ class MCPTools:
         if not self.url:
             raise ValueError("MCP server url is required")
 
+        http_client = None
         if self.transport == "sse":
             ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
         elif self.transport == "streamable-http":
@@ -65,15 +67,20 @@ class MCPTools:
         else:
             raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
-        async with ctx as session_params:  # type: ignore
-            read, write = session_params[0:2]
-            async with ClientSession(
-                    read,
-                    write,
-                    read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
-            ) as session:  # type: ignore
-                await session.initialize()
-                yield session
+        try:
+            async with ctx as session_params:  # type: ignore
+                read, write = session_params[0:2]
+                async with ClientSession(
+                        read,
+                        write,
+                        read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
+                ) as session:  # type: ignore
+                    await session.initialize()
+                    yield session
+        finally:
+            # 调用方传入的 http_client 由调用方负责关闭（SDK 不接管其生命周期）
+            if http_client is not None:
+                await http_client.aclose()
 
     def _build_parameter_attributes(self, param: Dict[str, Any]) -> str:
         """构建参数的 XML 属性字符串，包含所有 schema 信息"""
@@ -161,12 +168,18 @@ class MCPTools:
 
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
+            # mcp SDK >= 2.0 的 Tool 字段为 input_schema，旧版为 inputSchema
+            tool_schema = getattr(t, "input_schema", None)
+            if tool_schema is None:
+                tool_schema = getattr(t, "inputSchema", None)
+            if tool_schema is None:
+                tool_schema = {}
             # 缓存工具 schema，用于后续参数类型转换
-            self._tools_schema[t.name] = t.inputSchema
+            self._tools_schema[t.name] = tool_schema
 
             parameters = ''
-            for k, param in t.inputSchema['properties'].items():
-                required = 'true' if k in t.inputSchema.get("required", []) else 'false'
+            for k, param in tool_schema.get('properties', {}).items():
+                required = 'true' if k in tool_schema.get("required", []) else 'false'
                 param_type = param.get('type', 'string')
                 # 构建基础属性
                 base_attrs = f'name="{k}" type="{param_type}" required="{required}"'

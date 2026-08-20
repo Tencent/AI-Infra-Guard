@@ -18,11 +18,15 @@
 
 from __future__ import annotations
 
+import os
 import time
 
 import openai
 
 from skill_scan.utils.loging import logger
+
+# LLM 请求超时时间（秒），可通过环境变量 LLM_TIMEOUT 覆盖（默认 300）
+LLM_TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "300"))
 
 
 class LLM:
@@ -41,7 +45,7 @@ class LLM:
         self.client = openai.OpenAI(
             api_key=self.api_key,
             base_url=self.base_url,
-            timeout=60,
+            timeout=LLM_TIMEOUT,
             default_headers=default_headers if default_headers else None,
         )
         self.context_window = context_window
@@ -52,7 +56,28 @@ class LLM:
         retry = 0
 
         while True:
-            ret, usage = self.chat_stream(message)
+            try:
+                ret, usage = self.chat_stream(message)
+            except (openai.APITimeoutError, openai.APIConnectionError) as e:
+                # 网络/超时错误：可重试
+                retry += 1
+                logger.warning(f"LLM connection/timeout error, retry {retry}: {e}")
+                if retry > 5:
+                    logger.error("LLM connection error, retry 5 times, exit")
+                    ret = "Failed to connect to the LLM after 5 retries; please wait a minute and try again."
+                    break
+                time.sleep(1.3)
+                continue
+            except openai.APIError as e:
+                # 其他 API 错误（5xx 等）：可重试
+                retry += 1
+                logger.warning(f"LLM API error, retry {retry}: {e}")
+                if retry > 3:
+                    logger.error("LLM API error, retry 3 times, exit")
+                    ret = "Failed to connect to the LLM after 3 retries; please wait a minute and try again."
+                    break
+                time.sleep(1)
+                continue
             if ret != "":
                 break
             else:

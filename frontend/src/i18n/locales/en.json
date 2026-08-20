@@ -352,7 +352,11 @@
     "deleteRequestFailed": "Delete request failed",
     "renameFailed": "Rename failed",
     "deleteFailed": "Delete failed",
-    "downloadFileFailed": "Download file failed"
+    "downloadFileFailed": "Download file failed",
+    "resumeTask": "Resume",
+    "resuming": "Resuming…",
+    "resumeSuccess": "Task resumed, continuing from checkpoint",
+    "resumeFailed": "Resume failed, please try again later"
   },
   "jailbreak": {
     "title": "Jailbreak Test",
