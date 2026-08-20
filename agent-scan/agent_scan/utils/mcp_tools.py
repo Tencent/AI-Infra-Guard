@@ -25,6 +25,8 @@ from typing import Any, AsyncIterator, Dict, Literal, Optional
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamable_http_client
+# MCP 2.0 exposes its recommended HTTP client factory from this private module.
+# requirements.txt pins 2.0.0; revisit this import when upgrading the SDK.
 from mcp.shared._httpx_utils import create_mcp_http_client
 
 
