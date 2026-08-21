@@ -30,6 +30,7 @@ import os
 import re
 from typing import List, Tuple
 
+from mcp_scan.utils import strip_surrogates
 from mcp_scan.utils.loging import logger
 
 # High-risk pattern definitions: (pattern name, regex, description)
@@ -138,6 +139,9 @@ def pre_scan(repo_dir: str) -> str:
                 continue
 
             rel_path = os.path.relpath(fpath, repo_dir)
+            # Non-UTF-8 filenames produce lone surrogates here (surrogateescape);
+            # strip them so the hint text stays JSON-serializable.
+            rel_path = strip_surrogates(rel_path)
             for pattern_name, regex, description in _PATTERNS:
                 matches = regex.findall(content)
                 if matches:
