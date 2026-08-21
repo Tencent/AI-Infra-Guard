@@ -161,6 +161,24 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### 模型与 API 中转检测
+
+Checker 前端独立部署。Docker 部署后 Checker API 可在 `GET /api/v1/relay/models` 和
+`POST /api/v1/relay/check/stream` 访问；API 文档位于
+`http://127.0.0.1:8088/api-checker/docs`。从源码运行 Checker 和统一 CLI：
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+详见 [API Checker 集成指南](../docs/api-checker-integration.md)，了解 Agent 内嵌运行时架构、HTTP API、配置和安全边界。
+
 ### 🌟 体验在线Pro版
 体验具有内测及高级功能的Pro版，需要[邀请码](https://wj.qq.com/s2/25099467/25vn/)，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
 <br/>
@@ -201,6 +219,7 @@ aig-skill-scan --repo /path/to/your/skill \
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 100+ 种 AI 开源 Web 组件。涵盖 2000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
 | **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 |
+| **模型与API中转检测** | 模型指纹识别、Claude 签名验证、中转黑盒审计、PAMELA 和 Ventor QTest。 |
 
 <details>
 <summary><strong>其他优势</strong></summary>

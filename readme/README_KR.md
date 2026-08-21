@@ -164,6 +164,26 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+Checker 프론트엔드는 별도로 배포됩니다. Docker 배포 시 Checker API는
+`GET /api/v1/relay/models` 및 `POST /api/v1/relay/check/stream`에서 사용할 수 있으며,
+API 문서는 `http://127.0.0.1:8088/api-checker/docs`에서 확인할 수 있습니다.
+소스에서 Checker와 통합 CLI를 실행하려면:
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+Agent 임베디드 런타임 아키텍처, HTTP API, 구성 및 보안 경계에 대한 자세한 내용은
+[API Checker 통합 가이드](../docs/api-checker-integration.md)를 참조하세요.
+
 ### 🌟 온라인 Pro 버전 체험하기
 고급 기능과 향상된 성능을 갖춘 Pro 버전을 경험해 보세요. Pro 버전은 [초대 코드](https://wj.qq.com/s2/25099467/25vn/)가 필요하며, 이슈·풀 리퀘스트·토론을 제출했거나 커뮤니티 성장에 적극적으로 기여한 분들을 우선적으로 제공합니다. 방문: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
@@ -204,6 +224,7 @@ aig-skill-scan --repo /path/to/your/skill \
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 14가지 주요 보안 위험 카테고리를 철저히 탐지합니다. MCP Server와 Agent Skills 모두에 적용됩니다. 소스 코드와 원격 URL 모두에서 유연하게 scan을 지원합니다. |
 | **AI&nbsp;인프라&nbsp;취약점&nbsp;scan** | 100개 이상의 AI 프레임워크 컴포넌트를 정확하게 식별합니다. 2,000개 이상의 알려진 CVE 취약점을 커버합니다. Ollama, ComfyUI, vLLM, n8n, Triton Inference Server 등의 프레임워크를 지원합니다. |
 | **Jailbreak&nbsp;Evaluation** | 엄선된 데이터셋을 사용하여 prompt 보안 위험을 평가합니다. 다양한 공격 방법을 적용하여 견고성을 테스트합니다. 상세한 모델 간 비교 기능도 제공합니다. |
+| **Model and API Relay Checker** | 모델 핑거프린팅, Claude 서명 검증, 릴레이 블랙박스 감사, PAMELA 및 Ventor QTest. |
 
 <details>
 <summary><strong>💎 추가 혜택</strong></summary>
