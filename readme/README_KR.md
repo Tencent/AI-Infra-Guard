@@ -553,21 +553,19 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 ## 📚 연구 및 논문
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 연구 작업의 오픈소스 코드, 데이터셋 및 산출물.
+**Research:**
 
-**Research Projects:**
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 14,560회 에이전트 실행에 걸쳐 DeepSeek Harness에 대한 간접 프롬프트 인젝션 권한 인가 보안 평가입니다. [[code]](../Research/deepseek-harness-security-assessment)
 
-1. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 포이즈된 트래젝토리를 통해 자기 진화형 에이전트 스킬 시스템에 지속적인 백도어를 주입하는 방법을 실증합니다. [[code]](../Research/SkillJack)
-
-2. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 14,560회 에이전트 실행에 걸쳐 DeepSeek Harness에 대한 간접 프롬프트 인젝션 권한 인가 보안 평가입니다. [[code]](../Research/deepseek-harness-security-assessment)
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 포이즈된 트래젝토리를 통해 자기 진화형 에이전트 스킬 시스템에 지속적인 백도어를 주입하는 방법을 실증합니다. [[code]](../Research/SkillJack)
 
 **Papers:**
 
-3. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 인프라, 공급망, 런타임 인터랙션, 배포 면에 걸쳐 다층 레드 팀이밍을 통해 AI 에이전트 시스템을 보호하는 포괄적인 프레임워크입니다. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
+1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 인프라, 공급망, 런타임 인터랙션, 배포 면에 걸쳐 다층 레드 팀이밍을 통해 AI 에이전트 시스템을 보호하는 포괄적인 프레임워크입니다. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
-4. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 프레젠테이션으로, A.I.G의 전체 기능과 실전 사례를 소개합니다. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 프레젠테이션으로, A.I.G의 전체 기능과 실전 사례를 소개합니다. [[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
 
-5. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 발표로, AI 에이전트 생태계에서 MCP 프로토콜의 보안 위험을 밝힌 연구입니다. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 발표로, AI 에이전트 생태계에서 MCP 프로토콜의 보안 위험을 밝힌 연구입니다. [[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 학술 연구에서 A.I.G를 인용해 주신 연구팀에 감사드립니다 (19편):
 
