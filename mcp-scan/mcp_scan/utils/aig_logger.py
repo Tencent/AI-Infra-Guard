@@ -22,6 +22,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from mcp_scan.utils import strip_surrogates
+
 
 class contentSchema(BaseModel):
     timestamp: str = str(time.time())
@@ -97,6 +99,10 @@ class McpLogger:
         if isinstance(content, BaseModel):
             content.timestamp = str(time.time())
             content = content.model_dump()
+        # Strip lone surrogates (non-UTF-8 filenames from os.walk/os.listdir)
+        # before pydantic serializes the message to JSON — otherwise
+        # model_dump_json() raises UnicodeEncodeError and kills the scan.
+        content = strip_surrogates(content)
         self.logger.info(AgentMsg(type=type, content=content).model_dump_json())
 
     def new_plan_step(self, stepId: str, stepName: str):

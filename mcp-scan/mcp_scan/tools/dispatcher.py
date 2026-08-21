@@ -20,6 +20,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Optional
 
 from mcp_scan.tools.registry import get_tool_by_name, get_tools_prompt, needs_context
+from mcp_scan.utils import strip_surrogates
 from mcp_scan.utils.loging import logger
 from mcp_scan.utils.mcp_tools import MCPTools
 from mcp_scan.utils.prompt_manager import prompt_manager
@@ -143,8 +144,8 @@ class ToolDispatcher:
             ret = ""
             for k, v in result.items():
                 ret += f"<{k}>{v}</{k}>\n"
-            return ret
-        return str(result)
+            return strip_surrogates(ret)
+        return strip_surrogates(str(result))
 
     async def close(self):
         if self.mcp_tools_manager:
