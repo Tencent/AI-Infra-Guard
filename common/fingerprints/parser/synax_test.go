@@ -150,3 +150,61 @@ func TestEval(t *testing.T) {
 		}
 	}
 }
+
+// TestVersionCheckPreRelease 覆盖 PEP 440 风格的预发布版本号，
+// 例如 "3.11.0rc2"：直接删除字母会把两侧数字粘连成 "3.11.02"（即 3.11.2）。
+func TestVersionCheckPreRelease(t *testing.T) {
+	for _, c := range []struct {
+		version string
+		want    string
+	}{
+		{"3.11.0rc2", "3.11.0-2"},
+		{"0.6.0rc1", "0.6.0-1"},
+		{"1.2.3b1", "1.2.3-1"},
+		// 未被字母分隔的数字保持原样
+		{"1.2.3", "1.2.3"},
+		{"v1.2.3", "1.2.3"},
+		{"1.2.3b", "1.2.3"},
+		{"1.2.3-rc1", "1.2.3-1"},
+		{"1.2.3.RELEASE", "1.2.3.0"},
+		{"latest", "999"},
+		{"", "0"},
+	} {
+		if got := versionCheck(c.version); got != c.want {
+			t.Fatalf("versionCheck(%q) = %q, want %q", c.version, got, c.want)
+		}
+	}
+}
+
+// TestAdvisoryEvalPreRelease 预发布版本必须落在其正式版本之前，
+// 否则受影响的目标会被漏报。
+func TestAdvisoryEvalPreRelease(t *testing.T) {
+	for _, c := range []struct {
+		rule    string
+		version string
+		want    bool
+	}{
+		{`version < "3.11.0"`, "3.11.0rc2", true},
+		{`version <= "3.11.1"`, "3.11.0rc2", true},
+		{`version == "3.11.2"`, "3.11.0rc2", false},
+		{`version < "0.6.0"`, "0.6.0rc1", true},
+		// 正式版本不受影响
+		{`version < "3.11.0"`, "3.10.9", true},
+		{`version < "3.11.0"`, "3.11.0", false},
+	} {
+		tokens, err := ParseAdvisorTokens(c.rule)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := CheckBalance(tokens); err != nil {
+			t.Fatal(err)
+		}
+		rule, err := TransFormExp(tokens)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := rule.AdvisoryEval(&AdvisoryConfig{Version: c.version}); got != c.want {
+			t.Fatalf("rule %s with version %q = %v, want %v", c.rule, c.version, got, c.want)
+		}
+	}
+}
