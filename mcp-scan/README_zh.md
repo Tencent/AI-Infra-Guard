@@ -254,7 +254,7 @@ mcp-scan/
 │   ├── main.py            # 包入口（CLI）
 │   └── __main__.py        # python -m mcp_scan 入口
 ├── main.py                 # AIG Go 后端兼容用的薄层入口 (uv run main.py)
-├── pyproject.toml          # 项目配置（版本 0.2.0，Python >=3.9）
+├── pyproject.toml          # 项目配置（版本 0.2.0，Python >=3.10）
 ├── py.typed                # PEP 561 类型标记
 ├── requirements.txt        # 依赖列表
 ├── env.example            # 环境变量模板
@@ -315,7 +315,7 @@ mcp-scan 支持两种扫描模式，通过 `--aig-mode` 参数切换：
 
 ## 🤝 开发指南
 
-建议使用 `uv` 管理本地开发环境（支持 Python >=3.9）。
+建议使用 `uv` 管理本地开发环境（支持 Python >=3.10）。
 初始化开发环境时，可执行：
 
 ```bash

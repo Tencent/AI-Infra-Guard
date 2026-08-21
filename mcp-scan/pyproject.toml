@@ -7,7 +7,7 @@ name = "aig-mcp-scan"
 version = "0.2.0"
 description = "MCP Server Security Scanning Tool - an LLM-driven autonomous agent for code audit and vulnerability detection"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [
   { name = "Tencent Zhuque Lab", email = "zhuque@tencent.com" },
@@ -33,7 +33,6 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -45,7 +44,7 @@ classifiers = [
 ]
 dependencies = [
   "loguru==0.7.3",
-  "mcp>=1.23.0",
+  "mcp>=2.0.0,<3.0.0",
   "openai==2.8.1",
   "pydantic==2.12.4",
   "python-dotenv==1.0.0",

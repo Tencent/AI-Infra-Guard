@@ -254,7 +254,7 @@ mcp-scan/
 │   ├── main.py            # Package entry (CLI)
 │   └── __main__.py        # python -m mcp_scan entry
 ├── main.py                 # Thin shell for AIG Go backend compatibility (uv run main.py)
-├── pyproject.toml          # Project config (version 0.2.0, Python >=3.9)
+├── pyproject.toml          # Project config (version 0.2.0, Python >=3.10)
 ├── py.typed                # PEP 561 type marker
 ├── requirements.txt        # Dependencies
 ├── env.example            # Environment variable template
@@ -315,7 +315,7 @@ If a `SKILL.md` file exists in the project root, the tool automatically triggers
 
 ## 🤝 Development
 
-It is recommended to use `uv` for local development environment management (supports Python >=3.9).
+It is recommended to use `uv` for local development environment management (supports Python >=3.10).
 To initialize the dev environment:
 
 ```bash
