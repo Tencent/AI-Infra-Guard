@@ -28,6 +28,9 @@ jobs:
           go-version: '1.23'
           cache: true
 
+      - name: Run yamlcheck tests
+        run: go test ./cmd/yamlcheck
+
       - name: Build yamlcheck tool
         run: go build -o yamlcheck ./cmd/yamlcheck
 
