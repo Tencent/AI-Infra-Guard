@@ -87,7 +87,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
-- [📚 Papers](#-papers)
+- [📚 Research & Papers](#-research--papers)
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
@@ -574,15 +574,23 @@ If you use A.I.G in your research, please cite:
 ```
 <br>
 
-## 📚 Papers
+## 📚 Research & Papers
 
 > 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Open-source code, datasets, and artifacts from our research work.
 
-1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — A comprehensive framework for securing AI agent systems through multi-layer red teaming across infrastructure, supply chain, runtime interaction, and deployment surfaces. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](./Securing_the_AI_Agent.pdf)
+**Research Projects:**
 
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal presentation showcasing A.I.G's capabilities and real-world use cases. [[pdf]](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+1. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Demonstrates how poisoned trajectories can inject persistent backdoors into self-evolving agent skill systems. [[code]](./Research/SkillJack)
 
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 talk revealing security risks in the MCP protocol within the AI agent ecosystem. [[pdf]](./BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+2. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Authorized security assessment of DeepSeek Harness against indirect prompt-injection across 14,560 agent runs. [[code]](./Research/deepseek-harness-security-assessment)
+
+**Papers:**
+
+3. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — A comprehensive framework for securing AI agent systems through multi-layer red teaming across infrastructure, supply chain, runtime interaction, and deployment surfaces. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](./Securing_the_AI_Agent.pdf)
+
+4. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal presentation showcasing A.I.G's capabilities and real-world use cases. [[pdf]](./Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+5. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 talk revealing security risks in the MCP protocol within the AI agent ecosystem. [[pdf]](./BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 Thanks to the research teams who have cited A.I.G in their academic work (19 papers):
 

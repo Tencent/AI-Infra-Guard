@@ -87,7 +87,7 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 - [謝辞](#-謝辞)
 - [コミュニティに参加](#-コミュニティに参加)
 - [引用](#-引用)
-- [📚 論文](#-論文)
+- [📚 研究・論文](#-研究・論文)
 - [ライセンスと帰属表示](#️-ライセンスと帰属表示)
 <br><br>
 
@@ -552,15 +552,23 @@ A.I.G プロジェクトに貢献してくださったすべての開発者の�
 ```
 <br>
 
-## 📚 論文
+## 📚 研究・論文
 
 > 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 研究成果のオープンソースコード、データセット、成果物。
 
-1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — AI エージェントシステムのセキュリティを破る多層レッドチーミングの総合フレームワーク。インフラ、サプライチェーン、ランタイムインタラクション、デプロイメント面をカバー。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
+**Research Projects:**
 
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal でのプレゼンテーション。A.I.G の全体的な機能と実例を紹介。[[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+1. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — ポイズンされたトラジェクトリを通じて自己進化型エージェントスキルシステムに持続的バックドアを注入する方法を実証。[[code]](../Research/SkillJack)
 
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 講演。AI エージェント エコシステムにおける MCP プロトコルのセキュリティ リスクを明らかにする研究。[[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
+2. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — DeepSeek Harness に対する認可済みセキュリティ評価。14,560 回のエージェント実行における間接プロンプトインジェクションテスト。[[code]](../Research/deepseek-harness-security-assessment)
+
+**Papers:**
+
+3. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — AI エージェントシステムのセキュリティを破る多層レッドチーミングの総合フレームワーク。インフラ、サプライチェーン、ランタイムインタラクション、デプロイメント面をカバー。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
+
+4. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal でのプレゼンテーション。A.I.G の全体的な機能と実例を紹介。[[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
+
+5. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 講演。AI エージェント エコシステムにおける MCP プロトコルのセキュリティ リスクを明らかにする研究。[[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
 
 学術研究で A.I.G を引用してくださった研究チームに感謝いたします（19本）：
 
