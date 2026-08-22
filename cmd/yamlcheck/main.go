@@ -78,7 +78,7 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("╔══════════════════════════════════════════════╗")
-	fmt.Println("║         AIG YAML Validation Report          ║")
+	fmt.Println("║          AIG YAML Validation Report          ║")
 	fmt.Println("╚══════════════════════════════════════════════╝")
 	fmt.Println()
 
@@ -99,9 +99,13 @@ func main() {
 
 		switch category {
 		case "fingerprint":
-			_, err = parser.InitFingerPrintFromData(data)
+			fp, err := parser.InitFingerPrintFromData(data)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [fingerprint]  %s\n      └─ %v\n", file, err)
+				hasError = true
+				failCount++
+			} else if strings.TrimSpace(fp.ID) == "" {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [fingerprint]  %s\n      └─ missing required 'id' field\n", file)
 				hasError = true
 				failCount++
 			} else {
@@ -109,9 +113,17 @@ func main() {
 				passCount++
 			}
 		case "vuln":
-			_, err = vulstruct.ReadVersionVul(data)
+			vul, err := vulstruct.ReadVersionVul(data)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ %v\n", file, err)
+				hasError = true
+				failCount++
+			} else if strings.TrimSpace(vul.ID) == "" {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ missing required 'id' field\n", file)
+				hasError = true
+				failCount++
+			} else if !isValidSeverity(vul.Severity) {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ invalid severity level '%s'\n", file, vul.Severity)
 				hasError = true
 				failCount++
 			} else {
@@ -142,6 +154,16 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("✅ All YAML files passed validation!")
+}
+
+// isValidSeverity verifies that severity matches standard vulnerability levels.
+func isValidSeverity(severity string) bool {
+	switch strings.ToLower(strings.TrimSpace(severity)) {
+	case "info", "low", "medium", "high", "critical", "":
+		return true
+	default:
+		return false
+	}
 }
 
 // findCaseInsensitivePathCollisions returns distinct paths that become equal
