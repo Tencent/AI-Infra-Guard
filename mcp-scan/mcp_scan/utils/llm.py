@@ -17,10 +17,29 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import time
+from typing import Any
 
-import openai
+import litellm
 
 from mcp_scan.utils.loging import logger
+
+
+def to_litellm_params(model: str, base_url: str | None) -> tuple[str, str | None]:
+    """Map the configured (model, base_url) onto LiteLLM's routing.
+
+    - base_url set (the default, e.g. OpenRouter or any OpenAI-compatible
+      gateway): route as a custom OpenAI-compatible endpoint by prefixing the
+      model with ``openai/`` and passing base_url as ``api_base``. The wire
+      request is identical to the previous ``openai.OpenAI(base_url)`` call, so
+      existing configurations keep working unchanged.
+    - base_url empty: pass the model through so LiteLLM routes to a provider
+      natively (e.g. ``anthropic/claude-...``, ``bedrock/...``), resolving
+      credentials from that provider's own env vars with no gateway or proxy.
+    """
+    if base_url:
+        litellm_model = model if model.startswith("openai/") else f"openai/{model}"
+        return litellm_model, base_url
+    return model, None
 
 
 class LLM:
@@ -34,7 +53,6 @@ class LLM:
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
-        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
         # 用于估算压缩阈值，不依赖接口动态返回模型规格。
         self.context_window = context_window
 
@@ -63,12 +81,19 @@ class LLM:
         return ret
 
     def chat_stream(self, message: list[dict]) -> tuple[str, dict]:
-        response = self.client.chat.completions.create(
-            model=self.model,
+        litellm_model, api_base = to_litellm_params(self.model, self.base_url)
+        response = litellm.completion(
+            model=litellm_model,
             messages=message,
             stream=True,
             # usage 一般在流式结束时返回，前面的 chunk 通常为空。
             stream_options={"include_usage": True},
+            api_key=self.api_key or None,
+            api_base=api_base,
+            timeout=60,
+            # Drop provider-unsupported generation params so one config works
+            # across OpenAI, Anthropic, Gemini, Bedrock, etc.
+            drop_params=True,
         )
 
         ret = ""
@@ -105,3 +130,48 @@ class LLM:
             "completion_tokens": getattr(usage, "completion_tokens", None),
             "total_tokens": getattr(usage, "total_tokens", None),
         }
+
+
+class _LiteLLMAsyncCompletions:
+    def __init__(self, api_key: str, base_url: str | None, timeout: int):
+        self._api_key = api_key
+        self._base_url = base_url
+        self._timeout = timeout
+
+    async def create(self, model: str, messages: list[dict], **kwargs) -> Any:
+        litellm_model, api_base = to_litellm_params(model, self._base_url)
+        params = {
+            "model": litellm_model,
+            "messages": messages,
+            "api_key": self._api_key or None,
+            "api_base": api_base,
+            "timeout": self._timeout,
+            # Drop provider-unsupported generation params so one config works
+            # across OpenAI, Anthropic, Gemini, Bedrock, etc.
+            "drop_params": True,
+        }
+        params.update(kwargs)
+        return await litellm.acompletion(**params)
+
+
+class _LiteLLMAsyncChat:
+    def __init__(self, api_key: str, base_url: str | None, timeout: int):
+        self.completions = _LiteLLMAsyncCompletions(api_key, base_url, timeout)
+
+
+class LiteLLMAsyncClient:
+    """Async LiteLLM client exposing the subset of the OpenAI ``AsyncClient``
+    surface the red-team agents use (``chat.completions.create``), so their
+    calls route through LiteLLM with no other changes.
+
+    base_url is applied here (see :func:`to_litellm_params`), so callers keep
+    passing just ``model`` and ``messages`` exactly as before. Responses have
+    the same OpenAI shape (``choices[0].message.content``), so downstream
+    parsing is unchanged.
+    """
+
+    def __init__(self, api_key: str, base_url: str | None = None, timeout: int = 90):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.timeout = timeout
+        self.chat = _LiteLLMAsyncChat(api_key, base_url, timeout)
