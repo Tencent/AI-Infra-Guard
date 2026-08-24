@@ -34,6 +34,10 @@ logger = logging.getLogger(__name__)
 
 # Modern protocol versions that use server/discover instead of initialize handshake
 _MODERN_PROTOCOL_VERSIONS = {"2026-07-28"}
+# Default version when discover() succeeds but returns no explicit protocolVersion
+_DEFAULT_MODERN_VERSION = next(iter(_MODERN_PROTOCOL_VERSIONS))
+# Default version for the legacy initialize handshake fallback
+_DEFAULT_LEGACY_VERSION = "2025-11-25"
 
 
 class MCPTools:
@@ -104,7 +108,7 @@ class MCPTools:
                 proto_ver = getattr(discover_result, "protocolVersion", None)
                 if proto_ver:
                     proto_ver = str(proto_ver)
-                self.negotiated_protocol_version = proto_ver or "2026-07-28"
+                self.negotiated_protocol_version = proto_ver or _DEFAULT_MODERN_VERSION
                 self.negotiation_type = "modern"
                 logger.info(
                     "MCP protocol negotiated (modern): version=%s, transport=%s",
@@ -123,7 +127,7 @@ class MCPTools:
         proto_ver = getattr(init_result, "protocolVersion", None)
         if proto_ver:
             proto_ver = str(proto_ver)
-        self.negotiated_protocol_version = proto_ver or "2025-11-25"
+        self.negotiated_protocol_version = proto_ver or _DEFAULT_LEGACY_VERSION
         self.negotiation_type = "legacy"
         logger.info(
             "MCP protocol negotiated (legacy): version=%s, transport=%s",
