@@ -20,7 +20,6 @@ import inspect
 import copy
 from typing import Any, Dict, Optional, TYPE_CHECKING
 from agent_scan.tools.registry import get_tool_by_name, needs_context
-from agent_scan.utils.mcp_tools import MCPTools
 from agent_scan.utils.logging import logger
 from agent_scan.utils.prompt_manager import prompt_manager
 from agent_scan.tools.registry import get_tools_prompt
