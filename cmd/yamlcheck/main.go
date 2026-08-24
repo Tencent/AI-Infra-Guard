@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
@@ -60,6 +61,14 @@ func main() {
 				yamlFiles = append(yamlFiles, arg)
 			}
 		}
+	}
+
+	if collisions := findCaseInsensitivePathCollisions(yamlFiles); len(collisions) > 0 {
+		fmt.Fprintln(os.Stderr, "❌ [case-insensitive path collision] conflicting YAML paths found:")
+		for _, collision := range collisions {
+			fmt.Fprintf(os.Stderr, "  - %s\n", strings.Join(collision, " | "))
+		}
+		os.Exit(1)
 	}
 
 	hasError := false
@@ -133,6 +142,41 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("✅ All YAML files passed validation!")
+}
+
+// findCaseInsensitivePathCollisions returns distinct paths that become equal
+// after normalizing separators and folding case. Duplicate occurrences of the
+// exact same normalized path are ignored.
+func findCaseInsensitivePathCollisions(paths []string) [][]string {
+	grouped := make(map[string]map[string]struct{})
+	for _, path := range paths {
+		normalized := filepath.ToSlash(filepath.Clean(path))
+		folded := strings.ToLower(normalized)
+		if grouped[folded] == nil {
+			grouped[folded] = make(map[string]struct{})
+		}
+		grouped[folded][normalized] = struct{}{}
+	}
+
+	var foldedPaths []string
+	for folded, originals := range grouped {
+		if len(originals) > 1 {
+			foldedPaths = append(foldedPaths, folded)
+		}
+	}
+	sort.Strings(foldedPaths)
+
+	var collisions [][]string
+	for _, folded := range foldedPaths {
+		originals := make([]string, 0, len(grouped[folded]))
+		for original := range grouped[folded] {
+			originals = append(originals, original)
+		}
+		sort.Strings(originals)
+		collisions = append(collisions, originals)
+	}
+
+	return collisions
 }
 
 // walkYAMLFiles recursively walks a directory and returns all .yaml/.yml file paths.

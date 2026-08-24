@@ -34,6 +34,11 @@
     </a>
 </p>
 <p align="center">
+    <a href="https://github.com/openclaw/clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/OpenClaw-Recommended-ff6b6b" alt="OpenClaw Recommended">
+    </a>
+</p>
+<p align="center">
   <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
   <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="../img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="../img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
@@ -87,7 +92,7 @@ Helfen Sie uns, A.I.G zu verbessern! Bitte nehmen Sie sich 3-5 Minuten Zeit, um 
 - [🙏 Danksagungen](#-danksagungen)
 - [💬 Community beitreten](#-community-beitreten)
 - [📖 Zitierung](#-zitierung)
-- [📚 Publikationen](#-publikationen)
+- [📚 Forschung & Papers](#-forschung--papers)
 - [⚖️ Lizenz & Namensnennung](#️-lizenz--namensnennung)
 <br><br>
 ## 🚀 Schnellstart
@@ -551,9 +556,15 @@ Wenn Sie A.I.G in Ihrer Forschung verwenden, zitieren Sie bitte:
 ```
 <br>
 
-## 📚 Publikationen
+## 📚 Forschung & Papers
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Open-Source-Code, Datensätze und Artefakte aus unserer Forschungsarbeit.
+**Research:**
+
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Autorisierte Sicherheitsbewertung von DeepSeek Harness gegen indirekte Prompt-Injection über 14.560 Agenten-Läufe. [[code]](../Research/deepseek-harness-security-assessment)
+
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Zeigt, wie vergiftete Trajektorien persistente Backdoors in selbstentwickelnde Agenten-Skill-Systeme injizieren können. [[code]](../Research/SkillJack)
+
+**Papers:**
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — Ein umfassendes Framework zur Absicherung von KI-Agentensystemen durch mehrschichtiges Red Teaming in den Bereichen Infrastruktur, Lieferkette, Laufzeitinteraktion und Deployment. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 

@@ -19,15 +19,16 @@
 import asyncio
 import json
 import os
-from datetime import timedelta
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Any, AsyncIterator, Dict, Literal, Optional
-from contextlib import asynccontextmanager
 
-import httpx
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 
 from mcp.client.streamable_http import streamable_http_client
+# MCP 2.0 exposes its recommended HTTP client factory from this private module.
+# requirements.txt pins 2.0.0; revisit this import when upgrading the SDK.
+from mcp.shared._httpx_utils import create_mcp_http_client
 
 
 class MCPTools:
@@ -54,45 +55,41 @@ class MCPTools:
         if not self.url:
             raise ValueError("MCP server url is required")
 
-        http_client = None
-        if self.transport == "sse":
-            ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
-        elif self.transport == "streamable-http":
-            # MCP SDK 1.28+ 的 streamable_http_client 不接受 headers 参数，
-            # 需要通过 http_client 参数传入带 headers 的自定义 httpx 客户端
-            http_client = httpx.AsyncClient(headers=self.headers) if self.headers else None
-            ctx = streamable_http_client(
-                url=self.url, http_client=http_client
-            )  # type: ignore
-        else:
-            raise ValueError(f"Unsupported transport protocol: {self.transport}")
+        async with AsyncExitStack() as stack:
+            if self.transport == "sse":
+                transport_ctx = sse_client(url=self.url, headers=self.headers)  # type: ignore
+            elif self.transport == "streamable-http":
+                http_client = create_mcp_http_client(headers=self.headers)
+                await stack.enter_async_context(http_client)
+                transport_ctx = streamable_http_client(
+                    url=self.url,
+                    http_client=http_client,
+                )
+            else:
+                raise ValueError(f"Unsupported transport protocol: {self.transport}")
 
-        try:
-            async with ctx as session_params:  # type: ignore
-                read, write = session_params[0:2]
-                async with ClientSession(
-                        read,
-                        write,
-                        read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
-                ) as session:  # type: ignore
-                    await session.initialize()
-                    yield session
-        finally:
-            # 调用方传入的 http_client 由调用方负责关闭（SDK 不接管其生命周期）
-            if http_client is not None:
-                await http_client.aclose()
+            session_params = await stack.enter_async_context(transport_ctx)
+            read, write = session_params[0:2]
+            session = ClientSession(
+                read,
+                write,
+                read_timeout_seconds=float(self.timeout_seconds),
+            )
+            await stack.enter_async_context(session)
+            await session.initialize()
+            yield session
 
     def _build_parameter_attributes(self, param: Dict[str, Any]) -> str:
         """构建参数的 XML 属性字符串，包含所有 schema 信息"""
         attrs = []
-        
+
         # 基础属性：type 和 required 在调用处处理
-        
+
         # description: 描述
         if 'description' in param and param['description']:
             desc = str(param['description']).replace('"', '&quot;')
             attrs.append(f'description="{desc}"')
-        
+
         # enum: 枚举值列表
         if 'enum' in param and param['enum']:
             enum_values = param['enum']
@@ -100,7 +97,7 @@ class MCPTools:
                 enum_str = ','.join(str(v) for v in enum_values)
                 enum_str = enum_str.replace('"', '&quot;')
                 attrs.append(f'enum="{enum_str}"')
-        
+
         # default: 默认值
         if 'default' in param:
             default_val = param['default']
@@ -110,28 +107,28 @@ class MCPTools:
                 default_str = str(default_val)
             default_str = default_str.replace('"', '&quot;')
             attrs.append(f'default="{default_str}"')
-        
+
         # minimum/maximum: 数值范围
         if 'minimum' in param:
             attrs.append(f'minimum="{param["minimum"]}"')
         if 'maximum' in param:
             attrs.append(f'maximum="{param["maximum"]}"')
-        
+
         # minLength/maxLength: 字符串长度限制
         if 'minLength' in param:
             attrs.append(f'minLength="{param["minLength"]}"')
         if 'maxLength' in param:
             attrs.append(f'maxLength="{param["maxLength"]}"')
-        
+
         # pattern: 正则表达式模式
         if 'pattern' in param and param['pattern']:
             pattern_str = str(param['pattern']).replace('"', '&quot;')
             attrs.append(f'pattern="{pattern_str}"')
-        
+
         # format: 格式（如 date-time, email, uri 等）
         if 'format' in param and param['format']:
             attrs.append(f'format="{param["format"]}"')
-        
+
         # examples: 示例值
         if 'examples' in param and param['examples']:
             examples = param['examples']
@@ -139,7 +136,7 @@ class MCPTools:
                 examples_str = ','.join(str(v) for v in examples)
                 examples_str = examples_str.replace('"', '&quot;')
                 attrs.append(f'examples="{examples_str}"')
-        
+
         # items: 数组元素类型（对于 array 类型）
         if 'items' in param:
             items = param['items']
@@ -152,7 +149,7 @@ class MCPTools:
                         items_enum_str = ','.join(str(v) for v in items_enum)
                         items_enum_str = items_enum_str.replace('"', '&quot;')
                         attrs.append(f'itemsEnum="{items_enum_str}"')
-        
+
         return ' '.join(attrs)
 
     async def describe_mcp_tools(self) -> str:

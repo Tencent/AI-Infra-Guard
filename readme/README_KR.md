@@ -34,6 +34,11 @@
     </a>
 </p>
 <p align="center">
+    <a href="https://github.com/openclaw/clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/OpenClaw-Recommended-ff6b6b" alt="OpenClaw Recommended">
+    </a>
+</p>
+<p align="center">
   <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
   <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="../img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="../img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
@@ -87,7 +92,7 @@ A.I.G 개선에 도움을 주세요! 3~5분만 투자하여 [사용자 피드백
 - [🙏 감사의 말씀](#-감사의-말씀)
 - [💬 커뮤니티 참여](#-커뮤니티-참여)
 - [📖 인용](#-인용)
-- [📚 논문](#-논문)
+- [📚 연구 및 논문](#-연구-및-논문)
 - [⚖️ 라이선스 및 저작권 표시](#️-라이선스-및-저작권-표시)
 <br><br>
 ## 🚀 빠른 시작
@@ -551,9 +556,15 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 ```
 <br>
 
-## 📚 논문
+## 📚 연구 및 논문
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 연구 작업의 오픈소스 코드, 데이터셋 및 산출물.
+**Research:**
+
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 14,560회 에이전트 실행에 걸쳐 DeepSeek Harness에 대한 간접 프롬프트 인젝션 권한 인가 보안 평가입니다. [[code]](../Research/deepseek-harness-security-assessment)
+
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 포이즈된 트래젝토리를 통해 자기 진화형 에이전트 스킬 시스템에 지속적인 백도어를 주입하는 방법을 실증합니다. [[code]](../Research/SkillJack)
+
+**Papers:**
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 인프라, 공급망, 런타임 인터랙션, 배포 면에 걸쳐 다층 레드 팀이밍을 통해 AI 에이전트 시스템을 보호하는 포괄적인 프레임워크입니다. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 

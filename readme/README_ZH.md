@@ -34,6 +34,11 @@
     </a>
 </p>
 <p align="center">
+    <a href="https://github.com/openclaw/clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/OpenClaw-Recommended-ff6b6b" alt="OpenClaw Recommended">
+    </a>
+</p>
+<p align="center">
   <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
   <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="../img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="../img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
@@ -84,7 +89,7 @@
 - [🙏 致谢](#-致谢)
 - [💬 加入社区](#-加入社区)
 - [📖 引用](#-引用)
-- [📚 论文](#-论文)
+- [📚 研究与论文](#-研究与论文)
 - [📄 开源协议](#-开源协议)
 
 ## 🚀 快速开始
@@ -540,9 +545,15 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 ```
 <br>
 
-## 📚 论文
+## 📚 研究与论文
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 我们研究工作的开源代码、数据集与工件。
+**Research:**
+
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 对 DeepSeek Harness 的授权安全评估，覆盖 14,560 次智能体运行的间接提示词注入测试。[[code]](../Research/deepseek-harness-security-assessment)
+
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 展示如何通过投毒轨迹向自进化智能体技能系统注入持久化后门。[[code]](../Research/SkillJack)
+
+**Papers:**
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 针对 AI 智能体系统的多层红队测试综合框架，覆盖基础设施、供应链、运行时交互和部署面。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 

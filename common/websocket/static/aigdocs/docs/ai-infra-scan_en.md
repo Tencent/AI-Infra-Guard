@@ -76,8 +76,8 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | flowise | 97 | Medium |
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
-| | Dify | 34 | High |
-| | LiteLLM | 34 | Medium |
+| | Dify | 32 | High |
+| | LiteLLM | 31 | Medium |
 | | Chuanhugpt | 27 | Medium-High |
 | | librechat | 21 | Medium |
 | | anythingllm | 19 | Medium-High |
@@ -86,7 +86,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | qanything | 8 | Medium |
 | | fastgpt | 6 | Medium |
 | | new-api | 5 | Medium |
-| | LobeChat | 5 | Medium |
+| | LobeChat | 4 | Medium |
 | | crewai | 4 | Critical |
 | | langfuse | 4 | Low |
 | | chuanhuchatgpt | 1 | Medium |
@@ -171,7 +171,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | sub2api | 1 | High |
 | | trigger.dev | 1 | Critical |
 | **AI Agent Config Security** | AI-Agent-Config | 4 | High |
-| **Total** | | **2020+** | |
+| **Total** | | **2000+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
