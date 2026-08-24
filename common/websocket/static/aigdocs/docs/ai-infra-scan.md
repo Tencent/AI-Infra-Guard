@@ -50,14 +50,14 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | vllm | 72 | 中 |
-| | gradio | 51 | 高 |
+| **模型部署与服务** | vllm | 70 | 中 |
+| | gradio | 50 | 高 |
 | | triton-inference-server | 41 | 中高 |
-| | ollama | 32 | 中高 |
+| | ollama | 31 | 中高 |
 | | tensorrt-llm | 12 | 中高 |
 | | fastchat | 9 | 中 |
 | | llama-cpp | 9 | 中高 |
-| | Xinference | 3 | 低 |
+| | Xinference | 2 | 低 |
 | | ChatRTX | 1 | 低 |
 | | huggingface-tgi | 1 | 中高 |
 | | kubeai | 1 | 高 |
@@ -71,7 +71,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
 | | Dify | 32 | 高 |
-| | LiteLLM | 31 | 中 |
+| | LiteLLM | 30 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
 | | anythingllm | 19 | 中高 |
@@ -87,19 +87,19 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | helicone | 1 | 中 |
 | | lobehub | 1 | 中 |
 | **数据处理与分析** | clickhouse | 26 | 高 |
-| | dask | 3 | 低 |
+| | dask | 2 | 低 |
 | | feast | 3 | 低 |
 | **可视化与交互** | jupyter-server | 19 | 中高 |
 | | jupyterlab | 12 | 中 |
 | | jupyter-notebook | 2 | 低 |
 | | marimo | 2 | 中 |
 | **工作流编排** | n8n | 60 | 中高 |
-| | ray | 12 | 中 |
+| | ray | 11 | 中 |
 | | simstudioai | 9 | 中 |
 | | kubeflow | 8 | 中 |
 | | n8n-mcp | 4 | 中高 |
 | | 9router | 3 | 高 |
-| **其他AI组件** | openclaw | 657 | 中高 |
+| **其他AI组件** | openclaw | 415 | 中高 |
 | | praisonai | 112 | 严重 |
 | | pyload-ng | 24 | 中 |
 | | astrbot | 14 | 中 |
@@ -164,7 +164,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | nocobase | 1 | 严重 |
 | | sub2api | 1 | 高 |
 | | trigger.dev | 1 | 严重 |
-| **AI Agent 配置安全** | AI-Agent-Config | 4 | 高 |
+| **AI Agent 配置安全** | AI-Agent-Config | 3 | 高 |
 | **总计** | | **2000+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。

@@ -56,14 +56,14 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving** | vllm | 72 | Medium |
-| | gradio | 51 | High |
+| **Model Serving** | vllm | 70 | Medium |
+| | gradio | 50 | High |
 | | triton-inference-server | 41 | Medium-High |
-| | ollama | 32 | Medium-High |
+| | ollama | 31 | Medium-High |
 | | tensorrt-llm | 12 | Medium-High |
 | | fastchat | 9 | Medium |
 | | llama-cpp | 9 | Medium-High |
-| | Xinference | 3 | Low |
+| | Xinference | 2 | Low |
 | | ChatRTX | 1 | Low |
 | | huggingface-tgi | 1 | Medium-High |
 | | kubeai | 1 | High |
@@ -77,7 +77,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
 | | Dify | 32 | High |
-| | LiteLLM | 31 | Medium |
+| | LiteLLM | 30 | Medium |
 | | Chuanhugpt | 27 | Medium-High |
 | | librechat | 21 | Medium |
 | | anythingllm | 19 | Medium-High |
@@ -93,19 +93,19 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | helicone | 1 | Medium |
 | | lobehub | 1 | Medium |
 | **Data Processing** | clickhouse | 26 | High |
-| | dask | 3 | Low |
+| | dask | 2 | Low |
 | | feast | 3 | Low |
 | **Visualization & UI** | jupyter-server | 19 | Medium-High |
 | | jupyterlab | 12 | Medium |
 | | jupyter-notebook | 2 | Low |
 | | marimo | 2 | Medium |
 | **Workflow Orchestration** | n8n | 60 | Medium-High |
-| | ray | 12 | Medium |
+| | ray | 11 | Medium |
 | | simstudioai | 9 | Medium |
 | | kubeflow | 8 | Medium |
 | | n8n-mcp | 4 | Medium-High |
 | | 9router | 3 | High |
-| **Other AI Components** | openclaw | 657 | Medium-High |
+| **Other AI Components** | openclaw | 415 | Medium-High |
 | | praisonai | 112 | Critical |
 | | pyload-ng | 24 | Medium |
 | | astrbot | 14 | Medium |
@@ -170,7 +170,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | nocobase | 1 | Critical |
 | | sub2api | 1 | High |
 | | trigger.dev | 1 | Critical |
-| **AI Agent Config Security** | AI-Agent-Config | 4 | High |
+| **AI Agent Config Security** | AI-Agent-Config | 3 | High |
 | **Total** | | **2000+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
