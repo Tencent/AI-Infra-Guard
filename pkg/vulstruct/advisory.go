@@ -71,8 +71,8 @@ func (ae *AdvisoryEngine) LoadFromDirectory(dir string) error {
 	return nil
 }
 
-func (ae *AdvisoryEngine) LoadFromHost(host string) error {
-	datas, err := utils.LoadRemoteVulStruct(fmt.Sprintf("http://%s/api/v1/knowledge/vulnerabilities?page=1&size=9999", host))
+func (ae *AdvisoryEngine) LoadFromHost(host string, lang string) error {
+	datas, err := utils.LoadRemoteVulStruct(fmt.Sprintf("http://%s/api/v1/knowledge/vulnerabilities?page=1&size=9999&lang=%s", host, lang))
 	if err != nil {
 		return err
 	}
