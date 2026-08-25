@@ -115,6 +115,9 @@ class RedTeamer:
         self.simulator_model, _ = initialize_model(simulator_model)
         self.evaluation_model, _ = initialize_model(evaluation_model)
         self.async_mode = async_mode
+        # 缓存已翻译过的文本，避免同一条数据集原文/相同 reason 在多个测试用例间重复翻译
+        # （同一批次的越狱数据集通常会被多种攻击手法/多个漏洞类型重复引用同一条 original_input）
+        self._translation_cache: Dict[str, str] = {}
         self.synthetic_goldens: List[Golden] = []
         self.custom_metric = None  # 添加自定义metric属性
         self.attack_simulator = AttackSimulator(
@@ -147,33 +150,78 @@ Direct translation without separators"""
         """获取翻译的 user 提示"""
         return f"Translate to {logger.lang} (output translation only):\n\n{text}"
 
-    def _translate_reason(self, reason: str) -> str:
-        """翻译 reason 文本（同步版本）"""
-        if not isinstance(reason, str) or not reason.strip():
-            return reason
-        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
+    def _lang_category(self) -> str:
+        """把 logger.lang（如 'en'/'zh'/'zh_CN'）映射到 judge_language() 的词表上"""
+        lang = (logger.lang or "").lower()
+        if lang.startswith("zh"):
+            return "chinese"
+        if lang.startswith("en"):
+            return "english"
+        return "default"
+
+    def _translate_text(self, text: str) -> str:
+        """把任意报告文本翻译成当前配置的报告语言（同步版本）。
+        已经是目标语言的文本、以及无法判断语言的文本（如混淆/编码后的攻击载荷）都会原样跳过，
+        避免把非自然语言内容（比如 Zalgo 编码）误翻译损坏。"""
+        if not isinstance(text, str) or not text.strip():
+            return text
+        target = self._lang_category()
+        if target == "default":
+            return text
+        detected = judge_language(text)
+        if detected == "default" or detected == target:
+            return text
+        cache_key = f"{target}:{text}"
+        if cache_key in self._translation_cache:
+            return self._translation_cache[cache_key]
+        try:
             system_message = self._get_translation_system_message()
-            user_prompt = self._get_translation_user_prompt(reason)
+            user_prompt = self._get_translation_user_prompt(text)
             messages = [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_prompt}
             ]
-            return self.evaluation_model.generate(messages=messages)
-        return reason
+            translated = self.evaluation_model.generate(messages=messages)
+        except Exception as e:
+            logger.exception(e)
+            return text
+        self._translation_cache[cache_key] = translated
+        return translated
+
+    async def _a_translate_text(self, text: str) -> str:
+        """把任意报告文本翻译成当前配置的报告语言（异步版本），规则同 _translate_text。"""
+        if not isinstance(text, str) or not text.strip():
+            return text
+        target = self._lang_category()
+        if target == "default":
+            return text
+        detected = judge_language(text)
+        if detected == "default" or detected == target:
+            return text
+        cache_key = f"{target}:{text}"
+        if cache_key in self._translation_cache:
+            return self._translation_cache[cache_key]
+        try:
+            system_message = self._get_translation_system_message()
+            user_prompt = self._get_translation_user_prompt(text)
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_prompt}
+            ]
+            translated = await self.evaluation_model.a_generate(messages=messages)
+        except Exception as e:
+            logger.exception(e)
+            return text
+        self._translation_cache[cache_key] = translated
+        return translated
+
+    def _translate_reason(self, reason: str) -> str:
+        """翻译 reason 文本（同步版本）"""
+        return self._translate_text(reason)
 
     async def _a_translate_reason(self, reason: str) -> str:
         """翻译 reason 文本（异步版本）"""
-        if not isinstance(reason, str) or not reason.strip():
-            return reason
-        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
-            system_message = self._get_translation_system_message()
-            user_prompt = self._get_translation_user_prompt(reason)
-            messages = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_prompt}
-            ]
-            return await self.evaluation_model.a_generate(messages=messages)
-        return reason
+        return await self._a_translate_text(reason)
 
     def red_team(
         self,
@@ -1121,15 +1169,19 @@ Direct translation without separators"""
             else:
                 status = "Jailbreak"
                 rep_status = True
+            original_input = case.original_input if case.attack_method != "RedTeam" else None
             result = {
-                "status": status, 
-                "modelName": model_name, 
+                "status": status,
+                "modelName": model_name,
                 "vulnerability": case.vulnerability,
                 "attackMethod": case.attack_method,
-                "originalInput": case.original_input if case.attack_method != "RedTeam" else None,
-                "input": case.input,
-                "output": case.actual_output,
-                "reason": case.reason,
+                # 数据集原文/攻击载荷/模型输出/评估依据统一翻译成报告语言；
+                # _translate_text 会跳过已经是目标语言、或无法判断语言（如混淆后的攻击载荷）的文本，
+                # 避免把编码/乱码内容误翻译损坏。
+                "originalInput": self._translate_text(original_input),
+                "input": self._translate_text(case.input),
+                "output": self._translate_text(case.actual_output),
+                "reason": self._translate_text(case.reason),
                 "error": case.error
             }
             results.append(result)
