@@ -104,8 +104,8 @@ func main() {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [fingerprint]  %s\n      └─ %v\n", file, err)
 				hasError = true
 				failCount++
-			} else if strings.TrimSpace(fp.ID) == "" {
-				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [fingerprint]  %s\n      └─ missing required 'id' field\n", file)
+			} else if strings.TrimSpace(fp.Info.Name) == "" {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [fingerprint]  %s\n      └─ missing required 'name' field\n", file)
 				hasError = true
 				failCount++
 			} else {
@@ -118,12 +118,12 @@ func main() {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ %v\n", file, err)
 				hasError = true
 				failCount++
-			} else if strings.TrimSpace(vul.ID) == "" {
-				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ missing required 'id' field\n", file)
+			} else if strings.TrimSpace(vul.Info.Name) == "" {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ missing required 'name' field\n", file)
 				hasError = true
 				failCount++
-			} else if !isValidSeverity(vul.Severity) {
-				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ invalid severity level '%s'\n", file, vul.Severity)
+			} else if !isValidSeverity(vul.Info.Severity) {
+				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ invalid or missing severity level '%s'\n", file, vul.Info.Severity)
 				hasError = true
 				failCount++
 			} else {
@@ -159,7 +159,7 @@ func main() {
 // isValidSeverity verifies that severity matches standard vulnerability levels.
 func isValidSeverity(severity string) bool {
 	switch strings.ToLower(strings.TrimSpace(severity)) {
-	case "info", "low", "medium", "high", "critical", "":
+	case "info", "low", "medium", "high", "critical":
 		return true
 	default:
 		return false
