@@ -21,6 +21,7 @@ import json
 import os
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
+from datetime import timedelta
 from typing import Any, Literal
 
 from mcp import ClientSession
@@ -77,7 +78,7 @@ class MCPTools:
             session = ClientSession(
                 read,
                 write,
-                read_timeout_seconds=float(self.timeout_seconds),
+                read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
             )
             await stack.enter_async_context(session)
             await session.initialize()
