@@ -363,6 +363,7 @@ func (t *AIInfraScanAgent) executeScan(ctx context.Context, request TaskRequest,
 		WebServer:    false,
 		Target:       reqScan.Target,
 		LoadRemote:   true,
+		Language:     request.Language,
 	}
 
 	headers := make([]string, 0)

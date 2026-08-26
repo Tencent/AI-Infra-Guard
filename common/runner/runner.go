@@ -676,7 +676,7 @@ func (r *Runner) initVulnerabilityDB() error {
 	var err error
 	if r.Options.LoadRemote {
 		// load from hostname
-		err = engine.LoadFromHost(r.Options.AdvTemplates)
+		err = engine.LoadFromHost(r.Options.AdvTemplates, r.Options.Language)
 	} else {
 		// load from directory
 		vulDir := strings.TrimRight(r.Options.AdvTemplates, "/")
