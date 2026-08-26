@@ -21,7 +21,6 @@ import json
 import os
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
-from datetime import timedelta
 from typing import Any, Literal
 
 from mcp import ClientSession
@@ -78,7 +77,7 @@ class MCPTools:
             session = ClientSession(
                 read,
                 write,
-                read_timeout_seconds=timedelta(seconds=self.timeout_seconds),
+                read_timeout_seconds=self.timeout_seconds,
             )
             await stack.enter_async_context(session)
             await session.initialize()
@@ -206,14 +205,14 @@ class MCPTools:
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
             # 缓存工具 schema，用于后续参数类型转换
-            self._tools_schema[t.name] = t.inputSchema
+            self._tools_schema[t.name] = t.input_schema
 
             # 净化工具描述，移除 prompt injection 指令
             safe_desc = self._sanitize_description(t.description)
 
             parameters = ""
-            for k, param in t.inputSchema["properties"].items():
-                required = "true" if k in t.inputSchema.get("required", []) else "false"
+            for k, param in t.input_schema["properties"].items():
+                required = "true" if k in t.input_schema.get("required", []) else "false"
                 param_type = param.get("type", "string")
                 # 构建基础属性
                 base_attrs = f'name="{k}" type="{param_type}" required="{required}"'
