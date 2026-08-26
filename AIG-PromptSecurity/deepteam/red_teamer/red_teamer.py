@@ -115,8 +115,6 @@ class RedTeamer:
         self.simulator_model, _ = initialize_model(simulator_model)
         self.evaluation_model, _ = initialize_model(evaluation_model)
         self.async_mode = async_mode
-        # 缓存已翻译过的文本，避免同一条数据集原文/相同 reason 在多个测试用例间重复翻译
-        # （同一批次的越狱数据集通常会被多种攻击手法/多个漏洞类型重复引用同一条 original_input）
         self._translation_cache: Dict[str, str] = {}
         self.synthetic_goldens: List[Golden] = []
         self.custom_metric = None  # 添加自定义metric属性
@@ -151,7 +149,6 @@ Direct translation without separators"""
         return f"Translate to {logger.lang} (output translation only):\n\n{text}"
 
     def _lang_category(self) -> str:
-        """把 logger.lang（如 'en'/'zh'/'zh_CN'）映射到 judge_language() 的词表上"""
         lang = (logger.lang or "").lower()
         if lang.startswith("zh"):
             return "chinese"
@@ -160,9 +157,6 @@ Direct translation without separators"""
         return "default"
 
     def _translate_text(self, text: str) -> str:
-        """把任意报告文本翻译成当前配置的报告语言（同步版本）。
-        已经是目标语言的文本、以及无法判断语言的文本（如混淆/编码后的攻击载荷）都会原样跳过，
-        避免把非自然语言内容（比如 Zalgo 编码）误翻译损坏。"""
         if not isinstance(text, str) or not text.strip():
             return text
         target = self._lang_category()
@@ -189,7 +183,6 @@ Direct translation without separators"""
         return translated
 
     async def _a_translate_text(self, text: str) -> str:
-        """把任意报告文本翻译成当前配置的报告语言（异步版本），规则同 _translate_text。"""
         if not isinstance(text, str) or not text.strip():
             return text
         target = self._lang_category()
@@ -1175,16 +1168,9 @@ Direct translation without separators"""
                 "modelName": model_name,
                 "vulnerability": case.vulnerability,
                 "attackMethod": case.attack_method,
-                # 数据集原文/攻击载荷/模型输出统一翻译成报告语言；_translate_text 会跳过
-                # 已经是目标语言、或无法判断语言（如混淆后的攻击载荷）的文本，避免把编码/
-                # 乱码内容误翻译损坏。
                 "originalInput": self._translate_text(original_input),
                 "input": self._translate_text(case.input),
                 "output": self._translate_text(case.actual_output),
-                # 注意：case.reason 在这里不再调用 _translate_text 二次翻译——它在测量阶段
-                # 已经翻译好了（metric 产出的 reason 经 _translate_reason/_a_translate_reason
-                # 翻译；出错兜底的 reason 经 logger.translated_msg 走 gettext 本地化），此处
-                # 直接是最终报告语言，不需要也不应该再翻译一次。
                 "reason": case.reason,
                 "error": case.error
             }
