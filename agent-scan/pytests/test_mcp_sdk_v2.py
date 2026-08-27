@@ -76,5 +76,53 @@ class MCP20TransportTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(_Session.instances[0].initialized)
 
 
+class _Tool:
+    """Mimics mcp 2.0 Tool: exposes input_schema (snake_case), no inputSchema."""
+
+    def __init__(self, name, description, input_schema):
+        self.name = name
+        self.description = description
+        self.input_schema = input_schema
+
+
+class _ListToolsResult:
+    def __init__(self, tools):
+        self.tools = tools
+
+
+class _FakeSession:
+    async def list_tools(self):
+        return _ListToolsResult([
+            _Tool(
+                "echo",
+                "Echo a message",
+                {
+                    "type": "object",
+                    "properties": {"message": {"type": "string"}},
+                    "required": ["message"],
+                },
+            )
+        ])
+
+
+class MCP20ToolSchemaTests(unittest.IsolatedAsyncioTestCase):
+    async def test_describe_mcp_tools_reads_input_schema(self):
+        manager = MCPTools("https://example.test/mcp", "streamable-http")
+
+        @asynccontextmanager
+        async def fake_session(_self):
+            yield _FakeSession()
+
+        with patch.object(MCPTools, "_session", fake_session):
+            description = await manager.describe_mcp_tools()
+
+        self.assertIn("echo", description)
+        self.assertIn('name="message" type="string" required="true"', description)
+        self.assertEqual(
+            manager._tools_schema["echo"]["properties"]["message"]["type"],
+            "string",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
