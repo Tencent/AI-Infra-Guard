@@ -7,8 +7,40 @@ AI 模型指纹识别 + 中转站检测工具
 ### 1. 随机数指纹识别（统计方法）
 通过让 AI 模型"随机选数字 1-355"，收集大量样本的分布指纹来区分不同模型。
 
-### 2. 中转站一致性检测
-结合接口、响应和协议行为等多类信号，辅助判断中转服务是否按预期转发模型请求。
+### 2. 中转站加密级检测
+用 Claude thinking signature（Anthropic 服务端 AEAD 加密签名，中转站不可伪造）+ 10 项辅助检测，1 分钟识别中转站是真原生透传，还是用 Kiro / Amazon Q / Bedrock 等替身伪装。
+
+## 原理
+
+### Thinking Signature（加密级验证）
+
+Claude 的 extended thinking API 返回的 `signature` 是 base64 编码的 **protobuf 封装**，内部包裹着模型私有推理的 **AEAD 加密副本**，并与模型名绑定：
+
+```
+base64
+ └─ protobuf envelope
+     #2  inner message
+         #1  header (authenticated)
+             #6 = model name      ← 绑定模型名（AEAD 认证，不可篡改）
+             #8 = "thinking"     ← block type
+         #2 = 12 bytes            ← nonce/IV
+         #3 = 12 bytes            ← second nonce
+         #4 = 48 bytes            ← wrapped data-key / auth tag
+         #5 = N bytes             ← CIPHERTEXT (加密的推理，熵≈7.96 bits/byte)
+```
+
+**关键点：**
+- 只有 Anthropic 服务端持有加密密钥，能产生和解封 signature
+- 模型名绑定在 AEAD 认证头中，不可篡改
+- 中转站无法伪造（没有 Anthropic 的密钥）
+- 替身模型（Kiro/Q/Bedrock 等）不会产生这种 protobuf 封装的签名
+
+### 检测流程
+
+1. **Harvest**：向待测 API 发送开启 extended thinking 的请求，获取 signature
+2. **验证签名结构**：解析 protobuf，检查模型名绑定、密文熵值
+3. **Replay**：用 signature 回放，验证能否解封隐藏推理
+4. **10 项辅助检测**：响应头指纹、thinking_tokens、stop_reason 等
 
 ## 检测能力
 
@@ -30,9 +62,21 @@ Jensen–Shannon 散度，排名最前即指纹最接近的模型。候选分布
 coarsened-KL。两种方法都只要求可信参考接口提供 `logprobs`。该模块使用独立配置
 与结果目录，不改变已有 A/B/C/D 算法、基准文件或 HTTP SSE 接口。
 
-### B. 协议一致性辅助校验
+### B. 中转站加密级检测（11 项）
 
-对支持相关能力的模型协议执行额外一致性校验，并将结果作为中转站检测的辅助信号。
+| # | 检测项 | 类型 | 说明 |
+|---|--------|------|------|
+| 1 | Thinking Signature | 加密级 | AEAD 加密签名，绑定模型名，中转站不可伪造 |
+| 2 | 签名结构验证 | 辅助 | protobuf 格式 + 模型名绑定 + 密文熵值 ≈8 |
+| 3 | 回放解封验证 | 加密级 | replay signature 能还原隐藏推理 |
+| 4 | 模型名一致性 | 辅助 | 返回 model 与请求 model 一致 |
+| 5 | 响应头指纹 | 辅助 | 检查 Anthropic 特有响应头 / AWS/Bedrock 头 |
+| 6 | thinking_tokens | 辅助 | 扩展思考返回 thinking token 计数 |
+| 7 | stop_reason | 辅助 | 合理的停止原因 |
+| 8 | 随机数指纹 | 辅助 | 1-355 随机数分布指纹 |
+| 9 | system prompt 探测 | 辅助 | 不同替身模型的响应差异 |
+| 10 | token 计数校验 | 辅助 | input/output token 比例合理性 |
+| 11 | 延迟特征 | 辅助 | 原生 API vs 中转的延迟差异模式 |
 
 ### C. 中转站黑盒审计（8 探针，源自朱雀实验室 A.I.G）
 
@@ -85,7 +129,7 @@ AIG 统一命令入口为 `ai-infra-guard api-checker ...`（别名
 ```bash
 python main.py calibrate   # 标定官方模型基准（随机数指纹）
 python main.py test        # 测试第三方 API（随机数指纹匹配）
-python main.py detect      # 中转站协议一致性辅助校验
+python main.py detect      # 中转站加密级检测（thinking signature）
 python main.py audit       # 中转站黑盒审计（8 探针）
 python main.py pamela      # PAMELA 单token分布指纹匹配（JSD）
 python main.py qtest run   # Ventor QTest（使用内置默认配置）
@@ -100,7 +144,7 @@ python main.py list        # 查看已保存基准
 ```bash
 python main.py detect
 # 输入中转站的 Base URL / API Key / 模型名
-# 输出中转站检测结果
+# 1-2 分钟后输出 11 项检测结果
 ```
 
 ### HTTP SSE 接口
@@ -134,7 +178,7 @@ curl -N -X POST http://127.0.0.1:8088/api/v1/relay/check/stream \
 `base_url` 可填写版本根路径，也可直接填写完整的 `/chat/completions` 或
 `/responses` 地址；服务会自动选择对应协议且不会重复拼接路径。
 模型 ID 会优先原样请求；如果 `/models` 中不存在 `provider/model`、但存在去掉
-首段后的 `model`，后续审计、专项校验和指纹请求会自动使用该规范 ID。对于未提供
+首段后的 `model`，后续审计、签名和指纹请求会自动使用该规范 ID。对于未提供
 完整模型列表的服务，原始 ID 的 Chat 请求返回 400/404/422 时也会执行同样的回退。
 
 ## 日志
@@ -173,7 +217,7 @@ services/api_checker/
 │   ├── common.py        # 公共 API 客户端、统计与基准存储
 │   ├── fingerprint.py   # 随机数指纹
 │   ├── bayes_score.py   # 贝叶斯评分
-│   ├── signature.py     # 协议一致性辅助校验
+│   ├── signature.py     # Thinking Signature 检测
 │   ├── relay_audit.py   # 中转站黑盒审计
 │   └── pamela.py        # PAMELA 单 token 分布指纹
 ├── ventor_qtest/         # 隔离内置的 Ventor QTest
