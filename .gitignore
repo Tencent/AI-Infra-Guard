@@ -29,3 +29,7 @@ services/api_checker/runtime/
 services/api_checker/pamela/results/
 services/**/__pycache__/
 services/**/*.pyc
+
+# local deployment & test artifacts
+deploy/
+common/utils/chromium/screenshot.png

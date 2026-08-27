@@ -115,6 +115,7 @@ class RedTeamer:
         self.simulator_model, _ = initialize_model(simulator_model)
         self.evaluation_model, _ = initialize_model(evaluation_model)
         self.async_mode = async_mode
+        self._translation_cache: Dict[str, str] = {}
         self.synthetic_goldens: List[Golden] = []
         self.custom_metric = None  # 添加自定义metric属性
         self.attack_simulator = AttackSimulator(
@@ -147,33 +148,73 @@ Direct translation without separators"""
         """获取翻译的 user 提示"""
         return f"Translate to {logger.lang} (output translation only):\n\n{text}"
 
-    def _translate_reason(self, reason: str) -> str:
-        """翻译 reason 文本（同步版本）"""
-        if not isinstance(reason, str) or not reason.strip():
-            return reason
-        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
+    def _lang_category(self) -> str:
+        lang = (logger.lang or "").lower()
+        if lang.startswith("zh"):
+            return "chinese"
+        if lang.startswith("en"):
+            return "english"
+        return "default"
+
+    def _translate_text(self, text: str) -> str:
+        if not isinstance(text, str) or not text.strip():
+            return text
+        target = self._lang_category()
+        if target == "default":
+            return text
+        detected = judge_language(text)
+        if detected == "default" or detected == target:
+            return text
+        cache_key = f"{target}:{text}"
+        if cache_key in self._translation_cache:
+            return self._translation_cache[cache_key]
+        try:
             system_message = self._get_translation_system_message()
-            user_prompt = self._get_translation_user_prompt(reason)
+            user_prompt = self._get_translation_user_prompt(text)
             messages = [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_prompt}
             ]
-            return self.evaluation_model.generate(messages=messages)
-        return reason
+            translated = self.evaluation_model.generate(messages=messages)
+        except Exception as e:
+            logger.exception(e)
+            return text
+        self._translation_cache[cache_key] = translated
+        return translated
+
+    async def _a_translate_text(self, text: str) -> str:
+        if not isinstance(text, str) or not text.strip():
+            return text
+        target = self._lang_category()
+        if target == "default":
+            return text
+        detected = judge_language(text)
+        if detected == "default" or detected == target:
+            return text
+        cache_key = f"{target}:{text}"
+        if cache_key in self._translation_cache:
+            return self._translation_cache[cache_key]
+        try:
+            system_message = self._get_translation_system_message()
+            user_prompt = self._get_translation_user_prompt(text)
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_prompt}
+            ]
+            translated = await self.evaluation_model.a_generate(messages=messages)
+        except Exception as e:
+            logger.exception(e)
+            return text
+        self._translation_cache[cache_key] = translated
+        return translated
+
+    def _translate_reason(self, reason: str) -> str:
+        """翻译 reason 文本（同步版本）"""
+        return self._translate_text(reason)
 
     async def _a_translate_reason(self, reason: str) -> str:
         """翻译 reason 文本（异步版本）"""
-        if not isinstance(reason, str) or not reason.strip():
-            return reason
-        if logger.lang == "zh_CN" and judge_language(reason) != "chinese":
-            system_message = self._get_translation_system_message()
-            user_prompt = self._get_translation_user_prompt(reason)
-            messages = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_prompt}
-            ]
-            return await self.evaluation_model.a_generate(messages=messages)
-        return reason
+        return await self._a_translate_text(reason)
 
     def red_team(
         self,
@@ -1121,14 +1162,15 @@ Direct translation without separators"""
             else:
                 status = "Jailbreak"
                 rep_status = True
+            original_input = case.original_input if case.attack_method != "RedTeam" else None
             result = {
-                "status": status, 
-                "modelName": model_name, 
+                "status": status,
+                "modelName": model_name,
                 "vulnerability": case.vulnerability,
                 "attackMethod": case.attack_method,
-                "originalInput": case.original_input if case.attack_method != "RedTeam" else None,
-                "input": case.input,
-                "output": case.actual_output,
+                "originalInput": self._translate_text(original_input),
+                "input": self._translate_text(case.input),
+                "output": self._translate_text(case.actual_output),
                 "reason": case.reason,
                 "error": case.error
             }

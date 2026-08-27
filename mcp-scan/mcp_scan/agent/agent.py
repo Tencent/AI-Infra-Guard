@@ -22,6 +22,7 @@ from typing import Any
 
 from mcp_scan.agent.base_agent import BaseAgent
 from mcp_scan.tools.dispatcher import ToolDispatcher
+from mcp_scan.utils import strip_surrogates
 from mcp_scan.utils.aig_logger import mcpLogger
 from mcp_scan.utils.checkpoint import CheckpointManager
 from mcp_scan.utils.extract_vuln import VulnerabilityExtractor, extract_result
@@ -83,10 +84,12 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
                 continue
             if total >= max_files:
                 lines.append(f"{indent}  ... (超过 {max_files} 个文件，已截断)")
-                return "\n".join(lines)
+                return strip_surrogates("\n".join(lines))
             lines.append(f"{indent}  {fname}")
             total += 1
-    return "\n".join(lines)
+    # Non-UTF-8 filenames surface as lone surrogates (surrogateescape); strip
+    # them so the tree can be serialized to JSON for the LLM request.
+    return strip_surrogates("\n".join(lines))
 
 
 _LANGUAGE_DIRECTIVE_EN = """

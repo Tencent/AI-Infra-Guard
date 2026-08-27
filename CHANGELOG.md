@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.0] - 2026-08-26
+
+### Added
+- **API Checker**: New API security audit module with web proxy integration, unified CLI command, and detection algorithms (PR #511)
+- **LLM API Poisoning Detection**: New detection for LLM API poisoning attacks (PR #568)
+- **Agent-Scan (aig-agent-redteam)**: v5.0.0 mutation engine refactor, merge workflow-attack into mutation-attack
+- **YAML Validation**: Strict validation for required ID and severity fields in vulnerability rules
+- **Research**: DeepSeek Harness prompt injection assessment
+- **Data**: AIG rules [2026-08-07] and [2026-08-14]
+
+### Fixed
+- **MCP**: Migrate clients to SDK 2.0; fix streamable_http_client headers param incompatibility with MCP SDK 1.28+
+- **MCP-Scan**: Strip lone surrogates from non-UTF-8 filenames; use timedelta for ClientSession read_timeout_seconds
+- **Skill-Scan**: Strip lone surrogates to prevent JSON serialization crash
+- **Data**: Remove case-colliding duplicate vulnerability rules; escape credential-like reference labels
+- **PromptSecurity**: Add missing httpx dependency; stop double-translating case.reason; translate jailbreak report content
+- **Agent**: Extract pure URL from user input for MCP scan server_url
+- **Agent-Scan**: Localize step titles like MCP Scan
+- **i18n**: Honor selected report language for AI Infra Scan CVE data
+- **Parser**: Prevent panic on malformed advisory version rules
+- **Docker**: Restore published image compose compatibility; use uv sync for agent-scan Python deps
+- **API Checker**: Preserve weighted audit deductions
+- **YAML Check**: Validate Info.Name, reject empty severity, restore EOF newline
+
+### Changed
+- **Docs**: Add OpenClaw Recommended badge, expand Research & Papers section, update CVE count 1900+ → 2000+, update component table (4 new components, 14 CVE count updates), update model recommendations (GLM 5.3, Kimi K3)
+- **Refactor**: Embed API checker in agent Docker image
+
+### Contributors
+AIG-Bot, Elwood Ying, Flynn Joe, Louis, Zeding Zhang, aig-doc-bot, aigsec, ajay.kumar, donglige, fei, feiyang, ichaobuster, rootkiller6788, xiangfanwu, zhuque
+
 ## [v4.5.1] - 2026-07-30
 
 ### Added

@@ -326,21 +326,26 @@ func (r *Rule) AdvisoryEval(config *AdvisoryConfig) bool {
 					v1, _ = vv.NewVersion("0.0.0")
 				}
 				text = versionCheck(next.right)
+				v2, err := vv.NewVersion(text)
+				if err != nil {
+					gologger.Debugf("无法解析规则版本号:%s=>%s", text, "0.0.0")
+					v2, _ = vv.NewVersion("0.0.0")
+				}
 				switch next.op {
 				case tokenFullEqual:
-					r = v1.Equal(vv.Must(vv.NewVersion(text)))
+					r = v1.Equal(v2)
 				case tokenContains:
-					r = v1.Equal(vv.Must(vv.NewVersion(text)))
+					r = v1.Equal(v2)
 				case tokenNotEqual:
-					r = !v1.Equal(vv.Must(vv.NewVersion(text)))
+					r = !v1.Equal(v2)
 				case tokenGt:
-					r = v1.GreaterThan(vv.Must(vv.NewVersion(text)))
+					r = v1.GreaterThan(v2)
 				case tokenLt:
-					r = v1.LessThan(vv.Must(vv.NewVersion(text)))
+					r = v1.LessThan(v2)
 				case tokenGte:
-					r = v1.GreaterThanOrEqual(vv.Must(vv.NewVersion(text)))
+					r = v1.GreaterThanOrEqual(v2)
 				case tokenLte:
-					r = v1.LessThanOrEqual(vv.Must(vv.NewVersion(text)))
+					r = v1.LessThanOrEqual(v2)
 
 				default:
 					panic("unknown op token")

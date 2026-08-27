@@ -393,6 +393,7 @@ func HandleListVulnerabilities() gin.HandlerFunc {
 		pageStr := c.DefaultQuery("page", "1")
 		sizeStr := c.DefaultQuery("size", "20")
 		query := strings.ToLower(c.DefaultQuery("q", ""))
+		lang := c.DefaultQuery("lang", "zh")
 		page, _ := strconv.Atoi(pageStr)
 		size, _ := strconv.Atoi(sizeStr)
 		if page < 1 {
@@ -405,6 +406,9 @@ func HandleListVulnerabilities() gin.HandlerFunc {
 		engine := vulstruct.NewAdvisoryEngine()
 		// load from directory
 		dir := "data/vuln"
+		if lang == "en" {
+			dir = "data/vuln_en"
+		}
 		err := engine.LoadFromDirectory(dir)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": 1, "message": "加载漏洞库失败: " + err.Error()})

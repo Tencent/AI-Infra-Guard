@@ -25,7 +25,6 @@ from typing import Any, Literal
 
 from mcp import ClientSession
 from mcp.client.sse import sse_client
-
 from mcp.client.streamable_http import streamable_http_client
 # MCP 2.0 exposes its recommended HTTP client factory from this private module.
 # requirements.txt pins 2.0.0; revisit this import when upgrading the SDK.
@@ -205,21 +204,15 @@ class MCPTools:
 
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
-            # mcp SDK >= 2.0 的 Tool 字段为 input_schema，旧版为 inputSchema
-            tool_schema = getattr(t, "input_schema", None)
-            if tool_schema is None:
-                tool_schema = getattr(t, "inputSchema", None)
-            if tool_schema is None:
-                tool_schema = {}
             # 缓存工具 schema，用于后续参数类型转换
-            self._tools_schema[t.name] = tool_schema
+            self._tools_schema[t.name] = t.input_schema
 
             # 净化工具描述，移除 prompt injection 指令
             safe_desc = self._sanitize_description(t.description)
 
             parameters = ""
-            for k, param in tool_schema.get("properties", {}).items():
-                required = "true" if k in tool_schema.get("required", []) else "false"
+            for k, param in t.input_schema["properties"].items():
+                required = "true" if k in t.input_schema.get("required", []) else "false"
                 param_type = param.get("type", "string")
                 # 构建基础属性
                 base_attrs = f'name="{k}" type="{param_type}" required="{required}"'

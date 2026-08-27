@@ -105,10 +105,19 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	argv = append(argv, "--task_id", request.SessionId)
 
 	// Define task titles
-	taskTitles := []string{
-		"Info Collection",
-		"Vulnerability Detection",
-		"Vulnerability Review",
+	var taskTitles []string
+	if language == "en" {
+		taskTitles = []string{
+			"Info Collection",
+			"Vulnerability Detection",
+			"Vulnerability Review",
+		}
+	} else {
+		taskTitles = []string{
+			"信息收集",
+			"漏洞检测",
+			"漏洞整理",
+		}
 	}
 
 	var tasks []SubTask
