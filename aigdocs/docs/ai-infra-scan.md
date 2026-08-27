@@ -70,7 +70,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | flowise | 97 | 中 |
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
-| | Dify | 34 | 高 |
+| | Dify | 32 | 高 |
 | | LiteLLM | 31 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
@@ -129,7 +129,6 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | mcp sse | 2 | 中 |
 | | paperclip | 2 | 中 |
 | | weknora | 2 | 低 |
-| | pgadmin | 2 | 中高 |
 | | Clawdbot Gateway | 1 | 中 |
 | | ComfyUI-Ace-Nodes | 1 | 低 |
 | | ComfyUI-Bmad-Nodes | 1 | 低 |
@@ -162,13 +161,11 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | superagi | 1 | 低 |
 | | text-generation-webui | 1 | 中 |
 | | upsonic | 1 | 中 |
-| | wallos | 1 | 低 |
-| | budibase | 1 | 中 |
 | | nocobase | 1 | 严重 |
 | | sub2api | 1 | 高 |
 | | trigger.dev | 1 | 严重 |
 | **AI Agent 配置安全** | AI-Agent-Config | 4 | 高 |
-| **总计** | | **2020+** | |
+| **总计** | | **2000+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 
