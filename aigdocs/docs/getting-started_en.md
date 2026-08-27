@@ -31,6 +31,23 @@ cd AI-Infra-Guard
 docker-compose up -d
 ```
 
+**Optional: Speed up the Agent image build with the Tencent Cloud Debian mirror**
+
+When building the Agent image from source in mainland China or on Tencent Cloud, `apt-get update` in `Dockerfile_Agent` may be slow when reaching the official Debian CDN. Add the following standalone instruction before the existing `RUN` instruction that contains `apt-get update`:
+
+```dockerfile
+RUN sed -i "s|http://deb.debian.org|https://mirrors.cloud.tencent.com|g" /etc/apt/sources.list.d/debian.sources
+```
+
+Then rebuild and start the Agent:
+
+```bash
+docker compose build agent
+docker compose up -d
+```
+
+This changes only the Debian mirror host. The existing suites, components, and `Signed-By` signature verification remain unchanged. The speed improvement depends on your network environment. To restore the official source, replace `https://mirrors.cloud.tencent.com` with `http://deb.debian.org`.
+
 Once the installation is complete, you can access the A.I.G Web UI by visiting `http://localhost:8088` in your browser.
 
 **Directory Structure**

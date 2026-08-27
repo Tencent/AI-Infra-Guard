@@ -31,6 +31,23 @@ cd AI-Infra-Guard
 docker-compose up -d
 ```
 
+**可选：使用腾讯云 Debian 软件源加速 Agent 镜像构建**
+
+在中国大陆或腾讯云网络环境中，从源码构建 Agent 镜像时，`Dockerfile_Agent` 的 `apt-get update` 可能因访问 Debian 官方 CDN 较慢而耗时较长。可以在包含 `apt-get update` 的现有 `RUN` 指令之前加入以下独立指令：
+
+```dockerfile
+RUN sed -i "s|http://deb.debian.org|https://mirrors.cloud.tencent.com|g" /etc/apt/sources.list.d/debian.sources
+```
+
+然后重新构建并启动 Agent：
+
+```bash
+docker compose build agent
+docker compose up -d
+```
+
+该配置只替换 Debian 软件源的主机地址，原有 suite、组件及 `Signed-By` 签名校验保持不变。实际加速效果取决于网络环境；如需恢复官方源，将 `https://mirrors.cloud.tencent.com` 改回 `http://deb.debian.org` 即可。
+
 安装完成后，您可以通过浏览器访问 `http://localhost:8088` 来使用A.I.G的Web界面。
 
 **目录结构**
