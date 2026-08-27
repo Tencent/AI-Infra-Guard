@@ -74,6 +74,68 @@ A.I.G的MCP扫描能力完全由Agent驱动，检测准确性与时长取决于�
 3. 开始扫描
 ![image-mcp8](./assets/mcp8.png)
 
+## 方式四：使用 pip 一键安装扫描
+
+除了通过 A.I.G 平台使用外，aig-mcp-scan 还可以作为独立工具通过 pip 安装使用，适用于 CI/CD 集成或本地批量审计场景。
+
+### 安装
+
+```bash
+pip install aig-mcp-scan
+```
+
+> 要求 Python ≥ 3.9
+
+### 命令行使用
+
+```bash
+# 扫描本地 MCP Server 项目目录
+aig-mcp-scan --repo /path/to/your/mcp-server \
+           -m deepseek-v4-flash \
+           --language zh
+
+# 也可以作为 Python 模块调用
+python -m mcp_scan --repo /path/to/your/mcp-server
+
+# 扫描远程 MCP 服务（动态分析）
+aig-mcp-scan --server_url "http://localhost:8000/sse" \
+           -m deepseek-v4-flash
+
+# 保存扫描结果到文件
+aig-mcp-scan --repo /path/to/your/mcp-server -o result.sarif.json
+```
+
+### 命令行参数
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--repo` | 要扫描的 MCP Server 项目目录路径（静态扫描必填） | — |
+| `--server_url` | 远程 MCP 服务地址（启用动态分析模式） | — |
+| `-m, --model` | LLM 模型名称 | `deepseek/deepseek-v3.2-exp` |
+| `-k, --api_key` | API Key（省略时从环境变量读取） | — |
+| `-u, --base_url` | API 基础 URL | `https://openrouter.ai/api/v1` |
+| `-p, --prompt` | 自定义扫描提示词（可选） | — |
+| `--header` | 自定义 HTTP 头（key:value），可多次使用 | `[]` |
+| `--language` | 输出语言：`zh` / `en` | `zh` |
+| `--debug` | 启用调试模式 | `false` |
+| `-o, --output` | 保存扫描结果；未开启 `--aig-mode` 时为 SARIF 2.1.0 格式，开启后为内部结构 JSON | — |
+
+### 环境变量配置
+
+也可通过环境变量或 `.env` 文件配置：
+
+| 变量 | 说明 | 默认值 |
+| --- | --- | --- |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API Key | — |
+| `LLM_MODEL` | 默认模型 | `deepseek/deepseek-v3.2-exp` |
+| `LLM_BASE_URL` | 默认基础 URL | `https://openrouter.ai/api/v1` |
+
+### SARIF 输出格式
+
+CLI 模式默认输出 **SARIF 2.1.0** JSON，包含完整的 MCP01–MCP10 及 3 个补充分类规则（Name Confusion、Rug Pull、Tool Shadowing），即使未发现漏洞也会输出规则声明。SARIF 文件可直接上传至 GitHub Code Scanning、Azure DevOps、GitLab Security Dashboard 等平台。
+
+更多用法详见 [aig-mcp-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan)。
+
 ## 查看扫描状态和结果
 ![image-mcp6](./assets/mcp6.png)
 ![image-mcp7](./assets/mcp7.png)

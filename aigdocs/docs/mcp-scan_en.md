@@ -76,6 +76,68 @@ A.I.G's MCP Server scanning capability is entirely driven by an AI agent. The ac
 3. Start Scan
 ![image-mcp8](./assets/mcp8-en.png)
 
+## Method 4: Install via pip and Scan Standalone
+
+In addition to using the A.I.G platform, aig-mcp-scan can be installed as a standalone tool via pip, suitable for CI/CD integration or local batch auditing.
+
+### Installation
+
+```bash
+pip install aig-mcp-scan
+```
+
+> Requires Python ≥ 3.9
+
+### Command Line Usage
+
+```bash
+# Scan a local MCP Server project directory
+aig-mcp-scan --repo /path/to/your/mcp-server \
+           -m deepseek-v4-flash \
+           --language en
+
+# Or invoke as a Python module
+python -m mcp_scan --repo /path/to/your/mcp-server
+
+# Scan a remote MCP service (dynamic analysis)
+aig-mcp-scan --server_url "http://localhost:8000/sse" \
+           -m deepseek-v4-flash
+
+# Save scan results to a file
+aig-mcp-scan --repo /path/to/your/mcp-server -o result.sarif.json
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--repo` | Path to the MCP Server project directory to scan (required for static scanning) | — |
+| `--server_url` | Remote MCP server URL (enables dynamic analysis mode) | — |
+| `-m, --model` | LLM model name | `deepseek/deepseek-v3.2-exp` |
+| `-k, --api_key` | API key (falls back to env vars if omitted) | — |
+| `-u, --base_url` | API base URL | `https://openrouter.ai/api/v1` |
+| `-p, --prompt` | Custom scan prompt (optional) | — |
+| `--header` | Custom HTTP header (key:value), can be used multiple times | `[]` |
+| `--language` | Output language: `zh` / `en` | `zh` |
+| `--debug` | Enable debug mode | `false` |
+| `-o, --output` | Save scan results; **SARIF 2.1.0 JSON when `--aig-mode` is off, internal-schema JSON when it's on** | — |
+
+### Environment Variables
+
+Configuration can also be provided via environment variables or a `.env` file:
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API key | — |
+| `LLM_MODEL` | Default model | `deepseek/deepseek-v3.2-exp` |
+| `LLM_BASE_URL` | Default base URL | `https://openrouter.ai/api/v1` |
+
+### SARIF Output Format
+
+CLI mode outputs **SARIF 2.1.0** JSON by default, containing the full MCP01–MCP10 plus 3 supplemental classification rules (Name Confusion, Rug Pull, Tool Shadowing). Rules are always output even if no vulnerabilities are found. SARIF files can be uploaded directly to GitHub Code Scanning, Azure DevOps, GitLab Security Dashboard, and other SARIF-aware tools.
+
+For more details, see the [aig-mcp-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan).
+
 ## View Scan Status and Results
 ![image-mcp6](./assets/mcp6-en.png)![image-mcp7](./assets/mcp7-en.png)
 

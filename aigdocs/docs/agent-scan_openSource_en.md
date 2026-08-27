@@ -165,6 +165,93 @@ Displays project analysis results from the information gathering phase, includin
 
 ![Agent Scan Report Info](./assets/image-agentscan-report-info.png)
 
+## Standalone CLI Usage
+
+In addition to using the A.I.G platform, aig-agent-scan can be installed as a standalone tool via pip, suitable for CI/CD integration or local batch auditing.
+
+### Installation
+
+```bash
+pip install aig-agent-scan
+```
+
+> Requires Python ≥ 3.10
+
+### Command Line Usage
+
+```bash
+# Basic scan (requires a provider YAML file describing the target Agent's API)
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp
+
+# Save result to file
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             -o result.json
+
+# Specify language
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             --language en
+
+# Run specific detection skills only
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             --skills "data-leakage-detection,tool-abuse-detection"
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--agent_provider` | Path to the provider YAML file describing the target agent's API (required) | — |
+| `-k, --api_key` | API key (falls back to env vars if omitted) | — |
+| `-m, --model` | LLM model name | `deepseek/deepseek-v3.2-exp` |
+| `-u, --base_url` | API base URL | `https://openrouter.ai/api/v1` |
+| `--repo` | Project directory path for optional source code audit | — |
+| `-p, --prompt` | Custom scan prompt (optional) | — |
+| `--language` | Output language: `zh` / `en` | `zh` |
+| `--skills` | Comma-separated skill names | All detection skills |
+| `--debug` | Enable debug mode | `false` |
+| `-o, --output` | Save result as JSON file | — |
+
+### Provider Configuration
+
+The `--agent_provider` parameter points to a YAML file that describes how to connect to the target agent. Example:
+
+```yaml
+# HTTP endpoint provider
+targets:
+  - id: "http"
+    config:
+      url: "http://127.0.0.1:18081"
+      endpoint: "/chat"
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        message: "{{prompt}}"
+      transform_response: "reply"
+```
+
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `websocket`, and more.
+
+> **Note**: For custom HTTP providers, the `transform_response` field must be filled in to specify which JSON key to extract the agent's reply from (e.g., `reply`, `response`, `data.text`). Leaving it empty will cause all responses to be parsed as `None`, resulting in zero detections.
+
+### Environment Variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API key | — |
+| `LLM_MODEL` | Default model | `deepseek/deepseek-v3.2-exp` |
+| `LLM_BASE_URL` | Default base URL | `https://openrouter.ai/api/v1` |
+
+For more details, see the [aig-agent-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan).
+
 ## Detection Capabilities
 
 Agent Security Scan leverages Red Teaming as a Service (RTaaS) driven Agent capabilities, translating professional security testing experience into an automated detection process. It simulates real-world attack scenarios through intelligent Agents to comprehensively assess the security risks of the target Agent.

@@ -170,6 +170,93 @@ targets:
 
 ![Agent 扫描报告展示](./assets/image-agentscan-report-info.png)
 
+## 独立 CLI 使用
+
+除了通过 A.I.G 平台使用外，aig-agent-scan 还可以作为独立工具通过 pip 安装使用，适用于 CI/CD 集成或本地批量审计场景。
+
+### 安装
+
+```bash
+pip install aig-agent-scan
+```
+
+> 要求 Python ≥ 3.10
+
+### 命令行使用
+
+```bash
+# 基本扫描（需准备 provider YAML 文件描述目标 Agent 接口）
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp
+
+# 保存结果到文件
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             -o result.json
+
+# 指定输出语言
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             --language en
+
+# 仅运行指定检测技能
+aig-agent-scan --agent_provider providers.yaml \
+             -k sk-xxx \
+             -m deepseek-v3.2-exp \
+             --skills "data-leakage-detection,tool-abuse-detection"
+```
+
+### 命令行参数
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--agent_provider` | 目标 Agent 的 provider YAML 文件路径（必填） | — |
+| `-k, --api_key` | API Key（省略时从环境变量读取） | — |
+| `-m, --model` | LLM 模型名称 | `deepseek/deepseek-v3.2-exp` |
+| `-u, --base_url` | API 基础 URL | `https://openrouter.ai/api/v1` |
+| `--repo` | 项目目录路径（可选的源代码审计） | — |
+| `-p, --prompt` | 自定义扫描提示词（可选） | — |
+| `--language` | 输出语言：`zh` / `en` | `zh` |
+| `--skills` | 逗号分隔的检测技能名称 | 全部检测技能 |
+| `--debug` | 启用调试模式 | `false` |
+| `-o, --output` | 保存扫描结果为 JSON 文件 | — |
+
+### Provider 配置
+
+`--agent_provider` 参数指向一个 YAML 文件，描述如何连接目标 Agent。示例：
+
+```yaml
+# HTTP 端点 provider
+targets:
+  - id: "http"
+    config:
+      url: "http://127.0.0.1:18081"
+      endpoint: "/chat"
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        message: "{{prompt}}"
+      transform_response: "reply"
+```
+
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`websocket` 等。
+
+> **注意**：对于自定义 HTTP provider，`transform_response` 字段必须填写，用于指定从响应 JSON 中提取 Agent 回复的键名（如 `reply`、`response`、`data.text` 等）。留空会导致所有响应被解析为 `None`，扫描将无法产出结果。
+
+### 环境变量配置
+
+| 变量 | 说明 | 默认值 |
+| --- | --- | --- |
+| `LLM_API_KEY` / `OPENAI_API_KEY` | LLM API Key | — |
+| `LLM_MODEL` | 默认模型 | `deepseek/deepseek-v3.2-exp` |
+| `LLM_BASE_URL` | 默认基础 URL | `https://openrouter.ai/api/v1` |
+
+更多用法详见 [aig-agent-scan README](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan)。
+
 ## 检测能力说明
 
 Agent 安全扫描基于红队即服务（RTaaS）驱动的 Agent 能力，将专业的安全测试经验转化为自动化检测流程，通过智能 Agent 模拟真实攻击场景，全面评估目标 Agent 的安全风险。
