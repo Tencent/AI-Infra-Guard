@@ -71,7 +71,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 
 ## 🚀 What's New
 
-- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — API Checker: detect AI model relay abuse via traffic analysis; full report i18n (Agent/MCP/Infra scans output in selected language); MCP SDK 2.0 migration; strict YAML rule validation; 7 new component fingerprints, 100+ new CVE rules.
+- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — LLM API poisoning detection (multi-probe black-box audit for model substitution & backdoor risks); Agent-Scan v5.0.0 mutation engine refactor; vuln library expanded to 146 AI components & 2000+ CVE rules; MCP/Skill scan stability & compatibility fixes.
 - **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan: .pyc bytecode bypass detection + charset smuggling defense; MCP-Scan: RCE prevention via tool whitelisting in dynamic mode; new SkillJack research project; vuln library expanded to 2000+ CVE rules.
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 multi-turn jailbreak attacks (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 new OWASP skills + web-exfiltration detection (10 skills total); MCP-Scan: 4 new security rules
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI Security Skill Market launched (3 official skills); frontend fully open-sourced; Skill scan engine upgraded (9 risk categories, SkillTrustBench top score 0.9848); Skill/MCP/Agent scan as standalone CLI; vuln library expanded to 130 components, 1888 rules
