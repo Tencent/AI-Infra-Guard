@@ -71,7 +71,7 @@ A.I.G 개선에 도움을 주세요! 3~5분만 투자하여 [사용자 피드백
 
 ## 🚀 새로운 소식
 
-- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — API Checker: 트래픽 분석을 통한 AI 모델 중계 남용 탐지; 스캔 보고서 완전 국제화 (Agent/MCP/Infra 스캔이 선택된 언어로 출력); MCP SDK 2.0 마이그레이션; 신규 7개 컴포넌트 핑거프린트, 100+ 신규 CVE 규칙.
+- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — LLM API 포이즈닝 탐지(멀티 프로브 블랙박스 감사로 모델 치환 및 백도어 위험 식별); Agent-Scan v5.0.0 변이 엔진 리팩터링; 취약점 라이브러리 146개 AI 컴포넌트·2000+ CVE 규칙으로 확장; MCP/Skill 스캔 안정성 및 호환성 버그 수정.
 - **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan: .pyc 바이트코드 우회 탐지 + 문자셋 스머글링 방어; MCP-Scan: 동적 모드에서 도구 화이트리스트로 RCE 방지; 신규 SkillJack 연구 프로젝트; 취약점 라이브러리 2000+ CVE 규칙으로 확대.
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4종 멀티턴 탈옥 공격 추가 (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5개 신규 OWASP 스킬 + Web 데이터 유출 탐지 (총 10스킬); MCP-Scan: 4개 신규 보안 규칙
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI 보안 스킬 마켓 오픈 (공식 스킬 3종); 프론트엔드 전면 오픈소스; Skill 스캔 엔진 업그레이드 (9종 위험 탐지, SkillTrustBench 최고 0.9848); Skill/MCP/Agent 스캔 독립 CLI화; 취약점 라이브러리 130 컴포넌트·1888 룰로 확대
