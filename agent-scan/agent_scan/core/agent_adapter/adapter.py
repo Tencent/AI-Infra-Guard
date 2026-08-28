@@ -208,7 +208,7 @@ class AIProviderClient:
     - Mistral AI, Groq, Ollama
     - AWS Bedrock
     - Cohere, Deepseek, Perplexity
-    - OpenRouter, Together AI, Fireworks
+    - OpenRouter, OrcaRouter, Together AI, Fireworks
     - Custom script providers
     
     Usage:

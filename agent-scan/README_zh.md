@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`websocket` 等。
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`websocket` 等。
 
 #### ⚠️ `transform_response` — 自定义 HTTP Provider 的关键配置
 
