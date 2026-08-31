@@ -307,6 +307,19 @@ class ScanPipeline:
         return result
 
 
+def _warn_if_scan_incomplete(raw_output: str, vuln_results: list, result_meta: dict) -> None:
+    """审计原始输出与漏洞列表均为空时，标记扫描可能不完整。
+
+    典型场景：上下文压缩丢失已积累的分析状态后，Agent 直接以空输出结束，
+    空结果会被 calc_mcp_score 评为 100 分，形成"未发现漏洞"的假阴性结论。
+    此处显式打标记，避免空报告被误读为安全。
+    """
+    if vuln_results or (raw_output or "").strip():
+        return
+    logger.warning("扫描可能不完整")
+    result_meta["scanNote"] = "possibly-incomplete"
+
+
 class Agent:
     """aig-mcp-scan's main Agent, entry point for the scan pipeline.
 
@@ -452,6 +465,7 @@ markdown格式返回
                 "results": vuln_results,
             }
         )
+        _warn_if_scan_incomplete(audit_result, vuln_results, result_meta)
         mcpLogger.result_update(result_meta)
         return result_meta
 
@@ -575,6 +589,7 @@ markdown格式返回
                 "results": vuln_results,
             }
         )
+        _warn_if_scan_incomplete(vuln_review, vuln_results, result_meta)
         mcpLogger.result_update(result_meta)
         return result_meta
 
