@@ -128,10 +128,12 @@ paths:
       consumes:
       - application/json
       description: |-
-        Submit a new task for processing. Supports three types of tasks:
+        Submit a new task for processing. Supports five types of tasks:
         1. MCP Scan (mcp_scan): Model Context Protocol security scanning
         2. AI Infra Scan (ai_infra_scan): AI infrastructure security scanning
         3. Model Redteam Report (model_redteam_report): AI model red team testing
+        4. Agent Scan (agent_scan): AI agent security scanning
+        5. Skill Scan (skill_scan): Skill security scanning (source code or GitHub repo)
 
         Request Body Examples:
 

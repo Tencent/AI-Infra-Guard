@@ -121,7 +121,7 @@ curl -X POST \
 #### 请求参数
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| type | string | 是 | 任务类型：mcp_scan、ai_infra_scan、model_redteam_report、agent_scan |
+| type | string | 是 | 任务类型：mcp_scan、ai_infra_scan、model_redteam_report、agent_scan、skill_scan |
 | content | object | 是 | 任务内容，根据任务类型不同而不同 |
 
 #### 响应字段
@@ -587,6 +587,126 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
     "content": {
       "agent_id": "your-agent-id",
       "eval_model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "zh"
+    }
+  }'
+```
+
+---
+
+### 5. Skill 安全扫描 API
+
+Skill 安全扫描用于对 Agent Skill 项目进行安全审计。支持两种模式：源代码扫描（通过上传附件）和 GitHub 仓库扫描（通过仓库 URL）。可检测指令劫持、记忆投毒、动态载荷注入、恶意脚本、不安全编码实践等常见 Skill 安全风险。
+
+#### 请求参数说明
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| prompt | string | 否 | GitHub 仓库地址（如 `https://github.com/user/skill-project`）或扫描描述 |
+| model | object | 否 | 模型配置；若省略，自动使用系统默认模型 |
+| model.model | string | 否 | 模型名称，如"gpt-4"；若省略，使用系统默认模型 |
+| model.token | string | 否 | API密钥；若省略，使用系统默认模型的密钥 |
+| model.base_url | string | 否 | 基础URL，默认为OpenAI API |
+| language | string | 否 | 语言代码，如"zh"或"en" |
+| attachments | string | 否 | 附件文件路径（需要先上传文件）；支持 .zip、.tar.gz、.tgz、.whl |
+
+> **注意**：`prompt`（填写 GitHub URL）或 `attachments`（上传源码）至少提供一个。若同时提供，`attachments` 优先用于源代码扫描。
+
+#### 源码扫描流程
+1. 先调用文件上传接口上传源码文件
+2. 使用返回的 fileUrl 作为 attachments 参数
+3. 调用 Skill 扫描 API
+
+#### Python 示例 — 源码扫描
+```python
+import requests
+
+def skill_scan_with_source_code():
+    # 1. 上传源码文件
+    upload_url = "http://localhost:8088/api/v1/app/taskapi/upload"
+    with open("skill_source.zip", 'rb') as f:
+        files = {'file': f}
+        upload_response = requests.post(upload_url, files=files)
+
+    if upload_response.json()['status'] != 0:
+        raise Exception("文件上传失败")
+
+    fileUrl = upload_response.json()['data']['fileUrl']
+
+    # 2. 创建Skill扫描任务
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "扫描此Skill项目",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "zh",
+            "attachments": fileUrl
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+
+result = skill_scan_with_source_code()
+print(f"任务创建成功，会话ID: {result['data']['session_id']}")
+```
+
+#### Python 示例 — GitHub 仓库扫描
+```python
+def skill_scan_with_repo_url():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "https://github.com/user/skill-project",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "zh"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+```
+
+#### cURL 示例
+```bash
+# 源码扫描
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "扫描此Skill项目",
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "zh",
+      "attachments": "uploads/skill_source.zip"
+    }
+  }'
+
+# GitHub 仓库扫描
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "https://github.com/user/skill-project",
+      "model": {
         "model": "gpt-4",
         "token": "sk-your-api-key",
         "base_url": "https://api.openai.com/v1"
