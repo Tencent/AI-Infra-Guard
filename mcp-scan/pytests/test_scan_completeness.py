@@ -32,14 +32,15 @@ from mcp_scan.agent.agent import _warn_if_scan_incomplete
 
 
 def _capture_warnings():
-    """loguru 不走 stdlib logging（caplog 抓不到），用自定义 sink 捕获 warning 消息"""
+    """loguru does not propagate to stdlib logging (caplog can't capture it);
+    use a custom sink to collect warning messages."""
     messages = []
     handler_id = logger.add(messages.append, level="WARNING")
     return messages, handler_id
 
 
 def test_marks_scan_incomplete_when_output_and_results_are_empty():
-    """双空（无输出且无漏洞）→ 标记 possibly-incomplete 并记录 warning"""
+    """Both empty (no output, no findings) -> scanNote=possibly-incomplete + warning logged."""
     messages, handler_id = _capture_warnings()
     try:
         result_meta = {}
@@ -47,11 +48,11 @@ def test_marks_scan_incomplete_when_output_and_results_are_empty():
     finally:
         logger.remove(handler_id)
     assert result_meta["scanNote"] == "possibly-incomplete"
-    assert any("扫描可能不完整" in m for m in messages)
+    assert any("Scan may be incomplete" in m for m in messages)
 
 
 def test_marks_scan_incomplete_for_none_or_whitespace_output():
-    """None 与纯空白输出同样视为空输出"""
+    """None and whitespace-only output are treated as empty."""
     result_meta = {}
     _warn_if_scan_incomplete(None, [], result_meta)
     assert result_meta["scanNote"] == "possibly-incomplete"
@@ -61,16 +62,23 @@ def test_marks_scan_incomplete_for_none_or_whitespace_output():
     assert result_meta["scanNote"] == "possibly-incomplete"
 
 
-def test_does_not_mark_when_output_is_present():
-    """有正常文字输出（无漏洞的正常审计）→ 不标记"""
+def test_sets_complete_when_output_is_present():
+    """Text output present (normal clean audit) -> scanNote=complete, key always present."""
     result_meta = {}
-    _warn_if_scan_incomplete("审计完成，未发现漏洞。", [], result_meta)
-    assert "scanNote" not in result_meta
+    _warn_if_scan_incomplete("Audit finished, no vulnerabilities found.", [], result_meta)
+    assert result_meta["scanNote"] == "complete"
 
 
-def test_does_not_mark_when_results_are_present():
-    """有漏洞发现 → 不标记"""
+def test_sets_complete_when_results_are_present():
+    """Findings present -> scanNote=complete, key always present."""
     result_meta = {}
     vulns = [{"title": "Command Injection", "risk_type": "CommandInjection"}]
     _warn_if_scan_incomplete("", vulns, result_meta)
-    assert "scanNote" not in result_meta
+    assert result_meta["scanNote"] == "complete"
+
+
+def test_setdefault_does_not_overwrite_existing_scan_note():
+    """An existing scanNote value is not overwritten (setdefault semantics)."""
+    result_meta = {"scanNote": "custom-note"}
+    _warn_if_scan_incomplete("some output", [], result_meta)
+    assert result_meta["scanNote"] == "custom-note"

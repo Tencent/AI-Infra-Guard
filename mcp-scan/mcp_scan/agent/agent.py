@@ -308,15 +308,23 @@ class ScanPipeline:
 
 
 def _warn_if_scan_incomplete(raw_output: str, vuln_results: list, result_meta: dict) -> None:
-    """审计原始输出与漏洞列表均为空时，标记扫描可能不完整。
+    """Mark the scan as possibly-incomplete when both the raw audit output and the
+    extracted vulnerability list are empty.
 
-    典型场景：上下文压缩丢失已积累的分析状态后，Agent 直接以空输出结束，
-    空结果会被 calc_mcp_score 评为 100 分，形成"未发现漏洞"的假阴性结论。
-    此处显式打标记，避免空报告被误读为安全。
+    Typical scenario: after context compaction drops the accumulated analysis
+    state, the agent finishes with empty output, and calc_mcp_score([]) turns
+    that into a clean "score: 100, no vulnerabilities found" report. Setting an
+    explicit marker keeps empty reports from being misread as "safe".
     """
     if vuln_results or (raw_output or "").strip():
+        # Set scanNote explicitly on complete scans too, so consumers can rely
+        # on the key always being present instead of inferring absence == complete.
+        result_meta.setdefault("scanNote", "complete")
         return
-    logger.warning("扫描可能不完整")
+    logger.warning(
+        "Scan may be incomplete: audit produced no output; "
+        "do not interpret empty results as 'no vulnerabilities found'"
+    )
     result_meta["scanNote"] = "possibly-incomplete"
 
 
