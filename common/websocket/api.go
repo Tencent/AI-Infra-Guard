@@ -604,7 +604,10 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			attachments = append(attachments, req.Attachments)
 		}
 
-		// Build TaskCreateRequest
+		// Note: when both prompt and attachments are provided, Content still carries
+		// the prompt URL (used as --prompt CLI arg for context), but attachments take
+		// priority as the scan target — SkillTask.Execute checks len(files) > 0 first.
+		// This mirrors the mcp_scan case behavior.
 		taskReq = TaskCreateRequest{
 			ID:             messageId,
 			SessionID:      sessionId,
