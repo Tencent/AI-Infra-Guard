@@ -109,7 +109,7 @@ curl -X POST \
 #### リクエストパラメータ
 | パラメータ | 型 | 必須 | 説明 |
 |-----------|------|------|------|
-| type | string | はい | タスクタイプ: mcp_scan, ai_infra_scan, model_redteam_report, agent_scan |
+| type | string | はい | タスクタイプ: mcp_scan, ai_infra_scan, model_redteam_report, agent_scan, skill_scan |
 | content | object | はい | タスク内容。タスクタイプに応じて異なります |
 
 #### レスポンスフィールド
@@ -233,7 +233,127 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
-### 2. MCPサーバースキャン API
+### 2. Skill Scan API
+
+Skill Scanは、Agent Skillプロジェクトのセキュリティ監査を実行します。ソースコードスキャン（アップロードファイル経由）とGitHubリポジトリスキャン（リポジトリURL経由）の2つのモードをサポートします。命令ハイジャック、メモリ汚染、動的ペイロード注入、悪意のあるスクリプト、安全でないコーディング慣行などの一般的なSkillセキュリティリスクを検出します。
+
+#### リクエストパラメータ説明
+| パラメータ | 型 | 必須 | 説明 |
+|-----------|------|------|------|
+| prompt | string | いいえ | GitHubリポジトリURL（例: `https://github.com/user/skill-project`）またはスキャン説明 |
+| model | object | いいえ | モデル設定。省略時はシステムデフォルトモデルを使用 |
+| model.model | string | いいえ | モデル名（例: "gpt-4"）。省略時はシステムデフォルトを使用 |
+| model.token | string | いいえ | APIキー。省略時はシステムデフォルトを使用 |
+| model.base_url | string | いいえ | ベースURL。デフォルトはOpenAI API |
+| language | string | いいえ | 言語コード（例: "zh"、"en"） |
+| attachments | string | いいえ | 添付ファイルパス（事前にアップロードが必要）。.zip、.tar.gz、.tgz、.whlをサポート |
+
+> **注意**: `prompt`（GitHub URLを指定）または`attachments`（ソースコードをアップロード）のいずれかを提供してください。両方指定した場合、`attachments`がソースコードスキャンに優先されます。
+
+#### ソースコードスキャンフロー
+1. まずファイルアップロードインターフェースでソースコードファイルをアップロード
+2. 返されたfileUrlをattachmentsパラメータとして使用
+3. SkillスキャンAPIを呼び出し
+
+#### Pythonサンプル — ソースコードスキャン
+```python
+import requests
+
+def skill_scan_with_source_code():
+    # 1. ソースコードファイルをアップロード
+    upload_url = "http://localhost:8088/api/v1/app/taskapi/upload"
+    with open("skill_source.zip", 'rb') as f:
+        files = {'file': f}
+        upload_response = requests.post(upload_url, files=files)
+
+    if upload_response.json()['status'] != 0:
+        raise Exception("ファイルアップロード失敗")
+
+    fileUrl = upload_response.json()['data']['fileUrl']
+
+    # 2. Skillスキャンタスクを作成
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "このSkillプロジェクトをスキャン",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en",
+            "attachments": fileUrl
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+
+result = skill_scan_with_source_code()
+print(f"タスク作成成功、セッションID: {result['data']['session_id']}")
+```
+
+#### Pythonサンプル — GitHubリポジトリスキャン
+```python
+def skill_scan_with_repo_url():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "https://github.com/user/skill-project",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+```
+
+#### cURLサンプル
+```bash
+# ソースコードスキャン
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "このSkillプロジェクトをスキャン",
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en",
+      "attachments": "uploads/skill_source.zip"
+    }
+  }'
+
+# GitHubリポジトリスキャン
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "https://github.com/user/skill-project",
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en"
+    }
+  }'
+```
+
+---
+
+### 3. MCPサーバースキャン API
 
 MCPサーバースキャンは、MCPサーバーのセキュリティ脆弱性を検出するために使用されます。
 
@@ -357,7 +477,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   }'
 ```
 
-### 3. ジェイルブレイク評価 API
+### 4. ジェイルブレイク評価 API
 
 LLMに対してジェイルブレイク評価テストを実行し、セキュリティと堅牢性を評価するために使用されます。
 
@@ -514,7 +634,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
-### 4. AIインフラスキャン API
+### 5. AIインフラスキャン API
 
 AIインフラのセキュリティ脆弱性と設定上の問題をスキャンするために使用されます。
 

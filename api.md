@@ -123,7 +123,7 @@ curl -X POST \
 #### Request Parameters
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| type | string | Yes | Task type: mcp_scan, ai_infra_scan, model_redteam_report, agent_scan |
+| type | string | Yes | Task type: mcp_scan, ai_infra_scan, model_redteam_report, agent_scan, skill_scan |
 | content | object | Yes | Task content, varies according to task type |
 
 #### Response Fields
@@ -249,7 +249,127 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
-### 2. MCP Server Scan API
+### 2. Skill Scan API
+
+Skill Scan is used to perform security auditing on Agent Skill projects. It supports two modes: source-code scan (via uploaded file attachments) and GitHub repository scan (via repo URL). It detects common Skill security risks such as instruction hijacking, memory poisoning, dynamic payload injection, malicious scripts, and insecure coding practices.
+
+#### Request Parameter Description
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| prompt | string | No | GitHub repository URL (e.g., `https://github.com/user/skill-project`) or scan description |
+| model | object | No | Model configuration; if omitted, falls back to system default model |
+| model.model | string | No | Model name, e.g., "gpt-4"; falls back to system default if omitted |
+| model.token | string | No | API key; falls back to system default if omitted |
+| model.base_url | string | No | Base URL, defaults to OpenAI API |
+| language | string | No | Language code, e.g., "zh" or "en" |
+| attachments | string | No | Attachment file path (upload first); supports .zip, .tar.gz, .tgz, .whl |
+
+> **Note**: Either `prompt` (with a GitHub URL) or `attachments` (uploaded source code) should be provided. If both are given, `attachments` takes priority for source-code scanning.
+
+#### Source Code Scan Flow
+1. Upload the source code file via the file upload interface first
+2. Use the returned `fileUrl` as the `attachments` parameter
+3. Call the Skill Scan API
+
+#### Python Example — source code scan
+```python
+import requests
+
+def skill_scan_with_source_code():
+    # 1. Upload source code file
+    upload_url = "http://localhost:8088/api/v1/app/taskapi/upload"
+    with open("skill_source.zip", 'rb') as f:
+        files = {'file': f}
+        upload_response = requests.post(upload_url, files=files)
+
+    if upload_response.json()['status'] != 0:
+        raise Exception("File upload failed")
+
+    fileUrl = upload_response.json()['data']['fileUrl']
+
+    # 2. Create skill scan task
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "Scan this Skill project",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en",
+            "attachments": fileUrl
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+
+result = skill_scan_with_source_code()
+print(f"Skill scan task created, session ID: {result['data']['session_id']}")
+```
+
+#### Python Example — GitHub repo scan
+```python
+def skill_scan_with_repo_url():
+    task_url = "http://localhost:8088/api/v1/app/taskapi/tasks"
+    task_data = {
+        "type": "skill_scan",
+        "content": {
+            "prompt": "https://github.com/user/skill-project",
+            "model": {
+                "model": "gpt-4",
+                "token": "sk-your-api-key",
+                "base_url": "https://api.openai.com/v1"
+            },
+            "language": "en"
+        }
+    }
+
+    response = requests.post(task_url, json=task_data)
+    return response.json()
+```
+
+#### cURL Example
+```bash
+# Source code scan
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "Scan this Skill project",
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en",
+      "attachments": "uploads/skill_source.zip"
+    }
+  }'
+
+# GitHub repo scan
+curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skill_scan",
+    "content": {
+      "prompt": "https://github.com/user/skill-project",
+      "model": {
+        "model": "gpt-4",
+        "token": "sk-your-api-key",
+        "base_url": "https://api.openai.com/v1"
+      },
+      "language": "en"
+    }
+  }'
+```
+
+---
+
+### 3. MCP Server Scan API
 
 MCP Server Scan is used to detect security vulnerabilities in MCP servers.
 
@@ -373,7 +493,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
   }'
 ```
 
-### 3. Jailbreak Evaluation API
+### 4. Jailbreak Evaluation API
 
 Used to perform Jailbreak Evaluation testing on LLM to assess their security and robustness.
 
@@ -530,7 +650,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 
 ---
 
-### 4. AI Infra Scan API
+### 5. AI Infra Scan API
 
 Used to scan AI infra for security vulnerabilities and configuration issues.
 
