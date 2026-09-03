@@ -282,6 +282,9 @@ func (r *Rule) Eval(config *Config) bool {
 	return evalExpr(r.root, config)
 }
 
+// preReleaseSuffixRe 匹配夹在两个数字之间的字母段，例如 "3.11.0rc2" 中的 "rc"。
+var preReleaseSuffixRe = regexp.MustCompile(`([0-9])[A-Za-z]+([0-9])`)
+
 // versionCheck 版本号格式标准化处理
 // 输入版本号字符串，返回处理后的版本号字符串
 // 去除版本号中的字母并进行格式统一化
@@ -293,7 +296,10 @@ func versionCheck(version string) string {
 	// 正则替换所有单词
 	compile := regexp.MustCompile(`[A-Za-z]+`)
 	if compile.MatchString(version) {
-		newVersion := regexp.MustCompile(`\.[A-Za-z]+`).ReplaceAllString(version, ".0")
+		// 字母位于两个数字之间时（如 PEP 440 的 "3.11.0rc2"）先改写为预发布号，
+		// 否则直接删除字母会把两侧数字粘连成 "3.11.02"，即 3.11.2。
+		newVersion := preReleaseSuffixRe.ReplaceAllString(version, "$1-$2")
+		newVersion = regexp.MustCompile(`\.[A-Za-z]+`).ReplaceAllString(newVersion, ".0")
 		newVersion = compile.ReplaceAllString(newVersion, "")
 		//gologger.Debugf("version:%s=>%s", version, newVersion)
 		version = newVersion
