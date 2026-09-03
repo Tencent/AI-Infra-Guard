@@ -168,7 +168,7 @@ skill_scan/
 │   ├── sarif_formatter.py # Internal result → SARIF 2.1.0 conversion (used when --aig-mode is off)
 │   ├── project_analyzer.py # Language detection + calc_skill_score
 │   ├── text_decoder.py # Bounded text decoding with charset smuggling detection
-│   └── pre_scan.py     # Pre-scan: project summary + charset/encoding anomaly detection
+│   └── pre_scan.py     # Pre-scan: project summary + charset/encoding anomaly detection + bytecode (.pyc) & dependency/cache/build dir reference flagging
 ├── prompt/             # Packaged prompt templates
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md
