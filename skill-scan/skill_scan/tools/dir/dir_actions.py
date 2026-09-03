@@ -1,11 +1,15 @@
 import os
 from typing import Any
+
 from skill_scan.tools.registry import register_tool
 from skill_scan.utils.loging import logger
 from skill_scan.utils.tool_context import ToolContext
 
-_IGNORED_DIRS = {'.git', '__pycache__', 'node_modules', '.venv', 'venv', '.idea', '.mypy_cache'}
-_IGNORED_EXTS = {'.pyc', '.pyo', '.pyd'}
+_IGNORED_DIRS = {'.git'}
+# Dirs kept visible (but flagged) so referenced payloads stay auditable (issue #631)
+_FLAGGED_DIRS = {'__pycache__', 'node_modules', '.venv', 'venv', 'dist', 'build', '.next', '.nuxt', '.idea', '.mypy_cache'}
+# Bytecode files kept visible (but flagged) instead of hidden (issue #630)
+_FLAGGED_EXTS = {'.pyc', '.pyo', '.pyd'}
 
 
 def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, lines: list[str]):
@@ -16,18 +20,15 @@ def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, line
     except PermissionError:
         return
     dirs = [e for e in entries if os.path.isdir(os.path.join(root, e)) and e not in _IGNORED_DIRS]
-    files = [
-        e for e in entries
-        if os.path.isfile(os.path.join(root, e))
-           and os.path.splitext(e)[1] not in _IGNORED_EXTS
-    ]
+    files = [e for e in entries if os.path.isfile(os.path.join(root, e))]
     all_entries = dirs + files
     for idx, name in enumerate(all_entries):
         is_last = idx == len(all_entries) - 1
         connector = '└── ' if is_last else '├── '
-        lines.append(f'{prefix}{connector}{name}')
         full = os.path.join(root, name)
         if os.path.isdir(full):
+            suffix = ' [!]' if name in _FLAGGED_DIRS else ''
+            lines.append(f'{prefix}{connector}{name}{suffix}')
             extension = '    ' if is_last else '│   '
             _build_tree(
                 full,
@@ -36,6 +37,9 @@ def _build_tree(root: str, prefix: str, max_depth: int, current_depth: int, line
                 current_depth + 1,
                 lines,
             )
+        else:
+            suffix = ' [!]' if os.path.splitext(name)[1] in _FLAGGED_EXTS else ''
+            lines.append(f'{prefix}{connector}{name}{suffix}')
 
 
 @register_tool

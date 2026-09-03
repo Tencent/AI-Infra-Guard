@@ -87,10 +87,33 @@ _PATTERNS: list[tuple[str, re.Pattern, str]] = [
 ]
 
 # Directories and files to skip
-_SKIP_DIRS = {'__pycache__', '.git', 'node_modules', '.venv', 'venv', 'dist', 'build'}
-_SKIP_EXTS = {'.pyc', '.pyo', '.pyd', '.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
+_SKIP_DIRS = {'.git'}
+_SKIP_EXTS = {'.exe', '.bin', '.dll', '.so', '.dylib', '.png', '.jpg', '.gif', '.ico'}
 _SKIP_FILES = {'_VERDICT.txt', '_GROUND_TRUTH.txt', '_EVAL.txt'}
+# Bytecode files that cannot be decoded as text but are directly executable/importable
+# by a skill; their presence alone warrants a warning (issue #630).
+_BYTECODE_EXTS = {'.pyc', '.pyo', '.pyd'}
+# Dependency/cache/build dirs that may still be referenced at runtime by skill code;
+# they are scanned (not skipped) so referenced payloads inside them are audited (issue #631).
+_FLAG_DIR_NAMES = {'__pycache__', 'node_modules', '.venv', 'venv', 'dist', 'build', '.next', '.nuxt'}
+# Python bytecode files (3.7+) all share the trailing bytes 0x0d 0x0d 0x0a ("\r\r\n")
+# in their magic number; only the leading byte varies per minor version.
+_PYC_MAGIC_TAIL = b'\x0d\x0d\x0a'
 _MAX_FILE_SIZE = 512 * 1024  # 512KB
+
+# Patterns indicating that skill code loads/executes bytecode files directly
+_PYC_USAGE_RE = re.compile(
+    r'(importlib\.util\.spec_from_file_location|importlib\.machinery\.SourcelessFileLoader'
+    r'|py_compile|exec\s*\(\s*compile\s*\(|marshal\.loads|runpy\.run_path'
+    r'|import\s+\w+\.pyc|["\']\.pyc["\'])',
+    re.IGNORECASE,
+)
+# Patterns indicating that skill code executes/imports files inside the flagged dirs
+_FLAG_DIR_USAGE_RE = re.compile(
+    r'(["\'])([^"\']*)\b(__pycache__|node_modules|\.venv|venv|dist|build|\.next|\.nuxt)\b'
+    r'|subprocess\.\w+\s*\(\s*\[?\s*["\'][^"\']*\b(python3?|node|bash|sh)\b',
+    re.IGNORECASE,
+)
 
 
 def _preview(text: str, limit: int) -> list[tuple[int, str]]:
@@ -107,6 +130,8 @@ def pre_scan(repo_dir: str) -> str:
     Returns an empty string if no high-risk patterns are found.
     """
     findings: list[dict] = []
+    # Collect file paths for later reference cross-checks (issue #631)
+    all_files: list[str] = []
 
     for root, dirs, files in os.walk(repo_dir):
         dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
@@ -114,9 +139,36 @@ def pre_scan(repo_dir: str) -> str:
             if fname in _SKIP_FILES:
                 continue
             ext = os.path.splitext(fname)[1].lower()
+            fpath = os.path.join(root, fname)
+            rel_path = os.path.relpath(fpath, repo_dir)
+            all_files.append(rel_path)
+
+            # Bytecode files cannot be text-decoded; detect presence and validate
+            # the CPython magic header to flag them as high-risk artifacts (issue #630)
+            if ext in _BYTECODE_EXTS:
+                is_pyc = False
+                try:
+                    with open(fpath, 'rb') as fh:
+                        head = fh.read(4)
+                    is_pyc = head[1:] == _PYC_MAGIC_TAIL
+                except (PermissionError, OSError):
+                    is_pyc = False
+                findings.append({
+                    'file': rel_path,
+                    'pattern': 'python_bytecode_file',
+                    'description': (
+                        f'Python bytecode file ({ext}) detected'
+                        + (' with valid CPython magic header' if is_pyc else '')
+                        + ' — bytecode cannot be reviewed as source; it can hide malicious '
+                          'logic and is directly executable/importable, treat as high risk '
+                          '(T04/T09)'
+                    ),
+                    'evidence': [],
+                })
+                continue
+
             if ext in _SKIP_EXTS:
                 continue
-            fpath = os.path.join(root, fname)
             try:
                 if os.path.getsize(fpath) > _MAX_FILE_SIZE:
                     continue
@@ -124,7 +176,6 @@ def pre_scan(repo_dir: str) -> str:
             except (PermissionError, OSError, TextDecodeError):
                 continue
 
-            rel_path = os.path.relpath(fpath, repo_dir)
             if decoded.encoding not in {'utf-8', 'utf-8-sig'}:
                 findings.append({
                     'file': rel_path,
@@ -165,6 +216,63 @@ def pre_scan(repo_dir: str) -> str:
                         'file': rel_path,
                         'pattern': pattern_name,
                         'description': f'{description} (matched in {label})',
+                        'evidence': lines_hit,
+                    })
+
+    # Reference cross-check: does any text file reference bytecode files or load code
+    # from the flagged dirs (dependency/cache/build)? Such references mean payloads
+    # hidden there would execute at runtime (issues #630/#631)
+    for root, dirs, files in os.walk(repo_dir):
+        dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+        for fname in files:
+            if fname in _SKIP_FILES:
+                continue
+            ext = os.path.splitext(fname)[1].lower()
+            if ext in _BYTECODE_EXTS or ext in _SKIP_EXTS:
+                continue
+            fpath = os.path.join(root, fname)
+            try:
+                if os.path.getsize(fpath) > _MAX_FILE_SIZE:
+                    continue
+                decoded = read_text_file(fpath)
+            except (PermissionError, OSError, TextDecodeError):
+                continue
+            rel_path = os.path.relpath(fpath, repo_dir)
+
+            for content, label in [(decoded.text, 'plain'), *([(decoded.recovered_text, 'recovered mojibake')] if decoded.recovered_text else [])]:
+                # (a) direct load/execute of .pyc bytecode
+                if _PYC_USAGE_RE.search(content):
+                    lines_hit = []
+                    for i, line in enumerate(content.splitlines(), 1):
+                        if _PYC_USAGE_RE.search(line):
+                            lines_hit.append((i, line.strip()[:120]))
+                            if len(lines_hit) >= 3:
+                                break
+                    findings.append({
+                        'file': rel_path,
+                        'pattern': 'pyc_loader',
+                        'description': (
+                            'Code loads/executes Python bytecode (.pyc) or compiled code '
+                            f'directly (matched in {label}); bytecode payloads bypass source review'
+                        ),
+                        'evidence': lines_hit,
+                    })
+                # (b) execution/import/reference targeting flagged dirs
+                if _FLAG_DIR_USAGE_RE.search(content):
+                    lines_hit = []
+                    for i, line in enumerate(content.splitlines(), 1):
+                        if _FLAG_DIR_USAGE_RE.search(line):
+                            lines_hit.append((i, line.strip()[:120]))
+                            if len(lines_hit) >= 3:
+                                break
+                    findings.append({
+                        'file': rel_path,
+                        'pattern': 'flagged_dir_reference',
+                        'description': (
+                            'Code references or executes files inside dependency/cache/build '
+                            f'directories (matched in {label}); hidden payloads there would '
+                            'run at runtime and must be audited'
+                        ),
                         'evidence': lines_hit,
                     })
 
