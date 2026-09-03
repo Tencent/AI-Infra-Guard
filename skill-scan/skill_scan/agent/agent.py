@@ -29,9 +29,13 @@ from skill_scan.utils.pre_scan import pre_scan
 from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score, get_top_language
 from skill_scan.utils.prompt_manager import prompt_manager
 
-_TREE_SKIP_DIRS = {
+# Only .git is fully skipped from tree walks (clone noise).
+_TREE_SKIP_DIRS = {".git"}
+# Dirs kept visible (but flagged with [!]) in the tree instead of being hidden,
+# so that malicious code shipped inside them cannot silently escape the audit
+# (issue #631).
+_TREE_FLAG_DIRS = {
     "__pycache__",
-    ".git",
     "node_modules",
     ".venv",
     "venv",
@@ -40,7 +44,9 @@ _TREE_SKIP_DIRS = {
     ".next",
     ".nuxt",
 }
-_TREE_SKIP_EXTS = {".pyc", ".pyo", ".pyd"}
+# Binary bytecode files kept visible (but flagged with [!]) instead of hidden
+# (issue #630).
+_TREE_FLAG_EXTS = {".pyc", ".pyo", ".pyd"}
 _TREE_SKIP_FILES = {"_VERDICT.txt", "_GROUND_TRUTH.txt", "_EVAL.txt"}
 
 _METADATA_FILENAMES = {".DS_Store", "._DS_Store", "Thumbs.db", "desktop.ini", "._.DS_Store"}
@@ -48,9 +54,14 @@ _METADATA_PREFIXES = (".__", "._")
 
 
 def _is_empty_or_metadata_only(repo_dir: str) -> bool:
-    """Check whether the directory is empty or contains only OS metadata files"""
+    """Check whether the directory is empty or contains only OS metadata files.
+
+    Only .git is pruned here (clone noise): files inside dependency/cache/build
+    dirs (_TREE_FLAG_DIRS) and bytecode files still count as auditable content
+    (issues #630/#631), so a project hiding payloads there is not "empty".
+    """
     for root, dirs, files in os.walk(repo_dir):
-        dirs[:] = [d for d in dirs if d not in _TREE_SKIP_DIRS]
+        dirs[:] = [d for d in dirs if d != ".git"]
         for fname in files:
             if fname in _TREE_SKIP_FILES:
                 continue
@@ -73,16 +84,21 @@ def _build_repo_tree(repo_dir: str, max_files: int = 200) -> str:
         depth = 0 if rel_root == "." else rel_root.count(os.sep) + 1
         indent = "  " * depth
         folder_name = os.path.basename(root) if rel_root != "." else "."
-        lines.append(f"{indent}{folder_name}/")
+        # Flag (instead of hide) dependency/cache/build dirs so referenced payloads
+        # inside them remain auditable; only .git stays fully skipped (noise).
+        dir_flag = " [!]" if rel_root != "." and folder_name in _TREE_FLAG_DIRS else ""
+        lines.append(f"{indent}{folder_name}/{dir_flag}")
         for fname in sorted(files):
-            if os.path.splitext(fname)[1] in _TREE_SKIP_EXTS:
-                continue
+            ext = os.path.splitext(fname)[1]
+            file_flag = (
+                " [!]" if ext in _TREE_FLAG_EXTS else ""
+            )
             if fname in _TREE_SKIP_FILES:
                 continue
             if total >= max_files:
                 lines.append(f"{indent}  ... (超过 {max_files} 个文件，已截断)")
                 return "\n".join(lines)
-            lines.append(f"{indent}  {fname}")
+            lines.append(f"{indent}  {fname}{file_flag}")
             total += 1
     return "\n".join(lines)
 
@@ -314,9 +330,16 @@ class ScanPipeline:
         if inject_repo_tree:
             repo_tree = _build_repo_tree(repo_dir)
             if stage.language == "en":
-                user_msg += f"\n\nThe following is the complete directory structure of the project for your reference:\n```\n{repo_tree}\n```"
+                user_msg += (
+                    f"\n\nThe following is the complete directory structure of the project for your reference"
+                    f" (entries marked with [!] are bytecode files or files inside dependency/cache/build"
+                    f" directories — pay special attention to them, as they can hide malicious payloads):\n```\n{repo_tree}\n```"
+                )
             else:
-                user_msg += f"\n\n以下是该项目的完整目录结构，供你参考：\n```\n{repo_tree}\n```"
+                user_msg += (
+                    f"\n\n以下是该项目的完整目录结构，供你参考（标注 [!] 的是字节码文件或位于依赖/缓存/构建目录"
+                    f"内的文件，请重点审计这些位置，它们可能隐藏恶意载荷）：\n```\n{repo_tree}\n```"
+                )
 
         if inject_pre_scan:
             pre_scan_hints = pre_scan(repo_dir)
