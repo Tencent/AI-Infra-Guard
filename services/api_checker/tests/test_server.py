@@ -107,8 +107,12 @@ class ServerContractTests(unittest.TestCase):
 
     def test_detectable_models_are_unique_and_stable(self):
         models = server._detectable_models()
-        self.assertEqual(29, len(models))
-        self.assertEqual(29, len({item["id"].lower() for item in models}))
+        self.assertEqual(40, len(models))
+        model_ids = {item["id"].lower() for item in models}
+        self.assertEqual(40, len(model_ids))
+        self.assertIn("google/gemini-2.5-flash", model_ids)
+        self.assertIn("google/gemma-4-31b-it", model_ids)
+        self.assertIn("z-ai/glm-5.3", model_ids)
         self.assertIn(models[0]["provider"], {"anthropic", "openai_compatible"})
 
     def test_models_api_describes_supported_algorithms(self):
