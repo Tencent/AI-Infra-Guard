@@ -21,10 +21,35 @@ import asyncio
 from openai import OpenAI, AsyncOpenAI
 from .base import BaseLLM
 
+# 限流相关错误关键字（不依赖 openai 具体异常类型，兼容各类 OpenAI 兼容网关）
+RATE_LIMIT_MARKERS = ("rate limit", "rate_limit", "429", "quota", "too many requests", "qps", "qpm")
+
+
+def _is_rate_limit_error(exc: Exception) -> bool:
+    """判断异常是否为限流/配额类错误（含 429 状态码与常见限流文案）"""
+    msg = str(exc).lower()
+    return any(marker in msg for marker in RATE_LIMIT_MARKERS)
+
+
+def _retry_after_seconds(exc: Exception, default: float) -> float:
+    """从异常中提取 Retry-After 提示值，失败时返回默认值"""
+    try:
+        retry_after = getattr(exc, "retry_after", None)
+        if retry_after:
+            return float(retry_after)
+    except Exception:
+        pass
+    return default
+
+
 class OpenaiAlikeModel(BaseLLM):
     """自定义模型，用于支持OpenAI API Alike Model"""
-    max_trial = 3 
-    base_wait_seconds = 0.5
+    max_trial = 5
+    base_wait_seconds = 1.0
+    max_wait_seconds = 60.0
+    # 限流专用退避：QPM 窗口通常为 60s，短退避会在窗口内反复撞墙浪费配额，
+    # 故限流场景以 8s 起步并指数递增（8/16/32/60），普通错误仍用 base_wait_seconds
+    rate_limit_base_wait_seconds = 8.0
 
     def __init__(self, model_name: str, base_url: str, api_key: str, max_concurrent: int, *args, **kwargs):
         super().__init__(model_name, base_url, api_key, max_concurrent, *args, **kwargs)
@@ -91,9 +116,23 @@ class OpenaiAlikeModel(BaseLLM):
                     raise ValueError("The response is not a string")
                 elif not content:
                     raise ValueError("The response is empty")
+                self._consecutive_rate_limit_failures = 0
                 return content
             except Exception as e:
-                wait_time = self.base_wait_seconds * (2 ** i)
+                if _is_rate_limit_error(e):
+                    self._consecutive_rate_limit_failures = getattr(
+                        self, "_consecutive_rate_limit_failures", 0
+                    ) + 1
+                    fallback = max(
+                        self.rate_limit_base_wait_seconds,
+                        self.base_wait_seconds,
+                    ) * (2 ** min(i, 2))
+                    wait_time = min(
+                        _retry_after_seconds(e, fallback),
+                        self.max_wait_seconds,
+                    )
+                else:
+                    wait_time = self.base_wait_seconds * (2 ** i)
                 time.sleep(wait_time)
         return ""
     
@@ -118,9 +157,23 @@ class OpenaiAlikeModel(BaseLLM):
                         raise ValueError("The response is not a string")
                     elif not content:
                         raise ValueError("The response is empty")
+                    self._consecutive_rate_limit_failures = 0
                     return content
                 except Exception as e:
-                    wait_time = self.base_wait_seconds * (2 ** i)
+                    if _is_rate_limit_error(e):
+                        self._consecutive_rate_limit_failures = getattr(
+                            self, "_consecutive_rate_limit_failures", 0
+                        ) + 1
+                        fallback = max(
+                            self.rate_limit_base_wait_seconds,
+                            self.base_wait_seconds,
+                        ) * (2 ** min(i, 2))
+                        wait_time = min(
+                            _retry_after_seconds(e, fallback),
+                            self.max_wait_seconds,
+                        )
+                    else:
+                        wait_time = self.base_wait_seconds * (2 ** i)
                     await asyncio.sleep(wait_time)
             return ""
     

@@ -483,9 +483,19 @@ func RunCmdWithContext(ctx context.Context, dir, name string, arg []string, call
 	}
 
 	// 命令行执行,stdio读取
+	// 使用独立进程组启动，确保取消任务时能整组终止（uv 会派生 Python 子进程，
+	// 若只杀 uv 自身，Python 孤儿进程会继续向评测目标发送请求）
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = dir
 	cmd.Env = os.Environ()
+	setProcessGroup(cmd)
+	// ctx 取消时向整个进程组发送 SIGKILL（覆盖 uv 与其派生的 Python 进程）
+	cmd.Cancel = func() error {
+		killProcessGroup(cmd)
+		return cmd.Process.Kill()
+	}
+	// 若进程组终止后仍残留（如管道占用），强制结束等待
+	cmd.WaitDelay = 5 * time.Second
 	// 获取命令行
 	cmdStr := name + " " + strings.Join(arg, " ")
 	gologger.Infof("开始执行命令: %s", cmdStr)
