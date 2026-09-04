@@ -307,6 +307,27 @@ class ScanPipeline:
         return result
 
 
+def _warn_if_scan_incomplete(raw_output: str, vuln_results: list, result_meta: dict) -> None:
+    """Mark the scan as possibly-incomplete when both the raw audit output and the
+    extracted vulnerability list are empty.
+
+    Typical scenario: after context compaction drops the accumulated analysis
+    state, the agent finishes with empty output, and calc_mcp_score([]) turns
+    that into a clean "score: 100, no vulnerabilities found" report. Setting an
+    explicit marker keeps empty reports from being misread as "safe".
+    """
+    if vuln_results or (raw_output or "").strip():
+        # Set scanNote explicitly on complete scans too, so consumers can rely
+        # on the key always being present instead of inferring absence == complete.
+        result_meta.setdefault("scanNote", "complete")
+        return
+    logger.warning(
+        "Scan may be incomplete: audit produced no output; "
+        "do not interpret empty results as 'no vulnerabilities found'"
+    )
+    result_meta["scanNote"] = "possibly-incomplete"
+
+
 class Agent:
     """aig-mcp-scan's main Agent, entry point for the scan pipeline.
 
@@ -452,6 +473,7 @@ markdown格式返回
                 "results": vuln_results,
             }
         )
+        _warn_if_scan_incomplete(audit_result, vuln_results, result_meta)
         mcpLogger.result_update(result_meta)
         return result_meta
 
@@ -575,6 +597,7 @@ markdown格式返回
                 "results": vuln_results,
             }
         )
+        _warn_if_scan_incomplete(vuln_review, vuln_results, result_meta)
         mcpLogger.result_update(result_meta)
         return result_meta
 
