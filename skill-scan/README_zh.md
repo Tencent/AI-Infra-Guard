@@ -168,7 +168,7 @@ skill_scan/
 │   ├── sarif_formatter.py # 内部结果 → SARIF 2.1.0 转换（非 --aig-mode 时使用）
 │   ├── project_analyzer.py # 语言识别 + calc_skill_score
 │   ├── text_decoder.py # 有界文本解码，带字符集走私检测
-│   └── pre_scan.py     # 预扫描：生成项目概要 + 编码异常检测
+│   └── pre_scan.py     # 预扫描：生成项目概要 + 编码异常检测 + 字节码（.pyc）及依赖/缓存/构建目录引用标记
 ├── prompt/             # 打包的 prompt 模板
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md
