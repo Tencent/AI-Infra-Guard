@@ -169,6 +169,27 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+Le frontend du checker est déployé séparément. Le déploiement Docker rend les APIs
+du checker disponibles à `GET /api/v1/relay/models` et
+`POST /api/v1/relay/check/stream` ; la documentation de l'API est accessible à
+`http://127.0.0.1:8088/api-checker/docs`. Pour exécuter le checker et le CLI unifié
+depuis les sources :
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+Consultez le [guide d'intégration API Checker](../docs/api-checker-integration.md) pour
+l'architecture runtime intégrée à l'Agent, l'API HTTP, la configuration et les limites de sécurité.
+
 ### 🌟 Essayer la version Pro en ligne
 Découvrez la version Pro avec des fonctionnalités avancées et des performances améliorées. La version Pro nécessite un [code d'invitation](https://wj.qq.com/s2/25099467/25vn/) et est prioritairement réservée aux contributeurs ayant soumis des issues, des pull requests ou des discussions, ou qui aident activement à développer la communauté. Visitez : [https://aigsec.ai/](https://aigsec.ai/).
 <br>
@@ -209,6 +230,7 @@ Pour le classement complet, visitez [SkillTrustBench](https://matrix.tencent.com
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Détecte de manière approfondie 14 grandes catégories de risques de sécurité. La détection s'applique aussi bien aux MCP Servers qu'aux Agent Skills. Prend en charge de manière flexible l'analyse à partir du code source et d'URLs distantes. |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Identifie précisément plus de 100 composants de frameworks IA. Couvre plus de 2 000 vulnérabilités CVE connues. Les frameworks supportés incluent Ollama, ComfyUI, vLLM, n8n, Triton Inference Server et bien d'autres. |
 | **Jailbreak&nbsp;Evaluation** | Évalue les risques de sécurité des prompts à l'aide de datasets soigneusement sélectionnés. L'évaluation applique plusieurs méthodes d'attaque pour tester la robustesse. Fournit également des capacités détaillées de comparaison inter-modèles. |
+| **Model and API Relay Checker** | Empreinte de modèle, vérification de signature Claude, audit black-box des relais, PAMELA et Ventor QTest. |
 
 <details>
 <summary><strong>💎 Avantages supplémentaires</strong></summary>

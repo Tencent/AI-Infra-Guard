@@ -41,6 +41,18 @@ A.I.G（AI-Infra-Guard）は、Agent Scan、MCPサーバースキャン、ジェ
 - **Content-Type**: `application/json`
 - **認証**: リクエストヘッダーを通じて認証情報を渡します
 
+## モデル＆APIリレーチェッカー
+
+API Checker は A.I.G WebServer を通じて以下の同一オリジンパスで公開されます：
+
+- `GET /api/v1/relay/models`
+- `POST /api/v1/relay/check/stream`
+- `/api-checker/docs`：Checker の OpenAPI ドキュメント
+
+Checker は Agent コンテナ内で動作します。リクエスト/レスポンス契約、SSE プログレス形式、
+設定およびセキュリティ境界の詳細は [docs/api-checker-integration.md](docs/api-checker-integration.md)
+と [services/api_checker/docs/API.md](services/api_checker/docs/API.md) を参照してください。
+
 ## 共通レスポンス形式
 
 すべてのAPIインターフェースは統一されたレスポンス形式に従います：
