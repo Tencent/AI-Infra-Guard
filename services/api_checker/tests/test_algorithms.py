@@ -104,9 +104,9 @@ class BaselineTests(unittest.TestCase):
 
     def test_bundled_baselines_are_complete(self):
         baselines = common.load_baselines()
-        self.assertEqual(40, len(baselines))
+        self.assertEqual(41, len(baselines))
         model_ids = {item["model"].lower() for item in baselines}
-        self.assertEqual(40, len(model_ids))
+        self.assertEqual(41, len(model_ids))
         self.assertTrue({
             "google/gemini-2.5-flash",
             "google/gemini-2.5-flash-lite",
@@ -119,6 +119,7 @@ class BaselineTests(unittest.TestCase):
             "google/gemma-4-26b-a4b-it",
             "google/gemma-4-31b-it",
             "z-ai/glm-5.3",
+            "glm-5.3-flash",
         }.issubset(model_ids))
         for baseline in baselines:
             self.assertEqual(common.NUMBER_RANGE, len(baseline["counts"]))
