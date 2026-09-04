@@ -102,6 +102,8 @@ class RedTeamer:
     simulated_attacks: Optional[List[SimulatedAttack]] = None
     asyncRandomId: str = None
     max_concurrent = 1
+    # 连续限流失败熔断阈值：被测模型连续多次限流失败后跳过剩余请求
+    rate_limit_circuit_breaker_threshold = 3
     def __init__(
         self,
         simulator_model: Optional[
@@ -545,9 +547,20 @@ Direct translation without separators"""
 
             metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
             try:
+                # 连续限流失败熔断：被测模型持续 429 时跳过剩余请求，避免压垮目标与浪费配额
+                consecutive_failures = getattr(
+                    self, "_consecutive_rate_limit_failures", 0
+                )
+                if consecutive_failures >= self.rate_limit_circuit_breaker_threshold:
+                    red_teaming_test_case.error = "Skipped: target model rate limit circuit breaker triggered"
+                    red_teaming_test_case.reason = logger.translated_msg("Requests paused because the target model kept hitting rate limits. Please lower concurrency (max_concurrent) or increase the model's QPM quota.")
+                    return red_teaming_test_case
+
                 actual_output = await model_callback(simulated_attack.input)
                 if actual_output == "":
                     raise ValueError("The response is none")
+                # 成功响应，清零连续限流失败计数（用 getattr 兼容旧实例属性缺失）
+                self._consecutive_rate_limit_failures = 0
                 red_teaming_test_case.actual_output = actual_output
             except Exception as e:
                 logger.exception(e)
