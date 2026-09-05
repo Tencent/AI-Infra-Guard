@@ -48,6 +48,35 @@ def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:
     """Parse first tool invocation only."""
     invocations = _parse_tags(content, "function")
+    if not invocations and content:
+        finish_match = re.search(
+            r"<finish>\s*(.*?)\s*</finish>", content, re.DOTALL | re.IGNORECASE
+        )
+        if finish_match:
+            invocations = [
+                {
+                    "toolName": "finish",
+                    "args": {"content": html.unescape(finish_match.group(1).strip())},
+                }
+            ]
+    # Fallback: handle unclosed <function=finish> tags (LLM sometimes omits </function>)
+    if not invocations and content:
+        unclosed_match = re.search(
+            r"<function=finish>\s*(.*?)(?:</function|$)",
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if unclosed_match:
+            body = unclosed_match.group(1)
+            param_match = re.search(
+                r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)(?:</parameter>|$)',
+                body,
+                re.DOTALL,
+            )
+            args = {}
+            if param_match:
+                args[param_match.group(1)] = html.unescape(param_match.group(2).strip())
+            invocations = [{"toolName": "finish", "args": args}]
     return invocations[0] if invocations else None
 
 
@@ -61,6 +90,7 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<finish>.*?</finish>",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]
