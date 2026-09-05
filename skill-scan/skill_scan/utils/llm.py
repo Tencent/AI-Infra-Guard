@@ -20,9 +20,27 @@ from __future__ import annotations
 
 import time
 
-import openai
+import litellm
 
 from skill_scan.utils.loging import logger
+
+
+def to_litellm_params(model: str, base_url: str | None) -> tuple[str, str | None]:
+    """Map the configured (model, base_url) onto LiteLLM's routing.
+
+    - base_url set (the default, e.g. OpenRouter or any OpenAI-compatible
+      gateway): route as a custom OpenAI-compatible endpoint by prefixing the
+      model with ``openai/`` and passing base_url as ``api_base``. The wire
+      request is identical to the previous ``openai.OpenAI(base_url)`` call, so
+      existing configurations keep working unchanged.
+    - base_url empty: pass the model through so LiteLLM routes to a provider
+      natively (e.g. ``anthropic/claude-...``, ``bedrock/...``), resolving
+      credentials from that provider's own env vars with no gateway or proxy.
+    """
+    if base_url:
+        litellm_model = model if model.startswith("openai/") else f"openai/{model}"
+        return litellm_model, base_url
+    return model, None
 
 
 class LLM:
@@ -38,12 +56,7 @@ class LLM:
         self.model_name = model
         self.api_key = api_key
         self.base_url = base_url
-        self.client = openai.OpenAI(
-            api_key=self.api_key,
-            base_url=self.base_url,
-            timeout=60,
-            default_headers=default_headers if default_headers else None,
-        )
+        self.default_headers = default_headers if default_headers else None
         self.context_window = context_window
 
     def chat(self, message: list[dict], p=False, ret_usage=False) -> str | tuple[str, dict]:
@@ -71,11 +84,19 @@ class LLM:
         return ret
 
     def chat_stream(self, message: list[dict]) -> tuple[str, dict]:
-        response = self.client.chat.completions.create(
-            model=self.model,
+        litellm_model, api_base = to_litellm_params(self.model, self.base_url)
+        response = litellm.completion(
+            model=litellm_model,
             messages=message,
             stream=True,
             stream_options={"include_usage": True},
+            api_key=self.api_key or None,
+            api_base=api_base,
+            timeout=60,
+            extra_headers=self.default_headers,
+            # Drop provider-unsupported generation params so one config works
+            # across OpenAI, Anthropic, Gemini, Bedrock, etc.
+            drop_params=True,
         )
 
         ret = ""
