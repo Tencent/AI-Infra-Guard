@@ -198,6 +198,28 @@ func (s *TaskStore) UpdateSessionStatus(id string, status string) error {
 	return s.db.Model(&Session{}).Where("id = ?", id).Updates(updates).Error
 }
 
+// UpdateSessionStatusFrom 条件更新会话状态：仅当当前状态在 fromStatuses 中时才更新。
+// 返回是否实际更新（false 表示当前状态不匹配，如已被并发修改），用于消除检查-更新竞态
+func (s *TaskStore) UpdateSessionStatusFrom(id string, fromStatuses []string, status string) (bool, error) {
+	now := time.Now().UnixMilli()
+	updates := map[string]interface{}{
+		"status":     status,
+		"updated_at": now,
+	}
+
+	if status == "doing" {
+		updates["started_at"] = &now
+	} else if status == "done" || status == "error" || status == "terminated" {
+		updates["completed_at"] = &now
+	}
+
+	result := s.db.Model(&Session{}).Where("id = ? AND status IN ?", id, fromStatuses).Updates(updates)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected > 0, nil
+}
+
 // UpdateSessionAssignedAgent 更新会话的分配Agent和开始时间
 func (s *TaskStore) UpdateSessionAssignedAgent(sessionID string, agentID string) error {
 	now := time.Now().UnixMilli()

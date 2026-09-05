@@ -17,6 +17,7 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import asyncio
+import os
 import time
 
 import openai
@@ -25,6 +26,9 @@ from agent_scan.utils.logging import logger
 
 # Error prefix constant for consistent error detection across modules
 LLM_ERROR_PREFIX = "[LLM Error:"
+
+# LLM 请求超时时间（秒），可通过环境变量 LLM_TIMEOUT 覆盖（默认 300）
+LLM_TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "300"))
 
 
 def is_llm_error_response(response: str) -> bool:
@@ -41,7 +45,7 @@ class LLM:
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
-        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
+        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=LLM_TIMEOUT)
 
     async def chat_async(self, message: List[dict], language: str = "zh") -> str:
         """Non-blocking wrapper around :meth:`chat` for use inside async contexts.

@@ -16,11 +16,15 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
+import os
 import time
 
 import openai
 
 from mcp_scan.utils.loging import logger
+
+# LLM 请求超时时间（秒），可通过环境变量 LLM_TIMEOUT 覆盖（默认 300）
+LLM_TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "300"))
 
 
 class LLM:
@@ -34,7 +38,7 @@ class LLM:
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
-        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
+        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=LLM_TIMEOUT)
         # 用于估算压缩阈值，不依赖接口动态返回模型规格。
         self.context_window = context_window
 
@@ -44,7 +48,28 @@ class LLM:
         retry = 0
 
         while True:
-            ret, usage = self.chat_stream(message)
+            try:
+                ret, usage = self.chat_stream(message)
+            except (openai.APITimeoutError, openai.APIConnectionError) as e:
+                # 网络/超时错误：可重试
+                retry += 1
+                logger.warning(f"LLM 连接/超时错误，重试 {retry}: {e}")
+                if retry > 5:
+                    logger.error("LLM 连接错误，已重试 5 次，退出")
+                    ret = "连接LLM失败，已重试5次，请等待1分钟后再试"
+                    break
+                time.sleep(1.3)
+                continue
+            except openai.APIError as e:
+                # 其他 API 错误（5xx 等）：可重试
+                retry += 1
+                logger.warning(f"LLM API 错误，重试 {retry}: {e}")
+                if retry > 3:
+                    logger.error("LLM API 错误，已重试 3 次，退出")
+                    ret = "连接LLM失败，已重试3次，请等待1分钟后再试"
+                    break
+                time.sleep(1)
+                continue
             if ret != "":
                 break
             else:
