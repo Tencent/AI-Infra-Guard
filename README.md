@@ -52,6 +52,10 @@
 
 <b>A.I.G (AI-Infra-Guard)</b> integrates capabilities such as ClawScan(OpenClaw Security Scan), Agent Scan，AI infra vulnerability scan, MCP Server & Agent Skills scan, and Jailbreak Evaluation, aiming to provide users with the most comprehensive, intelligent, and user-friendly solution for AI security risk self-examination.
 
+<p align="center">
+  <b>146</b> AI components monitored&nbsp;·&nbsp;<b>2,000+</b> CVE/GHSA rules&nbsp;·&nbsp;<b>5,520</b> Agent Skill samples in <a href="https://matrix.tencent.com/skilltrustbench/">SkillTrustBench</a>&nbsp;·&nbsp;<b>6</b> scan engines (Infra&nbsp;/&nbsp;MCP&nbsp;/&nbsp;Skill&nbsp;/&nbsp;Agent&nbsp;/&nbsp;Jailbreak&nbsp;/&nbsp;API&nbsp;Checker)
+</p>
+
 <p>
   We are committed to making A.I.G(AI-Infra-Guard) the industry-leading AI red teaming platform. More stars help this project reach a wider audience, attracting more developers to contribute, which accelerates iteration and improvement. Your star is crucial to us!
 </p>
