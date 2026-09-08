@@ -97,6 +97,39 @@ from deepteam.risks import getRiskCategory
 from deepteam.utils import judge_language
 
 
+def _get_consecutive_rate_limit_failures(model_callback: CallbackType) -> int:
+    """从目标模型实例读取连续限流失败计数（供熔断器判断）
+
+    model_callback 通常是 OpenaiAlikeModel 实例的绑定方法（model.a_generate），
+    计数器维护在模型实例上（由其重试逻辑递增/重置），因此这里通过 __self__
+    取回模型实例并读取，保证熔断器与重试逻辑共享同一份状态。
+    非 bound-method 或模型未暴露计数接口时返回 0（熔断器不生效，保持原行为）。
+    """
+    model = getattr(model_callback, "__self__", None)
+    if model is None:
+        return 0
+    getter = getattr(model, "get_consecutive_rate_limit_failures", None)
+    if callable(getter):
+        try:
+            return int(getter())
+        except Exception:
+            return 0
+    return getattr(model, "_consecutive_rate_limit_failures", 0)
+
+
+def _reset_consecutive_rate_limit_failures(model_callback: CallbackType) -> None:
+    """目标模型成功响应后，重置模型实例上的连续限流失败计数"""
+    model = getattr(model_callback, "__self__", None)
+    if model is None:
+        return
+    resetter = getattr(model, "reset_rate_limit_failures", None)
+    if callable(resetter):
+        try:
+            resetter()
+        except Exception:
+            pass
+
+
 class RedTeamer:
     risk_assessment: Optional[RiskAssessment] = None
     simulated_attacks: Optional[List[SimulatedAttack]] = None
@@ -547,10 +580,10 @@ Direct translation without separators"""
 
             metric: BaseRedTeamingMetric = metrics_map[vulnerability_type]()
             try:
-                # 连续限流失败熔断：被测模型持续 429 时跳过剩余请求，避免压垮目标与浪费配额
-                consecutive_failures = getattr(
-                    self, "_consecutive_rate_limit_failures", 0
-                )
+                # 连续限流失败熔断：被测模型持续 429 时跳过剩余请求，避免压垮目标与浪费配额。
+                # 计数器维护在目标模型实例上（由其重试逻辑递增/重置），
+                # 通过 model_callback.__self__ 读取，与重试逻辑共享同一份状态
+                consecutive_failures = _get_consecutive_rate_limit_failures(model_callback)
                 if consecutive_failures >= self.rate_limit_circuit_breaker_threshold:
                     red_teaming_test_case.error = "Skipped: target model rate limit circuit breaker triggered"
                     red_teaming_test_case.reason = logger.translated_msg("Requests paused because the target model kept hitting rate limits. Please lower concurrency (max_concurrent) or increase the model's QPM quota.")
@@ -559,8 +592,8 @@ Direct translation without separators"""
                 actual_output = await model_callback(simulated_attack.input)
                 if actual_output == "":
                     raise ValueError("The response is none")
-                # 成功响应，清零连续限流失败计数（用 getattr 兼容旧实例属性缺失）
-                self._consecutive_rate_limit_failures = 0
+                # 成功响应，清零模型实例上的连续限流失败计数
+                _reset_consecutive_rate_limit_failures(model_callback)
                 red_teaming_test_case.actual_output = actual_output
             except Exception as e:
                 logger.exception(e)

@@ -12,7 +12,8 @@ uploads
 .venv
 __pycache__
 venv
-tests
+# 仅忽略根目录下的临时 tests 目录，子项目（如 AIG-PromptSecurity/tests）的单测正常跟踪
+/tests
 
 # OpenClaw internal workspace file
 openclaw.md
