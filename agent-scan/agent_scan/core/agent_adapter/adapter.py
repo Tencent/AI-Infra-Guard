@@ -440,7 +440,9 @@ class AIProviderClient:
 
         # Make request
         response_path = provider_conf.get("response_path")
-        result = self._make_http_request(url, "POST", headers, body, response_path)
+        result = self._make_http_request(
+            url, "POST", headers, body, response_path, timeout=self._get_timeout_seconds(config) if config else None
+        )
 
         # Add metadata and cost
         if result.success and result.provider_response:
@@ -500,7 +502,14 @@ class AIProviderClient:
 
         body = self._render_prompt_body(config.body, prompt)
 
-        return self._make_http_request(url, method, headers, body, config.transform_response)
+        return self._make_http_request(
+            url,
+            method,
+            headers,
+            body,
+            config.transform_response,
+            timeout=self._get_timeout_seconds(config),
+        )
 
     def _render_prompt_body(self, body_template: Any, prompt: str) -> Any:
         """Render a provider request body by replacing prompt placeholders."""
@@ -813,7 +822,9 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body, "answer")
+        result = self._make_http_request(
+            url, "POST", headers, body, "answer", timeout=self._get_timeout_seconds(config) if config else None
+        )
 
         if result.success and result.provider_response:
             result.provider_response.metadata = result.provider_response.metadata or {}
@@ -901,7 +912,9 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body)
+        result = self._make_http_request(
+            url, "POST", headers, body, timeout=self._get_timeout_seconds(config) if config else None
+        )
 
         if result.success and result.provider_response:
             raw = result.provider_response.raw
@@ -945,13 +958,15 @@ class AIProviderClient:
             method: str,
             headers: Dict[str, str],
             body: Any,
-            transform_response: Optional[str] = None
+            transform_response: Optional[str] = None,
+            timeout: Optional[float] = None,
     ) -> ProviderTestResult:
         """Make HTTP request and return standardized result."""
         start_time = time.time()
+        request_timeout = timeout if timeout is not None else self.timeout
 
         try:
-            with httpx.Client(timeout=self.timeout) as client:
+            with httpx.Client(timeout=request_timeout) as client:
                 response = client.request(
                     method=method,
                     url=url,
