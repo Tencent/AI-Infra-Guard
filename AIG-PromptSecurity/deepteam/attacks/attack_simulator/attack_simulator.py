@@ -206,11 +206,12 @@ class AttackSimulator:
         ), status="todo"))
         
         async def throttled_simulate_baseline_attack(vulnerability):
-            result = await self.a_simulate_baseline_attacks(
-                attacks_per_vulnerability_type=attacks_per_vulnerability_type,
-                vulnerability=vulnerability,
-                ignore_errors=ignore_errors,
-            )
+            async with self.semaphore:
+                result = await self.a_simulate_baseline_attacks(
+                    attacks_per_vulnerability_type=attacks_per_vulnerability_type,
+                    vulnerability=vulnerability,
+                    ignore_errors=ignore_errors,
+                )
             return result
 
         simulate_tasks = [
