@@ -246,6 +246,10 @@ func RunWebServer(options *version.Options) {
 				tasks.POST("/:sessionId/terminate", func(c *gin.Context) {
 					HandleTerminateTask(c, taskManager)
 				})
+				// 断点续跑接口（复用原 sessionId，跳过已完成阶段）
+				tasks.POST("/:sessionId/resume", func(c *gin.Context) {
+					HandleResumeTask(c, taskManager)
+				})
 			}
 			// 模型管理
 			models := appSecurity.Group("/models")

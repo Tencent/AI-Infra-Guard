@@ -23,6 +23,7 @@ from typing import Any
 from skill_scan.agent.base_agent import BaseAgent
 from skill_scan.tools.dispatcher import ToolDispatcher
 from skill_scan.utils.aig_logger import mcpLogger
+from skill_scan.utils.checkpoint import CheckpointManager
 from skill_scan.utils.extract_vuln import VulnerabilityExtractor, extract_result
 from skill_scan.utils.loging import logger
 from skill_scan.utils.pre_scan import pre_scan
@@ -272,9 +273,10 @@ class ScanStage:
 class ScanPipeline:
     """Standard scan pipeline logic"""
 
-    def __init__(self, agent_wrapper: "Agent"):
+    def __init__(self, agent_wrapper: "Agent", checkpoint: CheckpointManager | None = None):
         self.agent_wrapper = agent_wrapper
         self.results: dict[str, str] = {}
+        self.checkpoint = checkpoint
 
     async def execute_stage(
         self,
@@ -297,6 +299,14 @@ class ScanPipeline:
         """
         logger.info(f"=== Stage {stage.stage_id}: {stage.name} ===")
         mcpLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
+
+        # 断点续跑：若该阶段已有落盘结果，直接跳过执行；load 返回 None（文件损坏）时视为未命中
+        if self.checkpoint is not None and self.checkpoint.has(stage.stage_id):
+            result = self.checkpoint.load(stage.stage_id)
+            if result is not None:
+                logger.info(f"=== Stage {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
+                self.results[stage.name] = result
+                return result
 
         # Load the prompt template
         instruction = prompt_manager.load_template(stage.template)
@@ -360,6 +370,8 @@ class ScanPipeline:
         agent.add_user_message(user_msg)
 
         result = await agent.run()
+        if self.checkpoint is not None:
+            self.checkpoint.save(stage.stage_id, result)
         self.results[stage.name] = result
         return result
 
@@ -380,6 +392,8 @@ class Agent:
         debug: bool = False,
         language: str = "zh",
         aig_mode: bool = False,
+        task_id: str | None = None,
+        checkpoint_dir: str | None = None,
     ):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
@@ -387,7 +401,10 @@ class Agent:
         self.language = language
         self.aig_mode = aig_mode
         self.dispatcher = ToolDispatcher()
-        self.pipeline = ScanPipeline(self)
+        self.pipeline = ScanPipeline(
+            self,
+            checkpoint=CheckpointManager(task_id, checkpoint_dir) if task_id else None,
+        )
 
     async def scan(self, repo_dir: str, prompt: str, language: str = "zh") -> dict:
         """Security audit pipeline.

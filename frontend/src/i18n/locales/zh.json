@@ -352,7 +352,11 @@
     "deleteRequestFailed": "删除请求失败",
     "renameFailed": "重命名失败",
     "deleteFailed": "删除失败",
-    "downloadFileFailed": "下载文件失败"
+    "downloadFileFailed": "下载文件失败",
+    "resumeTask": "断点续跑",
+    "resuming": "续跑中…",
+    "resumeSuccess": "任务续跑成功，正在从断点继续执行",
+    "resumeFailed": "续跑失败，请稍后重试"
   },
   "jailbreak": {
     "title": "越狱测试",

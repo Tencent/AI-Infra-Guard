@@ -41,6 +41,7 @@ from agent_scan.core.agent_adapter.adapter import AIProviderClient, ProviderOpti
 from agent_scan.core.base_agent import run_agent
 from agent_scan.core.report import generate_report_from_xml
 from agent_scan.utils.aig_logger import scanLogger
+from agent_scan.utils.checkpoint import CheckpointManager
 from agent_scan.utils.logging import logger
 from agent_scan.utils.project_analyzer import analyze_language, get_top_language
 from agent_scan.utils.prompt_manager import prompt_manager
@@ -182,8 +183,11 @@ class ScanPipeline:
             used to access the shared LLM and configuration.
     """
 
-    def __init__(self, agent_wrapper: "Agent") -> None:
+    def __init__(
+        self, agent_wrapper: "Agent", checkpoint: Optional[CheckpointManager] = None
+    ) -> None:
         self.agent_wrapper = agent_wrapper
+        self.checkpoint = checkpoint
 
     # ------------------------------------------------------------------
     # Sequential stage helper (used for Stage 1 and Stage 3)
@@ -212,7 +216,18 @@ class ScanPipeline:
             :func:`run_agent`.
         """
         instruction = prompt_manager.load_template(stage.template)
-        return await run_agent(
+
+        # 断点续跑：若该阶段已有落盘结果，直接跳过执行
+        if self.checkpoint is not None and self.checkpoint.has(stage.stage_id):
+            result = self.checkpoint.load(stage.stage_id)
+            if result is not None:
+                logger.info(f"=== 阶段 {stage.stage_id}: {stage.name} 命中断点，跳过执行 ===")
+                # 模拟阶段完成日志，保证 UI 进度展示一致
+                scanLogger.new_plan_step(stepId=stage.stage_id, stepName=stage.name)
+                scanLogger.status_update(stage.stage_id, stage.name, "", "completed")
+                return result, {}
+
+        result, stats = await run_agent(
             description=stage.name,
             instruction=instruction,
             llm=self.agent_wrapper.llm,
@@ -224,6 +239,9 @@ class ScanPipeline:
             repo_dir=repo_dir,
             context_data=context_data,
         )
+        if self.checkpoint is not None:
+            self.checkpoint.save(stage.stage_id, result)
+        return result, stats
 
     # ------------------------------------------------------------------
     # Parallel detection stage (Stage 2)
@@ -279,13 +297,24 @@ class ScanPipeline:
             Returns:
                 ``(result, tool_usage_stats)`` from :func:`run_agent`.
             """
+            stage_id = _worker_stage_id(worker_index)
+
+            # 断点续跑：该 skill 已有落盘结果时直接跳过
+            if self.checkpoint is not None and self.checkpoint.has(stage_id):
+                result_text = self.checkpoint.load(stage_id)
+                if result_text is not None:
+                    logger.info(f"=== 阶段 {stage_id}: Skill Worker {skill_name} 命中断点，跳过执行 ===")
+                    scanLogger.new_plan_step(stepId=stage_id, stepName=f"Skill Worker: {skill_name}")
+                    scanLogger.status_update(stage_id, f"Skill Worker: {skill_name}", "", "completed")
+                    return result_text, {}
+
             async with semaphore:
-                return await run_agent(
+                result_text, stats = await run_agent(
                     description=f"Skill Worker: {skill_name}",
                     instruction=instruction,
                     llm=self.agent_wrapper.llm,
                     prompt=prompt,
-                    stage_id=_worker_stage_id(worker_index),
+                    stage_id=stage_id,
                     specialized_llms=self.agent_wrapper.specialized_llms,
                     agent_provider=agent_provider,
                     language=self.agent_wrapper.language,
@@ -298,6 +327,9 @@ class ScanPipeline:
                     # skip the redundant _format_final_output() LLM round-trip.
                     format_on_finish=False,
                 )
+                if self.checkpoint is not None:
+                    self.checkpoint.save(stage_id, result_text)
+                return result_text, stats
 
         logger.info(
             f"Starting sequential detection with {len(self.agent_wrapper.skills)} skill workers."
@@ -347,14 +379,18 @@ class Agent:
         language: str = "zh",
         agent_provider: str = "",
         skills: Optional[List[str]] = None,
+        task_id: Optional[str] = None,
+        checkpoint_dir: Optional[str] = None,
     ) -> None:
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
-        self.pipeline = ScanPipeline(self)
         self.language = language
         self.agent_provider: Optional[ProviderOptions] = None
         self.skills = skills or _DETECTION_SKILLS
+        # 断点续跑：仅当传入 task_id 时启用，checkpoint 目录键复用 AIG sessionId
+        self.checkpoint = CheckpointManager(task_id, checkpoint_dir) if task_id else None
+        self.pipeline = ScanPipeline(self, checkpoint=self.checkpoint)
 
         if agent_provider:
             client = AIProviderClient()

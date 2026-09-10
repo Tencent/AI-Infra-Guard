@@ -137,6 +137,7 @@ func (s *SkillTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	argv = append(argv, "--debug")
 	argv = append(argv, "--aig-mode")
 	argv = append(argv, "--language", language)
+	argv = append(argv, "--task_id", request.SessionId)
 
 	argv = append(argv, "--repo", folder)
 
