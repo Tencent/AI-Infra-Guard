@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.1] - 2026-09-10
+
+### Added
+- **API Checker**: Add Gemini, Gemma, and GLM fingerprints
+- **API Checker**: Update GLM-5.3-Flash fingerprint baseline
+- **API Checker**: Update baseline tests
+
+### Fixed
+- **MCP-Scan**: Adapt to MCP Python SDK 2.x API changes (PR #606)
+- **MCP-Scan**: Cast read_timeout_seconds to float for SDK 2.x type safety
+- **MCP-Scan**: Mark empty scan results as possibly-incomplete (PR #623)
+- **MCP-Scan**: Preserve security findings in context compaction prompt
+- **MCP-Scan**: Always set scanNote in result_meta and log in English
+- **MCP-Scan**: Surface the underlying error when MCP connection fails (PR #534)
+- **Skill-Scan**: Stop silently hiding .pyc files and skip-dir payloads
+- **Task API**: Add skill_scan task type
+- **Parser**: Keep pre-release versions below their release in versionCheck (PR #588)
+- **Data**: Correct mislabeled product names for CVE-2026-13236/13237/61428 (PR #642)
+- **Docker**: Use Tencent Debian mirror for agent build
+
+### Changed
+- **Docs**: Add CONTRIBUTING, CODE_OF_CONDUCT, issue/PR templates
+- **Docs**: Update skill-scan README pre_scan capability description
+- **Docs**: Update task API comment clarifying attachments priority in skill_scan
+- **Docs**: Generalize relay consistency check in API Checker docs
+
+### Contributors
+Elwood Ying, xiangfanwu, aig-doc-bot, valleyxht, kexinoh, zhuque, pucedoteth, glatinone, chaucerj, boy-hack, Ray Winkelman, KEXNA
+
 ## [v4.6.0] - 2026-08-26
 
 ### Added
