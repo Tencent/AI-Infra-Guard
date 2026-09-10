@@ -530,6 +530,12 @@ Thanks to the users from the following organizations and teams for using A.I.G a
 <br>
 <br>
 
+## 📰 Press Coverage
+
+- [AI-Infra-Guard: Open-source security scanner for AI systems](https://www.helpnetsecurity.com/2026/09/09/ai-infra-guard-open-source-security-scanner-ai-systems/) — Help Net Security, Sep 9, 2026
+
+<br>
+
 ## 💬 Join the Community
 
 ### 🌐 Online Discussions
