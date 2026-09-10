@@ -118,7 +118,7 @@ func main() {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ %v\n", file, err)
 				hasError = true
 				failCount++
-			} else if strings.TrimSpace(vul.Info.Name) == "" {
+			} else if strings.TrimSpace(vul.Info.FingerPrintName) == "" {
 				fmt.Fprintf(os.Stderr, "  ❌  FAIL  [vuln rule]   %s\n      └─ missing required 'name' field\n", file)
 				hasError = true
 				failCount++
