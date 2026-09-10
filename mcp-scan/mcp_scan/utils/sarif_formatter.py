@@ -331,6 +331,9 @@ def to_sarif(result_meta: dict[str, Any], tool_version: str = "0.0.0", language:
                     "llm": result_meta.get("llm"),
                     "startTime": result_meta.get("start_time"),
                     "endTime": result_meta.get("end_time"),
+                    # 扫描可能不完整时（如上下文压缩丢失状态导致空输出）显式标记，
+                    # 避免空报告被消费方误读为"未发现漏洞"。
+                    "scanNote": result_meta.get("scanNote", "complete"),
                 },
             }
         ],
