@@ -161,6 +161,12 @@ func isValidSeverity(severity string) bool {
 	switch strings.ToLower(strings.TrimSpace(severity)) {
 	case "info", "low", "medium", "high", "critical":
 		return true
+		// Chinese severity aliases
+	case "信息", "低", "中等", "中危", "高", "高危", "严重", "危急":
+		return true
+	// Unknown / unclassified
+	case "unknown":
+		return true
 	default:
 		return false
 	}
