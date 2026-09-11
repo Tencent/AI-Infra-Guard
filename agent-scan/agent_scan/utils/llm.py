@@ -19,12 +19,37 @@
 import asyncio
 import time
 
-import openai
-from typing import List
+import litellm
+from litellm.exceptions import (
+    APIConnectionError,
+    APIError,
+    BadRequestError,
+    Timeout,
+)
+
 from agent_scan.utils.logging import logger
 
 # Error prefix constant for consistent error detection across modules
 LLM_ERROR_PREFIX = "[LLM Error:"
+
+
+def to_litellm_params(model: str, base_url: str | None) -> tuple[str, str | None]:
+    """Map the configured (model, base_url) onto LiteLLM's routing.
+
+    - base_url set (the default, e.g. OpenRouter or any OpenAI-compatible
+      gateway): route the request as a custom OpenAI-compatible endpoint by
+      prefixing the model with ``openai/`` and passing base_url as ``api_base``.
+      The wire request is identical to the previous ``openai.OpenAI(base_url)``
+      call, so existing configurations keep working unchanged.
+    - base_url empty: pass the model through untouched so LiteLLM routes to a
+      provider natively (e.g. ``anthropic/claude-...``, ``bedrock/...``,
+      ``gemini/...``), which resolves credentials from that provider's own env
+      vars and needs no gateway or proxy.
+    """
+    if base_url:
+        litellm_model = model if model.startswith("openai/") else f"openai/{model}"
+        return litellm_model, base_url
+    return model, None
 
 
 def is_llm_error_response(response: str) -> bool:
@@ -41,13 +66,12 @@ class LLM:
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
-        self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
 
-    async def chat_async(self, message: List[dict], language: str = "zh") -> str:
+    async def chat_async(self, message: list[dict], language: str = "zh") -> str:
         """Non-blocking wrapper around :meth:`chat` for use inside async contexts.
 
-        Runs the synchronous ``openai.OpenAI`` call in a thread-pool executor
-        via :func:`asyncio.to_thread`, so the event loop is free to schedule
+        Runs the synchronous ``litellm.completion`` call in a thread-pool
+        executor via :func:`asyncio.to_thread`, so the event loop is free to schedule
         other coroutines (e.g. parallel skill workers) while waiting for the
         LLM response.
 
@@ -60,7 +84,7 @@ class LLM:
         """
         return await asyncio.to_thread(self.chat, message, False, language)
 
-    def chat(self, message: List[dict], p=False, language: str = "zh"):
+    def chat(self, message: list[dict], p=False, language: str = "zh"):
         """Send a chat request to the LLM.
 
         Args:
@@ -92,7 +116,7 @@ class LLM:
                             "Failed to connect to LLM, retried 3 times, model output is empty, please try again after 1 minute",
                         )
                     continue
-            except openai.BadRequestError as e:
+            except BadRequestError as e:
                 # 400 error (e.g. DataInspectionFailed): content issue, retry is meaningless, return immediately
                 error_msg = str(e)
                 logger.warning(f"LLM BadRequestError (400), no retry: {error_msg}")
@@ -101,7 +125,7 @@ class LLM:
                     "输入内容触发安全过滤 (400)",
                     "Input content triggered safety filter (400)",
                 )
-            except (openai.APIConnectionError, openai.APITimeoutError) as e:
+            except (APIConnectionError, Timeout) as e:
                 # Network/timeout error: can retry
                 retry += 1
                 logger.warning(f'LLM connection/timeout error, retry {retry}: {e}')
@@ -114,7 +138,7 @@ class LLM:
                     )
                 time.sleep(2)
                 continue
-            except openai.APIError as e:
+            except APIError as e:
                 # Other API errors (5xx, etc.): can retry
                 retry += 1
                 logger.warning(f'LLM API error, retry {retry}: {e}')
@@ -141,7 +165,7 @@ class LLM:
         return ret
 
 
-    def chat_stream(self, message: List[dict]):
+    def chat_stream(self, message: list[dict]):
         """Stream chat completions from the LLM.
 
         Exceptions from the underlying API call propagate to chat() for
@@ -155,16 +179,24 @@ class LLM:
             Content chunks from the model response.
 
         Raises:
-            openai.BadRequestError: Content triggered safety filter (400).
-            openai.APIConnectionError: Network connection failed.
-            openai.APITimeoutError: Request timed out.
-            openai.APIError: Other API errors (5xx, etc.).
+            litellm.BadRequestError: Content triggered safety filter (400).
+            litellm.APIConnectionError: Network connection failed.
+            litellm.Timeout: Request timed out.
+            litellm.APIError: Other API errors (5xx, etc.).
         """
+        litellm_model, api_base = to_litellm_params(self.model, self.base_url)
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
+            response = litellm.completion(
+                model=litellm_model,
                 messages=message,
                 stream=True,
+                api_key=self.api_key or None,
+                api_base=api_base,
+                timeout=60,
+                # Silently drop generation params a given provider does not
+                # accept, so one config works across OpenAI, Anthropic, Gemini,
+                # Bedrock, etc. instead of 400-ing on provider-specific kwargs.
+                drop_params=True,
             )
 
             for chunk in response:
@@ -183,11 +215,10 @@ class LLM:
                 if content:
                     yield content
 
-        except (openai.BadRequestError, openai.APIConnectionError,
-                openai.APITimeoutError, openai.APIError):
-            # OpenAI exceptions propagate directly to chat() for handling
+        except (BadRequestError, APIConnectionError, Timeout, APIError):
+            # LiteLLM exceptions propagate directly to chat() for handling
             raise
         except Exception as e:
-            # Log unexpected (non-OpenAI) exceptions before re-raising
+            # Log unexpected (non-LiteLLM) exceptions before re-raising
             logger.error(f'Unexpected error in chat_stream: {e}', exc_info=True)
             raise

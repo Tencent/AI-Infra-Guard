@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from openai import AsyncOpenAI
+from mcp_scan.utils.llm import LiteLLMAsyncClient
 
 # 源码分析：可读扩展名与单文件最大字符数（与 mcp-scan 能力对齐）
 READABLE_EXT = {".py", ".go", ".js", ".ts", ".md", ".json", ".yaml", ".yml", ".toml", ".sh", ".rs", ".java"}
@@ -89,7 +89,7 @@ class TargetRunner:
 
     def __init__(
         self,
-        client: AsyncOpenAI,
+        client: LiteLLMAsyncClient,
         model: str,
         repo_dir: Optional[str] = None,
     ):
