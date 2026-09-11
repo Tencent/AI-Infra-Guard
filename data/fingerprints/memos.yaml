@@ -1,0 +1,28 @@
+info:
+  name: memos
+  author: A.I.G bot
+  severity: info
+  desc: MemOS is a Memory Operating System for LLMs and AI agents that unifies store/retrieve/manage for long-term memory. It exposes a FastAPI REST API (default port 8001, Docker port 8000) with health, OpenAPI docs, memory CRUD, chat, and admin endpoints.
+  metadata:
+    product: memos
+    vendor: memtensor
+http:
+  - method: GET
+    path: /health
+    matchers:
+      - body="memos" && body="healthy"
+  - method: GET
+    path: /openapi.json
+    matchers:
+      - body="MemOS Server REST APIs"
+  - method: GET
+    path: /docs
+    matchers:
+      - body="MemOS Server REST APIs" && body="swagger"
+version:
+  - method: GET
+    path: /health
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9][0-9.a-zA-Z\-]+)"'

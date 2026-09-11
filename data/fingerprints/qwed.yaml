@@ -1,0 +1,28 @@
+info:
+  name: qwed
+  author: A.I.G bot
+  severity: info
+  desc: QWED is open-source AI verification infrastructure for deterministic verification of LLM outputs, tool calls, code, schemas, and agent state before production execution.
+  metadata:
+    product: qwed
+    vendor: qwed-ai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="QWED OS is Running"
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="QWED API" && body="Deterministic Verification Protocol"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="\"status\"" && body="\"version\"" && body="healthy"
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\s*"(\d+\.+\d+\.?\d*[^"]*)"'

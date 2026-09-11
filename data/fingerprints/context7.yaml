@@ -1,0 +1,34 @@
+info:
+  name: Context7
+  author: A.I.G bot
+  severity: info
+  desc: Context7 is an MCP server (by Upstash) that provides up-to-date documentation and code examples for libraries/frameworks directly into LLM contexts. Supports both stdio and HTTP transports (default HTTP port 3000).
+  metadata:
+    product: context7
+    vendor: upstash
+http:
+  - method: GET
+    path: /.well-known/oauth-protected-resource
+    matchers:
+      - body="mcp.context7.com" && body="authorization_servers"
+  - method: GET
+    path: /mcp
+    matchers:
+      - header="resource_metadata" && header="context7.com"
+# Fingerprint note:
+# The HTTP transport (started with --transport http) exposes an Express server on port 3000 (configurable via --port).
+# Source: https://github.com/upstash/context7/blob/main/packages/mcp/src/index.ts
+#
+# Matchers (verified from source code):
+# 1. GET /.well-known/oauth-protected-resource returns JSON with "resource":"https://mcp.context7.com/mcp"
+#    and "authorization_servers":["https://context7.com"] — these are hardcoded defaults (RESOURCE_URL constant).
+#    A self-hosted instance may override RESOURCE_URL via env, so the /mcp WWW-Authenticate header is a fallback.
+# 2. GET /mcp always sets header "WWW-Authenticate: Bearer resource_metadata=\"https://mcp.context7.com/.well-known/oauth-protected-resource\"",
+#    which contains the context7.com domain. This works even on self-hosted instances that use the default RESOURCE_URL.
+# 3. GET /ping returns {"status":"ok","message":"pong"} — too generic, not used as a matcher.
+#
+# Version extraction:
+# No unauthenticated GET endpoint returns the version. The MCP "initialize" JSON-RPC request (POST /mcp)
+# returns serverInfo.version in the response, but AIG fingerprint engine only supports GET requests.
+# Server startup banner ("Context7 Documentation MCP Server v{version} running on HTTP...") is printed to stderr,
+# not exposed via any HTTP endpoint. Therefore no version extractor is provided (partial fingerprint).
