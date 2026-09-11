@@ -169,6 +169,27 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+Фронтенд чекера развёртывается отдельно. При Docker-развёртывании API чекера
+доступны по адресам `GET /api/v1/relay/models` и
+`POST /api/v1/relay/check/stream`; документация API — по адресу
+`http://127.0.0.1:8088/api-checker/docs`. Для запуска чекера и унифицированного CLI
+из исходного кода:
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+Подробнее см. [Руководство по интеграции API Checker](../docs/api-checker-integration.md) —
+архитектура встраиваемой среды выполнения Agent, HTTP API, конфигурация и границы безопасности.
+
 ### 🌟 Попробуйте онлайн Pro-версию
 Оцените Pro-версию с расширенными функциями и улучшенной производительностью. Для входа требуется [пригласительный код](https://wj.qq.com/s2/25099467/25vn/); приоритет предоставляется участникам, создавшим issues, pull request'ы или обсуждения, а также активно помогающим развивать сообщество. Перейти: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
@@ -209,6 +230,7 @@ aig-skill-scan --repo /path/to/your/skill \
 | **MCP&nbsp;Server&nbsp;&&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Обнаруживает 14 основных категорий рисков безопасности. Применимо как к MCP Server, так и к Agent Skills. Гибко поддерживает сканирование как из исходного кода, так и по удалённым URL. |
 | **Сканирование&nbsp;уязвимостей&nbsp;AI-инфраструктуры** | Точно идентифицирует более 100 компонентов AI-фреймворков. Покрывает более 2000 известных CVE-уязвимостей. Поддерживаемые фреймворки: Ollama, ComfyUI, vLLM, n8n, Triton Inference Server и другие. |
 | **Jailbreak&nbsp;Evaluation** | Оценка рисков prompt-безопасности с использованием тщательно отобранных наборов данных. Применяет несколько методов атак для проверки устойчивости. Предоставляет детальные возможности сравнения между моделями. |
+| **Model and API Relay Checker** | Снятие отпечатков моделей, проверка подписи Claude, black-box аудит relay, PAMELA и Ventor QTest. |
 
 <details>
 <summary><strong>💎 Дополнительные преимущества</strong></summary>
