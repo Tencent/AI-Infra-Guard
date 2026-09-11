@@ -165,11 +165,11 @@ class MCPTools:
         xml_lines = ["<mcp_tools>"]
         for t in data.tools:
             # 缓存工具 schema，用于后续参数类型转换
-            self._tools_schema[t.name] = t.inputSchema
+            self._tools_schema[t.name] = t.input_schema
 
             parameters = ''
-            for k, param in t.inputSchema['properties'].items():
-                required = 'true' if k in t.inputSchema.get("required", []) else 'false'
+            for k, param in t.input_schema['properties'].items():
+                required = 'true' if k in t.input_schema.get("required", []) else 'false'
                 param_type = param.get('type', 'string')
                 # 构建基础属性
                 base_attrs = f'name="{k}" type="{param_type}" required="{required}"'
