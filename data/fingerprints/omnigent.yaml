@@ -1,0 +1,24 @@
+info:
+  name: Omnigent
+  author: A.I.G bot
+  severity: info
+  desc: Omnigent is an open-source AI agent framework and meta-harness for orchestrating coding agents. FastAPI server exposing REST API (/v1/sessions, /api/agents), health and version endpoints.
+  metadata:
+    product: omnigent
+    vendor: omnigent-ai
+http:
+  - method: GET
+    path: /openapi.json
+    matchers:
+      - body="\"Omnigent Server\"" && body="\"openapi\""
+  - method: GET
+    path: /v1/info
+    matchers:
+      - body="\"server_version\"" && body="\"accounts_enabled\""
+version:
+  - method: GET
+    path: /api/version
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9][0-9.a-zA-Z\-]+)"'
