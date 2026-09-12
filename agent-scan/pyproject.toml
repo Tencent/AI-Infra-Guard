@@ -43,7 +43,6 @@ classifiers = [
 ]
 dependencies = [
   "loguru==0.7.3",
-  "mcp>=2.0.0,<3.0.0",
   "openai==2.8.1",
   "pydantic==2.12.4",
   "python-dotenv==1.0.0",
