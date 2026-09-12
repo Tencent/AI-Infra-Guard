@@ -2,8 +2,46 @@ from __future__ import annotations
 
 import hashlib
 import html
+import json
 import re
 from typing import Any
+
+# Models often emit tool names plus inline attributes in the opening tag:
+#   <function=dir_tree path="/tmp/proj">
+#   <function name="think" thought="...">
+_ATTR_RE = re.compile(
+    r'([A-Za-z_][\w-]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))'
+)
+_NAMED_PARAM_RE = re.compile(
+    r'<parameter\s+name=["\']([^"\']+)["\']>(.*?)</parameter>',
+    re.DOTALL,
+)
+_LEGACY_PARAM_RE = re.compile(
+    r"<parameter\s*=\s*[\"']?([^>\"']+)[\"']?\s*>(.*?)</parameter>",
+    re.DOTALL,
+)
+_ARG_KEY_RE = re.compile(
+    r"<arg_key>\s*(.*?)\s*</arg_key>\s*<arg_value>\s*(.*?)\s*</arg_value>",
+    re.DOTALL,
+)
+_CHILD_TAG_RE = re.compile(r"<([A-Za-z_][\w-]*)>(.*?)</\1>", re.DOTALL)
+_KV_LINE_RE = re.compile(
+    r"^\s*([A-Za-z_][\w-]*)\s*[:=]\s*(.+?)\s*$",
+    re.MULTILINE,
+)
+_CHILD_SKIP_TAGS = {
+    "function",
+    "parameter",
+    "tool_call",
+    "mcp_function",
+    "tools",
+    "tool",
+    "parameters",
+    "arguments",
+}
+# Leftover function-body text (no <parameter> tags) is stored here so the
+# dispatcher can map it onto the tool's first required argument.
+RAW_BODY_ARG = "_raw_body"
 
 
 def sha256(content: str) -> str:
@@ -18,66 +56,209 @@ def sha256_file(file_path: str) -> str:
     return h.hexdigest()
 
 
+def _stringify_arg(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if value is None:
+        return ""
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False)
+    return str(value)
+
+
+def _is_example_tool_name(name: str) -> bool:
+    return name in {"tool_name", "tool-name", "name"}
+
+
+def _split_open_tag(inner: str) -> tuple[str, dict[str, str]]:
+    """Split an opening tag body into (tool_name, inline attributes)."""
+    inner = html.unescape(inner).strip()
+    if not inner:
+        return "", {}
+
+    name = ""
+    rest = inner
+    named = re.match(
+        r'^(?:name\s*=\s*)["\']([^"\']+)["\'](.*)$',
+        inner,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if named:
+        name = named.group(1).strip()
+        rest = named.group(2)
+    else:
+        token = re.match(r'^["\']?([A-Za-z_][\w.-]*)["\']?(.*)$', inner, re.DOTALL)
+        if token:
+            name = token.group(1)
+            rest = token.group(2)
+        else:
+            name = inner.split()[0].strip("\"'")
+
+    attrs: dict[str, str] = {}
+    for match in _ATTR_RE.finditer(rest or ""):
+        key = match.group(1)
+        if key.lower() == "name":
+            if not name:
+                name = (match.group(2) or match.group(3) or match.group(4) or "").strip()
+            continue
+        value = match.group(2) or match.group(3) or match.group(4) or ""
+        attrs[key] = html.unescape(value)
+    return name.strip(), attrs
+
+
+def _extract_json_object(text: str) -> dict[str, str] | None:
+    stripped = text.strip()
+    if not stripped.startswith("{") or not stripped.endswith("}"):
+        # Tolerate JSON wrapped in a fenced code block
+        fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", stripped, re.DOTALL)
+        if fenced:
+            stripped = fenced.group(1).strip()
+        else:
+            return None
+    try:
+        data = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(data, dict):
+        return None
+    return {str(k): _stringify_arg(v) for k, v in data.items()}
+
+
+def _extract_params(text: str) -> dict[str, str]:
+    """Extract tool parameters from a chunk of text (inside or after a function tag).
+
+    Accepts the documented <parameter=name> form plus formats commonly emitted
+    by smaller / instruction-following models (Qwen, GLM, etc.):
+    named XML attributes, child tags, JSON bodies, key=value lines, and leftover
+    free text stored as RAW_BODY_ARG.
+    """
+    args: dict[str, str] = {}
+
+    param_matches = list(_NAMED_PARAM_RE.finditer(text))
+    if not param_matches:
+        param_matches = list(_LEGACY_PARAM_RE.finditer(text))
+    for pm in param_matches:
+        args[pm.group(1).strip()] = html.unescape(pm.group(2).strip())
+    if args:
+        return args
+
+    for km in _ARG_KEY_RE.finditer(text):
+        args[km.group(1).strip()] = html.unescape(km.group(2).strip())
+    if args:
+        return args
+
+    json_args = _extract_json_object(text)
+    if json_args:
+        return json_args
+
+    for cm in _CHILD_TAG_RE.finditer(text):
+        tag = cm.group(1)
+        if tag.lower() in _CHILD_SKIP_TAGS:
+            continue
+        value = html.unescape(cm.group(2).strip())
+        if value:
+            args[tag] = value
+    if args:
+        return args
+
+    for km in _KV_LINE_RE.finditer(text):
+        args[km.group(1)] = html.unescape(km.group(2).strip().strip("\"'"))
+    if args:
+        return args
+
+    raw = text.strip()
+    if raw:
+        raw = re.sub(r"</?(?:function|parameter|tool_call)[^>]*>", "", raw).strip()
+        if raw:
+            args[RAW_BODY_ARG] = html.unescape(raw)
+    return args
+
+
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
-    # Primary format: <function=tool_name>...</function>
-    regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
-    # Fallback format (some LLMs, e.g. DeepSeek, occasionally emit):
-    #   <function>tool_name</function>
-    #   <parameter name="x">...</parameter>
-    alt_regex_pattern = (
-        rf"<{tag_name}>\s*([^<\s]+)\s*</{tag_name}>"
-    )
-    named_param_regex_pattern = r'<parameter\s+name="([^"]+)">(.*?)</parameter>'
-    legacy_param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
+    # <function=tool_name ...> or <function name="tool_name" ...>
+    eq_pattern = rf"<{tag_name}=([^>]+)>(.*?)</{tag_name}.*?>"
+    attr_pattern = rf"<{tag_name}(\s+[^>]+)>(.*?)</{tag_name}.*?>"
+    alt_regex_pattern = rf"<{tag_name}>\s*([^<\s]+)\s*</{tag_name}>"
 
-    # Pass 1: standard <function=tool_name>...</function>
-    matches = list(re.finditer(regex_pattern, content, re.DOTALL))
-    for match in matches:
-        fn_name = match.group(1)
-        if fn_name == "tool_name":  # Skip few-shot examples
+    for match in re.finditer(eq_pattern, content, re.DOTALL):
+        fn_name, inline_attrs = _split_open_tag(match.group(1))
+        if not fn_name or _is_example_tool_name(fn_name):
             continue
-        body = match.group(2)
-        args = _extract_params(body, named_param_regex_pattern, legacy_param_regex_pattern)
+        args = dict(inline_attrs)
+        args.update(_extract_params(match.group(2)))
         results.append({"toolName": fn_name, "args": args})
+
+    if not results:
+        for match in re.finditer(attr_pattern, content, re.DOTALL):
+            fn_name, inline_attrs = _split_open_tag(match.group(1))
+            if not fn_name or _is_example_tool_name(fn_name):
+                continue
+            args = dict(inline_attrs)
+            args.update(_extract_params(match.group(2)))
+            results.append({"toolName": fn_name, "args": args})
 
     if results:
         return results
 
-    # Pass 2: fallback <function>tool_name</function>
-    alt_matches = list(re.finditer(alt_regex_pattern, content, re.DOTALL))
-    for am in alt_matches:
-        fn_name = am.group(1)
-        if fn_name == "tool_name":
+    # Fallback: <function>tool_name</function> with sibling <parameter> tags
+    for am in re.finditer(alt_regex_pattern, content, re.DOTALL):
+        fn_name = am.group(1).strip().strip("\"'")
+        if _is_example_tool_name(fn_name):
             continue
-        # Parameters may appear as siblings *after* the function tag;
-        # scan the entire remaining content for any <parameter ...> tags.
         tail = content[am.end():]
-        args = _extract_params(tail, named_param_regex_pattern, legacy_param_regex_pattern)
-        results.append({"toolName": fn_name, "args": args})
+        results.append({"toolName": fn_name, "args": _extract_params(tail)})
 
     return results
 
 
-def _extract_params(
-    text: str,
-    named_pattern: str,
-    legacy_pattern: str,
-) -> dict[str, str]:
-    """Extract tool parameters from a chunk of text (inside or after a function tag)."""
-    args: dict[str, str] = {}
-    param_matches = list(re.finditer(named_pattern, text, re.DOTALL))
-    if not param_matches:
-        param_matches = list(re.finditer(legacy_pattern, text, re.DOTALL))
-    for pm in param_matches:
-        p_name = pm.group(1)
-        p_value = html.unescape(pm.group(2).strip())
-        args[p_name] = p_value
-    return args
+def _parse_tool_call_blocks(content: str) -> list[dict[str, Any]]:
+    """Parse <tool_call> wrappers used by Qwen / Hermes / GLM-style models."""
+    results: list[dict[str, Any]] = []
+    for match in re.finditer(r"<tool_call>(.*?)</tool_call>", content, re.DOTALL):
+        body = match.group(1).strip()
+        if not body:
+            continue
+
+        json_args = _extract_json_object(body)
+        if json_args:
+            name = (
+                json_args.pop("name", "")
+                or json_args.pop("tool", "")
+                or json_args.pop("toolName", "")
+                or json_args.pop("tool_name", "")
+            )
+            nested = json_args.pop("arguments", None) or json_args.pop("args", None)
+            nested = nested or json_args.pop("parameters", None)
+            args: dict[str, str] = {}
+            if nested:
+                if nested.startswith("{") and nested.endswith("}"):
+                    parsed_nested = _extract_json_object(nested)
+                    args = parsed_nested or {RAW_BODY_ARG: nested}
+                else:
+                    args = {RAW_BODY_ARG: nested}
+            args.update(json_args)
+            if name:
+                results.append({"toolName": name, "args": args})
+                continue
+
+        first_line, _, rest = body.partition("\n")
+        name = first_line.strip().strip("\"'")
+        if not name or "<" in name or _is_example_tool_name(name):
+            name = ""
+        args = _extract_params(rest if name else body)
+        if not name:
+            continue
+        results.append({"toolName": name, "args": args})
+    return results
 
 
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:
+    if not content:
+        return None
     invocations = _parse_tags(content, "function")
+    if not invocations:
+        invocations = _parse_tool_call_blocks(content)
     return invocations[0] if invocations else None
 
 
@@ -91,6 +272,8 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<function\s+[^>]+>.*?</function.*?>",
+        r"<tool_call>.*?</tool_call>",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]
