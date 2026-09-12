@@ -282,8 +282,10 @@ func (r *Rule) Eval(config *Config) bool {
 	return evalExpr(r.root, config)
 }
 
-// preReleaseSuffixRe 匹配夹在两个数字之间的字母段，例如 "3.11.0rc2" 中的 "rc"。
-var preReleaseSuffixRe = regexp.MustCompile(`([0-9])[A-Za-z]+([0-9])`)
+// preReleaseSuffixRe 匹配结尾处跟在数字后的预发布标签，可带可选的连字符与数字，
+// 例如 "3.11.0rc2" 中的 "rc2"、"3.11.0rc" 中的 "rc"、"1.2.3-rc1" 中的 "rc1"。
+// 分隔符不含 "."，因为 "1.2.3.RELEASE" 之类的写法表示正式版而非预发布版。
+var preReleaseSuffixRe = regexp.MustCompile(`([0-9])-?([A-Za-z]+)([0-9]*)$`)
 
 // versionCheck 版本号格式标准化处理
 // 输入版本号字符串，返回处理后的版本号字符串
@@ -296,11 +298,20 @@ func versionCheck(version string) string {
 	// 正则替换所有单词
 	compile := regexp.MustCompile(`[A-Za-z]+`)
 	if compile.MatchString(version) {
-		// 字母位于两个数字之间时（如 PEP 440 的 "3.11.0rc2"）先改写为预发布号，
-		// 否则直接删除字母会把两侧数字粘连成 "3.11.02"，即 3.11.2。
-		newVersion := preReleaseSuffixRe.ReplaceAllString(version, "$1-$2")
-		newVersion = regexp.MustCompile(`\.[A-Za-z]+`).ReplaceAllString(newVersion, ".0")
+		// 先把结尾的预发布标签整段取出（如 PEP 440 的 "3.11.0rc2"、"3.11.0rc"）。
+		// 直接删除字母有两种错法：把两侧数字粘连成 "3.11.02"（即 3.11.2），
+		// 或者丢掉没有尾随数字的标签，让 "3.11.0rc" 等同于正式版 "3.11.0"。
+		pre := ""
+		if m := preReleaseSuffixRe.FindStringSubmatch(version); m != nil {
+			pre = m[2] + m[3]
+			version = preReleaseSuffixRe.ReplaceAllString(version, "$1")
+		}
+		newVersion := regexp.MustCompile(`\.[A-Za-z]+`).ReplaceAllString(version, ".0")
 		newVersion = compile.ReplaceAllString(newVersion, "")
+		// 保留标签本身，"3.11.0-alpha" 才能排在 "3.11.0-rc" 之前。
+		if pre != "" {
+			newVersion += "-" + pre
+		}
 		//gologger.Debugf("version:%s=>%s", version, newVersion)
 		version = newVersion
 	}
