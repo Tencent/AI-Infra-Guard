@@ -19,7 +19,8 @@
 import inspect
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
-from skill_scan.tools.registry import get_tool_by_name, get_tools_prompt, needs_context
+from skill_scan.tools.call_compat import prepare_tool_call
+from skill_scan.tools.registry import get_tool_by_name, get_tool_names, get_tools_prompt, needs_context
 from skill_scan.utils.loging import logger
 
 if TYPE_CHECKING:
@@ -50,19 +51,51 @@ class ToolDispatcher:
     async def call_tool(
         self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None
     ) -> str:
-        """Unified call entry point."""
-        tool_func = get_tool_by_name(tool_name)
-        if tool_func:
-            if needs_context(tool_name) and context:
-                args["context"] = context
-            try:
-                result = tool_func(**args)
-            except Exception as e:
-                return f"Error: {e}"
-            if inspect.isawaitable(result):
-                result = await result
-            return self._format_result(result)
-        return f"Error: Tool '{tool_name}' not found"
+        """Unified call entry point.
+
+        Missing/legacy arguments are normalized first so a bad LLM tool call
+        returns a retryable error (or a recovered listing) instead of a raw
+        TypeError that aborts project discovery (issue #629).
+        """
+        canonical, prepared, error = prepare_tool_call(
+            tool_name,
+            args,
+            context,
+            get_tool=get_tool_by_name,
+            known_names=get_tool_names(),
+            available_prompt_tools=_SKILL_TOOLS,
+        )
+        if error:
+            logger.warning(f"Tool call rejected/recovered: {tool_name} -> {error.splitlines()[0]}")
+            return error
+
+        tool_func = get_tool_by_name(canonical)
+        if not tool_func:
+            return f"Error: Tool '{tool_name}' not found"
+
+        if needs_context(canonical) and context:
+            prepared["context"] = context
+        try:
+            result = tool_func(**prepared)
+        except TypeError as e:
+            # Last-resort guard: never leak a raw missing-argument TypeError
+            # back as an unexplained failure.
+            return (
+                f"Error: Tool '{canonical}' could not be executed because of "
+                f"invalid arguments: {e}. Retry with the documented parameter tags."
+            )
+        except Exception as e:
+            return f"Error: {e}"
+        if inspect.isawaitable(result):
+            result = await result
+        formatted = self._format_result(result)
+        if tool_name != canonical or args.get("_recovered_from"):
+            formatted = (
+                f"<recovered>Mapped '{tool_name}' to '{canonical}' so discovery "
+                f"can continue. Prefer {canonical} on the next call.</recovered>\n"
+                f"{formatted}"
+            )
+        return formatted
 
     def _format_result(self, result: Any) -> str:
         if isinstance(result, dict):
