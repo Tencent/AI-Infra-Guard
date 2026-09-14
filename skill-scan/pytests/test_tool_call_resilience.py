@@ -15,7 +15,10 @@ from types import SimpleNamespace
 import pytest
 
 import skill_scan.tools  # noqa: F401  # register local tools
+from skill_scan.tools.call_compat import _looks_like_path, apply_arg_aliases
+from skill_scan.tools.dir.dir_actions import dir_tree
 from skill_scan.tools.dispatcher import ToolDispatcher
+from skill_scan.tools.thinking.thinking_actions import think
 from skill_scan.utils.parse import RAW_BODY_ARG, parse_tool_invocations
 
 
@@ -147,6 +150,41 @@ def test_think_recovers_thought_from_raw_body() -> None:
     result = _dispatch("think", {RAW_BODY_ARG: "Need to list SKILL.md and scripts/"})
     assert "Need to list SKILL.md and scripts/" in result
     assert "missing required argument" not in result
+
+
+def _command_tool(command: str) -> str:
+    return command
+
+
+def test_raw_body_does_not_fill_command() -> None:
+    out = apply_arg_aliases(
+        "run",
+        {RAW_BODY_ARG: "rm -rf / && echo pwned"},
+        _command_tool,
+    )
+    assert "command" not in out
+    assert RAW_BODY_ARG not in out
+
+
+def test_raw_body_still_fills_thought() -> None:
+    out = apply_arg_aliases(
+        "think",
+        {RAW_BODY_ARG: "Need to list SKILL.md and scripts/"},
+        think,
+    )
+    assert out["thought"] == "Need to list SKILL.md and scripts/"
+    assert RAW_BODY_ARG not in out
+
+
+def test_path_heuristic_rejects_prose_sentence_with_slash() -> None:
+    prose = "read the file at /tmp/x"
+    assert _looks_like_path(prose) is False
+    assert _looks_like_path("/tmp/x please list the project tree") is False
+    assert _looks_like_path("/tmp/proj") is True
+    assert _looks_like_path("./scripts") is True
+    out = apply_arg_aliases("dir_tree", {RAW_BODY_ARG: prose}, dir_tree)
+    assert out.get("path") != prose
+    assert "path" not in out
 
 
 def test_execute_shell_missing_command_recovers_dir_tree(project: Path) -> None:
