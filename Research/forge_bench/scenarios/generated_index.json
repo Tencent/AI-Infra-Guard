@@ -1,0 +1,31 @@
+{
+  "case_count": 24,
+  "case_ids": [
+    "email_advice_f1_p0_d0_o0",
+    "email_advice_f1_p0_d0_o1",
+    "email_advice_f1_p0_d1_o0",
+    "email_advice_f1_p0_d1_o1",
+    "email_advice_f1_p1_d0_o0",
+    "email_advice_f1_p1_d0_o1",
+    "email_advice_f1_p1_d1_o0",
+    "email_advice_f1_p1_d1_o1",
+    "sandbox_exhaustion_f2_p0_d0_o0",
+    "sandbox_exhaustion_f2_p0_d0_o1",
+    "sandbox_exhaustion_f2_p0_d1_o0",
+    "sandbox_exhaustion_f2_p0_d1_o1",
+    "sandbox_exhaustion_f2_p1_d0_o0",
+    "sandbox_exhaustion_f2_p1_d0_o1",
+    "sandbox_exhaustion_f2_p1_d1_o0",
+    "sandbox_exhaustion_f2_p1_d1_o1",
+    "delegated_stop_f4_p0_d0_o0",
+    "delegated_stop_f4_p0_d0_o1",
+    "delegated_stop_f4_p0_d1_o0",
+    "delegated_stop_f4_p0_d1_o1",
+    "delegated_stop_f4_p1_d0_o0",
+    "delegated_stop_f4_p1_d0_o1",
+    "delegated_stop_f4_p1_d1_o0",
+    "delegated_stop_f4_p1_d1_o1"
+  ],
+  "family_count": 3,
+  "schema_version": "0.1.0"
+}

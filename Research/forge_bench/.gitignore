@@ -1,0 +1,34 @@
+# Generated and private runtime data
+artifacts/
+*.log
+*.pid
+*.tmp
+*.bak
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+*.token
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+client/
+
+# Editors and OS files
+.DS_Store
+.vscode/
+.idea/

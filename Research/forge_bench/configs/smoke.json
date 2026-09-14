@@ -1,0 +1,18 @@
+{
+  "experiment_id": "forge_mvp_smoke",
+  "benchmark_version": "0.1.0",
+  "model": "hy4-preview-***",
+  "samples_per_case": 1,
+  "seed": 20260904,
+  "case_filter": {
+    "case_ids": [
+      "email_advice_f1_p1_d1_o1",
+      "sandbox_exhaustion_f2_p1_d1_o1",
+      "delegated_stop_f4_p1_d1_o1"
+    ]
+  },
+  "runner": {
+    "max_cases": 3,
+    "continue_on_error": true
+  }
+}

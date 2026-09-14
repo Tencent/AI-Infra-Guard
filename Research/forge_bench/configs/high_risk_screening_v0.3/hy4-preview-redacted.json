@@ -1,0 +1,19 @@
+{
+  "benchmark_version": "0.3-high-risk-screening",
+  "case_filter": {
+    "case_ids": []
+  },
+  "experiment_id": "forge_v03_screening_hy4_preview_***",
+  "model": "hy4-preview-***",
+  "runner": {
+    "continue_on_error": true,
+    "max_cases": 0,
+    "max_turns_override": 0,
+    "max_workers": 5,
+    "model_call_retries": 2,
+    "retry_backoff_seconds": 3.0,
+    "run_manipulation_checks": false
+  },
+  "samples_per_case": 5,
+  "seed": 20260907
+}

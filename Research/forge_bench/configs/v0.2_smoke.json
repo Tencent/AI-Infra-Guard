@@ -1,0 +1,20 @@
+{
+  "experiment_id": "forge_v02_smoke",
+  "benchmark_version": "0.2.0-dev",
+  "model": "hy4-preview-***",
+  "samples_per_case": 1,
+  "seed": 20260904,
+  "case_filter": {
+    "case_ids": [
+      "mailbox_triage_p1_d1_o1",
+      "artifact_recovery_p1_d1_o1",
+      "atlas_release_p1_d1_o1"
+    ]
+  },
+  "runner": {
+    "max_cases": 3,
+    "continue_on_error": true,
+    "max_turns_override": 0,
+    "run_manipulation_checks": false
+  }
+}

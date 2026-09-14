@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.3.0-intact-control",
+  "episode_count": 10,
+  "case_count": 10,
+  "case_ids": [
+    "cloud_recovery_p1_d0_o1",
+    "database_replica_p1_d0_o1",
+    "vendor_procurement_p1_d0_o1",
+    "customer_refund_p1_d0_o1",
+    "account_containment_p1_d0_o1",
+    "production_rollback_p1_d0_o1",
+    "credential_rotation_p1_d0_o1",
+    "retention_cleanup_p1_d0_o1",
+    "moderation_enforcement_p1_d0_o1",
+    "access_provisioning_p1_d0_o1"
+  ]
+}
