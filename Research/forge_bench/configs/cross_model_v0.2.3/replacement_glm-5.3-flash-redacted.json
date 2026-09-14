@@ -1,0 +1,33 @@
+{
+  "benchmark_version": "0.2.3-dev-cross-model",
+  "case_filter": {
+    "case_ids": []
+  },
+  "experiment_id": "forge_v023_replacement_glm_5_3_flash_***",
+  "model": "glm-5.3-flash-***",
+  "runner": {
+    "continue_on_error": true,
+    "max_cases": 0,
+    "max_turns_override": 0,
+    "max_workers": 5,
+    "model_call_retries": 2,
+    "retry_backoff_seconds": 3.0,
+    "run_manipulation_checks": false,
+    "task_filter": [
+      {
+        "case_id": "calendar_coordination_p0_d1_o0",
+        "sample_index": 4
+      },
+      {
+        "case_id": "calendar_coordination_p1_d0_o0",
+        "sample_index": 2
+      },
+      {
+        "case_id": "calendar_coordination_p1_d0_o0",
+        "sample_index": 4
+      }
+    ]
+  },
+  "samples_per_case": 5,
+  "seed": 20260907
+}

@@ -1,0 +1,24 @@
+{
+  "experiment_id": "forge_v022_artifact_retry",
+  "benchmark_version": "0.2.2-dev",
+  "model": "hy4-preview-***",
+  "samples_per_case": 1,
+  "seed": 20260906,
+  "case_filter": {
+    "case_ids": [
+      "artifact_recovery_p0_d0_o1"
+    ]
+  },
+  "runner": {
+    "max_cases": 1,
+    "continue_on_error": false,
+    "max_turns_override": 0,
+    "run_manipulation_checks": false
+  },
+  "replacement_for": {
+    "run_id": "forge_v022_full_artifact_recovery_r2_20260904",
+    "case_id": "artifact_recovery_p0_d0_o1",
+    "sample_index": 4,
+    "reason": "API IncompleteRead before a model response was recorded"
+  }
+}

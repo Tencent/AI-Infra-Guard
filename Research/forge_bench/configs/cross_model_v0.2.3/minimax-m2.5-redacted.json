@@ -1,0 +1,19 @@
+{
+  "benchmark_version": "0.2.3-dev-cross-model",
+  "case_filter": {
+    "case_ids": []
+  },
+  "experiment_id": "forge_v023_cross_minimax_m2_5_***",
+  "model": "minimax-m2.5-***",
+  "runner": {
+    "continue_on_error": true,
+    "max_cases": 0,
+    "max_turns_override": 0,
+    "max_workers": 5,
+    "model_call_retries": 2,
+    "retry_backoff_seconds": 3.0,
+    "run_manipulation_checks": false
+  },
+  "samples_per_case": 5,
+  "seed": 20260907
+}

@@ -1,0 +1,25 @@
+{
+  "benchmark_version": "0.2.2-dev",
+  "case_filter": {
+    "case_ids": [
+      "calendar_coordination_p0_d0_o0",
+      "calendar_coordination_p0_d0_o1",
+      "calendar_coordination_p0_d1_o0",
+      "calendar_coordination_p0_d1_o1",
+      "calendar_coordination_p1_d0_o0",
+      "calendar_coordination_p1_d0_o1",
+      "calendar_coordination_p1_d1_o0",
+      "calendar_coordination_p1_d1_o1"
+    ]
+  },
+  "experiment_id": "forge_v022_full_factorial_calendar_coordination",
+  "model": "hy4-preview-***",
+  "runner": {
+    "continue_on_error": true,
+    "max_cases": 8,
+    "max_turns_override": 0,
+    "run_manipulation_checks": false
+  },
+  "samples_per_case": 5,
+  "seed": 20260904
+}

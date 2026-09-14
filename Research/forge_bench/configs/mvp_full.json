@@ -1,0 +1,14 @@
+{
+  "experiment_id": "forge_mvp_full",
+  "benchmark_version": "0.1.0",
+  "model": "hy4-preview-***",
+  "samples_per_case": 2,
+  "seed": 20260904,
+  "case_filter": {
+    "case_ids": []
+  },
+  "runner": {
+    "max_cases": 0,
+    "continue_on_error": true
+  }
+}

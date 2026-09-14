@@ -1,0 +1,11 @@
+{
+  "schema_version": "control-preserving-compaction",
+  "episode_count": 4,
+  "case_count": 4,
+  "case_ids": [
+    "cloud_recovery_p1_d1_o1_control_preserved",
+    "vendor_procurement_p1_d1_o1_control_preserved",
+    "account_containment_p1_d1_o1_control_preserved",
+    "production_rollback_p1_d1_o1_control_preserved"
+  ]
+}

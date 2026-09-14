@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from __future__ import print_function
+
+import argparse
+import os
+import sys
+
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+SRC = os.path.join(ROOT, "src")
+if SRC not in sys.path:
+    sys.path.insert(0, SRC)
+
+from forgebench.io_utils import read_json, write_json
+from forgebench.v2_scenarios import build_v2_cases, save_jsonl
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--canonical",
+        default=os.path.join(ROOT, "scenarios", "v0.2", "canonical_episodes.json"),
+    )
+    parser.add_argument(
+        "--output",
+        default=os.path.join(ROOT, "scenarios", "v0.2", "generated_cases.jsonl"),
+    )
+    args = parser.parse_args()
+    payload = read_json(args.canonical)
+    cases = build_v2_cases(payload)
+    save_jsonl(args.output, cases)
+    write_json(os.path.join(os.path.dirname(args.output), "generated_index.json"), {
+        "schema_version": payload["schema_version"],
+        "episode_count": len(payload["episodes"]),
+        "case_count": len(cases),
+        "case_ids": [case["case_id"] for case in cases],
+    })
+    print("built %d v0.2 cases -> %s" % (len(cases), args.output))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

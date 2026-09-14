@@ -1,0 +1,16 @@
+{
+  "experiment_id": "forge_v022_full_factorial",
+  "benchmark_version": "0.2.2-dev",
+  "model": "hy4-preview-***",
+  "samples_per_case": 5,
+  "seed": 20260904,
+  "case_filter": {
+    "case_ids": []
+  },
+  "runner": {
+    "max_cases": 0,
+    "continue_on_error": true,
+    "max_turns_override": 0,
+    "run_manipulation_checks": false
+  }
+}

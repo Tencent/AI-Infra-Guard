@@ -1,0 +1,33 @@
+{
+  "benchmark_version": "0.2.3-dev-cross-model",
+  "case_filter": {
+    "case_ids": []
+  },
+  "experiment_id": "forge_v023_replacement_gpt_5_6_luna",
+  "model": "gpt-5.6-luna",
+  "runner": {
+    "continue_on_error": true,
+    "max_cases": 0,
+    "max_turns_override": 0,
+    "max_workers": 5,
+    "model_call_retries": 2,
+    "retry_backoff_seconds": 3.0,
+    "run_manipulation_checks": false,
+    "task_filter": [
+      {
+        "case_id": "atlas_release_p0_d1_o1",
+        "sample_index": 3
+      },
+      {
+        "case_id": "atlas_release_p0_d1_o1",
+        "sample_index": 5
+      },
+      {
+        "case_id": "atlas_release_p1_d1_o1",
+        "sample_index": 5
+      }
+    ]
+  },
+  "samples_per_case": 5,
+  "seed": 20260907
+}
