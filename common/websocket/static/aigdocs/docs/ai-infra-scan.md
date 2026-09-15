@@ -50,37 +50,37 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | vllm | 72 | 中 |
-| | gradio | 51 | 高 |
+| **模型部署与服务** | vllm | 76 | 中 |
+| | gradio | 53 | 高 |
 | | triton-inference-server | 41 | 中高 |
-| | ollama | 32 | 中高 |
+| | ollama | 34 | 中高 |
 | | tensorrt-llm | 12 | 中高 |
-| | fastchat | 9 | 中 |
-| | llama-cpp | 9 | 中高 |
-| | Xinference | 3 | 低 |
+| | fastchat | 10 | 中 |
+| | llama-cpp | 17 | 中高 |
+| | Xinference | 5 | 低 |
 | | ChatRTX | 1 | 低 |
 | | huggingface-tgi | 1 | 中高 |
 | | kubeai | 1 | 高 |
 | | llmstudio | 1 | 低 |
 | | localai | 1 | 中 |
 | | tensorzero | 1 | 低 |
-| **LLM应用框架** | openwebui | 87 | 中高 |
-| | langflow | 111 | 中 |
-| | mlflow | 79 | 高 |
+| **LLM应用框架** | openwebui | 90 | 中高 |
+| | langflow | 137 | 中 |
+| | mlflow | 83 | 高 |
 | | flowise | 97 | 中 |
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
-| | Dify | 32 | 高 |
-| | LiteLLM | 31 | 中 |
+| | Dify | 34 | 高 |
+| | LiteLLM | 34 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
 | | anythingllm | 19 | 中高 |
-| | ragflow | 12 | 中 |
-| | nextchat | 8 | 中 |
-| | qanything | 8 | 中 |
-| | fastgpt | 6 | 中 |
-| | new-api | 5 | 中 |
-| | LobeChat | 4 | 中 |
+| | ragflow | 13 | 中 |
+| | nextchat | 9 | 中 |
+| | qanything | 9 | 中 |
+| | fastgpt | 8 | 中 |
+| | new-api | 11 | 中 |
+| | LobeChat | 5 | 中 |
 | | crewai | 4 | 严重 |
 | | langfuse | 4 | 低 |
 | | chuanhuchatgpt | 1 | 中 |
@@ -92,42 +92,42 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | **可视化与交互** | jupyter-server | 19 | 中高 |
 | | jupyterlab | 12 | 中 |
 | | jupyter-notebook | 2 | 低 |
-| | marimo | 2 | 中 |
-| **工作流编排** | n8n | 60 | 中高 |
+| | marimo | 3 | 中 |
+| **工作流编排** | n8n | 84 | 中高 |
 | | ray | 12 | 中 |
 | | simstudioai | 9 | 中 |
-| | kubeflow | 8 | 中 |
+| | kubeflow | 9 | 中 |
 | | n8n-mcp | 4 | 中高 |
 | | 9router | 3 | 高 |
 | **其他AI组件** | openclaw | 657 | 中高 |
-| | praisonai | 112 | 严重 |
+| | praisonai | 130 | 严重 |
 | | pyload-ng | 24 | 中 |
 | | astrbot | 14 | 中 |
 | | comfyui | 13 | 中 |
 | | crawl4ai | 11 | 严重 |
 | | sglang | 15 | 中 |
-| | bentoml | 6 | 中 |
+| | bentoml | 7 | 中 |
 | | pinchtab | 6 | 中高 |
 | | kubepi | 5 | 中 |
 | | sillytavern | 5 | 中 |
-| | dynamo | 5 | 高 |
+| | dynamo | 7 | 高 |
 | | autogpt | 5 | 中 |
 | | flyto2 | 4 | 中 |
 | | llamafactory | 4 | 低 |
-| | lmdeploy | 4 | 低 |
-| | lollms | 4 | 中 |
+| | lmdeploy | 5 | 低 |
+| | lollms | 5 | 中 |
 | | pipecat | 3 | 低 |
 | | agenticmail | 2 | 中 |
 | | boxlite | 2 | 中 |
-| | hermes | 2 | 严重 |
+| | hermes | 6 | 严重 |
 | | instructlab | 2 | 低 |
-| | jan | 2 | 低 |
+| | jan | 3 | 低 |
 | | junoclaw | 2 | 中 |
 | | langroid | 2 | 严重 |
 | | maxkb | 3 | 中 |
 | | mcp | 2 | 中 |
 | | mcp sse | 2 | 中 |
-| | paperclip | 2 | 中 |
+| | paperclip | 3 | 中 |
 | | weknora | 2 | 低 |
 | | Clawdbot Gateway | 1 | 中 |
 | | ComfyUI-Ace-Nodes | 1 | 低 |
@@ -141,7 +141,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | ai-code | 1 | 严重 |
 | | ai-copilot | 1 | 中 |
 | | ai-engine-wordpress | 1 | 中 |
-| | blinko | 1 | 低 |
+| | blinko | 3 | 低 |
 | | comfy_mtb | 1 | 低 |
 | | f5-tts | 1 | 中 |
 | | gpt-sovits | 1 | 中 |
@@ -154,7 +154,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | mcp-server-kubernetes | 1 | 中 |
 | | mem0 | 1 | 低 |
 | | netlicensing-mcp | 1 | 中 |
-| | network-ai | 1 | 中 |
+| | network-ai | 2 | 中 |
 | | nvidia-trt-llm | 1 | 高 |
 | | qnabot-on-aws | 1 | 低 |
 | | suna | 1 | 中 |
@@ -163,7 +163,22 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | upsonic | 1 | 中 |
 | | nocobase | 1 | 严重 |
 | | sub2api | 1 | 高 |
-| | trigger.dev | 1 | 严重 |
+| | trigger.dev | 5 | 严重 |
+| | omnigent | 4 | 中 |
+| | onyx | 3 | 中 |
+| | quivr | 2 | 中 |
+| | axolotl | 1 | 中 |
+| | bifrost | 1 | 中 |
+| | chroma | 1 | 中 |
+| | context7 | 1 | 中 |
+| | eclipse-theia | 1 | 中 |
+| | h2ogpt | 1 | 中 |
+| | mcphub | 1 | 中 |
+| | memos | 1 | 中 |
+| | meta-ads-mcp | 1 | 中 |
+| | ms-swift | 1 | 中 |
+| | omniroute | 1 | 中 |
+| | qwed | 1 | 中 |
 | **AI Agent 配置安全** | AI-Agent-Config | 4 | 高 |
 | **总计** | | **2000+** | |
 

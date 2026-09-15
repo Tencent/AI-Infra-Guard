@@ -56,37 +56,37 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving** | vllm | 72 | Medium |
-| | gradio | 51 | High |
+| **Model Serving** | vllm | 76 | Medium |
+| | gradio | 53 | High |
 | | triton-inference-server | 41 | Medium-High |
-| | ollama | 32 | Medium-High |
+| | ollama | 34 | Medium-High |
 | | tensorrt-llm | 12 | Medium-High |
-| | fastchat | 9 | Medium |
-| | llama-cpp | 9 | Medium-High |
-| | Xinference | 3 | Low |
+| | fastchat | 10 | Medium |
+| | llama-cpp | 17 | Medium-High |
+| | Xinference | 5 | Low |
 | | ChatRTX | 1 | Low |
 | | huggingface-tgi | 1 | Medium-High |
 | | kubeai | 1 | High |
 | | llmstudio | 1 | Low |
 | | localai | 1 | Medium |
 | | tensorzero | 1 | Low |
-| **LLM App Frameworks** | openwebui | 87 | Medium-High |
-| | langflow | 111 | Medium |
-| | mlflow | 79 | High |
+| **LLM App Frameworks** | openwebui | 90 | Medium-High |
+| | langflow | 137 | Medium |
+| | mlflow | 83 | High |
 | | flowise | 97 | Medium |
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
-| | Dify | 32 | High |
-| | LiteLLM | 31 | Medium |
+| | Dify | 34 | High |
+| | LiteLLM | 34 | Medium |
 | | Chuanhugpt | 27 | Medium-High |
 | | librechat | 21 | Medium |
 | | anythingllm | 19 | Medium-High |
-| | ragflow | 12 | Medium |
-| | nextchat | 8 | Medium |
-| | qanything | 8 | Medium |
-| | fastgpt | 6 | Medium |
-| | new-api | 5 | Medium |
-| | LobeChat | 4 | Medium |
+| | ragflow | 13 | Medium |
+| | nextchat | 9 | Medium |
+| | qanything | 9 | Medium |
+| | fastgpt | 8 | Medium |
+| | new-api | 11 | Medium |
+| | LobeChat | 5 | Medium |
 | | crewai | 4 | Critical |
 | | langfuse | 4 | Low |
 | | chuanhuchatgpt | 1 | Medium |
@@ -98,42 +98,42 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | **Visualization & UI** | jupyter-server | 19 | Medium-High |
 | | jupyterlab | 12 | Medium |
 | | jupyter-notebook | 2 | Low |
-| | marimo | 2 | Medium |
-| **Workflow Orchestration** | n8n | 60 | Medium-High |
+| | marimo | 3 | Medium |
+| **Workflow Orchestration** | n8n | 84 | Medium-High |
 | | ray | 12 | Medium |
 | | simstudioai | 9 | Medium |
-| | kubeflow | 8 | Medium |
+| | kubeflow | 9 | Medium |
 | | n8n-mcp | 4 | Medium-High |
 | | 9router | 3 | High |
 | **Other AI Components** | openclaw | 657 | Medium-High |
-| | praisonai | 112 | Critical |
+| | praisonai | 130 | Critical |
 | | pyload-ng | 24 | Medium |
 | | astrbot | 14 | Medium |
 | | comfyui | 13 | Medium |
 | | crawl4ai | 11 | Critical |
 | | sglang | 15 | Medium |
-| | bentoml | 6 | Medium |
+| | bentoml | 7 | Medium |
 | | pinchtab | 6 | Medium-High |
 | | kubepi | 5 | Medium |
 | | sillytavern | 5 | Medium |
-| | dynamo | 5 | High |
+| | dynamo | 7 | High |
 | | autogpt | 5 | Medium |
 | | flyto2 | 4 | Medium |
 | | llamafactory | 4 | Low |
-| | lmdeploy | 4 | Low |
-| | lollms | 4 | Medium |
+| | lmdeploy | 5 | Low |
+| | lollms | 5 | Medium |
 | | pipecat | 3 | Low |
 | | agenticmail | 2 | Medium |
 | | boxlite | 2 | Medium |
-| | hermes | 2 | Critical |
+| | hermes | 6 | Critical |
 | | instructlab | 2 | Low |
-| | jan | 2 | Low |
+| | jan | 3 | Low |
 | | junoclaw | 2 | Medium |
 | | langroid | 2 | Critical |
 | | maxkb | 3 | Medium |
 | | mcp | 2 | Medium |
 | | mcp sse | 2 | Medium |
-| | paperclip | 2 | Medium |
+| | paperclip | 3 | Medium |
 | | weknora | 2 | Low |
 | | Clawdbot Gateway | 1 | Medium |
 | | ComfyUI-Ace-Nodes | 1 | Low |
@@ -147,7 +147,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | ai-code | 1 | Critical |
 | | ai-copilot | 1 | Medium |
 | | ai-engine-wordpress | 1 | Medium |
-| | blinko | 1 | Low |
+| | blinko | 3 | Low |
 | | comfy_mtb | 1 | Low |
 | | f5-tts | 1 | Medium |
 | | gpt-sovits | 1 | Medium |
@@ -160,7 +160,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | mcp-server-kubernetes | 1 | Medium |
 | | mem0 | 1 | Low |
 | | netlicensing-mcp | 1 | Medium |
-| | network-ai | 1 | Medium |
+| | network-ai | 2 | Medium |
 | | nvidia-trt-llm | 1 | High |
 | | qnabot-on-aws | 1 | Low |
 | | suna | 1 | Medium |
@@ -169,7 +169,22 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | upsonic | 1 | Medium |
 | | nocobase | 1 | Critical |
 | | sub2api | 1 | High |
-| | trigger.dev | 1 | Critical |
+| | trigger.dev | 5 | Critical |
+| | omnigent | 4 | Medium |
+| | onyx | 3 | Medium |
+| | quivr | 2 | Medium |
+| | axolotl | 1 | Medium |
+| | bifrost | 1 | Medium |
+| | chroma | 1 | Medium |
+| | context7 | 1 | Medium |
+| | eclipse-theia | 1 | Medium |
+| | h2ogpt | 1 | Medium |
+| | mcphub | 1 | Medium |
+| | memos | 1 | Medium |
+| | meta-ads-mcp | 1 | Medium |
+| | ms-swift | 1 | Medium |
+| | omniroute | 1 | Medium |
+| | qwed | 1 | Medium |
 | **AI Agent Config Security** | AI-Agent-Config | 4 | High |
 | **Total** | | **2000+** | |
 
