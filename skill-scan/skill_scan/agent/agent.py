@@ -522,6 +522,9 @@ class Agent:
             ),
             repo_dir,
             prompt,
+            # Safety net: if dir_tree/ls tool calls fail (issue #629), the
+            # discovery stage still has a real file tree to summarize.
+            inject_repo_tree=True,
         )
 
         # Stage 2: Code Audit -- reuses the SkillTrustBench T01-T09 core
