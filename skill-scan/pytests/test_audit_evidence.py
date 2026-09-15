@@ -124,6 +124,9 @@ def test_empty_marker_variants_are_valid_review_output(content):
         ("<empty />", "normal"),
         ("<vuln>legacy</vuln>", "suspicious"),
         ("<verdict>high</verdict>", None),
+        ('{"verdict": "normal"}', "normal"),
+        ('```json\n{"project_verdict": "malicious"}\n```', "malicious"),
+        ('Review complete.\n```json\n{"verdict": "suspicious"}\n```', "suspicious"),
     ],
 )
 def test_extract_project_verdict(content, expected):
@@ -157,9 +160,66 @@ def test_explicit_verdict_output_validation(content):
     assert is_verdict_output(content)
 
 
-@pytest.mark.parametrize("content", ["<empty>", "normal", "<verdict>high</verdict>"])
+@pytest.mark.parametrize(
+    "content", ["<empty>", "normal", "<verdict>high</verdict>", '{"verdict":"high"}']
+)
 def test_invalid_verdict_output_is_rejected(content):
     assert not is_verdict_output(content)
+
+
+def test_valid_direct_output_completes_without_finish_tool():
+    agent = object.__new__(BaseAgent)
+    agent.output_check_fn = lambda text: text == "<empty>"
+    agent.is_finished = False
+    agent.step_id = "1"
+    agent.language = "en"
+
+    result = asyncio.run(agent.handle_response("<empty>"))
+
+    assert result == "<empty>"
+    assert agent.is_finished
+
+
+def test_finish_uses_valid_content_without_reformatting():
+    agent = object.__new__(BaseAgent)
+    agent.output_check_fn = lambda text: text == "<verdict>normal</verdict>"
+    agent.is_finished = False
+    agent.step_id = "2"
+    agent.language = "en"
+    agent.history = [{"role": "assistant", "content": "finish"}]
+    agent.repo_dir = "/repo"
+    agent._format_final_output = AsyncMock(return_value="unexpected")
+
+    result = asyncio.run(
+        agent.process_tool_call(
+            {"toolName": "finish", "args": {"content": "<verdict>normal</verdict>"}},
+            "done",
+        )
+    )
+
+    assert result == "<verdict>normal</verdict>"
+    assert agent.is_finished
+    agent._format_final_output.assert_not_awaited()
+
+
+def test_three_stalled_responses_trigger_final_formatting():
+    agent = object.__new__(BaseAgent)
+    agent.output_check_fn = lambda text: text == "<empty>"
+    agent.is_finished = False
+    agent.stalled_rounds = 0
+    agent.seen_tool_calls = set()
+    agent.step_id = "1"
+    agent.language = "en"
+    agent.name = "Verdict Review"
+    agent.iter = 0
+    agent.history = []
+    agent._format_final_output = AsyncMock(return_value="<empty>")
+
+    assert asyncio.run(agent.handle_response("still reviewing")) is None
+    assert asyncio.run(agent.handle_response("still reviewing")) is None
+    assert asyncio.run(agent.handle_response("still reviewing")) == "<empty>"
+    assert agent.is_finished
+    agent._format_final_output.assert_awaited_once()
 
 
 def test_single_stage_adjudicates_suspicious_and_clears_rejected_findings(tmp_path):

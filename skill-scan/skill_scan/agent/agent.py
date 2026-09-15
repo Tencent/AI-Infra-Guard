@@ -24,7 +24,12 @@ from typing import Any
 from skill_scan.agent.base_agent import BaseAgent
 from skill_scan.tools.dispatcher import ToolDispatcher
 from skill_scan.utils.aig_logger import mcpLogger
-from skill_scan.utils.extract_vuln import VulnerabilityExtractor, extract_result, extract_verdict
+from skill_scan.utils.extract_vuln import (
+    VulnerabilityExtractor,
+    extract_explicit_verdict,
+    extract_result,
+    extract_verdict,
+)
 from skill_scan.utils.loging import logger
 from skill_scan.utils.pre_scan import pre_scan
 from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score, get_top_language
@@ -257,14 +262,8 @@ def is_vuln_review_output(content: str) -> bool:
 
 
 def is_verdict_output(content: str) -> bool:
-    """Check for one supported project-level verdict tag."""
-    return bool(
-        re.search(
-            r"<verdict>\s*(normal|suspicious|malicious)\s*</verdict>",
-            content,
-            re.IGNORECASE,
-        )
-    )
+    """Check for a supported explicit XML or JSON project verdict."""
+    return extract_explicit_verdict(content) is not None
 
 
 def _strip_internal_verdict(content: str) -> str:

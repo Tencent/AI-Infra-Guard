@@ -66,6 +66,8 @@ class BaseAgent:
         self.iter = 0
         self.max_iter = 80
         self.is_finished = False
+        self.stalled_rounds = 0
+        self.seen_tool_calls: set[str] = set()
         # context
         self.history = []
         self.original_task = ""
@@ -181,6 +183,55 @@ class BaseAgent:
     async def handle_response(self, response: str):
         tool_invocations = parse_tool_invocations_all(response)
         description = clean_content(response)
+        # Some OpenAI-compatible models return the requested final payload
+        # directly instead of wrapping it in a ``finish`` tool call. Accept a
+        # payload that passes the stage validator so an already-complete scan
+        # does not continue looping until max_iter.
+        if (
+            not tool_invocations
+            and description
+            and self.output_check_fn
+            and self.output_check_fn(description)
+        ):
+            self.is_finished = True
+            logger.info("Accepted valid direct final output without finish tool call.")
+            mcpLogger.status_update(self.step_id, description, "", "completed")
+            return description
+
+        if tool_invocations:
+            seen_tool_calls = getattr(self, "seen_tool_calls", set())
+            signatures = {
+                json.dumps(call, ensure_ascii=False, sort_keys=True, default=str)
+                for call in tool_invocations
+                if call["toolName"] != "finish"
+            }
+            if signatures and signatures.issubset(seen_tool_calls):
+                self.stalled_rounds = getattr(self, "stalled_rounds", 0) + 1
+            else:
+                self.stalled_rounds = 0
+                seen_tool_calls.update(signatures)
+            self.seen_tool_calls = seen_tool_calls
+        else:
+            self.stalled_rounds = getattr(self, "stalled_rounds", 0) + 1
+
+        # Repeated reads and prose-only responses are a common compatibility
+        # failure mode for tool-calling models. Once three consecutive rounds
+        # add no new evidence, ask the formatter to finish from the accumulated
+        # history instead of spending the remaining iteration budget looping.
+        has_audit_evidence = bool(getattr(self, "seen_tool_calls", set()))
+        is_verdict_stage = "verdict" in self.name.lower() or "结论复核" in self.name
+        if (
+            self.stalled_rounds >= 3
+            and self.output_check_fn
+            and (has_audit_evidence or is_verdict_stage or self.iter >= 12)
+        ):
+            logger.info("No new audit evidence for 3 rounds; attempting final formatting.")
+            final_output = await self._format_final_output()
+            if self.output_check_fn(final_output):
+                self.is_finished = True
+                mcpLogger.status_update(self.step_id, final_output, "", "completed")
+                return final_output
+            self.stalled_rounds = 0
         if (
             len(tool_invocations) == 1
             and tool_invocations[0]["toolName"] == "finish"
@@ -221,11 +272,18 @@ class BaseAgent:
 
             mcpLogger.status_update(self.step_id, description, "", "completed")
 
-            # If the last assistant response already passes the output check,
-            # return its cleaned content directly — skip the redundant
-            # _format_final_output() LLM round-trip(s).
+            # Some models place the complete requested payload in the finish
+            # argument. Prefer it when valid instead of discarding it and
+            # asking for the same report up to three more times.
+            provided_content = tool_args.get("content") if tool_args else None
             last_msg = self.history[-1]["content"] if self.history else ""
-            if last_msg and self.output_check_fn and self.output_check_fn(clean_content(last_msg)):
+            if (
+                isinstance(provided_content, str)
+                and self.output_check_fn
+                and self.output_check_fn(provided_content)
+            ):
+                result = provided_content.strip()
+            elif last_msg and self.output_check_fn and self.output_check_fn(clean_content(last_msg)):
                 result = clean_content(last_msg)
             else:
                 result = await self._format_final_output()

@@ -26,10 +26,38 @@ implementation.
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
 VALID_VERDICTS = frozenset({"normal", "suspicious", "malicious"})
+
+
+def extract_explicit_verdict(text: str) -> str | None:
+    """Extract an explicit XML or whole-response JSON project verdict."""
+    match = re.search(r"<verdict>\s*([^<]+?)\s*</verdict>", text, re.IGNORECASE)
+    if match:
+        verdict = match.group(1).strip().lower()
+        return verdict if verdict in VALID_VERDICTS else None
+
+    candidates = [text.strip()]
+    candidates.extend(
+        re.findall(r"```(?:json)?\s*(.*?)```", text, re.DOTALL | re.IGNORECASE)
+    )
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate.strip())
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        verdict = payload.get("verdict", payload.get("project_verdict"))
+        if not isinstance(verdict, str):
+            continue
+        verdict = verdict.strip().lower()
+        if verdict in VALID_VERDICTS:
+            return verdict
+    return None
 
 
 def extract_verdict(
@@ -41,10 +69,9 @@ def extract_verdict(
     and a response with findings is suspicious. A High severity issue alone
     is not evidence that the Skill itself is malicious.
     """
-    match = re.search(r"<verdict>\s*([^<]+?)\s*</verdict>", text, re.IGNORECASE)
-    if match:
-        verdict = match.group(1).strip().lower()
-        return verdict if verdict in VALID_VERDICTS else None
+    verdict = extract_explicit_verdict(text)
+    if verdict:
+        return verdict
     if re.search(r"<empty\s*/?>", text, re.IGNORECASE):
         return "normal"
     if vulnerabilities:
