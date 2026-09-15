@@ -8,7 +8,7 @@ import json
 import re
 from typing import List, Optional, Any
 
-from openai import AsyncOpenAI
+from mcp_scan.utils.llm import LiteLLMAsyncClient
 
 from mcp_scan.redteam.strategy import ConversationTurn, CrescendoPhase
 
@@ -40,7 +40,7 @@ class AttackerAgent:
 
     def __init__(
         self,
-        client: AsyncOpenAI,
+        client: LiteLLMAsyncClient,
         model: str,
     ):
         self.client = client

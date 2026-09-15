@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 from typing import List, Optional, Any, Literal
 
-from openai import AsyncOpenAI
+from mcp_scan.utils.llm import LiteLLMAsyncClient
 
 from mcp_scan.redteam.attacker import AttackerAgent
 from mcp_scan.redteam.evaluator import EvaluatorAgent
@@ -51,21 +51,21 @@ class RedTeamOrchestrator:
         self.api_key = api_key or _get_api_key()
         if not self.api_key:
             raise ValueError(
-                "Missing API key for AsyncOpenAI client. Please provide 'api_key' explicitly "
+                "Missing API key for the LiteLLM client. Please provide 'api_key' explicitly "
                 "or set the 'OPENROUTER_API_KEY' or 'API_KEY' environment variable."
             )
         self.base_url = base_url or DEFAULT_BASE_URL
         self.model = model or DEFAULT_MODEL
         self.repo_dir = repo_dir or ""
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: Optional[LiteLLMAsyncClient] = None
         self._attacker: Optional[AttackerAgent] = None
         self._evaluator: Optional[EvaluatorAgent] = None
         self._target: Optional[TargetRunner] = None
 
     @property
-    def client(self) -> AsyncOpenAI:
+    def client(self) -> LiteLLMAsyncClient:
         if self._client is None:
-            self._client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url, timeout=90)
+            self._client = LiteLLMAsyncClient(api_key=self.api_key, base_url=self.base_url, timeout=90)
         return self._client
 
     @property
