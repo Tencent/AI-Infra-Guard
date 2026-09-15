@@ -88,6 +88,11 @@ from deepteam.metrics import (
     IllegalMetric,
 )
 from deepteam.red_teamer.utils import group_attacks_by_vulnerability_type
+from deepteam.red_teamer.progress_log import (
+    DEFAULT_FLUSH_EVERY,
+    DEFAULT_PROGRESS_LOG_PATH,
+    ProgressLog,
+)
 from deepteam.red_teamer.risk_assessment import (
     construct_risk_assessment_overview,
     RedTeamingTestCase,
@@ -110,17 +115,28 @@ class RedTeamer:
         evaluation_model: Optional[Union[str, DeepEvalBaseLLM]] = "gpt-4o",
         target_purpose: Optional[str] = "",
         async_mode: bool = True,
+        progress_log_path: Optional[str] = DEFAULT_PROGRESS_LOG_PATH,
+        progress_flush_every: int = DEFAULT_FLUSH_EVERY,
     ):
         self.target_purpose = target_purpose
         self.simulator_model, _ = initialize_model(simulator_model)
         self.evaluation_model, _ = initialize_model(evaluation_model)
         self.async_mode = async_mode
+        self.progress_log_path = progress_log_path
+        self.progress_flush_every = progress_flush_every
         self._translation_cache: Dict[str, str] = {}
         self.synthetic_goldens: List[Golden] = []
         self.custom_metric = None  # 添加自定义metric属性
         self.attack_simulator = AttackSimulator(
             simulator_model=self.simulator_model,
             purpose=self.target_purpose,
+        )
+
+    def _new_progress_log(self) -> ProgressLog:
+        """创建进度落盘器；路径为空时返回空对象（相当于关闭）。"""
+        return ProgressLog(
+            path=self.progress_log_path,
+            flush_every=self.progress_flush_every,
         )
 
     def _get_translation_system_message(self) -> str:
@@ -280,6 +296,7 @@ Direct translation without separators"""
                     group_attacks_by_vulnerability_type(simulated_attacks)
                 )
                 red_teaming_test_cases: List[RedTeamingTestCase] = []
+                progress_log = self._new_progress_log()
                 total_vulnerability_types = sum(
                     len(v.get_types()) for v in vulnerabilities
                 )
@@ -320,11 +337,13 @@ Direct translation without separators"""
                             red_teaming_test_case.error = simulated_attack.error
                             red_teaming_test_case.reason = logger.translated_msg("The attack simulation phase failed, possibly due to rate limiting or security blocking by the generalization model.")
                             red_teaming_test_cases.append(red_teaming_test_case)
+                            progress_log.record(red_teaming_test_case)
                             continue
                         elif simulated_attack.useless and simulated_attack.attack_method != "RedTeam":
                             red_teaming_test_case.useless = simulated_attack.useless
                             red_teaming_test_case.reason = logger.translated_msg("The simulation attack remained unchanged, which may be because it was not applicable to the current input.")
                             red_teaming_test_cases.append(red_teaming_test_case)
+                            progress_log.record(red_teaming_test_case)
                             continue
 
                         logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
@@ -348,6 +367,7 @@ Direct translation without separators"""
                                 red_teaming_test_cases.append(
                                     red_teaming_test_case
                                 )
+                                progress_log.record(red_teaming_test_case)
                                 continue
                             else:
                                 raise
@@ -374,6 +394,7 @@ Direct translation without separators"""
                                 red_teaming_test_cases.append(
                                     red_teaming_test_case
                                 )
+                                progress_log.record(red_teaming_test_case)
                                 continue
                             else:
                                 raise
@@ -383,6 +404,7 @@ Direct translation without separators"""
                             logger.action_log(actionLog(tool_id=tool_id, tool_name="Case measure", stepId="2", log=case_md))
                         pbar.update(1)
                         red_teaming_test_cases.append(red_teaming_test_case)
+                        progress_log.record(red_teaming_test_case)
 
                     logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Metric measure", brief=logger.translated_msg(
                         "Measure {num_simulated_attacks} simulated attacks done", num_simulated_attacks=num_simulated_attacks
@@ -392,6 +414,7 @@ Direct translation without separators"""
                     "Measure model: {model_name}", model_name=model_name
                 ), status="completed"))
                 pbar.close()
+                progress_log.close()
 
                 self.risk_assessment = RiskAssessment(
                     overview=construct_risk_assessment_overview(
@@ -474,6 +497,7 @@ Direct translation without separators"""
                 desc=f"📝 Evaluating {num_vulnerability_types} vulnerability types across {len(vulnerabilities)} vulnerability(s)",
             )
             red_teaming_test_cases: List[RedTeamingTestCase] = []
+            progress_log = self._new_progress_log()
             logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
                 "Measure model: {model_name}", model_name=model_name
             ), status="running"))
@@ -487,6 +511,7 @@ Direct translation without separators"""
                     attacks,
                     metrics_map,
                     ignore_errors=ignore_errors,
+                    progress_log=progress_log,
                 )
                 red_teaming_test_cases.extend(test_cases)
                 pbar.update(len(attacks))
@@ -501,6 +526,7 @@ Direct translation without separators"""
                 "Measure model: {model_name}", model_name=model_name
             ), status="completed"))
             pbar.close()
+            progress_log.close()
 
             self.risk_assessment = RiskAssessment(
                 overview=construct_risk_assessment_overview(
@@ -591,6 +617,7 @@ Direct translation without separators"""
         simulated_attacks: List[SimulatedAttack],
         metrics_map,
         ignore_errors: bool,
+        progress_log: ProgressLog,
     ) -> List[RedTeamingTestCase]:
 
         tasks = [
@@ -614,6 +641,7 @@ Direct translation without separators"""
             ), status="doing"))
             result = await coro
             red_teaming_test_cases.append(result)
+            progress_log.record(result)
 
         return red_teaming_test_cases
 
