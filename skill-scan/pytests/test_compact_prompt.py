@@ -8,4 +8,5 @@ def test_compact_template_requires_security_findings_section():
 
     assert "<security_findings>" in template
     assert "安全发现" in template
-    assert "不可丢弃" in template or "最高优先级" in template
+    assert "最高优先级" in template
+    assert "不可丢弃" in template
