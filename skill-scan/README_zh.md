@@ -6,7 +6,7 @@
 
 `aig-skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计，由 LLM 驱动。
 
-- **默认（单阶段）模式**：仅执行 **Code Audit**，直接产出漏洞结果，速度更快，适合独立 CLI 使用。
+- **默认模式**：先执行 **Code Audit**，仅当首轮结论为 `suspicious` 时追加一次聚焦的 **Verdict Review**；明确的 `normal` 和 `malicious` 结论仍走快速路径。
 - **`--aig-mode`（三阶段）模式**：**Info Collection → Code Audit → Vulnerability Review** 完整流水线，用于 AI-Infra-Guard 平台前端的分步展示，无需手动开启。
 
 漏洞分类对齐 [SkillTrustBench](https://github.com/Tencent/AI-Infra-Guard) T01–T09 分类法，判定标准：`malicious`（明确攻击意图）/ `suspicious`（有漏洞但无明确攻击意图）/ `normal`（良性）。
@@ -116,7 +116,7 @@ async def run():
               base_url="https://openrouter.ai/api/v1",
               context_window=128_000)
 
-    # 单阶段（默认），aig_mode=False
+    # 默认流水线：仅对 suspicious 结论追加复核，aig_mode=False
     agent = Agent(llm=llm, debug=False, language="zh", aig_mode=False)
     result = await agent.scan("/path/to/your/skill", "", "zh")
 
@@ -152,7 +152,7 @@ asyncio.run(run())
 
 ```
 skill_scan/
-├── agent/              # Agent 扫描流水线（默认单阶段，--aig-mode 时三阶段）
+├── agent/              # Agent 扫描流水线（默认按需复核 suspicious，--aig-mode 时三阶段）
 │   ├── agent.py        # Agent 主类，扫描入口 + 阶段调度
 │   └── base_agent.py   # LLM 循环 + 工具调用基类
 ├── tools/              # XML-schema 工具注册表
