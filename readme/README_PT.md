@@ -479,6 +479,7 @@ Agradecemos aos usuários das seguintes empresas e equipes por utilizarem o A.I.
 <img src="../img/abc.png" alt="Abc" height="40px">
 <img src="../img/JkOvmDOXpr.png" alt="招商银行" height="40px">
 <img src="../img/中国电信.png" alt="中国电信" height="40px">
+<img src="../img/catl.svg" alt="CATL" height="25px">
 <img src="../img/bilibili.jpg" alt="Bilibili" height="38px">
 <img src="../img/qunar.png" alt="Qunar" height="35px">
 <img src="../img/蜜雪冰城.png" alt="蜜雪冰城" height="40px">
