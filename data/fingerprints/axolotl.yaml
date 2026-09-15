@@ -1,0 +1,18 @@
+info:
+  name: axolotl
+  author: A.I.G bot
+  severity: info
+  desc: Axolotl is a free and open-source LLM fine-tuning framework that streamlines post-training and fine-tuning for large language models. It provides a Gradio-based web interface for inference and a vLLM serving mode for online RL.
+  metadata:
+    product: axolotl
+    vendor: axolotl-ai-cloud
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Axolotl Gradio Interface"
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Axolotl Diffusion Interface"
+version: []

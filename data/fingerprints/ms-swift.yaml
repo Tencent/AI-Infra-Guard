@@ -1,0 +1,20 @@
+info:
+  name: ms-swift
+  author: A.I.G bot
+  severity: info
+  desc: ms-swift is a large model and multimodal large model fine-tuning and deployment framework by ModelScope. The swift deploy command starts an OpenAI-compatible API server backed by vLLM/SGLang/LMDeploy.
+  metadata:
+    product: ms-swift
+    vendor: modelscope
+http:
+  - method: GET
+    path: '/v1/models'
+    matchers:
+      - body="\"owned_by\":\"swift\""
+  - method: GET
+    path: '/docs'
+    matchers:
+      - body="openapi" && body="swift"
+# Note: No version extractor — ms-swift deploy server does not expose a version endpoint.
+# The /v1/models endpoint returns model names, not server version. Version is only
+# available via the Python package __version__ attribute, not via HTTP.
