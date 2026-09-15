@@ -120,19 +120,10 @@ func (tm *TaskManager) AddTask(req *TaskCreateRequest, traceID string) error {
 	log.Infof("任务预存成功: trace_id=%s, sessionId=%s", traceID, req.SessionID)
 
 	// 3. 等待SSE连接建立
-	timeout := 100 * time.Second
-	start := time.Now()
-	for time.Since(start) < timeout {
-		if tm.sseManager.HasConnection(req.SessionID) {
-			break // 连接已建立
-		}
-		time.Sleep(500 * time.Millisecond) // 每50ms检查一次
-	}
-
-	if !tm.sseManager.HasConnection(req.SessionID) {
+	if !tm.waitForSSEConnection(req.SessionID, traceID, 100*time.Second) {
 		// SSE连接超时，清理预存的任务
 		tm.cleanupFailedTask(req.SessionID, traceID)
-		log.Errorf("SSE连接建立超时: trace_id=%s, sessionId=%s, username=%s, timeout=%v", traceID, req.SessionID, req.Username, timeout)
+		log.Errorf("SSE连接建立超时: trace_id=%s, sessionId=%s, username=%s, timeout=%v", traceID, req.SessionID, req.Username, 100*time.Second)
 		return fmt.Errorf("SSE连接建立超时，请重试，sessionId: %s", req.SessionID)
 	}
 
@@ -242,6 +233,32 @@ func (tm *TaskManager) cleanupFailedTask(sessionId string, traceID string) {
 		log.Errorf("清理数据库中的失败任务失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
 	} else {
 		log.Infof("失败任务清理完成: trace_id=%s, sessionId=%s", traceID, sessionId)
+	}
+}
+
+// waitForSSEConnection 轮询等待指定任务的SSE连接建立，超时返回 false
+func (tm *TaskManager) waitForSSEConnection(sessionId string, traceID string, timeout time.Duration) bool {
+	start := time.Now()
+	for time.Since(start) < timeout {
+		if tm.sseManager.HasConnection(sessionId) {
+			return true
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	return tm.sseManager.HasConnection(sessionId)
+}
+
+// rollbackResumeTask 回滚续跑失败的任务：仅清理内存任务并将状态回滚为 error，
+// 保留数据库中的原任务记录（含失败前的阶段结果），供用户查看详情与再次续跑
+func (tm *TaskManager) rollbackResumeTask(sessionId string, traceID string) {
+	tm.mu.Lock()
+	delete(tm.tasks, sessionId)
+	tm.mu.Unlock()
+
+	if err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusError); err != nil {
+		log.Errorf("回滚任务状态失败: trace_id=%s, sessionId=%s, error=%v", traceID, sessionId, err)
+	} else {
+		log.Infof("续跑任务已回滚为 error 状态: trace_id=%s, sessionId=%s", traceID, sessionId)
 	}
 }
 

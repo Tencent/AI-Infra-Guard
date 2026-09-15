@@ -13,6 +13,7 @@ uploads
 __pycache__
 venv
 tests
+node_modules
 
 # OpenClaw internal workspace file
 openclaw.md
@@ -20,6 +21,7 @@ openclaw.md
 yamlcheck
 .workbuddy
 .pytest_cache
+.pi-subagents
 services/api_checker/.venv/
 services/api_checker/log/
 services/api_checker/result/
