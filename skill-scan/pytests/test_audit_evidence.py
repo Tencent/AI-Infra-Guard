@@ -12,7 +12,7 @@ from skill_scan.agent.agent import (
     is_vuln_review_output,
 )
 from skill_scan.agent.base_agent import BaseAgent
-from skill_scan.utils.extract_vuln import extract_verdict
+from skill_scan.utils.extract_vuln import VulnerabilityExtractor, extract_verdict
 from skill_scan.utils.parse import clean_content, parse_tool_invocations_all
 from skill_scan.utils.pre_scan import pre_scan
 from skill_scan.utils.prompt_manager import prompt_manager
@@ -113,6 +113,56 @@ def test_report_fallback_preserves_policy_and_does_not_mutate_history():
 @pytest.mark.parametrize("content", ["<empty>", "<empty/>", "<empty />", "<EMPTY />"])
 def test_empty_marker_variants_are_valid_review_output(content):
     assert is_vuln_review_output(content)
+
+
+def test_incomplete_vulnerability_output_is_rejected():
+    assert not is_vuln_review_output(
+        "<verdict>malicious</verdict><vuln><title>truncated"
+    )
+
+
+def test_verdict_and_findings_must_agree():
+    finding = (
+        "<vuln><title>issue</title><desc>reachable</desc>"
+        "<risk_type>T09</risk_type><level>Medium</level>"
+        "<suggestion>fix</suggestion></vuln>"
+    )
+    assert not is_vuln_review_output(f"<verdict>normal</verdict>{finding}")
+    assert not is_vuln_review_output("<verdict>malicious</verdict><empty>")
+    assert is_vuln_review_output(f"<verdict>suspicious</verdict>{finding}")
+
+
+def test_json_findings_are_normalized_to_legacy_result_shape():
+    content = """{
+      "project_verdict": "suspicious",
+      "findings": [{
+        "file_path": "SKILL.md",
+        "line_number": "L23-L26",
+        "raw_snippet": "reads an arbitrary secret file",
+        "trigger_condition": "when the skill runs",
+        "impact": "credential disclosure",
+        "suggested_fix": "restrict file access",
+        "category": "T09: Insecure Skill Coding Practices"
+      }]
+    }"""
+    findings = VulnerabilityExtractor().extract_vulnerabilities(content)
+    assert is_vuln_review_output(content)
+    assert findings == [
+        {
+            "title": "T09: Insecure Skill Coding Practices in SKILL.md",
+            "description": (
+                "### Evidence\n\nreads an arbitrary secret file\n\n"
+                "### Trigger condition\n\nwhen the skill runs\n\n"
+                "### Impact\n\ncredential disclosure"
+            ),
+            "risk_type": "T09: Insecure Skill Coding Practices",
+            "level": "",
+            "suggestion": "restrict file access",
+            "file": "SKILL.md",
+            "line_start": 23,
+            "line_end": 26,
+        }
+    ]
 
 
 @pytest.mark.parametrize(
@@ -263,6 +313,43 @@ def test_single_stage_keeps_legacy_vuln_report_shape_after_review(tmp_path):
     assert "<verdict>" not in result["readme"]
     assert result["readme"].startswith("<vuln>")
     assert len(result["results"]) == 1
+
+
+def test_single_stage_clears_findings_for_direct_normal_verdict(tmp_path):
+    (tmp_path / "SKILL.md").write_text("benign skill", encoding="utf-8")
+    llm = SimpleNamespace(model_name="test-model")
+    agent = Agent(llm)
+    contradictory = """<verdict>normal</verdict><vuln>
+<title>false alarm</title><desc>benign behavior</desc>
+<risk_type>T09</risk_type><level>Medium</level><suggestion>none</suggestion>
+</vuln>"""
+    agent.pipeline.execute_stage = AsyncMock(return_value=contradictory)
+
+    result = asyncio.run(agent.scan(str(tmp_path), "", language="en"))
+
+    assert agent.last_verdict == "normal"
+    assert result["readme"] == "<empty>"
+    assert result["results"] == []
+    assert result["score"] == 100
+
+
+def test_single_stage_downgrades_unparseable_risk_report(tmp_path):
+    (tmp_path / "SKILL.md").write_text("skill contents", encoding="utf-8")
+    llm = SimpleNamespace(model_name="test-model")
+    agent = Agent(llm)
+    agent.pipeline.execute_stage = AsyncMock(
+        return_value=(
+            "<verdict>malicious</verdict>"
+            "<vuln><title>truncated before required fields"
+        )
+    )
+
+    result = asyncio.run(agent.scan(str(tmp_path), "", language="en"))
+
+    assert agent.last_verdict == "normal"
+    assert result["readme"] == "<empty>"
+    assert result["results"] == []
+    assert result["score"] == 100
 
 
 def test_parse_all_tool_calls_in_one_model_response():

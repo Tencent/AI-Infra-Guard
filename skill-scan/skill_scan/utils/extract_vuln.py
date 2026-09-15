@@ -33,13 +33,8 @@ from typing import Any
 VALID_VERDICTS = frozenset({"normal", "suspicious", "malicious"})
 
 
-def extract_explicit_verdict(text: str) -> str | None:
-    """Extract an explicit XML or whole-response JSON project verdict."""
-    match = re.search(r"<verdict>\s*([^<]+?)\s*</verdict>", text, re.IGNORECASE)
-    if match:
-        verdict = match.group(1).strip().lower()
-        return verdict if verdict in VALID_VERDICTS else None
-
+def _json_objects(text: str):
+    """Yield JSON objects from a whole response or fenced JSON blocks."""
     candidates = [text.strip()]
     candidates.extend(
         re.findall(r"```(?:json)?\s*(.*?)```", text, re.DOTALL | re.IGNORECASE)
@@ -49,8 +44,18 @@ def extract_explicit_verdict(text: str) -> str | None:
             payload = json.loads(candidate.strip())
         except (TypeError, ValueError):
             continue
-        if not isinstance(payload, dict):
-            continue
+        if isinstance(payload, dict):
+            yield payload
+
+
+def extract_explicit_verdict(text: str) -> str | None:
+    """Extract an explicit XML or whole-response JSON project verdict."""
+    match = re.search(r"<verdict>\s*([^<]+?)\s*</verdict>", text, re.IGNORECASE)
+    if match:
+        verdict = match.group(1).strip().lower()
+        return verdict if verdict in VALID_VERDICTS else None
+
+    for payload in _json_objects(text):
         verdict = payload.get("verdict", payload.get("project_verdict"))
         if not isinstance(verdict, str):
             continue
@@ -115,7 +120,77 @@ class VulnerabilityExtractor:
                 print(f"Error parsing vulnerability block #{i}: {e}")
                 continue
 
+        if vulnerabilities:
+            return vulnerabilities
+
+        for payload in _json_objects(text):
+            findings = payload.get("findings")
+            if not isinstance(findings, list):
+                continue
+            for index, finding in enumerate(findings, 1):
+                parsed = self._parse_json_finding(finding, index)
+                if parsed:
+                    vulnerabilities.append(parsed)
+            if vulnerabilities:
+                break
+
         return vulnerabilities
+
+    @staticmethod
+    def _parse_json_finding(finding: Any, index: int) -> dict[str, Any] | None:
+        """Normalize common model-emitted JSON finding fields to legacy results."""
+        if not isinstance(finding, dict):
+            return None
+
+        def first(*keys: str) -> str:
+            for key in keys:
+                value = finding.get(key)
+                if value is not None and str(value).strip():
+                    return str(value).strip()
+            return ""
+
+        file_path = first("file", "file_path", "filePath")
+        risk_type = first("risk_type", "riskType", "category")
+        title = first("title", "name")
+        if not title:
+            title = risk_type or f"Security finding #{index}"
+            if file_path:
+                title += f" in {file_path}"
+
+        description = first("description", "desc")
+        if not description:
+            sections = []
+            for label, keys in (
+                ("Evidence", ("raw_snippet", "rawSnippet", "originalSnippet")),
+                ("Trigger condition", ("trigger_condition", "triggerCondition")),
+                ("Attacker control point", ("attacker_control_point", "attackerControlPoint")),
+                ("Trust boundary", ("trust_boundary_cross", "trustBoundary")),
+                ("Impact", ("impact",)),
+            ):
+                value = first(*keys)
+                if value:
+                    sections.append(f"### {label}\n\n{value}")
+            description = "\n\n".join(sections)
+
+        if not risk_type or not description:
+            return None
+
+        result: dict[str, Any] = {
+            "title": title,
+            "description": description,
+            "risk_type": risk_type,
+            "level": first("level", "risk_level", "riskLevel"),
+            "suggestion": first("suggestion", "suggested_fix", "suggestedFix"),
+        }
+        if file_path:
+            result["file"] = file_path
+
+        line_text = first("line_start", "lineStart", "line_number", "lineNumber", "line")
+        line_numbers = [int(value) for value in re.findall(r"\d+", line_text)]
+        if line_numbers:
+            result["line_start"] = line_numbers[0]
+            result["line_end"] = line_numbers[-1]
+        return result
 
     def _parse_vuln_block(self, block: str, index: int) -> dict[str, Any] | None:
         """Parse a single vuln block"""

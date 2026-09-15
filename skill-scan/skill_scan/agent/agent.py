@@ -257,8 +257,15 @@ Example: `T04: Embedded Malicious Code`. For non-listed issues use `other: <even
 
 
 def is_vuln_review_output(content: str) -> bool:
-    """Check whether the output contains a valid <vuln> XML structure or an <empty> marker"""
-    return "<vuln>" in content or bool(re.search(r"<empty\s*/?>", content, re.IGNORECASE))
+    """Validate that the project verdict and report findings agree."""
+    findings = VulnerabilityExtractor().extract_vulnerabilities(content)
+    has_empty = bool(re.search(r"<empty\s*/?>", content, re.IGNORECASE))
+    verdict = extract_explicit_verdict(content)
+    if verdict == "normal":
+        return has_empty and not findings
+    if verdict in {"suspicious", "malicious"}:
+        return bool(findings)
+    return has_empty or bool(findings)
 
 
 def is_verdict_output(content: str) -> bool:
@@ -532,8 +539,14 @@ class Agent:
                 inject_pre_scan=True,
             )
             verdict = extract_verdict(review_result) or verdict
-            if verdict == "normal":
-                vuln_results = []
+        if verdict == "normal":
+            vuln_results = []
+        elif not vuln_results:
+            # The legacy response has no project-verdict field. Never expose a
+            # risk verdict that external consumers cannot substantiate from
+            # the returned findings.
+            logger.warning("Risk verdict has no parseable findings; returning normal")
+            verdict = "normal"
         self.last_verdict = verdict
         external_audit_result = _strip_internal_verdict(audit_result)
         if verdict == "normal":
@@ -651,6 +664,11 @@ class Agent:
             if parsed:
                 vuln_results = [parsed]
         verdict = extract_verdict(vuln_review, vuln_results) or "suspicious"
+        if verdict == "normal":
+            vuln_results = []
+        elif not vuln_results:
+            logger.warning("Risk verdict has no parseable findings; returning normal")
+            verdict = "normal"
         self.last_verdict = verdict
 
         elapsed_time = (time.time() - result_meta["start_time"]) / 60
