@@ -17,7 +17,26 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import re
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
+
+# 一些模型会自发地给标签内容套上 CDATA 段（即便 schema 只要求原始 Markdown 文本），
+# 这是模型从"生成合法 XML"的训练习惯中带出来的行为，不是我们要求的格式。剥离掉，
+# 避免 CDATA 包裹符原样混入 description/suggestion 字段。
+_CDATA_PATTERN = re.compile(r'^\s*<!\[CDATA\[\s*(.*?)\s*\]\]>\s*$', re.DOTALL)
+
+# 模型有时会把必填标签换成一个近义词（例如把规定的 <desc> 写成 <description>）。
+# 兼容这些常见别名，而不是直接把整条发现丢弃。
+_TAG_ALIASES: Dict[str, Tuple[str, ...]] = {
+    'title': ('title', 'name'),
+    'desc': ('desc', 'description'),
+    'suggestion': ('suggestion', 'remediation', 'recommendation'),
+}
+
+
+def _strip_cdata(value: str) -> str:
+    """如果整个值是一个 ``<![CDATA[ ... ]]>`` 段，剥离外层包裹。"""
+    match = _CDATA_PATTERN.match(value)
+    return match.group(1) if match else value
 
 
 class VulnerabilityExtractor:
@@ -58,12 +77,12 @@ class VulnerabilityExtractor:
     def _parse_vuln_block(self, block: str, index: int) -> Optional[Dict[str, str]]:
         """解析单个vuln块"""
 
-        # 提取各个字段
-        title = self._extract_tag_content(block, 'title')
-        desc = self._extract_tag_content(block, 'desc')
+        # 提取各个字段（容忍常见标签别名）
+        title = self._extract_field(block, 'title')
+        desc = self._extract_field(block, 'desc')
         risk_type = self._extract_tag_content(block, 'risk_type')
         level = self._extract_tag_content(block, 'level')
-        suggestion = self._extract_tag_content(block, 'suggestion')
+        suggestion = self._extract_field(block, 'suggestion')
 
         # 验证必要字段
         if not all([title, desc, risk_type]):
@@ -79,13 +98,23 @@ class VulnerabilityExtractor:
         }
 
     def _extract_tag_content(self, text: str, tag: str) -> Optional[str]:
-        """提取指定标签的内容"""
+        """提取指定标签的内容，并剥离可能存在的 CDATA 包裹"""
         pattern = re.compile(
             rf'<{tag}>\s*(.*?)\s*</{tag}>',
             re.DOTALL
         )
         match = pattern.search(text)
-        return match.group(1) if match else None
+        if not match:
+            return None
+        return _strip_cdata(match.group(1))
+
+    def _extract_field(self, block: str, canonical_tag: str) -> Optional[str]:
+        """按文档标签名优先、别名兜底的顺序提取字段"""
+        for tag in _TAG_ALIASES.get(canonical_tag, (canonical_tag,)):
+            value = self._extract_tag_content(block, tag)
+            if value is not None:
+                return value
+        return None
 
 
 if __name__ == '__main__':
