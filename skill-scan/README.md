@@ -6,7 +6,7 @@ English | **[中文](./README_zh.md)**
 
 `aig-skill-scan` is a subproject of [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard), purpose-built for static, LLM-driven security auditing of AI Agent Skill projects (OpenClaw Skills, etc.).
 
-- **Default (single-stage) mode**: runs only the **Code Audit** stage and outputs vulnerabilities directly — faster, ideal for standalone CLI use.
+- **Default mode**: runs **Code Audit**, then applies a focused **Verdict Review** only when the first verdict is `suspicious`. Clear `normal` and `malicious` results keep the fast path.
 - **`--aig-mode` (three-stage) mode**: the full **Info Collection → Code Audit → Vulnerability Review** pipeline, used for the AI-Infra-Guard platform's step-by-step frontend display; no need to enable it manually otherwise.
 
 Vulnerability classification follows the [SkillTrustBench](https://github.com/Tencent/AI-Infra-Guard) T01–T09 taxonomy. Verdicts: `malicious` (clear attack intent) / `suspicious` (vulnerability present but no clear attack intent) / `normal` (benign).
@@ -116,7 +116,7 @@ async def run():
               base_url="https://openrouter.ai/api/v1",
               context_window=128_000)
 
-    # Single-stage (default), aig_mode=False
+    # Default pipeline with conditional suspicious-verdict review, aig_mode=False
     agent = Agent(llm=llm, debug=False, language="en", aig_mode=False)
     result = await agent.scan("/path/to/your/skill", "", "en")
 
@@ -152,7 +152,7 @@ Key environment variables:
 
 ```
 skill_scan/
-├── agent/              # Agent scan pipeline (single-stage by default, three-stage with --aig-mode)
+├── agent/              # Agent scan pipeline (conditional verdict review by default; three stages with --aig-mode)
 │   ├── agent.py        # Agent class, scan entry point + stage dispatch
 │   └── base_agent.py   # LLM loop + tool-calling base class
 ├── tools/              # XML-schema tool registry

@@ -17,13 +17,14 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 import os
+import re
 import time
 from typing import Any
 
 from skill_scan.agent.base_agent import BaseAgent
 from skill_scan.tools.dispatcher import ToolDispatcher
 from skill_scan.utils.aig_logger import mcpLogger
-from skill_scan.utils.extract_vuln import VulnerabilityExtractor, extract_result
+from skill_scan.utils.extract_vuln import VulnerabilityExtractor, extract_result, extract_verdict
 from skill_scan.utils.loging import logger
 from skill_scan.utils.pre_scan import pre_scan
 from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score, get_top_language
@@ -148,6 +149,17 @@ Strict criteria: must provide complete vulnerability exploitation paths and impa
 If no vulnerabilities are found, output "No security vulnerabilities found" and briefly describe the audit coverage scope."""
 
 
+_INTERNAL_VERDICT_FORMAT_ZH = """
+先返回且只返回一个项目级结论：
+<verdict>normal|suspicious|malicious</verdict>
+结论衡量 Skill 的整体性质，而不是单条漏洞的风险等级：
+- normal：没有达到报告门槛的具体安全问题。
+- suspicious：存在真实、可达的漏洞或高风险行为，但没有明确恶意意图证据。High/Critical 漏洞也可以是 suspicious。
+- malicious：存在明确攻击意图或行为，例如隐蔽外传、凭据窃取、安全约束劫持、恶意持久化、后门或工具劫持。
+不得仅因漏洞数量或 level 为 High/Critical 判定 malicious。
+该 verdict 仅供扫描器内部判定，最终对外报告会移除此标签。""".strip()
+
+
 _VULN_XML_FORMAT_ZH = """
 必须满足以下xml格式，多个漏洞返回多个vuln标签
 <vuln>
@@ -177,6 +189,17 @@ _VULN_XML_FORMAT_ZH = """
 </vuln>
 若无漏洞或漏洞为空,返回<empty>
 必须使用中文回复。""".strip()
+
+
+_INTERNAL_VERDICT_FORMAT_EN = """
+First return exactly one project-level verdict:
+<verdict>normal|suspicious|malicious</verdict>
+The verdict describes the overall nature of the Skill, independently of issue severity:
+- normal: no concrete security issue reaches the reporting threshold.
+- suspicious: a real, reachable vulnerability or high-risk behavior exists, but there is no clear evidence of malicious intent. A High/Critical vulnerability may still be suspicious.
+- malicious: clear attack intent or behavior exists, such as covert exfiltration, credential theft, safety-constraint hijacking, malicious persistence, a backdoor, or tool hijacking.
+Never infer malicious merely from the number of findings or a High/Critical level.
+This verdict is for internal adjudication only and will be removed from the externally returned report.""".strip()
 
 
 _VULN_XML_FORMAT_EN = """
@@ -230,7 +253,28 @@ Example: `T04: Embedded Malicious Code`. For non-listed issues use `other: <even
 
 def is_vuln_review_output(content: str) -> bool:
     """Check whether the output contains a valid <vuln> XML structure or an <empty> marker"""
-    return "<vuln>" in content or "<empty>" in content
+    return "<vuln>" in content or bool(re.search(r"<empty\s*/?>", content, re.IGNORECASE))
+
+
+def is_verdict_output(content: str) -> bool:
+    """Check for one supported project-level verdict tag."""
+    return bool(
+        re.search(
+            r"<verdict>\s*(normal|suspicious|malicious)\s*</verdict>",
+            content,
+            re.IGNORECASE,
+        )
+    )
+
+
+def _strip_internal_verdict(content: str) -> str:
+    """Remove the private verdict marker before returning the legacy report."""
+    return re.sub(
+        r"<verdict>\s*(?:normal|suspicious|malicious)\s*</verdict>\s*",
+        "",
+        content,
+        flags=re.IGNORECASE,
+    ).strip()
 
 
 class ScanStage:
@@ -284,6 +328,12 @@ class ScanPipeline:
 
         # Load the prompt template
         instruction = prompt_manager.load_template(stage.template)
+        if stage.template in {
+            "agents/code_audit",
+            "agents/vuln_review",
+            "agents/verdict_review",
+        }:
+            instruction += "\n\n" + prompt_manager.load_template("agents/audit_policy")
 
         # Append the English directive
         if stage.language == "en":
@@ -363,6 +413,7 @@ class Agent:
         self.debug = debug
         self.language = language
         self.aig_mode = aig_mode
+        self.last_verdict: str | None = None
         self.dispatcher = ToolDispatcher()
         self.pipeline = ScanPipeline(self)
 
@@ -399,6 +450,7 @@ class Agent:
                     "results": [],
                 }
             )
+            self.last_verdict = "normal"
             mcpLogger.result_update(result_meta)
             return result_meta
 
@@ -414,10 +466,23 @@ class Agent:
 
         if language == "en":
             stage_name = "Code Audit"
-            output_format = _OUTPUT_FORMAT_EN + "\n\n" + _VULN_XML_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
+            output_format = (
+                _OUTPUT_FORMAT_EN
+                + "\n\n"
+                + _INTERNAL_VERDICT_FORMAT_EN
+                + "\n\n"
+                + _VULN_XML_FORMAT_EN
+                + _LANGUAGE_DIRECTIVE_EN
+            )
         else:
             stage_name = "代码审计"
-            output_format = _OUTPUT_FORMAT + "\n\n" + _VULN_XML_FORMAT_ZH
+            output_format = (
+                _OUTPUT_FORMAT
+                + "\n\n"
+                + _INTERNAL_VERDICT_FORMAT_ZH
+                + "\n\n"
+                + _VULN_XML_FORMAT_ZH
+            )
 
         audit_result = await self.pipeline.execute_stage(
             ScanStage(
@@ -443,6 +508,37 @@ class Agent:
             parsed = extract_result(audit_result)
             if parsed:
                 vuln_results = [parsed]
+        verdict = extract_verdict(audit_result, vuln_results) or "suspicious"
+
+        # A suspicious first-pass verdict is the ambiguous boundary with the
+        # most false positives. Run a focused evidence adjudication only for
+        # this class; normal and clearly malicious results keep the fast path.
+        if verdict == "suspicious":
+            review_result = await self.pipeline.execute_stage(
+                ScanStage(
+                    "2",
+                    "Verdict Review" if language == "en" else "结论复核",
+                    "agents/verdict_review",
+                    output_format=(
+                        "Return exactly one tag and no other text: "
+                        "<verdict>normal|suspicious|malicious</verdict>"
+                    ),
+                    output_check_fn=is_verdict_output,
+                    language=language,
+                ),
+                repo_dir,
+                prompt,
+                {"Draft audit report": audit_result},
+                inject_repo_tree=True,
+                inject_pre_scan=True,
+            )
+            verdict = extract_verdict(review_result) or verdict
+            if verdict == "normal":
+                vuln_results = []
+        self.last_verdict = verdict
+        external_audit_result = _strip_internal_verdict(audit_result)
+        if verdict == "normal":
+            external_audit_result = "<empty>"
 
         elapsed_time = (time.time() - result_meta["start_time"]) / 60
         logger.info(f"Scan completed, total elapsed time {elapsed_time:.2f} minutes")
@@ -453,7 +549,7 @@ class Agent:
 
         result_meta.update(
             {
-                "readme": audit_result,
+                "readme": external_audit_result,
                 "score": safety_score,
                 "language": top_language,
                 "end_time": time.time(),
@@ -505,11 +601,9 @@ class Agent:
         if language == "en":
             audit_ret_format = _OUTPUT_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
             stage2_name = "Code Audit"
-            ctx_key2 = "Code Audit Report"
         else:
             audit_ret_format = _OUTPUT_FORMAT
             stage2_name = "代码审计"
-            ctx_key2 = "代码审计报告"
         code_audit = await self.pipeline.execute_stage(
             ScanStage(
                 "2",
@@ -557,6 +651,8 @@ class Agent:
             parsed = extract_result(vuln_review)
             if parsed:
                 vuln_results = [parsed]
+        verdict = extract_verdict(vuln_review, vuln_results) or "suspicious"
+        self.last_verdict = verdict
 
         elapsed_time = (time.time() - result_meta["start_time"]) / 60
         logger.info(f"Scan task completed, total elapsed time {elapsed_time:.2f} minutes")

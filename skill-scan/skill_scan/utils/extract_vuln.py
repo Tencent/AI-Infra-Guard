@@ -27,7 +27,29 @@ implementation.
 from __future__ import annotations
 
 import re
-from typing import Any, Optional
+from typing import Any
+
+VALID_VERDICTS = frozenset({"normal", "suspicious", "malicious"})
+
+
+def extract_verdict(
+    text: str, vulnerabilities: list[dict[str, Any]] | None = None
+) -> str | None:
+    """Extract the project-level verdict without conflating severity and intent.
+
+    The fallback keeps legacy responses usable: an empty response is normal
+    and a response with findings is suspicious. A High severity issue alone
+    is not evidence that the Skill itself is malicious.
+    """
+    match = re.search(r"<verdict>\s*([^<]+?)\s*</verdict>", text, re.IGNORECASE)
+    if match:
+        verdict = match.group(1).strip().lower()
+        return verdict if verdict in VALID_VERDICTS else None
+    if re.search(r"<empty\s*/?>", text, re.IGNORECASE):
+        return "normal"
+    if vulnerabilities:
+        return "suspicious"
+    return None
 
 
 class VulnerabilityExtractor:
@@ -112,7 +134,7 @@ class VulnerabilityExtractor:
         return match.group(1) if match else None
 
 
-def extract_result(text: str) -> Optional[dict]:
+def extract_result(text: str) -> dict | None:
     """Extract the first vulnerability result from LLM output (fallback function).
 
     Parses the <vuln> XML structure and returns the first vulnerability's

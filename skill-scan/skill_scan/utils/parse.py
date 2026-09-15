@@ -77,8 +77,13 @@ def _extract_params(
 
 
 def parse_tool_invocations(content: str) -> dict[str, Any] | None:
-    invocations = _parse_tags(content, "function")
+    invocations = parse_tool_invocations_all(content)
     return invocations[0] if invocations else None
+
+
+def parse_tool_invocations_all(content: str) -> list[dict[str, Any]]:
+    """Return every native tool invocation in model emission order."""
+    return _parse_tags(content, "function")
 
 
 def parse_mcp_invocations(content: str) -> list[dict[str, Any]] | None:
@@ -91,6 +96,7 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<function>\s*[^<]+\s*</function>(?:\s*<parameter\s+name=\"[^\"]+\">.*?</parameter>)*",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]

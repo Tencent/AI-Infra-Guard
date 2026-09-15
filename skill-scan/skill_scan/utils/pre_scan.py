@@ -3,7 +3,7 @@ Static pre-scan module
 
 Runs a fast regex-based pass over project files before the Agent starts,
 detecting high-risk patterns and generating a security audit hint that is
-injected into the Agent as supporting evidence for its judgment.
+injected into the Agent as navigation hints, never as confirmed vulnerabilities.
 """
 
 import os
@@ -12,32 +12,32 @@ import re
 from skill_scan.utils.loging import logger
 from skill_scan.utils.text_decoder import TextDecodeError, read_text_file
 
-# High-risk pattern definitions: (pattern name, regex, description)
+# Candidate patterns: regex matches do not establish execution or data flow.
 _PATTERNS: list[tuple[str, re.Pattern, str]] = [
     (
         'curl_pipe_exec',
         re.compile(r'curl\s+.*\|\s*(ba)?sh|wget\s+.*\|\s*(ba)?sh|curl\s+-[^|]*\|\s*(python|ruby|perl)', re.IGNORECASE),
-        'Install/usage instructions pipe curl|bash output into a shell to execute a remote script, a common malicious payload delivery method',
+        'Instructions may pipe curl|bash output into a shell; inspect source, arguments and task context before assessing remote execution risk',
     ),
     (
         'cloud_metadata_access',
         re.compile(r'169\.254\.169\.254|metadata\.google\.internal|metadata\.azure\.com', re.IGNORECASE),
-        'Code accesses a cloud instance metadata endpoint, a common way to obtain temporary cloud credentials',
+        'Cloud metadata endpoint reference; verify actual access, requested fields and whether credentials cross a trust boundary',
     ),
     (
         'local_env_recon',
         re.compile(r'gethostname|getfqdn|getsockname|socket\.connect.*8\.8\.8\.8', re.IGNORECASE),
-        'Code collects local environment information (hostname/IP/FQDN), consistent with environment reconnaissance',
+        'Host information API reference; distinguish routine diagnostics or backup metadata from out-of-scope reconnaissance',
     ),
     (
         'credential_file_access',
         re.compile(r'(~/|HOME|USERPROFILE).*(/|\\)(\.ssh|\.aws|\.env|credentials|mcp\.json|Keychain|authorized_keys)', re.IGNORECASE),
-        'Code accesses credential/secret-related paths',
+        'Credential-related path reference; verify read/write behavior, ownership, purpose and destination',
     ),
     (
         'prompt_injection',
         re.compile(r'(ignore\s+(previous|above|all)\s+(instructions?|rules?|prompts?)|you\s+are\s+now|SYSTEM\s*OVERRIDE|<\|im_start\|>|forget\s+(everything|your\s+instructions))', re.IGNORECASE),
-        'Document/code contains suspected prompt-injection instructions attempting to override AI safety constraints',
+        'Instruction-like text; inspect whether it is task guidance, quoted data or an active attempt to override user/system constraints',
     ),
     (
         'fixed_tail_ad_injection',
@@ -47,42 +47,42 @@ _PATTERNS: list[tuple[str, re.Pattern, str]] = [
             r'((https?://|www\.).{0,120}(扫码进群|进群|群里|资讯|广告|内幕|吃瓜))',
             re.IGNORECASE | re.DOTALL,
         ),
-        'Document contains a fixed advertising/traffic-diversion or link template appended at the end of the text, a signal of content injection targeting model output',
+        'Output template or promotional link reference; distinguish requested marketing/attribution from unrelated forced output hijacking',
     ),
     (
         'reverse_shell',
         re.compile(r'(socket\.connect|subprocess|/bin/(ba)?sh).*\d+\.\d+\.\d+\.\d+', re.IGNORECASE),
-        'Code contains a suspected reverse-shell pattern',
+        'Process/socket and IP references co-occur; verify a shell is actually connected to an attacker-controlled endpoint',
     ),
     (
         'encoded_payload',
         re.compile(r'(base64\.b64decode|atob|Buffer\.from.*base64).*\b(exec|eval|system|popen)\b', re.IGNORECASE | re.DOTALL),
-        'Code contains a pattern that decodes and then executes',
+        'Decoding and execution terms co-occur; trace whether decoded content actually reaches an execution sink',
     ),
     (
         'data_exfil_encoded',
         re.compile(r'(base64\.(b64)?encode|btoa).*?(key|secret|token|password|credential|private|id_rsa)', re.IGNORECASE | re.DOTALL),
-        'Code encodes sensitive data before outputting it, potentially a covert data exfiltration channel',
+        'Encoding and credential terms co-occur; verify actual data flow and distinguish normal authentication from disclosure',
     ),
     (
         'outbound_data_exfil',
         re.compile(r'(requests\.(post|put)|urlopen|fetch|http\.request).*?(environ|os\.getenv|password|secret|token|api_key)', re.IGNORECASE | re.DOTALL),
-        'Code contains a pattern that sends sensitive information over the network',
+        'Network and credential terms co-occur; verify the data sent, intended recipient and authorization (normal API authentication is not exfiltration)',
     ),
     (
         'crontab_persistence',
         re.compile(r'crontab|systemctl\s+enable|launchctl\s+load|schtasks', re.IGNORECASE),
-        'Code contains a persistence mechanism (scheduled task/service registration)',
+        'Scheduled-task/service reference; distinguish intended automation from hidden backdoor persistence',
     ),
     (
         'ssh_key_write',
         re.compile(r'authorized_keys|id_rsa|\.ssh.*write|\.ssh.*open.*w', re.IGNORECASE),
-        'Code writes to SSH key files',
+        'SSH key path reference; a path mention alone does not establish a write or unauthorized access',
     ),
     (
         'non_official_download',
         re.compile(r'(github\.com/[a-zA-Z0-9_-]+/|glot\.io|pastebin\.com|raw\.githubusercontent\.com/[a-zA-Z0-9_-]+/).*\.(exe|sh|py|bin|zip|tar)', re.IGNORECASE),
-        'Downloads an executable file from a personal code-hosting/pastebin site',
+        'Code-hosting/download URL reference; verify actual retrieval, execution and source context without inferring reputation from the hostname',
     ),
 ]
 
@@ -104,7 +104,7 @@ def _preview(text: str, limit: int) -> list[tuple[int, str]]:
 def pre_scan(repo_dir: str) -> str:
     """
     Run a static pre-scan of the project and return the security audit hint text.
-    Returns an empty string if no high-risk patterns are found.
+    Returns an empty string if no candidate patterns are found.
     """
     findings: list[dict] = []
 
@@ -130,7 +130,7 @@ def pre_scan(repo_dir: str) -> str:
                     'file': rel_path,
                     'pattern': 'non_utf8_text',
                     'description': (
-                        f'Non-UTF-8 file detected ({decoded.encoding}); inspect the decoded '
+                        f'Non-UTF-8 file detected ({decoded.encoding}); encoding alone is not a risk. Inspect the decoded '
                         'content for encoding-based content smuggling'
                     ),
                     'evidence': _preview(decoded.text, 1),
@@ -152,15 +152,23 @@ def pre_scan(repo_dir: str) -> str:
 
             for content, label in contents:
                 for pattern_name, regex, description in _PATTERNS:
-                    if not regex.search(content):
-                        continue
-                    # Collect the lines where the match occurred
+                    # Use match spans from the full text: re-searching individual
+                    # lines loses evidence for multiline expressions.
+                    matches = regex.finditer(content)
                     lines_hit = []
-                    for i, line in enumerate(content.splitlines(), 1):
-                        if regex.search(line):
-                            lines_hit.append((i, line.strip()[:120]))
-                            if len(lines_hit) >= 3:
-                                break
+                    seen_lines = set()
+                    content_lines = content.splitlines()
+                    for match in matches:
+                        start_line = content.count("\n", 0, match.start()) + 1
+                        end_line = content.count("\n", 0, max(match.start(), match.end() - 1)) + 1
+                        for line_no in dict.fromkeys((start_line, end_line)):
+                            if line_no not in seen_lines:
+                                seen_lines.add(line_no)
+                                lines_hit.append((line_no, content_lines[line_no - 1].strip()[:120]))
+                        if len(seen_lines) >= 6:
+                            break
+                    if not lines_hit:
+                        continue
                     findings.append({
                         'file': rel_path,
                         'pattern': pattern_name,
@@ -172,13 +180,17 @@ def pre_scan(repo_dir: str) -> str:
         return ''
 
     # Build the hint text
-    lines = ['\u26a0\ufe0f The static pre-scan found the following patterns that warrant special attention; please focus the audit on whether these behaviors are necessary and what risks they pose:\n']
+    lines = [
+        'Static pre-scan navigation hints (NOT confirmed vulnerabilities). '
+        'Regex matches may be comments, examples, or unrelated operations; '
+        'co-occurrence does not prove data flow. Read the full source and task context.\n'
+    ]
     for f in findings:
         lines.append(f'- **{f["file"]}** — {f["description"]}')
         for line_no, line_text in f['evidence']:
             lines.append(f'  - L{line_no}: `{line_text}`')
-    lines.append('\nWhen auditing, please assess whether these behaviors exceed the minimum privileges necessary for the Skill\'s declared functionality.')
+    lines.append('\nReport only evidence-backed harm across an authorization or trust boundary. Check confirmation steps and other counter-evidence; do not count hints as cumulative proof of malice.')
 
     result = '\n'.join(lines)
-    logger.info(f'Pre-scan found {len(findings)} high-risk pattern hit(s)')
+    logger.info(f'Pre-scan found {len(findings)} candidate pattern hit(s)')
     return result
