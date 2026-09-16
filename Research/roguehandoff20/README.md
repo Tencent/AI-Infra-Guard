@@ -11,6 +11,14 @@ This distribution contains the executable benchmark, 20 scenario definitions,
 outputs, historical experiment records, provider credentials, and paper assets
 are not included.
 
+## Language
+
+Documentation, code comments, CLI help, and configuration examples are written
+in English. Canonical task prompts and frozen conversation inputs retain their
+original languages to preserve the benchmark treatment and exact prompt pairing.
+Translating these inputs creates a new benchmark variant and must be versioned
+and evaluated separately.
+
 ## Requirements
 
 - Python 3.11 or newer on the host; the benchmark uses the standard library.
