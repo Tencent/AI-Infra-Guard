@@ -21,7 +21,9 @@
 内部/共享 LLM 网关普遍存在 QPM 限制，直接调用遇到 429 时异常上抛会导致
 整个扫描任务失败。此模块提供同步/异步两个重试包装：
 
-- 识别限流类错误（HTTP 429、报错信息含 rate limit / too many requests 等标记）；
+- 识别限流类错误：HTTP 429/42900 状态码、报错信息含 rate limit /
+  too many requests 等标记、或携带 Retry-After 响应头（覆盖 SDK 包装
+  掉状态信息的场景）；
 - 服务端返回 Retry-After 时优先遵循（上限 60s）；
 - 否则按 8s/16s/32s（上限 60s）退避；
 - 非限流错误保持短指数退避（1s 起步，上限 8s）；
@@ -53,9 +55,16 @@ MAX_TRIALS = 5
 
 
 def is_rate_limit_error(exc: BaseException) -> bool:
-    """判断异常是否为限流类错误（429 / 配额耗尽）。"""
+    """判断异常是否为限流类错误（429/42900 / 配额耗尽 / 携带 Retry-After）。
+
+    部分网关/SDK 会把 429 包装成不含限流字样的异常类（status_code 保留，
+    消息丢失），因此除状态码与消息标记外，任何携带 Retry-After 响应头的
+    错误也按限流处理（服务端已显式要求等待）。
+    """
     status = getattr(exc, "status_code", None)
-    if status == 429:
+    if status in (429, 42900):
+        return True
+    if retry_after_seconds(exc) is not None:
         return True
     message = str(exc).lower()
     return any(marker in message for marker in _RATE_LIMIT_MARKERS)

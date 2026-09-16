@@ -28,6 +28,27 @@ class RateLimitDetectionTests(unittest.TestCase):
     def test_status_code_429_detected(self):
         self.assertTrue(is_rate_limit_error(_RateLimitError()))
 
+    def test_wrapped_429_without_message_detected(self):
+        # SDK 把 429 包装成不含限流字样的异常，状态码仍在
+        self.assertTrue(
+            is_rate_limit_error(_RateLimitError(message="gateway error", status_code=429))
+        )
+
+    def test_status_code_42900_detected(self):
+        # 部分网关用自定义码 42900 表示限流
+        self.assertTrue(
+            is_rate_limit_error(_RateLimitError(message="gateway error", status_code=42900))
+        )
+
+    def test_retry_after_header_implies_rate_limited(self):
+        # 无限流字样、状态码也非 429，但携带 Retry-After —— 按限流处理
+        exc = _RateLimitError(
+            message="service temporarily unavailable",
+            status_code=503,
+            headers={"retry-after": "30"},
+        )
+        self.assertTrue(is_rate_limit_error(exc))
+
     def test_message_markers_detected(self):
         for message in ("Too many requests", "quota exceeded", "RESOURCE_EXHAUSTED", "HTTP 429"):
             self.assertTrue(is_rate_limit_error(Exception(message)), message)
