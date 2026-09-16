@@ -17,3 +17,8 @@
 # documentation or user interface, as detailed in the NOTICE file.
 
 from .red_teamer import RedTeamer
+from .progress_log import (
+    DEFAULT_FLUSH_EVERY,
+    DEFAULT_PROGRESS_LOG_PATH,
+    ProgressLog,
+)

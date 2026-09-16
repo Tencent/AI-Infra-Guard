@@ -22,6 +22,7 @@ from deepteam.vulnerabilities import BaseVulnerability
 from deepteam.attacks import BaseAttack
 from deepteam.attacks.multi_turn.types import CallbackType
 from deepteam.red_teamer import RedTeamer
+from deepteam.red_teamer.progress_log import DEFAULT_PROGRESS_LOG_PATH
 
 
 def red_team(
@@ -33,12 +34,14 @@ def red_team(
     run_async: bool = True,
     max_concurrent: int = 10,
     target_purpose: Optional[str] = None,
+    progress_log_path: Optional[str] = DEFAULT_PROGRESS_LOG_PATH,
 ):
 
     red_teamer = RedTeamer(
         async_mode=run_async,
         max_concurrent=max_concurrent,
         target_purpose=target_purpose,
+        progress_log_path=progress_log_path,
     )
     risk_assessment = red_teamer.red_team(
         model_callback=model_callback,
