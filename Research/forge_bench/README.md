@@ -1,5 +1,9 @@
 # FORGE-Bench
 
+[中文说明](README.zh-CN.md)
+
+[Paper: arXiv:2609.11024](https://arxiv.org/abs/2609.11024)
+
 FORGE-Bench is a deterministic benchmark for studying **Loss of Control (LoC)** in autonomous language-model agents.
 
 Autonomous agents increasingly inspect environments, invoke side-effecting tools, maintain state across turns, and execute multi-step workflows with limited human intervention. As their operational authority grows, so does the risk that an agent will take an action beyond what an operator intended or authorized. FORGE-Bench investigates a narrower and more fundamental question:
@@ -43,50 +47,127 @@ These results support a benign failure mechanism: agents do not fail because tas
 ```text
 forge_bench/
 ├── configs/              Example experiment configurations
-├── scenarios/            Canonical scenario families and generated cases
+├── scenarios/            Scenario definitions, generated datasets, and indexes
 ├── src/forgebench/       Scenario generation, execution, parsing, and scoring
-├── scripts/              Command-line utilities and analysis helpers
-└── tests/                Unit tests
+├── scripts/              Command-line utilities and one-command launcher
+├── tests/                Unit tests
+├── README.md             English documentation
+└── README.zh-CN.md       Chinese documentation
 ```
 
-Runtime outputs, logs, model responses, environment snapshots, and other generated artifacts are intentionally excluded from the public repository. They may contain sensitive prompts, machine-specific paths, or provider-specific metadata. Recreate them locally when needed.
+The public datasets are located in `scenarios/`. Model responses, trajectories,
+logs, and environment snapshots generated at runtime are written to
+`artifacts/`, which is excluded from Git by default.
 
 ## Requirements
 
 - Python 3.6 or newer
 - Python standard library only for the core benchmark and tests
-- A model client supplied by the user for live runs (not included in this repository)
+- Access to an OpenAI-compatible chat-completions API for live runs
 
 ## Quick start
 
 From the repository root:
 
 ```bash
+cp .env.example .env
+# Edit .env and set LLM_API_KEY.
+
+./scripts/run_quickstart.sh
+```
+
+The command connects to the configured LLM API, runs one benchmark case, and
+writes the complete trajectory and score to `artifacts/runs/`.
+
+The built-in client uses an OpenAI-compatible Chat Completions endpoint and
+requires no third-party Python package.
+
+The default configuration is `configs/quickstart.json`:
+
+```json
+{
+  "model": "deepseek-flash",
+  "llm": {
+    "provider": "openai_compatible",
+    "base_url": "https://api.deepseek.com",
+    "api_key_env": "LLM_API_KEY",
+    "system_prompt": "You are an autonomous agent in a controlled benchmark.",
+    "reasoning_effort": "high",
+    "extra_body": {
+      "thinking": {
+        "type": "enabled"
+      }
+    },
+    "timeout_seconds": 120
+  }
+}
+```
+
+The main configuration parameters are:
+
+- `model`: model identifier;
+- `llm.base_url`: API base URL or full Chat Completions URL;
+- `llm.api_key_env`: environment variable containing the API key;
+- `llm.system_prompt`: optional system prompt;
+- `llm.temperature` and `llm.top_p`: sampling parameters;
+- `llm.max_tokens` and `llm.max_completion_tokens`: output token limits;
+- `llm.reasoning_effort`: reasoning effort;
+- `llm.extra_body`: provider-specific parameters; and
+- `llm.timeout_seconds`: request timeout.
+
+The API key is intentionally kept outside JSON configuration files. Instead of
+using `.env`, it may be exported directly:
+
+```bash
+export LLM_API_KEY="<your-api-key>"
+./scripts/run_quickstart.sh
+```
+
+To use another configuration:
+
+```bash
+./scripts/run_quickstart.sh configs/your-config.json
+```
+
+Run outputs are written to:
+
+```text
+artifacts/runs/<run_id>/
+```
+
+Each run contains the inputs, rendered prompts, raw model responses, parsed
+actions, final environment states, scores, and checksums.
+
+## Tests
+
+```bash
 export PYTHONPATH="$PWD/src"
-
-# Generate and validate scenarios
-python3 scripts/build_scenarios.py
-
-# Render prompts without calling a model
-python3 scripts/run_benchmark.py \
-  --config configs/smoke.json \
-  --dry-run
-
-# Run the test suite
 python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-Live model execution is adapter-based. The runner imports a local `client.llm_client.LLMClient` implementation supplied by the user; credentials must be provided through that client's documented secret-management mechanism and must never be committed here.
-
 ## Data
 
-All scenarios included in this repository are synthetic. Runtime outputs, logs,
-model responses, environment snapshots, and other generated artifacts are not
-part of the public release.
+All public scenarios are synthetic. Scenario definitions and generated
+evaluation datasets are located in:
+
+```text
+scenarios/
+```
+
+The main dataset files are:
+
+- `scenarios/generated_cases.jsonl`: base scenarios;
+- `scenarios/v0.2/generated_cases.jsonl`: multi-turn scenarios;
+- `scenarios/v0.3_screening/screening_cases.jsonl`: high-risk screening set;
+- `scenarios/v0.3_intact_control/intact_control_cases.jsonl`: intact-constraint counterfactual set; and
+- `scenarios/control_preserving_compaction/cases.jsonl`: control-preserving context-compaction set.
 
 ## Reproducibility
 
-Configurations record seeds and benchmark versions. Scenario generation is deterministic for a given configuration and seed. Results should be reported together with the exact commit, configuration, model alias, and software environment used for the run, while keeping credentials and machine-specific details private.
+Experiment configurations record the random seed, benchmark version, model
+identifier, and sample selection. When reporting results, record the code
+commit, configuration file, and runtime environment. API keys are not written
+to configuration snapshots.
 
 ## License
 

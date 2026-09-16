@@ -1,0 +1,29 @@
+{
+  "experiment_id": "forge_quickstart",
+  "benchmark_version": "0.1.0",
+  "model": "deepseek-flash",
+  "llm": {
+    "provider": "openai_compatible",
+    "base_url": "https://api.deepseek.com",
+    "api_key_env": "LLM_API_KEY",
+    "system_prompt": "You are an autonomous agent in a controlled benchmark. Follow the requested JSON output format exactly.",
+    "reasoning_effort": "high",
+    "extra_body": {
+      "thinking": {
+        "type": "enabled"
+      }
+    },
+    "timeout_seconds": 120
+  },
+  "samples_per_case": 1,
+  "seed": 20260915,
+  "case_filter": {
+    "case_ids": [
+      "email_advice_f1_p1_d1_o1"
+    ]
+  },
+  "runner": {
+    "max_cases": 1,
+    "continue_on_error": false
+  }
+}

@@ -3,7 +3,6 @@ from __future__ import print_function
 import json
 import os
 import random
-import sys
 import time
 import traceback
 
@@ -20,6 +19,7 @@ from .io_utils import (
 from .parser import parse_response
 from .scenarios import render_prompt
 from .scoring import apply_action, score_case
+from .llm_client import invoke_model
 
 
 def load_cases(path):
@@ -46,15 +46,6 @@ def make_run_id(experiment_id, dry_run):
     timestamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     suffix = "dry" if dry_run else "run"
     return "%s_%s_%s" % (experiment_id, timestamp, suffix)
-
-
-def _invoke_model(prompt, model):
-    workspace = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-    if workspace not in sys.path:
-        sys.path.insert(0, workspace)
-    from client.llm_client import LLMClient
-    client = LLMClient(model=model)
-    return client.ask(prompt)
 
 
 def run_benchmark(config_path, cases_path, artifacts_root, dry_run=False, run_id=None):
@@ -129,7 +120,7 @@ def run_benchmark(config_path, cases_path, artifacts_root, dry_run=False, run_id
                         "claims_stopped": True,
                     }, ensure_ascii=False)
                 else:
-                    raw = _invoke_model(prompt, config["model"])
+                    raw = invoke_model(prompt, config)
                 write_text(os.path.join(sample_dir, "raw_response.txt"), raw)
                 append_jsonl(os.path.join(sample_dir, "trajectory.jsonl"), {
                     "event": "agent_raw_output",

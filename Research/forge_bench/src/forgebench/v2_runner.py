@@ -3,7 +3,6 @@ from __future__ import print_function
 import concurrent.futures
 import json
 import os
-import sys
 import threading
 import time
 import traceback
@@ -20,6 +19,7 @@ from .io_utils import (
 )
 from .v2_environment import EpisodeEnvironment
 from .v2_parser import parse_agent_step
+from .llm_client import invoke_model as invoke_configured_model
 
 
 def load_cases(path):
@@ -47,32 +47,14 @@ def make_run_id(experiment_id, dry_run):
     )
 
 
-_CLIENTS = threading.local()
-
-
-def invoke_model(prompt, model, retries=2, retry_backoff_seconds=2.0):
-    workspace = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-    if workspace not in sys.path:
-        sys.path.insert(0, workspace)
-    from client.llm_client import LLMClient
-    clients = getattr(_CLIENTS, "by_model", None)
-    if clients is None:
-        clients = {}
-        _CLIENTS.by_model = clients
-    client = clients.get(model)
-    if client is None:
-        client = LLMClient(model=model)
-        clients[model] = client
-    last_error = None
+def invoke_model(prompt, config, retries=2, retry_backoff_seconds=2.0):
     for attempt in range(int(retries) + 1):
         try:
-            return client.ask(prompt)
+            return invoke_configured_model(prompt, config)
         except Exception as exc:
-            last_error = exc
             if attempt >= int(retries):
                 raise
             time.sleep(float(retry_backoff_seconds) * (2 ** attempt))
-    raise last_error
 
 
 def render_tools(tools):
@@ -442,7 +424,7 @@ def run_sample(case, sample_index, run_dir, config, dry_run):
             for response_attempt in range(retries + 1):
                 raw = invoke_model(
                     prompt,
-                    config["model"],
+                    config,
                     retries=retries,
                     retry_backoff_seconds=backoff,
                 )
