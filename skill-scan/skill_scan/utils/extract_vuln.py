@@ -32,6 +32,28 @@ from typing import Any
 
 VALID_VERDICTS = frozenset({"normal", "suspicious", "malicious"})
 
+# Some models wrap XML tag content in a CDATA section on their own
+# initiative even though the schema only asks for raw Markdown text — a
+# habit picked up from general "produce valid XML" training rather than an
+# instruction we give. Strip it so the wrapper markers never leak into a
+# finding's description/suggestion text.
+_CDATA_PATTERN = re.compile(r"^\s*<!\[CDATA\[\s*(.*?)\s*\]\]>\s*$", re.DOTALL)
+
+# A model occasionally renames a required tag to a close synonym (e.g.
+# ``<description>`` instead of the documented ``<desc>``). Accept the most
+# common synonyms instead of silently discarding the whole finding.
+_TAG_ALIASES: dict[str, tuple[str, ...]] = {
+    "title": ("title", "name"),
+    "desc": ("desc", "description"),
+    "suggestion": ("suggestion", "remediation", "recommendation"),
+}
+
+
+def _strip_cdata(value: str) -> str:
+    """Unwrap a ``<![CDATA[ ... ]]>`` section if the whole value is one."""
+    match = _CDATA_PATTERN.match(value)
+    return match.group(1) if match else value
+
 
 def _json_objects(text: str):
     """Yield JSON objects from a whole response or fenced JSON blocks."""
@@ -195,12 +217,12 @@ class VulnerabilityExtractor:
     def _parse_vuln_block(self, block: str, index: int) -> dict[str, Any] | None:
         """Parse a single vuln block"""
 
-        # Extract each field
-        title = self._extract_tag_content(block, "title")
-        desc = self._extract_tag_content(block, "desc")
+        # Extract each field (tolerating a handful of tag-name synonyms)
+        title = self._extract_field(block, "title")
+        desc = self._extract_field(block, "desc")
         risk_type = self._extract_tag_content(block, "risk_type")
         level = self._extract_tag_content(block, "level")
-        suggestion = self._extract_tag_content(block, "suggestion")
+        suggestion = self._extract_field(block, "suggestion")
         # Optional structured location fields (used to populate SARIF
         # physicalLocation when not running in --aig-mode)
         file_path = self._extract_tag_content(block, "file")
@@ -230,10 +252,20 @@ class VulnerabilityExtractor:
         return result
 
     def _extract_tag_content(self, text: str, tag: str) -> str | None:
-        """Extract the content of the given tag"""
+        """Extract the content of the given tag, with any CDATA wrapper stripped."""
         pattern = re.compile(rf"<{tag}>\s*(.*?)\s*</{tag}>", re.DOTALL)
         match = pattern.search(text)
-        return match.group(1) if match else None
+        if not match:
+            return None
+        return _strip_cdata(match.group(1))
+
+    def _extract_field(self, block: str, canonical_tag: str) -> str | None:
+        """Extract a field trying its documented tag name first, then aliases."""
+        for tag in _TAG_ALIASES.get(canonical_tag, (canonical_tag,)):
+            value = self._extract_tag_content(block, tag)
+            if value is not None:
+                return value
+        return None
 
 
 def extract_result(text: str) -> dict | None:
