@@ -970,7 +970,7 @@ class AIProviderClient:
 
                 if is_sse:
                     # Parse SSE response
-                    raw_response, token_usage = self._parse_sse_response(response.text)
+                    raw_response, token_usage = self._parse_sse_response(response.text, transform_response)
                 else:
                     try:
                         raw_response = response.json()
@@ -1032,7 +1032,7 @@ class AIProviderClient:
                 provider_response=ProviderResponseInfo(error=str(e), metadata={"url": url})
             )
 
-    def _parse_sse_response(self, sse_text: str) -> tuple:
+    def _parse_sse_response(self, sse_text: str, transform: Optional[str] = None) -> tuple:
         """
         Parse SSE (Server-Sent Events) format response.
         
@@ -1053,6 +1053,8 @@ class AIProviderClient:
         token_usage = None
         last_data = None
         role = None
+        transform_applied = False
+        transformed_content_parts = []
 
         for line in sse_text.split("\n"):
             line = line.strip()
@@ -1073,8 +1075,13 @@ class AIProviderClient:
                     data = json.loads(data_str)
                     last_data = data
 
+                    # Extract content from custom transform if provided
+                    transformed = self._apply_transform(data, transform) if transform else None
+                    if transformed is not None:
+                        transformed_content_parts.append(transformed)
+                        transform_applied = True
                     # Extract content from OpenAI-style streaming response
-                    if "choices" in data:
+                    elif "choices" in data:
                         choices = data.get("choices", [])
                         if choices:
                             choice = choices[0]
@@ -1123,10 +1130,18 @@ class AIProviderClient:
                         content_parts.append(data_str)
 
         # Build final response structure
-        full_content = "".join(content_parts)
+        full_content = "".join(transformed_content_parts if transform_applied else content_parts)
 
         # Try to construct a normalized response
-        if last_data and "choices" in last_data:
+        if transform_applied:
+            # Custom transform response
+            response = {
+                "content": full_content,
+                "raw_sse": False
+            }
+            if token_usage:
+                response["usage"] = token_usage
+        elif last_data and "choices" in last_data:
             # OpenAI-style response
             response = {
                 "choices": [{
