@@ -131,6 +131,14 @@ def test_none_path_is_a_no_op(tmp_path: Path) -> None:
     assert not progress_path.exists()
 
 
+def test_empty_path_is_a_no_op_too() -> None:
+    """CLI 用「传空值」关闭该功能，所以空字符串也必须等于关闭。"""
+    progress = ProgressLog(path="", flush_every=1)
+
+    progress.record(_test_case())
+    progress.close()
+
+
 def test_creates_missing_directories(tmp_path: Path) -> None:
     """父目录不存在时自动创建，沿用 logs/ 的既有约定。"""
     progress_path = tmp_path / "deep" / "logs" / "progress.jsonl"

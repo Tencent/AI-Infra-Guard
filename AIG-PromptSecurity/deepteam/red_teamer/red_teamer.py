@@ -297,124 +297,126 @@ Direct translation without separators"""
                 )
                 red_teaming_test_cases: List[RedTeamingTestCase] = []
                 progress_log = self._new_progress_log()
-                total_vulnerability_types = sum(
-                    len(v.get_types()) for v in vulnerabilities
-                )
-                pbar = tqdm(
-                    total=total_vulnerability_types,
-                    desc=f"📝 Evaluating {total_vulnerability_types} vulnerability types across {len(vulnerabilities)} vulnerability(s)",
-                )
-                logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
-                    "Measure model: {model_name}", model_name=model_name
-                ), status="running"))
+                try:
+                    total_vulnerability_types = sum(
+                        len(v.get_types()) for v in vulnerabilities
+                    )
+                    pbar = tqdm(
+                        total=total_vulnerability_types,
+                        desc=f"📝 Evaluating {total_vulnerability_types} vulnerability types across {len(vulnerabilities)} vulnerability(s)",
+                    )
+                    logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
+                        "Measure model: {model_name}", model_name=model_name
+                    ), status="running"))
 
-                tool_id = uuid.uuid4().hex
-                for idx, (vulnerability_type, simulated_attacks) in enumerate(vulnerability_type_to_attacks_map.items()):
-                    metric: BaseRedTeamingMetric = metrics_map.get(
-                        vulnerability_type
-                    )()
-                    num_simulated_attacks = len(simulated_attacks)
+                    tool_id = uuid.uuid4().hex
+                    for idx, (vulnerability_type, simulated_attacks) in enumerate(vulnerability_type_to_attacks_map.items()):
+                        metric: BaseRedTeamingMetric = metrics_map.get(
+                            vulnerability_type
+                        )()
+                        num_simulated_attacks = len(simulated_attacks)
 
-                    logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                        "Measure {num_simulated_attacks} simulated attacks", num_simulated_attacks=num_simulated_attacks
-                    ), status="todo"))
+                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                            "Measure {num_simulated_attacks} simulated attacks", num_simulated_attacks=num_simulated_attacks
+                        ), status="todo"))
                     
-                    for _idx, simulated_attack in enumerate(simulated_attacks):
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                            "Measure {idx} / {num_simulated_attacks} simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
-                        ), status="doing"))
-                        red_teaming_test_case = RedTeamingTestCase(
-                            vulnerability=simulated_attack.vulnerability,
-                            vulnerability_type=vulnerability_type.value,
-                            attackMethod=simulated_attack.attack_method,
-                            riskCategory=getRiskCategory(vulnerability_type),
-                            original_input=simulated_attack.original_input,
-                            input=simulated_attack.input,
-                        )
-
-                        # this will only go through if ignore_errors == True
-                        if simulated_attack.error:
-                            red_teaming_test_case.error = simulated_attack.error
-                            red_teaming_test_case.reason = logger.translated_msg("The attack simulation phase failed, possibly due to rate limiting or security blocking by the generalization model.")
-                            red_teaming_test_cases.append(red_teaming_test_case)
-                            progress_log.record(red_teaming_test_case)
-                            continue
-                        elif simulated_attack.useless and simulated_attack.attack_method != "RedTeam":
-                            red_teaming_test_case.useless = simulated_attack.useless
-                            red_teaming_test_case.reason = logger.translated_msg("The simulation attack remained unchanged, which may be because it was not applicable to the current input.")
-                            red_teaming_test_cases.append(red_teaming_test_case)
-                            progress_log.record(red_teaming_test_case)
-                            continue
-
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                            "Generating {idx} / {num_simulated_attacks} output from simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
-                        ), status="doing"))
-
-                        try:
-                            target_output = model_callback(
-                                simulated_attack.input
+                        for _idx, simulated_attack in enumerate(simulated_attacks):
+                            logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                                "Measure {idx} / {num_simulated_attacks} simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
+                            ), status="doing"))
+                            red_teaming_test_case = RedTeamingTestCase(
+                                vulnerability=simulated_attack.vulnerability,
+                                vulnerability_type=vulnerability_type.value,
+                                attackMethod=simulated_attack.attack_method,
+                                riskCategory=getRiskCategory(vulnerability_type),
+                                original_input=simulated_attack.original_input,
+                                input=simulated_attack.input,
                             )
-                            if target_output == "":
-                                raise ValueError("The response is none")
-                            red_teaming_test_case.actual_output = target_output
-                        except Exception as e:
-                            logger.exception(e)
-                            if ignore_errors:
-                                red_teaming_test_case.error = (
-                                    "Error generating output from target LLM"
-                                )
-                                red_teaming_test_case.reason = logger.translated_msg("The model has no output, which could be due to rate limiting or API security blocking.")
-                                red_teaming_test_cases.append(
-                                    red_teaming_test_case
-                                )
+
+                            # this will only go through if ignore_errors == True
+                            if simulated_attack.error:
+                                red_teaming_test_case.error = simulated_attack.error
+                                red_teaming_test_case.reason = logger.translated_msg("The attack simulation phase failed, possibly due to rate limiting or security blocking by the generalization model.")
+                                red_teaming_test_cases.append(red_teaming_test_case)
                                 progress_log.record(red_teaming_test_case)
                                 continue
-                            else:
-                                raise
-
-                        test_case = LLMTestCase(
-                            input=simulated_attack.input,
-                            actual_output=target_output,
-                        )
-                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
-                            "Evaluating {idx} / {num_simulated_attacks} target LLM output", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
-                        ), status="doing"))
-
-                        try:
-                            metric.language = logger.lang
-                            metric.measure(test_case)
-                            red_teaming_test_case.score = metric.score
-                            reason = self._translate_reason(metric.reason)
-                            red_teaming_test_case.reason = reason
-                        except Exception as e:
-                            logger.exception(e)
-                            if ignore_errors:
-                                red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability"
-                                red_teaming_test_case.reason = logger.translated_msg("An anomaly occurred during the evaluation, which could be due to rate limiting or API security blocking.")
-                                red_teaming_test_cases.append(
-                                    red_teaming_test_case
-                                )
+                            elif simulated_attack.useless and simulated_attack.attack_method != "RedTeam":
+                                red_teaming_test_case.useless = simulated_attack.useless
+                                red_teaming_test_case.reason = logger.translated_msg("The simulation attack remained unchanged, which may be because it was not applicable to the current input.")
+                                red_teaming_test_cases.append(red_teaming_test_case)
                                 progress_log.record(red_teaming_test_case)
                                 continue
-                            else:
-                                raise
 
-                        case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
-                        if case_md is not None:
-                            logger.action_log(actionLog(tool_id=tool_id, tool_name="Case measure", stepId="2", log=case_md))
-                        pbar.update(1)
-                        red_teaming_test_cases.append(red_teaming_test_case)
-                        progress_log.record(red_teaming_test_case)
+                            logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                                "Generating {idx} / {num_simulated_attacks} output from simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
+                            ), status="doing"))
 
-                    logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Metric measure", brief=logger.translated_msg(
-                        "Measure {num_simulated_attacks} simulated attacks done", num_simulated_attacks=num_simulated_attacks
-                    ), status="done"))
+                            try:
+                                target_output = model_callback(
+                                    simulated_attack.input
+                                )
+                                if target_output == "":
+                                    raise ValueError("The response is none")
+                                red_teaming_test_case.actual_output = target_output
+                            except Exception as e:
+                                logger.exception(e)
+                                if ignore_errors:
+                                    red_teaming_test_case.error = (
+                                        "Error generating output from target LLM"
+                                    )
+                                    red_teaming_test_case.reason = logger.translated_msg("The model has no output, which could be due to rate limiting or API security blocking.")
+                                    red_teaming_test_cases.append(
+                                        red_teaming_test_case
+                                    )
+                                    progress_log.record(red_teaming_test_case)
+                                    continue
+                                else:
+                                    raise
 
-                logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
-                    "Measure model: {model_name}", model_name=model_name
-                ), status="completed"))
-                pbar.close()
-                progress_log.close()
+                            test_case = LLMTestCase(
+                                input=simulated_attack.input,
+                                actual_output=target_output,
+                            )
+                            logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
+                                "Evaluating {idx} / {num_simulated_attacks} target LLM output", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
+                            ), status="doing"))
+
+                            try:
+                                metric.language = logger.lang
+                                metric.measure(test_case)
+                                red_teaming_test_case.score = metric.score
+                                reason = self._translate_reason(metric.reason)
+                                red_teaming_test_case.reason = reason
+                            except Exception as e:
+                                logger.exception(e)
+                                if ignore_errors:
+                                    red_teaming_test_case.error = f"Error evaluating target LLM output for the '{vulnerability_type.value}' vulnerability"
+                                    red_teaming_test_case.reason = logger.translated_msg("An anomaly occurred during the evaluation, which could be due to rate limiting or API security blocking.")
+                                    red_teaming_test_cases.append(
+                                        red_teaming_test_case
+                                    )
+                                    progress_log.record(red_teaming_test_case)
+                                    continue
+                                else:
+                                    raise
+
+                            case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
+                            if case_md is not None:
+                                logger.action_log(actionLog(tool_id=tool_id, tool_name="Case measure", stepId="2", log=case_md))
+                            pbar.update(1)
+                            red_teaming_test_cases.append(red_teaming_test_case)
+                            progress_log.record(red_teaming_test_case)
+
+                        logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, tool_name="Metric measure", brief=logger.translated_msg(
+                            "Measure {num_simulated_attacks} simulated attacks done", num_simulated_attacks=num_simulated_attacks
+                        ), status="done"))
+
+                    logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
+                        "Measure model: {model_name}", model_name=model_name
+                    ), status="completed"))
+                    pbar.close()
+                finally:
+                    progress_log.close()
 
                 self.risk_assessment = RiskAssessment(
                     overview=construct_risk_assessment_overview(
@@ -498,35 +500,37 @@ Direct translation without separators"""
             )
             red_teaming_test_cases: List[RedTeamingTestCase] = []
             progress_log = self._new_progress_log()
-            logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
-                "Measure model: {model_name}", model_name=model_name
-            ), status="running"))
+            try:
+                logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
+                    "Measure model: {model_name}", model_name=model_name
+                ), status="running"))
 
-            async def throttled_evaluate_vulnerability_type(
-                vulnerability_type, attacks
-            ):
-                test_cases = await self._a_evaluate_vulnerability_type(
-                    model_callback,
-                    vulnerability_type,
-                    attacks,
-                    metrics_map,
-                    ignore_errors=ignore_errors,
-                    progress_log=progress_log,
-                )
-                red_teaming_test_cases.extend(test_cases)
-                pbar.update(len(attacks))
+                async def throttled_evaluate_vulnerability_type(
+                    vulnerability_type, attacks
+                ):
+                    test_cases = await self._a_evaluate_vulnerability_type(
+                        model_callback,
+                        vulnerability_type,
+                        attacks,
+                        metrics_map,
+                        ignore_errors=ignore_errors,
+                        progress_log=progress_log,
+                    )
+                    red_teaming_test_cases.extend(test_cases)
+                    pbar.update(len(attacks))
 
-            # Create a list of tasks for evaluating each vulnerability, with throttling
-            logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg("Measure simulated attacks"), status="todo"))
-            for vulnerability_type, attacks in vulnerability_type_to_attacks_map.items():
-                await throttled_evaluate_vulnerability_type(vulnerability_type, attacks)
-            logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, tool_name="Metric measure", brief=logger.translated_msg("Measure simulated attacks done"), status="done"))
+                # Create a list of tasks for evaluating each vulnerability, with throttling
+                logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg("Measure simulated attacks"), status="todo"))
+                for vulnerability_type, attacks in vulnerability_type_to_attacks_map.items():
+                    await throttled_evaluate_vulnerability_type(vulnerability_type, attacks)
+                logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, tool_name="Metric measure", brief=logger.translated_msg("Measure simulated attacks done"), status="done"))
 
-            logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
-                "Measure model: {model_name}", model_name=model_name
-            ), status="completed"))
-            pbar.close()
-            progress_log.close()
+                logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
+                    "Measure model: {model_name}", model_name=model_name
+                ), status="completed"))
+                pbar.close()
+            finally:
+                progress_log.close()
 
             self.risk_assessment = RiskAssessment(
                 overview=construct_risk_assessment_overview(

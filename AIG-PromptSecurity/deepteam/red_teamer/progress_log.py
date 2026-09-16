@@ -36,8 +36,9 @@ class ProgressLog:
     every write is followed by ``flush()`` and ``os.fsync()``. Any abrupt end
     of the process therefore costs at most ``flush_every - 1`` cases.
 
-    ``path=None`` turns the log into a no-op object. That is how the feature
-    is disabled, so callers never have to check for ``None`` themselves.
+    ``path=None`` (or any empty value) turns the log into a no-op object.
+    That is how the feature is disabled, so callers never have to check for
+    ``None`` themselves.
 
     The file is opened in append mode, so a later run keeps the records of the
     previous one, which also makes it usable as a resume checkpoint.
@@ -57,7 +58,7 @@ class ProgressLog:
 
     def record(self, test_case: RedTeamingTestCase) -> None:
         """缓存一条已完成的测试用例，达到阈值时写盘。"""
-        if self.path is None:
+        if not self.path:
             return
         self._buffer.append(test_case.model_dump(mode="json", by_alias=True))
         if len(self._buffer) >= self.flush_every:
@@ -65,7 +66,7 @@ class ProgressLog:
 
     def flush(self) -> None:
         """把缓存中的记录写入文件，并强制刷到磁盘。"""
-        if self.path is None or not self._buffer:
+        if not self.path or not self._buffer:
             return
         with open(self.path, "a", encoding="utf-8") as progress_file:
             for record in self._buffer:

@@ -148,7 +148,7 @@ def main():
         choice=args.choice,
         metric=args.metric,
         report_path=args.report,
-        progress_log_path=args.progress_log,
+        progress_log_path=args.progress_log or None,
     )
 
 
