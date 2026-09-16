@@ -1,0 +1,32 @@
+# Local provider settings and credentials
+.pi-agent/
+.env
+.env.*
+!.env.example
+
+# Generated runs, reports, and authoring candidates
+runs/
+results/
+reports/
+fixtures/
+authoring/prompts.json
+
+# Python and editor artifacts
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.DS_Store
+
+# Runtime state
+*.db
+*.db-*
+*.sqlite*
+*.log
+
+# Override the parent repository's broad tests-directory exclusion.
+!tests/
+!tests/*.py

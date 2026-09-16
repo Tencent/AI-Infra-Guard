@@ -1,0 +1,138 @@
+name: roguehandoff20
+
+x-case: &case
+  build: .
+  image: roguehandoff20:local
+  read_only: true
+  tmpfs:
+    - /tmp
+  environment: &environment
+    CONDITION: ${CONDITION:-normal}
+    EVALUATOR_TOKEN: ${EVALUATOR_TOKEN:-local-evaluator-only}
+    DATABASE_PATH: /tmp/episode.db
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  case01:
+    <<: *case
+    profiles: [case01]
+    environment: {<<: *environment, CASE_ID: "1"}
+    ports: ["127.0.0.1:9101:8080"]
+    tmpfs: [/tmp, /data]
+  case02:
+    <<: *case
+    profiles: [case02]
+    environment: {<<: *environment, CASE_ID: "2"}
+    ports: ["127.0.0.1:9102:8080"]
+    tmpfs: [/tmp, /data]
+  case03:
+    <<: *case
+    profiles: [case03]
+    environment: {<<: *environment, CASE_ID: "3"}
+    ports: ["127.0.0.1:9103:8080"]
+    tmpfs: [/tmp, /data]
+  case04:
+    <<: *case
+    profiles: [case04]
+    environment: {<<: *environment, CASE_ID: "4"}
+    ports: ["127.0.0.1:9104:8080"]
+    tmpfs: [/tmp, /data]
+  case05:
+    <<: *case
+    profiles: [case05]
+    environment: {<<: *environment, CASE_ID: "5"}
+    ports: ["127.0.0.1:9105:8080"]
+    tmpfs: [/tmp, /data]
+  case06:
+    <<: *case
+    profiles: [case06]
+    environment: {<<: *environment, CASE_ID: "6"}
+    ports: ["127.0.0.1:9106:8080"]
+    tmpfs: [/tmp, /data]
+  case07:
+    <<: *case
+    profiles: [case07]
+    environment: {<<: *environment, CASE_ID: "7"}
+    ports: ["127.0.0.1:9107:8080"]
+    tmpfs: [/tmp, /data]
+  case08:
+    <<: *case
+    profiles: [case08]
+    environment: {<<: *environment, CASE_ID: "8"}
+    ports: ["127.0.0.1:9108:8080"]
+    tmpfs: [/tmp, /data]
+  case09:
+    <<: *case
+    profiles: [case09]
+    environment: {<<: *environment, CASE_ID: "9"}
+    ports: ["127.0.0.1:9109:8080"]
+    tmpfs: [/tmp, /data]
+  case10:
+    <<: *case
+    profiles: [case10]
+    environment: {<<: *environment, CASE_ID: "10"}
+    ports: ["127.0.0.1:9110:8080"]
+    tmpfs: [/tmp, /data]
+  case11:
+    <<: *case
+    profiles: [case11]
+    environment: {<<: *environment, CASE_ID: "11"}
+    ports: ["127.0.0.1:9111:8080"]
+    tmpfs: [/tmp, /data]
+  case12:
+    <<: *case
+    profiles: [case12]
+    environment: {<<: *environment, CASE_ID: "12"}
+    ports: ["127.0.0.1:9112:8080"]
+    tmpfs: [/tmp, /data]
+  case13:
+    <<: *case
+    profiles: [case13]
+    environment: {<<: *environment, CASE_ID: "13"}
+    ports: ["127.0.0.1:9113:8080"]
+    tmpfs: [/tmp, /data]
+  case14:
+    <<: *case
+    profiles: [case14]
+    environment: {<<: *environment, CASE_ID: "14"}
+    ports: ["127.0.0.1:9114:8080"]
+    tmpfs: [/tmp, /data]
+  case15:
+    <<: *case
+    profiles: [case15]
+    environment: {<<: *environment, CASE_ID: "15"}
+    ports: ["127.0.0.1:9115:8080"]
+    tmpfs: [/tmp, /data]
+  case16:
+    <<: *case
+    profiles: [case16]
+    environment: {<<: *environment, CASE_ID: "16"}
+    ports: ["127.0.0.1:9116:8080"]
+    tmpfs: [/tmp, /data]
+  case17:
+    <<: *case
+    profiles: [case17]
+    environment: {<<: *environment, CASE_ID: "17"}
+    ports: ["127.0.0.1:9117:8080"]
+    tmpfs: [/tmp, /data]
+  case18:
+    <<: *case
+    profiles: [case18]
+    environment: {<<: *environment, CASE_ID: "18"}
+    ports: ["127.0.0.1:9118:8080"]
+    tmpfs: [/tmp, /data]
+  case19:
+    <<: *case
+    profiles: [case19]
+    environment: {<<: *environment, CASE_ID: "19"}
+    ports: ["127.0.0.1:9119:8080"]
+    tmpfs: [/tmp, /data]
+  case20:
+    <<: *case
+    profiles: [case20]
+    environment: {<<: *environment, CASE_ID: "20"}
+    ports: ["127.0.0.1:9120:8080"]
+    tmpfs: [/tmp, /data]
