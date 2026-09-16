@@ -1,0 +1,12 @@
+# Only runtime inputs belong in the image build context.
+**
+!Dockerfile
+!roguehandoff/
+!roguehandoff/__init__.py
+!roguehandoff/catalog.py
+!roguehandoff/store.py
+!roguehandoff/server.py
+!roguehandoff/cli.py
+!pi_pending_loader.mjs
+!examples/
+!examples/mechanical_agent.py

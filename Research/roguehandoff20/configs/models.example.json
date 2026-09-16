@@ -1,0 +1,27 @@
+{
+  "providers": {
+    "benchmark": {
+      "baseUrl": "https://api.example.com/v1",
+      "api": "openai-completions",
+      "apiKey": "!printenv BENCHMARK_API_KEY",
+      "models": [
+        {
+          "id": "your-model-id",
+          "name": "Your model",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}
