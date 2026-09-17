@@ -549,9 +549,13 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 
 **Research:**
 
-1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 对 DeepSeek Harness 的授权安全评估，覆盖 14,560 次智能体运行的间接提示词注入测试。[[code]](../Research/deepseek-harness-security-assessment)
+1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — 基于 Docker 的基准测试，衡量智能体是否会采纳作为前置状态提供的不安全轨迹，评估其在接触其他智能体不安全策略后的易感性。[[code]](../Research/roguehandoff20)
 
-2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 展示如何通过投毒轨迹向自进化智能体技能系统注入持久化后门。[[code]](../Research/SkillJack)
+2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — 确定性、基于预言机的基准测试，研究自主智能体在执行合法任务过程中如何失控，覆盖 16 个领域、1,800 条轨迹，评估目标压力、约束退化与不安全机会三大因素。[[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+
+3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 对 DeepSeek Harness 的授权安全评估，覆盖 14,560 次智能体运行的间接提示词注入测试。[[code]](../Research/deepseek-harness-security-assessment)
+
+4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 展示如何通过投毒轨迹向自进化智能体技能系统注入持久化后门。[[code]](../Research/SkillJack)
 
 **Papers:**
 

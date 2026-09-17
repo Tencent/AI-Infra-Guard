@@ -560,9 +560,13 @@ A.I.G 프로젝트에 기여해 주신 모든 개발자분들께 감사드립니
 
 **Research:**
 
-1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 14,560회 에이전트 실행에 걸쳐 DeepSeek Harness에 대한 간접 프롬프트 인젝션 권한 인가 보안 평가입니다. [[code]](../Research/deepseek-harness-security-assessment)
+1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — 이전 상태로 제공된 안전하지 않은 트래젝토리를 에이전트가 채택하는지를 측정하는 Docker 기반 벤치마크로, 다른 에이전트의 안전하지 않은 전략에 노출된 후의 취약성을 테스트합니다. [[code]](../Research/roguehandoff20)
 
-2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 포이즈된 트래젝토리를 통해 자기 진화형 에이전트 스킬 시스템에 지속적인 백도어를 주입하는 방법을 실증합니다. [[code]](../Research/SkillJack)
+2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — 자율 에이전트가 정당한 작업을 수행하는 과정에서 통제를 잃는 과정을 연구하는 결정론적이고 오라클 기반의 벤치마크로, 16개 도메인과 1,800개 트래젝토리에 걸쳐 목표 압박, 제약 약화, 안전하지 않은 기회를 평가합니다. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+
+3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 14,560회 에이전트 실행에 걸쳐 DeepSeek Harness에 대한 간접 프롬프트 인젝션 권한 인가 보안 평가입니다. [[code]](../Research/deepseek-harness-security-assessment)
+
+4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 포이즈된 트래젝토리를 통해 자기 진화형 에이전트 스킬 시스템에 지속적인 백도어를 주입하는 방법을 실증합니다. [[code]](../Research/SkillJack)
 
 **Papers:**
 

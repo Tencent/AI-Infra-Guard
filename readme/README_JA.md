@@ -561,9 +561,13 @@ A.I.G プロジェクトに貢献してくださったすべての開発者の�
 
 **Research:**
 
-1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — DeepSeek Harness に対する認可済みセキュリティ評価。14,560 回のエージェント実行における間接プロンプトインジェクションテスト。[[code]](../Research/deepseek-harness-security-assessment)
+1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — 前置状態として与えられた安全でないトラジェクトリをエージェントが採用するかを測定する Docker ベースのベンチマーク。他のエージェントの安全でない戦略に暴露された後の易感性をテストします。[[code]](../Research/roguehandoff20)
 
-2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — ポイズンされたトラジェクトリを通じて自己進化型エージェントスキルシステムに持続的バックドアを注入する方法を実証。[[code]](../Research/SkillJack)
+2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — 自律エージェントが正当なタスクを遂行する中で制御を失うプロセスを研究する、決定論的でオラクルベースのベンチマーク。目標圧力、制約の劣化、安全でない機会を 16 ドメイン・1,800 トラジェクトリで評価します。[[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+
+3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — DeepSeek Harness に対する認可済みセキュリティ評価。14,560 回のエージェント実行における間接プロンプトインジェクションテスト。[[code]](../Research/deepseek-harness-security-assessment)
+
+4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — ポイズンされたトラジェクトリを通じて自己進化型エージェントスキルシステムに持続的バックドアを注入する方法を実証。[[code]](../Research/SkillJack)
 
 **Papers:**
 
