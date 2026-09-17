@@ -11,6 +11,7 @@ from typing import List, Optional
 from openai import AsyncOpenAI
 
 from mcp_scan.redteam.strategy import ConversationTurn
+from mcp_scan.utils.llm_retry import acall_with_retry
 
 EVALUATOR_SYSTEM = """你是一名安全评估专家，对红队针对 MCP Server 的攻击轮次进行评分。
 根据「攻击目标」「本轮攻击消息」「目标响应」判断：
@@ -84,9 +85,12 @@ class EvaluatorAgent:
         """
         history_before = history_before or []
         messages = self._build_messages(attack_target, turn, history_before)
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
+        response = await acall_with_retry(
+            lambda: self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+            ),
+            what="evaluator evaluate",
         )
         content = (response.choices[0].message.content or "").strip()
         if not content:

@@ -11,6 +11,7 @@ from typing import List, Optional, Any
 from openai import AsyncOpenAI
 
 from mcp_scan.redteam.strategy import ConversationTurn, CrescendoPhase
+from mcp_scan.utils.llm_retry import acall_with_retry
 
 # 默认系统提示：约束输出为 JSON
 ATTACKER_SYSTEM = """你是一名红队攻击专家，针对 MCP (Model Context Protocol) Server 进行安全测试。
@@ -94,9 +95,12 @@ class AttackerAgent:
             phase=phase,
             extra_context=extra_context,
         )
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
+        response = await acall_with_retry(
+            lambda: self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+            ),
+            what="attacker generate_attack",
         )
         content = (response.choices[0].message.content or "").strip()
         if not content:

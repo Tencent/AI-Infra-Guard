@@ -11,6 +11,8 @@ from typing import List, Optional
 
 from openai import AsyncOpenAI
 
+from mcp_scan.utils.llm_retry import acall_with_retry
+
 # 源码分析：可读扩展名与单文件最大字符数（与 mcp-scan 能力对齐）
 READABLE_EXT = {".py", ".go", ".js", ".ts", ".md", ".json", ".yaml", ".yml", ".toml", ".sh", ".rs", ".java"}
 MAX_FILE_CHARS = 50000
@@ -137,8 +139,11 @@ class TargetRunner:
         根据当前攻击消息与已有上下文，模拟 MCP Server 的响应并返回字符串。
         """
         messages = self._build_messages(attack_message, recent_history)
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
+        response = await acall_with_retry(
+            lambda: self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+            ),
+            what="target respond_to_attack",
         )
         return (response.choices[0].message.content or "").strip()

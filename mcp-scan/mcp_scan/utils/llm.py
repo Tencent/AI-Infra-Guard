@@ -20,6 +20,7 @@ import time
 
 import openai
 
+from mcp_scan.utils.llm_retry import call_with_retry
 from mcp_scan.utils.loging import logger
 
 
@@ -44,7 +45,16 @@ class LLM:
         retry = 0
 
         while True:
-            ret, usage = self.chat_stream(message)
+            try:
+                # 限流/瞬时异常在 call_with_retry 内按退避策略重试，耗尽后上抛
+                ret, usage = call_with_retry(
+                    lambda: self.chat_stream(message), what="LLM chat"
+                )
+            except Exception as e:
+                # 重试耗尽：不终止整个扫描任务，返回错误占位文本（与空响应的处理一致）
+                logger.error(f"LLM chat failed after retries: {type(e).__name__}: {e}")
+                ret = "连接LLM失败，已重试多次，模型调用持续报错，请稍后再试"
+                break
             if ret != "":
                 break
             else:
