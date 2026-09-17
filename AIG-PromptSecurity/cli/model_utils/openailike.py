@@ -16,6 +16,7 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
+import re
 import time
 import asyncio
 import threading
@@ -48,8 +49,6 @@ def _is_rate_limit_error(exc: Exception) -> bool:
         return True
     # 独立数字 429（前后是词边界以外的字符），兼容 "429 Too Many Requests" 这类文案；
     # (?<![0-9a-z_]) 排除 req_429ab3c / 4290ms 这类数字串中的 429
-    import re
-
     return bool(re.search(r"(?<![0-9a-z_])429(?![0-9a-z_])", msg))
 
 
@@ -91,8 +90,6 @@ def _retry_after_seconds(exc: Exception, default: float) -> float:
     except Exception:
         pass
     # 3) 消息文本中的 "retry after N seconds" 提示
-    import re
-
     m = re.search(r"retry\s+(?:after|in)\s+(\d+(?:\.\d+)?)", str(exc), re.IGNORECASE)
     if m:
         value = float(m.group(1))
