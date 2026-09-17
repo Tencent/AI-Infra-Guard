@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.2] - 2026-09-17
+
+### Added
+- **Research**: Add FORGE-Bench (forge_bench) — deterministic Loss-of-Control benchmark for autonomous agents
+- **Research**: Add clean RogueHandoff-20 benchmark under Research
+- **Data**: Add AIG rules [2026-09-11]
+- **Skill-Scan**: Bump aig-skill-scan to 0.2.2 (#656)
+
+### Fixed
+- **Skill-Scan**: Reduce evidence-free false positives (PR #652)
+- **Skill-Scan**: Prevent model tool-call stalls and bound stalled streaming responses
+- **Skill-Scan**: Reconcile verdicts with public findings (PR #652)
+- **Extract-Vuln**: Strip CDATA wrapper and accept common tag aliases (PR #655)
+- **Data**: Flatten cvss map to string format to match upstream schema
+- **Data**: Resolve 12 YAML validation failures
+- **Data**: Remove redundant n8n.yaml fingerprint (upstream has n8n.io.yaml)
+
+### Changed
+- **Research (forge_bench)**: Built-in OpenAI-compatible client, bilingual README, and quickstart (PR #658)
+- **Docs**: Document English-only contributor text and canonical input language policy
+- **Docs**: Add v4.6.1 What's New entry across all 9 README languages
+- **Docs**: Revert CATL logo acknowledgement added to all README languages (PR #654/#659)
+
+### Contributors
+Elwood Zonghao Ying (NY1024), xiangfanwu, aigsec, AIG-Bot, boy-hack, pythoncheng, feiyang, aig-doc-bot
+
 ## [v4.6.1] - 2026-09-10
 
 ### Added
