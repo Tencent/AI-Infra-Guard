@@ -560,9 +560,13 @@ Si vous utilisez A.I.G dans vos recherches, veuillez citer :
 
 **Research:**
 
-1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Évaluation de sécurité autorisée de DeepSeek Harness contre l'injection indirecte de prompts sur 14 560 exécutions d'agents. [[code]](../Research/deepseek-harness-security-assessment)
+1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — Un benchmark basé sur Docker mesurant si un agent adopte une trajectoire non sécurisée fournie en tant qu'état précédent, testant sa susceptibilité après exposition à la stratégie non sécurisée d'un autre agent. [[code]](../Research/roguehandoff20)
 
-2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Démontre comment des trajectoires empoisonnées peuvent injecter des portes dérobées persistantes dans les systèmes de compétences d'agents auto-évolutifs. [[code]](../Research/SkillJack)
+2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — Un benchmark déterministe basé sur des oracles étudiant comment les agents autonomes perdent le contrôle en accomplissant des tâches légitimes, évaluant la pression d'objectif, la dégradation des contraintes et l'opportunité non sécurisée sur 16 domaines et 1 800 trajectoires. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+
+3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Évaluation de sécurité autorisée de DeepSeek Harness contre l'injection indirecte de prompts sur 14 560 exécutions d'agents. [[code]](../Research/deepseek-harness-security-assessment)
+
+4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Démontre comment des trajectoires empoisonnées peuvent injecter des portes dérobées persistantes dans les systèmes de compétences d'agents auto-évolutifs. [[code]](../Research/SkillJack)
 
 **Papers:**
 
