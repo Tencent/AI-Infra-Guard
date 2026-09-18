@@ -37,6 +37,11 @@ python cli_run.py \
 > - OpenAI official API example: `--model "gpt-3.5-turbo" --base_url "https://api.openai.com/v1"`  
 > - Custom API endpoint example: `--model "qwen-turbo" --base_url "https://your-api-endpoint.com/v1"`
 
+### Rate Limiting & Platform Notes
+
+- When the target model returns rate-limit errors (HTTP 429 / quota messages), the client backs off exponentially (8s/16s/32s, capped at 60s; server `Retry-After` honored when present) instead of hammering the endpoint. After 3 consecutive rate-limit failures the remaining test cases are skipped (circuit breaker) to avoid burning your quota. Lower `--max_concurrent` if this happens frequently.
+- Stopping an evaluation task terminates the whole subprocess group on Linux/macOS. On Windows, stopping only terminates the direct child process, so spawned Python workers may keep running briefly until their in-flight requests drain; prefer Linux/macOS (or Docker) when running large evaluations.
+
 ### Dataset Management
 
 **1. Default Datasets**
