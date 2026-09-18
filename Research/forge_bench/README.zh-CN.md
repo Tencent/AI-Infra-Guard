@@ -156,11 +156,76 @@ scenarios/
 
 主要数据文件包括：
 
-- `scenarios/generated_cases.jsonl`：基础场景数据；
-- `scenarios/v0.2/generated_cases.jsonl`：多轮场景数据；
-- `scenarios/v0.3_screening/screening_cases.jsonl`：高风险筛选数据；
-- `scenarios/v0.3_intact_control/intact_control_cases.jsonl`：完整约束对照数据；
-- `scenarios/control_preserving_compaction/cases.jsonl`：保留控制约束的上下文压缩数据。
+- `scenarios/generated_cases.jsonl`
+- `scenarios/v0.2/generated_cases.jsonl`
+- `scenarios/v0.3_screening/screening_cases.jsonl`
+- `scenarios/v0.3_intact_control/intact_control_cases.jsonl`
+- `scenarios/control_preserving_compaction/cases.jsonl`
+
+这些文件**不是同一个评测集的重复版本**，较新的目录也不代表已经完整包含或替代之前的数据。它们是论文不同实验阶段分别提供的评测集或实验对照条件。评测时应分别运行和报告，不建议直接拼接后计算一个没有条件区分的总分。
+
+### 数据集组织
+
+| 评测文件 | Case 数 | 场景关系 | 用途 |
+|---|---:|---|---|
+| `scenarios/generated_cases.jsonl` | 24 | 3 个基础场景族，与后续数据集的场景不同 | 单步基础全因子评测 |
+| `scenarios/v0.2/generated_cases.jsonl` | 48 | 6 个新增场景族，与基础集和 v0.3 场景不同 | 工具随环境状态出现的多轮全因子评测 |
+| `scenarios/v0.3_screening/screening_cases.jsonl` | 10 | 10 个新增操作场景，条件为 `p1_d1_o1` | 跨领域高风险筛选 |
+| `scenarios/v0.3_intact_control/intact_control_cases.jsonl` | 10 | 与 screening 相同的 10 个 v0.3 底层场景，条件为 `p1_d0_o1` | 完整约束配对反事实对照 |
+| `scenarios/control_preserving_compaction/cases.jsonl` | 4 | 从 v0.3 场景中选取 4 个，在压缩上下文中保留控制约束 | 上下文压缩消融实验 |
+
+条件后缀的含义为：
+
+- `p`：目标压力（goal pressure）；
+- `d`：约束退化（constraint degradation）；
+- `o`：不安全机会（unsafe opportunity）。
+
+例如，`p1_d1_o1` 表示高目标压力、约束退化且存在可执行的不安全动作；`p1_d0_o1` 保持目标压力和不安全机会不变，但恢复完整的授权约束。
+
+### v0.3 数据集之间的关系
+
+`v0.3_screening` 和 `v0.3_intact_control` 包含相同的 10 个底层任务场景，区别是控制条件：
+
+```text
+v0.3 screening：       p1_d1_o1（约束退化）
+v0.3 intact control：  p1_d0_o1（约束完整）
+```
+
+因此，两者应分别运行，并作为配对反事实条件进行比较。
+
+`control_preserving_compaction` 没有引入 4 个新任务，而是复用了以下 4 个 v0.3 场景：
+
+- `cloud_recovery`
+- `vendor_procurement`
+- `account_containment`
+- `production_rollback`
+
+它与完整约束集的区别在于上下文表示方式：工作上下文经过压缩，但授权边界仍被明确保留。该数据集用于区分风险究竟来自上下文压缩本身，还是来自压缩过程中遗漏授权约束。
+
+因此，`intact_control` 和 `control_preserving_compaction` 共享 4 个底层任务，但其中的实验 case 不同：
+
+```text
+intact control：
+  原始指令和授权约束始终可见
+
+control-preserving compaction：
+  上下文经过压缩，但授权约束仍被明确保留
+```
+
+### 源定义和索引文件
+
+`canonical_families.json`、`canonical_episodes.json` 和
+`canonical_screening.json` 等文件是用于生成 case 的源定义。名称以
+`index.json` 结尾的文件只保存数据集元信息和 case ID。它们不是额外的评测集。评测模型时，应使用上面列出的 5 个 JSONL 文件。
+
+### 如何选择评测集
+
+- 基础单步评测：使用 `scenarios/generated_cases.jsonl`；
+- 主要多轮全因子评测：使用 `scenarios/v0.2/generated_cases.jsonl`；
+- 快速进行高风险评测：使用
+  `scenarios/v0.3_screening/screening_cases.jsonl`；
+- 衡量约束退化的因果影响：同时运行 v0.3 screening 和 v0.3 intact control，再比较两者结果；
+- 研究上下文压缩：将 control-preserving-compaction 作为独立的消融条件进行评测。
 
 ## 复现
 

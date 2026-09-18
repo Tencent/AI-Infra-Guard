@@ -156,11 +156,94 @@ scenarios/
 
 The main dataset files are:
 
-- `scenarios/generated_cases.jsonl`: base scenarios;
-- `scenarios/v0.2/generated_cases.jsonl`: multi-turn scenarios;
-- `scenarios/v0.3_screening/screening_cases.jsonl`: high-risk screening set;
-- `scenarios/v0.3_intact_control/intact_control_cases.jsonl`: intact-constraint counterfactual set; and
-- `scenarios/control_preserving_compaction/cases.jsonl`: control-preserving context-compaction set.
+- `scenarios/generated_cases.jsonl`
+- `scenarios/v0.2/generated_cases.jsonl`
+- `scenarios/v0.3_screening/screening_cases.jsonl`
+- `scenarios/v0.3_intact_control/intact_control_cases.jsonl`
+- `scenarios/control_preserving_compaction/cases.jsonl`
+
+These files are **not duplicate versions of one evaluation set**, and a newer
+directory does not supersede all earlier files. They are separately provided
+evaluation sets or experimental controls from different stages of the study.
+Run and report them separately rather than concatenating them into a single
+undifferentiated score.
+
+### Dataset organization
+
+| Evaluation file | Cases | Scenario relationship | Purpose |
+|---|---:|---|---|
+| `scenarios/generated_cases.jsonl` | 24 | Three base scenario families, distinct from the later datasets | Single-step base factorial evaluation |
+| `scenarios/v0.2/generated_cases.jsonl` | 48 | Six additional scenario families, distinct from the base and v0.3 families | Multi-turn factorial evaluation with state-dependent tool availability |
+| `scenarios/v0.3_screening/screening_cases.jsonl` | 10 | Ten additional operational scenarios under `p1_d1_o1` | High-risk cross-domain screening |
+| `scenarios/v0.3_intact_control/intact_control_cases.jsonl` | 10 | The same ten underlying v0.3 scenarios as the screening set, under `p1_d0_o1` | Paired intact-constraint counterfactual |
+| `scenarios/control_preserving_compaction/cases.jsonl` | 4 | A four-scenario subset of the v0.3 scenarios, with control-preserving compacted context | Context-compaction ablation |
+
+The factor suffixes mean:
+
+- `p`: goal pressure;
+- `d`: constraint degradation; and
+- `o`: unsafe opportunity.
+
+For example, `p1_d1_o1` denotes high goal pressure, degraded constraints, and
+an available unsafe action. `p1_d0_o1` keeps the pressure and opportunity but
+restores the intact authorization constraints.
+
+### Relationship between the v0.3 sets
+
+The screening and intact-control files contain the same ten underlying task
+scenarios. They differ in the control condition:
+
+```text
+v0.3 screening:       p1_d1_o1  (constraints degraded)
+v0.3 intact control:  p1_d0_o1  (constraints intact)
+```
+
+They should therefore be evaluated separately and compared as paired
+counterfactual conditions.
+
+The control-preserving-compaction set does not introduce four new tasks. It
+reuses these four v0.3 scenarios:
+
+- `cloud_recovery`
+- `vendor_procurement`
+- `account_containment`
+- `production_rollback`
+
+Its difference is the context representation: the working context is
+compacted, but the authorization boundaries are explicitly preserved. It is
+an ablation for distinguishing harm caused by context compaction itself from
+harm caused by omitting authorization constraints during compaction.
+
+Consequently, the intact-control and control-preserving-compaction files share
+four underlying tasks but contain different experimental cases:
+
+```text
+intact control:
+  original instruction and authorization constraints remain available
+
+control-preserving compaction:
+  context is compacted, while authorization constraints remain explicit
+```
+
+### Source definitions and indexes
+
+Files such as `canonical_families.json`, `canonical_episodes.json`, and
+`canonical_screening.json` are source definitions used to generate cases.
+Files ending in `index.json` contain dataset metadata and case identifiers.
+They are not additional evaluation sets. For model evaluation, use the five
+JSONL files listed above.
+
+### Choosing an evaluation
+
+- For the base single-step evaluation, use `scenarios/generated_cases.jsonl`.
+- For the main multi-turn factorial evaluation, use
+  `scenarios/v0.2/generated_cases.jsonl`.
+- For a focused high-risk evaluation, use
+  `scenarios/v0.3_screening/screening_cases.jsonl`.
+- To measure the causal effect of constraint degradation, run both v0.3
+  screening and v0.3 intact control, then compare their results.
+- To study context compaction, evaluate the control-preserving-compaction set
+  as its own ablation condition.
 
 ## Reproducibility
 
