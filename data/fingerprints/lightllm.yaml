@@ -14,4 +14,4 @@ http:
   - method: GET
     path: '/health'
     matchers:
-      - status_code == 200 && body="lightllm"
+      - body="lightllm"
