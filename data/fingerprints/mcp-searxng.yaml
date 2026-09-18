@@ -1,0 +1,24 @@
+info:
+  name: mcp-searxng
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    mcp-searxng is a Model Context Protocol (MCP) server that gives AI
+    assistants web search and URL-reading capabilities through SearXNG.
+    It supports both stdio and HTTP transports. The HTTP transport runs
+    on Express with a /health endpoint and /mcp endpoint for JSON-RPC.
+  metadata:
+    product: mcp-searxng
+    vendor: ihor-sokoliuk
+http:
+  - method: GET
+    path: /health
+    matchers:
+      - body="ihor-sokoliuk/mcp-searxng" && body="healthy"
+version:
+  - method: GET
+    path: /health
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9][0-9a-zA-Z.\-]*)"'
