@@ -78,7 +78,17 @@ providers:
         models:
           - openai/gpt-4o
           - anthropic/claude-3-opus
-      
+
+      orcarouter:
+        env_keys: ["ORCAROUTER_API_KEY"]
+        base_url: "https://api.orcarouter.ai/v1"
+        endpoint: "/chat/completions"
+        default_model: "orcarouter/fusion"
+        models:
+          - orcarouter/fusion
+          - orcarouter/fusion-flash
+          - orcarouter/fusion-mini
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
