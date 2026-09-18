@@ -90,3 +90,36 @@ func TestFindCaseInsensitivePathCollisions(t *testing.T) {
 		})
 	}
 }
+
+func TestIsValidSeverity(t *testing.T) {
+	tests := []struct {
+		name     string
+		severity string
+		want     bool
+	}{
+		{"english low", "low", true},
+		{"english medium", "MEDIUM", true},
+		{"english high", "High", true},
+		{"english critical", "critical", true},
+		{"english info", "info", true},
+		{"chinese 低", "低", true},
+		{"chinese 中", "中", true},
+		{"chinese 中等", "中等", true},
+		{"chinese 高", "高", true},
+		{"chinese 中危", "中危", true},
+		{"chinese 高危", "高危", true},
+		{"chinese 严重", "严重", true},
+		{"chinese 危急", "危急", true},
+		{"unknown", "UNKNOWN", true},
+		{"empty", "", true},
+		{"invalid value", "bogus", false},
+		{"invalid chinese", "非常高", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isValidSeverity(tt.severity); got != tt.want {
+				t.Errorf("isValidSeverity(%q) = %v, want %v", tt.severity, got, tt.want)
+			}
+		})
+	}
+}
