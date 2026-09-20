@@ -348,6 +348,42 @@ class ServerContractTests(unittest.TestCase):
             ("https://api.example.test/v1", "https://api.example.test"),
             server.anthropic_bases("https://api.example.test/v1"),
         )
+        self.assertEqual(
+            ("https://api.example.test/v1", "https://api.example.test"),
+            server.anthropic_bases(
+                "https://api.example.test/v1/messages"
+            ),
+        )
+
+    def test_claude_audit_uses_anthropic_models_protocol(self):
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://api.example.test/v1/messages",
+            api_key="secret",
+            model="claude-opus-5",
+        )
+        audit_result = {
+            "score": 0,
+            "verdict": "LOW",
+            "probe_results": [],
+            "findings": [],
+            "resolved_model": "claude-opus-5",
+        }
+
+        with patch.object(
+            server,
+            "run_relay_audit",
+            return_value=audit_result,
+        ) as audit:
+            server._run_audit(
+                request,
+                "https://api.example.test/v1",
+            )
+
+        self.assertEqual(
+            "anthropic",
+            audit.call_args.kwargs["models_api_type"],
+        )
 
     def test_request_rejects_non_http_url(self):
         request = server.DetectRequest(
@@ -843,7 +879,11 @@ class ServerContractTests(unittest.TestCase):
         )
 
         with (
-            patch.object(server, "_run_audit", return_value=audit),
+            patch.object(
+                server,
+                "_run_audit",
+                return_value=audit,
+            ) as audit_call,
             patch.object(
                 server,
                 "_run_signature",
@@ -856,6 +896,7 @@ class ServerContractTests(unittest.TestCase):
             "claude-sonnet-5",
             signature_call.call_args.args[0].model,
         )
+        self.assertEqual("anthropic", audit_call.call_args.args[4])
         self.assertNotIn("_resolved_model", result["detail"])
 
     def test_quick_claude_progress_combines_actual_requests(self):
