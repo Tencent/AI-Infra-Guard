@@ -107,9 +107,10 @@ class ServerContractTests(unittest.TestCase):
 
     def test_detectable_models_are_unique_and_stable(self):
         models = server._detectable_models()
-        self.assertEqual(41, len(models))
+        self.assertEqual(42, len(models))
         model_ids = {item["id"].lower() for item in models}
-        self.assertEqual(41, len(model_ids))
+        self.assertEqual(42, len(model_ids))
+        self.assertIn("anthropic/claude-opus-5", model_ids)
         self.assertIn("google/gemini-2.5-flash", model_ids)
         self.assertIn("google/gemma-4-31b-it", model_ids)
         self.assertIn("z-ai/glm-5.3", model_ids)

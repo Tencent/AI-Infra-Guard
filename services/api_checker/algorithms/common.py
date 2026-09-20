@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 NUMBER_RANGE = 355
 MIN_SAMPLES = 40
+MAX_SAMPLE_ATTEMPTS_MULTIPLIER = 2
 TIMEOUT = 60
 BUNDLED_BASELINES_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "baselines.json"),
@@ -379,11 +380,16 @@ def collect_samples(api_type, base_url, api_key, model,
                     cancel_event=None):
     """并发采集 N 个随机数样本。
 
+    采样失败或返回无效数字时会自动补采，直到获得 iterations 个有效样本，
+    或总尝试次数达到 iterations 的两倍。
+
     no_think=True 时关闭推理模型思考（支持的模型自动加速，不支持的回退）。
     """
     results = []
     error_count = 0
     completed = 0
+    submitted = iterations
+    max_attempts = iterations * MAX_SAMPLE_ATTEMPTS_MULTIPLIER
     if cancel_event is not None and cancel_event.is_set():
         return results, error_count
     pool = ThreadPoolExecutor(max_workers=concurrency)
@@ -398,7 +404,9 @@ def collect_samples(api_type, base_url, api_key, model,
                 cancelled = True
                 break
             done, pending = wait(pending, timeout=0.2, return_when=FIRST_COMPLETED)
+            remaining_done = len(done)
             for fut in done:
+                remaining_done -= 1
                 completed += 1
                 try:
                     text = fut.result()
@@ -409,8 +417,21 @@ def collect_samples(api_type, base_url, api_key, model,
                         error_count += 1
                 except Exception:
                     error_count += 1
+                in_flight = len(pending) + remaining_done
+                missing = iterations - len(results) - in_flight
+                refill_count = min(missing, max_attempts - submitted)
+                for _ in range(max(0, refill_count)):
+                    pending.add(pool.submit(
+                        _call_api_for_number,
+                        api_type,
+                        base_url,
+                        api_key,
+                        model,
+                        no_think,
+                    ))
+                    submitted += 1
                 if on_progress:
-                    on_progress(completed, iterations, len(results), error_count)
+                    on_progress(completed, submitted, len(results), error_count)
     finally:
         if cancelled:
             for future in pending:
