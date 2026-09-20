@@ -104,9 +104,9 @@ class BaselineTests(unittest.TestCase):
 
     def test_bundled_baselines_are_complete(self):
         baselines = common.load_baselines()
-        self.assertEqual(41, len(baselines))
+        self.assertEqual(42, len(baselines))
         model_ids = {item["model"].lower() for item in baselines}
-        self.assertEqual(41, len(model_ids))
+        self.assertEqual(42, len(model_ids))
         self.assertTrue({
             "google/gemini-2.5-flash",
             "google/gemini-2.5-flash-lite",
@@ -118,6 +118,7 @@ class BaselineTests(unittest.TestCase):
             "google/gemma-3n-e4b-it",
             "google/gemma-4-26b-a4b-it",
             "google/gemma-4-31b-it",
+            "anthropic/claude-opus-5",
             "z-ai/glm-5.3",
             "glm-5.3-flash",
         }.issubset(model_ids))
@@ -193,6 +194,48 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual([], results)
         self.assertEqual(0, errors)
         call.assert_not_called()
+
+    def test_collect_samples_refills_failed_requests(self):
+        responses = [None] + ["7"] * 200
+        progress = []
+        with patch.object(
+            common,
+            "_call_api_for_number",
+            side_effect=responses,
+        ) as call:
+            results, errors = common.collect_samples(
+                "openai",
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                iterations=200,
+                concurrency=1,
+                on_progress=lambda *values: progress.append(values),
+            )
+
+        self.assertEqual(200, len(results))
+        self.assertEqual(1, errors)
+        self.assertEqual(201, call.call_count)
+        self.assertEqual((201, 201, 200, 1), progress[-1])
+
+    def test_collect_samples_stops_after_retry_budget_is_exhausted(self):
+        with patch.object(
+            common,
+            "_call_api_for_number",
+            return_value=None,
+        ) as call:
+            results, errors = common.collect_samples(
+                "openai",
+                "https://example.test/v1",
+                "secret",
+                "model-a",
+                iterations=200,
+                concurrency=5,
+            )
+
+        self.assertEqual([], results)
+        self.assertEqual(400, errors)
+        self.assertEqual(400, call.call_count)
 
     def test_responses_fingerprint_omits_optional_temperature(self):
         response = {
