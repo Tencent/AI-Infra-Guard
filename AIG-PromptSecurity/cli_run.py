@@ -82,6 +82,8 @@ def main():
                        help="Technique selection strategy: 'random' (default) or 'serial' (nested techniques) or 'parallel'")
     parser.add_argument("--metric", type=str, help="Metric class name (e.g., 'RandomMetric')")
     parser.add_argument("--report", type=str, default="logs/report.md", help="Path to save the risk assessment report (default: logs/report.md)")
+    parser.add_argument("--progress-log", type=str, default="logs/red_team_progress.jsonl",
+                        help="Path to write finished test cases to while the run is still going, so an interrupted run keeps its results (default: logs/red_team_progress.jsonl, pass an empty value to disable)")
     parser.add_argument("--lang", type=str, default="zh_CN", help="Report language")
     
     args = parser.parse_args()
@@ -146,6 +148,7 @@ def main():
         choice=args.choice,
         metric=args.metric,
         report_path=args.report,
+        progress_log_path=args.progress_log or None,
     )
 
 

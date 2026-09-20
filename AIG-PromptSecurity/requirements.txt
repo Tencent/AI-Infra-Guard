@@ -15,3 +15,4 @@ openpyxl>=3.1.5
 xlrd>=2.0.2
 pyarrow>=21.0.0
 jieba>=0.42.1
+sentry-sdk>=2.0.0
