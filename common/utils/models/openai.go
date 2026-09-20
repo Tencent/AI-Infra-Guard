@@ -26,6 +26,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -43,7 +44,15 @@ type OpenAI struct {
 	Key                string
 	BaseUrl            string
 	Model              string
-	UseToken           int64
+	UseToken int64
+
+	// ExtraHeaders 会随每个请求发送，例如 OpenRouter 的
+	// HTTP-Referer / X-Title 路由头。
+	ExtraHeaders map[string]string
+	// ExtraBody 会合并进请求体 JSON。键支持点号路径，
+	// 例如 "provider.order" 会写成嵌套字段，这正是 OpenRouter
+	// 的 provider 路由与量化参数所需要的写法。
+	ExtraBody map[string]any
 }
 
 func NewOpenAI(key string, model string, url string) *OpenAI {
@@ -79,7 +88,24 @@ func (ai *OpenAI) clientOptions() []option.RequestOption {
 		option.WithAPIKey(ai.Key),
 		option.WithHTTPClient(ai.buildHTTPClient()),
 	}
+	// 排序只是让生成的选项顺序稳定，便于测试与排查。
+	for _, key := range sortedKeys(ai.ExtraHeaders) {
+		opts = append(opts, option.WithHeader(key, ai.ExtraHeaders[key]))
+	}
+	for _, key := range sortedKeys(ai.ExtraBody) {
+		opts = append(opts, option.WithJSONSet(key, ai.ExtraBody[key]))
+	}
 	return opts
+}
+
+// sortedKeys 返回 map 的键并按字典序排列。
+func sortedKeys[V any](values map[string]V) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // 验证OpenAI是否可用

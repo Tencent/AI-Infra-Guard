@@ -313,6 +313,9 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 			Token:              model.Token,
 			BaseUrl:            model.BaseURL,
 			Limit:              model.Limit,
+
+			ExtraHeaders: model.ExtraHeaders,
+			ExtraBody:    model.ExtraBody,
 		}
 		return &p, nil
 	}

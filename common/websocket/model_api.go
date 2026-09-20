@@ -37,6 +37,11 @@ type ModelInfo struct {
 	BaseURL            string `json:"base_url" binding:"required"`
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
+
+	// ExtraHeaders 随每个模型请求发送，例如 OpenRouter 的 X-Title
+	ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
+	// ExtraBody 合并进请求体，键支持点号路径（如 provider.order）
+	ExtraBody map[string]any `json:"extra_body,omitempty"`
 }
 
 // CreateModelRequest 创建模型请求
@@ -53,6 +58,11 @@ type UpdateModelInfo struct {
 	BaseURL            string `json:"base_url"`
 	Limit              int    `json:"limit"`
 	Note               string `json:"note"`
+
+	// ExtraHeaders 随每个模型请求发送，例如 OpenRouter 的 X-Title
+	ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
+	// ExtraBody 合并进请求体，键支持点号路径（如 provider.order）
+	ExtraBody map[string]any `json:"extra_body,omitempty"`
 }
 
 // UpdateModelRequest 更新模型请求
@@ -294,6 +304,9 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		Key:                req.Model.Token,
 		Model:              req.Model.Model,
 		BaseUrl:            req.Model.BaseURL,
+
+		ExtraHeaders: req.Model.ExtraHeaders,
+		ExtraBody:    req.Model.ExtraBody,
 	}
 	if !strings.HasSuffix(ai.BaseUrl, "/") {
 		ai.BaseUrl += "/"
@@ -318,6 +331,9 @@ func HandleCreateModel(c *gin.Context, mm *ModelManager) {
 		BaseURL:            req.Model.BaseURL,
 		Note:               req.Model.Note,
 		Limit:              req.Model.Limit,
+
+		ExtraHeaders: req.Model.ExtraHeaders,
+		ExtraBody:    req.Model.ExtraBody,
 	}
 
 	err = mm.modelStore.CreateModel(model)
@@ -406,6 +422,12 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 	}
 	if req.Model.BaseURL != "" {
 		updates["base_url"] = req.Model.BaseURL
+	}
+	if req.Model.ExtraHeaders != nil {
+		updates["extra_headers"] = req.Model.ExtraHeaders
+	}
+	if req.Model.ExtraBody != nil {
+		updates["extra_body"] = req.Model.ExtraBody
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)

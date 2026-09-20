@@ -30,6 +30,9 @@ type ModelParams struct {
 	Token   string `json:"token"`
 	Model   string `json:"model"`
 	Limit   int    `json:"limit"`
+
+	ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
+	ExtraBody    map[string]any    `json:"extra_body,omitempty"`
 }
 
 // Model 模型表
@@ -44,6 +47,10 @@ type Model struct {
 	Default            []string `gorm:"-" json:"default,omitempty" yaml:"default,omitempty"`                                      // 默认字段
 	CreatedAt          int64    `gorm:"column:created_at;not null" json:"created_at" yaml:"-"`                                    // 时间戳毫秒级
 	UpdatedAt          int64    `gorm:"column:updated_at;not null" json:"updated_at" yaml:"-"`                                    // 时间戳毫秒级
+
+	// ExtraHeaders 随每个模型请求发送；ExtraBody 合并进请求体，键支持点号路径
+	ExtraHeaders map[string]string `gorm:"column:extra_headers;serializer:json" json:"extra_headers,omitempty" yaml:"extra_headers,omitempty"`
+	ExtraBody    map[string]any    `gorm:"column:extra_body;serializer:json" json:"extra_body,omitempty" yaml:"extra_body,omitempty"`
 
 	// 关联关系
 	User User `gorm:"foreignKey:Username" json:"user" yaml:"-"`
