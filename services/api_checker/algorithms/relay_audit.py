@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 
 CONTENT_MAX_TOKENS = 512
+ANTHROPIC_VERSION = "2023-06-01"
 HTTP_TOTAL_TIMEOUT_SECONDS = 60
 AUDIT_TOTAL_TIMEOUT_SECONDS = 180
 RISK_MEDIUM_THRESHOLD = 40
@@ -210,6 +211,13 @@ def _extract_text(resp):
         return resp["choices"][0]["message"]["content"] or ""
     except Exception:
         pass
+    content = resp.get("content")
+    if isinstance(content, list):
+        return "".join(
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
     output_text = resp.get("output_text")
     if isinstance(output_text, str):
         return output_text
@@ -234,6 +242,8 @@ def _finish_reason(resp):
         return resp["choices"][0].get("finish_reason")
     except Exception:
         pass
+    if resp.get("stop_reason"):
+        return resp["stop_reason"]
     if resp.get("status") == "incomplete":
         details = resp.get("incomplete_details")
         if isinstance(details, dict):
@@ -248,12 +258,24 @@ def _is_truncated(resp):
     reason = _finish_reason(resp)
     return (
         resp.get("status") == "incomplete"
-        or (reason in {"length", "max_output_tokens"} and not _extract_text(resp).strip())
+        or (reason in {"length", "max_output_tokens", "max_tokens"}
+            and not _extract_text(resp).strip())
     )
 
 
-def _http_json(url, key, body=None, method="POST", on_request=None):
-    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "aig-api-checker/1.0"}
+def _http_json(url, key, body=None, method="POST", on_request=None,
+               api_type="openai"):
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "aig-api-checker/1.0",
+    }
+    if api_type == "anthropic":
+        headers.update({
+            "x-api-key": key,
+            "anthropic-version": ANTHROPIC_VERSION,
+        })
+    else:
+        headers["Authorization"] = f"Bearer {key}"
     data = json.dumps(body).encode() if body else None
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     start = time.time()
@@ -294,9 +316,19 @@ def _http_json(url, key, body=None, method="POST", on_request=None):
         deadline.cancel()
 
 
-def _http_stream(url, key, body, on_request=None):
-    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json",
-               "Accept": "text/event-stream", "User-Agent": "aig-api-checker/1.0"}
+def _http_stream(url, key, body, on_request=None, api_type="openai"):
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream",
+        "User-Agent": "aig-api-checker/1.0",
+    }
+    if api_type == "anthropic":
+        headers.update({
+            "x-api-key": key,
+            "anthropic-version": ANTHROPIC_VERSION,
+        })
+    else:
+        headers["Authorization"] = f"Bearer {key}"
     req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers, method="POST")
     chunks, errors, saw_done = [], [], False
     start = time.time()
@@ -354,7 +386,15 @@ def _chat(
     candidates = _model_candidates(model)
     total_latency = 0
     for index, candidate in enumerate(candidates):
-        if api_type == "openai-responses":
+        if api_type == "anthropic":
+            body = {
+                "model": candidate,
+                "messages": messages,
+                "max_tokens": max_tokens,
+                "stream": stream,
+            }
+            endpoint = "messages"
+        elif api_type == "openai-responses":
             body = {
                 "model": candidate,
                 "input": messages,
@@ -379,7 +419,18 @@ def _chat(
             key,
             body,
             on_request=on_request,
+            api_type=api_type,
         )
+        if api_type == "anthropic" and status in {401, 403}:
+            fallback_status, fallback_payload, fallback_latency = _http_json(
+                f"{base_url.rstrip('/')}/{endpoint}",
+                key,
+                body,
+                on_request=on_request,
+                api_type="openai",
+            )
+            status, payload = fallback_status, fallback_payload
+            latency += fallback_latency
         total_latency += latency
         has_fallback = index + 1 < len(candidates)
         if not has_fallback or status not in {400, 404, 422}:
@@ -390,12 +441,28 @@ def _chat(
 # ---- 8 个探针 ----
 def probe_models(base_url, key, model, api_type="openai", on_request=None):
     try:
+        url = f"{base_url.rstrip('/')}/models"
         status, payload, lat = _http_json(
-            f"{base_url.rstrip('/')}/models",
+            url,
             key,
             method="GET",
             on_request=on_request,
+            api_type=api_type,
         )
+        # OpenRouter 等 Claude 中转仍可能只接受 Bearer 鉴权。
+        if api_type == "anthropic" and status in {401, 403}:
+            fallback_status, fallback_payload, fallback_lat = _http_json(
+                url,
+                key,
+                method="GET",
+                on_request=on_request,
+                api_type="openai",
+            )
+            status, payload, lat = (
+                fallback_status,
+                fallback_payload,
+                lat + fallback_lat,
+            )
         ids = [str(x.get("id", "")) for x in payload.get("data", []) if isinstance(x, dict)] if isinstance(payload.get("data"), list) else []
         resolved_model = _resolve_listed_model(model, ids)
         return ProbeResult("models", 200 <= status < 300, lat,
@@ -512,10 +579,10 @@ def probe_glitch_fingerprint(
             model,
             [{"role": "user", "content": prompt}],
             1536,
-            extra_body={
+            extra_body=(None if api_type == "anthropic" else {
                 "reasoning": {"enabled": False},
                 "include_reasoning": False,
-            },
+            }),
             api_type=api_type,
             on_request=on_request,
         )
@@ -642,7 +709,15 @@ def probe_stream(base_url, key, model, api_type="openai", on_request=None):
         "role": "user",
         "content": f"Count from 1 to {n}, separated by spaces.",
     }]
-    if api_type == "openai-responses":
+    if api_type == "anthropic":
+        body = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": CONTENT_MAX_TOKENS,
+            "stream": True,
+        }
+        endpoint = "messages"
+    elif api_type == "openai-responses":
         body = {
             "model": model,
             "input": messages,
@@ -664,6 +739,7 @@ def probe_stream(base_url, key, model, api_type="openai", on_request=None):
             key,
             body,
             on_request=on_request,
+            api_type=api_type,
         )
         response_events = [
             chunk for chunk in chunks
@@ -673,8 +749,14 @@ def probe_stream(base_url, key, model, api_type="openai", on_request=None):
             chunk.get("type") == "response.completed" for chunk in chunks
             if isinstance(chunk, dict)
         )
-        completed = saw_done or (
-            api_type == "openai-responses" and response_completed
+        anthropic_completed = any(
+            chunk.get("type") == "message_stop" for chunk in chunks
+            if isinstance(chunk, dict)
+        )
+        completed = (
+            saw_done
+            or (api_type == "openai-responses" and response_completed)
+            or (api_type == "anthropic" and anthropic_completed)
         )
         models = {
             chunk.get("model") for chunk in chunks
@@ -684,10 +766,30 @@ def probe_stream(base_url, key, model, api_type="openai", on_request=None):
             chunk["response"].get("model") for chunk in response_events
             if chunk["response"].get("model")
         )
+        models.update(
+            chunk["message"].get("model") for chunk in chunks
+            if isinstance(chunk, dict)
+            and isinstance(chunk.get("message"), dict)
+            and chunk["message"].get("model")
+        )
         usage = next((
             chunk["response"].get("usage") for chunk in reversed(response_events)
             if isinstance(chunk["response"].get("usage"), dict)
         ), None)
+        if api_type == "anthropic":
+            usage_parts = [
+                source.get("usage")
+                for chunk in chunks
+                if isinstance(chunk, dict)
+                for source in (chunk, chunk.get("message") or {})
+                if isinstance(source, dict)
+                and isinstance(source.get("usage"), dict)
+            ]
+            usage = {
+                key: value
+                for part in usage_parts
+                for key, value in part.items()
+            } or None
         return ProbeResult(
             "stream_integrity",
             completed and not errors and len(chunks) > 0,
@@ -696,6 +798,7 @@ def probe_stream(base_url, key, model, api_type="openai", on_request=None):
                 "chunk_count": len(chunks),
                 "saw_done": saw_done,
                 "response_completed": response_completed,
+                "anthropic_completed": anthropic_completed,
                 "json_errors": errors[:5],
                 "stream_models": sorted(models),
                 "usage": usage,
@@ -811,7 +914,7 @@ def build_findings(results, requested_model):
 
 def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
                     on_progress=None, api_type="openai",
-                    on_request_progress=None):
+                    on_request_progress=None, models_api_type=None):
     """运行黑盒审计，返回 {score, verdict, findings, probe_results, summary}"""
     probe_names = PROFILES.get(profile, PROFILES["full"])
     results = []
@@ -864,11 +967,16 @@ def run_relay_audit(base_url, api_key, model, profile="full", cancel_event=None,
                 if on_progress:
                     on_progress(len(results), len(probe_names))
             break
+        probe_api_type = (
+            models_api_type
+            if name == "models" and models_api_type
+            else api_type
+        )
         result = _PROBES[name](
             base_url,
             api_key,
             active_model,
-            api_type,
+            probe_api_type,
             request_done,
         )
         results.append(result)
