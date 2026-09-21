@@ -24,6 +24,14 @@ class RailFence(BaseAttack):
         self.rails = rails
 
     def enhance(self, attack: str) -> str:
+        if self.rails < 1:
+            raise ValueError(f"不支持的栅栏数: {self.rails}。rails 必须是大于等于 1 的整数")
+        if self.rails == 1:
+            # 只有一条栅栏时游标无处折返（反弹条件 rail == self.rails - 1 退化成
+            # rail == 0，而游标第一步离开 0 后再也回不来），会越过 rails 列表末尾
+            # 抛 IndexError。单条栅栏的栅栏密码本就是恒等变换，直接原样返回。
+            return attack
+
         rails = [[] for _ in range(self.rails)]
         rail = 0
         direction = 1  # 1 for down, -1 for up
