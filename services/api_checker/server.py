@@ -69,6 +69,9 @@ if __package__:
         _extract_text as extract_relay_text,
         run_relay_audit,
     )
+    from .algorithms.typesafe_audit import (
+        run_typesafe_audit,
+    )
     from .algorithms.common import (
         calculate_distribution,
         load_baselines,
@@ -87,6 +90,9 @@ else:
         _chat as relay_chat_completion,
         _extract_text as extract_relay_text,
         run_relay_audit,
+    )
+    from algorithms.typesafe_audit import (
+        run_typesafe_audit,
     )
     from algorithms.common import (
         calculate_distribution,
@@ -221,6 +227,20 @@ PROBE_CHECK_TITLE = {
     "context_canary": {
         "zh": "上下文完整性检查",
         "en": "Context integrity check",
+    },
+}
+TYPESAFE_PROBE_CHECK_TITLE = {
+    "typesafe_models": {
+        "zh": "TypeSafe 模型列表检查",
+        "en": "TypeSafe model list check",
+    },
+    "typesafe_contract": {
+        "zh": "System One 结构化响应合约检查",
+        "en": "System One response contract check",
+    },
+    "typesafe_contrast": {
+        "zh": "System One 正反状态敏感度检查",
+        "en": "System One state sensitivity check",
     },
 }
 FINDING_TITLE_TEXT = {
@@ -382,6 +402,11 @@ def is_claude_model(model: str) -> bool:
     return any(k in m for k in CLAUDE_MODEL_KEYWORDS)
 
 
+def is_typesafe_model(model: str) -> bool:
+    """TypeSafe System One 当前公开模型及别名均使用 jev- 前缀。"""
+    return str(model or "").strip().casefold().startswith("jev-")
+
+
 def _validate_target_address(hostname: str, port: int | None) -> None:
     if ALLOW_PRIVATE_TARGETS:
         return
@@ -443,6 +468,14 @@ def anthropic_bases(base_url: str) -> tuple[str, str]:
     if b.endswith("/v1"):
         return b, b[:-len("/v1")]
     return b + "/v1", b
+
+
+def normalize_typesafe_base(base_url: str) -> str:
+    """返回 TypeSafe 版本 base，可接受域名、/v1 或完整 /systemone。"""
+    b = base_url.rstrip("/")
+    if urlparse(b).path.endswith("/systemone"):
+        b = b[:-len("/systemone")]
+    return b if urlparse(b).path else b + "/v1"
 
 
 # ================================================================
@@ -814,18 +847,27 @@ def _run_audit(req: DetectRequest, base_url: str, cancel_event=None,
             ))
 
     _raise_if_cancelled(cancel_event)
-    result = run_relay_audit(
-        base_url,
-        req.api_key,
-        req.model,
-        AUDIT_PROFILE,
-        cancel_event=cancel_event,
-        api_type=api_type,
-        on_request_progress=progress,
-        models_api_type=(
-            "anthropic" if is_claude_model(req.model) else None
-        ),
-    )
+    if api_type == "typesafe":
+        result = run_typesafe_audit(
+            base_url,
+            req.api_key,
+            req.model,
+            cancel_event=cancel_event,
+            on_request_progress=progress,
+        )
+    else:
+        result = run_relay_audit(
+            base_url,
+            req.api_key,
+            req.model,
+            AUDIT_PROFILE,
+            cancel_event=cancel_event,
+            api_type=api_type,
+            on_request_progress=progress,
+            models_api_type=(
+                "anthropic" if is_claude_model(req.model) else None
+            ),
+        )
     _raise_if_cancelled(cancel_event)
     test_info = _audit_test_info(result["probe_results"])
     glitch = next(
@@ -938,7 +980,11 @@ def _finding_title(title: str, language: str) -> str:
 
 
 def _probe_status_title(probe: str, passed: bool, language: str) -> str:
-    return PROBE_CHECK_TITLE.get(probe, {}).get(language, probe)
+    return (
+        PROBE_CHECK_TITLE.get(probe, {}).get(language)
+        or TYPESAFE_PROBE_CHECK_TITLE.get(probe, {}).get(language)
+        or probe
+    )
 
 
 def _is_number(value: Any) -> bool:
@@ -960,6 +1006,8 @@ def _base_probe_evaluable(probe_result: dict) -> bool:
         return False
     probe = str(probe_result.get("name") or "")
     data = probe_result.get("data") or {}
+    if probe.startswith("typesafe_"):
+        return True
     if probe in {"models", "stream_integrity"}:
         return True
     if probe == "liveness":
@@ -1301,12 +1349,10 @@ def _result_detail(
     for remaining in triggered.values():
         localized = dict(remaining)
         localized["severity"] = FINDING_FAILED_STATUS
-        localized["title"] = PROBE_CHECK_TITLE.get(
+        localized["title"] = _probe_status_title(
             str(localized.get("probe") or ""),
-            {},
-        ).get(
+            False,
             language,
-            str(localized.get("probe") or "Unknown audit check"),
         )
         findings.append(localized)
 
@@ -1658,6 +1704,39 @@ def _run_detect(
     on_component_error=None,
 ) -> dict:
     """统一检测调度"""
+    if is_typesafe_model(req.model):
+        audit_progress = None
+        if on_progress:
+            def audit_progress(payload: dict):
+                on_progress(payload)
+        try:
+            audit = _run_audit(
+                req,
+                normalize_typesafe_base(req.base_url),
+                cancel_event,
+                audit_progress,
+                "typesafe",
+            )
+        except DetectionCancelled:
+            raise
+        except Exception as exc:
+            if on_component_error:
+                on_component_error("audit", exc)
+            raise
+        parts = {"audit": audit}
+        score = _result_score("quick", parts)
+        overall_verdict = _overall_verdict("quick", parts, {})
+        detail = _result_detail("quick", parts, req.language)
+        detail["protocol"] = "typesafe-systemone"
+        detail["fingerprint_applicable"] = False
+        return {
+            "algorithm": req.algorithm,
+            "score": score,
+            "overall_verdict": overall_verdict,
+            "risk_level": _risk_level(score, overall_verdict),
+            "summary": _audit_summary(audit, req.language),
+            "detail": detail,
+        }
     claude = is_claude_model(req.model)
     openai_type = openai_api_type(req.base_url)
 

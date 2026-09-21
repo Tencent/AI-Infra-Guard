@@ -9,10 +9,105 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from services.api_checker import server
-from services.api_checker.algorithms import common, pamela, relay_audit, signature
+from services.api_checker.algorithms import (
+    common,
+    pamela,
+    relay_audit,
+    signature,
+    typesafe_audit,
+)
 
 
 class BaselineTests(unittest.TestCase):
+    @staticmethod
+    def _typesafe_response(urgent, department, severity):
+        probabilities = {
+            "billing": 0.97,
+            "technical": 0.03,
+            "sales": 0.0,
+        } if department == "billing" else {
+            "billing": 0.0,
+            "technical": 1.0,
+            "sales": 0.0,
+        }
+        score_probabilities = {
+            "0": 1.0 if severity == 0 else 0.0,
+            "1": 0.0,
+            "2": 1.0 if severity == 2 else 0.0,
+        }
+        return {
+            "model": "jev-1.13.0",
+            "answers": {
+                "urgent": {"type": "noul", "noul": urgent},
+                "department": {
+                    "type": "choice",
+                    "choice": department,
+                    "confidence": 0.95,
+                    "probabilities": probabilities,
+                },
+                "severity": {
+                    "type": "score",
+                    "score": float(severity),
+                    "confidence": 1.0,
+                    "legend": {
+                        "0": "No problem; everything is working",
+                        "1": "A problem exists but a workaround is available",
+                        "2": "A blocking problem with no workaround",
+                    },
+                    "probabilities": score_probabilities,
+                },
+            },
+            "usage": {"input_tokens": 400, "output_tokens": 68},
+        }
+
+    def test_typesafe_audit_validates_native_contract_and_contrast(self):
+        with patch.object(
+            typesafe_audit,
+            "_http_json",
+            side_effect=[
+                (200, {"models": [{"name": "jev-latest"}]}, 10),
+                (200, self._typesafe_response(0.98, "billing", 2), 20),
+                (200, self._typesafe_response(0.02, "technical", 0), 20),
+            ],
+        ):
+            result = typesafe_audit.run_typesafe_audit(
+                "https://api.typesafe.test/v1",
+                "secret",
+                "jev-latest",
+            )
+
+        self.assertEqual(0, result["score"])
+        self.assertEqual("LOW", result["verdict"])
+        self.assertEqual("jev-1.13.0", result["resolved_model"])
+        self.assertEqual([], result["findings"])
+        self.assertTrue(all(probe.ok for probe in result["probe_results"]))
+
+    def test_typesafe_audit_rejects_invalid_probability_contract(self):
+        invalid = self._typesafe_response(0.98, "billing", 2)
+        invalid["answers"]["department"]["probabilities"]["billing"] = 0.5
+        with patch.object(
+            typesafe_audit,
+            "_http_json",
+            side_effect=[
+                (200, {"models": [{"name": "jev-latest"}]}, 10),
+                (200, invalid, 20),
+                (200, self._typesafe_response(0.02, "technical", 0), 20),
+            ],
+        ):
+            result = typesafe_audit.run_typesafe_audit(
+                "https://api.typesafe.test/v1",
+                "secret",
+                "jev-latest",
+            )
+
+        self.assertEqual(50, result["score"])
+        self.assertEqual("MEDIUM", result["verdict"])
+        self.assertFalse(result["probe_results"][1].ok)
+        self.assertIn(
+            "probabilities do not sum to 1",
+            result["probe_results"][1].error,
+        )
+
     def test_claude5_opaque_signature_passes_structural_check(self):
         opaque = base64.b64encode(bytes(range(256)) * 2).decode()
 

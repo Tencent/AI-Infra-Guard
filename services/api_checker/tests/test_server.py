@@ -349,6 +349,52 @@ class ServerContractTests(unittest.TestCase):
             server.anthropic_bases("https://api.example.test/v1"),
         )
         self.assertEqual(
+            "https://api.typesafe.test/v1",
+            server.normalize_typesafe_base(
+                "https://api.typesafe.test/v1/systemone"
+            ),
+        )
+
+    def test_typesafe_detect_uses_native_audit_without_fingerprint(self):
+        request = server.DetectRequest(
+            algorithm="full",
+            base_url="https://api.typesafe.test/v1/systemone",
+            api_key="secret",
+            model="jev-latest",
+        )
+        audit = {
+            "verdict": "LOW",
+            "_risk_score": 0,
+            "_resolved_model": "jev-1.13.0",
+            "test_info": {},
+            "glitch_fingerprint": {},
+            "findings": [],
+            "probe_results": [
+                {
+                    "name": "typesafe_contract",
+                    "ok": True,
+                    "latency_ms": 20,
+                    "error": None,
+                    "data": {"status": 200},
+                },
+            ],
+        }
+
+        with (
+            patch.object(server, "_run_audit", return_value=audit) as run_audit,
+            patch.object(server, "_run_fingerprint") as fingerprint,
+            patch.object(server, "_model_result_summary") as summary,
+        ):
+            result = server._run_detect(request)
+
+        self.assertEqual(100.0, result["score"])
+        self.assertEqual("pass", result["overall_verdict"])
+        self.assertEqual("typesafe-systemone", result["detail"]["protocol"])
+        self.assertFalse(result["detail"]["fingerprint_applicable"])
+        self.assertEqual("typesafe", run_audit.call_args.args[4])
+        fingerprint.assert_not_called()
+        summary.assert_not_called()
+        self.assertEqual(
             ("https://api.example.test/v1", "https://api.example.test"),
             server.anthropic_bases(
                 "https://api.example.test/v1/messages"
