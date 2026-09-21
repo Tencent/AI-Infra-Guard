@@ -440,7 +440,10 @@ class AIProviderClient:
 
         # Make request
         response_path = provider_conf.get("response_path")
-        result = self._make_http_request(url, "POST", headers, body, response_path)
+        result = self._make_http_request(
+            url, "POST", headers, body, response_path,
+            timeout_seconds=self._get_timeout_seconds(config)
+        )
 
         # Add metadata and cost
         if result.success and result.provider_response:
@@ -500,7 +503,10 @@ class AIProviderClient:
 
         body = self._render_prompt_body(config.body, prompt)
 
-        return self._make_http_request(url, method, headers, body, config.transform_response)
+        return self._make_http_request(
+            url, method, headers, body, config.transform_response,
+            timeout_seconds=self._get_timeout_seconds(config)
+        )
 
     def _render_prompt_body(self, body_template: Any, prompt: str) -> Any:
         """Render a provider request body by replacing prompt placeholders."""
@@ -813,7 +819,10 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body, "answer")
+        result = self._make_http_request(
+            url, "POST", headers, body, "answer",
+            timeout_seconds=self._get_timeout_seconds(config)
+        )
 
         if result.success and result.provider_response:
             result.provider_response.metadata = result.provider_response.metadata or {}
@@ -901,7 +910,10 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body)
+        result = self._make_http_request(
+            url, "POST", headers, body,
+            timeout_seconds=self._get_timeout_seconds(config)
+        )
 
         if result.success and result.provider_response:
             raw = result.provider_response.raw
@@ -945,13 +957,23 @@ class AIProviderClient:
             method: str,
             headers: Dict[str, str],
             body: Any,
-            transform_response: Optional[str] = None
+            transform_response: Optional[str] = None,
+            timeout_seconds: Optional[float] = None
     ) -> ProviderTestResult:
-        """Make HTTP request and return standardized result."""
+        """Make HTTP request and return standardized result.
+
+        Args:
+            timeout_seconds: Per-request timeout in seconds. When omitted,
+                falls back to the adapter-level default (``self.timeout``).
+                Callers that have a ``ProviderConfig`` should pass
+                ``self._get_timeout_seconds(config)`` so that a user-configured
+                ``timeout_ms`` is honored (see issue #613).
+        """
+        effective_timeout = timeout_seconds if timeout_seconds is not None else self.timeout
         start_time = time.time()
 
         try:
-            with httpx.Client(timeout=self.timeout) as client:
+            with httpx.Client(timeout=effective_timeout) as client:
                 response = client.request(
                     method=method,
                     url=url,
@@ -1016,7 +1038,7 @@ class AIProviderClient:
         except httpx.TimeoutException:
             return ProviderTestResult(
                 success=False,
-                message=f"⏱️ Request timed out after {self.timeout} seconds",
+                message=f"⏱️ Request timed out after {effective_timeout} seconds",
                 provider_response=ProviderResponseInfo(error="Timeout", metadata={"url": url})
             )
         except httpx.ConnectError as e:
