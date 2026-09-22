@@ -136,8 +136,37 @@ func (s *ModelStore) GetUserModels(username string) ([]*Model, error) {
 
 // UpdateModel 更新模型信息
 func (s *ModelStore) UpdateModel(modelID string, username string, updates map[string]interface{}) error {
+	now := time.Now().UnixMilli()
+
+	// extra_headers / extra_body 是 map 字段：map 形式的 Updates 不会走字段
+	// 序列化（serializer:json），驱动会直接拒绝 map 值并报
+	// "unsupported type map[string]interface {}"。这两个字段改用
+	// struct + Select 写入，空 map 也能落库（即清空）。
+	extra := &Model{UpdatedAt: now}
+	selected := []string{"updated_at"}
+	if value, ok := updates["extra_headers"]; ok {
+		extra.ExtraHeaders, _ = value.(map[string]string)
+		selected = append(selected, "extra_headers")
+		delete(updates, "extra_headers")
+	}
+	if value, ok := updates["extra_body"]; ok {
+		extra.ExtraBody, _ = value.(map[string]any)
+		selected = append(selected, "extra_body")
+		delete(updates, "extra_body")
+	}
+
+	if len(selected) > 1 {
+		err := s.db.Model(&Model{}).
+			Where("model_id = ? AND username = ?", modelID, username).
+			Select(selected).
+			Updates(extra).Error
+		if err != nil {
+			return err
+		}
+	}
+
 	// 添加更新时间
-	updates["updated_at"] = time.Now().UnixMilli()
+	updates["updated_at"] = now
 	return s.db.Model(&Model{}).Where("model_id = ? AND username = ?", modelID, username).Updates(updates).Error
 }
 

@@ -91,6 +91,20 @@ func maskToken(token string) string {
 	return maskedToken
 }
 
+// maskValues 保留键、统一掩码值。
+// extra_headers / extra_body 可能承载 Authorization 之类的密钥，
+// 前端只需要知道配置了哪些键，不需要看到内容本身。
+func maskValues[V any](values map[string]V) map[string]any {
+	if values == nil {
+		return nil
+	}
+	masked := make(map[string]any, len(values))
+	for key := range values {
+		masked[key] = maskedToken
+	}
+	return masked
+}
+
 // NewModelManager 创建新的ModelManager实例
 func NewModelManager(modelStore *database.ModelStore) *ModelManager {
 	return &ModelManager{
@@ -132,6 +146,9 @@ func HandleGetModelList(c *gin.Context, mm *ModelManager) {
 				"base_url": model.BaseURL,
 				"note":     model.Note,
 				"limit":    model.Limit,
+				// 同样只暴露键名，避免把密钥类请求头回传给前端
+				"extra_headers": maskValues(model.ExtraHeaders),
+				"extra_body":    maskValues(model.ExtraBody),
 			},
 		}
 		if model.Default != nil {
@@ -204,6 +221,9 @@ func HandleGetModelDetail(c *gin.Context, mm *ModelManager) {
 			"base_url": model.BaseURL,
 			"note":     model.Note,
 			"limit":    model.Limit,
+			// 同样只暴露键名，避免把密钥类请求头回传给前端
+			"extra_headers": maskValues(model.ExtraHeaders),
+			"extra_body":    maskValues(model.ExtraBody),
 		},
 		"default": model.Default,
 	}
