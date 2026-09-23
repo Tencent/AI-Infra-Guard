@@ -20,13 +20,16 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 // Config 用于保存数据库配置
@@ -61,7 +64,18 @@ func InitDB(config *Config) (*gorm.DB, error) {
 	}
 
 	//打开数据库连接 - 启用WAL模式和共享缓存以支持并发访问
-	db, err := gorm.Open(sqlite.Open(config.DBPath+"?_journal=WAL&_timeout=5000&cache=shared"), &gorm.Config{})
+	// 显式关闭参数插值：默认 logger 会把绑定参数展开成明文 SQL，
+	// 而 models 表里存有 token 与 extra_headers 这类密钥，
+	// 一次失败的 UPDATE 或慢查询就可能把它们写进日志。
+	dbLogger := gormlogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		gormlogger.Config{
+			SlowThreshold:        time.Second,
+			LogLevel:             gormlogger.Warn,
+			ParameterizedQueries: true,
+		},
+	)
+	db, err := gorm.Open(sqlite.Open(config.DBPath+"?_journal=WAL&_timeout=5000&cache=shared"), &gorm.Config{Logger: dbLogger})
 	if err != nil {
 		gologger.WithError(err).Fatalln("无法打开数据库连接")
 	}
