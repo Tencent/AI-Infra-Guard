@@ -235,3 +235,16 @@ def test_red_teamer_ignores_checkpoint_without_resume(
 
     assert red_teamer._resumed_attacks(vulnerabilities, attacks, 1) is None
     assert red_teamer._completed_cases() == {}
+
+
+def test_checkpoint_mismatch_is_rejected_on_target_purpose() -> None:
+    """换了扫描目标就不能续跑，否则上次目标的结果会并进这次报告。"""
+    expected = build_metadata(
+        [_Named("Toxicity")], [_Named("TestAttack")], 1, "target A",
+    )
+    ensure_checkpoint_matches(expected, expected)
+
+    with pytest.raises(ValueError, match="target_purpose"):
+        ensure_checkpoint_matches(
+            {**expected, "target_purpose": "target B"}, expected,
+        )

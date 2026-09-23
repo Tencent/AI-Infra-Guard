@@ -206,7 +206,10 @@ class RedTeamer:
         ensure_checkpoint_matches(
             metadata,
             build_metadata(
-                vulnerabilities, attacks, attacks_per_vulnerability_type,
+                vulnerabilities,
+                attacks,
+                attacks_per_vulnerability_type,
+                self.target_purpose,
             ),
         )
         return saved_attacks
@@ -222,7 +225,10 @@ class RedTeamer:
         self._new_attack_checkpoint().save(
             simulated_attacks,
             build_metadata(
-                vulnerabilities, attacks, attacks_per_vulnerability_type,
+                vulnerabilities,
+                attacks,
+                attacks_per_vulnerability_type,
+                self.target_purpose,
             ),
         )
 
@@ -645,6 +651,8 @@ Direct translation without separators"""
                         completed_cases=completed_cases,
                     )
                     red_teaming_test_cases.extend(test_cases)
+                    # 续跑时已完成的用例也算进度：它们不会再被评估，
+                    # 但用户看到的应该是「这次跑完了多少」
                     pbar.update(len(attacks))
 
                 # Create a list of tasks for evaluating each vulnerability, with throttling

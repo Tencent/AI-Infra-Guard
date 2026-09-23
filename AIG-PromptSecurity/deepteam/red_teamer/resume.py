@@ -68,12 +68,18 @@ def build_metadata(
     vulnerabilities: Iterable[Any],
     attacks: Iterable[Any],
     attacks_per_vulnerability_type: int,
+    target_purpose: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """记录这次运行的配置，用于判断检查点是否还能用。"""
+    """记录这次运行的配置，用于判断检查点是否还能用。
+
+    `target_purpose` 必须一起记录：换了扫描目标、但漏洞与攻击集合相同时，
+    续跑会把上一次目标的结果并进这一次的报告，得出错误结论。
+    """
     return {
         "vulnerabilities": sorted(v.get_name() for v in vulnerabilities),
         "attacks": sorted(a.get_name() for a in attacks),
         "attacks_per_vulnerability_type": attacks_per_vulnerability_type,
+        "target_purpose": target_purpose or "",
     }
 
 
