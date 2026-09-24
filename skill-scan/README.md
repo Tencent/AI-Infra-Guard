@@ -144,6 +144,7 @@ Key environment variables:
 | `LLM_MODEL` / `OPENAI_MODEL` | Default model | `deepseek-v4-flash` |
 | `LLM_BASE_URL` / `OPENAI_BASE_URL` | Default base URL | `https://openrouter.ai/api/v1` |
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | Main model context window | `128000` |
+| `REASONING_EFFORT` | Optional reasoning effort (for example, `high`); supported values depend on the model and provider. Unset or blank values omit the API parameter. | Unset |
 | `LOG_LEVEL` | Log level | `INFO` |
 
 ---

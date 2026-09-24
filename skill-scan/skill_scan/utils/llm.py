@@ -22,6 +22,7 @@ import time
 
 import openai
 
+from skill_scan.utils.config import get_env
 from skill_scan.utils.loging import logger
 
 
@@ -74,11 +75,16 @@ class LLM:
 
     def chat_stream(self, message: list[dict]) -> tuple[str, dict]:
         started = time.monotonic()
+        request_options = {}
+        reasoning_effort = (get_env("REASONING_EFFORT") or "").strip()
+        if reasoning_effort:
+            request_options["reasoning_effort"] = reasoning_effort
         response = self.client.chat.completions.create(
             model=self.model,
             messages=message,
             stream=True,
             stream_options={"include_usage": True},
+            **request_options,
         )
 
         ret = ""

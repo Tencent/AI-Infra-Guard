@@ -144,6 +144,7 @@ asyncio.run(run())
 | `LLM_MODEL` / `OPENAI_MODEL` | 默认模型 | `deepseek-v4-flash` |
 | `LLM_BASE_URL` / `OPENAI_BASE_URL` | 默认 Base URL | `https://openrouter.ai/api/v1` |
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | 主模型上下文窗口 | `128000` |
+| `REASONING_EFFORT` | 可选推理强度（例如 `high`）；支持的值取决于模型和服务提供商。未设置或为空白时不发送该 API 参数。 | 未设置 |
 | `LOG_LEVEL` | 日志级别 | `INFO` |
 
 ---
