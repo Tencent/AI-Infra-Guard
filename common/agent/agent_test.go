@@ -21,19 +21,52 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"time"
 
 	"testing"
 
+	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestLargeDataSend 测试发送大字节数据
 func TestLargeDataSend(t *testing.T) {
-	// 创建Agent实例（不连接到真实服务器）
+	// 启动本地 WebSocket 服务器，接收并校验 Agent 发出的消息
+	received := make(chan map[string]interface{}, 8)
+	serverDone := make(chan struct{})
+	upgrader := websocket.Upgrader{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			t.Errorf("服务器升级 WebSocket 失败: %v", err)
+			return
+		}
+		defer conn.Close()
+		defer close(serverDone)
+		// 大数据消息可能超过默认读限制
+		conn.SetReadLimit(1024 * 1024 * 10)
+		for {
+			_, data, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+			var msg map[string]interface{}
+			if err := json.Unmarshal(data, &msg); err != nil {
+				t.Errorf("服务器反序列化消息失败: %v", err)
+				return
+			}
+			received <- msg
+		}
+	}))
+	defer server.Close()
+
+	// 创建Agent实例，连接到本地测试服务器
 	agent := NewAgent(AgentConfig{
-		ServerURL: "ws://xx/api/v1/agents/ws", // 使用测试URL
+		ServerURL: strings.Replace(server.URL, "http://", "ws://", 1),
 		Info: AgentInfo{
 			ID:       "test-large-data",
 			HostName: "test-host",
@@ -43,10 +76,9 @@ func TestLargeDataSend(t *testing.T) {
 		},
 	})
 	err := agent.connect()
-	assert.NoError(t, err)
-	// 启动各种协程
+	require.NoError(t, err)
+	// 启动发送协程
 	go agent.handleSend()
-	go agent.handleReceive()
 
 	// 创建大数据内容 - 生成约1MB的数据
 	largeContent := generateLargeContent(1024 * 1024) // 1MB
@@ -79,10 +111,29 @@ func TestLargeDataSend(t *testing.T) {
 	err = agent.SendTaskResult(sessionId, largeResult)
 	assert.NoError(t, err, "发送大数据任务结果应该成功")
 
-	// 等待一小段时间确保消息被处理
-	time.Sleep(5 * time.Second)
-
-	t.Log("大字节数据发送测试完成")
+	// 等待服务器收到完整消息（跳过 register 等前置消息）
+	deadline := time.After(30 * time.Second)
+	for {
+		select {
+		case msg := <-received:
+			if msg["type"] != AgentMsgTypeResultUpdate {
+				continue
+			}
+			content, ok := msg["content"].(map[string]interface{})
+			require.True(t, ok, "消息应包含 content 对象")
+			event, ok := content["event"].(map[string]interface{})
+			require.True(t, ok, "content 应包含 event 对象")
+			result, ok := event["result"].(map[string]interface{})
+			require.True(t, ok, "event 应包含 result 对象")
+			assert.Equal(t, largeContent, result["content"], "服务器应收到完整的大数据内容")
+			agent.Stop()
+			<-serverDone
+			t.Log("大字节数据发送测试完成")
+			return
+		case <-deadline:
+			t.Fatal("等待服务器接收大数据消息超时")
+		}
+	}
 }
 
 // generateLargeContent 生成指定大小的大内容
