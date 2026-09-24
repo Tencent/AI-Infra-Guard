@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.3] - 2026-09-24
+
+### Added
+- **DeepTeam**: Write finished test cases to disk during a run (#653)
+- **API Checker**: Refill failed fingerprint samples for more reliable model identification
+
+### Fixed
+- **API Checker**: Support Claude 5 signatures (PR #667)
+- **Prompt-Eval**: Rate-limit aware backoff, circuit breaker and process-group termination
+- **Prompt-Eval**: Share rate-limit counter between breaker and model, harden Retry-After parsing
+- **Prompt-Eval**: Hoist 'import re' to module top level
+
+### Changed
+- **Research (forge_bench)**: Document dataset organization and evaluation-set guidance (PR #662)
+- **Docs**: Add FORGE-Bench and RogueHandoff-20 to Research list (PR #661)
+- **Docs**: Sync FORGE-Bench and RogueHandoff-20 Research entries across 8 language READMEs
+- **Docs**: Add v4.6.2 What's New entry across all 9 README languages (PR #660)
+- **Test (agent-scan)**: Pin the detection-skill registration contract (#664)
+
+### Contributors
+Elwood Zonghao Ying (NY1024), xiangfanwu, KEXNA, Devam Shah, helo060228, aigsec, aig-doc-bot
+
 ## [v4.6.2] - 2026-09-17
 
 ### Added
