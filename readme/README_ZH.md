@@ -69,11 +69,11 @@
 
 ## 🚀 最新动态
 
+- **2026-09-24** · [v4.6.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.3) — API Checker：支持 Claude 5 模型签名，并提升模型识别可靠性（失败的指纹样本会自动补采）；Prompt-Eval：新增限速感知退避、熔断器及更安全的进程组终止，提升大规模红队测试稳定性。
 - **2026-09-17** · [v4.6.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.2) — 漏洞库新增 155 条 CVE 规则，覆盖 40+ 个 AI 组件（LangFlow、n8n、PraisonAI、vLLM、llama-cpp、MLflow 等）；Skill-Scan 准确性提升（减少无证据误报、避免流式响应卡死）；新增智能体失控基准测试（FORGE-Bench、RogueHandoff-20）。
 - **2026-09-10** · [v4.6.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.1) — API 检测器：扩展模型指纹覆盖（Gemini 2.5/3.1、Gemma 2/3/4、GLM-5.3 与 GLM-5.3-Flash）；MCP 扫描可靠性提升：标记空/不完整扫描结果、上下文压缩时保留安全发现、暴露底层连接错误；修正错误标注的 CVE 产品名称。
 - **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — 大模型 API 投毒检测（多维黑盒探针识别模型掺水与后门风险）；Agent-Scan v5.0.0 重构攻击变异引擎；漏洞库覆盖 146 个 AI 组件、2000+ CVE 规则；修复多个 Bug，提升 MCP/Skill 扫描稳定性与兼容性。
 - **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan：新增 .pyc 字节码绕过检测 + 字符集走私防御；MCP-Scan：动态模式工具白名单防止 RCE；新增 SkillJack 研究项目；漏洞库扩展至 2000+ CVE 规则。
-- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — 大模型安全体检(Jailbreak Evaluation)：新增 4 种多轮越狱攻击（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：新增 5 个 OWASP 检测技能 + Web 数据外传检测（共 10 个技能）；MCP-Scan：新增 4 条安全检测规则
 
 👉 [更早版本](../CHANGELOG.md) · 🛒 [AI安全技能市场](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
