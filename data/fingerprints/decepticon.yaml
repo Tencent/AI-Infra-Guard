@@ -1,0 +1,17 @@
+info:
+  name: Decepticon
+  author: A.I.G bot
+  severity: info
+  desc: Decepticon is an open-source autonomous hacking agent / AI red-team platform by Bitter Security. Ships a Next.js web dashboard (Docker image ghcr.io/bittersecurity/decepticon-web, default port 3000) with engagement management, live attack monitoring and a /api/health endpoint, plus a terminal WebSocket server on port 3003.
+  metadata:
+    product: decepticon
+    vendor: bittersecurity
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="Decepticon — Autonomous Red Team Platform"
+  - method: GET
+    path: '/api/health'
+    matchers:
+      - 'body="\"modelCount\"" && body="\"langgraph\"" && body="\"litellm\"" && body="\"postgres\""'

@@ -1,0 +1,17 @@
+info:
+  name: Open-Generative-AI
+  author: A.I.G bot
+  severity: info
+  desc: 'Open Generative AI is an open-source self-hosted AI image and video generation studio by Anil-matcha (Next.js App Router, default port 3000) that integrates 200+ generative models (Flux, Kling, Veo, Seedance, etc.) via the MuAPI gateway. The web root redirects to the /studio UI whose page title is "Studio — Open Generative AI".'
+  metadata:
+    product: open-generative-ai
+    vendor: anil-matcha
+http:
+  - method: GET
+    path: /studio
+    matchers:
+      - 'body="<title>Studio" && body="Open Generative AI</title>"'
+  - method: GET
+    path: /studio
+    matchers:
+      - 'body="Generate AI images and videos using 200+ models" && body="Open Generative AI"'
