@@ -1,0 +1,35 @@
+info:
+  name: mcp-atlassian
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    MCP Atlassian (mcp-atlassian, by sooperset) is a Model Context Protocol (MCP)
+    server for Atlassian products (Confluence and Jira) built with FastMCP. In HTTP
+    transports (--transport streamable-http at /mcp, --transport sse at /sse and
+    /messages/) the JSON-RPC initialize response serverInfo.name is "Atlassian MCP".
+    A GET /healthz endpoint returns {"status":"ok"}.
+  metadata:
+    product: mcp-atlassian
+    vendor: sooperset
+http:
+  - method: GET
+    path: /healthz
+    matchers:
+      - body="\"status\"" && body="ok"
+  - method: POST
+    path: /mcp
+    matchers:
+      - body="Atlassian MCP" && body="serverInfo"
+    data: '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"probe","version":"1.0"},"meta":{}},"id":1}'
+# Fingerprint note:
+# GET /healthz returns {"status":"ok"} (200) — health endpoint shipped in the
+# FastMCP-based server (verified present in v0.15.0 / v0.21.0 / v0.22.0 source).
+# POST /mcp with a JSON-RPC initialize request returns serverInfo.name
+# "Atlassian MCP" (the only stable product-identifying signal, verified locally
+# against a running mcp-atlassian 0.21.0 instance and in source across
+# v0.15.0/v0.21.0/v0.22.0).
+#
+# Version extraction: NOT possible via HTTP — serverInfo.version in the JSON-RPC
+# initialize response reports the underlying fastmcp library version rather than
+# the mcp-atlassian package version, and no dedicated version endpoint exists.
+# This is a partial fingerprint (matchers only, no version extractor).
