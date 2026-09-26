@@ -19,6 +19,10 @@
 package utils
 
 import (
+	"net"
+	"os"
+	"path/filepath"
+
 	"github.com/Tencent/AI-Infra-Guard/pkg/httpx"
 	"github.com/hashicorp/go-version"
 	"github.com/projectdiscovery/fastdialer/fastdialer"
@@ -28,10 +32,15 @@ import (
 )
 
 func TestIsFileExists(t *testing.T) {
-	assert.True(t, IsFileExists("/etc/passwd"))
-	assert.True(t, IsFileExists("/etc/"))
-	assert.False(t, IsDir("/etc/passwd"))
-	assert.True(t, IsDir("/etc/"))
+	// 用临时目录而不是 /etc，测试在 Windows 上同样成立
+	dir := t.TempDir()
+	file := filepath.Join(dir, "file.txt")
+	assert.NoError(t, os.WriteFile(file, []byte("x"), 0o600))
+
+	assert.True(t, IsFileExists(file))
+	assert.True(t, IsFileExists(dir))
+	assert.False(t, IsDir(file))
+	assert.True(t, IsDir(dir))
 }
 
 func TestCompareVersions(t *testing.T) {
@@ -50,6 +59,10 @@ func TestCompareVersions2(t *testing.T) {
 }
 
 func TestFaviconHash(t *testing.T) {
+	// 需要本机 127.0.0.1:8265 提供 favicon
+	if _, err := net.DialTimeout("tcp", "127.0.0.1:8265", time.Second); err != nil {
+		t.Skip("requires a local service on 127.0.0.1:8265")
+	}
 	url := "http://127.0.0.1:8265/favicon.ico"
 	dialer, err := fastdialer.NewDialer(fastdialer.DefaultOptions)
 	assert.NoError(t, err)

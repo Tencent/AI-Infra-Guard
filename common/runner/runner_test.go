@@ -55,8 +55,8 @@ func TestRunner_RunEnumeration(t *testing.T) {
 		TimeOut:      10,
 		JSON:         false,
 		RateLimit:    10,
-		FPTemplates:  "data/fingerprints",
-		AdvTemplates: "data/advisories",
+		FPTemplates:  "../../data/fingerprints",
+		AdvTemplates: "../../data/vuln",
 	}
 	r, err := New(parseOptions)
 	if err != nil {
