@@ -62,6 +62,7 @@ _DETECTION_SKILLS: List[str] = [
     "inter-agent-comm-security-detection",
     "cascading-failure-detection",
     "human-agent-trust-exploit-detection",
+    "memory-rag-poisoning-detection",
 ]
 
 # Maximum number of skill workers allowed to call ``dialogue()`` simultaneously.
