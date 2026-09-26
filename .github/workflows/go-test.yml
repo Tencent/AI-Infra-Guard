@@ -7,6 +7,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# 快速连续推送时取消被取代的运行，避免排队浪费
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
