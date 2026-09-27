@@ -140,7 +140,7 @@ AIG_SERVER=127.0.0.1:8088 ./agent
 CLI 模式默认输出 **SARIF 2.1.0** JSON，包含以下关键信息：
 
 - **rules**: 静态声明完整的 MCP01-MCP10 + 3 个补充分类规则（名称混淆、拉地毯、工具阴影），即使本次扫描未发现也总是输出
-- **results**: 每条漏洞映射到对应规则 ID，包含 `level`（error/warning/note）、`locations`（文件+行号）、`partialFingerprints`（去重哈希）、`fixes`（修复建议）
+- **results**: 每条漏洞映射到对应规则 ID，包含 `level`（error/warning/note）、`locations`（文件+行号）、`partialFingerprints`（去重哈希）。修复建议在 `message.text` 中展示，并单独保存在 `properties.suggestion`；文字建议不会被输出为可自动应用的 SARIF `fixes`。
 - **properties**: 安全评分、主语言、使用的 LLM、扫描时间
 
 SARIF 文件可直接上传到 GitHub Code Scanning：

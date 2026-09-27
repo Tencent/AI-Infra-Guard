@@ -74,16 +74,16 @@ aig-skill-scan --help
 ```json
 {
   "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json",
   "runs": [{
     "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.2", "rules": [...]}},
     "results": [{
       "ruleId": "T04",
       "level": "error",
-      "message": {"text": "..."},
+      "message": {"text": "漏洞摘要\n\n修复建议。"},
       "locations": [{"physicalLocation": {"artifactLocation": {"uri": "scripts/setup.sh"}, "region": {"startLine": 12, "endLine": 18}}}],
       "partialFingerprints": {"primaryLocationLineHash": "..."},
-      "fixes": [{"description": {"text": "..."}}]
+      "properties": {"suggestion": "修复建议。"}
     }]
   }]
 }
@@ -92,6 +92,7 @@ aig-skill-scan --help
 - `ruleId` 来自漏洞的 `risk_type`（SkillTrustBench T01–T09 分类编号）
 - `level` 由严重度（Critical/High/Medium/...）归一化映射为 SARIF 的 `error`/`warning`/`note`
 - `locations` 依赖 LLM 输出的可选结构化字段（文件路径 + 行号），无法定位时 `uri` 兜底为 `"."`
+- 修复建议在 `message.text` 中展示，并保存在 `properties.suggestion`。SARIF `fixes` 要求具体的文件修改，因此文字建议不会被输出为自动修复。
 
 `--aig-mode` 模式下 `-o` 保存的仍是原有的内部 JSON 结构（供平台内部消费），不受影响。
 
