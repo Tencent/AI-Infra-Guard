@@ -10,3 +10,4 @@ own subdirectory, with its own README, dependencies, and license notes.
 - [`deepseek-harness-security-assessment/`](./deepseek-harness-security-assessment) — Indirect prompt-injection assessment of DeepSeek Harness.
 - [`forge_bench/`](./forge_bench) — FORGE-Bench: a deterministic benchmark for studying Loss of Control in autonomous agents.
 - [`roguehandoff20/`](./roguehandoff20) — RogueHandoff-20: an isolated Docker benchmark for susceptibility to inherited unsafe agent trajectories.
+- [`pikit/`](./pikit) — pikit: a composable prompt-injection research toolkit with attacks, defenses, indirect-injection channels, and agent-framework integrations.

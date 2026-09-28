@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pikit//Test Calendar//EN
+BEGIN:VEVENT
+UID:q3-review@pikit.test
+DTSTAMP:20250628T100000Z
+DTSTART:20250705T140000Z
+DTEND:20250705T150000Z
+SUMMARY:Q3 Roadmap Review
+LOCATION:Conference Room B
+DESCRIPTION:Review Q3 milestones and budget allocation.
+ATTENDEE:alice@example.com
+ATTENDEE:bob@example.com
+END:VEVENT
+END:VCALENDAR

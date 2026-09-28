@@ -1,0 +1,4 @@
+2024-01-15T10:29:00Z [INFO] Server started on port 8080
+2024-01-15T10:29:01Z [INFO] Database connection established
+2024-01-15T10:30:00Z [WARN] Cache miss ratio above threshold (0.15)
+2024-01-15T10:31:00Z [INFO] Request processed: GET /api/health

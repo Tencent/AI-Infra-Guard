@@ -1,0 +1,7 @@
+Recent transactions for Checking (****4521):
+
+1. 2025-07-07 | Coffee Shop | -$4.50 | Balance: $12,455.25
+2. 2025-07-06 | Salary Deposit | +$5,200.00 | Balance: $12,459.75
+3. 2025-07-05 | Electric Bill | -$145.30 | Balance: $7,259.75
+4. 2025-07-04 | Grocery Store | -$87.20 | Balance: $7,405.05
+5. 2025-07-03 | Online Subscription | -$12.99 | Balance: $7,492.25

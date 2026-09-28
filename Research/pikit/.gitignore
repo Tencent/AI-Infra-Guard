@@ -1,0 +1,57 @@
+# Secrets — never commit these. Keep keys in .env (copy from .env.example).
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+node_modules/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# MkDocs build output
+site/
+
+# Local test scripts (may contain secrets)
+test_e2e_llm.py
+test_live_api.py
+live_api_results.json
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Generated runtime-fixture output
+pikit/runtime_assets/*/dist/
+
+# Local secrets / temp configs
+2.py
+codebuddy_auth.info
+
+# Generated test results
+result/
+
+# Tainted carrier fixtures (generated, not source)
+pikit/carriers/*.tainted.*
+
+# Local eval scripts
+run_*_eval.py
+run_*_test.py
+# But allow desensitized scripts in scripts/ directory
+!scripts/run_*_eval.py
+!scripts/run_*_test.py
