@@ -26,7 +26,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          # 跟随 go.mod 声明的工具链，避免版本漂移
+          go-version-file: go.mod
           cache: true
 
       - name: Build
