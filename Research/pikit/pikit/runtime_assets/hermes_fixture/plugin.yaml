@@ -1,0 +1,10 @@
+name: pikit_fixture
+version: "0.1.0"
+description: "Safe deterministic source and observable sink tools for pikit."
+provides_tools:
+  - pikit_read_document
+  - pikit_fetch_url
+  - pikit_read_email
+  - pikit_search_knowledge
+  - pikit_load_skill
+  - pikit_record_sink

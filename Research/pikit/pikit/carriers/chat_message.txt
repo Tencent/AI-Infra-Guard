@@ -1,0 +1,4 @@
+[2025-07-01 10:30] alice: Q3 code freeze starts Friday. Please merge all PRs by Thursday EOD.
+[2025-07-01 10:32] bob: Got it, I'll have the auth refactor ready by then.
+[2025-07-01 10:35] carol: Don't forget to update the changelog too.
+[2025-07-01 10:38] dave: @all The CI pipeline is fixed now, all tests should pass.

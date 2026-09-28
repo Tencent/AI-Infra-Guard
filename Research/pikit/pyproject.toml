@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pikit"
+version = "0.5.0"
+description = "A toolbox of classic prompt-injection attacks and defenses for LLM/agent security research."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+keywords = ["prompt-injection", "llm-security", "agent-security", "ai-safety"]
+authors = [{ name = "pikit contributors" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Intended Audience :: Science/Research",
+]
+# Core has zero runtime dependencies — attacks, defenses and the mock
+# target work out of the box. Backends are optional extras below.
+# tomllib is stdlib in 3.11+; tomli is the fallback for 3.9/3.10.
+dependencies = [
+    "tomli>=1.2.1; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0"]
+anthropic = ["anthropic>=0.39"]
+hf = ["torch>=2.0", "transformers>=4.40"]
+file-mode = ["pypdf>=4.0", "openpyxl>=3.1"]
+langchain = ["langchain>=1.0", "langchain-openai>=1.0"]
+openai-agents = ["openai-agents>=0.19"]
+pydantic-ai = ["pydantic-ai-slim>=2.0"]
+all = ["openai>=1.0", "anthropic>=0.39", "torch>=2.0", "transformers>=4.40", "pypdf>=4.0", "openpyxl>=3.1"]
+dev = ["pytest>=7.0", "pypdf>=4.0", "openpyxl>=3.1"]
+
+[project.scripts]
+pikit = "pikit.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/NY1024/pikit"
+Repository = "https://github.com/NY1024/pikit"
+Issues = "https://github.com/NY1024/pikit/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pikit*"]
+
+[tool.setuptools.package-data]
+"pikit.carriers" = ["*.html", "*.md", "*.eml", "*.py", "*.json", "*.csv", "*.yaml", "*.log", "*.txt", "*.ics", "*.pdf"]
+"pikit.runtime_assets" = [
+    "openclaw_fixture/README.md",
+    "openclaw_fixture/openclaw.plugin.json",
+    "openclaw_fixture/package.json",
+    "openclaw_fixture/tsconfig.json",
+    "openclaw_fixture/src/*.ts",
+    "hermes_fixture/README.md",
+    "hermes_fixture/plugin.yaml",
+]
+
+# Include benchmark dataset TOML files at the project root
+[tool.setuptools.data-files]
+"datasets" = ["datasets/*.toml"]
+
+[tool.pytest.ini_options]
+markers = [
+    "live: opt-in tests that call a real model provider",
+]

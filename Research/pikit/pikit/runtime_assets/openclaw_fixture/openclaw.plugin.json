@@ -1,0 +1,24 @@
+{
+  "id": "pikit-fixture",
+  "name": "pikit fixture",
+  "description": "Safe deterministic source and observable sink tools for pikit.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "pikit_read_document",
+      "pikit_fetch_url",
+      "pikit_read_email",
+      "pikit_search_knowledge",
+      "pikit_load_skill",
+      "pikit_record_sink"
+    ]
+  }
+}

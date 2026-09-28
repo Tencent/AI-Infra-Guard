@@ -1,0 +1,132 @@
+site_name: pikit — Prompt Injection Kit
+site_description: A composable toolbox of classic prompt-injection attacks, defenses, and indirect-injection channels for LLM/agent security research.
+site_url: https://NY1024.github.io/pikit
+repo_url: https://github.com/NY1024/pikit
+repo_name: NY1024/pikit
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quick Start: quickstart.md
+  - Concepts: concepts.md
+  - Terminology: terminology.md
+  - Datasets: datasets.md
+  - Guides:
+      - Overview: guide/index.md
+      - Attacks: guide/attacks.md
+      - Defenses: guide/defenses.md
+      - Channels: guide/channels.md
+      - Agents: guide/agents.md
+      - Targets: guide/targets.md
+      - craft() API: guide/craft.md
+      - Batch Experiments: guide/batch.md
+      - Framework Adapters: guide/framework-adapters.md
+  - CLI: cli.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - Jupyter Notebooks: tutorials/notebooks.md
+      - Direct Injection: tutorials/direct_injection.md
+      - Indirect Injection: tutorials/indirect_injection.md
+      - Agent Testbed: tutorials/agent_testbed.md
+      - Defending an Agent: tutorials/defending.md
+      - Runtime Indirect Injection: tutorials/runtime_indirect_injection.md
+  - 中文快速开始: zh_quickstart.md
+  - 中文 Runtime 间接注入: zh_runtime_indirect_injection.md
+  - API Reference:
+      - Overview: api/index.md
+      - Base Classes: api/base.md
+      - Attacks: api/attacks.md
+      - Defenses: api/defenses.md
+      - Channels: api/channels.md
+      - Targets: api/targets.md
+      - Agent: api/agent.md
+      - craft(): api/craft.md
+      - Judges: api/judge.md
+      - Matrix Runner: api/matrix.md
+      - Datasets: api/datasets.md
+      - Detection Defenses: api/detection.md
+      - Registry: api/registry.md
+  - Demos & CLI: demos.md
+  - Extending pikit: extending.md
+  - References: references.md
+  - License: license.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+  - def_list
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: false
+            show_root_heading: true
+            show_signature_annotations: true
+            separate_signature: true
+            show_bases: true
+            members_order: source
+            heading_level: 2
+            docstring_section_style: table
+            merge_init_into_class: true
