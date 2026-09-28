@@ -143,6 +143,8 @@ CLI 模式默认输出 **SARIF 2.1.0** JSON，包含以下关键信息：
 - **results**: 每条漏洞映射到对应规则 ID，包含 `level`（error/warning/note）、`locations`（文件+行号）、`partialFingerprints`（去重哈希）。修复建议在 `message.text` 中展示，并单独保存在 `properties.suggestion`；文字建议不会被输出为可自动应用的 SARIF `fixes`。
 - **properties**: 安全评分、主语言、使用的 LLM、扫描时间
 
+> **迁移说明**：旧版本将修复建议放在 `results[].fixes[0].description.text`，该字段不再输出；请改读 `results[].properties.suggestion`（同一段文本也会追加到 `message.text`）。
+
 SARIF 文件可直接上传到 GitHub Code Scanning：
 
 ```bash

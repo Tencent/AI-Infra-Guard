@@ -93,6 +93,7 @@ aig-skill-scan --help
 - `level` is normalized from the free-text severity (Critical/High/Medium/...) into SARIF's `error`/`warning`/`note`
 - `locations` relies on optional structured fields (file path + line numbers) emitted by the LLM; when they can't be determined, `uri` falls back to `"."`
 - Remediation guidance is displayed in `message.text` and preserved in `properties.suggestion`. SARIF `fixes` require concrete file edits, so prose recommendations are not emitted as automatic fixes.
+- **Migration note**: earlier releases carried this text in `results[].fixes[0].description.text`; that field is no longer emitted, so read `results[].properties.suggestion` instead
 
 `--aig-mode` mode is unaffected and continues to save the original internal JSON structure via `-o` (consumed by the platform internally).
 

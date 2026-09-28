@@ -93,6 +93,7 @@ aig-skill-scan --help
 - `level` 由严重度（Critical/High/Medium/...）归一化映射为 SARIF 的 `error`/`warning`/`note`
 - `locations` 依赖 LLM 输出的可选结构化字段（文件路径 + 行号），无法定位时 `uri` 兜底为 `"."`
 - 修复建议在 `message.text` 中展示，并保存在 `properties.suggestion`。SARIF `fixes` 要求具体的文件修改，因此文字建议不会被输出为自动修复。
+- **迁移说明**：旧版本将该文本放在 `results[].fixes[0].description.text`，该字段不再输出，请改读 `results[].properties.suggestion`
 
 `--aig-mode` 模式下 `-o` 保存的仍是原有的内部 JSON 结构（供平台内部消费），不受影响。
 

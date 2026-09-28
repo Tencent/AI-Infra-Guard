@@ -143,6 +143,8 @@ CLI mode outputs **SARIF 2.1.0** JSON by default, containing:
 - **results**: Each vulnerability maps to a rule ID, including `level` (error/warning/note), `locations` (file + line number), and `partialFingerprints` (dedup hash). Remediation guidance is included in `message.text` and preserved separately in `properties.suggestion`; prose recommendations are not emitted as machine-applicable SARIF `fixes`.
 - **properties**: Security score, primary language, LLM used, scan duration
 
+> **Migration note**: earlier releases carried the remediation text in `results[].fixes[0].description.text`. That field is no longer emitted — read `results[].properties.suggestion` instead (the same text is also appended to `message.text`).
+
 SARIF files can be uploaded directly to GitHub Code Scanning:
 
 ```bash
