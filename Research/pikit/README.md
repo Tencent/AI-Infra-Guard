@@ -18,8 +18,7 @@ Think [`foolbox`](https://github.com/bethgelab/foolbox) / [`cleverhans`](https:/
 > **For authorized security research, red-teaming, and building defenses only.**
 > Use pikit against systems you own or are explicitly permitted to test.
 
-> [!TIP]
-> 📚 **Full documentation is available at [ny1024.github.io/pikit](https://ny1024.github.io/pikit/)** — installation guides, API reference, tutorials, and method catalogs.
+
 
 ---
 
