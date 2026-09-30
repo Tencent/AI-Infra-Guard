@@ -30,6 +30,7 @@ var (
 	scanTargets         []string
 	scanTargetFile      string
 	scanOutputFile      string
+	scanJSON            bool
 	scanProxyURL        string
 	scanTimeOut         int
 	scanRateLimit       int
@@ -56,6 +57,7 @@ var scanCmd = &cobra.Command{
 			Target:          scanTargets,
 			TargetFile:      scanTargetFile,
 			Output:          scanOutputFile,
+			JSON:            scanJSON,
 			ProxyURL:        scanProxyURL,
 			TimeOut:         scanTimeOut,
 			RateLimit:       scanRateLimit,
@@ -96,6 +98,7 @@ func init() {
 	scanCmd.Flags().StringArrayVarP(&scanTargets, "target", "t", []string{}, "目标URL，可以指定多个目标，例如: --target xx.com --target aa.com")
 	scanCmd.Flags().StringVarP(&scanTargetFile, "file", "f", "", "包含目标URL的文件路径")
 	scanCmd.Flags().StringVarP(&scanOutputFile, "output", "o", "", "输出文件路径")
+	scanCmd.Flags().BoolVar(&scanJSON, "json", false, "以现有扫描结果结构输出 JSON（可与 --output 同时使用）")
 	scanCmd.Flags().IntVar(&scanTimeOut, "timeout", 5, "请求超时时间(秒)")
 	scanCmd.Flags().StringVar(&scanProxyURL, "proxy-url", "", "代理服务器URL")
 	scanCmd.Flags().StringArrayVar(&scanHeaders, "header", []string{}, "HTTP请求头，可以指定多个，例如: --header \"key:value\" --header \"key:value\"")

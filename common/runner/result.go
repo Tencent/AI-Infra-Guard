@@ -47,11 +47,23 @@ type HttpResult struct {
 	s             string // Internal string representation
 }
 
-// JSON converts HttpResult to JSON string
-// 将HttpResult转换为JSON字符串格式
+// JSON converts HttpResult to JSON string using the existing scan result schema.
+// 将HttpResult转换为现有扫描结果结构的JSON字符串。
 func (r *HttpResult) JSON() string {
 	if js, err := json.Marshal(r); err == nil {
 		return string(js)
 	}
 	return ""
+}
+
+// ResultsJSON serializes collected scan results as a JSON array of the existing HttpResult schema.
+func ResultsJSON(results []HttpResult) string {
+	if results == nil {
+		results = []HttpResult{}
+	}
+	js, err := json.Marshal(results)
+	if err != nil {
+		return "[]"
+	}
+	return string(js)
 }
