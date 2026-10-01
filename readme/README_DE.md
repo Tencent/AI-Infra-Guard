@@ -560,13 +560,15 @@ Wenn Sie A.I.G in Ihrer Forschung verwenden, zitieren Sie bitte:
 
 **Research:**
 
-1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — Ein Docker-basierter Benchmark, der misst, ob ein Agent eine als vorausgehenden Zustand bereitgestellte unsichere Trajektorie übernimmt, und die Anfälligkeit nach Exposition gegenüber der unsicheren Strategie eines anderen Agenten testet. [[code]](../Research/roguehandoff20)
+1. **"pikit: A Composable Prompt-Injection Research Toolkit"** — Ein einheitliches Toolkit, das klassische Prompt-Injection-Angriffe, -Abwehrmaßnahmen und indirekte Injektionskanäle unter einer Schnittstelle vereint, mit integrierten Agenten-Szenarien und Integrationen für reale Agenten-Frameworks und -Laufzeiten. [[code]](../Research/pikit)
 
-2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — Ein deterministischer, orakelbasierter Benchmark, der untersucht, wie autonome Agenten bei der Ausführung legitimer Aufgaben die Kontrolle verlieren, und Zieldruck, Einschränkungsdegradation sowie unsichere Gelegenheiten über 16 Domänen und 1.800 Trajektorien bewertet. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+2. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — Ein Docker-basierter Benchmark, der misst, ob ein Agent eine als vorausgehenden Zustand bereitgestellte unsichere Trajektorie übernimmt, und die Anfälligkeit nach Exposition gegenüber der unsicheren Strategie eines anderen Agenten testet. [[code]](../Research/roguehandoff20)
 
-3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Autorisierte Sicherheitsbewertung von DeepSeek Harness gegen indirekte Prompt-Injection über 14.560 Agenten-Läufe. [[code]](../Research/deepseek-harness-security-assessment)
+3. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — Ein deterministischer, orakelbasierter Benchmark, der untersucht, wie autonome Agenten bei der Ausführung legitimer Aufgaben die Kontrolle verlieren, und Zieldruck, Einschränkungsdegradation sowie unsichere Gelegenheiten über 16 Domänen und 1.800 Trajektorien bewertet. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
 
-4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Zeigt, wie vergiftete Trajektorien persistente Backdoors in selbstentwickelnde Agenten-Skill-Systeme injizieren können. [[code]](../Research/SkillJack)
+4. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Autorisierte Sicherheitsbewertung von DeepSeek Harness gegen indirekte Prompt-Injection über 14.560 Agenten-Läufe. [[code]](../Research/deepseek-harness-security-assessment)
+
+5. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Zeigt, wie vergiftete Trajektorien persistente Backdoors in selbstentwickelnde Agenten-Skill-Systeme injizieren können. [[code]](../Research/SkillJack)
 
 **Papers:**
 
