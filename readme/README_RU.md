@@ -560,13 +560,15 @@ A.I.G предоставляет полный набор API для создан
 
 **Research:**
 
-1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — Бенчмарк на основе Docker, измеряющий, принимает ли агент небезопасную траекторию, предоставленную в качестве предшествующего состояния, и тестирующий восприимчивость после воздействия небезопасной стратегии другого агента. [[code]](../Research/roguehandoff20)
+1. **"pikit: A Composable Prompt-Injection Research Toolkit"** — Единый инструментарий, объединяющий классические атаки, защиты и каналы косвенного внедрения промптов в рамках одного интерфейса, со встроенными сценариями агентов и интеграциями с реальными агентными фреймворками и средами выполнения. [[code]](../Research/pikit)
 
-2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — Детерминированный бенчмарк на основе оракулов, исследующий, как автономные агенты теряют контроль при выполнении легитимных задач, оценивая давление цели, деградацию ограничений и небезопасную возможность в 16 доменах и 1800 траекториях. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
+2. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — Бенчмарк на основе Docker, измеряющий, принимает ли агент небезопасную траекторию, предоставленную в качестве предшествующего состояния, и тестирующий восприимчивость после воздействия небезопасной стратегии другого агента. [[code]](../Research/roguehandoff20)
 
-3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Авторизованная оценка безопасности DeepSeek Harness против косвенного внедрения промптов на 14 560 запусках агентов. [[code]](../Research/deepseek-harness-security-assessment)
+3. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — Детерминированный бенчмарк на основе оракулов, исследующий, как автономные агенты теряют контроль при выполнении легитимных задач, оценивая давление цели, деградацию ограничений и небезопасную возможность в 16 доменах и 1800 траекториях. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
 
-4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Демонстрирует, как отравленные траектории могут внедрять персистентные бэкдоры в системы навыков саморазвивающихся агентов. [[code]](../Research/SkillJack)
+4. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Авторизованная оценка безопасности DeepSeek Harness против косвенного внедрения промптов на 14 560 запусках агентов. [[code]](../Research/deepseek-harness-security-assessment)
+
+5. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Демонстрирует, как отравленные траектории могут внедрять персистентные бэкдоры в системы навыков саморазвивающихся агентов. [[code]](../Research/SkillJack)
 
 **Papers:**
 
