@@ -46,13 +46,17 @@ def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
 
     # Pass 2: fallback <function>tool_name</function>
     alt_matches = list(re.finditer(alt_regex_pattern, content, re.DOTALL))
-    for am in alt_matches:
+    for index, am in enumerate(alt_matches):
         fn_name = am.group(1)
         if fn_name == "tool_name":
             continue
-        # Parameters may appear as siblings *after* the function tag;
-        # scan the entire remaining content for any <parameter ...> tags.
-        tail = content[am.end():]
+        # Parameters may appear as siblings *after* the function tag; scan the
+        # text up to the next function tag. Reading to the end of the response
+        # instead hands every earlier call the parameters of the last one, so a
+        # model that emits two calls would have the first one silently executed
+        # with the second one's arguments.
+        tail_end = alt_matches[index + 1].start() if index + 1 < len(alt_matches) else len(content)
+        tail = content[am.end():tail_end]
         args = _extract_params(tail, named_param_regex_pattern, legacy_param_regex_pattern)
         results.append({"toolName": fn_name, "args": args})
 
