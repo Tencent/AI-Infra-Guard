@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.4] - 2026-10-01
+
+### Added
+- **Research**: Vendor pikit (https://github.com/NY1024/pikit), a composable prompt-injection research toolkit, under Research/pikit (fe84b853, PR #681)
+
+### Fixed
+- **Skill-Scan**: Forward optional reasoning effort to the model API (PR #676, 14beb9b9)
+
+### Changed
+- **Docs**: Update Research/pikit README (9f889209)
+
+### Contributors
+Elwood Zonghao Ying (NY1024), Patrick Erichsen
+
 ## [v4.6.3] - 2026-09-24
 
 ### Added
