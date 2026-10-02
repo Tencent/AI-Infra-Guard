@@ -395,6 +395,23 @@ def test_fallback_function_format_does_not_leak_parameters_across_tools():
     ]
 
 
+def test_fallback_parameterless_call_does_not_absorb_the_next_calls_parameters():
+    """A call with no parameters of its own must not inherit the ones after it.
+
+    The bound is the start of the next `<function>` tag, so an empty first call
+    ends where the second begins rather than at the end of the response.
+    """
+    response = (
+        "<function>finish</function>\n"
+        "<function>read_file</function>\n"
+        '<parameter name="file_path">scripts/run.py</parameter>'
+    )
+    assert parse_tool_invocations_all(response) == [
+        {"toolName": "finish", "args": {}},
+        {"toolName": "read_file", "args": {"file_path": "scripts/run.py"}},
+    ]
+
+
 def test_agent_executes_all_tool_calls_and_returns_combined_results():
     agent = object.__new__(BaseAgent)
     agent.llm = SimpleNamespace()
