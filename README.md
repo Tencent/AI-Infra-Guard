@@ -83,6 +83,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
 - [✨ Features](#-features)
+- [🆚 How A.I.G Compares](#-how-aig-compares)
 - [🖼️ Showcase](#-showcase)
 - [📖 User Guide](#-user-guide)
 - [🔧 API Documentation](#-api-documentation)
@@ -245,6 +246,24 @@ For full leaderboard and details, visit [SkillTrustBench](https://matrix.tencent
 
 <br />
 
+## 🆚 How A.I.G Compares
+
+AI red-teaming/security tools tend to specialize in one attack surface. A.I.G is one of the few that scans across five: AI infra CVEs, MCP servers, Agent Skills, Agent workflows, and jailbreak/prompt-injection evaluation, in a single self-hostable repo.
+
+| | **A.I.G**&nbsp;(this&nbsp;repo) | NVIDIA [garak](https://github.com/NVIDIA/garak) | Microsoft [PyRIT](https://github.com/Azure/PyRIT) | [Promptfoo](https://github.com/promptfoo/promptfoo) | Invariant [mcp-scan](https://github.com/invariantlabs-ai/mcp-scan) |
+|:--|:--|:--|:--|:--|:--|
+| AI infra CVE scan (Ollama, vLLM, ComfyUI, n8n, Triton, etc.) | ✅ 146 components / 2000+ CVE rules | ❌ | ❌ | ❌ | ❌ |
+| MCP server security scan (tool poisoning, RCE, credential exfil) | ✅ 14 risk categories, source or remote URL | ❌ | ❌ | ⚠️ limited (via redteam plugins) | ✅ (MCP-focused) |
+| Agent Skill / plugin bytecode & supply-chain scan | ✅ incl. `.pyc` bypass & charset-smuggling defense, benchmarked on [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) | ❌ | ❌ | ❌ | ❌ |
+| Agent workflow scan (Dify, Coze, multi-agent) | ✅ | ❌ | ❌ | ⚠️ limited | ❌ |
+| LLM jailbreak / prompt-injection evaluation | ✅ multi-turn (Many-Shot, PAIR, GOAT, ActorAttack) | ✅ (probe-based, single/few-turn focus) | ✅ (attack orchestration framework) | ✅ (redteam plugin) | ❌ |
+| Black-box LLM API poisoning / model-substitution detection | ✅ (API Checker, v4.6.0) | ❌ | ❌ | ❌ | ❌ |
+| Deployment | Docker / CLI / Web UI, self-hosted | CLI (Python lib) | Python lib / SDK | CLI / cloud | CLI |
+| License | Apache-2.0 | Apache-2.0 | MIT | MIT (core) | Apache-2.0 |
+
+This isn't a claim that A.I.G is strictly "better" — garak, PyRIT, Promptfoo, and mcp-scan are each excellent at what they specialize in, and are worth running alongside A.I.G rather than instead of it. The table above is about scope: most teams end up needing more than one of these tools, and A.I.G is built to cover the infra + MCP + Skill + Agent + jailbreak surfaces from one place instead of stitching several together. Corrections welcome via issue or PR if any row is out of date.
+
+<br />
 
 ## 🖼️ Showcase
 
