@@ -1,0 +1,17 @@
+info:
+  name: lightllm
+  author: A.I.G bot
+  severity: info
+  desc: LightLLM 是一个基于 Python 的高性能大语言模型推理与服务框架，由 ModelTC 开发，支持多 GPU 推理加速，提供 Config Server 管理和 HTTP API 服务。
+  metadata:
+    product: lightllm
+    vendor: ModelTC
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="lightllm" || header="lightllm"
+  - method: GET
+    path: '/health'
+    matchers:
+      - body="lightllm"
