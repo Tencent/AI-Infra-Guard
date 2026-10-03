@@ -74,16 +74,16 @@ aig-skill-scan --help
 ```json
 {
   "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json",
   "runs": [{
     "tool": {"driver": {"name": "aig-skill-scan", "version": "0.2.2", "rules": [...]}},
     "results": [{
       "ruleId": "T04",
       "level": "error",
-      "message": {"text": "..."},
+      "message": {"text": "Finding summary\n\nRemediation guidance."},
       "locations": [{"physicalLocation": {"artifactLocation": {"uri": "scripts/setup.sh"}, "region": {"startLine": 12, "endLine": 18}}}],
       "partialFingerprints": {"primaryLocationLineHash": "..."},
-      "fixes": [{"description": {"text": "..."}}]
+      "properties": {"suggestion": "Remediation guidance."}
     }]
   }]
 }
@@ -92,6 +92,8 @@ aig-skill-scan --help
 - `ruleId` comes from the vulnerability's `risk_type` (the SkillTrustBench T01–T09 category code)
 - `level` is normalized from the free-text severity (Critical/High/Medium/...) into SARIF's `error`/`warning`/`note`
 - `locations` relies on optional structured fields (file path + line numbers) emitted by the LLM; when they can't be determined, `uri` falls back to `"."`
+- Remediation guidance is displayed in `message.text` and preserved in `properties.suggestion`. SARIF `fixes` require concrete file edits, so prose recommendations are not emitted as automatic fixes.
+- **Migration note**: earlier releases carried this text in `results[].fixes[0].description.text`; that field is no longer emitted, so read `results[].properties.suggestion` instead
 
 `--aig-mode` mode is unaffected and continues to save the original internal JSON structure via `-o` (consumed by the platform internally).
 
