@@ -27,7 +27,9 @@ import (
 
 func TestScreenshot(t *testing.T) {
 	instance, err := NewWebScreenShotWithOptions()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Skipf("requires a local Chrome/Chromium: %v", err)
+	}
 	url := "https://www.baidu.com/"
 	data, err := instance.Screen(url)
 	assert.NoError(t, err)
