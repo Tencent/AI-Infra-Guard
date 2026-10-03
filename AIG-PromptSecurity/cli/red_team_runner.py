@@ -51,6 +51,7 @@ class RedTeamRunner:
         metric: Optional[str] = None,
         report_path: Optional[str] = None,
         progress_log_path: Optional[str] = DEFAULT_PROGRESS_LOG_PATH,
+        resume: bool = False,
     ) -> str:
         """运行红队测试"""
         logger.new_plan_step(newPlanStep(stepId="1", title=logger.translated_msg("Pre-Jailbreak Parameter Parsing")))
@@ -81,7 +82,7 @@ class RedTeamRunner:
             return
 
         # 运行红队测试
-        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode, progress_log_path=progress_log_path)
+        red_teamer = RedTeamer(simulator_model=simulator_model, evaluation_model=evaluate_model, async_mode=async_mode, progress_log_path=progress_log_path, resume=resume)
         red_teamer.max_concurrent = max(red_teamer.max_concurrent, simulator_model.max_concurrent, evaluate_model.max_concurrent)
 
         # 如果指定了自定义metric，则对所有vulnerability类型使用该metric

@@ -93,6 +93,14 @@ from deepteam.red_teamer.progress_log import (
     DEFAULT_PROGRESS_LOG_PATH,
     ProgressLog,
 )
+from deepteam.red_teamer.resume import (
+    DEFAULT_ATTACKS_CHECKPOINT_PATH,
+    AttackCheckpoint,
+    build_metadata,
+    case_key,
+    ensure_checkpoint_matches,
+    load_completed_cases,
+)
 from deepteam.red_teamer.risk_assessment import (
     construct_risk_assessment_overview,
     RedTeamingTestCase,
@@ -152,6 +160,8 @@ class RedTeamer:
         async_mode: bool = True,
         progress_log_path: Optional[str] = DEFAULT_PROGRESS_LOG_PATH,
         progress_flush_every: int = DEFAULT_FLUSH_EVERY,
+        resume: bool = False,
+        attacks_checkpoint_path: Optional[str] = DEFAULT_ATTACKS_CHECKPOINT_PATH,
     ):
         self.target_purpose = target_purpose
         self.simulator_model, _ = initialize_model(simulator_model)
@@ -159,6 +169,8 @@ class RedTeamer:
         self.async_mode = async_mode
         self.progress_log_path = progress_log_path
         self.progress_flush_every = progress_flush_every
+        self.resume = resume
+        self.attacks_checkpoint_path = attacks_checkpoint_path
         self._translation_cache: Dict[str, str] = {}
         self.synthetic_goldens: List[Golden] = []
         self.custom_metric = None  # 添加自定义metric属性
@@ -173,6 +185,58 @@ class RedTeamer:
             path=self.progress_log_path,
             flush_every=self.progress_flush_every,
         )
+
+    def _new_attack_checkpoint(self) -> AttackCheckpoint:
+        """创建攻击检查点；路径为空时为空操作。"""
+        return AttackCheckpoint(path=self.attacks_checkpoint_path)
+
+    def _resumed_attacks(
+        self,
+        vulnerabilities: List[BaseVulnerability],
+        attacks: List[BaseAttack],
+        attacks_per_vulnerability_type: int,
+    ) -> Optional[List[SimulatedAttack]]:
+        """续跑时返回上次落盘的攻击清单，没有可用检查点则返回 None。"""
+        if not self.resume:
+            return None
+        metadata, saved_attacks = self._new_attack_checkpoint().load()
+        if not saved_attacks:
+            logger.debug("No usable attacks checkpoint, starting from scratch")
+            return None
+        ensure_checkpoint_matches(
+            metadata,
+            build_metadata(
+                vulnerabilities,
+                attacks,
+                attacks_per_vulnerability_type,
+                self.target_purpose,
+            ),
+        )
+        return saved_attacks
+
+    def _save_attacks(
+        self,
+        simulated_attacks: List[SimulatedAttack],
+        vulnerabilities: List[BaseVulnerability],
+        attacks: List[BaseAttack],
+        attacks_per_vulnerability_type: int,
+    ) -> None:
+        """把这次模拟出的攻击落盘，供中断后续跑复用。"""
+        self._new_attack_checkpoint().save(
+            simulated_attacks,
+            build_metadata(
+                vulnerabilities,
+                attacks,
+                attacks_per_vulnerability_type,
+                self.target_purpose,
+            ),
+        )
+
+    def _completed_cases(self) -> Dict[str, RedTeamingTestCase]:
+        """续跑时读回已完成的用例；未开启续跑则为空。"""
+        if not self.resume:
+            return {}
+        return load_completed_cases(self.progress_log_path)
 
     def _get_translation_system_message(self) -> str:
         """获取翻译的 system 消息"""
@@ -307,7 +371,13 @@ Direct translation without separators"""
                 # Initialize metric map
                 metrics_map = self.get_red_teaming_metrics_map(vulnerabilities)
                 # Simulate attacks
-                if (
+                resumed_attacks = self._resumed_attacks(
+                    vulnerabilities, attacks, attacks_per_vulnerability_type,
+                )
+                if resumed_attacks is not None:
+                    simulated_attacks: List[SimulatedAttack] = resumed_attacks
+                    self.simulated_attacks = resumed_attacks
+                elif (
                     reuse_simulated_attacks
                     and self.simulated_attacks is not None
                     and len(self.simulated_attacks) > 0
@@ -326,12 +396,19 @@ Direct translation without separators"""
                             choice=choice,
                         )
                     )
+                    self._save_attacks(
+                        simulated_attacks,
+                        vulnerabilities,
+                        attacks,
+                        attacks_per_vulnerability_type,
+                    )
 
                 vulnerability_type_to_attacks_map = (
                     group_attacks_by_vulnerability_type(simulated_attacks)
                 )
                 red_teaming_test_cases: List[RedTeamingTestCase] = []
                 progress_log = self._new_progress_log()
+                completed_cases = self._completed_cases()
                 try:
                     total_vulnerability_types = sum(
                         len(v.get_types()) for v in vulnerabilities
@@ -359,6 +436,14 @@ Direct translation without separators"""
                             logger.tool_used(toolUsed(stepId="2", tool_id=tool_id, brief=logger.translated_msg(
                                 "Measure {idx} / {num_simulated_attacks} simulated attacks", idx=_idx+1, num_simulated_attacks=num_simulated_attacks
                             ), status="doing"))
+                            # 续跑时这一条上次已经评过：直接沿用旧结果，
+                            # 不再调用目标模型与评分器
+                            completed_case = completed_cases.get(
+                                case_key(simulated_attack)
+                            )
+                            if completed_case is not None:
+                                red_teaming_test_cases.append(completed_case)
+                                continue
                             red_teaming_test_case = RedTeamingTestCase(
                                 vulnerability=simulated_attack.vulnerability,
                                 vulnerability_type=vulnerability_type.value,
@@ -488,7 +573,13 @@ Direct translation without separators"""
             metrics_map = self.get_red_teaming_metrics_map(vulnerabilities)
 
             # Generate attacks
-            if (
+            resumed_attacks = self._resumed_attacks(
+                vulnerabilities, attacks, attacks_per_vulnerability_type,
+            )
+            if resumed_attacks is not None:
+                simulated_attacks: List[SimulatedAttack] = resumed_attacks
+                self.simulated_attacks = resumed_attacks
+            elif (
                 reuse_simulated_attacks
                 and self.simulated_attacks is not None
                 and len(self.simulated_attacks) > 0
@@ -507,6 +598,12 @@ Direct translation without separators"""
                         ignore_errors=ignore_errors,
                         choice=choice,
                     )
+                )
+                self._save_attacks(
+                    simulated_attacks,
+                    vulnerabilities,
+                    attacks,
+                    attacks_per_vulnerability_type,
                 )
 
             # Create a mapping of vulnerabilities to attacks
@@ -535,6 +632,7 @@ Direct translation without separators"""
             )
             red_teaming_test_cases: List[RedTeamingTestCase] = []
             progress_log = self._new_progress_log()
+            completed_cases = self._completed_cases()
             try:
                 logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
                     "Measure model: {model_name}", model_name=model_name
@@ -550,8 +648,11 @@ Direct translation without separators"""
                         metrics_map,
                         ignore_errors=ignore_errors,
                         progress_log=progress_log,
+                        completed_cases=completed_cases,
                     )
                     red_teaming_test_cases.extend(test_cases)
+                    # 续跑时已完成的用例也算进度：它们不会再被评估，
+                    # 但用户看到的应该是「这次跑完了多少」
                     pbar.update(len(attacks))
 
                 # Create a list of tasks for evaluating each vulnerability, with throttling
@@ -668,7 +769,19 @@ Direct translation without separators"""
         metrics_map,
         ignore_errors: bool,
         progress_log: ProgressLog,
+        completed_cases: Optional[Dict[str, RedTeamingTestCase]] = None,
     ) -> List[RedTeamingTestCase]:
+
+        completed_cases = completed_cases or {}
+        red_teaming_test_cases = []
+        pending_attacks: List[SimulatedAttack] = []
+        for simulated_attack in simulated_attacks:
+            # 续跑时这一条上次已经评过：沿用旧结果，不再调用目标模型
+            completed_case = completed_cases.get(case_key(simulated_attack))
+            if completed_case is not None:
+                red_teaming_test_cases.append(completed_case)
+            else:
+                pending_attacks.append(simulated_attack)
 
         tasks = [
             self._a_attack(
@@ -679,11 +792,10 @@ Direct translation without separators"""
                 metrics_map=metrics_map,
                 ignore_errors=ignore_errors,
             )
-            for simulated_attack in simulated_attacks
+            for simulated_attack in pending_attacks
         ]
 
         total = len(tasks)
-        red_teaming_test_cases = []
 
         for completed, coro in enumerate(asyncio.as_completed(tasks), 1):
             logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg(
