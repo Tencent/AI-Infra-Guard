@@ -87,6 +87,9 @@ type ScanRequest struct {
 		Model              string `json:"model"`
 		Token              string `json:"token"`
 		BaseUrl            string `json:"base_url"`
+
+		ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
+		ExtraBody    map[string]any    `json:"extra_body,omitempty"`
 	} `json:"model,omitempty"`
 }
 
@@ -135,6 +138,9 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			BaseUrl:            reqScan.Model.BaseUrl,
 			Model:              reqScan.Model.Model,
 			Key:                reqScan.Model.Token,
+
+			ExtraHeaders: reqScan.Model.ExtraHeaders,
+			ExtraBody:    reqScan.Model.ExtraBody,
 		}
 	}
 

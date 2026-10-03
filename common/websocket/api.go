@@ -49,6 +49,11 @@ type ModelParams struct {
 	Token   string `json:"token" example:"sk-xxx"`                       // API access token
 	Model   string `json:"model" example:"gpt-4"`                        // Model name
 	Limit   int    `json:"limit,omitempty" example:"1000"`               // Request limit
+
+	// ExtraHeaders are sent with every model request, e.g. OpenRouter's X-Title
+	ExtraHeaders map[string]string `json:"extra_headers,omitempty" example:"{\"X-Title\":\"AI-Infra-Guard\"}"`
+	// ExtraBody is merged into the request body; keys may be dotted paths like provider.order
+	ExtraBody map[string]any `json:"extra_body,omitempty" example:"{\"provider.order\":[\"anthropic\"]}"`
 }
 
 // MCPTaskRequest represents MCP task request structure
