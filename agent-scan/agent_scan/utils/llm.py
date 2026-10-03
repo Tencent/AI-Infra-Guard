@@ -37,11 +37,12 @@ def format_llm_error_message(language: str, zh_message: str, en_message: str) ->
 
 
 class LLM:
-    def __init__(self, model, api_key, base_url):
+    def __init__(self, model, api_key, base_url, stream_timeout: float = 300):
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
         self.client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=60)
+        self.stream_timeout = stream_timeout
 
     async def chat_async(self, message: List[dict], language: str = "zh") -> str:
         """Non-blocking wrapper around :meth:`chat` for use inside async contexts.
@@ -161,6 +162,7 @@ class LLM:
             openai.APIError: Other API errors (5xx, etc.).
         """
         try:
+            started = time.monotonic()
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=message,
@@ -168,6 +170,17 @@ class LLM:
             )
 
             for chunk in response:
+                # A provider may keep a broken stream alive with empty heartbeat
+                # chunks. The SDK read timeout resets for every chunk, so enforce
+                # a deadline for the complete response as well.
+                deadline = getattr(self, "stream_timeout", 300)
+                if time.monotonic() - started > deadline:
+                    close = getattr(response, "close", None)
+                    if close:
+                        close()
+                    raise TimeoutError(
+                        f"LLM streaming response exceeded the {deadline}-second deadline"
+                    )
                 choices = getattr(chunk, "choices", None)
 
                 # Ensure choices is a non-empty list
