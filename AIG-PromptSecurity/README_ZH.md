@@ -37,6 +37,11 @@ python cli_run.py \
 > - OpenAI官方API示例：`--model "gpt-3.5-turbo" --base_url "https://api.openai.com/v1"`  
 > - 自定义API端点示例：`--model "qwen-turbo" --base_url "https://your-api-endpoint.com/v1"`
 
+### 限流与平台说明
+
+- 当目标模型返回限流错误（HTTP 429 / 配额相关提示）时，客户端会按指数退避重试（8s/16s/32s，上限 60s；若响应包含 `Retry-After` 则优先遵循），而非持续冲击接口。连续 3 次限流失败后将跳过剩余测试用例（熔断机制），以避免消耗配额。若频繁出现此情况，请调低 `--max_concurrent`。
+- 停止评测任务时，在 Linux/macOS 上会终止整个子进程组；在 Windows 上仅终止直接子进程，因此派生出的 Python 工作进程可能会在处理完在途请求前继续运行片刻。运行大规模评测时建议优先使用 Linux/macOS（或 Docker）。
+
 ### 数据集管理
 
 **1. 默认数据集**
