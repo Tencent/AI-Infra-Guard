@@ -1,0 +1,22 @@
+info:
+  name: devika
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    Devika (stitionai/devika) is an open-source AI software engineer agent (started as an
+    open-source alternative to Devin). The Flask backend (devika.py, Flask-SocketIO, default
+    port 1337 bound to 0.0.0.0) exposes an unauthenticated REST API under /api/* plus Socket.IO
+    events; the SvelteKit frontend (ui/, default port 3000) is served with the page title
+    "Devika AI". docker-compose maps both 1337 and 3000 to the host.
+  metadata:
+    product: devika
+    vendor: stitionai
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Devika AI</title>"
+  - method: GET
+    path: '/api/status'
+    matchers:
+      - body="\"status\"" && body="server is running!"

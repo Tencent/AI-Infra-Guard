@@ -1,0 +1,28 @@
+info:
+  name: Obot
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    Obot (obot-platform/obot) is an open-source AI agent/MCP platform. The Go server
+    (default port 8080) serves a SvelteKit UI at / and a REST API under /api. The
+    Docker quickstart historically ran with authentication disabled, mapping every
+    request to a synthetic "nobody" user holding Owner/Admin roles.
+  metadata:
+    product: Obot
+    vendor: obot-platform
+http:
+  - method: GET
+    path: /
+    matchers:
+      - body="<title>Obot - Build AI agents with MCP</title>"
+  - method: GET
+    path: /api/version
+    matchers:
+      - body="\"obot\"" && body="\"authEnabled\""
+version:
+  - method: GET
+    path: /api/version
+    extractor:
+      part: body
+      group: 1
+      regex: '"obot"\s*:\s*"([^"]+)"'

@@ -1,0 +1,31 @@
+info:
+  name: DBHub
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    DBHub (bytebase/dbhub) is a token-conscious database MCP server for
+    Postgres, MySQL, SQL Server, Oracle, MariaDB and SQLite. When started
+    with HTTP transport (e.g. --transport http --port 8080), it runs an
+    Express server that serves an unauthenticated workbench web UI and the
+    MCP endpoint at /mcp (plus /healthz and /api/sources REST endpoints).
+  metadata:
+    product: dbhub
+    vendor: bytebase
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>DBHub - Minimal Database MCP Server</title>"
+# Fingerprint note (2026-09-26, verified during CVE-2026-61742 investigation):
+# - GET / serves the workbench SPA (express.static(dist/public) + catch-all
+#   sendFile(index.html)), whose <title> is "DBHub - Minimal Database MCP
+#   Server" — verified in main branch frontend/index.html and in the
+#   published npm package @bytebase/dbhub@0.22.4 dist/public/index.html
+#   (jsdelivr). Static serving is registered before any auth middleware and
+#   validateOrigin passes requests without an Origin header, so the page is
+#   reachable unauthenticated by an HTTP scanner.
+# - No version extractor: no unauthenticated version endpoint exists.
+#   GET /healthz returns plain "OK"; GET /api/sources has no version field;
+#   the workbench JS bundle carries no version literal; server version is
+#   only exposed via MCP JSON-RPC initialize (POST /mcp), which requires
+#   multi-step interaction the AIG engine does not support.

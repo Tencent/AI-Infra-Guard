@@ -1,0 +1,26 @@
+info:
+  name: ai-engine-wordpress
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    AI Engine – The Chatbot, AI Framework & MCP for WordPress is a WordPress
+    plugin by Jordy Meow (meow-apps) that connects WordPress to major AI
+    providers (OpenAI, Anthropic, Google, Mistral) for chatbots, content
+    generation, AI forms, an AI Workspace in wp-admin, and a built-in
+    OAuth-enabled MCP server. Detected via the plugin's readme.txt and
+    mwai-prefixed front-end chatbot assets.
+  metadata:
+    product: ai-engine-wordpress
+    vendor: meow-apps
+http:
+  - method: GET
+    path: '/wp-content/plugins/ai-engine/readme.txt'
+    matchers:
+      - 'body="=== AI Engine" && body="Contributors: TigrouMeow"'
+version:
+  - method: GET
+    path: '/wp-content/plugins/ai-engine/readme.txt'
+    extractor:
+      part: body
+      group: 1
+      regex: 'Stable tag:\s*([0-9][0-9.]*)'
