@@ -1,0 +1,31 @@
+info:
+  name: Hatchet
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    Hatchet (hatchet-dev/hatchet) is an open-source orchestration engine for background tasks,
+    AI agents, and durable workflows. Self-hosted deployments expose an API server (default :8080),
+    a Dashboard web UI, and a gRPC engine (:7077).
+  metadata:
+    product: Hatchet
+    vendor: hatchet-dev
+http:
+  - method: GET
+    path: '/api/v1/version'
+    matchers:
+      - body="\"version\""
+  - method: GET
+    path: '/'
+    matchers:
+      - body="<title>Hatchet</title>"
+  - method: GET
+    path: '/api/v1/meta'
+    matchers:
+      - body="\"pylonAppId\"" || body="\"authDisabled\""
+version:
+  - method: GET
+    path: '/api/v1/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+[^"]*)"'

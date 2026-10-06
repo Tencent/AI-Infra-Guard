@@ -1,0 +1,35 @@
+info:
+  name: NotebookLM MCP
+  author: A.I.G bot
+  severity: info
+  desc: >-
+    NotebookLM MCP (roomi-fields/notebooklm-mcp) is an MCP server and HTTP
+    service for interacting with Google NotebookLM and exporting generated
+    content to local vault directories. The Express HTTP wrapper binds
+    0.0.0.0:3000 by default (HTTP_HOST env override) and Docker deployments
+    map port 3000. An unauthenticated GET / returns
+    {"name":"NotebookLM MCP HTTP Server","version":"..."}.
+  metadata:
+    product: notebooklm-mcp
+    vendor: roomi-fields
+http:
+  - method: GET
+    path: '/'
+    matchers:
+      - body="NotebookLM MCP HTTP Server"
+version:
+  - method: GET
+    path: '/'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version"\s*:\s*"([0-9][0-9a-zA-Z.\-]*)"'
+# Fingerprint note (2026-09-24, verified via CVE-2026-61647 investigation):
+# - GET / body "NotebookLM MCP HTTP Server" verified in source v1.6.0→main
+#   (src/http-wrapper.ts) and against 5/5 sampled live FOFA assets (22 total
+#   assets matched; script title-only precision check reads 0% due to JSON
+#   body without <title> — known verify_fofa.py limitation).
+# - Version extractor reads the "version" field of the GET / JSON response.
+#   Caveat: Docker-launched v1.6.0–3.1.1 instances report a stale fallback
+#   "1.5.2" (version-read fix landed ~v3.1.2), so extracted versions on those
+#   instances may be stale-low — conservative for vulnerability matching.

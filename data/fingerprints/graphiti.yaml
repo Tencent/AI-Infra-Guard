@@ -1,0 +1,13 @@
+info:
+  name: graphiti
+  author: A.I.G bot
+  severity: info
+  desc: Graphiti is Zep's open-source temporal knowledge graph memory service for AI agents. The graph-service (server/graph_service) is a FastAPI REST API exposing episode ingestion (/messages), search (/search), memory retrieval (/get-memory) and graph management endpoints backed by Neo4j/FalkorDB, shipped as the zepai/graphiti Docker image on port 8000. A community web UI (Graphiti Dashboard) may be deployed alongside.
+  metadata:
+    product: graphiti
+    vendor: getzep
+http:
+  - method: GET
+    path: '/healthcheck'
+    matchers:
+      - body="\"status\":\"healthy\"" && body="/clear" && body="/episodes/{group_id}"
