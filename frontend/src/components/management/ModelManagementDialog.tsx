@@ -41,6 +41,9 @@ const ModelManagementSettings: React.FC = () => {
     model: '',
     general: '',
   });
+  // extra_headers / extra_body 是对象，但要让人手工编辑，所以用文本态维护，提交时再解析
+  const [extraHeadersText, setExtraHeadersText] = useState('');
+  const [extraBodyText, setExtraBodyText] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [modelsToDelete, setModelsToDelete] = useState<string[]>([]);
   const [runModelManagementTour, setRunModelManagementTour] = useState(false);
@@ -48,6 +51,17 @@ const ModelManagementSettings: React.FC = () => {
   // Function that generates a unique ID
   const generateUniqueId = () => {
     return `model_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+
+  // 空文本表示未配置；非空则必须是 JSON 对象，否则拒绝提交
+  const parseJsonObject = (text: string): Record<string, unknown> => {
+    const trimmed = text.trim();
+    if (!trimmed) return {};
+    const parsed = JSON.parse(trimmed);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('JSON object expected');
+    }
+    return parsed as Record<string, unknown>;
   };
 
   useEffect(() => {
@@ -105,9 +119,25 @@ const ModelManagementSettings: React.FC = () => {
     
     setLoading(true);
     try {
+      // extra_headers / extra_body 以 JSON 文本编辑，先解析再提交
+      let extraHeaders: Record<string, string>;
+      let extraBody: Record<string, unknown>;
+      try {
+        extraHeaders = parseJsonObject(extraHeadersText) as Record<string, string>;
+        extraBody = parseJsonObject(extraBodyText);
+      } catch (err) {
+        setErrors({
+          ...newErrors,
+          general: `${t('modelManagement.invalidJson')}: ${(err as Error).message}`,
+        });
+        return;
+      }
+
       // Prepare the payload and make sure 'limit' is a number
       const submitData = {
         ...formData.model,
+        extra_headers: extraHeaders,
+        extra_body: extraBody,
         limit: (() => {
           const limitValue = formData.model.limit;
           // Check whether 'limit' is empty
@@ -224,6 +254,8 @@ const ModelManagementSettings: React.FC = () => {
       general: '',
     });
     setEditingModel(null);
+    setExtraHeadersText('');
+    setExtraBodyText('');
     setShowForm(false);
   };
 
@@ -239,6 +271,11 @@ const ModelManagementSettings: React.FC = () => {
         limit: model.model?.limit || 10,
       },
     });
+    // 读取接口返回的是掩码值，原样回填；提交时后端会把掩码值还原成库里的值
+    const headers = model.model?.extra_headers ?? {};
+    const body = model.model?.extra_body ?? {};
+    setExtraHeadersText(Object.keys(headers).length ? JSON.stringify(headers, null, 2) : '');
+    setExtraBodyText(Object.keys(body).length ? JSON.stringify(body, null, 2) : '');
     setShowForm(true);
   };
 
@@ -621,6 +658,30 @@ const ModelManagementSettings: React.FC = () => {
                       placeholder={t('modelManagement.notePlaceholder')}
                       rows={3}
                       data-joyride="model-management-note"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      {t('modelManagement.extraHeaders')}
+                    </label>
+                    <Textarea
+                      value={extraHeadersText}
+                      onChange={(e) => setExtraHeadersText(e.target.value)}
+                      placeholder={t('modelManagement.extraHeadersPlaceholder')}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      {t('modelManagement.extraBody')}
+                    </label>
+                    <Textarea
+                      value={extraBodyText}
+                      onChange={(e) => setExtraBodyText(e.target.value)}
+                      placeholder={t('modelManagement.extraBodyPlaceholder')}
+                      rows={3}
                     />
                   </div>
 
