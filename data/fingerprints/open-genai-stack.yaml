@@ -1,0 +1,24 @@
+info:
+  name: Open GenAI Stack
+  author: A.I.G bot
+  severity: info
+  desc: 'Open GenAI Stack (OGX, formerly Llama Stack) is an open-source OpenAI-compatible agentic API server by ogx-ai. Default port 8321. Exposes unauthenticated operational routes GET /v1/health (returns {"status":"OK"}) and GET /v1/version (returns {"version":"<ogx package version>"}).'
+  metadata:
+    product: ogx
+    vendor: ogx-ai
+http:
+  - method: GET
+    path: '/v1/health'
+    matchers:
+      - 'body="\"status\":\"OK\""'
+  - method: GET
+    path: '/v1/version'
+    matchers:
+      - 'body="\"version\":"'
+version:
+  - method: GET
+    path: '/v1/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\s*"([^"]+)"'
