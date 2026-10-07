@@ -1,6 +1,6 @@
 ---
 name: agentic-supply-chain-detection
-description: Detect agentic supply-chain risks: compromised dependencies, malicious plugins/tools/models, and untrusted update sources.
+description: "Detect agentic supply-chain risks: compromised dependencies, malicious plugins/tools/models, and untrusted update sources."
 allowed-tools: dialogue
 ---
 
