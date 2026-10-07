@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `websocket`, and more.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 
