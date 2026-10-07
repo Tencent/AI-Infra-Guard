@@ -63,7 +63,7 @@ func TestRunner_RunFpReqs(t *testing.T) {
 	hp, err := httpx.NewHttpx(httpOptions)
 	assert.NoError(t, err)
 
-	data, err := os.ReadFile("data/fingerprints/anythingllm.yaml")
+	data, err := os.ReadFile("../../../data/fingerprints/anythingllm.yaml")
 	assert.NoError(t, err)
 	fp, err := parser.InitFingerPrintFromData(data)
 	assert.NoError(t, err)

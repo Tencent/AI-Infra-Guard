@@ -19,23 +19,36 @@
 package utils
 
 import (
-	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
+// requireMCPServer 跳过依赖容器内 /mcp-server 目录的用例。
+func requireMCPServer(t *testing.T) {
+	t.Helper()
+	if _, err := os.Stat("/mcp-server"); err != nil {
+		t.Skip("requires the in-container /mcp-server tree")
+	}
+}
+
 func TestListDir(t *testing.T) {
+	requireMCPServer(t)
 	sb, err := ListDir("/mcp-server", -1, "")
 	assert.NoError(t, err)
 	t.Log(sb)
 }
 
 func TestGrepFile(t *testing.T) {
+	requireMCPServer(t)
 	sb, err := Grep("/mcp-server/src/mcp_server/server.py", "@mcp\\.tool.*\n.*def", 3)
 	assert.NoError(t, err)
 	t.Log(sb)
 }
 
 func TestGrepDirectory(t *testing.T) {
+	requireMCPServer(t)
 	sb, err := Grep("/mcp-server", "AppConfig", 3)
 	assert.NoError(t, err)
 	t.Log(sb)
@@ -46,6 +59,7 @@ func TestGrepDirectory(t *testing.T) {
 }
 
 func TestReadBigFile(t *testing.T) {
+	requireMCPServer(t)
 	sb, err := ReadFileChunk("/mcp-server/src/mcp_server/server.py", 0, 0, 10*1024)
 	assert.NoError(t, err)
 	t.Log(sb)
@@ -56,6 +70,7 @@ func TestReadBigFile(t *testing.T) {
 }
 
 func TestReadSmallFile(t *testing.T) {
+	requireMCPServer(t)
 	sb, err := ReadFileChunk("/mcp-server/src/mcp_server/app_config.py", 0, 0, 10*1024)
 	assert.NoError(t, err)
 	t.Log(sb)
