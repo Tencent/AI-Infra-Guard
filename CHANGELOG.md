@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.5] - 2026-10-08
+
+### Added
+- **Agent-Scan**: Support custom transforms for SSE responses (PR #600, f59fbe14)
+- **MCP-Scan**: Support modern/legacy protocol auto-negotiation and record protocol version (PR #579, 890f21dd)
+- **Agent-Scan**: Add OrcaRouter as a first-class provider (PR #619, a7c9b006)
+- **Models**: Send extra headers and body fields to the model API (PR #669, ae6fc0d6)
+- **DeepTeam**: Resume an interrupted red team run (PR #668, a2ac397e)
+- **Data**: Add vulnerability rules [2026-09-25] — 154 CVE rules + 9 fingerprints (PR #679, 1f8ab6f2)
+- **Data**: Add vulnerability rules [2026-10-02] — 117 CVE rules + 5 fingerprints (PR #685, 62a939e1)
+
+### Fixed
+- **MCP-Scan**: Rate-limit aware retry for LLM calls (PR #651, 874d05b4)
+- **Agent-Scan**: Tool.inputSchema renamed to input_schema in mcp 2.0 (PR #614, baa3ec51)
+- **Parser**: Keep the pre-release label when normalizing versions (PR #626, 0f5bb1f7)
+- **Skill-Scan**: Keep fallback tool-call parameters with their own call (PR #684, 25e58f10)
+- **MCP-Scan, Agent-Scan**: Bound stalled streaming responses (PR #678, 63c2bd83)
+- **SARIF**: Preserve text remediation in valid results (PR #680, e9e6ed7b)
+- **Scanners**: Preserve findings during context compaction (PR #649, a468ee2c)
+- **DeepTeam**: RailFence crashes with IndexError when rails <= 1 (e39ec6ef)
+- **Skill file**: Fix formatting of description in SKILL.md (PR #580, 8f84377e)
+
+### Changed
+- **CI**: Run the Go test suite on push and pull requests (PR #677, ff824825)
+- **Test**: Make agent websocket go test build and pass on main (PR #674, 51d63e24)
+
+### Contributors
+ichaobuster, BeYoungD, Pawar Priyank, Elwood Zonghao Ying (NY1024), lovejones2914-spec, monem, helo060228, feiyang, Chen Yufeiyang, Jin, Linxiushen (林SO), BevKim, dvd233
+
 ## [v4.6.4] - 2026-10-01
 
 ### Added
