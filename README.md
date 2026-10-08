@@ -583,13 +583,15 @@ If you use A.I.G in your research, please cite:
 
 **Research:**
 
-1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — A Docker-based benchmark measuring whether an agent adopts an unsafe trajectory supplied as preceding state, testing susceptibility after exposure to another agent's unsafe strategy. [[code]](./Research/roguehandoff20)
+1. **"pikit: A Composable Prompt-Injection Research Toolkit"** — A unified toolkit that collects classic prompt-injection attacks, defenses, and indirect-injection channels behind one interface, with built-in agent scenarios and integrations for real agent frameworks and runtimes. [[code]](./Research/pikit)
 
-2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — A deterministic, oracle-based benchmark studying how autonomous agents lose control while pursuing legitimate tasks, evaluating goal pressure, constraint degradation, and unsafe opportunity across 16 domains and 1,800 trajectories. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](./Research/forge_bench)
+2. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — A Docker-based benchmark measuring whether an agent adopts an unsafe trajectory supplied as preceding state, testing susceptibility after exposure to another agent's unsafe strategy. [[code]](./Research/roguehandoff20)
 
-3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Authorized security assessment of DeepSeek Harness against indirect prompt-injection across 14,560 agent runs. [[code]](./Research/deepseek-harness-security-assessment)
+3. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — A deterministic, oracle-based benchmark studying how autonomous agents lose control while pursuing legitimate tasks, evaluating goal pressure, constraint degradation, and unsafe opportunity across 16 domains and 1,800 trajectories. [[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](./Research/forge_bench)
 
-4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Demonstrates how poisoned trajectories can inject persistent backdoors into self-evolving agent skill systems. [[code]](./Research/SkillJack)
+4. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Authorized security assessment of DeepSeek Harness against indirect prompt-injection across 14,560 agent runs. [[code]](./Research/deepseek-harness-security-assessment)
+
+5. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Demonstrates how poisoned trajectories can inject persistent backdoors into self-evolving agent skill systems. [[code]](./Research/SkillJack)
 
 **Papers:**
 
