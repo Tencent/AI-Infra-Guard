@@ -127,7 +127,26 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `websocket`, and more.
+
+### API Route
+
+[API Route](https://www.api-route.com) is an optional OpenAI-compatible provider using `https://global.api-route.com/v1`. Set your own key in the environment:
+
+```bash
+export API_ROUTE_API_KEY="your-api-route-key"
+```
+
+To use it as the target provider, save the following in a separate target YAML file and pass that file to `--agent_provider`:
+
+```yaml
+targets:
+  - id: "api_route:gpt-6.1-sol"
+```
+
+The bare provider ID `api_route` uses the default model `gpt-6.1-sol`. To choose another model, use `api_route:<exact-model-id>` without adding an `openai/` or `anthropic/` prefix. Verify the model ID with an authenticated `GET /v1/models` request first: availability depends on your key's group and permissions. The preset lists only the default model, not the full gateway catalog.
+
+This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. API Route requests use `Authorization: Bearer <API_ROUTE_API_KEY>` through the existing adapter; no extra SDK is required.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 
