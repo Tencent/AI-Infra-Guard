@@ -232,6 +232,11 @@ func (ai *OpenAI) ChatWithImage(ctx context.Context, prompt string, imagePath st
 	if err != nil {
 		return "", err
 	}
+	// 网关可能返回 200 但 choices 为空（内容过滤命中、上游错误被包装成 200），
+	// 与 Vaild 保持一致：这是错误，不是 panic。
+	if len(completion.Choices) == 0 {
+		return "", errors.New("no response")
+	}
 	return completion.Choices[0].Message.Content, nil
 }
 
@@ -257,6 +262,11 @@ func (ai *OpenAI) ChatWithImageByte(ctx context.Context, prompt string, imageDat
 	completion, err := client.Chat.Completions.New(ctx, params)
 	if err != nil {
 		return "", err
+	}
+	// 网关可能返回 200 但 choices 为空（内容过滤命中、上游错误被包装成 200），
+	// 与 Vaild 保持一致：这是错误，不是 panic。
+	if len(completion.Choices) == 0 {
+		return "", errors.New("no response")
 	}
 	return completion.Choices[0].Message.Content, nil
 }
