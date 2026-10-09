@@ -478,9 +478,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
     <td width="33%"><img src="img/fit_sec_logo.png" alt="Fit Security" height="85%"></td>
   </tr>
 </table>
-<a href="https://github.com/Tencent/AI-Infra-Guard/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Tencent/AI-Infra-Guard" />
-</a>
+<!-- readme: collaborators,contributors -start -->
+<!-- readme: collaborators,contributors -end -->
 <br>
 <br>
 
