@@ -1,0 +1,27 @@
+name: Contributors Readme
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: contributors-readme-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contrib-readme-job:
+    name: Update contributors list in README
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update contributors list
+        uses: akhilmhdh/contributors-readme-action@v2.3.11
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
