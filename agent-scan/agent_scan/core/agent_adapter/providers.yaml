@@ -127,6 +127,14 @@ providers:
           - orcarouter/fusion-flash
           - orcarouter/fusion-mini
 
+      api_route:
+        env_keys: ["API_ROUTE_API_KEY"]
+        base_url: "https://global.api-route.com/v1"
+        endpoint: "/chat/completions"
+        default_model: "gpt-6.1-sol"
+        models:
+          - gpt-6.1-sol
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
