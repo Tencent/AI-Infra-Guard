@@ -531,6 +531,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>Truman</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/kexinoh">
                     <img src="https://avatars.githubusercontent.com/u/91727108?v=4" width="100;" alt="kexinoh"/>
@@ -552,8 +554,6 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>aigdocs[bot]</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/zonalalala">
                     <img src="https://avatars.githubusercontent.com/u/170615914?v=4" width="100;" alt="zonalalala"/>
@@ -582,6 +582,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>vanilla-tiramisu</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Ps7ch3">
                     <img src="https://avatars.githubusercontent.com/u/40332842?v=4" width="100;" alt="Ps7ch3"/>
@@ -624,8 +626,6 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>Devam Shah</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/eltociear">
                     <img src="https://avatars.githubusercontent.com/u/22633385?v=4" width="100;" alt="eltociear"/>
@@ -633,6 +633,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>Ikko Eltociear Ashimine</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/hobostay">
                     <img src="https://avatars.githubusercontent.com/u/110803307?v=4" width="100;" alt="hobostay"/>
@@ -682,6 +684,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>林SO</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/waoos">
                     <img src="https://avatars.githubusercontent.com/u/130735703?v=4" width="100;" alt="waoos"/>
@@ -696,8 +700,6 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>valleyxht</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/seng1e">
                     <img src="https://avatars.githubusercontent.com/u/23146482?v=4" width="100;" alt="seng1e"/>
@@ -733,6 +735,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>LouisHovaldt</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Louis1125">
                     <img src="https://avatars.githubusercontent.com/u/246230995?v=4" width="100;" alt="Louis1125"/>
@@ -768,8 +772,6 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>BeYoungD</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Mada2aa">
                     <img src="https://avatars.githubusercontent.com/u/47097018?v=4" width="100;" alt="Mada2aa"/>
@@ -784,6 +786,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>rootkiller6788</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/lovejones2914-spec">
                     <img src="https://avatars.githubusercontent.com/u/321335584?v=4" width="100;" alt="lovejones2914-spec"/>
@@ -833,6 +837,8 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>Yang1k</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/rwinkelman">
                     <img src="https://avatars.githubusercontent.com/u/116224614?v=4" width="100;" alt="rwinkelman"/>
@@ -840,8 +846,6 @@ Thanks to all the developers who have contributed to the A.I.G project.
                     <sub><b>Ray Winkelman</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/cloudbypriyank">
                     <img src="https://avatars.githubusercontent.com/u/142205321?v=4" width="100;" alt="cloudbypriyank"/>
