@@ -24,6 +24,7 @@ jobs:
       - name: Update contributors list
         uses: akhilmhdh/contributors-readme-action@v2.3.11
         with:
+          avatarSize: 42  # Set the avatar size.
           columns_per_row: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
