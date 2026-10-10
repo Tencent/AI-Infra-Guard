@@ -346,5 +346,3 @@ We would like to express our sincere gratitude to the research teams and communi
 | JADE 3.0 | Whitzard AI Team at Fudan University | [Github](https://github.com/whitzard-ai/jade-db/tree/main/jade-db-v3.0) |
 | BadPhoneAgent | JADE Team@Fudan （Yiming Sun, Chen Chen,Zifan Zhou） | [数据集](https://github.com/ymsun2020/Mobile-GUI-Security) · [Paper](https://arxiv.org/abs/2606.27944)  · [机器之心报道](https://mp.weixin.qq.com/s/RzkqGfrEKiu0l-2TzhLrPw) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
-
-BadPhoneAgent includes 288 text evaluation records (144 Chinese and 144 English), with each bilingual task split into two independent records. The complete dataset is included and requires no access request. Text evaluation does not reproduce the paper's phone execution experiments.
