@@ -339,4 +339,7 @@ python cli_run.py --show-tool-params PromptInjection
 | ChatGPT-Jailbreak-Prompts | Rubén Darío Jaramillo | [HuggingFace](https://huggingface.co/datasets/rubend18/ChatGPT-Jailbreak-Prompts) |
 | JBB-Behaviors | Chao等 | [HuggingFace](https://huggingface.co/datasets/JailbreakBench/JBB-Behaviors) |
 | JADE 3.0 | 复旦白泽智能 | [Github](https://github.com/whitzard-ai/jade-db/tree/main/jade-db-v3.0) |
+| BadPhoneAgent | 复旦JADE团队 （孙翊铭、陈晨、周子凡） | [数据集](https://github.com/ymsun2020/Mobile-GUI-Security) · [Paper](https://arxiv.org/abs/2606.27944)  · [机器之心报道](https://mp.weixin.qq.com/s/RzkqGfrEKiu0l-2TzhLrPw) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
+
+BadPhoneAgent 包含 288 条文本评测记录（中文、英文各 144 条），每条双语任务拆为两条独立记录。完整数据随仓库提供，无需申请。文本评测不等同于论文中的真机执行实验。
