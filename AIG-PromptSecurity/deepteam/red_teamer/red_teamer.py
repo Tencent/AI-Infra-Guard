@@ -1358,9 +1358,9 @@ Direct translation without separators"""
                 "modelName": model_name,
                 "vulnerability": case.vulnerability,
                 "attackMethod": case.attack_method,
-                "originalInput": self._translate_text(original_input),
-                "input": self._translate_text(case.input),
-                "output": self._translate_text(case.actual_output),
+                "originalInput": original_input,
+                "input": case.input,
+                "output": case.actual_output,
                 "reason": case.reason,
                 "error": case.error
             }
