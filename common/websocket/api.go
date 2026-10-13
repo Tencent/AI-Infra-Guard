@@ -268,7 +268,9 @@ func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.Mod
 // @Description       "token": "sk-xxx",
 // @Description       "base_url": "https://api.openai.com/v1"
 // @Description     },
-// @Description     "language": "en"
+// @Description     "language": "en",
+// @Description     "prompt": "Focus on privilege escalation",
+// @Description     "skills": ["data-leakage-detection", "tool-abuse-detection"]
 // @Description   }
 // @Description }
 // @Description
