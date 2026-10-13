@@ -493,7 +493,14 @@ func (r *Runner) handleOutput(wg *sizedwaitgroup.SizedWaitGroup) {
 	var results []HttpResult
 	for result := range r.result {
 		results = append(results, result)
-		r.writeResult(f, result)
+		if !r.Options.JSON {
+			r.writeResult(f, result)
+		}
+	}
+	if r.Options.JSON {
+		r.writeJSONResults(f, results)
+		r.reportScanScore(results)
+		return
 	}
 	// summary table
 	if len(results) > 0 {
@@ -549,16 +556,61 @@ func (r *Runner) handleOutput(wg *sizedwaitgroup.SizedWaitGroup) {
 		}
 	}
 
-	if r.Options.Callback != nil {
-		advies := make([]vulstruct.Info, 0)
-		for _, item := range results {
-			for _, ad := range item.Advisories {
-				advies = append(advies, ad.Info)
-			}
-		}
-		score := r.CalcSecScore(advies)
-		r.Options.Callback(score)
+	r.reportScanScore(results)
+}
+
+// writeJSONResults writes the collected results using the existing HttpResult schema.
+// Human-readable lines stay the default; this path is used only when JSON output is requested.
+func (r *Runner) writeJSONResults(f *os.File, results []HttpResult) {
+	payload := ResultsJSON(results) + "\n"
+	fmt.Print(payload)
+	if f != nil {
+		_, _ = f.WriteString(payload)
 	}
+	for _, result := range results {
+		r.callbackScanResult(result)
+	}
+}
+
+func (r *Runner) callbackScanResult(result HttpResult) {
+	if r.Options.Callback == nil {
+		return
+	}
+	vuls := make([]vulstruct.Info, 0, len(result.Advisories))
+	for _, item := range result.Advisories {
+		vuls = append(vuls, item.Info)
+	}
+	var fpString string
+	for _, fp := range result.Fingers {
+		fpString += fp.Name
+		if fp.Type != "" {
+			fpString += ":" + fp.Type
+		}
+		if fp.Version != "" {
+			fpString += ":" + fp.Version
+		}
+	}
+	r.Options.Callback(CallbackScanResult{
+		TargetURL:       result.URL,
+		StatusCode:      result.StatusCode,
+		Title:           result.Title,
+		Fingerprint:     fpString,
+		Vulnerabilities: vuls,
+		Resp:            result.Resp,
+	})
+}
+
+func (r *Runner) reportScanScore(results []HttpResult) {
+	if r.Options.Callback == nil {
+		return
+	}
+	advies := make([]vulstruct.Info, 0)
+	for _, item := range results {
+		for _, ad := range item.Advisories {
+			advies = append(advies, ad.Info)
+		}
+	}
+	r.Options.Callback(r.CalcSecScore(advies))
 }
 
 // createOutputFile 创建输出文件
@@ -575,32 +627,7 @@ func (r *Runner) writeResult(f *os.File, result HttpResult) {
 	if f != nil {
 		_, _ = f.WriteString(result.s + "\n")
 	}
-	if r.Options.Callback != nil {
-		vuls := make([]vulstruct.Info, 0)
-		for _, item := range result.Advisories {
-			vuls = append(vuls, item.Info)
-		}
-		var fpString string = ""
-		for _, fp := range result.Fingers {
-			fpString += fp.Name
-			if fp.Type != "" {
-				fpString += ":" + fp.Type
-			}
-			if fp.Version != "" {
-				fpString += ":" + fp.Version
-			}
-		}
-		if r.Options.Callback != nil {
-			r.Options.Callback(CallbackScanResult{
-				TargetURL:       result.URL,
-				StatusCode:      result.StatusCode,
-				Title:           result.Title,
-				Fingerprint:     fpString,
-				Vulnerabilities: vuls,
-				Resp:            result.Resp,
-			})
-		}
-	}
+	r.callbackScanResult(result)
 	if len(result.Advisories) > 0 {
 		fmt.Println("\n存在漏洞:")
 		for _, item := range result.Advisories {
