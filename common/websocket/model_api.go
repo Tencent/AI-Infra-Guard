@@ -444,10 +444,79 @@ func HandleUpdateModel(c *gin.Context, mm *ModelManager) {
 		updates["base_url"] = req.Model.BaseURL
 	}
 	if req.Model.ExtraHeaders != nil {
-		updates["extra_headers"] = req.Model.ExtraHeaders
+		// 掩码串表示“沿用原值”：直接写库会把 ******** 变成真实请求头，
+		// 所以先把被掩码的键从库中恢复出来。
+		hasMasked := false
+		for _, value := range req.Model.ExtraHeaders {
+			if value == maskedToken {
+				hasMasked = true
+				break
+			}
+		}
+
+		var storedHeaders map[string]string
+		if hasMasked {
+			stored, err := mm.modelStore.GetModel(modelID)
+			if err != nil {
+				log.Errorf("读取模型失败: trace_id=%s, modelID=%s, username=%s, error=%v", traceID, modelID, username, err)
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "读取模型失败: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+			storedHeaders = stored.ExtraHeaders
+		}
+
+		headers := make(map[string]string, len(req.Model.ExtraHeaders))
+		for key, value := range req.Model.ExtraHeaders {
+			if value == maskedToken {
+				if existing, ok := storedHeaders[key]; ok {
+					headers[key] = existing
+				}
+				continue
+			}
+			headers[key] = value
+		}
+		updates["extra_headers"] = headers
 	}
 	if req.Model.ExtraBody != nil {
-		updates["extra_body"] = req.Model.ExtraBody
+		// 与 extra_headers 同理：extra_body 的取值同样对外掩码。
+		hasMasked := false
+		for _, value := range req.Model.ExtraBody {
+			if value == maskedToken {
+				hasMasked = true
+				break
+			}
+		}
+
+		var storedBody map[string]any
+		if hasMasked {
+			stored, err := mm.modelStore.GetModel(modelID)
+			if err != nil {
+				log.Errorf("读取模型失败: trace_id=%s, modelID=%s, username=%s, error=%v", traceID, modelID, username, err)
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "读取模型失败: " + err.Error(),
+					"data":    nil,
+				})
+				return
+			}
+			storedBody = stored.ExtraBody
+		}
+
+		body := make(map[string]any, len(req.Model.ExtraBody))
+		for key, value := range req.Model.ExtraBody {
+			if value == maskedToken {
+				if existing, ok := storedBody[key]; ok {
+					body[key] = existing
+				}
+				continue
+			}
+			body[key] = value
+		}
+		updates["extra_body"] = body
 	}
 
 	err = mm.modelStore.UpdateModel(modelID, username, updates)
