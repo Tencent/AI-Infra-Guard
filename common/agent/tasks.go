@@ -84,9 +84,9 @@ type ScanRequest struct {
 	Headers map[string]string `json:"headers"`
 	Timeout int               `json:"timeout,omitempty"`
 	Model   struct {
-		Model              string `json:"model"`
-		Token              string `json:"token"`
-		BaseUrl            string `json:"base_url"`
+		Model   string `json:"model"`
+		Token   string `json:"token"`
+		BaseUrl string `json:"base_url"`
 
 		ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
 		ExtraBody    map[string]any    `json:"extra_body,omitempty"`
@@ -135,9 +135,9 @@ func (t *AIInfraScanAgent) Execute(ctx context.Context, request TaskRequest, cal
 			return fmt.Errorf("model parameters are required")
 		}
 		model = &models.OpenAI{
-			BaseUrl:            reqScan.Model.BaseUrl,
-			Model:              reqScan.Model.Model,
-			Key:                reqScan.Model.Token,
+			BaseUrl: reqScan.Model.BaseUrl,
+			Model:   reqScan.Model.Model,
+			Key:     reqScan.Model.Token,
 
 			ExtraHeaders: reqScan.Model.ExtraHeaders,
 			ExtraBody:    reqScan.Model.ExtraBody,
@@ -154,6 +154,7 @@ type scanTexts struct {
 	initDescTemplate, portDetectDescTemplate, portCompleteTemplate, targetCountTemplate, webAppTemplate, vulnFoundTemplate, noVulnTemplate, errorTemplate  string
 	scanningDesc, execScanDesc, scanCompleteDesc, taskCompleteDesc, reportGenDesc, reportGenToolDesc, scanResultTemplate                                   string
 	downloadFileLog, execScanTool, scanTool, generateReportTool, nmapTool, aiScannerTool, reportGeneratorTool, scanOperation, targetSystem, generateReport string
+	partialScanComplete, analysisIncompleteTemplate                                                                                                        string
 }
 
 // initTexts 初始化语言文本
@@ -194,6 +195,8 @@ func initTexts(language string) scanTexts {
 		texts.execScanDesc = "Executing AI infrastructure scan"
 		texts.scanCompleteDesc = "Scan completed"
 		texts.taskCompleteDesc = "AI infrastructure scan task completed"
+		texts.partialScanComplete = "Scan completed with analysis failures"
+		texts.analysisIncompleteTemplate = "Analysis failed for %d target(s); scan results may be incomplete."
 		texts.reportGenDesc = "Generating scan report"
 		texts.reportGenToolDesc = "Generating scan report"
 		texts.scanResultTemplate = "Scan results: %d items"
@@ -242,6 +245,8 @@ func initTexts(language string) scanTexts {
 		texts.execScanDesc = "正在执行AI基础设施扫描"
 		texts.scanCompleteDesc = "完成扫描"
 		texts.taskCompleteDesc = "AI基础设施扫描任务完成"
+		texts.partialScanComplete = "扫描完成，部分分析失败"
+		texts.analysisIncompleteTemplate = "%d个目标的分析失败，扫描结果可能不完整。"
 		texts.reportGenDesc = "我需要提供更有价值的洞察..."
 		texts.reportGenToolDesc = "正在生成扫描报告"
 		texts.scanResultTemplate = "扫描结果: %d 条"
@@ -427,7 +432,10 @@ target count:%s
 
 		response, err := model.ChatResponse(ctx, prompt)
 		gologger.Infof("AI分析初始化配置结果: %s", response)
-		if err == nil {
+		if err != nil {
+			gologger.WithError(err).Errorln("AI分析初始化配置失败")
+			callbacks.StepStatusUpdateCallback(step01, statusId01, AgentStatusFailed, texts.execError, response)
+		} else {
 			type Item struct {
 				Title string `json:"title"`
 				Desc  string `json:"desc"`
@@ -475,6 +483,7 @@ target count:%s
 	// 收集扫描结果
 	scanResults := make([]runner.CallbackScanResult, 0)
 	mu := sync.Mutex{}
+	var analysisFailures scanAnalysisFailures
 
 	// analysisWg waits for all concurrent AI-analysis / screenshot goroutines to finish
 	// before we compute the final score and report.
@@ -520,16 +529,19 @@ target count:%s
 					if request.Language == "en" {
 						prompt += "## 返回使用全英文"
 					}
-					response, _ := model.ChatResponse(context.Background(), prompt)
-					callbacks.StepStatusUpdateCallback(step02, status, AgentStatusCompleted, texts.scanResult, response)
+					response, err := model.ChatResponse(ctx, prompt)
+					if err != nil {
+						analysisFailures.record(result.TargetURL)
+						gologger.WithError(err).Errorln("AI扫描结果总结失败")
+						callbacks.StepStatusUpdateCallback(step02, status, AgentStatusFailed, texts.execError, response)
+					} else {
+						callbacks.StepStatusUpdateCallback(step02, status, AgentStatusCompleted, texts.scanResult, response)
+					}
 				}
 
 				// 截图和AI分析
 				newUuid := uuid.NewString()
-				func() {
-					callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusRunning, "A.I.G is Thinking", "")
-					defer callbacks.StepStatusUpdateCallback(step02, newUuid, AgentStatusCompleted, "A.I.G Finished", "")
-
+				if err := runAnalysisStep(step02, newUuid, texts, callbacks, func() (string, error) {
 					var screenshotData []byte
 					var vulInfo *vulstruct.Info
 					var summary string
@@ -538,28 +550,24 @@ target count:%s
 					if model != nil {
 						screenshotData, vulInfo, summary, err = runner.Analysis(result.TargetURL, result.Resp, request.Language, model)
 						if err != nil {
-							gologger.WithError(err).Errorf("AI分析失败: %v", err)
-							return
+							return summary, err
 						}
 						result.Reason = summary
 					} else {
 						screenshotData, err = runner.ScreenShot(result.TargetURL)
 						if err != nil {
-							gologger.WithError(err).Errorf("截图失败: %v", err)
-							return
+							return "", err
 						}
 					}
 
 					if len(screenshotData) > 0 {
 						tmpPath := path.Join(os.TempDir(), fmt.Sprintf("%d.jpg", time.Now().UnixMicro()))
 						if err := os.WriteFile(tmpPath, screenshotData, 0644); err != nil {
-							gologger.WithError(err).Errorf("write file failed: %v", err)
-							return
+							return "", fmt.Errorf("write screenshot failed: %w", err)
 						}
 						info, err := utils.UploadFile(t.Server, tmpPath)
 						if err != nil {
-							gologger.WithError(err).Errorf("upload file failed: %v", err)
-							return
+							return "", fmt.Errorf("upload screenshot failed: %w", err)
 						}
 						result.ScreenShot = "/api/v1/images/" + info.Data.FileUrl
 
@@ -575,10 +583,17 @@ target count:%s
 						if request.Language == "en" {
 							summaryPrompt += "## 返回使用全英文"
 						}
-						summary2, _ := model.ChatResponse(context.Background(), summaryPrompt)
+						summary2, err := model.ChatResponse(ctx, summaryPrompt)
+						if err != nil {
+							return summary2, err
+						}
 						result.Summary = summary2
 					}
-				}()
+					return "", nil
+				}); err != nil {
+					analysisFailures.record(result.TargetURL)
+					gologger.WithError(err).Errorln("截图或AI分析失败")
+				}
 
 				mu.Lock()
 				scanResults = append(scanResults, result)
@@ -615,10 +630,11 @@ target count:%s
 	}
 	score := r.CalcSecScore(advies)
 
-	callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusCompleted, texts.aigCompleted, texts.scanCompleteDesc)
+	completionTexts := analysisFailures.completionTexts(texts)
+	callbacks.StepStatusUpdateCallback(step02, statusId02, AgentStatusCompleted, completionTexts.aigCompleted, completionTexts.scanCompleteDesc)
 	callbacks.ToolUsedCallback(step02, statusId02, texts.execScanTool,
-		[]Tool{CreateTool(toolId02, texts.aiScannerTool, ToolStatusDone, texts.scanComplete, texts.scanOperation, texts.targetSystem, fmt.Sprintf(texts.scanResultTemplate, len(scanResults)))})
-	callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, texts.aigCompleted, texts.taskCompleteDesc)
+		[]Tool{CreateTool(toolId02, texts.aiScannerTool, ToolStatusDone, completionTexts.scanComplete, texts.scanOperation, texts.targetSystem, fmt.Sprintf(texts.scanResultTemplate, len(scanResults)))})
+	callbacks.StepStatusUpdateCallback(step02, uuid.NewString(), AgentStatusCompleted, completionTexts.aigCompleted, completionTexts.taskCompleteDesc)
 
 	// 更新任务计划
 	tasks[1].Status = SubTaskStatusDone
@@ -646,5 +662,50 @@ target count:%s
 	callbacks.PlanUpdateCallback(tasks)
 	callbacks.ResultCallback(result)
 
+	return nil
+}
+
+// scanAnalysisFailures counts each target once, even when several analysis
+// stages fail. The scan still returns valid base findings with an explicit warning.
+type scanAnalysisFailures struct {
+	mu      sync.Mutex
+	targets map[string]struct{}
+}
+
+func (f *scanAnalysisFailures) record(target string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.targets == nil {
+		f.targets = make(map[string]struct{})
+	}
+	f.targets[target] = struct{}{}
+}
+
+func (f *scanAnalysisFailures) completionTexts(texts scanTexts) scanTexts {
+	f.mu.Lock()
+	count := len(f.targets)
+	f.mu.Unlock()
+	if count == 0 {
+		return texts
+	}
+	texts.aigCompleted = texts.partialScanComplete
+	texts.scanComplete = texts.partialScanComplete
+	texts.scanCompleteDesc = fmt.Sprintf(texts.analysisIncompleteTemplate, count)
+	texts.taskCompleteDesc = texts.scanCompleteDesc
+	return texts
+}
+
+// runAnalysisStep keeps partial output visible on failure without marking an
+// interrupted analysis complete or replacing the original scan findings.
+func runAnalysisStep(stepID, statusID string, texts scanTexts, callbacks TaskCallbacks, analyze func() (string, error)) error {
+	callbacks.StepStatusUpdateCallback(stepID, statusID, AgentStatusRunning, "A.I.G is Thinking", "")
+	description, err := analyze()
+	if err != nil {
+		// Provider errors may include response bodies; keep those in the existing
+		// error logging path rather than adding them to the UI status payload.
+		callbacks.StepStatusUpdateCallback(stepID, statusID, AgentStatusFailed, texts.execError, description)
+		return err
+	}
+	callbacks.StepStatusUpdateCallback(stepID, statusID, AgentStatusCompleted, "A.I.G Finished", description)
 	return nil
 }

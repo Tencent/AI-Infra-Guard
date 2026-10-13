@@ -124,26 +124,39 @@ func ScreenShot(url string) ([]byte, error) {
 }
 
 func Analysis(url string, resp string, language string, model *models.OpenAI) ([]byte, *vulstruct.Info, string, error) {
-	var shotData []byte
 	shotData, err := ScreenShot(url)
 	if err != nil {
 		gologger.WithError(err).Errorf("screenshot error: %s", err)
 		return nil, nil, "", err
 	}
+	return analyzeScreenshot(url, resp, language, shotData, model)
+}
+
+type screenshotAnalysisModel interface {
+	ChatWithImageByte(context.Context, string, []byte) (string, error)
+	ChatStream(context.Context, []map[string]string) <-chan models.ChatStreamEvent
+}
+
+func analyzeScreenshot(url, resp, language string, shotData []byte, model screenshotAnalysisModel) ([]byte, *vulstruct.Info, string, error) {
 	summary, err := model.ChatWithImageByte(context.Background(), LoadWebPageScreenShotSummary(language), shotData)
 	if err != nil {
 		gologger.WithError(err).Errorf("chat with image byte error: %s", err)
-		return shotData, nil, "", err
+		return shotData, nil, summary, err
 	}
 	// 敏感信息分析
 	sensitive := LoadSensitivePrompt(language)
 	sensitive = strings.ReplaceAll(sensitive, "{{url}}", url)
 	sensitive = strings.ReplaceAll(sensitive, "{{html}}", resp)
 	sensitive = strings.ReplaceAll(sensitive, "{{screenshot_summary}}", summary)
-	ret := ""
-	for word := range model.ChatStream(context.Background(), []map[string]string{{"role": "user", "content": sensitive}}) {
-		ret += word
+	var response strings.Builder
+	for event := range model.ChatStream(context.Background(), []map[string]string{{"role": "user", "content": sensitive}}) {
+		response.WriteString(event.Text)
+		if event.Err != nil {
+			// 保留部分输出用于失败详情，但不能将中断的报告解析为有效漏洞。
+			return shotData, nil, response.String(), event.Err
+		}
 	}
+	ret := response.String()
 	gologger.Infof("敏感信息分析: %s", ret)
 	info := vulstruct.Info{}
 	info.Details = extractTag(ret, "details")
