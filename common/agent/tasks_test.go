@@ -175,3 +175,25 @@ func TestGetDefaultEvalModel(t *testing.T) {
 		assert.Equal(t, 1000, params.Limit)
 	})
 }
+
+// TestAppendAgentScanOptions 验证 prompt 与 skills 透传给 agent-scan
+func TestAppendAgentScanOptions(t *testing.T) {
+	base := []string{"--aig-mode"}
+	tests := []struct {
+		name   string
+		prompt string
+		skills []string
+		want   []string
+	}{
+		{"none", "", nil, []string{"--aig-mode"}},
+		{"prompt only", "focus on data leakage", nil, []string{"--aig-mode", "--prompt=focus on data leakage"}},
+		{"prompt with leading dash", "-k", nil, []string{"--aig-mode", "--prompt=-k"}},
+		{"skills only", "", []string{"data-leakage-detection", "tool-abuse-detection"}, []string{"--aig-mode", "--skills=data-leakage-detection,tool-abuse-detection"}},
+		{"both", "x", []string{"data-leakage-detection"}, []string{"--aig-mode", "--prompt=x", "--skills=data-leakage-detection"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, appendAgentScanOptions(append([]string{}, base...), tt.prompt, tt.skills))
+		})
+	}
+}

@@ -25,9 +25,25 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 )
+
+// AgentScanSkills lists the detection skills accepted by agent-scan's --skills
+// flag. Keep in sync with _DETECTION_SKILLS in agent-scan/agent_scan/core/agent.py.
+var AgentScanSkills = []string{
+	"data-leakage-detection",
+	"tool-abuse-detection",
+	"indirect-injection-detection",
+	"authorization-bypass-detection",
+	"web-exfiltration-detection",
+	"agentic-supply-chain-detection",
+	"unexpected-code-execution-detection",
+	"inter-agent-comm-security-detection",
+	"cascading-failure-detection",
+	"human-agent-trust-exploit-detection",
+}
 
 type AgentTask struct {
 	Server string
@@ -48,6 +64,7 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	type AgentScanParams struct {
 		AgentData string    `json:"agent_data"` // yaml content from dispatchTask
 		EvalModel EvalModel `json:"eval_model"`
+		Skills    []string  `json:"skills"`
 	}
 
 	var params AgentScanParams
@@ -102,6 +119,7 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	argv = append(argv, "--agent_provider", tmpFile.Name())
 	argv = append(argv, "--language", language)
 	argv = append(argv, "--aig-mode")
+	argv = appendAgentScanOptions(argv, request.Content, params.Skills)
 
 	// Define task titles
 	var taskTitles []string
@@ -137,4 +155,14 @@ func (m *AgentTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 		ParseStdoutLine(m.Server, agentScanDir, tasks, line, callbacks, &config, false)
 	})
 	return err
+}
+
+func appendAgentScanOptions(argv []string, prompt string, skills []string) []string {
+	if prompt != "" {
+		argv = append(argv, "--prompt="+prompt)
+	}
+	if len(skills) > 0 {
+		argv = append(argv, "--skills="+strings.Join(skills, ","))
+	}
+	return argv
 }
