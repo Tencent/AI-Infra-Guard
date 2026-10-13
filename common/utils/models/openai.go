@@ -163,7 +163,7 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 				Seed:     openai.Int(24),
 				Model:    ai.Model,
 			})
-			streamErr := false
+			emitted := false
 			for stream.Next() {
 				evt := stream.Current()
 				if len(evt.Choices) > 0 {
@@ -172,15 +172,27 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 						totalToken = evt.Usage.TotalTokens
 					}
 					resp <- word
+					if word != "" {
+						emitted = true
+					}
 				}
 			}
 			if stream.Err() != nil {
+				if emitted {
+					// Deltas already handed to the caller cannot be taken back.
+					// Retrying from scratch would replay the whole response on top
+					// of the partial text the consumer already accumulated, so a
+					// mid-stream failure after partial output is terminal (#693).
+					gologger.WithError(stream.Err()).Errorf("ChatStream failed mid-stream after partial output; aborting without retry to avoid duplicated content (attempt %d/%d)", attempt+1, maxRetries)
+					if totalToken > 0 {
+						ai.UseToken += totalToken
+					}
+					return
+				}
 				gologger.WithError(stream.Err()).Errorf("ChatStream error (attempt %d/%d)", attempt+1, maxRetries)
-				streamErr = true
+				continue
 			}
-			if !streamErr {
-				break
-			}
+			break
 		}
 		if totalToken > 0 {
 			ai.UseToken += totalToken
