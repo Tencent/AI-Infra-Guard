@@ -4,6 +4,10 @@ export interface Model {
   base_url: string;
   note: string;
   limit?: number;
+  /** 随每次模型请求发送的额外请求头，值在读取接口里是掩码 */
+  extra_headers?: Record<string, string>;
+  /** 合并进请求体的额外字段，支持 provider.order 这类点号路径 */
+  extra_body?: Record<string, unknown>;
 }
 
 export interface ModelItem {

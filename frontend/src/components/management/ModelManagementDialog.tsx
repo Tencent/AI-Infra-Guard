@@ -15,6 +15,7 @@ import { Button, buttonVariants } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { modelApi } from '../../lib/modelApi';
+import { ModelFormValidationError, saveModelForm } from '../../lib/modelForm';
 import { ModelItem, Model } from '../../types/model';
 import { protectDefaultModel } from '@/config/privateModules';
 import { maskToken } from '../../utils/tokenUtils';
@@ -41,6 +42,9 @@ const ModelManagementSettings: React.FC = () => {
     model: '',
     general: '',
   });
+  // extra_headers / extra_body 是对象，但要让人手工编辑，所以用文本态维护，提交时再解析
+  const [extraHeadersText, setExtraHeadersText] = useState('');
+  const [extraBodyText, setExtraBodyText] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [modelsToDelete, setModelsToDelete] = useState<string[]>([]);
   const [runModelManagementTour, setRunModelManagementTour] = useState(false);
@@ -105,33 +109,16 @@ const ModelManagementSettings: React.FC = () => {
     
     setLoading(true);
     try {
-      // Prepare the payload and make sure 'limit' is a number
-      const submitData = {
-        ...formData.model,
-        limit: (() => {
-          const limitValue = formData.model.limit;
-          // Check whether 'limit' is empty
-          if (limitValue === '' || limitValue === null || limitValue === undefined) {
-            return 10; // Default values
-          }
-          const numValue = Number(limitValue);
-          return isNaN(numValue) ? 10 : numValue;
-        })(),
-      };
-      
-      let response;
-      if (editingModel) {
-        response = await modelApi.updateModel(editingModel.model_id, {
-          model: submitData,
-        });
-      } else {
-        // Automatically generate a unique ID when creating
-        const newModelData = {
-          model_id: generateUniqueId(),
-          model: submitData,
-        };
-        response = await modelApi.createModel(newModelData);
-      }
+      const response = await saveModelForm(modelApi, {
+        mode: editingModel ? 'update' : 'create',
+        modelId: editingModel?.model_id ?? generateUniqueId(),
+        model: formData.model,
+        extraHeadersText,
+        extraBodyText,
+      }, {
+        invalidJson: t('modelManagement.invalidJson'),
+        invalidHeaderValue: (key) => t('modelManagement.invalidHeaderValue', { key }),
+      });
       
       // Check the API response
       if (response.status === 0) {
@@ -144,7 +131,9 @@ const ModelManagementSettings: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('保存模型失败:', error);
+      if (!(error instanceof ModelFormValidationError)) {
+        console.error('保存模型失败:', error);
+      }
       setErrors({
         ...newErrors,
         general: error instanceof Error ? error.message : t('modelManagement.networkError'),
@@ -224,6 +213,8 @@ const ModelManagementSettings: React.FC = () => {
       general: '',
     });
     setEditingModel(null);
+    setExtraHeadersText('');
+    setExtraBodyText('');
     setShowForm(false);
   };
 
@@ -239,6 +230,11 @@ const ModelManagementSettings: React.FC = () => {
         limit: model.model?.limit || 10,
       },
     });
+    // 读取接口返回的是掩码值，原样回填；提交时后端会把掩码值还原成库里的值
+    const headers = model.model?.extra_headers ?? {};
+    const body = model.model?.extra_body ?? {};
+    setExtraHeadersText(Object.keys(headers).length ? JSON.stringify(headers, null, 2) : '');
+    setExtraBodyText(Object.keys(body).length ? JSON.stringify(body, null, 2) : '');
     setShowForm(true);
   };
 
@@ -624,6 +620,30 @@ const ModelManagementSettings: React.FC = () => {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      {t('modelManagement.extraHeaders')}
+                    </label>
+                    <Textarea
+                      value={extraHeadersText}
+                      onChange={(e) => setExtraHeadersText(e.target.value)}
+                      placeholder={t('modelManagement.extraHeadersPlaceholder')}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      {t('modelManagement.extraBody')}
+                    </label>
+                    <Textarea
+                      value={extraBodyText}
+                      onChange={(e) => setExtraBodyText(e.target.value)}
+                      placeholder={t('modelManagement.extraBodyPlaceholder')}
+                      rows={3}
+                    />
+                  </div>
+
                   <div className="flex space-x-2 pt-4">
                     <Button
                       onClick={handleSubmit}
@@ -690,4 +710,4 @@ const ModelManagementSettings: React.FC = () => {
   );
 };
 
-export default ModelManagementSettings; 
+export default ModelManagementSettings;
