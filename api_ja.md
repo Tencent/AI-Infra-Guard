@@ -136,7 +136,7 @@ AIエージェント（Dify、Coze、またはカスタムHTTPエンドポイン
 | eval_model.base_url | string | いいえ | ベースURL |
 | language | string | いいえ | 言語コード（例: "zh"、"en"） |
 | prompt | string | いいえ | 追加のスキャン指示 |
-| skills | array | いいえ | 実行する検出スキル。省略時はすべて実行。指定可能な値: `data-leakage-detection`, `tool-abuse-detection`, `indirect-injection-detection`, `authorization-bypass-detection`, `web-exfiltration-detection`, `agentic-supply-chain-detection`, `unexpected-code-execution-detection`, `inter-agent-comm-security-detection`, `cascading-failure-detection`, `human-agent-trust-exploit-detection` |
+| skills | array | いいえ | 実行する検出スキル。省略時はすべて実行。指定可能な値: `data-leakage-detection`, `tool-abuse-detection`, `indirect-injection-detection`, `authorization-bypass-detection`, `web-exfiltration-detection`, `agentic-supply-chain-detection`, `unexpected-code-execution-detection`, `inter-agent-comm-security-detection`, `cascading-failure-detection`, `human-agent-trust-exploit-detection`, `memory-rag-poisoning-detection` |
 
 #### Agent設定の事前保存（方法1の前提条件）
 

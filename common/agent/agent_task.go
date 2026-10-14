@@ -43,6 +43,7 @@ var AgentScanSkills = []string{
 	"inter-agent-comm-security-detection",
 	"cascading-failure-detection",
 	"human-agent-trust-exploit-detection",
+	"memory-rag-poisoning-detection",
 }
 
 type AgentTask struct {
