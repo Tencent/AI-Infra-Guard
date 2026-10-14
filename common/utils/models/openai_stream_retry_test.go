@@ -21,6 +21,7 @@ package models
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -55,24 +56,34 @@ func dropConnection(w http.ResponseWriter) {
 	_ = conn.Close()
 }
 
-// collectStream drains a ChatStream channel into one string, failing the
-// test if the channel does not close within the deadline.
-func collectStream(t *testing.T, ch <-chan string) string {
+// collectStream also pins the event contract: at most one error, no text on
+// that event, and no events after it.
+func collectStream(t *testing.T, ch <-chan ChatStreamEvent) (string, error) {
 	t.Helper()
-	done := make(chan string, 1)
-	go func() {
-		var sb strings.Builder
-		for word := range ch {
-			sb.WriteString(word)
+	timer := time.NewTimer(20 * time.Second)
+	defer timer.Stop()
+	var sb strings.Builder
+	var streamErr error
+	for {
+		select {
+		case event, ok := <-ch:
+			if !ok {
+				return sb.String(), streamErr
+			}
+			if streamErr != nil {
+				t.Fatal("received an event after the terminal error")
+			}
+			if event.Err != nil {
+				if event.Text != "" {
+					t.Fatal("terminal error must not carry text")
+				}
+				streamErr = event.Err
+			}
+			sb.WriteString(event.Text)
+		case <-timer.C:
+			t.Fatal("timed out waiting for ChatStream channel to close")
+			return "", nil
 		}
-		done <- sb.String()
-	}()
-	select {
-	case got := <-done:
-		return got
-	case <-time.After(20 * time.Second):
-		t.Fatal("timed out waiting for ChatStream channel to close")
-		return ""
 	}
 }
 
@@ -100,10 +111,13 @@ func TestChatStreamMidStreamFailureDoesNotDuplicate(t *testing.T) {
 	t.Cleanup(server.Close)
 
 	model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
-	text := collectStream(t, model.ChatStream(context.Background(), []map[string]string{
+	text, err := collectStream(t, model.ChatStream(context.Background(), []map[string]string{
 		{"role": "user", "content": "hi"},
 	}))
 
+	if err == nil {
+		t.Fatal("expected terminal error after partial output")
+	}
 	if text != "Hello" {
 		t.Fatalf("consumer received duplicated/replayed content: %q", text)
 	}
@@ -130,14 +144,171 @@ func TestChatStreamRetriesWhenNothingEmitted(t *testing.T) {
 	t.Cleanup(server.Close)
 
 	model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
-	text := collectStream(t, model.ChatStream(context.Background(), []map[string]string{
+	text, err := collectStream(t, model.ChatStream(context.Background(), []map[string]string{
 		{"role": "user", "content": "hi"},
 	}))
 
+	if err != nil {
+		t.Fatalf("successful retry reported an error: %v", err)
+	}
 	if text != "Hello world" {
 		t.Fatalf("expected the retried stream to deliver the full text once, got %q", text)
 	}
 	if got := requests.Load(); got != 2 {
 		t.Fatalf("expected exactly one retry (2 requests), got %d", got)
+	}
+}
+
+func TestChatStreamCleanCompletion(t *testing.T) {
+	for _, content := range []string{"", "Hello world"} {
+		t.Run(content, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/event-stream")
+				fmt.Fprint(w, sseChunk(content), "data: [DONE]\n\n")
+			}))
+			defer server.Close()
+			model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+			text, err := collectStream(t, model.ChatStream(context.Background(), nil))
+			if err != nil || text != content {
+				t.Fatalf("got (%q, %v), want (%q, nil)", text, err, content)
+			}
+		})
+	}
+}
+
+func TestChatStreamRetryExhaustion(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		// Flush successful headers to exercise our stream retry loop rather than
+		// the SDK's HTTP status retry policy.
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.(http.Flusher).Flush()
+		dropConnection(w)
+	}))
+	defer server.Close()
+	model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+	text, err := collectStream(t, model.ChatStream(context.Background(), nil))
+	if err == nil || text != "" {
+		t.Fatalf("got (%q, %v), want empty text and a terminal error", text, err)
+	}
+	if got := requests.Load(); got != 3 {
+		t.Fatalf("got %d requests, want 3", got)
+	}
+}
+
+func TestChatStreamCancellation(t *testing.T) {
+	for _, afterText := range []bool{false, true} {
+		t.Run(fmt.Sprint(afterText), func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests.Add(1)
+				w.Header().Set("Content-Type", "text/event-stream")
+				fmt.Fprint(w, sseChunk("partial"))
+				w.(http.Flusher).Flush()
+				<-r.Context().Done()
+			}))
+			defer server.Close()
+			model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+			if !afterText {
+				cancel()
+			}
+			ch := model.ChatStream(ctx, nil)
+			if afterText {
+				select {
+				case first := <-ch:
+					if first.Text != "partial" || first.Err != nil {
+						t.Fatalf("unexpected first event: %+v", first)
+					}
+				case <-time.After(5 * time.Second):
+					t.Fatal("timed out waiting for initial text")
+				}
+				cancel()
+			}
+			text, err := collectStream(t, ch)
+			if text != "" || !errors.Is(err, context.Canceled) {
+				t.Fatalf("got (%q, %v), want context.Canceled", text, err)
+			}
+			if !afterText && requests.Load() != 0 {
+				t.Fatal("already canceled stream made an HTTP request")
+			}
+		})
+	}
+}
+
+func TestChatStreamCancellationDuringBackoff(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	var requests atomic.Int32
+	firstRequest := make(chan struct{}, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		select {
+		case firstRequest <- struct{}{}:
+		default:
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.(http.Flusher).Flush()
+		dropConnection(w)
+	}))
+	defer server.Close()
+	model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+	ch := model.ChatStream(ctx, nil)
+	select {
+	case <-firstRequest:
+	case <-time.After(5 * time.Second):
+		t.Fatal("timed out waiting for first request")
+	}
+	// The first response fails immediately; cancellation interrupts the 2s wait.
+	time.AfterFunc(200*time.Millisecond, cancel)
+	text, err := collectStream(t, ch)
+	if text != "" || !errors.Is(err, context.Canceled) {
+		t.Fatalf("got (%q, %v), want context.Canceled", text, err)
+	}
+	if requests.Load() != 1 {
+		t.Fatalf("got %d requests, want 1", requests.Load())
+	}
+}
+
+func TestChatResponsePreservesPartialTextAndError(t *testing.T) {
+	for _, fail := range []bool{false, true} {
+		t.Run(fmt.Sprint(fail), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/event-stream")
+				fmt.Fprint(w, sseChunk("partial"))
+				w.(http.Flusher).Flush()
+				if fail {
+					dropConnection(w)
+					return
+				}
+				fmt.Fprint(w, "data: [DONE]\n\n")
+			}))
+			defer server.Close()
+			model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+			text, err := model.ChatResponse(context.Background(), "hi")
+			if text != "partial" || (err != nil) != fail {
+				t.Fatalf("got (%q, %v), want partial text with failure=%v", text, err, fail)
+			}
+		})
+	}
+}
+
+func TestChatStreamPreservesUsageOnAbort(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprint(w, `data: {"choices":[{"delta":{"content":"partial"}}],"usage":{"total_tokens":7}}`+"\n\n")
+		w.(http.Flusher).Flush()
+		dropConnection(w)
+	}))
+	defer server.Close()
+	model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+	text, err := model.ChatResponse(context.Background(), "hi")
+	if text != "partial" || err == nil {
+		t.Fatalf("got (%q, %v), want partial text and error", text, err)
+	}
+	if got := model.GetTotalToken(); got != 7 {
+		t.Fatalf("got %d tokens, want 7 credited before terminal event", got)
 	}
 }
