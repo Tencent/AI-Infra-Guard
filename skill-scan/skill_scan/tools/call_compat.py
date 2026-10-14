@@ -76,7 +76,17 @@ _LISTING_CMD_RE = re.compile(
     r"^\s*(?:sudo\s+)?(?:ls|dir|tree|find|dir_tree|ll|lsd)\b",
     re.IGNORECASE,
 )
-_PATH_TOKEN_RE = re.compile(r"^(?:\./|\.\./|/|[A-Za-z]:[\\/])")
+# Leftover free text may only fill these (actual schemas: thought/content/text;
+# query is included as a text-like name used by some model call styles).
+_RAW_BODY_TEXT_PARAMS = frozenset({"thought", "content", "text", "query"})
+_PATH_PARAMS = frozenset({"path", "file_path"})
+# Entire token must be a path, not merely start with "/" or contain a slash.
+_EXPLICIT_PATH_RE = re.compile(
+    r"^(?:~/|/|\./|\.\./|[A-Za-z]:[\\/])[\w.:/\\-]*$"
+)
+_COMPACT_REL_PATH_RE = re.compile(
+    r"^[A-Za-z0-9._-]+(?:[/\\][A-Za-z0-9._-]+)+/?$"
+)
 
 
 def _is_blank(value: Any) -> bool:
@@ -85,11 +95,14 @@ def _is_blank(value: Any) -> bool:
 
 def _looks_like_path(value: str) -> bool:
     text = value.strip()
-    if not text or "\n" in text or len(text) > 512:
+    if not text or any(c.isspace() for c in text):
         return False
-    if _PATH_TOKEN_RE.match(text):
+    if len(text) > 256:
+        return False
+    if _EXPLICIT_PATH_RE.match(text):
         return True
-    if re.match(r"^[\w.:/\\-]+$", text) and ("/" in text or "\\" in text):
+    # Compact relative path (scripts/hello.py); keep short to reject slashy prose.
+    if len(text) <= 128 and _COMPACT_REL_PATH_RE.match(text):
         return True
     return False
 
@@ -144,7 +157,12 @@ def _copy_aliases(args: dict[str, Any], dest: str) -> None:
 
 
 def apply_arg_aliases(tool_name: str, args: dict[str, Any], func) -> dict[str, Any]:
-    """Fill documented parameter names from common aliases / leftover body text."""
+    """Fill documented parameter names from common aliases / leftover body text.
+
+    Raw leftover text is only mapped onto text-like params (thought/content/text/query)
+    or onto path/file_path when the token itself looks like a path. It is never
+    coerced into command, pattern, or other non-text arguments.
+    """
     normalized = dict(args)
     params = [name for name in inspect.signature(func).parameters if name not in _INJECTED_PARAMS]
     required = required_params(func)
@@ -157,10 +175,12 @@ def apply_arg_aliases(tool_name: str, args: dict[str, Any], func) -> dict[str, A
         for dest in required:
             if not _is_blank(normalized.get(dest)):
                 continue
-            if dest in {"path", "file_path"} and not _looks_like_path(raw):
-                continue
-            normalized[dest] = raw
-            break
+            if dest in _RAW_BODY_TEXT_PARAMS:
+                normalized[dest] = raw
+                break
+            if dest in _PATH_PARAMS and _looks_like_path(raw):
+                normalized[dest] = raw
+                break
 
     return normalized
 

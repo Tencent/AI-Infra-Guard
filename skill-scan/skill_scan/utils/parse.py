@@ -40,7 +40,7 @@ _CHILD_SKIP_TAGS = {
     "arguments",
 }
 # Leftover function-body text (no <parameter> tags) is stored here so the
-# dispatcher can map it onto the tool's first required argument.
+# dispatcher can map it onto a text-like required argument when safe.
 RAW_BODY_ARG = "_raw_body"
 
 

@@ -89,7 +89,7 @@ class ToolDispatcher:
         if inspect.isawaitable(result):
             result = await result
         formatted = self._format_result(result)
-        if tool_name != canonical or args.get("_recovered_from"):
+        if tool_name != canonical:
             formatted = (
                 f"<recovered>Mapped '{tool_name}' to '{canonical}' so discovery "
                 f"can continue. Prefer {canonical} on the next call.</recovered>\n"
