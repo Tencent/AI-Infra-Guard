@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/skill-scan
+configfile: pyproject.toml
+plugins: asyncio-1.4.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 24 items
+
+pytests/test_tool_call_resilience.py::test_parse_think_missing_thought_keeps_tool_name PASSED [  4%]
+pytests/test_tool_call_resilience.py::test_parse_think_body_text_becomes_raw_body PASSED [  8%]
+pytests/test_tool_call_resilience.py::test_parse_think_json_body PASSED  [ 12%]
+pytests/test_tool_call_resilience.py::test_parse_think_inline_attribute PASSED [ 16%]
+pytests/test_tool_call_resilience.py::test_parse_execute_shell_missing_command PASSED [ 20%]
+pytests/test_tool_call_resilience.py::test_parse_execute_shell_legacy_cmd_param PASSED [ 25%]
+pytests/test_tool_call_resilience.py::test_parse_dir_tree_missing_path PASSED [ 29%]
+pytests/test_tool_call_resilience.py::test_parse_dir_tree_child_tag_path PASSED [ 33%]
+pytests/test_tool_call_resilience.py::test_parse_dir_tree_inline_path_attribute PASSED [ 37%]
+pytests/test_tool_call_resilience.py::test_parse_qwen_tool_call_json PASSED [ 41%]
+pytests/test_tool_call_resilience.py::test_parse_standard_parameter_tags_still_work PASSED [ 45%]
+pytests/test_tool_call_resilience.py::test_parse_named_parameter_attribute_still_works PASSED [ 50%]
+pytests/test_tool_call_resilience.py::test_think_missing_thought_returns_retryable_error PASSED [ 54%]
+pytests/test_tool_call_resilience.py::test_think_recovers_thought_from_raw_body PASSED [ 58%]
+pytests/test_tool_call_resilience.py::test_execute_shell_missing_command_recovers_dir_tree PASSED [ 62%]
+pytests/test_tool_call_resilience.py::test_execute_shell_ls_command_recovers_dir_tree PASSED [ 66%]
+pytests/test_tool_call_resilience.py::test_execute_shell_non_listing_returns_clear_error PASSED [ 70%]
+pytests/test_tool_call_resilience.py::test_dir_tree_missing_path_defaults_to_project PASSED [ 75%]
+pytests/test_tool_call_resilience.py::test_dir_tree_child_tag_path_executes PASSED [ 79%]
+pytests/test_tool_call_resilience.py::test_dir_tree_tool_call_json_executes PASSED [ 83%]
+pytests/test_tool_call_resilience.py::test_ls_alias_list_dir_recovers PASSED [ 87%]
+pytests/test_tool_call_resilience.py::test_read_file_accepts_path_alias PASSED [ 91%]
+pytests/test_tool_call_resilience.py::test_unknown_kwargs_do_not_crash PASSED [ 95%]
+pytests/test_tool_call_resilience.py::test_issue_629_payloads_do_not_empty_discovery PASSED [100%]
+
+============================== 24 passed in 0.32s ==============================
