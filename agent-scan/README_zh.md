@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`websocket` 等。
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`websocket` 等。
 
 ### API Route
 
@@ -147,6 +147,25 @@ targets:
 仅使用 provider ID `api_route` 时，默认模型为 `gpt-6.1-sol`。选择其他模型时，使用 `api_route:<完整模型 ID>`，不要添加 `openai/` 或 `anthropic/` 前缀。请先通过带鉴权的 `GET /v1/models` 请求确认模型 ID：模型可用性取决于密钥分组和权限。预设只列出默认模型，并非网关的完整模型目录。
 
 此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。API Route 通过现有 adapter 使用 `Authorization: Bearer <API_ROUTE_API_KEY>` 鉴权，无需额外 SDK。
+
+### Atlas Cloud
+
+[Atlas Cloud](https://www.atlascloud.ai) 是可选的 OpenAI 兼容 provider，使用 `https://api.atlascloud.ai/v1`。在环境变量中设置你自己的密钥：
+
+```bash
+export ATLASCLOUD_API_KEY="your-atlas-cloud-key"
+```
+
+将它作为被扫描的目标时，把以下内容保存为单独的目标 YAML 文件，并通过 `--agent_provider` 指定该文件：
+
+```yaml
+targets:
+  - id: "atlascloud:deepseek-ai/deepseek-v4-flash"
+```
+
+仅使用 provider ID `atlascloud` 时，默认模型为 `deepseek-ai/deepseek-v4-flash`。选择其他模型时，使用 `atlascloud:<完整模型 ID>`，保留 `GET https://api.atlascloud.ai/v1/models` 列出的厂商前缀（例如 `moonshotai/kimi-k3`）。该列表无需密钥即可访问，因此不能用来验证密钥是否有效。预设只列出少数模型，并非网关的完整模型目录。
+
+此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。Atlas Cloud 通过现有 adapter 使用 `Authorization: Bearer <ATLASCLOUD_API_KEY>` 鉴权，无需额外 SDK。
 
 #### ⚠️ `transform_response` — 自定义 HTTP Provider 的关键配置
 

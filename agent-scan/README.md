@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `websocket`, and more.
 
 ### API Route
 
@@ -147,6 +147,25 @@ targets:
 The bare provider ID `api_route` uses the default model `gpt-6.1-sol`. To choose another model, use `api_route:<exact-model-id>` without adding an `openai/` or `anthropic/` prefix. Verify the model ID with an authenticated `GET /v1/models` request first: availability depends on your key's group and permissions. The preset lists only the default model, not the full gateway catalog.
 
 This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. API Route requests use `Authorization: Bearer <API_ROUTE_API_KEY>` through the existing adapter; no extra SDK is required.
+
+### Atlas Cloud
+
+[Atlas Cloud](https://www.atlascloud.ai) is an optional OpenAI-compatible provider using `https://api.atlascloud.ai/v1`. Set your own key in the environment:
+
+```bash
+export ATLASCLOUD_API_KEY="your-atlas-cloud-key"
+```
+
+To use it as the target provider, save the following in a separate target YAML file and pass that file to `--agent_provider`:
+
+```yaml
+targets:
+  - id: "atlascloud:deepseek-ai/deepseek-v4-flash"
+```
+
+The bare provider ID `atlascloud` uses the default model `deepseek-ai/deepseek-v4-flash`. To choose another model, use `atlascloud:<exact-model-id>` with the vendor prefix as listed by `GET https://api.atlascloud.ai/v1/models` (for example `moonshotai/kimi-k3`). That listing is public, so it does not prove a key is valid. The preset lists only a few models, not the full gateway catalog.
+
+This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. Atlas Cloud requests use `Authorization: Bearer <ATLASCLOUD_API_KEY>` through the existing adapter; no extra SDK is required.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 
