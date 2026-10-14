@@ -952,31 +952,52 @@ class AIProviderClient:
 
         try:
             with httpx.Client(timeout=self.timeout) as client:
-                response = client.request(
+                # Use a streaming request so a long-lived Server-Sent Events
+                # stream (which holds the connection open and never closes it)
+                # is consumed chunk by chunk instead of waiting for the whole
+                # response body to terminate. Non-streaming `request()` blocks
+                # until the connection closes, so a real SSE endpoint would time
+                # out without delivering any text even though chunks keep
+                # arriving (issue #707).
+                with client.stream(
                     method=method,
                     url=url,
                     headers=headers,
                     json=body if isinstance(body, dict) else None,
-                    content=body if isinstance(body, str) else None
-                )
+                    content=body if isinstance(body, str) else None,
+                ) as response:
+                    elapsed = time.time() - start_time
+                    response_headers = dict(response.headers)
+                    status_code = response.status_code
+                    content_type = response_headers.get("content-type", "").lower()
 
-                elapsed = time.time() - start_time
-                response_headers = dict(response.headers)
-                status_code = response.status_code
-                content_type = response_headers.get("content-type", "").lower()
+                    # Check if response is SSE format
+                    is_sse = "text/event-stream" in content_type
 
-                # Check if response is SSE format
-                is_sse = "text/event-stream" in content_type
-
-                if is_sse:
-                    # Parse SSE response
-                    raw_response, token_usage = self._parse_sse_response(response.text, transform_response)
-                else:
-                    try:
-                        raw_response = response.json()
-                    except:
-                        raw_response = response.text
-                    token_usage = raw_response.get("usage") if isinstance(raw_response, dict) else None
+                    if is_sse:
+                        # Read the SSE body stream-wise, stopping at the [DONE]
+                        # marker instead of waiting for the connection to close.
+                        # A real SSE endpoint holds the connection open as long
+                        # as the model is still streaming, so collecting until
+                        # the socket closes would block until the read timeout
+                        # even though all content has already arrived (issue
+                        # #707). Consuming line by line lets us finish as soon
+                        # as the stream is complete.
+                        sse_lines = []
+                        for line in response.iter_lines():
+                            if line.strip() == "data: [DONE]":
+                                break
+                            sse_lines.append(line)
+                        sse_text = "\n".join(sse_lines)
+                        raw_response, token_usage = self._parse_sse_response(sse_text, transform_response)
+                    else:
+                        response.read()
+                        response_text = response.text
+                        try:
+                            raw_response = response.json()
+                        except Exception:
+                            raw_response = response_text
+                        token_usage = raw_response.get("usage") if isinstance(raw_response, dict) else None
 
                 output = self._extract_output(raw_response, transform_response)
 

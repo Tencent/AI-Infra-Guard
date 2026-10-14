@@ -13,13 +13,17 @@ def test_make_http_request_uses_transform_for_sse_chunks():
     response = SimpleNamespace(
         status_code=200,
         headers={"content-type": "text/event-stream"},
-        text=sse,
     )
     client = object.__new__(AIProviderClient)
     client.timeout = 30
 
     with patch("agent_scan.core.agent_adapter.adapter.httpx.Client") as http_client:
-        http_client.return_value.__enter__.return_value.request.return_value = response
+        # The factory now streams the response; simulate a real SSE body that
+        # iter_lines() would deliver chunk by chunk.
+        stream_cm = http_client.return_value.__enter__.return_value.stream.return_value.__enter__.return_value
+        stream_cm.status_code = 200
+        stream_cm.headers = {"content-type": "text/event-stream"}
+        stream_cm.iter_lines.return_value = iter(sse.split("\n"))
         result = client._make_http_request(
             "https://example.test/agent", "POST", {}, {}, "stream.text"
         )
@@ -66,3 +70,37 @@ def test_parse_sse_response_keeps_transformed_type_event_generic():
 
     assert response == {"content": "Hello", "raw_sse": False}
     assert client._extract_output(response, "stream.text") == "Hello"
+
+
+def test_make_http_request_streams_sse_body_even_when_connection_stays_open():
+    """#707 regression: a real SSE endpoint holds the connection open and
+    never closes it. The factory must consume the stream line by line and
+    stop at the [DONE] marker instead of waiting for the connection to
+    close."""
+    lines = [
+        'data: {"choices":[{"delta":{"content":"Hello"}}]}',
+        "",
+        'data: {"choices":[{"delta":{"content":" World"}}]}',
+        "",
+        "data: [DONE]",
+        "",
+    ]
+    client = object.__new__(AIProviderClient)
+    client.timeout = 30
+
+    with patch("agent_scan.core.agent_adapter.adapter.httpx.Client") as http_client:
+        stream_cm = http_client.return_value.__enter__.return_value.stream.return_value.__enter__.return_value
+        stream_cm.status_code = 200
+        stream_cm.headers = {"content-type": "text/event-stream"}
+        # After [DONE] the stream would keep the connection open (the iterable
+        # could go on forever); the factory must break at [DONE].
+        stream_cm.iter_lines.return_value = iter(lines)
+        result = client._make_http_request(
+            "https://example.test/agent", "POST", {}, {}, None
+        )
+
+    assert result.success is True
+    assert result.provider_response.output == "Hello World"
+    assert result.provider_response.raw["choices"][0]["message"]["content"] == "Hello World"
+    # The streaming path must be used for SSE responses.
+    http_client.return_value.__enter__.return_value.stream.assert_called_once()
