@@ -181,9 +181,12 @@ Multiple <result> entries are supported, but only vulnerabilities with severity 
 	})
 	var result string = ""
 	config.Logger.Infoln("generate summary result")
-	for word := range config.AIModel.ChatStream(ctx, history) {
-		result += word
-		config.Logger.Print(word)
+	for event := range config.AIModel.ChatStream(ctx, history) {
+		result += event.Text
+		config.Logger.Print(event.Text)
+		if event.Err != nil {
+			return nil, fmt.Errorf("generate summary result: %w", event.Err)
+		}
 	}
 	history = append(history, map[string]string{
 		"role":    "assistant",
@@ -201,9 +204,12 @@ func SummaryChat(ctx context.Context, agent utils.Agent, config *McpPluginConfig
 	})
 	var result string = ""
 	config.Logger.Infoln("generate summary result")
-	for word := range config.AIModel.ChatStream(ctx, history) {
-		result += word
-		config.Logger.Print(word)
+	for event := range config.AIModel.ChatStream(ctx, history) {
+		result += event.Text
+		config.Logger.Print(event.Text)
+		if event.Err != nil {
+			return result, fmt.Errorf("generate summary chat: %w", event.Err)
+		}
 	}
 	history = append(history, map[string]string{
 		"role":    "assistant",

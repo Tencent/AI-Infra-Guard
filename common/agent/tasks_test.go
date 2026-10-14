@@ -21,7 +21,10 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -195,5 +198,96 @@ func TestAppendAgentScanOptions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, appendAgentScanOptions(append([]string{}, base...), tt.prompt, tt.skills))
 		})
+	}
+}
+
+func TestRunAnalysisStepTerminalStatus(t *testing.T) {
+	for _, test := range []struct {
+		name        string
+		description string
+		err         error
+		wantStatus  string
+	}{
+		{name: "clean completion", wantStatus: AgentStatusCompleted},
+		{name: "error before output", err: errors.New("provider response body must not reach status"), wantStatus: AgentStatusFailed},
+		{name: "partial output then abort", description: "<result><title>Partial report", err: io.ErrUnexpectedEOF, wantStatus: AgentStatusFailed},
+		{name: "canceled after output", description: "Partial summary", err: context.Canceled, wantStatus: AgentStatusFailed},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			type update struct {
+				status, brief, description string
+			}
+			var updates []update
+			callbacks := TaskCallbacks{
+				StepStatusUpdateCallback: func(stepID, statusID, status, brief, description string) {
+					assert.Equal(t, "scan-step", stepID)
+					assert.Equal(t, "analysis-status", statusID)
+					updates = append(updates, update{status, brief, description})
+				},
+			}
+			texts := initTexts("en")
+			calls := 0
+			err := runAnalysisStep("scan-step", "analysis-status", texts, callbacks, func() (string, error) {
+				calls++
+				return test.description, test.err
+			})
+			if test.err != nil {
+				require.ErrorIs(t, err, test.err)
+			} else {
+				require.NoError(t, err)
+			}
+			assert.Equal(t, 1, calls)
+			require.Len(t, updates, 2, "there must be exactly one terminal status, without a deferred completion")
+			assert.Equal(t, AgentStatusRunning, updates[0].status)
+			assert.Equal(t, test.wantStatus, updates[1].status)
+			assert.Equal(t, test.description, updates[1].description)
+			if test.err != nil {
+				assert.Equal(t, texts.execError, updates[1].brief)
+				assert.NotContains(t, updates[1].description, test.err.Error())
+			}
+		})
+	}
+}
+
+func TestScanAnalysisFailuresCompletionTexts(t *testing.T) {
+	for _, language := range []string{"en", "zh"} {
+		for _, test := range []struct {
+			name        string
+			targets     []string
+			wantFailure int
+		}{
+			{name: "no failures"},
+			{name: "one failed target", targets: []string{"https://one.test"}, wantFailure: 1},
+			{name: "several failed stages for one target", targets: []string{"https://one.test", "https://one.test", "https://one.test"}, wantFailure: 1},
+			{name: "concurrent failed targets", targets: []string{"https://one.test", "https://two.test", "https://one.test", "https://three.test", "https://two.test"}, wantFailure: 3},
+		} {
+			t.Run(language+"/"+test.name, func(t *testing.T) {
+				texts := initTexts(language)
+				var failures scanAnalysisFailures
+				var wg sync.WaitGroup
+				for _, target := range test.targets {
+					wg.Add(1)
+					go func(target string) {
+						defer wg.Done()
+						failures.record(target)
+						// Reading status is safe even while other targets finish.
+						failures.completionTexts(texts)
+					}(target)
+				}
+				wg.Wait()
+				got := failures.completionTexts(texts)
+				if test.wantFailure == 0 {
+					assert.Equal(t, texts, got, "a fully successful scan keeps its existing wording")
+					return
+				}
+				wantDescription := fmt.Sprintf(texts.analysisIncompleteTemplate, test.wantFailure)
+				assert.Equal(t, texts.partialScanComplete, got.aigCompleted)
+				assert.Equal(t, texts.partialScanComplete, got.scanComplete)
+				assert.Equal(t, wantDescription, got.scanCompleteDesc)
+				assert.Equal(t, wantDescription, got.taskCompleteDesc, "the later task completion must retain the warning")
+				assert.NotEqual(t, texts.taskCompleteDesc, got.taskCompleteDesc)
+				assert.Equal(t, texts.scanResultTemplate, got.scanResultTemplate)
+			})
+		}
 	}
 }

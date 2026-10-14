@@ -36,14 +36,23 @@ import (
 	"github.com/openai/openai-go"
 )
 
+// ChatStreamEvent carries either a text delta or a terminal error. An error event
+// has empty Text, is emitted exactly once on failure, and is followed by channel
+// closure. A clean completion closes the channel without an error event.
+type ChatStreamEvent struct {
+	Text string
+	Err  error
+}
+
 type AIModel interface {
-	ChatStream(ctx context.Context, history []map[string]string) <-chan string
+	// Callers must consume until closure or the terminal error, including after cancellation.
+	ChatStream(ctx context.Context, history []map[string]string) <-chan ChatStreamEvent
 }
 
 type OpenAI struct {
-	Key                string
-	BaseUrl            string
-	Model              string
+	Key      string
+	BaseUrl  string
+	Model    string
 	UseToken int64
 
 	// ExtraHeaders 会随每个请求发送，例如 OpenRouter 的
@@ -129,9 +138,9 @@ func (ai *OpenAI) Vaild(ctx context.Context) error {
 	}
 	return nil
 }
-func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <-chan string {
+func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <-chan ChatStreamEvent {
 	client := openai.NewClient(ai.clientOptions()...)
-	resp := make(chan string)
+	resp := make(chan ChatStreamEvent)
 	chatMessages := make([]openai.ChatCompletionMessageParamUnion, 0)
 	for _, item := range history {
 		role := item["role"]
@@ -147,16 +156,30 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 	const maxRetries = 3
 	go func() {
 		defer close(resp)
-		var totalToken int64 = 0
+		var totalToken int64
+		var terminalErr error
+		defer func() {
+			if totalToken > 0 {
+				ai.UseToken += totalToken
+			}
+			if terminalErr != nil {
+				resp <- ChatStreamEvent{Err: terminalErr}
+			}
+		}()
 		for attempt := 0; attempt < maxRetries; attempt++ {
 			if attempt > 0 {
 				waitSec := time.Duration(1<<attempt) * time.Second // 2s, 4s
 				gologger.Infof("ChatStream retry %d/%d after %v", attempt, maxRetries-1, waitSec)
 				select {
 				case <-ctx.Done():
+					terminalErr = ctx.Err()
 					return
 				case <-time.After(waitSec):
 				}
+			}
+			if err := ctx.Err(); err != nil {
+				terminalErr = err
+				return
 			}
 			stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
 				Messages: chatMessages,
@@ -171,31 +194,42 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 					if evt.Usage.TotalTokens > 0 {
 						totalToken = evt.Usage.TotalTokens
 					}
-					resp <- word
+					select {
+					case resp <- ChatStreamEvent{Text: word}:
+					case <-ctx.Done():
+						stream.Close()
+						terminalErr = ctx.Err()
+						return
+					}
 					if word != "" {
 						emitted = true
 					}
 				}
 			}
-			if stream.Err() != nil {
+			err := stream.Err()
+			stream.Close()
+			if ctx.Err() != nil {
+				terminalErr = ctx.Err()
+				return
+			}
+			if err != nil {
 				if emitted {
 					// Deltas already handed to the caller cannot be taken back.
 					// Retrying from scratch would replay the whole response on top
 					// of the partial text the consumer already accumulated, so a
 					// mid-stream failure after partial output is terminal (#693).
-					gologger.WithError(stream.Err()).Errorf("ChatStream failed mid-stream after partial output; aborting without retry to avoid duplicated content (attempt %d/%d)", attempt+1, maxRetries)
-					if totalToken > 0 {
-						ai.UseToken += totalToken
-					}
+					gologger.WithError(err).Errorf("ChatStream failed mid-stream after partial output; aborting without retry to avoid duplicated content (attempt %d/%d)", attempt+1, maxRetries)
+					terminalErr = err
 					return
 				}
-				gologger.WithError(stream.Err()).Errorf("ChatStream error (attempt %d/%d)", attempt+1, maxRetries)
+				gologger.WithError(err).Errorf("ChatStream error (attempt %d/%d)", attempt+1, maxRetries)
+				if attempt == maxRetries-1 {
+					terminalErr = err
+					return
+				}
 				continue
 			}
 			break
-		}
-		if totalToken > 0 {
-			ai.UseToken += totalToken
 		}
 	}()
 	return resp
@@ -207,7 +241,10 @@ func (ai *OpenAI) ChatResponse(ctx context.Context, prompt string) (string, erro
 	}
 	var ret string
 	for resp := range ai.ChatStream(ctx, history) {
-		ret += resp
+		ret += resp.Text
+		if resp.Err != nil {
+			return ret, resp.Err
+		}
 	}
 	return ret, nil
 }
