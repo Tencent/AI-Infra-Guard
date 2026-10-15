@@ -97,6 +97,17 @@ providers:
         models:
           - gpt-6.1-sol
 
+      atlascloud:
+        env_keys: ["ATLASCLOUD_API_KEY"]
+        base_url: "https://api.atlascloud.ai/v1"
+        endpoint: "/chat/completions"
+        default_model: "deepseek-ai/deepseek-v4-flash"
+        models:
+          - deepseek-ai/deepseek-v4-flash
+          - moonshotai/kimi-k3
+          - zai-org/glm-5.2
+          - qwen/qwen3.8-27b
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
