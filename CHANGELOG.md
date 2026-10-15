@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.6] - 2026-10-15
+
+### Added
+- **Agent-Scan**: Add Atlas Cloud provider preset (PR #706, 6a14a56a)
+- **Agent-Scan**: Add API Route provider preset (PR #697, c752770e)
+- **Agent-Scan**: Add memory/RAG poisoning detection skill (PR #429, a25426cb)
+- **CLI**: Add JSON scan output (PR #682, 3eb7b466)
+- **Dashboard**: Edit extra_headers / extra_body in the model dialog (PR #690, 57fad501)
+- **Eval**: Add BadPhoneAgent bilingual benchmark (PR #698, 0586cb9b)
+
+### Fixed
+- **Agent-Scan**: Stream SSE responses and stop at [DONE] instead of waiting for connection close (PR #708, 1e2c69d9)
+- **Models**: Surface terminal ChatStream errors to callers and scan status (PR #702, 1fa464c0)
+- **Models**: Abort instead of retrying after ChatStream emitted partial output (PR #695, 5c3b6a5e)
+- **Models**: Do not panic when a provider returns no choices (PR #692, 6380426f)
+- **Skill-Scan**: Recover missing tool-call args during discovery (PR #648, f74c6d78)
+- **Runner**: Classify severity with the vocabulary the data validator accepts (PR #694, 41bd1321)
+- **Dashboard**: Keep stored extra_headers / extra_body when the update sends the mask back (PR #689, 9f3e846b)
+
+### Changed
+- **Prompt-Security**: Drop LLM translation of report case fields (PR #703, 4ea64655)
+- **CI**: Add contributors-readme-action to auto-update contributors list (PR #696, 22b0d385)
+- **Test (Agent-Scan)**: Mock the streaming interface in the Atlas Cloud test (3879c190)
+
+### Contributors
+aigsec, nb213, wjl8636, li872, Devam Shah, helo060228, Truman, Yusheng, boyhack, ymsun2020, drow, DennyHo0917
+
 ## [v4.6.5] - 2026-10-08
 
 ### Added

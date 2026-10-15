@@ -24,7 +24,7 @@ import (
 	"fmt"
 )
 
-const version = "v4.6.5"
+const version = "v4.6.6"
 
 func GetVersion() string {
 	return version
