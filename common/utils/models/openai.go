@@ -331,7 +331,7 @@ func (ai *OpenAI) ResetToken() {
 func GetJsonString(data string) string {
 	startIndex := strings.Index(data, "```json")
 	endIndex := strings.LastIndex(data, "```")
-	if startIndex >= 0 && endIndex > 0 {
+	if startIndex >= 0 && endIndex >= startIndex+7 {
 		return data[startIndex+7 : endIndex]
 	}
 	return data
