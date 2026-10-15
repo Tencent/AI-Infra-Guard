@@ -222,6 +222,13 @@ class AIProviderClient:
     """
 
     DEFAULT_TIMEOUT = 30
+    # Idle-gap allowance (in seconds) for Server-Sent Events streams: the
+    # maximum time allowed *between* two chunks before the read is considered
+    # stalled. Reasoning models routinely pause 10-60s before the first content
+    # token, so this must be decoupled from the overall conversation budget
+    # (see `timeout_ms`) — otherwise a long thinking pause kills the reply
+    # mid-stream (issue #707).
+    DEFAULT_SSE_IDLE_TIMEOUT = 60
     DEFAULT_TEST_PROMPT = "Hi!"
     DEFAULT_WS_MAX_MESSAGES = 20
     DEFAULT_WS_MAX_RESPONSE_BYTES = 1024 * 1024
@@ -440,7 +447,11 @@ class AIProviderClient:
 
         # Make request
         response_path = provider_conf.get("response_path")
-        result = self._make_http_request(url, "POST", headers, body, response_path)
+        result = self._make_http_request(
+            url, "POST", headers, body, response_path,
+            timeout_seconds=self._get_timeout_seconds(config),
+            idle_timeout_seconds=self._get_sse_idle_seconds(config),
+        )
 
         # Add metadata and cost
         if result.success and result.provider_response:
@@ -500,7 +511,11 @@ class AIProviderClient:
 
         body = self._render_prompt_body(config.body, prompt)
 
-        return self._make_http_request(url, method, headers, body, config.transform_response)
+        return self._make_http_request(
+            url, method, headers, body, config.transform_response,
+            timeout_seconds=self._get_timeout_seconds(config),
+            idle_timeout_seconds=self._get_sse_idle_seconds(config),
+        )
 
     def _render_prompt_body(self, body_template: Any, prompt: str) -> Any:
         """Render a provider request body by replacing prompt placeholders."""
@@ -545,10 +560,33 @@ class AIProviderClient:
             return f"{base_url}{config.endpoint}"
         return base_url
 
-    def _get_timeout_seconds(self, config: ProviderConfig) -> float:
+    def _get_timeout_seconds(self, config: Optional[ProviderConfig]) -> float:
         """Return a bounded timeout in seconds."""
-        timeout = (config.timeout_ms / 1000.0) if config.timeout_ms else self.timeout
+        timeout = (config.timeout_ms / 1000.0) if (config and config.timeout_ms) else self.timeout
         return max(timeout, 1)
+
+    def _get_sse_idle_seconds(self, config: Optional[ProviderConfig]) -> float:
+        """Return the SSE idle-gap allowance in seconds.
+
+        The idle gap is the maximum time allowed *between* two chunks of a
+        ``text/event-stream`` response, independent of the overall conversation
+        budget enforced by ``timeout_ms``. It defaults to a generous value so a
+        reasoning model pausing to think is not killed mid-reply, and can be
+        overridden per provider via ``extra.idle_timeout_ms`` (milliseconds),
+        mirroring the ``extra.max_messages`` / ``extra.max_response_bytes``
+        pattern used by the WebSocket path.
+        """
+        if config is None:
+            return float(self.DEFAULT_SSE_IDLE_TIMEOUT)
+        extra = config.extra if isinstance(config.extra, dict) else {}
+        idle_ms = extra.get("idle_timeout_ms")
+        try:
+            idle_ms = int(idle_ms) if idle_ms is not None else None
+        except (TypeError, ValueError):
+            idle_ms = None
+        if idle_ms is None:
+            return float(self.DEFAULT_SSE_IDLE_TIMEOUT)
+        return max(idle_ms / 1000.0, 1.0)
 
     def _get_headers(self, config: ProviderConfig) -> Dict[str, str]:
         """Return provider headers as a plain dict."""
@@ -813,7 +851,11 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body, "answer")
+        result = self._make_http_request(
+            url, "POST", headers, body, "answer",
+            timeout_seconds=self._get_timeout_seconds(config),
+            idle_timeout_seconds=self._get_sse_idle_seconds(config),
+        )
 
         if result.success and result.provider_response:
             result.provider_response.metadata = result.provider_response.metadata or {}
@@ -901,7 +943,11 @@ class AIProviderClient:
             "Content-Type": "application/json"
         }
 
-        result = self._make_http_request(url, "POST", headers, body)
+        result = self._make_http_request(
+            url, "POST", headers, body,
+            timeout_seconds=self._get_timeout_seconds(config),
+            idle_timeout_seconds=self._get_sse_idle_seconds(config),
+        )
 
         if result.success and result.provider_response:
             raw = result.provider_response.raw
@@ -945,13 +991,25 @@ class AIProviderClient:
             method: str,
             headers: Dict[str, str],
             body: Any,
-            transform_response: Optional[str] = None
+            transform_response: Optional[str] = None,
+            timeout_seconds: Optional[float] = None,
+            idle_timeout_seconds: Optional[float] = None,
     ) -> ProviderTestResult:
-        """Make HTTP request and return standardized result."""
+        """Make HTTP request and return standardized result.
+
+        ``timeout_seconds`` bounds the overall request; for SSE responses it
+        is the *conversation budget* (issue #707). ``idle_timeout_seconds``
+        bounds the gap between two SSE chunks independently, so a reasoning
+        model pausing to think is not killed mid-reply while a truly stalled
+        stream still times out. Both fall back to the adapter's ``self.timeout``
+        when not provided.
+        """
         start_time = time.time()
+        budget = timeout_seconds if timeout_seconds is not None else float(self.timeout)
+        idle = idle_timeout_seconds if idle_timeout_seconds is not None else budget
 
         try:
-            with httpx.Client(timeout=self.timeout) as client:
+            with httpx.Client(timeout=httpx.Timeout(budget, read=idle)) as client:
                 # Use a streaming request so a long-lived Server-Sent Events
                 # stream (which holds the connection open and never closes it)
                 # is consumed chunk by chunk instead of waiting for the whole
@@ -974,6 +1032,7 @@ class AIProviderClient:
                     # Check if response is SSE format
                     is_sse = "text/event-stream" in content_type
 
+                    budget_exceeded = False
                     if is_sse:
                         # Read the SSE body stream-wise, stopping at the [DONE]
                         # marker instead of waiting for the connection to close.
@@ -987,6 +1046,15 @@ class AIProviderClient:
                         for line in response.iter_lines():
                             if line.strip() == "data: [DONE]":
                                 break
+                            # Enforce the overall conversation budget between
+                            # chunks. A single long pause is tolerated (bounded
+                            # by the idle read timeout), but the whole stream
+                            # must not outlive `timeout_seconds`; any content
+                            # already received is preserved instead of being
+                            # silently dropped (issue #707).
+                            if time.time() - start_time > budget:
+                                budget_exceeded = True
+                                break
                             sse_lines.append(line)
                         sse_text = "\n".join(sse_lines)
                         raw_response, token_usage = self._parse_sse_response(sse_text, transform_response)
@@ -998,6 +1066,7 @@ class AIProviderClient:
                         except Exception:
                             raw_response = response_text
                         token_usage = raw_response.get("usage") if isinstance(raw_response, dict) else None
+                        budget_exceeded = time.time() - start_time > budget
 
                 output = self._extract_output(raw_response, transform_response)
 
@@ -1011,14 +1080,18 @@ class AIProviderClient:
                         "elapsed_time": f"{elapsed:.2f}s",
                         "url": url,
                         "method": method,
-                        "is_sse": is_sse
+                        "is_sse": is_sse,
+                        "budget_exceeded": budget_exceeded
                     }
                 )
 
                 if 200 <= status_code < 300:
+                    message = f"✅ Connection successful! Status: {status_code}, Time: {elapsed:.2f}s"
+                    if budget_exceeded:
+                        message += " (response truncated at timeout budget)"
                     return ProviderTestResult(
                         success=True,
-                        message=f"✅ Connection successful! Status: {status_code}, Time: {elapsed:.2f}s",
+                        message=message,
                         provider_response=provider_response
                     )
                 else:
@@ -1037,7 +1110,7 @@ class AIProviderClient:
         except httpx.TimeoutException:
             return ProviderTestResult(
                 success=False,
-                message=f"⏱️ Request timed out after {self.timeout} seconds",
+                message=f"⏱️ Request timed out after {budget:g} seconds",
                 provider_response=ProviderResponseInfo(error="Timeout", metadata={"url": url})
             )
         except httpx.ConnectError as e:

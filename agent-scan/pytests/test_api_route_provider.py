@@ -72,7 +72,7 @@ def test_api_route_sends_authenticated_chat_request(monkeypatch, provider_id, mo
     assert stream_method.call_args.kwargs["headers"]["Authorization"] == "Bearer api-route-test-key"
     assert stream_method.call_args.kwargs["json"]["model"] == model
     assert stream_method.call_args.kwargs["json"]["messages"] == [{"role": "user", "content": "Reply OK"}]
-    assert transport.call_args.kwargs["timeout"] == 12
+    assert transport.call_args.kwargs["timeout"].connect == 12
 
 
 def test_api_route_missing_key_does_not_use_another_provider_key(monkeypatch):
