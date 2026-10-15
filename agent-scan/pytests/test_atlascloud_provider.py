@@ -55,8 +55,14 @@ def test_atlascloud_sends_authenticated_chat_request(monkeypatch, provider_id, m
         request=httpx.Request("POST", "https://api.atlascloud.ai/v1/chat/completions"),
     )
     with patch("agent_scan.core.agent_adapter.adapter.httpx.Client") as transport:
-        request = transport.return_value.__enter__.return_value.request
-        request.return_value = response
+        # The adapter consumes responses via client.stream() (#708); mock the
+        # streaming interface the same way test_api_route_provider.py does.
+        stream_method = transport.return_value.__enter__.return_value.stream
+        stream_cm = stream_method.return_value.__enter__.return_value
+        stream_cm.status_code = 200
+        stream_cm.headers = {"content-type": "application/json"}
+        stream_cm.text = response.text
+        stream_cm.json = lambda: response.json()
         result = AIProviderClient(timeout=12).call_provider(
             ProviderOptions(id=provider_id), prompt="Reply OK"
         )
@@ -65,11 +71,11 @@ def test_atlascloud_sends_authenticated_chat_request(monkeypatch, provider_id, m
     assert result.provider_response.output == "OK"
     assert result.provider_response.metadata["model"] == model
     assert result.provider_response.metadata["provider"] == "atlascloud"
-    assert request.call_args.kwargs["method"] == "POST"
-    assert request.call_args.kwargs["url"] == "https://api.atlascloud.ai/v1/chat/completions"
-    assert request.call_args.kwargs["headers"]["Authorization"] == "Bearer atlas-test-key"
-    assert request.call_args.kwargs["json"]["model"] == model
-    assert request.call_args.kwargs["json"]["messages"] == [{"role": "user", "content": "Reply OK"}]
+    assert stream_method.call_args.kwargs["method"] == "POST"
+    assert stream_method.call_args.kwargs["url"] == "https://api.atlascloud.ai/v1/chat/completions"
+    assert stream_method.call_args.kwargs["headers"]["Authorization"] == "Bearer atlas-test-key"
+    assert stream_method.call_args.kwargs["json"]["model"] == model
+    assert stream_method.call_args.kwargs["json"]["messages"] == [{"role": "user", "content": "Reply OK"}]
     assert transport.call_args.kwargs["timeout"] == 12
 
 
