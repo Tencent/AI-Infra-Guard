@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>Paperclip</title>"
+      - body="<title>Paperclip</title>" && (body="PAPERCLIP_FAVICON_START" || body="paperclip-startup-title")

@@ -10,4 +10,5 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="Text Generation Web UI"
+      - body="\"title\":\"Text generation web UI\"" && body="gradio_config"
+      - body="\"title\":\"TextGen\"" && body="gradio_config"

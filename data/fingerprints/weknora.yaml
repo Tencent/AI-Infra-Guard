@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>WeKnora</title>" || body="weknora"
+      - body="<title>WeKnora</title>"

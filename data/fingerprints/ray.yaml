@@ -19,3 +19,10 @@ http:
     path: '/api/serve/applications/'
     matchers:
       - body="\"controller_info\"" && body="\"proxy_location\"" && body="SERVE_CONTROLLER_ACTOR"
+version:
+  - method: GET
+    path: '/api/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"ray_version":\s*"([0-9]+\.[0-9]+\.[0-9]+)"'

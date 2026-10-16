@@ -12,10 +12,6 @@ info:
     product: mcp-atlassian
     vendor: sooperset
 http:
-  - method: GET
-    path: /healthz
-    matchers:
-      - body="\"status\"" && body="ok"
   - method: POST
     path: /mcp
     matchers:

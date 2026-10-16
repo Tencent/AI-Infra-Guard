@@ -8,10 +8,6 @@ info:
     vendor: langchain-ai
 http:
   - method: GET
-    path: '/docs'
-    matchers:
-      - body="langserve"
-  - method: GET
     path: '/playground/index.html'
     matchers:
       - body="____LANGSERVE_BASE_URL"

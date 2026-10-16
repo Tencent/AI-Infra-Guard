@@ -10,7 +10,10 @@ info:
     vendor: decolua
 http:
   - method: GET
+    path: '/'
+    matchers:
+      - body="<title>9Router"
+  - method: GET
     path: '/dashboard'
     matchers:
-      - body="9Router"
       - body="<title>9Router"

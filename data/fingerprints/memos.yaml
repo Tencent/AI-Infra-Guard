@@ -10,7 +10,7 @@ http:
   - method: GET
     path: /health
     matchers:
-      - body="memos" && body="healthy"
+      - body="\"service\":\"memos\"" && body="\"status\":\"healthy\""
   - method: GET
     path: /openapi.json
     matchers:

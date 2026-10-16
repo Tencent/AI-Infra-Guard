@@ -10,11 +10,11 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="GPT-SoVITS" && body="gradio"
+      - body="GPT-SoVITS WebUI" && body="gradio"
   - method: GET
     path: '/config'
     matchers:
-      - body="GPT-SoVITS"
+      - body="\"title\":\"GPT-SoVITS WebUI\""
 version:
   - method: GET
     path: '/'

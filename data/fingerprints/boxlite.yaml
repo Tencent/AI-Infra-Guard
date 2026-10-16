@@ -13,12 +13,11 @@ http:
   - method: GET
     path: '/v1/config'
     matchers:
-      - body="clone_enabled"
-      - body="snapshots_enabled"
-    version:
-      - method: GET
-        path: '/v1/config'
-        extractor:
-          part: header
-          group: 1
-          regex: 'x-boxlite-version:\s*([\d.]+)'
+      - body="\"capabilities\"" && body="snapshots_enabled" && body="clone_enabled" && body="inbound_update_enabled"
+version:
+  - method: GET
+    path: '/v1/config'
+    extractor:
+      part: header
+      group: 1
+      regex: '(?i)x-boxlite-version:\s*([\d.]+)'
