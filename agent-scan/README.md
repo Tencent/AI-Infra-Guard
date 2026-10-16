@@ -182,6 +182,28 @@ The `transform_response` field tells agent-scan which JSON key to extract the ag
 
 When using the **AIG Web UI**, this field corresponds to the "Response Parser" (响应解析器) input in the Agent configuration form — make sure to fill it with the correct key (e.g., `reply`).
 
+#### Timeout semantics for HTTP targets
+
+HTTP targets honor two independent timeouts, both set in the target `config`:
+
+| Field | Unit | Default | Meaning |
+|-------|------|---------|---------|
+| `timeout_ms` | ms | adapter default (30s) | Overall budget for the whole request/conversation. |
+| `extra.idle_timeout_ms` | ms | `60000` (60s) | Max pause *between* two `text/event-stream` chunks before the stream is considered stalled. |
+
+Reasoning models routinely pause 10–60s before the first content token, so agent-scan decouples the two: `timeout_ms` bounds the total duration, while `idle_timeout_ms` only bounds the gap between chunks — a long thinking pause is not fatal, but a truly stalled stream still times out. When the overall budget is exceeded, the already-received content is preserved and flagged via `metadata["budget_exceeded"]` with a truncation note in the reply, rather than being silently dropped.
+
+```yaml
+targets:
+  - id: "http"
+    config:
+      url: "http://127.0.0.1:18081"
+      endpoint: "/chat"
+      timeout_ms: 30000          # overall budget: 30s
+      extra:
+        idle_timeout_ms: 10000   # max 10s between SSE chunks
+```
+
 ## 🧪 Test Cases
 
 The `testcase/` directory contains ready-to-use vulnerable target agents for testing agent-scan's detection capabilities.

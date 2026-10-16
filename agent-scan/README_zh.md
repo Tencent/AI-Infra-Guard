@@ -182,6 +182,28 @@ targets:
 
 在 **AIG Web UI** 中，这个字段对应 Agent 配置表单中的"响应解析器"输入框——务必填写正确的字段名（如 `reply`）。
 
+#### HTTP 目标的超时语义
+
+HTTP 目标使用两个相互独立的超时，均在目标 `config` 中配置：
+
+| 字段 | 单位 | 默认值 | 含义 |
+|------|------|--------|------|
+| `timeout_ms` | ms | adapter 默认值（30s） | 整个请求/对话的总预算。 |
+| `extra.idle_timeout_ms` | ms | `60000`（60s） | 两个 `text/event-stream` 分块之间允许的最大间隔，超过则判定流已停滞。 |
+
+推理模型在输出第一个内容 token 前通常会停顿 10–60s，因此 agent-scan 将两者解耦：`timeout_ms` 约束总时长，`idle_timeout_ms` 只约束分块之间的间隔——较长的思考停顿不会中断回复，但真正停滞的流仍会超时。当总预算超限时，已接收到的内容会被保留，并通过 `metadata["budget_exceeded"]` 加一条截断说明标记在回复中，而不是被静默丢弃。
+
+```yaml
+targets:
+  - id: "http"
+    config:
+      url: "http://127.0.0.1:18081"
+      endpoint: "/chat"
+      timeout_ms: 30000          # 总预算：30s
+      extra:
+        idle_timeout_ms: 10000   # SSE 分块间隔上限：10s
+```
+
 ## 🧪 测试用例
 
 `testcase/` 目录包含可直接使用的漏洞靶场 Agent，用于测试 agent-scan 的检测能力。
