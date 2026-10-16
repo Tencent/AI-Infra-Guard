@@ -18,7 +18,7 @@ info:
 
     （原文技术细节请参阅英文版规则文件）
   cvss: ''
-  severity: 中危
+  severity: MEDIUM
   security_advise: '建议将 OpenClaw 升级至 >= 2026.2.18 或更高版本。 The safe-bin policy was changed to deterministic argv-only validation without host file-existence checks. File-oriented flags are blocked for safe-bin mode (for example sort -o, jq -f, grep -f), and trusted-path checks remain enforced.'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-6c9j-x93c-rw6j

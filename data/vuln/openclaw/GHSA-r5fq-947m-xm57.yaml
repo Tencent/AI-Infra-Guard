@@ -23,7 +23,7 @@ info:
 
     （原文技术细节请参阅英文版规则文件）
   cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
-  severity: 高危
+  severity: HIGH
   security_advise: '建议将 OpenClaw 升级至 >=2026.2.14 或更高版本。 - PR: https://github.com/openclaw/openclaw/pull/16405 - Merge commit: 5544646a09c0121fca7d7093812dc2de8437c7f1'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-r5fq-947m-xm57
