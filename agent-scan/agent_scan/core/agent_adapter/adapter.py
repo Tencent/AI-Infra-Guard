@@ -44,6 +44,34 @@ except ImportError:  # pragma: no cover - exercised only when optional dependenc
     websocket_connect = None
 
 
+# AG-UI (CopilotKit Agent-User Interaction Protocol) run lifecycle events that
+# terminate a server-sent-events stream. OpenAI-compatible streams use a
+# `data: [DONE]` marker instead, so these values are unambiguous.
+AGUI_TERMINAL_EVENTS = {"RUN_FINISHED", "RUN_ERROR"}
+
+
+def _agui_terminal_event(data_line: str) -> Optional[str]:
+    """Return the AG-UI event type when ``data_line`` ends the stream.
+
+    AG-UI encodes each event as ``data: {"type": "..."}`` with camelCase fields
+    on the wire. This helper recognizes only the run lifecycle events that close
+    a stream (``RUN_FINISHED`` / ``RUN_ERROR``) and returns ``None`` for anything
+    else — OpenAI-style ``data: [DONE]``, plain text, or unrelated JSON — so it
+    never misclassifies a non-AG-UI stream.
+    """
+    data_str = data_line[5:].strip()
+    if not data_str.startswith("{"):
+        return None
+    try:
+        event = json.loads(data_str)
+    except json.JSONDecodeError:
+        return None
+    event_type = event.get("type")
+    if event_type in AGUI_TERMINAL_EVENTS:
+        return event_type
+    return None
+
+
 class ProviderConfig(BaseModel):
     """
     Configuration for a provider.
@@ -985,7 +1013,15 @@ class AIProviderClient:
                         # as the stream is complete.
                         sse_lines = []
                         for line in response.iter_lines():
-                            if line.strip() == "data: [DONE]":
+                            stripped = line.strip()
+                            if stripped == "data: [DONE]":
+                                break
+                            # AG-UI (CopilotKit) streams end with a
+                            # RUN_FINISHED / RUN_ERROR event instead of the
+                            # OpenAI [DONE] marker — recognize them so the
+                            # reply is returned once the run completes.
+                            if stripped.startswith("data:") and _agui_terminal_event(stripped):
+                                sse_lines.append(line)
                                 break
                             sse_lines.append(line)
                         sse_text = "\n".join(sse_lines)
@@ -1016,6 +1052,15 @@ class AIProviderClient:
                 )
 
                 if 200 <= status_code < 300:
+                    # An AG-UI RUN_ERROR is a protocol-level failure: the HTTP
+                    # request succeeded, but the agent run itself failed.
+                    agui_error = raw_response.get("run_error") if isinstance(raw_response, dict) else None
+                    if agui_error:
+                        return ProviderTestResult(
+                            success=False,
+                            message=f"❌ AG-UI run failed: {agui_error}",
+                            provider_response=provider_response
+                        )
                     return ProviderTestResult(
                         success=True,
                         message=f"✅ Connection successful! Status: {status_code}, Time: {elapsed:.2f}s",
@@ -1076,6 +1121,8 @@ class AIProviderClient:
         role = None
         transform_applied = False
         transformed_content_parts = []
+        agui_stream = False
+        agui_run_error = None
 
         for line in sse_text.split("\n"):
             line = line.strip()
@@ -1130,7 +1177,36 @@ class AIProviderClient:
                             usage = data.get("usage", {})
                             if usage:
                                 token_usage = usage
-                        
+
+                        # Extract content from AG-UI (CopilotKit) streaming events.
+                        # AG-UI streams JSON events per `data:` line with a `type`
+                        # discriminator; the assistant text arrives as
+                        # TEXT_MESSAGE_CONTENT.delta and the run ends with
+                        # RUN_FINISHED / RUN_ERROR (handled by the caller).
+                        elif event_type == "TEXT_MESSAGE_CONTENT":
+                            agui_stream = True
+                            delta = data.get("delta")
+                            if isinstance(delta, str) and delta:
+                                content_parts.append(delta)
+
+                        elif event_type == "RUN_FINISHED":
+                            agui_stream = True
+                            # Token usage is carried on the terminal run event.
+                            usage = data.get("usage") or {}
+                            if usage:
+                                token_usage = usage
+
+                        elif event_type == "RUN_ERROR":
+                            agui_stream = True
+                            error_payload = data.get("error")
+                            if isinstance(error_payload, dict):
+                                error_msg = error_payload.get("message") or error_payload.get("error") or json.dumps(error_payload, ensure_ascii=False)
+                            elif error_payload:
+                                error_msg = str(error_payload)
+                            else:
+                                error_msg = "AG-UI run failed"
+                            agui_run_error = error_msg
+
                         # Extract content from coze streaming response
                         elif event_type == "answer":
                             text = data.get("content")
@@ -1154,7 +1230,22 @@ class AIProviderClient:
         full_content = "".join(transformed_content_parts if transform_applied else content_parts)
 
         # Try to construct a normalized response
-        if transform_applied:
+        if agui_stream:
+            # AG-UI (CopilotKit) run: normalize to a flat text reply. Text
+            # deltas are concatenated; a RUN_ERROR is surfaced through
+            # `run_error` so the caller can report the failed run. This branch
+            # is checked before the Anthropic-style one because AG-UI events
+            # also carry a `type` discriminator on the terminal event.
+            response = {
+                "content": full_content,
+                "protocol": "agui",
+                "raw_sse": True,
+            }
+            if agui_run_error:
+                response["run_error"] = agui_run_error
+            if token_usage:
+                response["usage"] = token_usage
+        elif transform_applied:
             # Custom transform response
             response = {
                 "content": full_content,
