@@ -501,6 +501,7 @@ curl -X POST http://localhost:8088/api/v1/app/taskapi/tasks \
 | eval_model.base_url | string | 否 | 基础 URL |
 | language | string | 否 | 语言代码，如 "zh" 或 "en" |
 | prompt | string | 否 | 额外扫描说明 |
+| skills | array | 否 | 要执行的检测技能，不填则执行全部。可选值：`data-leakage-detection`, `tool-abuse-detection`, `indirect-injection-detection`, `authorization-bypass-detection`, `web-exfiltration-detection`, `agentic-supply-chain-detection`, `unexpected-code-execution-detection`, `inter-agent-comm-security-detection`, `cascading-failure-detection`, `human-agent-trust-exploit-detection`, `memory-rag-poisoning-detection` |
 
 #### 预先保存 Agent 配置（方式一的前提）
 

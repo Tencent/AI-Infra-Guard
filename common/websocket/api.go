@@ -33,6 +33,7 @@ package websocket
 import (
 	"encoding/json"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -113,6 +114,7 @@ type AgentScanTaskRequest struct {
 	EvalModel   ModelParams `json:"eval_model"`                                                           // Evaluation model config - optional, falls back to system default
 	Language    string      `json:"language,omitempty" example:"zh"`                                      // Language code - optional
 	Prompt      string      `json:"prompt,omitempty" example:"Focus on privilege escalation and data leakage risks"` // Additional scan instructions - optional
+	Skills      []string    `json:"skills,omitempty" example:"data-leakage-detection,tool-abuse-detection"`          // Detection skills to run - optional, defaults to all
 }
 
 // SkillScanTaskRequest represents Skill security scan task request structure
@@ -266,7 +268,9 @@ func resolveDefaultTaskAPIModel(tm *TaskManager, username string) (*database.Mod
 // @Description       "token": "sk-xxx",
 // @Description       "base_url": "https://api.openai.com/v1"
 // @Description     },
-// @Description     "language": "en"
+// @Description     "language": "en",
+// @Description     "prompt": "Focus on privilege escalation",
+// @Description     "skills": ["data-leakage-detection", "tool-abuse-detection"]
 // @Description   }
 // @Description }
 // @Description
@@ -480,6 +484,17 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 			return
 		}
 
+		for _, skill := range req.Skills {
+			if !slices.Contains(agent.AgentScanSkills, skill) {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  1,
+					"message": "invalid parameters: unknown skill: " + skill,
+					"data":    nil,
+				})
+				return
+			}
+		}
+
 		// Resolve agent YAML: inline content takes priority over stored config.
 		var agentData []byte
 		if strings.TrimSpace(req.AgentConfig) != "" {
@@ -543,6 +558,7 @@ func SubmitTask(c *gin.Context, tm *TaskManager) {
 				"base_url": evalModel.BaseUrl,
 				"limit":    evalModel.Limit,
 			},
+			"skills": req.Skills,
 		}
 
 		taskReq = TaskCreateRequest{

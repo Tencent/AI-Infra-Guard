@@ -273,6 +273,15 @@ func TestSubmitTask_AgentScan_EmptyAgentID(t *testing.T) {
 	assert.Contains(t, resp["message"], "agent_id")
 }
 
+func TestSubmitTask_AgentScan_UnknownSkill(t *testing.T) {
+	tm, cleanup := newTestTaskManager(t)
+	defer cleanup()
+	content := map[string]interface{}{"agent_config": "provider: dify", "skills": []string{"no-such-skill"}}
+	resp := decodeAPIResponse(t, postJSON(t, newRouter(tm), "/api/v1/app/taskapi/tasks", map[string]interface{}{"type": "agent_scan", "content": content}))
+	assert.Equal(t, float64(1), resp["status"])
+	assert.Contains(t, resp["message"], "unknown skill: no-such-skill")
+}
+
 // ---------------------------------------------------------------------------
 // GetTaskStatus
 // ---------------------------------------------------------------------------
