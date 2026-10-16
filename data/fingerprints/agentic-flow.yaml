@@ -10,7 +10,7 @@ http:
   - method: GET
     path: /health
     matchers:
-      - body="\"checks\":" && body="\"api\":" && body="\"memory\":" && body="\"uptime\":" && body="\"version\":"
+      - 'body="\"checks\": {" && body="\"api\": {" && body="\"memory\": {" && body="\"usage\":" && body="\"limit\":" && body="\"uptime\":"'
 version:
   - method: GET
     path: /health

@@ -10,11 +10,11 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>Hermes</title>" && header="HermesWebUI"
-    version:
-      - method: GET
-        path: '/health'
-        extractor:
-          part: header
-          group: 1
-          regex: 'HermesWebUI/(\d+\.\d+\.\d+)'
+      - header="HermesWebUI"
+version:
+  - method: GET
+    path: '/health'
+    extractor:
+      part: header
+      group: 1
+      regex: 'HermesWebUI/(\d+\.\d+\.\d+)'

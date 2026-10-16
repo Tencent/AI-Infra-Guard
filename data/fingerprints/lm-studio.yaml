@@ -14,4 +14,4 @@ http:
   - method: GET
     path: '/api/v0/models'
     matchers:
-      - body="\"object\"" && body="\"data\""
+      - body="\"compatibility_type\"" && body="\"max_context_length\"" && body="\"publisher\""
