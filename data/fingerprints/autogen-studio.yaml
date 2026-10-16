@@ -10,7 +10,7 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>AutoGen Studio [Beta]"
+      - body="<title>AutoGen Studio"
   - method: GET
     path: '/api/version'
     matchers:
