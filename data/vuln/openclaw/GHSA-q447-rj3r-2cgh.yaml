@@ -70,6 +70,6 @@ info:
   security_advise: 升级 openclaw 到 >=2026.2.13 或更高版本。提交 - 3cbcba10cf30c2ffb898f0d8c7dfb929f15f8930
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh
-rule: version < "2026.2.12"
+rule: version < "2026.2.13"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-q447-rj3r-2cgh
