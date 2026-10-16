@@ -157,9 +157,14 @@ func main() {
 }
 
 // isValidSeverity verifies that severity matches standard vulnerability levels.
+// Accepts both English (low/medium/high/critical) and Chinese (低/中/高/严重/危急)
+// severity labels used across the zh/en rule libraries, plus UNKNOWN/"" for
+// rules where no CVSS score is available (e.g. supply-chain advisories).
 func isValidSeverity(severity string) bool {
 	switch strings.ToLower(strings.TrimSpace(severity)) {
-	case "info", "low", "medium", "high", "critical":
+	case "info", "low", "medium", "high", "critical",
+		"低", "中", "中等", "高", "中危", "高危", "严重", "危急",
+		"unknown", "":
 		return true
 		// Chinese severity aliases
 	case "信息", "低", "中等", "中危", "高", "高危", "严重", "危急":
