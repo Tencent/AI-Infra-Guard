@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`websocket` 等。
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`cheaperinference`、`websocket` 等。
 
 ### API Route
 
@@ -166,6 +166,25 @@ targets:
 仅使用 provider ID `atlascloud` 时，默认模型为 `deepseek-ai/deepseek-v4-flash`。选择其他模型时，使用 `atlascloud:<完整模型 ID>`，保留 `GET https://api.atlascloud.ai/v1/models` 列出的厂商前缀（例如 `moonshotai/kimi-k3`）。该列表无需密钥即可访问，因此不能用来验证密钥是否有效。预设只列出少数模型，并非网关的完整模型目录。
 
 此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。Atlas Cloud 通过现有 adapter 使用 `Authorization: Bearer <ATLASCLOUD_API_KEY>` 鉴权，无需额外 SDK。
+
+### Cheaper Inference
+
+[Cheaper Inference](https://cheaperinference.com) 是可选的 OpenAI 兼容 LLM 网关，使用 `https://api.cheaperinference.com/v1`。在环境变量中设置你自己的密钥：
+
+```bash
+export CHEAPER_INFERENCE_API_KEY="your-cheaper-inference-key"
+```
+
+将它作为被扫描的目标时，把以下内容保存为单独的目标 YAML 文件，并通过 `--agent_provider` 指定该文件：
+
+```yaml
+targets:
+  - id: "cheaperinference:gpt-5.4-mini"
+```
+
+仅使用 provider ID `cheaperinference` 时，默认模型为 `gpt-5.4-mini`。选择其他模型时，使用 `cheaperinference:<完整模型 ID>`，与 `GET https://api.cheaperinference.com/v1/models` 列出的 ID 一致（例如 `claude-sonnet-5`）。预设只列出少数模型，并非网关的完整模型目录。
+
+此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。Cheaper Inference 通过现有 adapter 使用 `Authorization: Bearer <CHEAPER_INFERENCE_API_KEY>` 鉴权，无需额外 SDK。
 
 #### ⚠️ `transform_response` — 自定义 HTTP Provider 的关键配置
 
