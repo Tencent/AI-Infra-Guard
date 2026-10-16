@@ -1,0 +1,18 @@
+enabled: false
+id: example-custom
+order: 90
+name: 示例自定义场景
+name_en: Example custom scene
+description: 复制本目录再改。enabled 保持 false 时不会出现在向导里。plugins 填写 data/redteam/plugins 里的 id。
+description_en: Copy this directory for a new scene. Leave enabled false until it is reviewed. plugins lists ids from data/redteam/plugins.
+plugins:
+  - code-boundary
+strategies:
+  - direct
+tools:
+  - list_uploads
+  - read_text_file
+needs:
+  model: true
+  purpose: true
+  code: true

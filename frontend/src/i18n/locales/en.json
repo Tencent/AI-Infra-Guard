@@ -70,6 +70,8 @@
   "task": {
     "title": "Task Management",
     "newTask": "New Task",
+    "newScan": "New Scan",
+    "guidedScan": "Guided Scan",
     "taskList": "Task List",
     "taskDetails": "Task Details",
     "noTasks": "No tasks yet",
@@ -1172,6 +1174,254 @@
         "stepOverlay": "Overlay reference fingerprint",
   "stepOutput": "Output inference result"
       }
+    }
+  },
+  "scanWizard": {
+    "title": "New scan",
+    "loadFailed": "Failed to load scenes",
+    "sceneTitle": "Scene",
+    "sceneHelp": "A scene selects a set of plugins and strategies. You can change them later.",
+    "targetTitle": "Target",
+    "targetHelp": "The model generates cases and grades them. Prompt plugins send those cases to the same model.",
+    "purposeTitle": "Application details",
+    "purposeHelp": "Write what this application may and may not do. Cases and grades use this text.",
+    "pluginsTitle": "Plugins",
+    "pluginsHelp": "Each plugin produces checks and is graded on its own.",
+    "strategiesTitle": "Strategies",
+    "strategiesHelp": "A strategy only changes how a case is delivered.",
+    "modelHelp": "This model generates, receives, and grades the cases.",
+    "url": "URL",
+    "urlPlaceholder": "http://127.0.0.1:8080",
+    "model": "Model",
+    "modelEmpty": "No model",
+    "agent": "Agent config",
+    "agentEmpty": "No agent",
+    "addHeader": "Add header",
+    "purpose": "Application details",
+    "purposePlaceholder": "Example: a read-only internal knowledge assistant. It must not run commands or send files outside.",
+    "uploadHint": "Upload code or config. zip, tar.gz, tgz, whl, txt, and md are accepted.",
+    "chooseFile": "Choose files",
+    "fileType": "Only zip, tar.gz, tgz, whl, txt, and md are accepted",
+    "reviewTitle": "Review",
+    "reviewHelp": "The scan generates cases per plugin, grades each one, then opens this report.",
+    "files": "Code",
+    "empty": "Empty",
+    "needScene": "Choose a scene first",
+    "start": "Start scan",
+    "continue": "Continue",
+    "again": "Run again",
+    "running": "Scanning",
+    "starting": "Submitting",
+    "startFailed": "Failed to start the scan",
+    "steps": {
+      "scene": "Scene",
+      "target": "Target",
+      "purpose": "Details",
+      "plugins": "Plugins",
+      "strategies": "Strategies",
+      "review": "Review"
+    },
+    "missing": {
+      "model": "Select a model",
+      "agent": "Select an Agent config",
+      "purpose": "Write the application details",
+      "code": "Upload code",
+      "url": "Enter a live URL",
+      "any": "Provide a URL, code, or an Agent config",
+      "plugins": "Select at least one plugin",
+      "strategies": "Select at least one strategy"
+    }
+  },
+  "guidedReport": {
+    "empty": "No report yet",
+    "plugins": "Plugins",
+    "strategies": "Strategies",
+    "cases": "Cases",
+    "failedOnly": "Failed",
+    "all": "All",
+    "noCases": "No cases in this view",
+    "counts": "{{total}} cases, {{fail}} failed, {{pass}} passed, {{insufficient}} insufficient",
+    "verdict": {
+      "fail": "Fail",
+      "pass": "Pass",
+      "insufficient": "Insufficient"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "kind": {
+      "prompt": "Model",
+      "http": "Page",
+      "code": "Code",
+      "fingerprint": "Fingerprint",
+      "agent": "Config"
+    }
+  },
+  "studio": {
+    "brand": "A.I.G",
+    "setup": "Setup",
+    "evals": "Evals",
+    "empty": "No scans yet",
+    "newScan": "Open setup",
+    "status": {
+      "done": "Done",
+      "error": "Failed",
+      "terminated": "Stopped",
+      "running": "Running"
+    }
+  },
+  "desk": {
+    "nav": { "new": "New", "records": "Records", "config": "Settings" },
+    "pick": "Choose a scene",
+    "pickHelp": "A scene is a set of plugins. After you pick one, adjust the plugins. The steps on the left follow their inputs.",
+    "changeScene": "Choose another scene",
+    "helpTitle": "Guide",
+    "next": "Continue",
+    "back": "Back",
+    "skip": "Skip",
+    "skipped": "Skipped",
+    "ready": "Inputs are complete. Start the scan when ready.",
+    "optional": "This step can be left empty.",
+    "empty": "Not set",
+    "needScene": "Choose a scene first.",
+    "needPlugins": "Select at least one plugin.",
+    "needRequired": "A required step is still empty.",
+    "pluginsHelp": "A scene starts with a plugin set. Add or remove plugins. Later steps are the inputs of the plugins you keep.",
+    "anyOf": "Fill at least one field in this group.",
+    "endpointPlaceholder": "MCP endpoint",
+    "noMutations": "No mutation algorithms are available",
+    "outputsTitle": "Result",
+    "steps": {
+      "scene": "Scene",
+      "plugins": "Plugins",
+      "review": "Review",
+      "model": "Model",
+      "purpose": "Purpose",
+      "target": "Target",
+      "files": "Package",
+      "agent": "Connection",
+      "headers": "Headers",
+      "evals": "Eval sets",
+      "url-or-file": "URL or code"
+    },
+    "start": "Start scan",
+    "starting": "Submitting",
+    "startFailed": "Failed to start the scan",
+    "chooseModel": "Choose a model",
+    "chooseAgent": "Choose an Agent connection",
+    "targetPlaceholder": "Domain, IP, or IP range",
+    "headerCount": "{{count}} headers",
+    "noEvals": "No evaluation sets in Settings yet",
+    "noRecords": "No tasks yet",
+    "fields": {
+      "target": "Domain or IP range",
+      "model": "Model",
+      "evals": "Eval sets",
+      "mutations": "Mutations",
+      "code": "Source",
+      "endpoint": "Endpoint",
+      "headers": "Headers",
+      "agent": "Connection",
+      "purpose": "Purpose"
+    },
+    "fieldHelp": {
+      "target": "Enter a domain, IP, or IP range.",
+      "model": "Pick a model that already exists in Settings.",
+      "evals": "Select any number of evaluation sets, or leave this empty.",
+      "mutations": "Select any number of mutation algorithms, or leave this empty.",
+      "code": "Upload a source package. zip, tar.gz, tgz, whl, txt, and md are accepted.",
+      "endpoint": "Enter the MCP endpoint.",
+      "headers": "Headers sent with the endpoint. This can be left empty.",
+      "agent": "Choose a saved Agent connection.",
+      "purpose": "Describe what the application may and may not do."
+    },
+    "outputs": {
+      "status": "Status",
+      "findings": "Findings",
+      "json": "JSON",
+      "none": "No findings",
+      "item": "Item {{index}}"
+    },
+    "plugins": {
+      "infra-scan": { "name": "AI infrastructure scan" },
+      "model-redteam": { "name": "Model security eval" },
+      "skill-scan": { "name": "Skill security scan" },
+      "mcp-scan": { "name": "MCP security scan" },
+      "agent-scan": { "name": "Agent security scan" }
+    },
+    "presets": {
+      "infra": { "name": "AI asset scan", "blurb": "Scan AI components on a domain or IP range." },
+      "model": { "name": "Model security eval", "blurb": "Choose a model, evaluation sets, and mutations." },
+      "skill": { "name": "Skill security test", "blurb": "Check uploaded skill source." },
+      "mcp": { "name": "MCP security test", "blurb": "Check source, an endpoint, and headers." },
+      "agent": { "name": "Agent security test", "blurb": "Test a saved connection, with optional source." },
+      "gov": { "name": "AI compliance", "blurb": "Government scene. Run an asset scan and a model eval, and record the purpose." }
+    },
+    "config": {
+      "models": "Models",
+      "fingerprints": "AI fingerprints",
+      "vulns": "Vulnerabilities",
+      "evals": "Evaluation sets"
+    },
+    "help": {
+      "model": "Pick a model that already exists in Settings.",
+      "purpose": "Describe what the application may and may not do.",
+      "target": "Enter the IP, domain, or URL to scan.",
+      "files": "Upload code or a skill package. zip, tar.gz, tgz, whl, txt, and md are accepted.",
+      "agent": "Choose a saved Agent connection.",
+      "headers": "Optional. Add headers only when the target requires them.",
+      "evals": "Select any number of evaluation sets, or skip.",
+      "url-or-file": "Provide a live URL or upload code. One of them is required.",
+      "ready": "Progress and the result appear under Records."
+    },
+    "scenes": {
+      "model": {
+        "name": "Model security eval",
+        "blurb": "Choose a model and optional evaluation sets.",
+        "intro": "Choose the model under test. Evaluation sets are optional.",
+        "ask": { "model": "Choose the model.", "evals": "Which evaluation sets should be included?" }
+      },
+      "infra": {
+        "name": "AI asset scan",
+        "blurb": "Scan AI components on an IP or domain.",
+        "intro": "Enter the IP or domain to scan.",
+        "ask": { "target": "Enter an IP, domain, or URL.", "headers": "Add request headers, or skip." }
+      },
+      "gov": {
+        "name": "AI compliance",
+        "blurb": "Government scene. Check the page, code, and components against the stated purpose.",
+        "intro": "Describe what the system may and may not do.",
+        "ask": { "purpose": "Write the application details.", "material": "Provide a URL or upload code.", "model": "Choose a model for boundary questions, or skip." }
+      },
+      "agent": {
+        "name": "Agent security test",
+        "blurb": "Test an Agent through a saved connection.",
+        "intro": "Choose how the Agent is connected.",
+        "ask": { "agent": "Choose a connection.", "target": "Add a URL, or skip.", "files": "Upload code, or skip." }
+      },
+      "mcp": {
+        "name": "MCP security test",
+        "blurb": "Check MCP code or a live service.",
+        "intro": "Provide MCP code or a live URL.",
+        "ask": { "material": "Upload code or enter a URL.", "model": "Choose a model if analysis needs one, or skip." }
+      },
+      "skill": {
+        "name": "Skill security test",
+        "blurb": "Check an uploaded skill package.",
+        "intro": "Upload the skill package to check.",
+        "ask": { "files": "Upload the package.", "model": "Choose a model if analysis needs one, or skip." }
+      }
+    },
+    "taskType": {
+      "Model-Redteam-Report": "Model security eval",
+      "AI-Infra-Scan": "AI asset scan",
+      "Guided-Scan": "AI compliance",
+      "Agent-Scan": "Agent security test",
+      "Mcp-Scan": "MCP security test",
+      "Skill-Scan": "Skill security test",
+      "Model-Jailbreak": "Model security eval"
     }
   }
 }

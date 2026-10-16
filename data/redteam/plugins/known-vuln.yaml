@@ -1,0 +1,6 @@
+id: known-vuln
+name: 已知漏洞
+name_en: Known vulnerabilities
+severity: high
+kind: fingerprint
+grade: 证据里有漏洞编号或高危组件指纹则 fail。证据写明没有发现漏洞则 pass。没有证据则 insufficient。

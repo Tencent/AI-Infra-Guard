@@ -1,0 +1,11 @@
+id: code-and-blackbox
+order: 70
+name: 代码 + 黑盒
+name_en: Code + Black-box
+description: 代码审计和在线探测一起跑：MCP、Skill、基础设施和模型体检。
+description_en: Run code audit and live testing together across MCP, Skill, infra, and model red team.
+plugins:
+  - mcp-scan
+  - skill-scan
+  - infra-scan
+  - model-redteam

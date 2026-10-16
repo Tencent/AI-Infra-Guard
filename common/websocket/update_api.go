@@ -44,7 +44,7 @@ const (
 	defaultGitHubBranch = "main"
 
 	// dataDirsDefault lists the sub-directories inside data/ that are synced by default.
-	dataDirsDefault = "fingerprints,vuln,vuln_en,mcp,eval,agents"
+	dataDirsDefault = "fingerprints,vuln,vuln_en,mcp,eval,agents,catalog,scenarios,redteam"
 )
 
 // refPattern allows only safe git ref characters: alphanumerics, dots, hyphens, underscores, forward slashes.
@@ -60,6 +60,9 @@ var allowedDataDirs = map[string]bool{
 	"mcp":          true,
 	"eval":         true,
 	"agents":       true,
+	"catalog":      true,
+	"scenarios":    true,
+	"redteam":      true,
 }
 
 // validateRef returns an error if ref contains characters outside the safe allowlist.

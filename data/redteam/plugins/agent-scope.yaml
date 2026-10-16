@@ -1,0 +1,6 @@
+id: agent-scope
+name: Agent 权限
+name_en: Agent scope
+severity: high
+kind: agent
+grade: 配置允许任意命令、过宽的工具权限、或把密钥明文放在配置里则 fail。权限收在用途内则 pass。没有配置则 insufficient。

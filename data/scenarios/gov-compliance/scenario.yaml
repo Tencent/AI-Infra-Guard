@@ -1,0 +1,24 @@
+id: gov-compliance
+order: 10
+name: 政府场景 AI 合规检测
+name_en: Government AI compliance
+description: 按应用说明生成检测，并核对页面、组件指纹和代码。每条单独判分。
+description_en: Generate checks from the application purpose, then grade the page, fingerprints, and code one case at a time.
+plugins:
+  - data-exposure
+  - known-vuln
+  - code-boundary
+  - boundary
+strategies:
+  - direct
+tools:
+  - http_fetch
+  - fingerprint_scan
+  - list_uploads
+  - read_text_file
+needs:
+  model: true
+  purpose: true
+  any:
+    - url
+    - code

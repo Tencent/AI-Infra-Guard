@@ -13,6 +13,8 @@ import EditTitleDialog from './EditTitleDialog';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import CollapsibleTaskPlan from './CollapsibleTaskPlan';
 import FloatingInputArea from './floatingInputArea/FloatingInputArea';
+import GuidedReport from './report/GuidedReport';
+import { GuidedScanDraft } from './scan/ScanDesk';
 import StarPrompt from './StarPrompt';
 import { shouldShowModelButton } from '../utils/taskUtils';
 import { uploadFile } from '../utils/uploadUtils';
@@ -97,9 +99,10 @@ interface ChatAreaProps {
   onMcpResultSelect: (result: MCPScanResult | InfraScanResult | RedteamReportResult | JailbreakResult | AgentScanResult) => void;
   onToolSelect?: (step: ExecutionStep, subStepIndex: number, toolIndex: number) => void;
   welcomeAnimationCompleted?: boolean;
+  onBindStart?: (start: (draft: GuidedScanDraft) => Promise<void>) => void;
 }
 
-const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpResultSelect, onToolSelect, welcomeAnimationCompleted }) => {
+const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpResultSelect, onToolSelect, welcomeAnimationCompleted, onBindStart }) => {
   const { state, actions, dispatch } = useApp();
   const { t, i18n } = useTranslation();
   const mcpServices = useMcpServices();
@@ -1394,6 +1397,62 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
     setSelectedAgent(agent);
   };
 
+  const startGuidedScan = async (draft: GuidedScanDraft) => {
+    const taskType = 'Guided-Scan';
+    const uploaded = await processAttachments(draft.files);
+    const content = (draft.purpose || draft.targetUrl || draft.scenario).trim() || 'scenario scan';
+    const headersObj: Record<string, string> = {};
+    draft.headers.forEach(header => {
+      if (header.key.trim() && header.value.trim()) {
+        headersObj[header.key.trim()] = header.value.trim();
+      }
+    });
+    const tempTaskId = `${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    const requestBody = {
+      id: tempTaskId,
+      sessionId: tempTaskId,
+      taskType,
+      timestamp: Date.now(),
+      content,
+      params: {
+        scenario: draft.scenario,
+        purpose: draft.purpose,
+        target_url: draft.targetUrl,
+        model_id: draft.modelId,
+        eval_model_id: draft.modelId,
+        agent_id: draft.agentId,
+        plugins: draft.plugins,
+        strategies: draft.strategies,
+        headers: Object.keys(headersObj).length > 0 ? headersObj : undefined,
+      },
+      attachments: uploaded.attachmentUrls,
+      countryIsoCode: i18n.language,
+    };
+
+    setTimeout(() => {
+      if (!activeSSEConnections.has(tempTaskId)) {
+        establishSSEConnection(tempTaskId, content, uploaded.attachmentsWithNames, taskType);
+      }
+    }, 100);
+
+    const response = await fetch('/api/v1/app/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+    });
+    const result = await response.json();
+    if (!response.ok || result.status !== 0) {
+      handleTaskFailure(tempTaskId, requestBody);
+      throw new Error(result.message || t('scanWizard.startFailed'));
+    }
+  };
+
+  const startGuidedRef = useRef(startGuidedScan);
+  startGuidedRef.current = startGuidedScan;
+  useEffect(() => {
+    onBindStart?.((draft: GuidedScanDraft) => startGuidedRef.current(draft));
+  }, [onBindStart]);
+
   if (!currentTask) {
     return (
       <TooltipProvider>
@@ -1747,8 +1806,8 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                 {/* Result message */}
                 {message.type === 'result' && (
                   <div className='flex justify-start group'>
-                    <div className='max-w-[85%] w-full'>
-                      <div className='flex items-baseline mb-3'>
+                    <div className={currentTask?.type === 'Guided-Scan' ? 'w-full max-w-3xl' : 'max-w-[85%] w-full'}>
+                      {currentTask?.type !== 'Guided-Scan' && <div className='flex items-baseline mb-3'>
                         <img src='/images/logo.png' className='w-5 h-5 relative' style={{ 
                         top: '5px' }} />
                         <span
@@ -1758,9 +1817,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                         <span className='text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity ml-2'>
                           {formatTime(message.timestamp)}
                         </span>
-                      </div>
-                      <div className='text-gray-900 whitespace-pre-wrap p-6 py-2'>
-                        {currentTask?.type === 'Model-Redteam-Report' ? (
+                      </div>}
+                      <div className={currentTask?.type === 'Guided-Scan' ? 'bg-white px-2 py-2' : 'text-gray-900 whitespace-pre-wrap p-6 py-2'}>
+                        {currentTask?.type === 'Guided-Scan' ? (
+                          <GuidedReport report={message.guidedReport} title={currentTask?.title} fallback={message.content} />
+                        ) : currentTask?.type === 'Model-Redteam-Report' ? (
                           <>{t('chatArea.taskCompleted.redteamReport')}</>
                         ) : currentTask?.type === 'Model-Jailbreak' ? (
                           <>{t('chatArea.taskCompleted.jailbreak')}</>
@@ -1774,7 +1835,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                           })()
                         )}
                       </div>
-                      <div 
+                      {currentTask?.type !== 'Guided-Scan' && <div 
                           className='border border-gray-200 rounded-lg py-2 px-4 mt-2 w-fit bg-white text-gray-700 ml-6 flex items-center cursor-pointer hover:bg-gray-50 transition-colors'
                           onClick={() => {
                             // Choose which result type to pass based on the task type
@@ -1796,7 +1857,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedStep, onStepSelect, onMcpRe
                            currentTask?.type === 'Model-Jailbreak' ? t('chatArea.viewReport.jailbreak') : 
                            currentTask?.type === 'Agent-Scan' ? t('chatArea.viewReport.agentScan') :
                            t('chatArea.viewReport.riskReport')}
-                        </div>
+                        </div>}
                     </div>
                   </div>
                 )}

@@ -106,7 +106,7 @@ const TaskList = ({
   );
 };
 
-const TaskSidebar: React.FC = () => {
+const TaskSidebar: React.FC<{ onNewScan?: () => void }> = ({ onNewScan }) => {
   const { state, dispatch, actions } = useApp();
   const { t, i18n } = useTranslation();
   const mcpServices = useMcpServices();
@@ -207,6 +207,7 @@ const TaskSidebar: React.FC = () => {
   };
 
   const handleClearCurrentTask = () => {
+    onNewScan?.();
     dispatch({ type: 'SET_CURRENT_TASK', payload: null });
     // Clear the input content
     actions.clearInputContent();
@@ -425,7 +426,7 @@ const TaskSidebar: React.FC = () => {
               className="bg-blue-600 hover:bg-blue-700 gap-0 h-7 px-2 text-xs"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
-            {t('task.newTask')}
+            {t('task.newScan')}
             </Button>
           </div>
         </div>
@@ -456,6 +457,16 @@ const TaskSidebar: React.FC = () => {
             }`}
           >
             {t('task.all')}
+          </button>
+          <button
+            onClick={() => setSelectedTaskType('Guided-Scan')}
+            className={`px-2 py-2 text-xs rounded-xl transition-colors mb-1 ${
+              selectedTaskType === 'Guided-Scan'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {t('task.guidedScan')}
           </button>
           {mcpServices.map(service => (
             <button

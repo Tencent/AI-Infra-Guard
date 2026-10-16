@@ -32,3 +32,5 @@ services/**/*.pyc
 # local deployment & test artifacts
 deploy/
 common/utils/chromium/screenshot.png
+
+frontend/node_modules

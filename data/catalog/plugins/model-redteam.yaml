@@ -1,0 +1,14 @@
+id: model-redteam
+order: 40
+kind: builtin
+name: 模型体检
+name_en: Model Red Team
+description: 把应用说明当作攻击目标，对所选模型做黑盒体检。
+description_en: Uses the application prompt as the goal and black-box tests the selected model.
+task_type: Model-Redteam-Report
+category: model
+modes:
+  - blackbox
+needs:
+  model: true
+  purpose: true

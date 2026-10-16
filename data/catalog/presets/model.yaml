@@ -1,0 +1,8 @@
+id: model
+order: 60
+name: 模型体检
+name_en: Model Red Team
+description: 用应用说明里的目标对模型做黑盒体检。
+description_en: Black-box the model using the goal written in the application prompt.
+plugins:
+  - model-redteam

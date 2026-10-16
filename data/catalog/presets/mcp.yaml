@@ -1,0 +1,8 @@
+id: mcp
+order: 30
+name: MCP
+name_en: MCP
+description: 只跑 MCP 扫描。有代码走审计，有地址走黑盒，都有就一起跑。
+description_en: MCP only. Code is audited, a URL is probed live, and both run together when both are set.
+plugins:
+  - mcp-scan

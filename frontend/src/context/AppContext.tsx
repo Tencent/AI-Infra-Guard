@@ -419,6 +419,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           resultMessage.jailbreakResult = result.result;
         } else if (taskType === 'Agent-Scan') {
           resultMessage.agentScanResult = result.result;
+        } else if (taskType === 'Guided-Scan') {
+          resultMessage.guidedReport = result.result?.report;
+          resultMessage.content = result.result?.content || result.result?.report?.summary || '';
         } else {
           resultMessage.mcpResult = result.result;
         }
@@ -606,6 +609,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Get the corresponding TaskType from a task type string
   const getTaskTypeFromString = (taskType: string): TaskType => {
     const availableTypes = getAvailableTaskTypes();
+    const exact = availableTypes.find(type => type === taskType);
+    if (exact) {
+      return exact;
+    }
 
     // Try to match by service name
     for (const type of availableTypes) {
@@ -1028,6 +1035,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             results: [],
           },
           jailbreakResult: result,
+        };
+      } else if (task.type === 'Guided-Scan') {
+        resultMessage = {
+          id: uuidv4(),
+          type: 'result',
+          content: typeof result?.content === 'string' ? result.content : (result?.report?.summary || ''),
+          timestamp: timestamp ? new Date(timestamp * 1000) : new Date(),
+          guidedReport: result?.report,
+          result: {
+            total: result?.report?.total || 0,
+            results: result?.report?.cases || [],
+          },
         };
       } else if (task.type === 'Agent-Scan') {
         // Agent scan result

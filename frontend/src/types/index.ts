@@ -3,11 +3,11 @@
 import { useMcpServices } from '../config/mcpServices';
 
 // Dynamically generated task types
-export type TaskType = 'AI-Infra-Scan' | 'Mcp-Scan' | 'Skill-Scan' | 'Model-Redteam-Report' | 'Model-Jailbreak' | 'Agent-Scan';
+export type TaskType = 'Guided-Scan' | 'AI-Infra-Scan' | 'Mcp-Scan' | 'Skill-Scan' | 'Model-Redteam-Report' | 'Model-Jailbreak' | 'Agent-Scan';
 
 // Get all available task types - static version
 export const getAvailableTaskTypes = (): TaskType[] => {
-  return ['AI-Infra-Scan', 'Mcp-Scan', 'Skill-Scan', 'Model-Redteam-Report', 'Model-Jailbreak', 'Agent-Scan'];
+  return ['Guided-Scan', 'AI-Infra-Scan', 'Mcp-Scan', 'Skill-Scan', 'Model-Redteam-Report', 'Model-Jailbreak', 'Agent-Scan'];
 };
 
 // Get the service info corresponding to a task type - must be used inside a component
@@ -63,6 +63,40 @@ export interface ExecutionStep {
   agentScanResult?: AgentScanResult; // Agent scan result
 }
 
+export interface GuidedCase {
+  pluginId: string;
+  pluginName: string;
+  strategyId: string;
+  strategyName: string;
+  severity: string;
+  prompt: string;
+  response: string;
+  verdict: string;
+  reason: string;
+}
+
+export interface GuidedBucket {
+  id: string;
+  name: string;
+  severity?: string;
+  fail: number;
+  pass: number;
+  insufficient: number;
+  total: number;
+}
+
+export interface GuidedReportData {
+  verdict: string;
+  summary: string;
+  total: number;
+  fail: number;
+  pass: number;
+  insufficient: number;
+  plugins: GuidedBucket[];
+  strategies: GuidedBucket[];
+  cases: GuidedCase[];
+}
+
 export interface Message {
   id: string;
   type: 'user' | 'assistant' | 'system' | 'task_confirmation' | 'task_plan' | 'task_execution' | 'result' | 'error';
@@ -72,6 +106,7 @@ export interface Message {
   attachments?: FileAttachment[];
   executionPlan?: ExecutionStep[];
   currentStep?: string; // ID of the currently executing step
+  guidedReport?: GuidedReportData;
   result?: {
     total: number;
     results: any[];

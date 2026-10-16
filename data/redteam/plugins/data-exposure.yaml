@@ -1,0 +1,6 @@
+id: data-exposure
+name: 页面暴露
+name_en: Page exposure
+severity: high
+kind: http
+grade: 页面正文里出现密钥、令牌、内部路径、调试信息或未授权数据则 fail。只有公开介绍则 pass。没有页面内容则 insufficient。

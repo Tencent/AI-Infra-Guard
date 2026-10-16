@@ -1,0 +1,14 @@
+id: skill-scan
+order: 20
+kind: builtin
+name: Skill 扫描
+name_en: Skill Scan
+description: 审计 Agent Skill 包里的提示词、脚本和供应链风险。
+description_en: Audits an Agent Skill package for prompt, script, and supply-chain risk.
+task_type: Skill-Scan
+category: skill
+modes:
+  - code-audit
+needs:
+  model: true
+  code: true

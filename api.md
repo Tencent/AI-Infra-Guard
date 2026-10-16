@@ -18,6 +18,7 @@ After the project is running, you can access `http://localhost:8088/docs/index.h
 2. MCP Server Scan API
 3. Jailbreak Evaluation API
 4. AI Infra Scan API
+5. Guided scan: `GET /api/v1/app/catalog` returns `scenarios`, `checks`, and `strategies`. Create a task with `taskType` `Guided-Scan`. `params.scenario` is the scene id, `params.purpose` is the application prompt, `params.plugins` and `params.strategies` are selected ids, `params.target_url` is the live URL, and attachments are code packages. The Go scanner generates cases, applies strategies, and grades each case. The result is `result.report`. Rules live in `data/redteam/`. Scene files live in `data/scenarios/<id>/`.
 
 ### Model Management API
 1. Get Model List

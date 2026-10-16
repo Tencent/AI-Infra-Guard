@@ -1,0 +1,39 @@
+# 给人和 AI 写插件时复制本文件。
+# enabled: false 的文件只留在磁盘上，不会出现在向导里。
+#
+# kind: builtin
+#   绑定已经存在的引擎。task_type 只能是：
+#   Mcp-Scan | Skill-Scan | Agent-Scan | Model-Redteam-Report | AI-Infra-Scan
+#   modes 用 code-audit（吃上传的代码或 GitHub）和 blackbox（吃在线地址或模型）。
+#   两种都写，并且用户同时给了代码和地址时，引导扫描会并行跑两条。
+#
+# kind: prompt
+#   只提供 prompt_template。当前版本不会把它放进可运行列表，避免空跑。
+#   模板里可以写 {{purpose}}，表示向导里的应用说明。
+#
+# needs 字段（true 表示开始前必须有）：
+#   model        选择了执行模型
+#   code         上传了代码包，或地址/说明里有 github.com
+#   url          填写了非 GitHub 的在线地址
+#   code_or_url  code 和 url 至少有一个
+#   agent        选择了已保存的 Agent 配置
+#   purpose      填写了应用说明
+enabled: false
+id: example-custom-check
+kind: prompt
+name: 示例自定义检查
+name_en: Example custom check
+description: 复制后改成自己的检查项。enabled 保持 false，直到 kind=builtin 能对应到现有引擎。
+description_en: Copy this file for a new check. Leave enabled false until kind=builtin maps to an existing engine.
+task_type: ""
+category: custom
+modes:
+  - code-audit
+needs:
+  code: true
+  purpose: true
+prompt_template: |
+  你是安全审计员。只根据证据判断，没有证据就不要报告。
+  应用说明：
+  {{purpose}}
+  检查上传代码里是否存在与该说明冲突的具体危险行为，并给出文件路径和片段。

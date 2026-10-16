@@ -1,0 +1,15 @@
+id: mcp-scan
+order: 10
+kind: builtin
+name: MCP 扫描
+name_en: MCP Scan
+description: 上传代码时做 MCP 静态审计；填写在线地址时做动态黑盒。两者都有则同时跑。
+description_en: Static MCP audit when code is uploaded, and a live black-box pass when a URL is set. Both run together when both inputs exist.
+task_type: Mcp-Scan
+category: mcp
+modes:
+  - code-audit
+  - blackbox
+needs:
+  model: true
+  code_or_url: true

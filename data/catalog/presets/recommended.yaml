@@ -1,0 +1,9 @@
+id: recommended
+order: 10
+name: 推荐
+name_en: Recommended
+description: 上传代码并写明用途后，同时做 MCP 代码审计和模型黑盒体检。
+description_en: With code and a purpose, run MCP code audit and model black-box testing together.
+plugins:
+  - mcp-scan
+  - model-redteam

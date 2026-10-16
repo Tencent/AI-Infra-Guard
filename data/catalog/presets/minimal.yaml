@@ -1,0 +1,8 @@
+id: minimal
+order: 20
+name: 最小验证
+name_en: Minimal Test
+description: 只对在线地址做指纹和已知漏洞匹配。
+description_en: Fingerprint a live URL and match known vulnerabilities.
+plugins:
+  - infra-scan

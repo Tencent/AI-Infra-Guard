@@ -66,6 +66,16 @@ func main() {
 	x.RegisterTaskFunc(&agent4)
 	x.RegisterTaskFunc(&agent5)
 	x.RegisterTaskFunc(&agent6)
+	x.RegisterTaskFunc(&agent.GuidedScanTask{
+		Server: server,
+		Runners: map[string]agent.TaskInterface{
+			agent.TaskTypeAIInfraScan:        &agent2,
+			agent.TaskTypeMcpScan:            &agent3,
+			agent.TaskTypeModelRedteamReport: &agent4,
+			agent.TaskTypeAgentScan:          &agent5,
+			agent.TaskTypeSkillScan:          &agent6,
+		},
+	})
 
 	gologger.Infoln("wait task")
 	err := x.Start()

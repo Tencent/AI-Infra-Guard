@@ -79,6 +79,7 @@ const (
 	TaskTypeModelJailbreak     = "Model-Jailbreak"
 	TaskTypeAgentScan          = "Agent-Scan"
 	TaskTypeSkillScan          = "Skill-Scan"
+	TaskTypeGuidedScan         = "Guided-Scan"
 )
 
 type AgentInfo struct {

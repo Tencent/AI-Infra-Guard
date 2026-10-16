@@ -91,6 +91,7 @@ func TestTaskGetName(t *testing.T) {
 		{"ModelRedteamReport", &ModelRedteamReport{}, TaskTypeModelRedteamReport},
 		{"AgentTask", &AgentTask{}, TaskTypeAgentScan},
 		{"SkillTask", &SkillTask{}, TaskTypeSkillScan},
+		{"GuidedScanTask", &GuidedScanTask{}, TaskTypeGuidedScan},
 	}
 	for _, tt := range tasks {
 		t.Run(tt.name, func(t *testing.T) {

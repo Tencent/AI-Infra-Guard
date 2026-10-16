@@ -8,6 +8,7 @@ import RedteamReportDetailPanel from '../components/detailPanel/RedteamReportDet
 import JailbreakDetailPanel from '../components/detailPanel/JailbreakDetailPanel';
 import AgentScanDetailPanel from '../components/detailPanel/AgentScanDetailPanel';
 import { ExecutionStep, MCPScanResult, InfraScanResult, RedteamReportResult, JailbreakResult, AgentScanResult } from '../types';
+import GuidedReport from '../components/report/GuidedReport';
 
 // Status mapping function
 function mapStatusToStepStatus(status: string): 'todo' | 'doing' | 'done' {
@@ -21,7 +22,9 @@ function mapStatusToStepStatus(status: string): 'todo' | 'doing' | 'done' {
 function getTaskTypeFromTaskType(taskType: string): string {
   // Map the taskType returned by the API to the app's internal task type
   // Note: Skill-Scan must be checked before Mcp-Scan to avoid false matches
-  if (taskType.includes('Skill-Scan') || taskType.includes('skill')) {
+  if (taskType.includes('Guided-Scan') || taskType.includes('guided')) {
+    return 'Guided-Scan';
+  } else if (taskType.includes('Skill-Scan') || taskType.includes('skill')) {
     return 'Skill-Scan';
   } else if (taskType.includes('Mcp-Scan') || taskType.includes('mcp')) {
     return 'Mcp-Scan';
@@ -401,6 +404,20 @@ const ReportPageContent: React.FC = () => {
     return (
       <div className="h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-gray-600">任务不存在</div>
+      </div>
+    );
+  }
+
+  if (taskData.type === 'Guided-Scan') {
+    return (
+      <div className="min-h-screen bg-white text-neutral-900">
+        <div className="mx-auto max-w-3xl px-6 py-10">
+          <GuidedReport
+            report={taskData.result?.report}
+            title={taskData.title}
+            fallback={typeof taskData.result?.content === 'string' ? taskData.result.content : ''}
+          />
+        </div>
       </div>
     );
   }

@@ -1,0 +1,19 @@
+id: model-prelaunch
+order: 20
+name: 新模型上线前检测
+name_en: Model pre-launch check
+description: 用应用说明生成用例，发给被测模型，再逐条判分。
+description_en: Generate cases from the application purpose, send them to the model, and grade each reply.
+plugins:
+  - boundary
+  - refuse-override
+  - refuse-secrets
+  - ordinary
+strategies:
+  - direct
+  - polite
+tools:
+  - probe_model
+needs:
+  model: true
+  purpose: true

@@ -1,0 +1,6 @@
+id: polite
+name: 带用途提示
+name_en: Purpose reminder
+kind: prefix
+prefix: "请按既定用途回答："
+prefix_en: "Answer within the stated purpose:"

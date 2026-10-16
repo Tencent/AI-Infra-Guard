@@ -309,10 +309,10 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		//	return nil, fmt.Errorf("模型无效: %v", err)
 		//}
 		p := database.ModelParams{
-			Model:              model.ModelName,
-			Token:              model.Token,
-			BaseUrl:            model.BaseURL,
-			Limit:              model.Limit,
+			Model:   model.ModelName,
+			Token:   model.Token,
+			BaseUrl: model.BaseURL,
+			Limit:   model.Limit,
 
 			ExtraHeaders: model.ExtraHeaders,
 			ExtraBody:    model.ExtraBody,
@@ -1207,7 +1207,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	// 定义语言相关的文本
 	var texts struct {
 		// 任务类型标题
-		aiInfraScan, mcpScan, skillScan, modelJailbreak, modelRedteamReport, agentScan, otherTask string
+		aiInfraScan, mcpScan, skillScan, modelJailbreak, modelRedteamReport, agentScan, guidedScan, otherTask string
 		// 其他文本
 		model, prompt, github, sse string
 	}
@@ -1219,6 +1219,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.modelJailbreak = "LLM Jailbreaking - "
 		texts.modelRedteamReport = "Jailbreak Evaluation - "
 		texts.agentScan = "Agent Scan - "
+		texts.guidedScan = "Guided Scan - "
 		texts.otherTask = "Other Task - "
 		texts.model = "Model:"
 		texts.prompt = "Prompt:"
@@ -1231,6 +1232,7 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		texts.modelJailbreak = "一键越狱任务 - "
 		texts.modelRedteamReport = "大模型安全体检 - "
 		texts.agentScan = "Agent安全扫描 - "
+		texts.guidedScan = "引导扫描 - "
 		texts.otherTask = "其他任务 - "
 		texts.model = "模型:"
 		texts.prompt = "prompt:"
@@ -1295,6 +1297,8 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 		if req.Content != "" {
 			ret += " " + req.Content
 		}
+	case agent.TaskTypeGuidedScan:
+		ret = texts.guidedScan + truncateRunes(req.Content, 40)
 	case agent.TaskTypeSkillScan:
 		ret = texts.skillScan
 		if len(req.Attachments) > 0 && req.Attachments[0] != "" {
@@ -1537,6 +1541,15 @@ func (tm *TaskManager) DownloadFile(sessionId string, fileUrl string, username s
 	return nil
 }
 
+func truncateRunes(s string, n int) string {
+	s = strings.TrimSpace(s)
+	runes := []rune(s)
+	if len(runes) <= n {
+		return s
+	}
+	return string(runes[:n]) + "…"
+}
+
 // maskParamsToken masks sensitive token fields in task params before returning to the client.
 // It handles both single model object and list of model objects under the "model" key.
 func maskParamsToken(params map[string]interface{}) {
@@ -1562,4 +1575,3 @@ func maskParamsToken(params map[string]interface{}) {
 		maskModel(v)
 	}
 }
-

@@ -1,0 +1,24 @@
+id: agent-security
+order: 30
+name: Agent 安全测试
+name_en: Agent security test
+description: 检查 Agent 配置和代码是否超出用途，并向模型发送边界用例后逐条判分。
+description_en: Grade the agent config and code, then send boundary cases to the model and score each reply.
+plugins:
+  - agent-scope
+  - code-boundary
+  - boundary
+strategies:
+  - direct
+tools:
+  - read_agent_config
+  - list_uploads
+  - read_text_file
+  - http_fetch
+needs:
+  model: true
+  purpose: true
+  any:
+    - agent
+    - code
+    - url

@@ -70,6 +70,8 @@
   "task": {
     "title": "任务管理",
     "newTask": "新建任务",
+    "newScan": "新建扫描",
+    "guidedScan": "引导扫描",
     "taskList": "任务列表",
     "taskDetails": "任务详情",
     "noTasks": "暂无任务",
@@ -1171,6 +1173,254 @@
         "stepOverlay": "叠加基准指纹",
         "stepOutput": "输出推算结果"
       }
+    }
+  },
+  "scanWizard": {
+    "title": "新建扫描",
+    "loadFailed": "场景列表加载失败",
+    "sceneTitle": "场景",
+    "sceneHelp": "场景会勾上一组插件和策略。后面仍可以改。",
+    "targetTitle": "目标",
+    "targetHelp": "模型用来生成用例并判分。提示词插件会把用例发给同一个模型。",
+    "purposeTitle": "应用说明",
+    "purposeHelp": "写这个应用能做什么、不能做什么。用例和判分都以此为准。",
+    "pluginsTitle": "插件",
+    "pluginsHelp": "每个插件产生检测，并单独判分。",
+    "strategiesTitle": "策略",
+    "strategiesHelp": "策略只改变用例怎么发给模型，不改变要测的问题。",
+    "modelHelp": "生成、投递和判分使用这个模型。",
+    "url": "地址",
+    "urlPlaceholder": "http://127.0.0.1:8080",
+    "model": "模型",
+    "modelEmpty": "不选择模型",
+    "agent": "Agent 配置",
+    "agentEmpty": "不选择 Agent",
+    "addHeader": "添加请求头",
+    "purpose": "应用说明",
+    "purposePlaceholder": "例如：这是一个只读的内部知识库助手，不能执行命令，也不能把文件发到外部。",
+    "uploadHint": "上传代码或配置。支持 zip、tar.gz、tgz、whl、txt、md。",
+    "chooseFile": "选择文件",
+    "fileType": "只接受 zip、tar.gz、tgz、whl、txt、md",
+    "reviewTitle": "确认",
+    "reviewHelp": "开始后按插件生成用例，逐条判分，完成后打开报告。",
+    "files": "代码包",
+    "empty": "未填写",
+    "needScene": "先选择一个场景",
+    "start": "开始扫描",
+    "continue": "继续",
+    "again": "再测一次",
+    "running": "正在扫描",
+    "starting": "正在提交",
+    "startFailed": "扫描提交失败",
+    "steps": {
+      "scene": "场景",
+      "target": "目标",
+      "purpose": "说明",
+      "plugins": "插件",
+      "strategies": "策略",
+      "review": "确认"
+    },
+    "missing": {
+      "model": "需要选择模型",
+      "agent": "需要选择 Agent 配置",
+      "purpose": "需要填写应用说明",
+      "code": "需要上传代码",
+      "url": "需要填写在线地址",
+      "any": "地址、代码、Agent 配置至少填一项",
+      "plugins": "至少选择一个插件",
+      "strategies": "至少选择一个策略"
+    }
+  },
+  "guidedReport": {
+    "empty": "还没有报告",
+    "plugins": "插件",
+    "strategies": "策略",
+    "cases": "用例",
+    "failedOnly": "未通过",
+    "all": "全部",
+    "noCases": "这一组里没有用例",
+    "counts": "{{total}} 条用例，{{fail}} 条不通过，{{pass}} 条通过，{{insufficient}} 条证据不足",
+    "verdict": {
+      "fail": "不通过",
+      "pass": "通过",
+      "insufficient": "证据不足"
+    },
+    "severity": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "kind": {
+      "prompt": "模型",
+      "http": "页面",
+      "code": "代码",
+      "fingerprint": "指纹",
+      "agent": "配置"
+    }
+  },
+  "studio": {
+    "brand": "A.I.G",
+    "setup": "配置",
+    "evals": "记录",
+    "empty": "还没有扫描",
+    "newScan": "去配置",
+    "status": {
+      "done": "完成",
+      "error": "失败",
+      "terminated": "已停止",
+      "running": "进行中"
+    }
+  },
+  "desk": {
+    "nav": { "new": "新建", "records": "记录", "config": "配置" },
+    "pick": "选择场景",
+    "pickHelp": "场景是一组插件。选中后可以增减插件，左侧步骤按这些插件的输入生成。",
+    "changeScene": "换一个场景",
+    "helpTitle": "说明",
+    "next": "继续",
+    "back": "上一步",
+    "skip": "跳过",
+    "skipped": "跳过",
+    "ready": "材料齐了。确认后开始扫描。",
+    "optional": "这一步可以留空。",
+    "empty": "未填写",
+    "needScene": "先选择一个场景。",
+    "needPlugins": "至少选择一个插件。",
+    "needRequired": "必填步骤还没完成。",
+    "pluginsHelp": "场景会带上一组插件，可以增减。后面的步骤只出现已选插件的输入。",
+    "anyOf": "和另一项至少填写一个。",
+    "endpointPlaceholder": "MCP 连接地址",
+    "noMutations": "还没有可选的变异算法",
+    "outputsTitle": "结果",
+    "steps": {
+      "scene": "场景",
+      "plugins": "插件",
+      "review": "确认",
+      "model": "模型",
+      "purpose": "应用说明",
+      "target": "目标",
+      "files": "代码包",
+      "agent": "接入配置",
+      "headers": "请求头",
+      "evals": "评测集",
+      "url-or-file": "地址或代码"
+    },
+    "start": "开始扫描",
+    "starting": "正在提交",
+    "startFailed": "扫描提交失败",
+    "chooseModel": "选择模型",
+    "chooseAgent": "选择 Agent 接入配置",
+    "targetPlaceholder": "域名、IP 或 IP 段",
+    "headerCount": "已填 {{count}} 条请求头",
+    "noEvals": "配置里还没有评测集",
+    "noRecords": "还没有任务",
+    "fields": {
+      "target": "域名或 IP 段",
+      "model": "模型",
+      "evals": "评测集",
+      "mutations": "变异算法",
+      "code": "源代码",
+      "endpoint": "连接地址",
+      "headers": "请求头",
+      "agent": "接入配置",
+      "purpose": "应用用途"
+    },
+    "fieldHelp": {
+      "target": "填写域名、IP 或 IP 段。",
+      "model": "从已配置的模型里选一个。没有的话先到配置里添加。",
+      "evals": "可多选。不选则使用默认评测。",
+      "mutations": "可多选。不选则使用默认变异。",
+      "code": "上传源代码包。支持 zip、tar.gz、tgz、whl、txt、md。",
+      "endpoint": "填写 MCP 的连接地址。",
+      "headers": "访问连接地址时需要附带的请求头，可以留空。",
+      "agent": "选择已经保存的 Agent 接入配置。",
+      "purpose": "写这个应用能做什么、不能做什么。"
+    },
+    "outputs": {
+      "status": "状态",
+      "findings": "发现",
+      "json": "JSON",
+      "none": "没有发现",
+      "item": "第 {{index}} 条"
+    },
+    "plugins": {
+      "infra-scan": { "name": "AI 基础设施扫描" },
+      "model-redteam": { "name": "大模型安全评测" },
+      "skill-scan": { "name": "Skill 安全扫描" },
+      "mcp-scan": { "name": "MCP 安全扫描" },
+      "agent-scan": { "name": "Agent 安全扫描" }
+    },
+    "presets": {
+      "infra": { "name": "AI 资产扫描", "blurb": "扫描域名或 IP 段上的 AI 组件。" },
+      "model": { "name": "大模型安全评测", "blurb": "选择模型、评测集和变异算法。" },
+      "skill": { "name": "SKILL 安全测试", "blurb": "检查上传的技能源代码。" },
+      "mcp": { "name": "MCP 安全测试", "blurb": "检查源代码、连接地址和请求头。" },
+      "agent": { "name": "Agent 安全测试", "blurb": "按接入配置测试，可附带源代码。" },
+      "gov": { "name": "AI 合规检测", "blurb": "政府场景。同时做资产扫描和模型评测，并填写应用用途。" }
+    },
+    "config": {
+      "models": "模型配置",
+      "fingerprints": "AI 应用指纹",
+      "vulns": "漏洞库",
+      "evals": "评测集"
+    },
+    "help": {
+      "model": "从已配置的模型里选一个。没有的话先到配置里添加。",
+      "purpose": "写这个应用能做什么、不能做什么。合规检测会按这段说明出题和判分。",
+      "target": "填写要扫描的 IP、域名或地址。",
+      "files": "上传代码或技能包。支持 zip、tar.gz、tgz、whl、txt、md。",
+      "agent": "选择已经保存的 Agent 接入配置。",
+      "headers": "可选。只在需要带身份访问时填写。",
+      "evals": "可多选。不选则只使用你填写的说明。",
+      "url-or-file": "在线地址和代码至少提供一项。两项都有时会一起看。",
+      "ready": "开始后可以在记录里看进度和结果。"
+    },
+    "scenes": {
+      "model": {
+        "name": "大模型安全评测",
+        "blurb": "选定模型，可多选评测集。",
+        "intro": "先选择被测模型。评测集可以多选，也可以跳过。",
+        "ask": { "model": "选择被测模型。", "evals": "要带上哪些评测集？可以多选，也可以跳过。" }
+      },
+      "infra": {
+        "name": "AI 资产扫描",
+        "blurb": "扫描 IP 或域名上的 AI 组件。",
+        "intro": "填写要扫描的 IP 或域名。",
+        "ask": { "target": "填写 IP、域名或地址。", "headers": "需要附加请求头吗？不需要可以跳过。" }
+      },
+      "gov": {
+        "name": "AI 合规检测",
+        "blurb": "政府场景。按应用说明核对页面、代码和组件。",
+        "intro": "先写应用说明：这个系统能做什么、不能做什么。",
+        "ask": { "purpose": "写应用说明。", "material": "提供在线地址或上传代码，至少一项。", "model": "如果要连模型做边界提问，选择一个模型。可以跳过。" }
+      },
+      "agent": {
+        "name": "Agent 安全测试",
+        "blurb": "按已保存的接入方式测试 Agent。",
+        "intro": "选择 Agent 的接入配置。",
+        "ask": { "agent": "选择接入配置。", "target": "有在线地址可以填上，没有就跳过。", "files": "有代码包可以上传，没有就跳过。" }
+      },
+      "mcp": {
+        "name": "MCP 安全测试",
+        "blurb": "检查 MCP 代码或在线服务。",
+        "intro": "提供 MCP 的代码包或在线地址。",
+        "ask": { "material": "上传代码或填写地址，至少一项。", "model": "需要模型辅助分析时再选。可以跳过。" }
+      },
+      "skill": {
+        "name": "SKILL 安全测试",
+        "blurb": "检查上传的技能包。",
+        "intro": "上传要检查的技能包。",
+        "ask": { "files": "上传技能包。", "model": "需要模型辅助分析时再选。可以跳过。" }
+      }
+    },
+    "taskType": {
+      "Model-Redteam-Report": "大模型安全评测",
+      "AI-Infra-Scan": "AI 资产扫描",
+      "Guided-Scan": "AI 合规检测",
+      "Agent-Scan": "Agent 安全测试",
+      "Mcp-Scan": "MCP 安全测试",
+      "Skill-Scan": "SKILL 安全测试",
+      "Model-Jailbreak": "大模型安全评测"
     }
   }
 }
