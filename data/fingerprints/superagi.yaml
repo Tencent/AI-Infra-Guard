@@ -10,4 +10,4 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>SuperAGI"
+      - body="<title>SuperAGI</title>" && body="/_next/"

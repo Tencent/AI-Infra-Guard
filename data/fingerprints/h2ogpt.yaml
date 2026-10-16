@@ -8,10 +8,10 @@ info:
     vendor: h2oai
 http:
   - method: GET
+    path: '/'
+    matchers:
+      - body="h2oGPT" && body="submit_nochat_api"
+  - method: GET
     path: '/info'
     matchers:
       - body="submit_nochat_api"
-  - method: GET
-    path: '/'
-    matchers:
-      - body="h2oGPT"

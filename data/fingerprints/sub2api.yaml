@@ -12,10 +12,6 @@ http:
     matchers:
       - body="<title>Sub2API - AI API Gateway</title>"
   - method: GET
-    path: '/health'
-    matchers:
-      - body="\"status\"" && body="\"ok\""
-  - method: GET
     path: '/setup/status'
     matchers:
       - body="\"needs_setup\"" && body="\"step\""

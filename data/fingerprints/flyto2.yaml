@@ -1,5 +1,5 @@
 info:
-  name: Flyto2 Core
+  name: Flyto2
   author: A.I.G bot
   severity: info
   desc: Flyto2 Core is an open-source execution kernel/runtime for AI-agent workflows and automation, exposing an HTTP Execution API (FastAPI on default port 8333) with health, info, module/workflow execution, and MCP endpoints
@@ -8,17 +8,13 @@ info:
     vendor: flytohub
 http:
   - method: GET
-    path: /health
-    matchers:
-      - 'body="\"status\": \"ok\"" && body="\"version\":"'
-  - method: GET
     path: /v1/info
     matchers:
-      - 'body="\"name\": \"flyto-core\"" && body="\"module_count\":" && body="\"category_count\":"'
+      - 'body="\"name\":\"flyto-core\"" && body="\"module_count\":" && body="\"category_count\":"'
   - method: GET
     path: /openapi.json
     matchers:
-      - 'body="\"title\": \"flyto-core Execution API\""'
+      - 'body="\"title\":\"flyto-core Execution API\""'
 version:
   - method: GET
     path: /health

@@ -11,10 +11,6 @@ http:
     path: '/v1/models'
     matchers:
       - body="\"owned_by\":\"swift\""
-  - method: GET
-    path: '/docs'
-    matchers:
-      - body="openapi" && body="swift"
 # Note: No version extractor — ms-swift deploy server does not expose a version endpoint.
 # The /v1/models endpoint returns model names, not server version. Version is only
 # available via the Python package __version__ attribute, not via HTTP.

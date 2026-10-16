@@ -18,7 +18,7 @@ http:
   - method: GET
     path: '/health'
     matchers:
-      - body="\"status\"" && body="\"version\"" && body="healthy"
+      - body="\"service\":\"QWED Platform\"" && body="\"status\":\"healthy\""
 version:
   - method: GET
     path: '/health'
