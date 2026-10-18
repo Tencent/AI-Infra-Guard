@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import ModelManagementSettings from '../components/management/ModelManagementDialog';
@@ -11,26 +11,12 @@ const sections = ['models', 'fingerprints', 'vulns', 'evals'] as const;
 type Section = typeof sections[number];
 
 const Config: React.FC = () => {
-  const { t } = useTranslation();
   const params = useParams();
   const section = (sections.includes(params.section as Section) ? params.section : 'models') as Section;
 
   return (
-    <div className="flex h-full">
-      <nav className="flex w-52 shrink-0 flex-col gap-1 border-r border-gray-200 bg-white p-4 text-sm">
-        {sections.map(id => (
-          <NavLink
-            key={id}
-            to={`/config/${id}`}
-            className={({ isActive }) => `rounded-md px-3 py-2 ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            {t(`desk.config.${id}`)}
-          </NavLink>
-        ))}
-      </nav>
-      <div className="flex min-w-0 flex-1 flex-col bg-white">
-        {section === 'models' ? <ModelManagementSettings /> : <Library section={section} />}
-      </div>
+    <div className="flex h-full min-w-0 flex-col bg-white">
+      {section === 'models' ? <ModelManagementSettings /> : <Library section={section} />}
     </div>
   );
 };

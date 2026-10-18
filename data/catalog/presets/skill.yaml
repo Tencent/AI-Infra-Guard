@@ -1,8 +1,9 @@
 id: skill
-order: 40
-name: Skill 供应链
-name_en: Skill Supply Chain
-description: 审计上传的 Skill 包。
-description_en: Audit an uploaded Skill package.
+order: 30
+ui: true
+name: SKILL 安全测试
+name_en: Skill security test
+description: 检查上传的技能源代码。
+description_en: Check uploaded skill source.
 plugins:
   - skill-scan

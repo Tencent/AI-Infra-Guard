@@ -1,8 +1,8 @@
 id: infra-scan
 order: 50
 kind: builtin
-name: 基础设施扫描
-name_en: Infra Scan
+name: AI 基础设施扫描
+name_en: AI infrastructure scan
 description: 对在线地址做组件指纹识别和已知漏洞匹配。
 description_en: Fingerprints the live target and matches known vulnerabilities.
 task_type: AI-Infra-Scan
@@ -11,3 +11,12 @@ modes:
   - blackbox
 needs:
   url: true
+inputs:
+  - id: target
+    type: text
+    required: true
+outputs:
+  - id: status
+    type: status
+  - id: findings
+    type: findings

@@ -1272,9 +1272,11 @@
     }
   },
   "desk": {
-    "nav": { "new": "新建", "records": "记录", "config": "配置" },
-    "pick": "选择场景",
-    "pickHelp": "场景是一组插件。选中后可以增减插件，左侧步骤按这些插件的输入生成。",
+    "nav": { "new": "新建", "records": "记录", "config": "配置", "scan": "扫描" },
+    "kind": "类型",
+    "time": "时间",
+    "pick": "选择插件",
+    "pickHelp": "勾选要扫描的插件。场景会一次勾上一组，之后可以删减。",
     "changeScene": "换一个场景",
     "helpTitle": "说明",
     "next": "继续",
@@ -1287,7 +1289,9 @@
     "needScene": "先选择一个场景。",
     "needPlugins": "至少选择一个插件。",
     "needRequired": "必填步骤还没完成。",
-    "pluginsHelp": "场景会带上一组插件，可以增减。后面的步骤只出现已选插件的输入。",
+    "pluginsHelp": "场景会自动勾上插件。这里可以再增减。",
+    "inputsHelp": "这些是当前插件要求填写的内容。不需要的插件可以移除。",
+    "removePlugin": "移除",
     "anyOf": "和另一项至少填写一个。",
     "endpointPlaceholder": "MCP 连接地址",
     "noMutations": "还没有可选的变异算法",
@@ -1295,6 +1299,7 @@
     "steps": {
       "scene": "场景",
       "plugins": "插件",
+      "inputs": "输入",
       "review": "确认",
       "model": "模型",
       "purpose": "应用说明",
@@ -1308,9 +1313,19 @@
     "start": "开始扫描",
     "starting": "正在提交",
     "startFailed": "扫描提交失败",
+    "result": "扫描结果",
+    "live": "扫描过程",
+    "noResult": "还没有这次扫描的结果",
+    "verdict": {
+      "fail": "不通过",
+      "pass": "通过",
+      "insufficient": "证据不足",
+      "error": "出错"
+    },
     "chooseModel": "选择模型",
     "chooseAgent": "选择 Agent 接入配置",
     "targetPlaceholder": "域名、IP 或 IP 段",
+    "targetFormat": "请填写域名、IP、IP 段，或 http(s) 地址。例如 example.com、10.0.0.1、10.0.0.0/24。",
     "headerCount": "已填 {{count}} 条请求头",
     "noEvals": "配置里还没有评测集",
     "noRecords": "还没有任务",
@@ -1373,7 +1388,7 @@
       "headers": "可选。只在需要带身份访问时填写。",
       "evals": "可多选。不选则只使用你填写的说明。",
       "url-or-file": "在线地址和代码至少提供一项。两项都有时会一起看。",
-      "ready": "开始后可以在记录里看进度和结果。"
+      "ready": "确认后立即运行，结果会打开，并出现在记录里。"
     },
     "scenes": {
       "model": {

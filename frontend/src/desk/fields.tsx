@@ -98,14 +98,15 @@ const FieldControl: React.FC<{
   const options = field.source === 'mutations' ? catalog.mutations : catalog.evals;
   const selected = Array.isArray(values[field.id]) ? values[field.id] as string[] : [];
   return (
-    <div className="space-y-1">
+    <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-md border border-zinc-200 bg-zinc-50 p-2">
       {options.map(item => {
         const on = selected.includes(item.id);
         return (
           <button
             key={item.id}
             type="button"
-            className={`block w-full rounded-md border px-3 py-2 text-left text-sm ${on ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}
+            title={item.label}
+            className={`rounded-md border px-2 py-1 text-xs ${on ? 'border-transparent bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'border-zinc-200 bg-white text-zinc-600 hover:border-blue-300 hover:text-blue-700'}`}
             onClick={() => set(on ? selected.filter(id => id !== item.id) : [...selected, item.id])}
           >
             {item.label}

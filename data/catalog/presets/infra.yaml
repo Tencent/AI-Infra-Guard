@@ -1,0 +1,9 @@
+id: infra
+order: 10
+ui: true
+name: AI 资产扫描
+name_en: AI asset scan
+description: 扫描域名或 IP 段上的 AI 组件。
+description_en: Scan AI components on a domain or IP range.
+plugins:
+  - infra-scan

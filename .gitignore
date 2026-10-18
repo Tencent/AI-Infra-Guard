@@ -34,3 +34,5 @@ deploy/
 common/utils/chromium/screenshot.png
 
 frontend/node_modules
+engine/node_modules
+engine/runs

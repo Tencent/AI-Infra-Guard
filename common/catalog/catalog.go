@@ -52,32 +52,52 @@ type Needs struct {
 	Purpose   bool `yaml:"purpose" json:"purpose"`
 }
 
+// InputSpec is one form field a plugin or preset asks the user to fill.
+type InputSpec struct {
+	ID       string `yaml:"id" json:"id"`
+	Type     string `yaml:"type" json:"type"`
+	Required bool   `yaml:"required" json:"required"`
+	Source   string `yaml:"source,omitempty" json:"source,omitempty"`
+	AnyOf    string `yaml:"any_of,omitempty" json:"anyOf,omitempty"`
+}
+
+// OutputSpec is one result block a plugin returns.
+type OutputSpec struct {
+	ID   string `yaml:"id" json:"id"`
+	Type string `yaml:"type" json:"type"`
+}
+
 // Plugin is one selectable scan capability.
 type Plugin struct {
-	ID             string   `yaml:"id" json:"id"`
-	Enabled        *bool    `yaml:"enabled,omitempty" json:"-"`
-	Kind           string   `yaml:"kind" json:"kind"`
-	Name           string   `yaml:"name" json:"name"`
-	NameEn         string   `yaml:"name_en" json:"name_en"`
-	Description    string   `yaml:"description" json:"description"`
-	DescriptionEn  string   `yaml:"description_en" json:"description_en"`
-	TaskType       string   `yaml:"task_type" json:"task_type"`
-	Category       string   `yaml:"category" json:"category"`
-	Modes          []string `yaml:"modes" json:"modes"`
-	Needs          Needs    `yaml:"needs" json:"needs"`
-	Order          int      `yaml:"order" json:"order"`
-	PromptTemplate string   `yaml:"prompt_template,omitempty" json:"prompt_template,omitempty"`
+	ID             string       `yaml:"id" json:"id"`
+	Enabled        *bool        `yaml:"enabled,omitempty" json:"-"`
+	Kind           string       `yaml:"kind" json:"kind"`
+	Name           string       `yaml:"name" json:"name"`
+	NameEn         string       `yaml:"name_en" json:"name_en"`
+	Description    string       `yaml:"description" json:"description"`
+	DescriptionEn  string       `yaml:"description_en" json:"description_en"`
+	TaskType       string       `yaml:"task_type" json:"task_type"`
+	Category       string       `yaml:"category" json:"category"`
+	Modes          []string     `yaml:"modes" json:"modes"`
+	Needs          Needs        `yaml:"needs" json:"needs"`
+	Inputs         []InputSpec  `yaml:"inputs,omitempty" json:"inputs,omitempty"`
+	Outputs        []OutputSpec `yaml:"outputs,omitempty" json:"outputs,omitempty"`
+	Order          int          `yaml:"order" json:"order"`
+	PromptTemplate string       `yaml:"prompt_template,omitempty" json:"prompt_template,omitempty"`
 }
 
 // Preset is a named set of plugin ids.
 type Preset struct {
-	ID            string   `yaml:"id" json:"id"`
-	Name          string   `yaml:"name" json:"name"`
-	NameEn        string   `yaml:"name_en" json:"name_en"`
-	Description   string   `yaml:"description" json:"description"`
-	DescriptionEn string   `yaml:"description_en" json:"description_en"`
-	Plugins       []string `yaml:"plugins" json:"plugins"`
-	Order         int      `yaml:"order" json:"order"`
+	ID            string          `yaml:"id" json:"id"`
+	Name          string          `yaml:"name" json:"name"`
+	NameEn        string          `yaml:"name_en" json:"name_en"`
+	Description   string          `yaml:"description" json:"description"`
+	DescriptionEn string          `yaml:"description_en" json:"description_en"`
+	Plugins       []string        `yaml:"plugins" json:"plugins"`
+	Inputs        []InputSpec     `yaml:"inputs,omitempty" json:"inputs,omitempty"`
+	Require       map[string]bool `yaml:"require,omitempty" json:"require,omitempty"`
+	UI            bool            `yaml:"ui,omitempty" json:"ui,omitempty"`
+	Order         int             `yaml:"order" json:"order"`
 }
 
 // Catalog is the runnable plugin set plus presets.
@@ -245,6 +265,9 @@ func loadPresets(dir string, plugins []Plugin) ([]Preset, error) {
 				return nil, fmt.Errorf("%s: preset %s references unknown plugin %s", entry.Name(), preset.ID, id)
 			}
 		}
+		if err := validateInputs(preset.ID, preset.Inputs); err != nil {
+			return nil, fmt.Errorf("%s: %w", entry.Name(), err)
+		}
 		if prev, ok := seen[preset.ID]; ok {
 			return nil, fmt.Errorf("duplicate preset id %s in %s and %s", preset.ID, prev, entry.Name())
 		}
@@ -294,6 +317,33 @@ func (p *Plugin) validate() error {
 	}
 	if strings.TrimSpace(p.Name) == "" {
 		return fmt.Errorf("plugin %s name is empty", p.ID)
+	}
+	if err := validateInputs(p.ID, p.Inputs); err != nil {
+		return err
+	}
+	for _, output := range p.Outputs {
+		if output.Type != "status" && output.Type != "findings" && output.Type != "json" {
+			return fmt.Errorf("plugin %s has unknown output type %s", p.ID, output.Type)
+		}
+	}
+	return nil
+}
+
+func validateInputs(owner string, inputs []InputSpec) error {
+	seen := map[string]struct{}{}
+	for _, input := range inputs {
+		if strings.TrimSpace(input.ID) == "" {
+			return fmt.Errorf("%s has an input without an id", owner)
+		}
+		switch input.Type {
+		case "text", "textarea", "model", "files", "headers", "agent", "multi":
+		default:
+			return fmt.Errorf("%s input %s has unknown type %s", owner, input.ID, input.Type)
+		}
+		if _, ok := seen[input.ID]; ok {
+			return fmt.Errorf("%s repeats input %s", owner, input.ID)
+		}
+		seen[input.ID] = struct{}{}
 	}
 	return nil
 }

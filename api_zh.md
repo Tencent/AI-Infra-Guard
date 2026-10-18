@@ -19,6 +19,7 @@ A.I.G(AI-Infra-Guard) 提供了一套完整的API接口，用于AI基础设施�
 3. 大模型安全体检 API
 4. Agent 安全扫描 API
 5. 引导扫描：`GET /api/v1/app/catalog` 返回 `scenarios`、`checks` 和 `strategies`。创建任务时 `taskType` 为 `Guided-Scan`。`params.scenario` 是场景 id，`params.purpose` 是应用说明，`params.plugins` 和 `params.strategies` 是勾选的 id，`params.target_url` 是在线地址，附件是代码包。扫描在 Go 里完成：插件生成用例，策略改变投递，每条单独判分。结果在 `result.report`。规则在 `data/redteam/`，场景在 `data/scenarios/<id>/`。
+6. 扫描引擎：`POST /api/v1/app/engine/scans`，请求体为 `{ "plugins": ["infra-scan"], "preset": "gov", "inputs": { "target": "10.0.0.0/24", "purpose": "..." } }`。TypeScript 引擎返回 `{ "status": 0, "data": { "id", "status", "plugins": [{ "plugin", "status", "findings" }] } }`。`GET /api/v1/app/engine/scans` 列出已保存的扫描，`GET /api/v1/app/engine/scans/:id` 返回其中一次。同一条循环也可以用 `node engine/dist/cli.js` 调用。
 
 ### 模型管理 API
 1. 获取模型列表

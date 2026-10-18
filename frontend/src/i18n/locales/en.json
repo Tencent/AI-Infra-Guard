@@ -1273,9 +1273,11 @@
     }
   },
   "desk": {
-    "nav": { "new": "New", "records": "Records", "config": "Settings" },
-    "pick": "Choose a scene",
-    "pickHelp": "A scene is a set of plugins. After you pick one, adjust the plugins. The steps on the left follow their inputs.",
+    "nav": { "new": "New", "records": "Records", "config": "Settings", "scan": "Scan" },
+    "kind": "Type",
+    "time": "Time",
+    "pick": "Choose plugins",
+    "pickHelp": "Select the plugins to run. A scene checks a group at once. You can add or remove plugins after that.",
     "changeScene": "Choose another scene",
     "helpTitle": "Guide",
     "next": "Continue",
@@ -1288,7 +1290,9 @@
     "needScene": "Choose a scene first.",
     "needPlugins": "Select at least one plugin.",
     "needRequired": "A required step is still empty.",
-    "pluginsHelp": "A scene starts with a plugin set. Add or remove plugins. Later steps are the inputs of the plugins you keep.",
+    "pluginsHelp": "A scene selects its plugins. You can add or remove them here.",
+    "inputsHelp": "These are the inputs required by the selected plugins. Remove a plugin if you do not need it.",
+    "removePlugin": "Remove",
     "anyOf": "Fill at least one field in this group.",
     "endpointPlaceholder": "MCP endpoint",
     "noMutations": "No mutation algorithms are available",
@@ -1296,6 +1300,7 @@
     "steps": {
       "scene": "Scene",
       "plugins": "Plugins",
+      "inputs": "Inputs",
       "review": "Review",
       "model": "Model",
       "purpose": "Purpose",
@@ -1309,9 +1314,19 @@
     "start": "Start scan",
     "starting": "Submitting",
     "startFailed": "Failed to start the scan",
+    "result": "Scan result",
+    "live": "Scan",
+    "noResult": "This scan has no result yet",
+    "verdict": {
+      "fail": "Fail",
+      "pass": "Pass",
+      "insufficient": "Insufficient",
+      "error": "Error"
+    },
     "chooseModel": "Choose a model",
     "chooseAgent": "Choose an Agent connection",
     "targetPlaceholder": "Domain, IP, or IP range",
+    "targetFormat": "Enter a domain, IP, IP range, or http(s) address. For example example.com, 10.0.0.1, or 10.0.0.0/24.",
     "headerCount": "{{count}} headers",
     "noEvals": "No evaluation sets in Settings yet",
     "noRecords": "No tasks yet",
@@ -1374,7 +1389,7 @@
       "headers": "Optional. Add headers only when the target requires them.",
       "evals": "Select any number of evaluation sets, or skip.",
       "url-or-file": "Provide a live URL or upload code. One of them is required.",
-      "ready": "Progress and the result appear under Records."
+      "ready": "The scan runs immediately. The result opens here and is listed under Records."
     },
     "scenes": {
       "model": {

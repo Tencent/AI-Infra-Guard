@@ -1,0 +1,16 @@
+id: gov
+order: 60
+ui: true
+name: AI 合规检测
+name_en: AI compliance
+description: 政府场景。同时做资产扫描和模型评测，并填写应用用途。
+description_en: Government scene. Run an asset scan and a model eval, and record the purpose.
+plugins:
+  - infra-scan
+  - model-redteam
+inputs:
+  - id: purpose
+    type: textarea
+    required: true
+require:
+  model: false

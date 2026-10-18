@@ -18,12 +18,18 @@ export interface OutputField {
 export interface PluginDef {
   id: string;
   taskType: string;
+  name?: string;
+  nameEn?: string;
   inputs: InputField[];
   outputs: OutputField[];
 }
 
 export interface PresetDef {
   id: string;
+  name?: string;
+  nameEn?: string;
+  blurb?: string;
+  blurbEn?: string;
   plugins: string[];
   inputs?: InputField[];
   require?: Record<string, boolean>;
@@ -96,20 +102,75 @@ export const presets: PresetDef[] = [
   },
 ];
 
-export const pluginById = (id: string) => plugins.find(item => item.id === id);
+export const pluginById = (id: string, list: PluginDef[] = plugins) => list.find(item => item.id === id);
 
-export function resolveInputs(preset: PresetDef | null, pluginIds: string[]): InputField[] {
-  const list: InputField[] = [];
+const fieldTypes = new Set(['text', 'textarea', 'model', 'files', 'headers', 'agent', 'multi']);
+const outputTypes = new Set(['status', 'findings', 'json']);
+
+function asField(raw: any): InputField | null {
+  if (!raw || typeof raw.id !== 'string' || !fieldTypes.has(raw.type)) return null;
+  return {
+    id: raw.id,
+    type: raw.type,
+    required: !!raw.required,
+    source: raw.source === 'evals' || raw.source === 'mutations' ? raw.source : undefined,
+    anyOf: typeof raw.anyOf === 'string' && raw.anyOf ? raw.anyOf : undefined,
+  };
+}
+
+function asOutput(raw: any): OutputField | null {
+  if (!raw || typeof raw.id !== 'string' || !outputTypes.has(raw.type)) return null;
+  return { id: raw.id, type: raw.type };
+}
+
+export function catalogFromApi(data: any): { plugins: PluginDef[]; presets: PresetDef[] } | null {
+  const rawPlugins = Array.isArray(data?.plugins) ? data.plugins : [];
+  const loadedPlugins = rawPlugins.flatMap((item: any): PluginDef[] => {
+    const inputs = (Array.isArray(item?.inputs) ? item.inputs : []).map(asField).filter((field: InputField | null): field is InputField => !!field);
+    const outputs = (Array.isArray(item?.outputs) ? item.outputs : []).map(asOutput).filter((field: OutputField | null): field is OutputField => !!field);
+    const local = plugins.find(plugin => plugin.id === item?.id);
+    if (!item?.id || !item?.task_type) return [];
+    if (inputs.length === 0 && !local) return [];
+    return [{
+      id: item.id,
+      taskType: item.task_type,
+      name: item.name || local?.name,
+      nameEn: item.name_en || local?.nameEn,
+      inputs: inputs.length > 0 ? inputs : (local?.inputs || []),
+      outputs: outputs.length > 0 ? outputs : (local?.outputs || []),
+    }];
+  });
+  const rawPresets = (Array.isArray(data?.presets) ? data.presets : []).filter((item: any) => item?.ui);
+  const loadedPresets = rawPresets.flatMap((item: any): PresetDef[] => {
+    if (!item?.id || !Array.isArray(item.plugins) || item.plugins.length === 0) return [];
+    const inputs = (Array.isArray(item.inputs) ? item.inputs : []).map(asField).filter((field: InputField | null): field is InputField => !!field);
+    return [{
+      id: item.id,
+      name: item.name,
+      nameEn: item.name_en,
+      blurb: item.description,
+      blurbEn: item.description_en,
+      plugins: item.plugins.filter((id: unknown) => typeof id === 'string'),
+      inputs,
+      require: item.require && typeof item.require === 'object' ? item.require : undefined,
+    }];
+  });
+  if (loadedPlugins.length === 0 || loadedPresets.length === 0) return null;
+  return { plugins: loadedPlugins, presets: loadedPresets };
+}
+
+export function resolveInputs(preset: PresetDef | null, pluginIds: string[], catalog: PluginDef[] = plugins): InputField[] {
+  const fields: InputField[] = [];
   const push = (field: InputField) => {
-    if (list.some(item => item.id === field.id)) return;
+    if (fields.some(item => item.id === field.id)) return;
     const required = preset?.require && Object.prototype.hasOwnProperty.call(preset.require, field.id)
       ? !!preset.require[field.id]
       : field.required;
-    list.push({ ...field, required });
+    fields.push({ ...field, required });
   };
   preset?.inputs?.forEach(push);
-  pluginIds.forEach(id => pluginById(id)?.inputs.forEach(push));
-  return list;
+  pluginIds.forEach(id => pluginById(id, catalog)?.inputs.forEach(push));
+  return fields;
 }
 
 export function emptyValue(field: InputField): FieldValue {

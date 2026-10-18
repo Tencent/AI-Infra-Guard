@@ -1,8 +1,8 @@
 id: model-redteam
 order: 40
 kind: builtin
-name: 模型体检
-name_en: Model Red Team
+name: 大模型安全评测
+name_en: Model security eval
 description: 把应用说明当作攻击目标，对所选模型做黑盒体检。
 description_en: Uses the application prompt as the goal and black-box tests the selected model.
 task_type: Model-Redteam-Report
@@ -12,3 +12,20 @@ modes:
 needs:
   model: true
   purpose: true
+inputs:
+  - id: model
+    type: model
+    required: true
+  - id: evals
+    type: multi
+    source: evals
+    required: false
+  - id: mutations
+    type: multi
+    source: mutations
+    required: false
+outputs:
+  - id: status
+    type: status
+  - id: findings
+    type: findings

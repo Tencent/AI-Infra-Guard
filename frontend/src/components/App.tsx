@@ -8,6 +8,7 @@ import NewScan from '../desk/NewScan';
 import Records from '../desk/Records';
 import EvalView from '../studio/EvalView';
 import Config from '../desk/Config';
+import ScanResult from '../desk/ScanResult';
 
 const App: React.FC = () => {
   if (isDocSiteMode) {
@@ -27,6 +28,8 @@ const App: React.FC = () => {
         <Route path="/help" element={<HelpDocumentPage />} />
         <Route element={<Shell />}>
           <Route path="/" element={<NewScan />} />
+              <Route path="/scan/run" element={<ScanResult />} />
+              <Route path="/scan/result/:id?" element={<ScanResult />} />
           <Route path="/records" element={<Records />} />
           <Route path="/records/:sessionId" element={<EvalView />} />
           <Route path="/report/:sessionId" element={<EvalView />} />

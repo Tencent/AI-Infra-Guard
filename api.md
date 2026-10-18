@@ -19,6 +19,7 @@ After the project is running, you can access `http://localhost:8088/docs/index.h
 3. Jailbreak Evaluation API
 4. AI Infra Scan API
 5. Guided scan: `GET /api/v1/app/catalog` returns `scenarios`, `checks`, and `strategies`. Create a task with `taskType` `Guided-Scan`. `params.scenario` is the scene id, `params.purpose` is the application prompt, `params.plugins` and `params.strategies` are selected ids, `params.target_url` is the live URL, and attachments are code packages. The Go scanner generates cases, applies strategies, and grades each case. The result is `result.report`. Rules live in `data/redteam/`. Scene files live in `data/scenarios/<id>/`.
+6. Scan engine: `POST /api/v1/app/engine/scans` with `{ "plugins": ["infra-scan"], "preset": "gov", "inputs": { "target": "10.0.0.0/24", "purpose": "..." } }`. The TypeScript engine returns `{ "status": 0, "data": { "id", "status", "plugins": [{ "plugin", "status", "findings" }] } }`. `GET /api/v1/app/engine/scans` lists saved scans, and `GET /api/v1/app/engine/scans/:id` returns one. The same loop is available as `node engine/dist/cli.js`.
 
 ### Model Management API
 1. Get Model List

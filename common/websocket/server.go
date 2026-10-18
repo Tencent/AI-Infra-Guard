@@ -196,6 +196,9 @@ func RunWebServer(options *version.Options) {
 		{
 			appSecurity.Use(setupIdentityMiddleware())
 			appSecurity.GET("/catalog", HandleGetScanCatalog)
+			appSecurity.POST("/engine/scans", HandleEngineScan)
+			appSecurity.GET("/engine/scans", HandleEngineList)
+			appSecurity.GET("/engine/scans/:id", HandleEngineGet)
 			// 任务管理
 			tasks := appSecurity.Group("/tasks")
 			{

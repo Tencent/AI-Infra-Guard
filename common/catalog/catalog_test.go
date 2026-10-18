@@ -44,6 +44,10 @@ func TestLoadRepoCatalog(t *testing.T) {
 	}
 	_, ok := cat.PluginByID("example-custom-check")
 	require.False(t, ok)
+	infra, found := cat.PluginByID("infra-scan")
+	require.True(t, found)
+	require.Equal(t, "target", infra.Inputs[0].ID)
+	require.Equal(t, "findings", infra.Outputs[1].Type)
 }
 
 func TestLoadRejectsUnknownPresetPlugin(t *testing.T) {

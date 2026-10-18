@@ -1,8 +1,8 @@
 id: agent-scan
 order: 30
 kind: builtin
-name: Agent 工作流
-name_en: Agent Workflow
+name: Agent 安全扫描
+name_en: Agent security scan
 description: 按已保存的 Agent 配置做工作流安全测试。
 description_en: Runs workflow security tests against a saved Agent configuration.
 task_type: Agent-Scan
@@ -12,3 +12,15 @@ modes:
 needs:
   model: true
   agent: true
+inputs:
+  - id: agent
+    type: agent
+    required: true
+  - id: code
+    type: files
+    required: false
+outputs:
+  - id: status
+    type: status
+  - id: findings
+    type: findings

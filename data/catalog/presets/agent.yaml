@@ -1,8 +1,9 @@
 id: agent
 order: 50
-name: Agent 工作流
-name_en: Agent Workflow
-description: 测试一个已保存的 Agent 配置。
-description_en: Test a saved Agent configuration.
+ui: true
+name: Agent 安全测试
+name_en: Agent security test
+description: 按接入配置测试，可附带源代码。
+description_en: Test a saved connection, with optional source.
 plugins:
   - agent-scan
