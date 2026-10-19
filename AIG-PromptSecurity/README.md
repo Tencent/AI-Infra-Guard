@@ -1,5 +1,23 @@
 # Prompt Security Evaluation - Documentation (for A.I.G)
 
+Command usage: [USAGE.md](./USAGE.md) · [中文](./USAGE_zh.md)
+
+Install the model jailbreak evaluator on its own:
+
+```bash
+pip install aig-model-scan
+
+aig-model-scan \
+  --model "<model name>" \
+  --base_url "<API base URL>" \
+  --api_key "<API key>" \
+  --max_concurrent 10 \
+  --scenarios Bias \
+  --techniques PromptInjection
+```
+
+`python cli_run.py` from a source checkout accepts the same flags.
+
 ## a) Model API Evaluation
 
 ### Model Interface Configuration

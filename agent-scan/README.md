@@ -2,6 +2,8 @@
 
 English | **[中文](./README_zh.md)**
 
+Command usage: [USAGE.md](./USAGE.md) · [中文](./USAGE_zh.md)
+
 > A dynamic black-box security testing tool for running AI Agent platforms, developed by Tencent Zhuque Lab.
 
 ## ✨ Features
@@ -17,6 +19,15 @@ English | **[中文](./README_zh.md)**
 - **🐛 Debug Mode**: Integrated Laminar tracing for easy debugging
 
 ## 🚀 Quick Start
+
+### Install from PyPI
+
+```bash
+pip install aig-agent-scan
+aig-agent-scan --agent_provider providers.yaml -k "$LLM_API_KEY" -m deepseek-v3.2-exp
+```
+
+The flags below are the same when the command is `aig-agent-scan` instead of `python main.py`.
 
 ### 1. Clone the Project
 

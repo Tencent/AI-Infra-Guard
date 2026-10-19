@@ -1,5 +1,23 @@
 # Prompt安全评测-说明文档（for A.I.G）
 
+命令用法：[中文](./USAGE_zh.md) · [English](./USAGE.md)
+
+模型体检 / 越狱评测可以单独安装：
+
+```bash
+pip install aig-model-scan
+
+aig-model-scan \
+  --model "<模型名称>" \
+  --base_url "<API基础URL>" \
+  --api_key "<你的API密钥>" \
+  --max_concurrent 10 \
+  --scenarios Bias \
+  --techniques Raw
+```
+
+从源码运行时，`python cli_run.py` 的参数与上面相同。
+
 ## a) 模型API评测
 
 ### 模型接口配置

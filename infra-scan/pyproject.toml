@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aig-infra-scan"
+version = "0.1.0"
+description = "AI infrastructure fingerprint and vulnerability scanner"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Tencent Zhuque Lab", email = "zhuque@tencent.com" },
+]
+keywords = [
+  "ai-security",
+  "fingerprint",
+  "vulnerability",
+  "ai-infra-guard",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security",
+]
+dependencies = []
+
+[project.scripts]
+aig-infra-scan = "aig_infra_scan.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Tencent/AI-Infra-Guard"
+Repository = "https://github.com/Tencent/AI-Infra-Guard"
+Documentation = "https://github.com/Tencent/AI-Infra-Guard/tree/main/infra-scan"
+
+[tool.setuptools]
+packages = ["aig_infra_scan"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"aig_infra_scan" = [
+  "bin/*",
+  "data/**/*",
+]
