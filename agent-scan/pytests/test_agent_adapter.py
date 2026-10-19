@@ -1,7 +1,10 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from agent_scan.core.agent_adapter.adapter import AIProviderClient
+from agent_scan.core.agent_adapter.adapter import (
+    _agui_terminal_event,
+    AIProviderClient,
+)
 
 
 def test_make_http_request_uses_transform_for_sse_chunks():
@@ -104,3 +107,80 @@ def test_make_http_request_streams_sse_body_even_when_connection_stays_open():
     assert result.provider_response.raw["choices"][0]["message"]["content"] == "Hello World"
     # The streaming path must be used for SSE responses.
     http_client.return_value.__enter__.return_value.stream.assert_called_once()
+
+
+def test_agui_terminal_event_only_recognizes_run_lifecycle():
+    """AG-UI terminal detection must not misclassify other SSE payloads."""
+    assert _agui_terminal_event('data: {"type":"RUN_FINISHED","threadId":"t1"}') == "RUN_FINISHED"
+    assert _agui_terminal_event('data: {"type":"RUN_ERROR","error":{"message":"boom"}}') == "RUN_ERROR"
+    # Not terminal / not AG-UI.
+    assert _agui_terminal_event('data: {"type":"TEXT_MESSAGE_CONTENT","delta":"hi"}') is None
+    assert _agui_terminal_event("data: [DONE]") is None
+    assert _agui_terminal_event("data: plain text") is None
+    assert _agui_terminal_event("data: {invalid json") is None
+    assert _agui_terminal_event("event: run_finished") is None
+
+
+def test_make_http_request_parses_agui_stream_stopping_at_run_finished():
+    """#699: AG-UI streams end with RUN_FINISHED (not OpenAI [DONE]) — the
+    factory must consume TEXT_MESSAGE_CONTENT deltas and stop at the terminal
+    event instead of waiting for the connection to close."""
+    lines = [
+        'data: {"type":"RUN_STARTED","threadId":"t1","runId":"r1"}',
+        "",
+        'data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"m1","delta":"Hello"}',
+        "",
+        'data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"m1","delta":" World"}',
+        "",
+        'data: {"type":"RUN_FINISHED","threadId":"t1","runId":"r1","usage":{"output_tokens":2}}',
+        "",
+        # Simulate a connection that would keep producing lines after the run
+        # finished — the factory must break at RUN_FINISHED.
+        'data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"m2","delta":"IGNORED"}',
+    ]
+    client = object.__new__(AIProviderClient)
+    client.timeout = 30
+
+    with patch("agent_scan.core.agent_adapter.adapter.httpx.Client") as http_client:
+        stream_cm = http_client.return_value.__enter__.return_value.stream.return_value.__enter__.return_value
+        stream_cm.status_code = 200
+        stream_cm.headers = {"content-type": "text/event-stream"}
+        stream_cm.iter_lines.return_value = iter(lines)
+        result = client._make_http_request(
+            "https://example.test/agent", "POST", {}, {}, None
+        )
+
+    assert result.success is True
+    assert result.provider_response.output == "Hello World"
+    assert result.provider_response.raw["content"] == "Hello World"
+    assert result.provider_response.raw["protocol"] == "agui"
+    assert result.provider_response.raw["usage"] == {"output_tokens": 2}
+
+
+def test_make_http_request_surfaces_agui_run_error():
+    """AG-UI RUN_ERROR must be surfaced as a failed result, not dropped."""
+    lines = [
+        'data: {"type":"RUN_STARTED","threadId":"t1","runId":"r1"}',
+        "",
+        'data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"m1","delta":"Hello"}',
+        "",
+        'data: {"type":"RUN_ERROR","threadId":"t1","runId":"r1","error":{"message":"agent crashed"}}',
+        "",
+    ]
+    client = object.__new__(AIProviderClient)
+    client.timeout = 30
+
+    with patch("agent_scan.core.agent_adapter.adapter.httpx.Client") as http_client:
+        stream_cm = http_client.return_value.__enter__.return_value.stream.return_value.__enter__.return_value
+        stream_cm.status_code = 200
+        stream_cm.headers = {"content-type": "text/event-stream"}
+        stream_cm.iter_lines.return_value = iter(lines)
+        result = client._make_http_request(
+            "https://example.test/agent", "POST", {}, {}, None
+        )
+
+    assert result.success is False
+    assert "agent crashed" in result.message
+    assert result.provider_response.output == "Hello"
+    assert result.provider_response.raw["run_error"] == "agent crashed"
+    assert result.provider_response.raw["protocol"] == "agui"
