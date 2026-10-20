@@ -146,6 +146,17 @@ providers:
           - zai-org/glm-5.2
           - qwen/qwen3.8-27b
 
+      cheaperinference:
+        env_keys: ["CHEAPER_INFERENCE_API_KEY"]
+        base_url: "https://api.cheaperinference.com/v1"
+        endpoint: "/chat/completions"
+        default_model: "gpt-5.4-mini"
+        models:
+          - gpt-5.4-mini
+          - claude-sonnet-5
+          - deepseek-v4-flash
+          - glm-5.3
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
