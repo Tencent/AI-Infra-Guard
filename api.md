@@ -150,6 +150,7 @@ Used to perform security scanning on AI Agents (such as Dify, Coze, or custom HT
 | eval_model.base_url | string | No | Base URL |
 | language | string | No | Language code, e.g., "zh" or "en" |
 | prompt | string | No | Additional scan instructions |
+| skills | array | No | Detection skills to run; all skills run if omitted. Allowed values: `data-leakage-detection`, `tool-abuse-detection`, `indirect-injection-detection`, `authorization-bypass-detection`, `web-exfiltration-detection`, `agentic-supply-chain-detection`, `unexpected-code-execution-detection`, `inter-agent-comm-security-detection`, `cascading-failure-detection`, `human-agent-trust-exploit-detection`, `memory-rag-poisoning-detection` |
 
 > \* `agent_id` and `agent_config` are mutually exclusive; at least one must be provided.
 
