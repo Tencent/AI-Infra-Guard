@@ -41,6 +41,6 @@ info:
     channels.telegram.webhookSecret and ensure your reverse proxy forwards the X-Telegram-Bot-Api-Secret-Token header unchanged.'
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv
-rule: version <= "2026.2.1"
+rule: version < "2026.2.1"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv

@@ -48,6 +48,6 @@ info:
     d7c3210cd6f5fdfdc1beff4c9541673e814354d5。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-w9j9-w4cp-6wgr
-rule: 'version <= "2026.3.28"'
+rule: version < "2026.4.8"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-w9j9-w4cp-6wgr

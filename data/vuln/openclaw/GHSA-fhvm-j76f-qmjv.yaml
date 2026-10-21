@@ -34,6 +34,6 @@ info:
   security_advise: 升级 openclaw 至 >=2026.2.2 或更高版本。修复提交 - ca92597e1f9593236ad86810b66633144b69314d（配置验证：webhookUrl 要求 webhookSecret）。变通方案 - 配置强密钥 channels.telegram.webhookSecret，确保反向代理不变地转发 X-Telegram-Bot-Api-Secret-Token 头。
   references:
   - https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv
-rule: version <= "2026.2.1"
+rule: version < "2026.2.1"
 references:
 - https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv
