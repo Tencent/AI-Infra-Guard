@@ -8,10 +8,17 @@ info:
     vendor: microsoft
 http:
   - method: GET
+    path: '/'
+    matchers:
+      - body="<title>AutoGen Studio"
+  - method: GET
     path: '/api/version'
     matchers:
-      - body="AutoGen Studio API"
+      - body="Version retrieved successfully" && body="\"version\""
+version:
   - method: GET
-    path: '/api/health'
-    matchers:
-      - body="Service is healthy"
+    path: '/api/version'
+    extractor:
+      part: body
+      group: 1
+      regex: '"version":\s*"(\d+\.\d+(?:\.\d+)?)'

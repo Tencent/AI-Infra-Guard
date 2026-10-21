@@ -11,17 +11,13 @@ info:
     vendor: hatchet-dev
 http:
   - method: GET
-    path: '/api/v1/version'
-    matchers:
-      - body="\"version\""
-  - method: GET
     path: '/'
     matchers:
       - body="<title>Hatchet</title>"
   - method: GET
     path: '/api/v1/meta'
     matchers:
-      - body="\"pylonAppId\"" || body="\"authDisabled\""
+      - body="\"allowSignup\"" && body="\"allowCreateTenant\"" && body="\"allowChangePassword\""
 version:
   - method: GET
     path: '/api/v1/version'

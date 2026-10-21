@@ -18,7 +18,7 @@ http:
   - method: GET
     path: '/health_check'
     matchers:
-      - body="\"chat\":" && body="\"db\":"
+      - body="\"status\":\"" && body="\"chat\":\"" && body="\"db\":\""
 version:
   - method: GET
     path: '/api/v1/version'

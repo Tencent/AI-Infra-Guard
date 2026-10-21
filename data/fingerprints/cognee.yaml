@@ -18,7 +18,7 @@ http:
   - method: GET
     path: '/health'
     matchers:
-      - body="\"version\"" && body="\"status\""
+      - body="\"status\":\"ready\"" && body="\"health\":" && body="\"version\":"
 version:
   - method: GET
     path: '/health'

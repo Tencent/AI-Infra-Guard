@@ -5,8 +5,7 @@ info:
   desc: >-
     F5-TTS is a zero-shot text-to-speech system based on flow matching.
     It provides a Gradio web interface (default port 7860) with tabs for
-    Basic-TTS, Multi-Speech, Voice-Chat, and Credits. The HTTP server
-    runs on uvicorn (Gradio default).
+    Basic-TTS, Multi-Speech, Voice-Chat, and Credits.
   metadata:
     product: f5-tts
     vendor: swivid
@@ -14,12 +13,4 @@ http:
   - method: GET
     path: /
     matchers:
-      - body="F5-TTS"
-      - body="Basic-TTS"
-version:
-  - method: GET
-    path: /
-    extractor:
-      part: body
-      group: 1
-      regex: 'window\.gradio_config = \{"version":"(\d+\.\d+\.?\d+?)"'
+      - body="Basic-TTS" && body="Multi-Speech"
