@@ -2,6 +2,8 @@
 
 **[English](./README.md)** | 中文
 
+命令用法：[中文](./USAGE_zh.md) · [English](./USAGE.md)
+
 > 由腾讯朱雀实验室开发的 AI Agent 平台动态黑盒安全测试工具。
 
 ## ✨ 功能特性
@@ -17,6 +19,15 @@
 - **🐛 调试模式**：集成 Laminar 追踪，便于调试
 
 ## 🚀 快速开始
+
+### 从 PyPI 安装
+
+```bash
+pip install aig-agent-scan
+aig-agent-scan --agent_provider providers.yaml -k "$LLM_API_KEY" -m deepseek-v3.2-exp
+```
+
+下面的参数同样适用于 `aig-agent-scan`，不必再写 `python main.py`。
 
 ### 1. 克隆项目
 

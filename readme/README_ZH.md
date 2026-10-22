@@ -166,6 +166,19 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+其余扫描模块同样独立安装：
+
+```bash
+pip install aig-infra-scan
+aig-infra-scan -t https://example.com
+
+pip install aig-model-scan
+pip install aig-mcp-scan
+pip install aig-agent-scan
+```
+
+维护者在仓库根目录用 `python scripts/publish_pypi.py` 构建并上传。`aig-infra-scan` 会把 Go 扫描器打进 wheel；加上 `--target all` 可为每个支持的系统各打一个包。
+
 ### 🌟 体验在线Pro版
 体验具有内测及高级功能的Pro版，需要[邀请码](https://wj.qq.com/s2/25099467/25vn/)，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
 <br/>

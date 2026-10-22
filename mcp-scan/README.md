@@ -2,6 +2,8 @@
 
 English | **[中文](./README_zh.md)**
 
+Command usage: [USAGE.md](./USAGE.md) · [中文](./USAGE_zh.md)
+
 > An AI Agent-driven automated MCP Server security scanning and vulnerability detection tool, developed by Tencent Zhuque Lab.
 
 ## ✨ Features
@@ -19,6 +21,15 @@ English | **[中文](./README_zh.md)**
 - **⚡ Static Pre-scan**: Regex-based scanning for high-risk patterns (curl|bash, cloud metadata, credential theft, etc.) before Agent launch, generating prompt injection context
 
 ## 🚀 Quick Start
+
+### Install from PyPI
+
+```bash
+pip install aig-mcp-scan
+aig-mcp-scan --repo ./myproject -o result.sarif.json
+```
+
+The flags below are the same when the command is `aig-mcp-scan` instead of `python main.py`.
 
 ### 1. Clone the Project
 
