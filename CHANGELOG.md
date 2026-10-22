@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.7] - 2026-10-22
+
+### Added
+- **Agent-Scan**: Forward prompt and selected skills to the scanner (PR #704, c11a8527)
+- **Agent-Scan**: Add Cheaper Inference provider preset (PR #720, ee734d11)
+- **Agent-Scan**: Support AG-UI (CopilotKit) protocol streams (PR #710, ba2f8de8)
+- **Data**: Add daily AI CVE advisories and astron-agent fingerprint (PR #717, c6629d4e)
+
+### Fixed
+- **Data**: Correct CVE rule ranges and severity vocabulary (PR #716, e13aad6b)
+- **Fingerprints**: Match AutoGen Studio title with or without [Beta] (PR #715, 6fb92e77)
+- **Fingerprints**: Tighten generic matchers and drop non-identifying rules (PR #715, 63a8c95a)
+- **Yamlcheck**: Deduplicate severity labels in isValidSeverity (PR #714, a5c5a72c)
+- **Models**: Avoid panic on unclosed JSON fences with leading text (PR #713, 8e715c38)
+- **Data**: Replace malformed git-hash version rules with real versions (PR #606, 33982126)
+
+### Contributors
+aiapienthusiast, Cursor Agent, donglige, feiyang, helo060228, stanley, 万家良
+
 ## [v4.6.6] - 2026-10-15
 
 ### Added
