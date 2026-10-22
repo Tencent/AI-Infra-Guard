@@ -71,11 +71,11 @@ A.I.Gの改善にご協力ください！3〜5分で[ユーザーフィードバ
 
 ## 🚀 最新情報
 
+- **2026-10-22** · [v4.6.7](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.7) — 脆弱性ライブラリに大量の新規 CVE ルールを追加（LangFlow、n8n、MCP-Atlassian、Open-WebUI、vLLM、SGLang、LiteLLM など）し、新しい astron-agent フィンガープリントを追加；Agent-Scan が AG-UI（CopilotKit）プロトコルストリームに対応し、Cheaper Inference provider プリセットを追加；モデルストリーミングをより堅牢に（不正な JSON フェンスで panic しない）。
 - **2026-10-15** · [v4.6.6](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.6) — Agent-Scan にメモリ/RAG ポイズニング検出スキルを追加（永続メモリとナレッジベースの汚染をテスト）、さらに Atlas Cloud と API Route の provider プリセットを追加；CLI に JSON スキャン出力を追加；ダッシュボードでモデルごとの extra_headers / extra_body を編集可能に；モデルストリーミングをより堅牢に（SSE は [DONE] で停止、空の choices と部分出力後の中断を適切に処理）。
 - **2026-10-08** · [v4.6.5](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.5) — 脆弱性ライブラリに 271 件の CVE ルールと 14 件のフィンガープリントを追加；MCP-Scan がモダン/レガシープロトコルを自動ネゴシエートし、ネゴシエートされたバージョンとトランスポートを記録；Agent-Scan に OrcaRouter をファーストクラス provider として追加；レート制限を考慮した LLM リトライと有界なストリーミング応答で大規模スキャンの安定性を向上。
 - **2026-10-01** · [v4.6.4](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.4) — 新しい pikit プロンプトインジェクション研究ツールキット（組み合わせ可能な攻撃・防御・間接インジェクションチャネルと組み込みエージェントシナリオで AI エージェントのレッドチームが可能）；Skill-Scan はオプションの推論努力をモデル API に転送するようになりました。
 - **2026-09-24** · [v4.6.3](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.3) — API Checker：Claude 5 モデル署名に対応し、モデル識別の信頼性を向上（失敗したフィンガープリントサンプルを自動補充）；Prompt-Eval：レート制限を考慮したバックオフ、サーキットブレーカーおよびより安全なプロセスグループ終了を追加し、大規模レッドチームの安定性を向上。
-- **2026-09-17** · [v4.6.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.2) — 脆弱性ライブラリに 155 件の新規 CVE ルールを追加し、40+ の AI コンポーネントをカバー（LangFlow、n8n、PraisonAI、vLLM、llama-cpp、MLflow など）；Skill-Scan の精度向上（証拠のない誤検出を削減、ストリーミング応答のストール防止）；新規エージェント制御不能ベンチマーク（FORGE-Bench、RogueHandoff-20）。
 
 👉 [過去のリリース](../CHANGELOG.md) · 🛒 [AIセキュリティスキル市場](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
