@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `runcrate`, `websocket`, and more.
 
 ### API Route
 
@@ -185,6 +185,25 @@ targets:
 The bare provider ID `cheaperinference` uses the default model `gpt-5.4-mini`. To choose another model, use `cheaperinference:<exact-model-id>` as listed by `GET https://api.cheaperinference.com/v1/models` (for example `claude-sonnet-5`). The preset lists only a few models, not the full gateway catalog.
 
 This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. Cheaper Inference requests use `Authorization: Bearer <CHEAPER_INFERENCE_API_KEY>` through the existing adapter; no extra SDK is required.
+
+### Runcrate
+
+[Runcrate](https://www.runcrate.ai/inference?utm_source=ai-infra-guard&utm_medium=directory&utm_campaign=gpu_pricing) is an optional OpenAI-compatible provider using `https://api.runcrate.ai/v1`. Open models are free with your GitHub account. Set your own key in the environment:
+
+```bash
+export RUNCRATE_API_KEY="your-runcrate-key"
+```
+
+To use it as the target provider, save the following in a separate target YAML file and pass that file to `--agent_provider`:
+
+```yaml
+targets:
+  - id: "runcrate:deepseek-ai/DeepSeek-V4.1-Flash"
+```
+
+The bare provider ID `runcrate` uses the default model `deepseek-ai/DeepSeek-V4.1-Flash`. To choose another model, use `runcrate:<exact-model-id>` with the vendor prefix as listed by `GET https://api.runcrate.ai/v1/models` (for example `openai/gpt-oss-120b`). That listing is public, so it does not prove a key is valid. The preset lists only a few models, not the full catalog.
+
+This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. Runcrate requests use `Authorization: Bearer <RUNCRATE_API_KEY>` through the existing adapter; no extra SDK is required.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 

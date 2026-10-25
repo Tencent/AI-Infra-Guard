@@ -119,6 +119,17 @@ providers:
           - deepseek-v4-flash
           - glm-5.3
 
+      runcrate:
+        env_keys: ["RUNCRATE_API_KEY"]
+        base_url: "https://api.runcrate.ai/v1"
+        endpoint: "/chat/completions"
+        default_model: "deepseek-ai/DeepSeek-V4.1-Flash"
+        models:
+          - deepseek-ai/DeepSeek-V4.1-Flash
+          - openai/gpt-oss-120b
+          - zai-org/GLM-5.3
+          - moonshotai/Kimi-K2.6
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
