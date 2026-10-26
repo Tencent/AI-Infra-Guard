@@ -40,3 +40,5 @@ infra-scan/aig_infra_scan/bin/*
 !infra-scan/aig_infra_scan/bin/.gitkeep
 infra-scan/aig_infra_scan/data/*
 !infra-scan/aig_infra_scan/data/.gitkeep
+engine
+frontend
