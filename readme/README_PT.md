@@ -169,6 +169,27 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+### Model and API Relay Checker
+
+O frontend do checker é implantado separadamente. A implantação com Docker mantém
+as APIs do checker disponíveis em `GET /api/v1/relay/models` e
+`POST /api/v1/relay/check/stream`; a documentação da API está disponível em
+`http://127.0.0.1:8088/api-checker/docs`. Para executar o checker e o CLI unificado
+a partir do código-fonte:
+
+```bash
+python3 -m venv services/api_checker/.venv
+services/api_checker/.venv/bin/pip install -r services/api_checker/requirements.txt
+go build -o ai-infra-guard ./cmd/cli/main.go
+
+export AIG_API_CHECKER_PYTHON="$PWD/services/api_checker/.venv/bin/python"
+./ai-infra-guard api-checker list
+./ai-infra-guard api-checker audit
+```
+
+Consulte o [guia de integração do API Checker](../docs/api-checker-integration.md) para
+a arquitetura de runtime embarcada no Agent, API HTTP, configuração e limites de segurança.
+
 ### 🌟 Experimente a Versão Pro Online
 Experimente a versão Pro com recursos avançados e desempenho aprimorado. A versão Pro requer um [código de convite](https://wj.qq.com/s2/25099467/25vn/) e é priorizada para contribuidores que submeteram issues, pull requests ou discussões, ou que ajudam ativamente a expandir a comunidade. Acesse: [https://aigsec.ai/](https://aigsec.ai/).
 <br>
@@ -209,6 +230,7 @@ Para o ranking completo, visite [SkillTrustBench](https://matrix.tencent.com/ski
 | **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | Detecta minuciosamente 14 categorias principais de riscos de segurança. A detecção se aplica tanto a MCP Servers quanto a Agent Skills. Suporta flexivelmente o scan a partir de código-fonte e URLs remotas. |
 | **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | Este scanner identifica com precisão mais de 100 componentes de frameworks de IA. Cobre mais de 2000 vulnerabilidades CVE conhecidas. Os frameworks suportados incluem Ollama, ComfyUI, vLLM, n8n, Triton Inference Server e muito mais. |
 | **Jailbreak&nbsp;Evaluation** | Avalia riscos de segurança de prompts usando datasets cuidadosamente selecionados. A avaliação aplica múltiplos métodos de ataque para testar a robustez. Também oferece capacidades detalhadas de comparação entre modelos. |
+| **Model and API Relay Checker** | Fingerprinting de modelos, verificação de assinatura Claude, auditoria black-box de relay, PAMELA e Ventor QTest. |
 
 <details>
 <summary><strong>💎 Benefícios Adicionais</strong></summary>
