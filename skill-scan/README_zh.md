@@ -2,6 +2,8 @@
 
 **[English](./README.md)** | 中文
 
+命令用法：[中文](./USAGE_zh.md) · [English](./USAGE.md)
+
 > AI Native Agent Skill 安全审计工具 —— LLM 驱动的多阶段代码审计与漏洞复审流水线。
 
 `aig-skill-scan` 是 [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard) 的子项目，专门用于对 AI Agent Skill 项目（如 OpenClaw Skill 等）进行静态安全审计，由 LLM 驱动。

@@ -169,6 +169,19 @@ aig-skill-scan --repo /path/to/your/skill \
            -o result.json
 ```
 
+The other scanners install the same way. Each package is independent:
+
+```bash
+pip install aig-infra-scan
+aig-infra-scan -t https://example.com
+
+pip install aig-model-scan
+pip install aig-mcp-scan
+pip install aig-agent-scan
+```
+
+Maintainers build and upload them from the repository root with `python scripts/publish_pypi.py`. `aig-infra-scan` packages the Go scanner; pass `--target all` to build a wheel for each supported system.
+
 ### Model and API Relay Checker
 
 The checker frontend is deployed separately. Docker deployment keeps the

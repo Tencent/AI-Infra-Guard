@@ -155,11 +155,16 @@ def main():
     )
 
 
-if __name__ == "__main__":
+def cli() -> None:
+    """Console script entry for ``aig-model-scan``."""
     try:
         main()
-        # 清理过期文件
         cleanup_expired_files()
     except Exception as e:
         logger.error(e)
         logger.critical_issue(content=logger.translated_msg("Something went wrong. Please try again in a few moments."))
+        raise SystemExit(1) from e
+
+
+if __name__ == "__main__":
+    cli()

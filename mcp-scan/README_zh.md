@@ -2,6 +2,8 @@
 
 **[English](./README.md)** | 中文
 
+命令用法：[中文](./USAGE_zh.md) · [English](./USAGE.md)
+
 一个基于 AI Agent 的自动化 MCP Server 安全扫描和漏洞检测工具，由腾讯朱雀实验室开发。
 
 ## ✨ 特性
@@ -19,6 +21,15 @@
 - **⚡ 静态预扫描**: Agent 启动前用正则快速扫描高危模式（curl|bash、云元数据、凭据窃取等），生成提示注入上下文
 
 ## 🚀 快速开始
+
+### 从 PyPI 安装
+
+```bash
+pip install aig-mcp-scan
+aig-mcp-scan --repo ./myproject -o result.sarif.json
+```
+
+下面的参数同样适用于 `aig-mcp-scan`，不必再写 `python main.py`。
 
 ### 1. 克隆项目
 

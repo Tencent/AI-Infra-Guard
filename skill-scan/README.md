@@ -2,6 +2,8 @@
 
 English | **[中文](./README_zh.md)**
 
+Command usage: [USAGE.md](./USAGE.md) · [中文](./USAGE_zh.md)
+
 > AI Native Agent Skill security auditing tool — an LLM-driven multi-stage code audit and vulnerability review pipeline.
 
 `aig-skill-scan` is a subproject of [Tencent AI-Infra-Guard](https://github.com/Tencent/AI-Infra-Guard), purpose-built for static, LLM-driven security auditing of AI Agent Skill projects (OpenClaw Skills, etc.).
