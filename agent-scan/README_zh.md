@@ -127,7 +127,7 @@ targets:
       transform_response: "reply"
 ```
 
-支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`cheaperinference`、`websocket` 等。
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`cheaperinference`、`runcrate`、`websocket` 等。
 
 ### API Route
 
@@ -185,6 +185,25 @@ targets:
 仅使用 provider ID `cheaperinference` 时，默认模型为 `gpt-5.4-mini`。选择其他模型时，使用 `cheaperinference:<完整模型 ID>`，与 `GET https://api.cheaperinference.com/v1/models` 列出的 ID 一致（例如 `claude-sonnet-5`）。预设只列出少数模型，并非网关的完整模型目录。
 
 此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。Cheaper Inference 通过现有 adapter 使用 `Authorization: Bearer <CHEAPER_INFERENCE_API_KEY>` 鉴权，无需额外 SDK。
+
+### Runcrate
+
+[Runcrate](https://www.runcrate.ai/inference?utm_source=ai-infra-guard&utm_medium=directory&utm_campaign=gpu_pricing) 是可选的 OpenAI 兼容 provider，使用 `https://api.runcrate.ai/v1`。开放模型可通过 GitHub 账号免费使用。在环境变量中设置你自己的密钥：
+
+```bash
+export RUNCRATE_API_KEY="your-runcrate-key"
+```
+
+将它作为被扫描的目标时，把以下内容保存为单独的目标 YAML 文件，并通过 `--agent_provider` 指定该文件：
+
+```yaml
+targets:
+  - id: "runcrate:deepseek-ai/DeepSeek-V4.1-Flash"
+```
+
+仅使用 provider ID `runcrate` 时，默认模型为 `deepseek-ai/DeepSeek-V4.1-Flash`。选择其他模型时，使用 `runcrate:<完整模型 ID>`，带上与 `GET https://api.runcrate.ai/v1/models` 列出一致的厂商前缀（例如 `openai/gpt-oss-120b`）。该列表是公开的，不能用来验证密钥是否有效。预设只列出少数模型，并非完整模型目录。
+
+此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。Runcrate 通过现有 adapter 使用 `Authorization: Bearer <RUNCRATE_API_KEY>` 鉴权，无需额外 SDK。
 
 #### ⚠️ `transform_response` — 自定义 HTTP Provider 的关键配置
 
