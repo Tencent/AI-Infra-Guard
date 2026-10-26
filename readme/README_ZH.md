@@ -18,9 +18,6 @@
     <a href="https://github.com/Tencent/AI-Infra-Guard">
         <img alt="Release" src="https://img.shields.io/github/v/release/Tencent/AI-Infra-Guard?color=green">
     </a>
-    <a href="https://deepwiki.com/Tencent/AI-Infra-Guard">
-       <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
-    </a>
 </p>
 <p align="center">
     <a href="https://clawhub.ai/aigsec/edgeone-clawscan" target="_blank">
@@ -61,21 +58,8 @@
   </a>
 </p>
 
-## 📋 用户反馈问卷
-
-帮助我们改进 A.I.G！请花 3-5 分钟填写我们的[用户反馈调查问卷](https://doc.weixin.qq.com/forms/AJEAIQdfAAoAFkA0QbdAFwCNcKSO0BFLf)。提供高质量反馈并留下有效邮箱的用户，将收到鹅厂特色小礼品。
-
 <br>
 
-## 🚀 最新动态
-
-- **2026-09-17** · [v4.6.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.2) — 漏洞库新增 155 条 CVE 规则，覆盖 40+ 个 AI 组件（LangFlow、n8n、PraisonAI、vLLM、llama-cpp、MLflow 等）；Skill-Scan 准确性提升（减少无证据误报、避免流式响应卡死）；新增智能体失控基准测试（FORGE-Bench、RogueHandoff-20）。
-- **2026-09-10** · [v4.6.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.1) — API 检测器：扩展模型指纹覆盖（Gemini 2.5/3.1、Gemma 2/3/4、GLM-5.3 与 GLM-5.3-Flash）；MCP 扫描可靠性提升：标记空/不完整扫描结果、上下文压缩时保留安全发现、暴露底层连接错误；修正错误标注的 CVE 产品名称。
-- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — 大模型 API 投毒检测（多维黑盒探针识别模型掺水与后门风险）；Agent-Scan v5.0.0 重构攻击变异引擎；漏洞库覆盖 146 个 AI 组件、2000+ CVE 规则；修复多个 Bug，提升 MCP/Skill 扫描稳定性与兼容性。
-- **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan：新增 .pyc 字节码绕过检测 + 字符集走私防御；MCP-Scan：动态模式工具白名单防止 RCE；新增 SkillJack 研究项目；漏洞库扩展至 2000+ CVE 规则。
-- **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — 大模型安全体检(Jailbreak Evaluation)：新增 4 种多轮越狱攻击（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：新增 5 个 OWASP 检测技能 + Web 数据外传检测（共 10 个技能）；MCP-Scan：新增 4 条安全检测规则
-
-👉 [更早版本](../CHANGELOG.md) · 🛒 [AI安全技能市场](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
@@ -111,20 +95,6 @@ docker-compose -f docker-compose.images.yml up -d
 `http://localhost:8088`
 <br>
 
-#### 在 OpenClaw 中使用
-
-你也可以通过 OpenClaw 的 `aig-scanner` skill 直接调用 A.I.G 服务。
-
-```bash
-clawhub install aig-scanner
-```
-
-然后将 `AIG_BASE_URL` 配置为正在运行的 A.I.G 服务地址。
-
-更多说明见：[`aig-scanner` 说明](../skills/aig-scanner/README.zh-CN.md)
-
-<details>
-<summary><strong>更多安装方式</strong></summary>
 
 ### 其他安装方式
 
@@ -177,62 +147,6 @@ pip install aig-mcp-scan
 pip install aig-agent-scan
 ```
 
-维护者在仓库根目录用 `python scripts/publish_pypi.py` 构建并上传。`aig-infra-scan` 会把 Go 扫描器打进 wheel；加上 `--target all` 可为每个支持的系统各打一个包。
-
-### 🌟 体验在线Pro版
-体验具有内测及高级功能的Pro版，需要[邀请码](https://wj.qq.com/s2/25099467/25vn/)，优先提供给提交过 Issues、Pull Requests 或 Discussions，或积极帮助社区发展的贡献者。访问：[https://aigsec.ai/](https://aigsec.ai/)
-<br/>
-<br/>
-
-## ✨ 功能特性
-
-### 🔍 aig-skill-scan 性能与覆盖范围
-
-使用不同 LLM 在 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) 上的表现：
-
-| # | 模型 | F1 | Precision (精确率) | Recall (召回率) | FPR (误报率) |
-|:--|:------|:---|:----------|:-------|:----|
-| 1 | Claude Opus 4.6 | **0.9848** | 0.9725 | **0.9974** | 0.0663 |
-| 2 | GLM 5.1 | 0.9836 | 0.9701 | **0.9974** | 0.0723 |
-| 3 | Gemini 3.5 Flash | 0.9792 | **0.9947** | 0.9641 | **0.0120** |
-| 4 | Kimi 2.6 | 0.9780 | 0.9895 | 0.9667 | 0.0241 |
-| 5 | DeepSeek v4 Flash | 0.9740 | 0.9868 | 0.9615 | 0.0301 |
-
-覆盖 9 类 Skill 安全风险（SkillTrustBench T01–T09）：
-
-| 层级 | 攻击类别 |
-|:------|:--------|
-| A — 指令与记忆层 | T01 技能指令劫持、T02 Agent 记忆投毒 |
-| B — 代码执行通道 | T03 远程载荷下载执行、T04 内嵌恶意代码 |
-| C — 系统权限与持久化 | T05 越权访问与提权、T06 系统持久化驻留 |
-| D — 工具链与依赖层 | T07 工具劫持与伪装、T08 不安全依赖 |
-| E — Skill 自身安全质量 | T09 不安全编码 |
-
-完整排行榜与详情请访问 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)。
-
-### 🔬 安全扫描与评估
-
-| 功能模块 | 详情说明 |
-|:--------|:------------|
-| **[ClawScan(OpenClaw&nbsp;Security&nbsp;Scan)](https://matrix.tencent.com/clawscan)** | 支持一键评估 OpenClaw 的安全风险。可全面检测不安全配置、Skill 风险、CVE 漏洞以及隐私泄露等问题。 |
-| **Agent&nbsp;Scan** | 专为评估 AI Agent 工作流的安全性而设计，无缝支持对运行在 Dify、Coze 等各类平台上的 Agent 进行安全检测。 |
-| **MCP&nbsp;Server&nbsp;&&nbsp;Agent&nbsp;Skills&nbsp;scan** | 深度检测 MCP Server 与 Agent Skills 的 14 大类的安全风险。灵活支持上传源代码和远程 URL 两种方式进行检测。 |
-| **AI&nbsp;infra&nbsp;vulnerability&nbsp;scan** | 精准识别 100+ 种 AI 开源 Web 组件。涵盖 2000+ 已知的 CVE 漏洞，支持检测的框架包括 Ollama、ComfyUI、vLLM、n8n、Triton Inference Server 等。 |
-| **Jailbreak&nbsp;Evaluation** | 支持使用精选的数据集与越狱攻击算法快速评估大模型内生安全风险与护栏有效性，同时提供详尽的跨模型横向对比与评估功能。 |
-
-<details>
-<summary><strong>其他优势</strong></summary>
-
-- 🖥️ **现代化Web界面**：用户友好的UI，一键扫描和实时进度跟踪
-- 🔌 **完整API**：完整的接口文档和Swagger规范，便于集成
-- 🤖 **拥抱Agent**：开箱即用的 ClawHub Agent 技能 — [EdgeOne ClawScan](https://clawhub.ai/aigsec/edgeone-clawscan)、[EdgeOne Skill Scanner](https://clawhub.ai/aigsec/edgeone-skill-scanner) 和 [AIG Scanner](https://clawhub.ai/aigsec/aig-scanner) — 一键将安全扫描嵌入任意 AI Agent 工作流
-- 🌐 **多语言支持**：中英文界面，本地化文档
-- 🐳 **跨平台兼容**：支持Linux、macOS和Windows，基于Docker部署
-- 🆓 **免费且开源**：完全免费，Apache License 2.0 开源协议
-</details>
-
-<br />
-
 ## 🖼️ 功能展示
 
 ### A.I.G 主界面
@@ -242,59 +156,11 @@ pip install aig-agent-scan
 
 <br />
 
-
-## 🗺️ 快速使用指南
-
-> 部署完成后，在浏览器中打开 `http://localhost:8088`。
-
-### AI基础设施漏洞扫描
-
-**目标地址填什么？**
-
-目标是**正在运行的 AI 服务的网络地址**，不是 GitHub 链接，也不是源代码路径。A.I.G 会连接到这个地址，识别 AI 框架组件和版本，并匹配已知 CVE 漏洞。
-
-| 场景 | 目标示例 |
-|:-----|:--------|
-| 本地运行的 vLLM 实例 | `http://127.0.0.1:8000` |
-| 内网 Ollama 服务器 | `http://192.168.1.100:11434` |
-| 内网 ComfyUI 实例 | `http://10.0.0.5:8188` |
-| 批量扫描多台主机 | `192.168.1.0/24`（CIDR），`10.0.0.1-10.0.0.20`（IP 段） |
-
-**实例演练：扫描本地 vLLM**
-
-1. 正常启动 vLLM（如 `python -m vllm.entrypoints.api_server --model ...`）
-2. 在 A.I.G 界面点击「AI基础设施安全扫描」
-3. 在目标输入框填入 `http://127.0.0.1:8000`（vLLM 实际监听的 IP 和端口）
-4. 点击「开始扫描」— A.I.G 会自动识别组件版本，匹配 2000+ 已知 CVE
-5. 查看报告：组件版本、命中漏洞、严重等级及修复建议链接
-
-> 💡 **提示**：如果想扫描 vLLM 的 nightly 版本，只需启动 nightly 构建，把地址填进来即可，扫描器会自动识别版本。
-
-### MCP Server & Agent Skills 扫描
-
-在目标框填入 **GitHub 仓库地址**（如 `https://github.com/user/mcp-server`）或**直接上传本地源代码压缩包**，无需运行实例。
-
-### 越狱评估（Jailbreak Evaluation）
-
-在「设置 → 模型配置」中填入目标大模型的 API 地址和 Key，选择评估数据集后即可开始测评。
-
----
-
 ## 📖 用户指南
 
 访问我们的在线文档：[https://tencent.github.io/AI-Infra-Guard/](https://tencent.github.io/AI-Infra-Guard/)
 
 更多详细的常见问题解答和故障排除指南，请访问我们的[文档](https://tencent.github.io/AI-Infra-Guard/?menu=faq)。
-<br />
-<br>
-
-## 🔧 API文档
-
-A.I.G 提供了一套创建任务相关的API接口，支持AI基础设施扫描、MCP安全扫描和大模型安全体检功能。
-
-项目运行后访问 `http://localhost:8088/docs/index.html` 可查看完整的API文档
-
-详细的API使用说明、参数说明和完整示例代码，请查看 [完整API文档](../api_zh.md)。
 <br />
 <br>
 
@@ -523,13 +389,11 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
   <thead>
   <tr>
     <th>微信群</th>
-    <th>Discord <a href="https://discord.gg/U9dnPnyadZ">[链接]</a></th>
   </tr>
   </thead>
   <tbody>
   <tr>
     <td><img src="../img/wechatgroup.png" alt="微信群" width="200"></td>
-    <td><img src="../img/discord.png" alt="discord" width="200"></td>
   </tr>
   </tbody>
 </table>
@@ -556,75 +420,6 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
   url={https://github.com/Tencent/AI-Infra-Guard}
 }
 ```
-<br>
-
-## 📚 研究与论文
-
-**Research:**
-
-1. **"RogueHandoff-20: Measuring Susceptibility to Unsafe Agent Trajectories"** — 基于 Docker 的基准测试，衡量智能体是否会采纳作为前置状态提供的不安全轨迹，评估其在接触其他智能体不安全策略后的易感性。[[code]](../Research/roguehandoff20)
-
-2. **"FORGE-Bench: A Deterministic Benchmark for Loss of Control in Autonomous Agents"** — 确定性、基于预言机的基准测试，研究自主智能体在执行合法任务过程中如何失控，覆盖 16 个领域、1,800 条轨迹，评估目标压力、约束退化与不安全机会三大因素。[[arXiv]](https://arxiv.org/abs/2609.11024) [[code]](../Research/forge_bench)
-
-3. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 对 DeepSeek Harness 的授权安全评估，覆盖 14,560 次智能体运行的间接提示词注入测试。[[code]](../Research/deepseek-harness-security-assessment)
-
-4. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 展示如何通过投毒轨迹向自进化智能体技能系统注入持久化后门。[[code]](../Research/SkillJack)
-
-**Papers:**
-
-1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 针对 AI 智能体系统的多层红队测试综合框架，覆盖基础设施、供应链、运行时交互和部署面。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
-
-2. **"AI-Infra-Guard: An AI Red Teaming Platform"** — Black Hat Europe 2025 Arsenal 展示，介绍 A.I.G 的整体能力与实战案例。[[pdf]](../Arsenal-BHEU2025-AI-Infra-Guard.pdf)
-
-3. **"MCP Unchained: Compromising The AI Agent Ecosystem Via Its Universal Connector"** — Black Hat Europe 2025 演讲，揭示 MCP 协议在 AI 智能体生态中的安全风险。[[pdf]](../BHEU-25-MCP-Unchained-Compromising-The-AI-Agent-Ecosystem-Via-Its-Universal-Connector.pdf)
-
-感谢在学术研究中引用 A.I.G 的团队（19 篇论文）：
-
-<details>
-<summary>📄 查看全部 19 篇引用论文</summary>
-
-1. Chenning Li, Pan Hu, Justin Xu et al. **"ADR: An Agentic Detection System for Enterprise Agentic AI Security."** arXiv preprint arXiv:2605.17380 (2026). [[pdf]](http://arxiv.org/abs/2605.17380v1)
-
-2. Zhaojiacheng Zhou. **"Proteus: A Self-Evolving Red Team for Agent Skill Ecosystems."** arXiv preprint arXiv:2605.11891 (2026). [[pdf]](http://arxiv.org/abs/2605.11891v1)
-
-3. Hengkai Ye, Zhechang Zhang, Jinyuan Jia et al. **"TRUSTDESC: Preventing Tool Poisoning in LLM Applications via Trusted Description Generation."** arXiv preprint arXiv:2604.07536 (2026). [[pdf]](https://arxiv.org/abs/2604.07536)
-
-4. Zenghao Duan, Yuxin Tian, Zhiyi Yin et al. **"SkillAttack: Automated Red Teaming of Agent Skills through Attack Path Refinement."** arXiv preprint arXiv:2604.04989 (2026). [[pdf]](https://arxiv.org/abs/2604.04989)
-
-5. Yiheng Huang, Zhijia Zhao, Bihuan Chen et al. **"From Component Manipulation to System Compromise: Understanding and Detecting Malicious MCP Servers."** arXiv preprint arXiv:2604.01905 (2026). [[pdf]](https://arxiv.org/abs/2604.01905)
-
-6. Yi Ting Shen, Kentaroh Toyoda, Alex Leung. **"MCP-38: A Comprehensive Threat Taxonomy for Model Context Protocol Systems (v1.0)."** arXiv preprint arXiv:2603.18063 (2026). [[pdf]](https://arxiv.org/abs/2603.18063)
-
-7. Yuepeng Hu, Yuqi Jia, Mengyuan Li et al. **"MalTool: Malicious Tool Attacks on LLM Agents."** arXiv preprint arXiv:2602.12194 (2026). [[pdf]](https://arxiv.org/abs/2602.12194)
-
-8. Naen Xu, Jinghuai Zhang, Ping He et al. **"FraudShield: Knowledge Graph Empowered Defense for LLMs against Fraud Attacks."** arXiv preprint arXiv:2601.22485v1 (2026). [[pdf]](http://arxiv.org/abs/2601.22485v1)
-
-9. Ruiqi Li, Zhiqiang Wang, Yunhao Yao et al. **"MCP-ITP: An Automated Framework for Implicit Tool Poisoning in MCP."** arXiv preprint arXiv:2601.07395v1 (2026). [[pdf]](http://arxiv.org/abs/2601.07395v1)
-
-10. Jingxiao Yang, Ping He, Tianyu Du et al. **"HogVul: Black-box Adversarial Code Generation Framework Against LM-based Vulnerability Detectors."** arXiv preprint arXiv:2601.05587v1 (2026). [[pdf]](http://arxiv.org/abs/2601.05587v1)
-
-11. Teofil Bodea, Masanori Misono, Julian Pritzi et al. **"Trusted AI Agents in the Cloud."** arXiv preprint arXiv:2512.05951v1 (2025). [[pdf]](http://arxiv.org/abs/2512.05951v1)
-
-12. Yunyi Zhang, Shibo Cui, Baojun Liu et al. **"Beyond Jailbreak: Unveiling Risks in LLM Applications Arising from Blurred Capability Boundaries."** arXiv preprint arXiv:2511.17874v2 (2025). [[pdf]](http://arxiv.org/abs/2511.17874v2)
-
-13. Bin Wang, Zexin Liu, Hao Yu et al. **"MCPGuard: Automatically Detecting Vulnerabilities in MCP Servers."** arXiv preprint arXiv:2510.23673v1 (2025). [[pdf]](http://arxiv.org/abs/2510.23673v1)
-
-14. Weibo Zhao, Jiahao Liu, Bonan Ruan et al. **"When MCP Servers Attack: Taxonomy, Feasibility, and Mitigation."** arXiv preprint arXiv:2509.24272v1 (2025). [[pdf]](http://arxiv.org/abs/2509.24272v1)
-
-15. Ping He, Changjiang Li, et al. **"Automatic Red Teaming LLM-based Agents with Model Context Protocol Tools."** arXiv preprint arXiv:2509.21011 (2025). [[pdf]](https://arxiv.org/abs/2509.21011)
-
-16. Christian Coleman. **"Behavioral Detection Methods for Automated MCP Server Vulnerability Assessment."** (2025). [[pdf]](https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1138&context=covacci-undergraduateresearch)
-
-17. Yixuan Yang, Daoyuan Wu, Yufan Chen. **"MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols."** arXiv preprint arXiv:2508.13220 (2025). [[pdf]](https://arxiv.org/abs/2508.13220)
-
-18. Yongjian Guo, Puzhuo Liu, et al. **"Systematic Analysis of MCP Security."** arXiv preprint arXiv:2508.12538 (2025). [[pdf]](https://arxiv.org/abs/2508.12538)
-
-19. Zexin Wang, Jingjing Li, et al. **"A Survey on AgentOps: Categorization, Challenges, and Future Directions."** arXiv preprint arXiv:2508.02121 (2025). [[pdf]](https://arxiv.org/abs/2508.02121)
-
-</details>
-
-📧 如果您在研究中使用了A.I.G，请联系我们，让更多人看到您的研究！
-<br>
 <br>
 
 ## 📄 开源协议
