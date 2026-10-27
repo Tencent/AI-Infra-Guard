@@ -27,6 +27,7 @@ from typing import Any, Literal
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamable_http_client
+
 # MCP 2.0 exposes its recommended HTTP client factory from this private module.
 # requirements.txt pins 2.0.0; revisit this import when upgrading the SDK.
 from mcp.shared._httpx_utils import create_mcp_http_client
@@ -373,12 +374,97 @@ class MCPTools:
                 result = await session.call_tool(tool_name, converted_kw)
                 if result is None:
                     return None
-                result = result.content[0]
-                # 判断TextContent or ImageContent or VideoContent
-                if hasattr(result, "text"):
-                    return result.text
-                elif hasattr(result, "data"):
-                    return result.data
+
+                # Empty content is valid; without other fields it formats to an empty string.
+                content_blocks = result.content or []
+                structured_content = getattr(result, "structured_content", None)
+                result_meta = getattr(result, "meta", None)
+                is_error = bool(getattr(result, "is_error", False))
+                result_type = getattr(result, "result_type", "complete")
+                if (
+                    len(content_blocks) == 1
+                    and structured_content is None
+                    and not is_error
+                    and result_meta is None
+                    and result_type in (None, "complete")
+                ):
+                    # Preserve the existing simple return when no result or
+                    # block metadata would be dropped.
+                    block = content_blocks[0]
+                    block_has_metadata = any(
+                        getattr(block, name, None) is not None for name in ("annotations", "meta")
+                    )
+                    if not block_has_metadata:
+                        if hasattr(block, "text"):
+                            return block.text
+                        elif hasattr(block, "data"):
+                            return block.data
+
+                # Preserve original block indexes while prioritizing readable
+                # content ahead of opaque media in the agent's bounded preview.
+                status_parts = ["[MCP tool result: isError=true]"] if is_error else []
+                if result_type not in (None, "complete"):
+                    status_parts.append(f"[MCP tool result type: {result_type}]")
+                text_parts = []
+                structured_parts = []
+                result_meta_parts = []
+                metadata_parts = []
+                media_parts = []
+                for index, block in enumerate(content_blocks):
+                    model_dump = getattr(block, "model_dump", None)
+                    block_data = model_dump(mode="json") if callable(model_dump) else None
+                    block_text = getattr(block, "text", None)
+                    if isinstance(block_text, str):
+                        text_parts.append(f"[content[{index}] text]\n{block_text}")
+                        if isinstance(block_data, dict):
+                            block_metadata = {
+                                key: block_data[key]
+                                for key in ("annotations", "meta")
+                                if block_data.get(key) is not None
+                            }
+                            if block_metadata:
+                                metadata_parts.append(
+                                    f"[content[{index}] metadata]\n"
+                                    + json.dumps(block_metadata, ensure_ascii=False, default=str)
+                                )
+                        continue
+
+                    if block_data is not None:
+                        serialized_block = json.dumps(block_data, ensure_ascii=False, default=str)
+                    elif hasattr(block, "data"):
+                        serialized_block = str(block.data)
+                    else:
+                        serialized_block = str(block)
+
+                    embedded_resource = getattr(block, "resource", None)
+                    block_part = f"[content[{index}]]\n{serialized_block}"
+                    if (
+                        hasattr(block, "data")
+                        or getattr(embedded_resource, "blob", None) is not None
+                    ):
+                        media_parts.append(block_part)
+                    else:
+                        metadata_parts.append(block_part)
+
+                if structured_content is not None:
+                    structured_parts.append(
+                        "[structuredContent]\n"
+                        + json.dumps(structured_content, ensure_ascii=False, default=str)
+                    )
+                if result_meta is not None:
+                    result_meta_parts.append(
+                        "[result _meta]\n"
+                        + json.dumps(result_meta, ensure_ascii=False, default=str)
+                    )
+
+                return "\n".join(
+                    status_parts
+                    + text_parts
+                    + structured_parts
+                    + result_meta_parts
+                    + metadata_parts
+                    + media_parts
+                )
         except BaseExceptionGroup as eg:
             # 提取 TaskGroup 中的原始错误
             root_cause = self._extract_root_cause(eg)
