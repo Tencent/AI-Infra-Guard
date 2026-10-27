@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 Documentation</a> &nbsp;|&nbsp;
-  🌐 <a href="./readme/README_ZH.md">🇨🇳 中文</a> · <a href="./readme/README_JA.md">🇯🇵 日本語</a> · <a href="./readme/README_ES.md">🇪🇸 Español</a> · <a href="./readme/README_DE.md">🇩🇪 Deutsch</a> · <a href="./readme/README_FR.md">🇫🇷 Français</a> · <a href="./readme/README_KR.md">🇰🇷 한국어</a> · <a href="./readme/README_PT.md">🇧🇷 Português</a> · <a href="./readme/README_RU.md">🇷🇺 Русский</a>
+  🌐 <b>🇬🇧 English</b> · <a href="./readme/README_ZH.md">🇨🇳 中文</a>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -62,6 +62,7 @@
 
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
+- [🧰 Standalone Use](#-standalone-use)
 - [🖼️ Showcase](#️-showcase)
 - [📖 User Guide](#-user-guide)
 - [🏗️ Architecture Evolution](./docs/architecture_evolution.md)
@@ -113,33 +114,73 @@ Note: The AI-Infra-Guard project is positioned as an AI red teaming platform for
 
 For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getting-started](https://tencent.github.io/AI-Infra-Guard/?menu=getting-started)
 
-### ⚡ Install aig-skill-scan with a Single Command
+## 🧰 Standalone Use
 
-Agent Skill security audit tool, easily integrated into enterprise CI/CD pipelines. Vulnerability classification aligns with [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 taxonomy. [Learn more →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+The five scanners can be used from the command line without starting the web service. Only the shortest usage is shown below. See each README for parameters and examples.
 
-```bash
-pip install aig-skill-scan
+### AI Infrastructure Scan
 
-# Set API key via environment variable
-export LLM_API_KEY="your-api-key"
-
-# Scan a local Skill project directory
-aig-skill-scan --repo /path/to/your/skill \
-           -m deepseek-v4-flash \
-           --language en \
-           -o result.json
-```
-
-The other scanners install the same way:
+Scan a domain, IP, or URL and match fingerprints and vulnerabilities.
 
 ```bash
 pip install aig-infra-scan
 aig-infra-scan -t https://example.com
-
-pip install aig-model-scan
-pip install aig-mcp-scan
-pip install aig-agent-scan
 ```
+
+[View README](./infra-scan/README.md)
+
+### LLM Security Assessment / Jailbreak
+
+Evaluate a model that exposes an OpenAI-compatible API.
+
+```bash
+pip install aig-model-scan
+aig-model-scan \
+  --model "gpt-4o-mini" \
+  --base_url "https://api.openai.com/v1" \
+  --api_key "your-api-key" \
+  --max_concurrent 10 \
+  --scenarios Bias \
+  --techniques Raw
+```
+
+[View README](./AIG-PromptSecurity/README.md)
+
+### MCP Scan
+
+Scan an MCP server source directory, or connect to a service that is already running.
+
+```bash
+pip install aig-mcp-scan
+export LLM_API_KEY="your-api-key"
+aig-mcp-scan --repo /path/to/mcp-server -o result.sarif.json
+```
+
+[View README](./mcp-scan/README.md)
+
+### Skill Scan
+
+Audit a local Agent Skill directory.
+
+```bash
+pip install aig-skill-scan
+export LLM_API_KEY="your-api-key"
+aig-skill-scan --repo /path/to/your/skill -o result.sarif.json
+```
+
+[View README](./skill-scan/README.md)
+
+### Agent Scan
+
+Send test prompts to a running Agent. `target.yaml` describes the Agent under test. The API key is for the model used by the scanner.
+
+```bash
+pip install aig-agent-scan
+export LLM_API_KEY="your-api-key"
+aig-agent-scan --agent_provider target.yaml -o result.json
+```
+
+[View README](./agent-scan/README.md)
 
 ## 🖼️ Showcase
 

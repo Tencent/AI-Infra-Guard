@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://tencent.github.io/AI-Infra-Guard/">📖 文档</a> &nbsp;|&nbsp;
-  🌐 <a href="../README.md">🇬🇧 English</a> · <b>🇨🇳 中文</b> · <a href="./README_JA.md">🇯🇵 日本語</a> · <a href="./README_ES.md">🇪🇸 Español</a> · <a href="./README_DE.md">🇩🇪 Deutsch</a> · <a href="./README_FR.md">🇫🇷 Français</a> · <a href="./README_KR.md">🇰🇷 한국어</a> · <a href="./README_PT.md">🇧🇷 Português</a> · <a href="./README_RU.md">🇷🇺 Русский</a>
+  🌐 <a href="../README.md">🇬🇧 English</a> · <b>🇨🇳 中文</b>
 </p>
 <p align="center">
     <a href="https://github.com/tencent/AI-Infra-Guard/stargazers">
@@ -63,6 +63,7 @@
 
 ## 目录
 - [🚀 快速开始](#-快速开始)
+- [🧰 独立调用](#-独立调用)
 - [✨ 功能特性](#-功能特性)
 - [🖼️ 功能展示](#-功能展示)
 - [📖 用户指南](#-用户指南)
@@ -119,33 +120,73 @@ docker-compose up -d
 
 </details>
 
-### ⚡ 一键安装 aig-skill-scan
+## 🧰 独立调用
 
-Agent Skill 安全审计工具，可轻松集成到企业 CI/CD 流水线。漏洞分类对齐 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/) T01–T09 分类法。[了解更多 →](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan)
+五个扫描能力可以不启动 Web 服务，各自安装后在命令行使用。下面只给出最短用法，参数和示例见对应 README。
 
-```bash
-pip install aig-skill-scan
+### AI 基础设施扫描
 
-# 通过环境变量设置 API Key
-export LLM_API_KEY="your-api-key"
-
-# 扫描本地 Skill 项目目录
-aig-skill-scan --repo /path/to/your/skill \
-           -m deepseek-v4-flash \
-           --language zh \
-           -o result.json
-```
-
-其余扫描模块同样独立安装：
+扫描域名、IP 或 URL，匹配指纹和漏洞。
 
 ```bash
 pip install aig-infra-scan
 aig-infra-scan -t https://example.com
-
-pip install aig-model-scan
-pip install aig-mcp-scan
-pip install aig-agent-scan
 ```
+
+[查看 README](../infra-scan/README_zh.md)
+
+### 大模型体检 / 越狱
+
+对兼容 OpenAI 接口的模型做安全评测。
+
+```bash
+pip install aig-model-scan
+aig-model-scan \
+  --model "gpt-4o-mini" \
+  --base_url "https://api.openai.com/v1" \
+  --api_key "your-api-key" \
+  --max_concurrent 10 \
+  --scenarios Bias \
+  --techniques Raw
+```
+
+[查看 README](../AIG-PromptSecurity/README_ZH.md)
+
+### MCP 扫描
+
+扫描 MCP Server 源码目录，或连接一个已经在运行的服务。
+
+```bash
+pip install aig-mcp-scan
+export LLM_API_KEY="your-api-key"
+aig-mcp-scan --repo /path/to/mcp-server -o result.sarif.json
+```
+
+[查看 README](../mcp-scan/README_zh.md)
+
+### Skill 扫描
+
+审计本地 Agent Skill 目录。
+
+```bash
+pip install aig-skill-scan
+export LLM_API_KEY="your-api-key"
+aig-skill-scan --repo /path/to/your/skill -o result.sarif.json
+```
+
+[查看 README](../skill-scan/README_zh.md)
+
+### Agent 扫描
+
+向正在运行的 Agent 发送测试提示。`target.yaml` 描述被测 Agent，密钥给扫描用的模型。
+
+```bash
+pip install aig-agent-scan
+export LLM_API_KEY="your-api-key"
+aig-agent-scan --agent_provider target.yaml -o result.json
+```
+
+[查看 README](../agent-scan/README_zh.md)
 
 ## 🖼️ 功能展示
 

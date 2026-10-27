@@ -191,8 +191,10 @@ def assert_infra_wheel(wheel: Path, target: str) -> None:
     binary_name = "ai-infra-guard.exe" if goos == "windows" else "ai-infra-guard"
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
-    if not any(name.endswith(f"bin/{binary_name}") for name in names):
-        raise SystemExit(f"{wheel.name} 没有打入 {binary_name}")
+    binaries = [name for name in names if "/bin/" in name and not name.endswith("/")]
+    expected = [name for name in binaries if name.endswith(f"bin/{binary_name}")]
+    if len(expected) != 1 or len(binaries) != 1:
+        raise SystemExit(f"{wheel.name} 应只包含 {binary_name}，实际为 {binaries}")
     if not any("/data/fingerprints/" in name and name.endswith(".yaml") for name in names):
         raise SystemExit(f"{wheel.name} 没有打入指纹规则")
     if not any("/data/vuln/" in name and name.endswith(".yaml") for name in names):
@@ -207,6 +209,10 @@ def build_infra(targets: list[str]) -> list[Path]:
         for target in targets:
             print(f"== infra {target}", flush=True)
             stage_infra(target)
+            # setuptools keeps files removed between builds, so a previous platform binary would be packed in too.
+            for leftover in (directory / "build", directory / "aig_infra_scan.egg-info"):
+                if leftover.exists():
+                    shutil.rmtree(leftover)
             built = [path for path in build_python(directory, clear=False) if "py3-none-any" in path.name]
             if len(built) != 1:
                 raise SystemExit(f"infra 一次构建应只有一个 wheel，实际 {len(built)}")
