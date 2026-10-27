@@ -194,16 +194,12 @@ class MCP20TransportTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("priority", actual)
         self.assertIn("trace_id", actual)
 
-    async def test_call_remote_tool_preserves_nondefault_result_type(self):
-        result = CallToolResult(
-            content=[TextContent(type="text", text="input is required")],
-            result_type="input_required",
-        )
+    async def test_call_remote_tool_preserves_explicit_null_structured_content(self):
+        result = CallToolResult(content=[], structured_content=None)
 
         actual = await self._call_remote_tool_with_result(result)
 
-        self.assertIn("[MCP tool result type: input_required]", actual)
-        self.assertIn("input is required", actual)
+        self.assertEqual(actual, "[structuredContent]\nnull")
 
     async def test_call_remote_tool_returns_empty_string_for_empty_success(self):
         result = CallToolResult(content=[])

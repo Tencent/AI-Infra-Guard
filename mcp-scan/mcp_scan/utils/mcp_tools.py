@@ -376,17 +376,23 @@ class MCPTools:
                     return None
 
                 # Empty content is valid; without other fields it formats to an empty string.
+                if not hasattr(result, "content"):
+                    raise RuntimeError(f"Unsupported MCP tool result type: {type(result).__name__}")
+
                 content_blocks = result.content or []
                 structured_content = getattr(result, "structured_content", None)
+                # Pydantic tracks whether JSON null was supplied or the field was absent.
+                structured_content_present = (
+                    structured_content is not None
+                    or "structured_content" in getattr(result, "model_fields_set", ())
+                )
                 result_meta = getattr(result, "meta", None)
                 is_error = bool(getattr(result, "is_error", False))
-                result_type = getattr(result, "result_type", "complete")
                 if (
                     len(content_blocks) == 1
-                    and structured_content is None
+                    and not structured_content_present
                     and not is_error
                     and result_meta is None
-                    and result_type in (None, "complete")
                 ):
                     # Preserve the existing simple return when no result or
                     # block metadata would be dropped.
@@ -403,8 +409,6 @@ class MCPTools:
                 # Preserve original block indexes while prioritizing readable
                 # content ahead of opaque media in the agent's bounded preview.
                 status_parts = ["[MCP tool result: isError=true]"] if is_error else []
-                if result_type not in (None, "complete"):
-                    status_parts.append(f"[MCP tool result type: {result_type}]")
                 text_parts = []
                 structured_parts = []
                 result_meta_parts = []
@@ -446,7 +450,7 @@ class MCPTools:
                     else:
                         metadata_parts.append(block_part)
 
-                if structured_content is not None:
+                if structured_content_present:
                     structured_parts.append(
                         "[structuredContent]\n"
                         + json.dumps(structured_content, ensure_ascii=False, default=str)
