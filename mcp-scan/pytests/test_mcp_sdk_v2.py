@@ -8,6 +8,7 @@ from mcp.types import (
     CallToolResult,
     EmbeddedResource,
     ImageContent,
+    InputRequiredResult,
     ResourceLink,
     TextContent,
     TextResourceContents,
@@ -207,6 +208,14 @@ class MCP20TransportTests(unittest.IsolatedAsyncioTestCase):
         actual = await self._call_remote_tool_with_result(result)
 
         self.assertEqual(actual, "")
+
+    async def test_call_remote_tool_rejects_input_required_result_explicitly(self):
+        result = InputRequiredResult(request_state="pending")
+
+        with self.assertRaisesRegex(
+            RuntimeError, "Unsupported MCP tool result type: InputRequiredResult"
+        ):
+            await self._call_remote_tool_with_result(result)
 
     async def test_call_remote_tool_serializes_audio_and_resource_blocks(self):
         result = CallToolResult(
