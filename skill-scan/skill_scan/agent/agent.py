@@ -58,6 +58,24 @@ _TREE_SKIP_FILES = {"_VERDICT.txt", "_GROUND_TRUTH.txt", "_EVAL.txt"}
 _METADATA_FILENAMES = {".DS_Store", "._DS_Store", "Thumbs.db", "desktop.ini", "._.DS_Store"}
 _METADATA_PREFIXES = (".__", "._")
 
+# Text / code extensions the auditor can meaningfully inspect. Binary-only
+# packages (e.g. a zip holding just a .docx) have nothing to audit; issue #723
+# showed that routing them through the LLM pipeline makes the outcome depend
+# on whether the model happens to call finish, splitting identical inputs
+# between status=done/score=100 and status=error. A static gate keeps the
+# result deterministic instead.
+_AUDITABLE_EXTS = {
+    ".py", ".pyw", ".pyi", ".pyc", ".pyo", ".pyd",  # bytecode stays auditable (#630/#631)
+    ".js", ".mjs", ".cjs", ".ts", ".jsx", ".tsx",
+    ".sh", ".bash", ".zsh", ".fish", ".ps1", ".bat", ".cmd",
+    ".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf", ".env",
+    ".json", ".jsonc", ".xml", ".html", ".htm", ".css", ".scss",
+    ".md", ".markdown", ".rst", ".txt", "",
+    ".go", ".rs", ".java", ".kt", ".kts", ".c", ".h", ".cpp", ".hpp", ".cs",
+    ".rb", ".php", ".pl", ".lua", ".r", ".swift", ".m", ".mm",
+    ".sql", ".graphql", ".proto",
+}
+
 
 def _is_empty_or_metadata_only(repo_dir: str) -> bool:
     """Check whether the directory is empty or contains only OS metadata files.
@@ -76,6 +94,30 @@ def _is_empty_or_metadata_only(repo_dir: str) -> bool:
                 or any(fname.startswith(p) for p in _METADATA_PREFIXES)
             )
             if not is_meta:
+                return False
+    return True
+
+
+def _is_non_skill_package(repo_dir: str) -> bool:
+    """Check whether the package holds nothing the auditor can inspect.
+
+    True when there is no SKILL.md (case-insensitive, any depth) and every
+    remaining file has a non-auditable extension (binary documents / media /
+    archives such as .docx, .pdf, .png, .zip). Extensionless files
+    (LICENSE, Makefile, Dockerfile) count as auditable text, and bytecode
+    stays auditable per issues #630/#631, so such packages keep going through
+    the full pipeline.
+    """
+    for root, dirs, files in os.walk(repo_dir):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for fname in files:
+            if fname in _TREE_SKIP_FILES or fname in _METADATA_FILENAMES:
+                continue
+            if any(fname.startswith(p) for p in _METADATA_PREFIXES):
+                continue
+            if fname.lower() == "skill.md":
+                return False
+            if os.path.splitext(fname)[1].lower() in _AUDITABLE_EXTS:
                 return False
     return True
 
@@ -473,6 +515,39 @@ class Agent:
             result_meta.update(
                 {
                     "readme": empty_reason,
+                    "score": 100,
+                    "language": "Other",
+                    "end_time": time.time(),
+                    "results": [],
+                }
+            )
+            self.last_verdict = "normal"
+            mcpLogger.result_update(result_meta)
+            return result_meta
+
+        # Non-standard skill package gate (issue #723): a package with no
+        # SKILL.md and only binary files (e.g. a zip holding a single .docx)
+        # has nothing to audit. Returning here keeps the result deterministic
+        # instead of depending on whether the model calls finish, which used
+        # to split identical inputs between done/score=100 and error.
+        if _is_non_skill_package(repo_dir):
+            logger.info(
+                "Non-standard skill package (no SKILL.md, no auditable files); skipping LLM scan and returning normal"
+            )
+            if language == "en":
+                non_skill_reason = (
+                    "This package is not a standard Agent Skill package "
+                    "(no SKILL.md and no auditable code/text files, only binary content). "
+                    "There is no skill content to audit, so the scan finishes as not-a-skill-package."
+                )
+            else:
+                non_skill_reason = (
+                    "该压缩包不是标准的 Agent Skill 项目（未包含 SKILL.md，也不含可审计的代码/文本文件，"
+                    "仅含二进制内容）。无 Skill 内容可审计，扫描以非标准 Skill 包结论结束。"
+                )
+            result_meta.update(
+                {
+                    "readme": non_skill_reason,
                     "score": 100,
                     "language": "Other",
                     "end_time": time.time(),
