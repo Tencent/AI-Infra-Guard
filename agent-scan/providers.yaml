@@ -254,7 +254,7 @@ providers:
     providers:
       huggingface:
         env_keys: ["HF_API_TOKEN", "HUGGINGFACE_API_KEY"]
-        base_url: "https://api-inference.huggingface.co"
+        base_url: "https://router.huggingface.co/hf-inference"
         endpoint: "/models/{{model}}"
         default_model: "gpt2"
   
