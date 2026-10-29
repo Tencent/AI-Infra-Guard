@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.8] - 2026-10-29
+
+### Added
+- **Scan**: Package each scanner for an independent pip install (PR #719, b2135af3)
+- **Agent-Scan**: Add Runcrate provider preset (PR #722, 00a0eed3)
+
+### Fixed
+- **Skill-Scan**: Deterministic result for non-standard skill packages (PR #725, ea06b9a5)
+- **Agent-Scan**: Move Hugging Face preset to router.huggingface.co/hf-inference (PR #728, c5224bf0)
+- **MCP-Scan**: Preserve complete MCP tool results (PR #727, 7b62e471)
+
+### Changed
+- **Agent-Scan**: Remove legacy MCP client after Agent Provider migration (PR #594, 7e6a48d4)
+- **Docs**: Keep English and Chinese READMEs and document standalone scanner installs (c6526341)
+- **Docs**: Drop README entries that no longer have a section (33768c58)
+
+### Contributors
+Fulin Zhou, boyhack, Agustin Torres, LuckVd, zhuque, Nirupam Bhowmick
+
 ## [v4.6.7] - 2026-10-22
 
 ### Added
