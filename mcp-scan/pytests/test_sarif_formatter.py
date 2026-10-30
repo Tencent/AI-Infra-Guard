@@ -49,3 +49,31 @@ def test_remediation_does_not_change_alert_identity_or_location():
 
     for key in ("ruleId", "level", "locations", "partialFingerprints"):
         assert with_remediation[key] == original[key]
+
+
+@pytest.mark.parametrize("language", ["en", "zh"])
+@pytest.mark.parametrize(
+    "risk_type",
+    [
+        "mcp05: Command Injection",
+        "mCp05：Command Injection",
+        " mcp05 : Command Injection ",
+    ],
+)
+def test_mixed_case_mcp_codes_use_the_canonical_rule(language, risk_type):
+    canonical = to_sarif(
+        {"results": [finding(risk_type="MCP05: Command Injection")]}, language=language
+    )
+    report = to_sarif({"results": [finding(risk_type=risk_type)]}, language=language)
+
+    # Casing must not split the same finding into a new rule or alert identity.
+    assert report == canonical
+
+
+@pytest.mark.parametrize("rule_id", ["CWE-78", "A01", "custom-rule", "mcp-custom"])
+def test_other_rule_ids_keep_their_original_identity(rule_id):
+    report = to_sarif({"results": [finding(risk_type=f"{rule_id}: Custom risk")]})
+    run = report["runs"][0]
+
+    assert run["results"][0]["ruleId"] == rule_id
+    assert any(rule["id"] == rule_id for rule in run["tool"]["driver"]["rules"])
