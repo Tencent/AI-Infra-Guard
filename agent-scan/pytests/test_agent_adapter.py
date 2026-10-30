@@ -109,6 +109,39 @@ def test_make_http_request_streams_sse_body_even_when_connection_stays_open():
     http_client.return_value.__enter__.return_value.stream.assert_called_once()
 
 
+def test_parse_sse_response_skips_null_content_deltas():
+    # Tool-call chunks, and DeepSeek reasoning chunks, carry "content": null.
+    sse = "\n\n".join([
+        'data: {"choices":[{"delta":{"role":"assistant","content":null,"reasoning_content":"Think"}}]}',
+        'data: {"choices":[{"delta":{"content":"Hello"}}]}',
+        'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}',
+        "data: [DONE]",
+    ])
+    client = object.__new__(AIProviderClient)
+
+    response, _ = client._parse_sse_response(sse)
+
+    assert response["choices"][0]["message"]["content"] == "Hello"
+    assert response["choices"][0]["finish_reason"] == "stop"
+
+
+def test_parse_sse_response_handles_usage_only_final_chunk():
+    # With stream_options.include_usage, the last chunk has "choices": [].
+    sse = "\n\n".join([
+        'data: {"choices":[{"delta":{"role":"assistant","content":"Hello"}}]}',
+        'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}',
+        'data: {"choices":[],"usage":{"prompt_tokens":5,"completion_tokens":1,"total_tokens":6}}',
+        "data: [DONE]",
+    ])
+    client = object.__new__(AIProviderClient)
+
+    response, usage = client._parse_sse_response(sse)
+
+    assert response["choices"][0]["message"]["content"] == "Hello"
+    assert response["choices"][0]["finish_reason"] == "stop"
+    assert usage == {"prompt_tokens": 5, "completion_tokens": 1, "total_tokens": 6}
+
+
 def test_agui_terminal_event_only_recognizes_run_lifecycle():
     """AG-UI terminal detection must not misclassify other SSE payloads."""
     assert _agui_terminal_event('data: {"type":"RUN_FINISHED","threadId":"t1"}') == "RUN_FINISHED"

@@ -1119,6 +1119,7 @@ class AIProviderClient:
         token_usage = None
         last_data = None
         role = None
+        finish_reason = None
         transform_applied = False
         transformed_content_parts = []
         agui_stream = False
@@ -1159,9 +1160,14 @@ class AIProviderClient:
                             if "role" in delta and not role:
                                 role = delta["role"]
 
-                            # Accumulate content
-                            if "content" in delta:
-                                content_parts.append(delta["content"])
+                            # Accumulate content. Tool-call and reasoning
+                            # chunks carry "content": null.
+                            content = delta.get("content")
+                            if isinstance(content, str):
+                                content_parts.append(content)
+
+                            if choice.get("finish_reason"):
+                                finish_reason = choice["finish_reason"]
 
                     # Extract content from Anthropic-style streaming response
                     elif "type" in data:
@@ -1261,7 +1267,9 @@ class AIProviderClient:
                         "role": role or "assistant",
                         "content": full_content
                     },
-                    "finish_reason": last_data.get("choices", [{}])[0].get("finish_reason")
+                    # Not read from last_data: with include_usage the last
+                    # chunk is usage-only and has "choices": [].
+                    "finish_reason": finish_reason
                 }],
                 "model": last_data.get("model"),
                 "id": last_data.get("id")
