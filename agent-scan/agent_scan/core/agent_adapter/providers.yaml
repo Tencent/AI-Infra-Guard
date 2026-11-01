@@ -168,6 +168,17 @@ providers:
           - zai-org/GLM-5.3
           - moonshotai/Kimi-K2.6
 
+      cloudgpu:
+        env_keys: ["CLOUDGPU_API_KEY"]
+        base_url: "https://cloudgpu.app/v1"
+        endpoint: "/chat/completions"
+        default_model: "deepseek-v4.1-flash"
+        models:
+          - deepseek-v4.1-flash
+          - deepseek-v4-pro
+          - kimi-k2.6
+          - glm-5.2
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
