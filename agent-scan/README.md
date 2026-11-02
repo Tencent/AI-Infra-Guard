@@ -138,7 +138,7 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `runcrate`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `runcrate`, `cloudgpu`, `websocket`, and more.
 
 ### API Route
 
@@ -215,6 +215,25 @@ targets:
 The bare provider ID `runcrate` uses the default model `deepseek-ai/DeepSeek-V4.1-Flash`. To choose another model, use `runcrate:<exact-model-id>` with the vendor prefix as listed by `GET https://api.runcrate.ai/v1/models` (for example `openai/gpt-oss-120b`). That listing is public, so it does not prove a key is valid. The preset lists only a few models, not the full catalog.
 
 This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. Runcrate requests use `Authorization: Bearer <RUNCRATE_API_KEY>` through the existing adapter; no extra SDK is required.
+
+### CloudGPU
+
+[CloudGPU](https://cloudgpu.app/?utm_source=ai-infra-guard&utm_medium=github&utm_campaign=202611_seg04_codingagent_api) is an optional OpenAI-compatible provider using `https://cloudgpu.app/v1`. Set your own key (from https://cloudgpu.app/api/console) in the environment:
+
+```bash
+export CLOUDGPU_API_KEY="your-cloudgpu-key"
+```
+
+To use it as the target provider, save the following in a separate target YAML file and pass that file to `--agent_provider`:
+
+```yaml
+targets:
+  - id: "cloudgpu:deepseek-v4.1-flash"
+```
+
+The bare provider ID `cloudgpu` uses the default model `deepseek-v4.1-flash`. To choose another model, use `cloudgpu:<exact-model-id>` as listed by `GET https://cloudgpu.app/v1/models` (for example `kimi-k2.6`). That listing is public, so it does not prove a key is valid. The preset lists only a few chat models, not the full catalog.
+
+This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. CloudGPU requests use `Authorization: Bearer <CLOUDGPU_API_KEY>` through the existing adapter; no extra SDK is required.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 
