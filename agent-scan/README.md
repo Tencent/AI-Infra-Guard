@@ -138,7 +138,7 @@ targets:
       transform_response: "reply"
 ```
 
-Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `runcrate`, `cloudgpu`, `websocket`, and more.
+Supported provider types: `http`, `dify`, `coze`, `openai`, `anthropic`, `google`, `cohere`, `huggingface`, `replicate`, `ollama`, `localai`, `litellm`, `openrouter`, `orcarouter`, `api_route`, `atlascloud`, `cheaperinference`, `runcrate`, `cloudgpu`, `cheapaimodel`, `websocket`, and more.
 
 ### API Route
 
@@ -234,6 +234,25 @@ targets:
 The bare provider ID `cloudgpu` uses the default model `deepseek-v4.1-flash`. To choose another model, use `cloudgpu:<exact-model-id>` as listed by `GET https://cloudgpu.app/v1/models` (for example `kimi-k2.6`). That listing is public, so it does not prove a key is valid. The preset lists only a few chat models, not the full catalog.
 
 This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. CloudGPU requests use `Authorization: Bearer <CLOUDGPU_API_KEY>` through the existing adapter; no extra SDK is required.
+
+### cheapaimodel
+
+[cheapaimodel](https://cheapaimodel.ai) is an optional OpenAI-compatible provider using `https://api.cheapaimodel.ai/v1`. Set your own key (from https://console.cheapaimodel.ai/keys) in the environment:
+
+```bash
+export CHEAPAIMODEL_API_KEY="your-cheapaimodel-key"
+```
+
+To use it as the target provider, save the following in a separate target YAML file and pass that file to `--agent_provider`:
+
+```yaml
+targets:
+  - id: "cheapaimodel:deepseek-v4-1-flash"
+```
+
+The bare provider ID `cheapaimodel` uses the default model `deepseek-v4-1-flash`. To choose another model, use `cheapaimodel:<exact-model-id>` as listed on https://cheapaimodel.ai/models (for example `kimi-k3`). `GET https://api.cheapaimodel.ai/v1/models` requires the key. The preset lists only a few chat models, not the full catalog.
+
+This configures the target being scanned. The scanning LLM's `-k`, `-m`, and `-u` options remain separate and unchanged. cheapaimodel requests use `Authorization: Bearer <CHEAPAIMODEL_API_KEY>` through the existing adapter; no extra SDK is required.
 
 #### ⚠️ `transform_response` — Critical for Custom HTTP Providers
 

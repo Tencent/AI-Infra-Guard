@@ -138,7 +138,7 @@ targets:
       transform_response: "reply"
 ```
 
-支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`cheaperinference`、`runcrate`、`cloudgpu`、`websocket` 等。
+支持的 provider 类型：`http`、`dify`、`coze`、`openai`、`anthropic`、`google`、`cohere`、`huggingface`、`replicate`、`ollama`、`localai`、`litellm`、`openrouter`、`orcarouter`、`api_route`、`atlascloud`、`cheaperinference`、`runcrate`、`cloudgpu`、`cheapaimodel`、`websocket` 等。
 
 ### API Route
 
@@ -234,6 +234,25 @@ targets:
 仅使用 provider ID `cloudgpu` 时，默认模型为 `deepseek-v4.1-flash`。选择其他模型时，使用 `cloudgpu:<完整模型 ID>`，与 `GET https://cloudgpu.app/v1/models` 列出的一致（例如 `kimi-k2.6`）。该列表是公开的，不能用来验证密钥是否有效。预设只列出少数对话模型，并非完整模型目录。
 
 此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。CloudGPU 通过现有 adapter 使用 `Authorization: Bearer <CLOUDGPU_API_KEY>` 鉴权，无需额外 SDK。
+
+### cheapaimodel
+
+[cheapaimodel](https://cheapaimodel.ai) 是可选的 OpenAI 兼容 provider，使用 `https://api.cheapaimodel.ai/v1`。在环境变量中设置你自己的密钥（在 https://console.cheapaimodel.ai/keys 获取）：
+
+```bash
+export CHEAPAIMODEL_API_KEY="your-cheapaimodel-key"
+```
+
+将它作为被扫描的目标时，把以下内容保存为单独的目标 YAML 文件，并通过 `--agent_provider` 指定该文件：
+
+```yaml
+targets:
+  - id: "cheapaimodel:deepseek-v4-1-flash"
+```
+
+仅使用 provider ID `cheapaimodel` 时，默认模型为 `deepseek-v4-1-flash`。选择其他模型时，使用 `cheapaimodel:<完整模型 ID>`，与 https://cheapaimodel.ai/models 列出的一致（例如 `kimi-k3`）。`GET https://api.cheapaimodel.ai/v1/models` 需要密钥。预设只列出少数对话模型，并非完整模型目录。
+
+此配置用于被扫描的目标。扫描 LLM 自身的 `-k`、`-m` 和 `-u` 参数仍单独配置，行为不变。cheapaimodel 通过现有 adapter 使用 `Authorization: Bearer <CHEAPAIMODEL_API_KEY>` 鉴权，无需额外 SDK。
 
 #### ⚠️ `transform_response` — 自定义 HTTP Provider 的关键配置
 

@@ -179,6 +179,18 @@ providers:
           - kimi-k2.6
           - glm-5.2
 
+      cheapaimodel:
+        env_keys: ["CHEAPAIMODEL_API_KEY"]
+        base_url: "https://api.cheapaimodel.ai/v1"
+        endpoint: "/chat/completions"
+        default_model: "deepseek-v4-1-flash"
+        models:
+          - deepseek-v4-1-flash
+          - glm-5.3
+          - glm-5.3-flash
+          - kimi-k3
+          - grok-4.7
+
       togetherai:
         env_keys: ["TOGETHER_API_KEY", "TOGETHERAI_API_KEY"]
         base_url: "https://api.together.xyz/v1"
