@@ -39,7 +39,7 @@ targets:
       transform_response: "reply"
 ```
 
-自定义 HTTP 时，`transform_response` 是回复所在的 JSON 字段，例如 `reply` 或 `data.text`。`openai`、`dify`、`coze` 这类内置目标可以留空。其他目标 id 还有 `anthropic`、`google`、`ollama`、`openrouter`、`websocket`、`api_route`、`atlascloud`。
+自定义 HTTP 时，`transform_response` 是回复所在的 JSON 字段，例如 `reply` 或 `data.text`。`openai`、`dify`、`coze` 这类内置目标可以留空。其他目标 id 还有 `anthropic`、`google`、`ollama`、`openrouter`、`websocket`。
 
 扫描模型的密钥按顺序读取：`-k` / `--api_key`，然后是 `LLM_API_KEY`、`OPENAI_API_KEY`、`OPENROUTER_API_KEY`。
 

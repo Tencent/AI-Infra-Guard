@@ -39,7 +39,7 @@ targets:
       transform_response: "reply"
 ```
 
-For a custom HTTP body, `transform_response` is the JSON field that holds the Agent's reply, such as `reply` or `data.text`. Built-in targets such as `openai`, `dify`, and `coze` can leave it empty. Other target ids include `anthropic`, `google`, `ollama`, `openrouter`, `websocket`, `api_route`, and `atlascloud`.
+For a custom HTTP body, `transform_response` is the JSON field that holds the Agent's reply, such as `reply` or `data.text`. Built-in targets such as `openai`, `dify`, and `coze` can leave it empty. Other target ids include `anthropic`, `google`, `ollama`, `openrouter`, and `websocket`.
 
 The scanner key is read from `-k` / `--api_key`, then `LLM_API_KEY`, then `OPENAI_API_KEY`, then `OPENROUTER_API_KEY`.
 
