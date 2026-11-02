@@ -196,7 +196,14 @@ def parse_risk_type(risk_type: str) -> tuple[str, str]:
             code, name = code.strip(), name.strip()
             if code:
                 # Normalize casing, e.g. "mcp05" -> "MCP05"
-                code_norm = code.upper() if code[:1].lower() == "m" and code[1:].isdigit() else code
+                code_norm = (
+                    code.upper()
+                    if (
+                        (code[:1].lower() == "m" and code[1:].isdigit())
+                        or (code[:3].lower() == "mcp" and code[3:].isdigit())
+                    )
+                    else code
+                )
                 return code_norm, (name or code_norm)
     # Check if the text itself is a known rule id (without colon)
     text_lower = text.lower()
