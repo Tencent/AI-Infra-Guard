@@ -28,10 +28,35 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Tencent/AI-Infra-Guard/common/fingerprints/parser"
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
 )
+
+var (
+	// responseHeaderTimeout bounds the wait for response headers once the request
+	// has been sent, so an unresponsive task server cannot hang the agent forever.
+	responseHeaderTimeout = 30 * time.Second
+	// requestTimeout bounds the whole exchange for small JSON API calls.
+	requestTimeout = 2 * time.Minute
+)
+
+// newTransferClient returns a client for file transfers. It has no overall
+// timeout (large files may take a long time) but gives up if the server never
+// answers.
+func newTransferClient() *http.Client {
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.ResponseHeaderTimeout = responseHeaderTimeout
+	return &http.Client{Transport: tr}
+}
+
+// newAPIClient returns a client for small JSON API calls with an overall timeout.
+func newAPIClient() *http.Client {
+	c := newTransferClient()
+	c.Timeout = requestTimeout
+	return c
+}
 
 // DownloadFile 下载文件
 // path 参数必须由调用方在调用前完成路径安全校验（防止路径穿越），
@@ -43,7 +68,7 @@ func DownloadFile(server, sessionId, uri, path string) error {
 		return fmt.Errorf("非法文件路径")
 	}
 	// 创建 HTTP 客户端
-	client := &http.Client{}
+	client := newTransferClient()
 
 	data := map[string]string{
 		"fileUrl": uri,
@@ -138,7 +163,7 @@ func UploadFile(server, filePath string) (*UploadFileResponse, error) {
 	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
-	client := &http.Client{}
+	client := newTransferClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("发送请求失败: %v", err)
@@ -176,7 +201,7 @@ func GetEvaluationsDetail(server, name string) ([]byte, error) {
 	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
-	client := &http.Client{}
+	client := newAPIClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("发送请求失败: %v", err)
@@ -220,7 +245,7 @@ func LoadRemoteFingerPrints(hostname string) ([]parser.FingerPrint, error) {
 	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
-	client := &http.Client{}
+	client := newAPIClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -265,7 +290,7 @@ func LoadRemoteVulStruct(api string) ([]json.RawMessage, error) {
 	req.Header.Set("X-APIKey", "zhuque")
 
 	// 发送请求
-	client := &http.Client{}
+	client := newAPIClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
