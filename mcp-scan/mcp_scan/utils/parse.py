@@ -24,7 +24,12 @@ from typing import Any
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
     regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
-    param_regex_pattern = r"<parameter=([^>]+)>(.*?)</parameter>"
+    # Accept both the documented <parameter=name> form and the XML-attribute
+    # <parameter name="..."> form that some OpenAI-compatible models (e.g.
+    # DeepSeek) emit by default. Mirrors the agent-scan parser.
+    param_regex_pattern = (
+        r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)</parameter>'
+    )
 
     matches = re.finditer(regex_pattern, content, re.DOTALL)
     for match in matches:
@@ -68,7 +73,7 @@ def parse_tool_invocations(content: str) -> dict[str, Any] | None:
         if unclosed_match:
             body = unclosed_match.group(1)
             param_match = re.search(
-                r"<parameter=([^>]+)>(.*?)(?:</parameter|$)",
+                r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)(?:</parameter>|$)',
                 body,
                 re.DOTALL,
             )
