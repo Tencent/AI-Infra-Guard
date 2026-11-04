@@ -44,9 +44,14 @@ var (
 
 // newTransferClient returns a client for file transfers. It has no overall
 // timeout (large files may take a long time) but gives up if the server never
-// answers.
+// answers. ResponseHeaderTimeout only bounds the wait for headers: a server that
+// sends headers and then stalls mid-body is not cut off, which is the accepted
+// trade-off for unbounded transfer duration.
 func newTransferClient() *http.Client {
-	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr := &http.Transport{}
+	if def, ok := http.DefaultTransport.(*http.Transport); ok {
+		tr = def.Clone()
+	}
 	tr.ResponseHeaderTimeout = responseHeaderTimeout
 	return &http.Client{Transport: tr}
 }

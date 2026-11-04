@@ -3,6 +3,7 @@ package utils
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -54,6 +55,14 @@ func TestAPICallsTimeOutOnUnresponsiveServer(t *testing.T) {
 
 	expectPrompt(t, "DownloadFile", func() error {
 		return DownloadFile(server, "s1", "u", filepath.Join(dir, "out.bin"))
+	})
+	upload := filepath.Join(dir, "up.bin")
+	if err := os.WriteFile(upload, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	expectPrompt(t, "UploadFile", func() error {
+		_, err := UploadFile(server, upload)
+		return err
 	})
 	expectPrompt(t, "GetEvaluationsDetail", func() error {
 		_, err := GetEvaluationsDetail(server, "x")
