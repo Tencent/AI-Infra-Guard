@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.9] - 2026-11-05
+
+### Added
+- **Agent-Scan**: Add CloudGPU provider preset (PR #734, 1c69920f)
+
+### Fixed
+- **Utils**: Add timeouts to task-server HTTP clients (PR #740, de5d9f4f)
+- **MCP-Scan**: Accept XML-attribute parameter tags from OpenAI-compatible models (PR #739, 7e6df02a)
+- **MCP-Scan**: Normalize mixed-case MCP SARIF rule IDs (PR #733, 4bb6ac21)
+- **Agent-Scan**: Accept null content deltas and usage-only chunks in SSE replies (PR #731, 851e3f29)
+
+### Changed
+- **Agent-Scan**: Remove third-party provider presets (PR #737, 3b12a868)
+
+### Contributors
+alexcastgonz, boyhack, CloudGPU, Elon-Jiang, Jae Bird
+
 ## [v4.6.8] - 2026-10-29
 
 ### Added
