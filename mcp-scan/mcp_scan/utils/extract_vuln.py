@@ -93,12 +93,14 @@ class VulnerabilityExtractor:
             print(f"第 {index} 个漏洞块缺少必要字段，跳过")
             return None
 
+        # level 与 suggestion 不是必填字段：模型省略时留空，而不是让
+        # None.strip() 的 AttributeError 把整条发现在外层 except 里静默丢弃。
         vuln_info: dict = {
             "title": title.strip(),
             "description": desc.strip(),
             "risk_type": risk_type.strip(),
-            "level": level.strip(),
-            "suggestion": suggestion.strip(),
+            "level": level.strip() if level else "",
+            "suggestion": suggestion.strip() if suggestion else "",
         }
 
         # 填充可选定位字段，行号转为 int
