@@ -50,33 +50,33 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 
 | 组件类别           | 组件名称                | 漏洞数量 | 风险等级 |
 | ------------------ | ----------------------- | -------- | -------- |
-| **模型部署与服务** | vllm | 105 | 中 |
+| **模型部署与服务** | vllm | 139 | 中 |
 | | gradio | 53 | 高 |
 | | triton-inference-server | 41 | 中高 |
-| | ollama | 35 | 中高 |
+| | ollama | 36 | 中高 |
 | | tensorrt-llm | 12 | 中高 |
 | | fastchat | 10 | 中 |
-| | llama-cpp | 17 | 中高 |
-| | Xinference | 5 | 低 |
+| | llama-cpp | 18 | 中高 |
+| | Xinference | 4 | 低 |
 | | ChatRTX | 1 | 低 |
 | | huggingface-tgi | 1 | 中高 |
 | | kubeai | 1 | 高 |
 | | llmstudio | 1 | 低 |
 | | localai | 1 | 中 |
 | | tensorzero | 1 | 低 |
-| **LLM应用框架** | openwebui | 92 | 中高 |
-| | langflow | 162 | 中 |
-| | mlflow | 85 | 高 |
-| | flowise | 118 | 中 |
+| **LLM应用框架** | openwebui | 103 | 中高 |
+| | langflow | 228 | 中 |
+| | mlflow | 92 | 高 |
+| | flowise | 119 | 中 |
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
-| | Dify | 34 | 高 |
-| | LiteLLM | 46 | 中 |
+| | Dify | 37 | 高 |
+| | LiteLLM | 49 | 中 |
 | | Chuanhugpt | 27 | 中高 |
 | | librechat | 21 | 中 |
 | | anythingllm | 20 | 中高 |
-| | ragflow | 14 | 中 |
-| | nextchat | 9 | 中 |
+| | ragflow | 15 | 中 |
+| | nextchat | 10 | 中 |
 | | qanything | 9 | 中 |
 | | fastgpt | 9 | 中 |
 | | new-api | 11 | 中 |
@@ -90,36 +90,36 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | dask | 3 | 低 |
 | | feast | 5 | 低 |
 | **可视化与交互** | jupyter-server | 20 | 中高 |
-| | jupyterlab | 15 | 中 |
+| | jupyterlab | 16 | 中 |
 | | jupyter-notebook | 2 | 低 |
 | | marimo | 3 | 中 |
-| **工作流编排** | n8n | 84 | 中高 |
-| | ray | 12 | 中 |
+| **工作流编排** | n8n | 114 | 中高 |
+| | ray | 11 | 中 |
 | | simstudioai | 9 | 中 |
-| | kubeflow | 9 | 中 |
+| | kubeflow | 21 | 中 |
 | | n8n-mcp | 4 | 中高 |
-| | 9router | 4 | 高 |
-| **其他AI组件** | openclaw | 737 | 中高 |
-| | praisonai | 148 | 严重 |
+| | 9router | 6 | 高 |
+| **其他AI组件** | openclaw | 740 | 中高 |
+| | praisonai | 151 | 严重 |
 | | pyload-ng | 24 | 中 |
 | | astrbot | 14 | 中 |
 | | comfyui | 13 | 中 |
-| | crawl4ai | 16 | 严重 |
-| | sglang | 22 | 中 |
+| | crawl4ai | 19 | 严重 |
+| | sglang | 35 | 中 |
 | | bentoml | 7 | 中 |
 | | pinchtab | 6 | 中高 |
 | | kubepi | 7 | 中 |
-| | sillytavern | 5 | 中 |
+| | sillytavern | 6 | 中 |
 | | dynamo | 7 | 高 |
 | | autogpt | 5 | 中 |
-| | flyto2 | 4 | 中 |
+| | flyto2 | 6 | 中 |
 | | llamafactory | 4 | 低 |
-| | lmdeploy | 10 | 低 |
+| | lmdeploy | 11 | 低 |
 | | lollms | 5 | 中 |
-| | pipecat | 3 | 低 |
+| | pipecat | 4 | 低 |
 | | agenticmail | 2 | 中 |
 | | boxlite | 2 | 中 |
-| | hermes | 6 | 严重 |
+| | hermes | 7 | 严重 |
 | | instructlab | 2 | 低 |
 | | jan | 3 | 低 |
 | | junoclaw | 2 | 中 |
@@ -128,7 +128,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | mcp | 2 | 中 |
 | | mcp sse | 2 | 中 |
 | | paperclip | 3 | 中 |
-| | weknora | 3 | 低 |
+| | weknora | 4 | 低 |
 | | Clawdbot Gateway | 1 | 中 |
 | | ComfyUI-Ace-Nodes | 1 | 低 |
 | | ComfyUI-Bmad-Nodes | 1 | 低 |
@@ -141,12 +141,12 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | ai-code | 1 | 严重 |
 | | ai-copilot | 1 | 中 |
 | | ai-engine-wordpress | 2 | 中 |
-| | blinko | 3 | 低 |
+| | blinko | 5 | 低 |
 | | comfy_mtb | 1 | 低 |
 | | f5-tts | 1 | 中 |
-| | gpt-sovits | 1 | 中 |
+| | gpt-sovits | 2 | 中 |
 | | guardrails-ai | 1 | 中 |
-| | langbot | 2 | 低 |
+| | langbot | 3 | 低 |
 | | lightrag | 6 | 低 |
 | | lumiverse | 1 | 低 |
 | | mcp-documentation-server | 1 | 中 |
@@ -154,21 +154,21 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | mcp-server-kubernetes | 1 | 中 |
 | | mem0 | 1 | 低 |
 | | netlicensing-mcp | 1 | 中 |
-| | network-ai | 2 | 中 |
+| | network-ai | 8 | 中 |
 | | nvidia-trt-llm | 1 | 高 |
 | | qnabot-on-aws | 1 | 低 |
 | | suna | 1 | 中 |
-| | superagi | 1 | 低 |
+| | superagi | 7 | 低 |
 | | text-generation-webui | 1 | 中 |
 | | upsonic | 1 | 中 |
 | | nocobase | 1 | 严重 |
 | | sub2api | 1 | 高 |
 | | trigger.dev | 5 | 严重 |
-| | mcp-atlassian | 7 | 高 |
+| | mcp-atlassian | 25 | 高 |
 | | hatchet | 5 | 高 |
 | | mcp-searxng | 4 | 高 |
-| | omnigent | 4 | 严重 |
-| | lightllm | 3 | 严重 |
+| | omnigent | 5 | 严重 |
+| | lightllm | 8 | 严重 |
 | | meta-ads-mcp | 3 | 严重 |
 | | onyx | 3 | 严重 |
 | | chroma | 2 | 高 |
@@ -181,18 +181,21 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | eclipse-theia | 1 | 高 |
 | | graphiti | 1 | 高 |
 | | h2ogpt | 1 | 严重 |
-| | mcphub | 1 | 高 |
+| | mcphub | 2 | 高 |
 | | memos | 1 | 严重 |
 | | ms-swift | 1 | 高 |
 | | notebooklm-mcp | 1 | 高 |
-| | obot | 1 | 严重 |
+| | obot | 6 | 严重 |
 | | omniroute | 1 | 严重 |
 | | open-genai-stack | 1 | 严重 |
 | | open-generative-ai | 1 | 高 |
 | | qwed | 1 | 高 |
 | | trek | 1 | 高 |
+| | astron-agent | 1 | 中 |
+| | cognee | 1 | 中 |
+| | portkey-ai-gateway | 1 | 中 |
 | **AI Agent 配置安全** | AI-Agent-Config | 7 | 高 |
-| **总计** | | **2000+** | |
+| **总计** | | **2686+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 
