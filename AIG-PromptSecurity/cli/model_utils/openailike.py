@@ -16,6 +16,7 @@
 # Tencent Zhuque Lab (https://github.com/Tencent/AI-Infra-Guard) in its
 # documentation or user interface, as detailed in the NOTICE file.
 
+import json
 import re
 import time
 import asyncio
@@ -37,6 +38,114 @@ RATE_LIMIT_MARKERS = (
     "code 429",
     "http 429",
 )
+
+
+_SECRET_HEADERS = {"authorization", "api-key", "x-api-key", "cookie", "set-cookie", "proxy-authorization"}
+
+
+def _mask_secret(secret: str) -> str:
+    text = (secret or "").strip()
+    if len(text) <= 4:
+        return "****"
+    return "****" + text[-4:]
+
+
+def _redact_packet(text: str, secret: str = "", limit: int = 8000) -> str:
+    raw = str(text or "")
+    hidden = (secret or "").strip()
+    if hidden:
+        raw = raw.replace(hidden, _mask_secret(hidden))
+    raw = re.sub(r"(?i)(bearer\s+)\S+", lambda match: match.group(1) + "****", raw)
+    raw = re.sub(r"sk-[A-Za-z0-9_\-]{6,}", "sk-****", raw)
+    raw = re.sub(r"(?i)((?:api[_-]?key|token|access_token)=)[^&\s]+", r"\1****", raw)
+    if len(raw) > limit:
+        raw = raw[:limit] + "…"
+    return raw
+
+
+def _pretty_body(text: str) -> str:
+    stripped = (text or "").strip()
+    if not stripped or stripped[0] not in "{[":
+        return text or ""
+    try:
+        return json.dumps(json.loads(stripped), ensure_ascii=False, indent=2)
+    except json.JSONDecodeError:
+        return text or ""
+
+
+def _header_block(headers) -> str:
+    lines = []
+    if headers is None:
+        return ""
+    try:
+        pairs = list(headers.items())
+    except Exception:
+        return ""
+    for key, value in pairs:
+        name = str(key)
+        shown = str(value)
+        if name.lower() in _SECRET_HEADERS:
+            if name.lower() == "authorization" and shown.lower().startswith("bearer "):
+                token = shown.split(None, 1)[1]
+                shown = "Bearer " + _mask_secret(token)
+            else:
+                shown = "****"
+        lines.append(f"{name}: {shown}")
+    return "\n".join(lines)
+
+
+def describe_probe(api_key: str, base_url: str, payload: dict, exc: Exception | None = None, reply: str = "") -> dict:
+    """Format one connection attempt. The API key is masked."""
+    request = getattr(exc, "request", None) if exc is not None else None
+    response = getattr(exc, "response", None) if exc is not None else None
+    if request is None and response is not None:
+        request = getattr(response, "request", None)
+    if request is not None:
+        method = getattr(request, "method", None) or "POST"
+        url = str(getattr(request, "url", "") or "")
+        header = _header_block(getattr(request, "headers", None))
+        body = ""
+        try:
+            content = getattr(request, "content", b"") or b""
+        except Exception:
+            content = b""
+        if isinstance(content, bytes):
+            body = content.decode("utf-8", errors="replace")
+        elif content:
+            body = str(content)
+    else:
+        base = (base_url or "").rstrip("/")
+        method, url = "POST", f"{base}/chat/completions"
+        header = "content-type: application/json\nauthorization: Bearer " + _mask_secret(api_key)
+        body = ""
+    if not body:
+        body = json.dumps(payload, ensure_ascii=False, indent=2)
+    request_text = "\n".join(part for part in (f"{method} {url}", header, "", _pretty_body(body)) if part is not None)
+    if response is not None:
+        version = getattr(response, "http_version", None) or "HTTP/1.1"
+        status = getattr(response, "status_code", "")
+        reason = getattr(response, "reason_phrase", "") or ""
+        response_header = _header_block(getattr(response, "headers", None))
+        response_body = ""
+        try:
+            response_body = response.text or ""
+        except Exception:
+            response_body = ""
+        if not response_body and getattr(exc, "body", None) is not None:
+            body_value = exc.body
+            response_body = json.dumps(body_value, ensure_ascii=False, indent=2) if isinstance(body_value, (dict, list)) else str(body_value)
+        status_line = f"{version} {status} {reason}".strip()
+        response_text = "\n".join(part for part in (status_line, response_header, "", _pretty_body(response_body)) if part is not None)
+    elif reply:
+        response_text = "HTTP/1.1 200 OK\n\n" + reply
+    elif exc is not None:
+        response_text = "（没有收到返回）\n" + (str(exc).strip() or "连接失败")
+    else:
+        response_text = ""
+    return {
+        "request": _redact_packet(request_text.strip(), api_key),
+        "response": _redact_packet(response_text.strip(), api_key),
+    }
 
 
 def _is_rate_limit_error(exc: Exception) -> bool:
@@ -161,18 +270,25 @@ class OpenaiAlikeModel(BaseLLM):
         """
         current_params = self.default_params.copy()
         param_keys = list(current_params.keys())
+        messages = [{"role": "user", "content": "only return 1"}]
+        last_error = "连接失败"
+        self.last_probe = {"request": "", "response": ""}
         for i in range(len(param_keys) + 1):
+            payload = {"model": self.model_name, "messages": messages, **current_params}
             try:
                 response = self.client.chat.completions.create(
                     model=self.model_name,
-                    messages=[{"role": "user", "content": "only return 1"}],
+                    messages=messages,
                     **current_params
                 )
                 # 如果成功，返回成功的信息和使用的参数
                 self.default_params = current_params.copy()
-                return True, response.choices[0].message.content
+                content = response.choices[0].message.content
+                self.last_probe = describe_probe(self.api_key, self.base_url, payload, reply=content or "")
+                return True, content
             except Exception as e:
                 last_error = str(e)
+                self.last_probe = describe_probe(self.api_key, self.base_url, payload, exc=e)
                 # 如果还有参数可以移除，移除下一个参数
                 if i < len(param_keys):
                     param_to_remove = param_keys[i]
@@ -182,8 +298,10 @@ class OpenaiAlikeModel(BaseLLM):
         # 所有尝试都失败
         return False, last_error
 
-    def generate(self, prompt: str = None, messages: list = None) -> str:
+    def generate(self, prompt: str = None, messages: list = None, on_attempt=None) -> str:
         for i in range(self.max_trial):
+            if on_attempt is not None:
+                on_attempt(i + 1, self.max_trial)
             try:
                 if prompt:
                     _messages = [{"role": "user", "content": prompt}]
@@ -220,9 +338,11 @@ class OpenaiAlikeModel(BaseLLM):
                 time.sleep(wait_time)
         return ""
     
-    async def a_generate(self, prompt: str = None, messages: list = None) -> str:
+    async def a_generate(self, prompt: str = None, messages: list = None, on_attempt=None) -> str:
         async with self.semaphore:
             for i in range(self.max_trial):
+                if on_attempt is not None:
+                    on_attempt(i + 1, self.max_trial)
                 try:
                     if prompt:
                         _messages = [{"role": "user", "content": prompt}]

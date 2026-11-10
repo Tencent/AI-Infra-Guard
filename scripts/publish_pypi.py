@@ -30,6 +30,7 @@ MODULES: dict[str, tuple[str, str, str]] = {
     "agent": ("agent-scan", "aig-agent-scan", "aig-agent-scan"),
     "model": ("AIG-PromptSecurity", "aig-model-scan", "aig-model-scan"),
     "infra": ("infra-scan", "aig-infra-scan", "aig-infra-scan"),
+    "compliance": ("compliance", "aig-compliance", "aig-compliance"),
 }
 
 # goos, goarch, wheel tag that replaces py3-none-any
