@@ -119,7 +119,7 @@ docker-compose up -d
 
 ## 🧰 独立调用
 
-五个扫描能力可以不启动 Web 服务，各自安装后在命令行使用。下面只给出最短用法，参数和示例见对应 README。
+下面这些能力可以不启动 Web 服务，各自安装后在命令行使用。只给出最短用法，参数和示例见对应 README。
 
 ### AI 基础设施扫描
 
@@ -131,6 +131,17 @@ aig-infra-scan -t https://example.com
 ```
 
 [查看 README](../infra-scan/README_zh.md)
+
+### AI安全合规检测
+
+本机打开页面，检查模型应拒答情况，也可以扫描基础设施。评测集在仓库的 `data/eval`，请在仓库根目录运行，或设置 `AIG_EVAL_DIR`。
+
+```bash
+pip install aig-compliance
+aig-compliance
+```
+
+[查看 README](../compliance/README_zh.md)
 
 ### 大模型体检 / 越狱
 

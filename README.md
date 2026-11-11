@@ -116,7 +116,7 @@ For more information, see: [https://tencent.github.io/AI-Infra-Guard/?menu=getti
 
 ## 🧰 Standalone Use
 
-The five scanners can be used from the command line without starting the web service. Only the shortest usage is shown below. See each README for parameters and examples.
+The tools below can be used from the command line without starting the web service. Only the shortest usage is shown. See each README for parameters and examples.
 
 ### AI Infrastructure Scan
 
@@ -128,6 +128,17 @@ aig-infra-scan -t https://example.com
 ```
 
 [View README](./infra-scan/README.md)
+
+### AI Safety Compliance Check
+
+Open a local page to check whether a model refuses unsafe prompts, and optionally scan infrastructure. Evaluation sets live in `data/eval`. Run from the repository root, or set `AIG_EVAL_DIR`.
+
+```bash
+pip install aig-compliance
+aig-compliance
+```
+
+[View README](./compliance/README.md)
 
 ### LLM Security Assessment / Jailbreak
 

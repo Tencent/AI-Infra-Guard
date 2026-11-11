@@ -12,6 +12,8 @@ pip install aig-compliance
 
 This also installs `aig-model-scan` and `aig-infra-scan`. Python ≥ 3.12 is required. This tool does not call the MCP, Skill, or Agent scanners.
 
+The evaluation sets are not inside the package. They live in `data/eval` in this repository. Run from the repository root, or set `AIG_EVAL_DIR` to that directory. `DiagBase` and `DiagAttack` also need the `diagsafe/` directory there.
+
 ## Use
 
 ```bash
@@ -20,7 +22,7 @@ aig-compliance
 
 The command opens `http://127.0.0.1:8765`. The page asks for a name and three model endpoints: target, judge, and attacker. Each endpoint is a model name, base URL, and API key, with an example in the field and a button to test the connection. A model name may look like `openai:gpt-4o-mini`.
 
-Fill in the target model, the infrastructure addresses, or both. When a target model is filled in, choose one or more evaluation sets from `data/eval`, or use the shortcuts for the compliance group and the security group. The page lists each set's name and size, not the questions. The target model answers the selected sets. The judge then applies that set's checks and exemptions; a reply inside an exemption is not a hit. If the judge result cannot be read, a refusal phrase in the reply is used instead. DiagSafe lives in `data/eval/diagsafe/` as DiagBase and DiagAttack, and multi-turn prompts are judged one turn at a time. If adversarial testing is checked, the attacker model rephrases refuse-questions and those replies are scored separately; bypasses do not change the refuse rate. Leave that box unchecked to skip the attacker model. Infrastructure addresses go in a multiline field, one address per line. Leaving the target model empty scans infrastructure only.
+Fill in the target model, the infrastructure addresses, or both. When a target model is filled in, choose one or more evaluation sets from `data/eval`, or use the shortcuts for the compliance group and the security group. The page lists each set's name and size, not the questions. The target model answers the selected sets. The judge then applies that set's checks and exemptions; a reply inside an exemption is not a hit. If the judge result cannot be read, or a later turn of a multi-turn item fails, that item is unfinished and is left out of the refuse rate, the false-refusal rate, and the safe-answer rate. Filling in a target model also runs eight ordinary questions. DiagSafe lives in `data/eval/diagsafe/` as DiagBase and DiagAttack, and multi-turn prompts are judged one turn at a time. If adversarial testing is checked, the attacker model rephrases refuse-questions and those replies are scored separately; bypasses do not change the refuse rate. Leave that box unchecked to skip the attacker model. Infrastructure addresses go in a multiline field, one address per line. Leaving the target model empty scans infrastructure only. An address that cannot be reached is a failed scan.
 
 Environment variables prefill the same fields: `TARGET_MODEL_NAME`, `TARGET_BASE_URL`, `TARGET_API_KEY`, and the same three names with `JUDGE_` or `ATTACKER_`.
 
