@@ -43,4 +43,4 @@ packages = ["aig_compliance"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-"aig_compliance" = ["bank.json", "form.html"]
+"aig_compliance" = ["bank.json", "form.html", "set_rubrics.json"]
