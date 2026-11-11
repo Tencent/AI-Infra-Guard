@@ -20,6 +20,8 @@
       Array of tool calls to execute. Each element must have:
       - tool: The name of the tool to execute (string)
       - parameters: Parameters for the tool (object)
+
+      In XML tool calls, provide this array as JSON text inside the tool_calls parameter.
       
       Example:
       [
