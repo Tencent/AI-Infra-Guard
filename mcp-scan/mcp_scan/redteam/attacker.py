@@ -11,6 +11,7 @@ from typing import List, Optional, Any
 from openai import AsyncOpenAI
 
 from mcp_scan.redteam.strategy import ConversationTurn, CrescendoPhase
+from mcp_scan.utils.config import reasoning_request_options
 from mcp_scan.utils.llm_retry import acall_with_retry
 
 # 默认系统提示：约束输出为 JSON
@@ -99,6 +100,7 @@ class AttackerAgent:
             lambda: self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
+                **reasoning_request_options(),
             ),
             what="attacker generate_attack",
         )

@@ -11,6 +11,7 @@ from typing import List, Optional
 from openai import AsyncOpenAI
 
 from mcp_scan.redteam.strategy import ConversationTurn
+from mcp_scan.utils.config import reasoning_request_options
 from mcp_scan.utils.llm_retry import acall_with_retry
 
 EVALUATOR_SYSTEM = """你是一名安全评估专家，对红队针对 MCP Server 的攻击轮次进行评分。
@@ -89,6 +90,7 @@ class EvaluatorAgent:
             lambda: self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
+                **reasoning_request_options(),
             ),
             what="evaluator evaluate",
         )

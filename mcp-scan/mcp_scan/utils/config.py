@@ -53,6 +53,14 @@ def get_env_int(key: str, default: int) -> int:
         return default
 
 
+def reasoning_request_options() -> dict:
+    """可选的 reasoning_effort 请求参数；REASONING_EFFORT 未设置或为空白时不发送"""
+    reasoning_effort = (get_env("REASONING_EFFORT") or "").strip()
+    if reasoning_effort:
+        return {"reasoning_effort": reasoning_effort}
+    return {}
+
+
 # ===== 主要 LLM 配置 =====
 DEFAULT_MODEL = get_env("DEFAULT_MODEL", "deepseek/deepseek-v3.2-exp")
 DEFAULT_BASE_URL = get_env("DEFAULT_BASE_URL", "https://openrouter.ai/api/v1")

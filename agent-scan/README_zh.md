@@ -63,6 +63,9 @@ cp env.example .env
 OPENROUTER_API_KEY=your-api-key-here
 DEFAULT_MODEL=deepseek/deepseek-v3.2-exp
 DEFAULT_BASE_URL=https://openrouter.ai/api/v1
+
+# 可选推理强度（例如 high）；支持的值取决于模型和服务提供商。未设置或为空白时不发送该 API 参数。
+REASONING_EFFORT=
 ```
 
 ### 4. 运行扫描
