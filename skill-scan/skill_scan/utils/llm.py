@@ -24,6 +24,7 @@ import openai
 
 from skill_scan.utils.config import get_env
 from skill_scan.utils.loging import logger
+from skill_scan.utils.tool_format_fix import normalize_tool_calls
 
 
 class LLM:
@@ -66,6 +67,9 @@ class LLM:
                     logger.error("LLM chat error, retry 5 times, exit")
                     ret = "Failed to connect to the LLM after 5 retries; model output is empty. Please wait a minute and try again."
                     break
+        ret, fixed = normalize_tool_calls(ret)
+        if fixed:
+            logger.info("Normalized malformed tool call in LLM response")
         if p:
             print(ret)
 

@@ -22,6 +22,7 @@ import openai
 
 from mcp_scan.utils.llm_retry import call_with_retry
 from mcp_scan.utils.loging import logger
+from mcp_scan.utils.tool_format_fix import normalize_tool_calls
 
 
 class LLM:
@@ -67,6 +68,9 @@ class LLM:
                     logger.error("LLM chat error, retry 5 times, exit")
                     ret = "连接LLM失败，已重试5次，模型输出为空,请等待1分钟后再试"
                     break
+        ret, fixed = normalize_tool_calls(ret)
+        if fixed:
+            logger.info("Normalized malformed tool call in LLM response")
         if p:
             print(ret)
 
