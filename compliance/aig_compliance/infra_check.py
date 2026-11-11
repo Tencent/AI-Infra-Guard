@@ -196,8 +196,10 @@ def scan_target(target: str) -> InfraOutcome:
         payload = scan(target)
     except Exception:
         return InfraOutcome(status="error", error="基础设施扫描失败")
+    if not payload:
+        return InfraOutcome(status="error", error="基础设施扫描失败")
     parsed = parse_infra_json(payload, target)
     if not parsed.hosts:
-        parsed.hosts.append(Host(url=_clip(target, 200)))
+        return InfraOutcome(status="error", error="基础设施扫描失败")
     parsed.status = "ok"
     return parsed

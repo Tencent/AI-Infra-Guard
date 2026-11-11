@@ -436,6 +436,9 @@ class App:
                         item_id = tail[: -len("/cases")]
                         query = parse_qs(urlparse(self.path).query)
                         result = (query.get("result") or [""])[0]
+                        dataset = (query.get("set") or [""])[0]
+                        turns = (query.get("turns") or [""])[0]
+                        check = (query.get("check") or [""])[0]
                         try:
                             offset = int((query.get("offset") or ["0"])[0])
                             limit = int((query.get("limit") or ["40"])[0])
@@ -443,7 +446,16 @@ class App:
                             self._json(400, {"error": "请求格式不正确"})
                             return
                         with app.history_lock:
-                            page = case_page(app.directory, item_id, result, offset, limit)
+                            page = case_page(
+                                app.directory,
+                                item_id,
+                                result,
+                                offset,
+                                limit,
+                                dataset=dataset,
+                                turns=turns,
+                                check=check,
+                            )
                         if page is None:
                             self._send(404, "text/plain; charset=utf-8", "没有这份记录".encode("utf-8"))
                             return

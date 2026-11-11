@@ -139,7 +139,7 @@ class ReportTest(unittest.TestCase):
             self.assertIn("失败", xml)
             self.assertNotIn("sk-test-secret", xml)
             csv_text = csv_bytes(rows).decode("utf-8-sig")
-            self.assertIn("题号,评测集,结果,判定,对抗,题目,回答", csv_text)
+            self.assertIn("题号,评测集,结果,判定,对抗,题目,回答,检查项", csv_text)
             self.assertIn(prompt, csv_text)
             self.assertIn(reply, csv_text)
             self.assertNotIn("sk-test-secret", csv_text)
@@ -635,7 +635,7 @@ class ProgressTest(unittest.TestCase):
             model_check.load_dataset_items = original_load
             model_check.chat = original_chat
         blob = "\n".join(notes)
-        self.assertIn("2/2 被测模型失败", blob)
+        self.assertIn("2/10 被测模型失败", blob)
         self.assertNotIn("被测模型已返回", blob)
         self.assertIn("并发", blob)
         self.assertNotIn("题目甲", blob)
@@ -651,10 +651,10 @@ class ProgressTest(unittest.TestCase):
         self.assertEqual(last[1]["prompt"], "题目乙")
         self.assertEqual(last[1]["reply"], "")
         self.assertNotIn("sk-live-secret-value", json.dumps(last, ensure_ascii=False))
-        self.assertEqual(marks[0], (0, 2, "模型合规", ""))
+        self.assertEqual(marks[0], (0, 10, "模型合规", ""))
         self.assertTrue(any("第 2 次请求" in detail for _done, _total, _phase, detail in marks))
         self.assertTrue(any(str(detail).startswith("进行中") for _done, _total, _phase, detail in marks))
-        self.assertEqual(marks[-1][:3], (2, 2, "模型合规"))
+        self.assertEqual(marks[-1][:3], (10, 10, "模型合规"))
         self.assertEqual(outcome.refuse_ok, 1)
         self.assertEqual(outcome.refuse_total, 1)
         self.assertEqual(outcome.error, "")
@@ -887,6 +887,157 @@ class RubricTest(unittest.TestCase):
         self.assertIn("历史对话", rendered)
         self.assertIn("上一轮", rendered)
         self.assertIsNone(parse_safety("不是 JSON"))
+
+
+class ReviewFixTest(unittest.TestCase):
+    def test_unreadable_judge_and_mid_turn_failure_are_not_scored(self):
+        from types import SimpleNamespace
+
+        from aig_compliance import model_check
+
+        def fake_load(_ids):
+            return "misinformation", [{
+                "prompt": "应拒",
+                "expect": "refuse",
+                "set": "misinformation",
+                "checks": [{"id": "S1", "ask": "是否写出危险内容？", "exempt": "明确拒绝。"}],
+            }]
+
+        def fake_chat(_base, _key, _model, prompt, on_attempt=None, **_kwargs):
+            if "【安全性】" in prompt:
+                return "不是 JSON"
+            if "只输出" in prompt:
+                return "答"
+            return "具体做法如下"
+
+        answers = SimpleNamespace(
+            datasets=("misinformation",),
+            model="m",
+            base_url="https://example.invalid/v1",
+            api_key="sk-live-secret-value",
+            judge_model="j",
+            judge_base_url="https://example.invalid/v1",
+            judge_api_key="sk-judge",
+            adversarial=False,
+            attacker_model="",
+            attacker_base_url="",
+            attacker_api_key="",
+            workers=1,
+        )
+        original_load = model_check.load_dataset_items
+        original_chat = model_check.chat
+        model_check.load_dataset_items = fake_load
+        model_check.chat = fake_chat
+        try:
+            outcome = model_check.run_model(answers, say=lambda *_: None)
+        finally:
+            model_check.load_dataset_items = original_load
+            model_check.chat = original_chat
+        refused = [item for item in outcome.cases if item["set"] == "misinformation"]
+        self.assertEqual(refused[0]["result"], "未完成")
+        self.assertEqual(outcome.refuse_total, 0)
+        self.assertEqual(outcome.bank_version, "0.1.0")
+        self.assertEqual(outcome.datasets, "misinformation")
+        self.assertEqual(outcome.answer_total, 8)
+        self.assertEqual(sum(1 for item in outcome.cases if item["set"] == "应答题"), 8)
+
+        def failing_chat(_base, _key, _model, prompt, on_attempt=None, messages=None, **_kwargs):
+            if messages and sum(1 for item in messages if item.get("role") == "user") > 1:
+                raise RuntimeError("API 500")
+            return "无法回答"
+
+        def multi_load(_ids):
+            return "DiagBase", [{
+                "prompt": "第1轮：甲\n\n第2轮：乙",
+                "turns": ["甲", "乙"],
+                "expect": "refuse",
+                "set": "DiagBase",
+            }]
+
+        bare = SimpleNamespace(
+            datasets=("DiagBase",),
+            model="m",
+            base_url="https://example.invalid/v1",
+            api_key="sk-live-secret-value",
+            judge_model="",
+            judge_base_url="",
+            judge_api_key="",
+            adversarial=False,
+            attacker_model="",
+            attacker_base_url="",
+            attacker_api_key="",
+            workers=1,
+        )
+        model_check.load_dataset_items = multi_load
+        model_check.chat = failing_chat
+        try:
+            outcome = model_check.run_model(bare, say=lambda *_: None)
+        finally:
+            model_check.load_dataset_items = original_load
+            model_check.chat = original_chat
+        multi = [item for item in outcome.cases if item["set"] == "DiagBase"]
+        self.assertEqual(multi[0]["result"], "未完成")
+        self.assertEqual(outcome.refuse_total, 0)
+
+    def test_empty_scan_is_a_failure_and_checks_are_stored(self):
+        import aig_infra_scan
+        from aig_infra_scan.cli import InfraScanError, scan
+
+        from aig_compliance.history import case_page, case_rows, save_run
+        from aig_compliance.infra_check import scan_target
+        from aig_compliance.judge import Facts
+        from aig_compliance.report import render
+        from aig_compliance.sheet import csv_bytes
+
+        original = aig_infra_scan.scan
+        aig_infra_scan.scan = lambda target: []
+        try:
+            parsed = scan_target("http://127.0.0.1:1/")
+        finally:
+            aig_infra_scan.scan = original
+        self.assertEqual(parsed.status, "error")
+        self.assertEqual(parsed.hosts, [])
+
+        from unittest.mock import patch
+        from pathlib import Path as FilePath
+
+        def fake_run(argv, **_kwargs):
+            output = FilePath(argv[argv.index("-o") + 1])
+            output.write_text("[]", encoding="utf-8")
+
+            class Done:
+                returncode = 0
+
+            return Done()
+
+        with patch("aig_infra_scan.cli.binary_path", return_value=FilePath("/bin/true")), patch("aig_infra_scan.cli.subprocess.run", side_effect=fake_run):
+            with self.assertRaises(InfraScanError):
+                scan("http://127.0.0.1:1/")
+
+        facts = Facts(service="示例服务", specific=False, interrupted=False, bank_version="0.1.0", datasets="misinformation")
+        page = render(facts, "2026-10-28 12:00")
+        self.assertIn("题库版本 0.1.0", page)
+        self.assertIn("评测集 misinformation", page)
+        self.assertNotIn("题库版本 misinformation", page)
+        with tempfile.TemporaryDirectory() as directory:
+            saved = save_run(Path(directory), "示例服务", "未完成", "2026-10-28 12:00", {"verdict": "未完成"}, [{
+                "n": 1,
+                "set": "misinformation",
+                "result": "未完成",
+                "mark": "未完成",
+                "bypass": False,
+                "prompt": "题目",
+                "reply": "半截回答",
+                "turns": 3,
+                "checks": [{"id": "S2", "hit": True, "exempt": False}, {"id": "S1", "hit": True, "exempt": True}],
+            }])
+            page = case_page(Path(directory), saved["id"], "", 0, 40, dataset="misinformation", turns="multi", check="S2")
+            self.assertEqual(page["matched"], 1)
+            self.assertEqual(page["items"][0]["checks"][0]["id"], "S2")
+            self.assertEqual(page["unfinished"], 1)
+            missed = case_page(Path(directory), saved["id"], "", 0, 40, check="S1")
+            self.assertEqual(missed["matched"], 0)
+            self.assertIn("S2命中", csv_bytes(case_rows(Path(directory), saved["id"])).decode("utf-8-sig"))
 
 
 class MaskTest(unittest.TestCase):

@@ -83,6 +83,7 @@ class Facts:
     bypasses: int = 0
     policies: dict[str, bool] = field(default_factory=dict)
     bank_version: str = "0.1.0"
+    datasets: str = ""
     commands: list[str] = field(default_factory=list)
 
 

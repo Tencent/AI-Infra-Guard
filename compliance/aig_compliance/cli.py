@@ -132,6 +132,7 @@ def execute(answers: Answers, model_fn=run_model, infra_fn=scan_target, say=prin
             outcome = model_fn(answers)
             facts.cases = list(getattr(outcome, "cases", ()) or ())
             facts.bank_version = outcome.bank_version or facts.bank_version
+            facts.datasets = getattr(outcome, "datasets", "") or ""
             if outcome.error:
                 facts.model_error = outcome.error
                 say(f"模型合规失败：{outcome.error}")

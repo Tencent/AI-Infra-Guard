@@ -72,7 +72,11 @@ def scan(target: str, lang: str = "zh") -> list:
         except json.JSONDecodeError as exc:
             raise InfraScanError("基础设施扫描结果无法解析") from exc
     if isinstance(payload, list):
+        if not payload:
+            raise InfraScanError("基础设施扫描失败")
         return payload
+    if not payload:
+        raise InfraScanError("基础设施扫描失败")
     return [payload]
 
 

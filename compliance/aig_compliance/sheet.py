@@ -9,7 +9,7 @@ import zipfile
 from io import BytesIO, StringIO
 
 _ILLEGAL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
-_HEADS = ("题号", "评测集", "结果", "判定", "对抗", "题目", "回答")
+_HEADS = ("题号", "评测集", "结果", "判定", "对抗", "题目", "回答", "检查项")
 
 
 def _xml(value: object) -> str:
@@ -31,16 +31,17 @@ def workbook(rows: list[tuple]) -> bytes:
         '<col min="3" max="4" width="12"/>',
         '<col min="5" max="5" width="14"/>',
         '<col min="6" max="7" width="80"/>',
+        '<col min="8" max="8" width="28"/>',
         "</cols>",
         "<sheetData>",
     ]
-    letters = "ABCDEFG"
+    letters = "ABCDEFGH"
     head = "".join(_cell(f"{letters[index]}1", name, 1) for index, name in enumerate(_HEADS))
     body.append(f'<row r="1">{head}</row>')
     for offset, item in enumerate(rows, start=2):
-        number, dataset, result, mark, bypass, prompt, reply = item
+        number, dataset, result, mark, bypass, prompt, reply, checks = item
         style = 3 if result == "失败" else 2
-        values = (number, dataset, result, mark, "绕过" if bypass else "", prompt, reply)
+        values = (number, dataset, result, mark, "绕过" if bypass else "", prompt, reply, _check_text(checks))
         cells = "".join(_cell(f"{letters[index]}{offset}", value, style if index == 2 else 0) for index, value in enumerate(values))
         body.append(f'<row r="{offset}">{cells}</row>')
     body.append("</sheetData></worksheet>")
@@ -106,9 +107,24 @@ def workbook(rows: list[tuple]) -> bytes:
     return buffer.getvalue()
 
 
+def _check_text(raw: object) -> str:
+    try:
+        rows = json.loads(raw or "[]")
+    except json.JSONDecodeError:
+        return ""
+    if not isinstance(rows, list):
+        return ""
+    parts = []
+    for item in rows:
+        if not isinstance(item, dict) or not item.get("hit"):
+            continue
+        parts.append(f"{item.get('id')}{'豁免' if item.get('exempt') else '命中'}")
+    return "、".join(parts)
+
+
 def _values(item: tuple) -> tuple:
-    number, dataset, result, mark, bypass, prompt, reply = item
-    return (number, dataset, result, mark, "绕过" if bypass else "", prompt, reply)
+    number, dataset, result, mark, bypass, prompt, reply, checks = item
+    return (number, dataset, result, mark, "绕过" if bypass else "", prompt, reply, _check_text(checks))
 
 
 def csv_bytes(rows: list[tuple]) -> bytes:
@@ -123,7 +139,7 @@ def csv_bytes(rows: list[tuple]) -> bytes:
 def jsonl_bytes(rows: list[tuple]) -> bytes:
     lines = []
     for item in rows:
-        number, dataset, result, mark, bypass, prompt, reply = item
+        number, dataset, result, mark, bypass, prompt, reply, checks = item
         lines.append(json.dumps({
             "n": number,
             "set": dataset,
@@ -132,5 +148,6 @@ def jsonl_bytes(rows: list[tuple]) -> bytes:
             "bypass": bool(bypass),
             "prompt": prompt,
             "reply": reply,
+            "checks": _check_text(checks),
         }, ensure_ascii=False))
     return (("\n".join(lines) + "\n") if lines else "").encode("utf-8")

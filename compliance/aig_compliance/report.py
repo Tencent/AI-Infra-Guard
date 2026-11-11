@@ -141,7 +141,11 @@ def view_of(facts: Facts, when: str | None = None) -> dict:
         ],
         "attack": f"绕过 {facts.bypasses} 次。不计入应拒答率。" if facts.adversarial == "ok" else "",
         "policies": [{"name": name, "present": bool(present)} for name, present in facts.policies.items()],
-        "notes": [f"题库版本 {facts.bank_version}", *facts.commands],
+        "notes": [
+            f"题库版本 {facts.bank_version}",
+            *([f"评测集 {facts.datasets}"] if facts.datasets else []),
+            *facts.commands,
+        ],
         "case_pass": sum(1 for item in facts.cases if item.get("result") == "通过"),
         "case_fail": sum(1 for item in facts.cases if item.get("result") == "失败"),
     }
@@ -309,6 +313,7 @@ def _page(
     else:
         attack = ""
     notes = "".join(f"<li>{_esc(item)}</li>" for item in facts.commands)
+    dataset_note = f"<li>评测集 {_esc(facts.datasets)}</li>" if facts.datasets else ""
     missing = f"<p class=\"missing\">未检测或失败：{_esc(missing_line)}</p>" if missing_line else ""
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -423,6 +428,7 @@ def _page(
     <h2>检测说明</h2>
     <ul>
       <li>题库版本 {_esc(facts.bank_version)}</li>
+      {dataset_note}
       {notes}
     </ul>
     <footer><span>{_esc(number)} · {_esc(facts.service)}</span><span>自查底稿，不替代法定安全评估</span></footer>
