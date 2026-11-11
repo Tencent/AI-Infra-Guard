@@ -211,6 +211,14 @@ def test_backoff_schedule_for_rate_limit(monkeypatch):
     assert waits == [8.0, 16.0, 32.0]
 
 
+def test_generate_reports_each_attempt(monkeypatch):
+    monkeypatch.setattr(time, "sleep", lambda w: None)
+    seen = []
+    m = _make_model(lambda **kw: (_ for _ in ()).throw(RuntimeError("boom")))
+    m.generate(prompt="hi", on_attempt=lambda nth, total: seen.append((nth, total)))
+    assert seen == [(1, 3), (2, 3), (3, 3)]
+
+
 def test_backoff_schedule_for_generic_error(monkeypatch):
     waits = []
     monkeypatch.setattr(time, "sleep", lambda w: waits.append(w))
@@ -370,3 +378,34 @@ async def test_circuit_breaker_graceful_without_model_instance():
     )
     assert tc.error is None
     assert tc.actual_output == "normal answer"
+
+
+def test_describe_probe_shows_404_and_hides_the_key():
+    from cli.model_utils.openailike import describe_probe
+
+    class Req:
+        method = "POST"
+        url = "https://api.example.com/v1/chat/completions?api_key=sk-test-secret"
+        headers = {"Authorization": "Bearer sk-test-secret", "Content-Type": "application/json"}
+        content = b'{"model":"gpt-4o-mini","messages":[{"role":"user","content":"only return 1"}]}'
+
+    class Resp:
+        status_code = 404
+        reason_phrase = "Not Found"
+        http_version = "HTTP/1.1"
+        headers = {"content-type": "application/json"}
+        text = '{"error":{"message":"no route","token":"sk-test-secret"}}'
+        request = None
+
+    class Err(Exception):
+        request = Req()
+        response = Resp()
+        body = None
+
+    packet = describe_probe("sk-test-secret", "https://api.example.com/v1", {"model": "gpt-4o-mini"}, exc=Err())
+    blob = packet["request"] + packet["response"]
+    assert "sk-test-secret" not in blob
+    assert "POST https://api.example.com/v1/chat/completions" in packet["request"]
+    assert "gpt-4o-mini" in packet["request"]
+    assert "HTTP/1.1 404 Not Found" in packet["response"]
+    assert "no route" in packet["response"]

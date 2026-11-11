@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>安全自查</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --sheet: #ffffff;
+    --ink: #1c1f24;
+    --muted: #667085;
+    --line: #e6e8ec;
+    --seal: #b42318;
+    --navy: #1d3a5f;
+    --ok: #1f7a4d;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px rgba(16, 24, 40, 0.05);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; color: var(--ink); background: var(--bg); font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Source Han Sans SC", sans-serif; }
+  body { min-height: 100vh; }
+  main { width: min(1080px, calc(100% - 48px)); margin: 0 auto; padding: 28px 0 56px; }
+  header.bar { color: var(--muted); font-size: 12px; letter-spacing: 0.14em; }
+  h1 { font-family: "Songti SC", "Noto Serif SC", "Source Han Serif SC", serif; font-size: 28px; font-weight: 600; line-height: 1.25; margin: 14px 0 20px; letter-spacing: -0.02em; }
+  form { margin: 0; }
+  .panel, .lane { background: var(--sheet); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .panel { padding: 22px 24px; }
+  .lanes { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+  .lane { padding: 18px 18px 8px; }
+  .lane.eval { border-top: 3px solid var(--navy); }
+  .lane.infra { border-top: 3px solid var(--ink); }
+  .lane > h2 { font-size: 16px; margin: 0 0 14px; font-weight: 600; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  input[type="text"], input[type="password"], input[type="url"] {
+    width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    color: var(--ink); font: inherit; font-size: 15px; padding: 10px 12px; margin-bottom: 12px;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #98a2b3; box-shadow: 0 0 0 3px rgba(28, 31, 36, 0.06); }
+  .quick { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; }
+  .quick button { border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .quick button.on { color: var(--navy); border-color: var(--navy); background: #f3f6fa; }
+  .quick button.compliance.on { color: var(--navy); border-color: var(--navy); background: #f3f6fa; }
+  .quick button.security.on { color: var(--seal); border-color: var(--seal); background: #fdf4f3; }
+  .quick button:hover { border-color: #c8cdd4; }
+  .sets { max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 0 14px 8px; margin: 0 0 8px; }
+  .group-head { position: sticky; top: 0; background: #fff; padding: 12px 0 6px; font-size: 12px; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .sets label { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid #f0f2f5; margin: 0; font-weight: 400; }
+  .sets label:last-child { border-bottom: 0; }
+  .sets input { width: auto; margin: 3px 0 0; grid-row: 1 / span 2; accent-color: var(--ink); }
+  .sets strong { font-weight: 600; font-size: 14px; }
+  .sets .count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sets .detail { grid-column: 2 / -1; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  textarea {
+    width: 100%; min-height: 96px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    color: var(--ink); font: inherit; font-size: 15px; padding: 10px 12px; resize: vertical; margin-bottom: 12px;
+  }
+  .models { display: flex; flex-flow: row nowrap; align-items: stretch; margin: 16px 0 12px; }
+  .models > .card { flex: 1 1 0; min-width: 0; }
+  .models > .card:not(:first-of-type) { margin-left: 12px; }
+  .models > :not(.card) { flex: 0 0 0px; width: 0; min-width: 0; margin: 0; padding: 0; overflow: hidden; border: 0; }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 2px; background: #fff; }
+  .card.off { opacity: 0.45; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+  .probe { display: flex; align-items: center; gap: 10px; min-height: 32px; margin: 0 0 8px; }
+  .probe button { padding: 6px 12px; font-size: 13px; }
+  .probe-status { font-size: 13px; color: var(--muted); }
+  .probe-status.ok { color: var(--ok); }
+  .probe-status.bad { color: var(--seal); }
+  .probe-detail {
+    display: block; max-height: 240px; overflow: auto; margin: 0 0 10px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fafbfc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+  }
+  button:disabled { opacity: 0.55; cursor: default; }
+  .hint { margin: 8px 0; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .tune { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+  .tune label { margin: 0; }
+  .tune input[type="number"] {
+    width: 5.5em; margin: 0; border: 1px solid var(--line); border-radius: 8px;
+    font: inherit; font-size: 15px; padding: 8px 10px; background: #fff; color: var(--ink);
+  }
+  .row { display: flex; align-items: center; gap: 10px; margin: 4px 0 16px; font-size: 15px; font-weight: 500; }
+  .row input { width: auto; margin: 0; accent-color: var(--ink); }
+  button {
+    border: 1px solid var(--ink); background: var(--ink); color: #fff;
+    font: inherit; font-size: 15px; padding: 10px 18px; border-radius: 10px; cursor: pointer;
+  }
+  button.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+  button.ghost:hover { border-color: #c8cdd4; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .error { color: var(--seal); min-height: 1.4em; margin: 10px 0 0; font-size: 14px; }
+  .hidden { display: none; }
+  #confirm h2, #progress h2 { margin-top: 0; font-size: 20px; }
+  .meter { margin: 0 0 14px; }
+  .meter-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .meter-track { height: 8px; background: #eef1f4; border-radius: 999px; overflow: hidden; }
+  .meter-fill { height: 100%; width: 0; background: var(--navy); border-radius: 999px; }
+  .board { margin: 0 0 12px; }
+  .board-sum { margin: 0 0 8px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .board-scroll { max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .board table.records th { position: sticky; top: 0; background: #fff; }
+  .board td.num { width: 4.5em; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .board td.io { max-width: 280px; vertical-align: top; }
+  .board td.io div { max-height: 7.5em; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.5; }
+  .board td.mark.pass { color: var(--ok); }
+  .board td.mark.fail { color: var(--seal); }
+  .log {
+    max-height: 160px; overflow: auto; border: 1px solid var(--line); border-radius: 12px;
+    background: #fafbfc; padding: 10px 14px; margin: 0 0 12px; font-size: 13px; line-height: 1.7;
+  }
+  .log p { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .log p.bad { color: var(--seal); }
+  #live-report { margin-top: 16px; }
+  dl { display: grid; grid-template-columns: 7em 1fr; gap: 10px 12px; margin: 0 0 18px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; white-space: pre-line; }
+  #history { margin-top: 16px; }
+  #history h2 { font-size: 18px; margin: 0 0 8px; font-weight: 600; }
+  table.records { width: 100%; border-collapse: collapse; }
+  table.records th {
+    text-align: left; font-size: 12px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.06em; padding: 0 12px 8px; border-bottom: 1px solid var(--line);
+  }
+  table.records td { padding: 12px; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: middle; }
+  table.records tr:last-child td { border-bottom: 0; }
+  table.records tbody tr.record { cursor: pointer; }
+  table.records tbody tr.record:hover td { background: #f7f8fa; }
+  table.records td.time { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; width: 11em; }
+  table.records td.mark { font-weight: 600; white-space: nowrap; width: 6em; }
+  table.records td.mark.pass { color: var(--ok); }
+  table.records td.mark.fail { color: var(--seal); }
+  table.records td.mark.gap { color: #b54708; }
+  table.records td.mark.stop { color: var(--muted); }
+  .board td.mark { width: auto; white-space: normal; font-weight: 600; }
+  table.records td.empty { color: var(--muted); padding: 14px 12px 4px; }
+  .verdict { font-size: 22px; margin: 0 0 12px; font-family: "Songti SC", "Noto Serif SC", serif; }
+  .case-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 0 0 12px; }
+  .case-bar .pass { color: var(--ok); }
+  .case-bar .fail { color: var(--seal); }
+  .case-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .case-tools .quick { margin: 0; }
+  .case-tools .exports { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .case-pager { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--muted); font-size: 13px; }
+  .case-card { border: 1px solid var(--line); border-left: 3px solid var(--navy); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; background: #fff; }
+  .case-card.fail { border-left-color: var(--seal); }
+  .case-card.pass { border-left-color: var(--ok); }
+  .case-card header { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .case-card .tags { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .badge { border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .badge.fail { color: var(--seal); background: #fdf4f3; border: 1px solid #f5c2c0; }
+  .badge.pass { color: var(--ok); background: #f3faf6; border: 1px solid #b7ebc9; }
+  .badge.gap { color: #b54708; background: #fff8f1; border: 1px solid #ffd7a8; }
+  .fold { margin: 10px 0 0; }
+  .fold-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  button.tiny { padding: 4px 8px; font-size: 12px; border-radius: 8px; }
+  .fold-body { font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .fold-body.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .fold-more { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+  .report-view { margin-top: 8px; }
+  .report-view h3 { font-family: "Songti SC", "Noto Serif SC", serif; font-size: 26px; font-weight: 600; line-height: 1.3; margin: 0 0 6px; }
+  .report-view .sub, .report-view .missing { color: var(--muted); margin: 0 0 14px; font-size: 13px; }
+  .report-view .missing { color: #b54708; }
+  .report-view .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; font-size: 14px; }
+  .report-view .meta span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+  .report-view .stamp { display: inline-block; border-radius: 12px; padding: 6px 16px; margin: 0 0 14px; font-family: "Songti SC", "Noto Serif SC", serif; font-size: 24px; }
+  .report-view .stamp.pass { color: var(--ok); border: 1px solid var(--ok); background: #f3faf6; }
+  .report-view .stamp.fail { color: var(--seal); border: 1px solid var(--seal); background: #fdf4f3; }
+  .report-view .stamp.gap { color: #b54708; border: 1px solid #b54708; background: #fff8f1; }
+  .report-view .stamp.stop { color: var(--muted); border: 1px solid var(--line); background: #f7f8fa; }
+  .report-view .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .report-view .counts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .report-view .metric { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .report-view .k, .report-view .t { font-size: 12px; color: var(--muted); }
+  .report-view .v { font-size: 22px; margin: 4px 0; }
+  .report-view h4 { font-size: 16px; margin: 18px 0 8px; }
+  .report-view table { width: 100%; border-collapse: collapse; }
+  .report-view th, .report-view td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; font-size: 13px; }
+  .report-view th { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; }
+  .report-view tr:last-child td { border-bottom: 0; }
+  .report-view ul { margin: 0; padding-left: 1.2em; line-height: 1.7; }
+  .report-view .hero { background: linear-gradient(145deg, #1d3a5f 0%, #245084 62%, #1c1f24 140%); color: #fff; border-radius: 16px; padding: 22px 24px 18px; margin: 0 0 16px; box-shadow: inset 0 -3px 0 #e4c48a; }
+  .report-view .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: center; }
+  .report-view .brand { margin: 0 0 10px; letter-spacing: 0.16em; font-size: 12px; color: rgba(255,255,255,0.72); }
+  .report-view .hero h3 { color: #fff; font-size: 28px; margin: 0 0 8px; }
+  .report-view .hero .sub { color: rgba(255,255,255,0.72); margin: 0; }
+  .report-view .seal { width: 120px; height: 120px; border-radius: 50%; border: 2px solid currentColor; box-shadow: inset 0 0 0 6px rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; text-align: center; font-family: "Songti SC", "Noto Serif SC", serif; font-size: 24px; flex: none; }
+  .report-view .seal.pass { color: #b7ebc9; }
+  .report-view .seal.fail { color: #ffc7c2; }
+  .report-view .seal.gap { color: #ffd7a8; }
+  .report-view .seal.stop { color: #d0d5dd; }
+  .report-view .hero .meta { margin: 16px 0 0; }
+  .report-view .hero .meta span { color: rgba(255,255,255,0.62); }
+  .report-view .hero .meta strong { color: #fff; }
+  .report-view .track { height: 4px; background: #eef1f4; border-radius: 999px; overflow: hidden; margin-top: 8px; }
+  .report-view .track span { display: block; height: 100%; background: #98a2b3; }
+  .report-view .metric.pass .track span { background: var(--ok); }
+  .report-view .metric.fail .track span { background: var(--seal); }
+  .report-view .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 10px; margin-top: 12px; }
+  .report-view .stat { border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .report-view .stat b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .report-view .stat span { color: var(--muted); font-size: 12px; }
+  .report-view .stat.fail b { color: var(--seal); }
+  .report-view .stat.gap b { color: #b54708; }
+  .report-view .stat.pass b { color: var(--ok); }
+  .host { border: 1px solid var(--line); border-left: 3px solid var(--navy); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; background: #fff; }
+  .host.fail { border-left-color: var(--seal); }
+  .host.gap { border-left-color: #b54708; }
+  .host header { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .host header span, .title, .quiet { color: var(--muted); font-size: 12px; }
+  .report-view .title, .report-view .quiet { margin: 4px 0 0; }
+  .report-view .pills, .board-cards .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .report-view .pill, .board-cards .pill { border: 1px solid #d9e2ef; background: #f3f6fa; color: var(--navy); border-radius: 999px; padding: 4px 10px; font-size: 13px; }
+  .report-view a, .board-cards a { color: var(--navy); }
+  .finding { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 10px 0 0; background: #fff; }
+  .finding-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .finding-body { margin: 8px 0 0; font-size: 13px; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .finding-link { display: block; font-size: 12px; word-break: break-all; margin-top: 6px; }
+  .board-cards { max-height: 480px; overflow: auto; }
+  .board-cards .host { margin-bottom: 12px; }
+  .infra-sum { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+  .mark.pass { color: var(--ok); font-weight: 600; }
+  .mark.fail { color: var(--seal); font-weight: 600; }
+  .mark.gap { color: #b54708; font-weight: 600; }
+  .mark.stop { color: var(--muted); font-weight: 600; }
+  @media (max-width: 860px) {
+    .lanes { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+    main { width: min(1080px, calc(100% - 24px)); }
+    .report-view .hero-top { flex-direction: column; align-items: flex-start; }
+    .report-view .meta, .report-view .grid, .report-view .counts { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="bar">A.I.G · 腾讯朱雀实验室</header>
+  <h1>安全自查</h1>
+
+  <form id="form">
+    <label for="service">任务名称</label>
+    <input id="service" name="service" type="text" placeholder="xx模型安全评测" autocomplete="off">
+    <div class="lanes">
+    <section class="lane eval">
+    <h2>评测</h2>
+    <div class="quick">
+      <button type="button" class="compliance" id="select-compliance">AI合规类</button>
+      <button type="button" class="security" id="select-security">AI安全类</button>
+      <button type="button" id="select-all">全选</button>
+      <button type="button" id="select-none">清空</button>
+    </div>
+    <div class="sets" id="dataset-list"></div>
+
+    <div class="models">
+      <section class="card">
+        <h2>被测模型</h2>
+        <label for="target_model">模型</label>
+        <input id="target_model" name="target_model" type="text" placeholder="gpt-4o-mini" autocomplete="off">
+        <label for="target_base_url">接口</label>
+        <input id="target_base_url" name="target_base_url" type="url" placeholder="https://api.openai.com/v1" autocomplete="off">
+        <label for="target_api_key">密钥</label>
+        <input id="target_api_key" name="target_api_key" type="password" placeholder="sk-xxxx" autocomplete="off">
+        <div class="probe"><button type="button" class="ghost probe-btn" data-prefix="target">测试连接</button><span class="probe-status" id="target-probe"></span></div>
+        <pre class="probe-detail hidden" id="target-probe-detail"></pre>
+      </section>
+      <section class="card">
+        <h2>裁判模型</h2>
+        <label for="judge_model">模型</label>
+        <input id="judge_model" name="judge_model" type="text" placeholder="gpt-4o" autocomplete="off">
+        <label for="judge_base_url">接口</label>
+        <input id="judge_base_url" name="judge_base_url" type="url" placeholder="https://api.openai.com/v1" autocomplete="off">
+        <label for="judge_api_key">密钥</label>
+        <input id="judge_api_key" name="judge_api_key" type="password" placeholder="sk-xxxx" autocomplete="off">
+        <div class="probe"><button type="button" class="ghost probe-btn" data-prefix="judge">测试连接</button><span class="probe-status" id="judge-probe"></span></div>
+        <pre class="probe-detail hidden" id="judge-probe-detail"></pre>
+      </section>
+      <section class="card" id="attacker-card">
+        <h2>攻击模型</h2>
+        <label for="attacker_model">模型</label>
+        <input id="attacker_model" name="attacker_model" type="text" placeholder="gpt-4o" autocomplete="off">
+        <label for="attacker_base_url">接口</label>
+        <input id="attacker_base_url" name="attacker_base_url" type="url" placeholder="https://api.openai.com/v1" autocomplete="off">
+        <label for="attacker_api_key">密钥</label>
+        <input id="attacker_api_key" name="attacker_api_key" type="password" placeholder="sk-xxxx" autocomplete="off">
+        <div class="probe"><button type="button" class="ghost probe-btn" data-prefix="attacker">测试连接</button><span class="probe-status" id="attacker-probe"></span></div>
+        <pre class="probe-detail hidden" id="attacker-probe-detail"></pre>
+      </section>
+    </div>
+
+    <div class="tune">
+      <label for="workers">并发</label>
+      <input id="workers" name="workers" type="number" min="1" max="16" value="4">
+    </div>
+    <label class="row"><input id="adversarial" name="adversarial" type="checkbox">对抗测试</label>
+    </section>
+    <section class="lane infra">
+    <h2>基础设施</h2>
+    <textarea id="infra" name="infra" placeholder="https://192.168.1.10:8080" autocomplete="off"></textarea>
+    </section>
+    </div>
+    <div class="actions"><button type="submit">继续</button></div>
+    <p class="error" id="form-error"></p>
+  </form>
+
+  <section class="panel" id="history">
+    <h2>历史</h2>
+    <table class="records">
+      <thead>
+        <tr><th>任务名称</th><th>时间</th><th>总评</th></tr>
+      </thead>
+      <tbody id="history-list"></tbody>
+    </table>
+  </section>
+
+  <section class="panel hidden" id="confirm">
+    <dl id="summary"></dl>
+    <div class="actions">
+      <button type="button" id="go">开始</button>
+      <button type="button" class="ghost" id="back">返回</button>
+    </div>
+    <p class="error" id="confirm-error"></p>
+  </section>
+
+  <section class="panel hidden" id="progress">
+    <h2 id="progress-title">正在检测</h2>
+    <div class="meter hidden" id="meter">
+      <div class="meter-top"><span id="meter-label">正在估算</span><span id="meter-eta"></span></div>
+      <div class="meter-track" id="meter-bar" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="1">
+        <div class="meter-fill" id="meter-fill"></div>
+      </div>
+    </div>
+    <div id="board" class="board hidden">
+      <p id="board-sum"></p>
+      <div class="board-scroll" id="board-table-wrap">
+        <table class="records">
+          <thead id="board-head"></thead>
+          <tbody id="board-body"></tbody>
+        </table>
+      </div>
+      <div class="board-cards hidden" id="board-cards"></div>
+    </div>
+    <div class="log" id="lines"></div>
+    <div class="actions">
+      <button type="button" class="ghost" id="stop">停止</button>
+      <button type="button" class="ghost hidden" id="progress-home">返回</button>
+    </div>
+    <div id="live-report" class="hidden">
+      <p class="verdict" id="live-verdict"></p>
+      <div class="report-view" id="live-body"></div>
+    </div>
+  </section>
+
+  <section class="panel hidden" id="result">
+    <p class="verdict" id="verdict-line"></p>
+    <div class="actions"><button type="button" class="ghost" id="home">返回</button></div>
+    <div class="report-view" id="report-body"></div>
+  </section>
+</main>
+<script>
+const prefill = __PREFILL__;
+const form = document.getElementById("form");
+const fields = ["service","target_model","target_base_url","target_api_key","judge_model","judge_base_url","judge_api_key","attacker_model","attacker_base_url","attacker_api_key","infra","workers"];
+for (const name of fields) {
+  if (prefill[name]) document.getElementById(name).value = prefill[name];
+}
+const adversarial = document.getElementById("adversarial");
+const attackerCard = document.getElementById("attacker-card");
+function paintAttacker() { attackerCard.classList.toggle("off", !adversarial.checked); }
+adversarial.addEventListener("change", paintAttacker);
+paintAttacker();
+
+function showProbeDetail(prefix, data) {
+  const detail = document.getElementById(prefix + "-probe-detail");
+  const parts = [];
+  if (data && data.request) parts.push("请求\n" + data.request);
+  if (data && data.response) parts.push("返回\n" + data.response);
+  if (!parts.length) {
+    detail.textContent = "";
+    detail.classList.add("hidden");
+    return;
+  }
+  detail.textContent = parts.join("\n\n");
+  detail.classList.remove("hidden");
+}
+async function probe(prefix, button) {
+  const status = document.getElementById(prefix + "-probe");
+  const model = document.getElementById(prefix + "_model").value.trim();
+  const base = document.getElementById(prefix + "_base_url").value.trim();
+  const key = document.getElementById(prefix + "_api_key").value.trim();
+  status.className = "probe-status";
+  if (!model || !base || !key) {
+    status.textContent = "请先填完整";
+    status.classList.add("bad");
+    showProbeDetail(prefix, null);
+    return;
+  }
+  button.disabled = true;
+  status.textContent = "测试中";
+  showProbeDetail(prefix, null);
+  try {
+    const response = await fetch("/api/probe", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({model: model, base_url: base, api_key: key})
+    });
+    const data = await response.json();
+    status.textContent = data.ok ? "已连通" : (data.error || "连接失败");
+    status.classList.add(data.ok ? "ok" : "bad");
+    showProbeDetail(prefix, data);
+  } catch (error) {
+    status.textContent = "连接失败";
+    status.classList.add("bad");
+    showProbeDetail(prefix, null);
+  }
+  button.disabled = false;
+}
+document.querySelectorAll(".probe-btn").forEach((button) => {
+  button.addEventListener("click", () => probe(button.dataset.prefix, button));
+});
+
+function mask(secret) {
+  const text = secret || "";
+  if (text.length <= 4) return "****";
+  return "****" + text.slice(-4);
+}
+let datasets = [];
+async function loadDatasets() {
+  const response = await fetch("/api/datasets");
+  const data = await response.json();
+  datasets = data.items || [];
+  const list = document.getElementById("dataset-list");
+  list.replaceChildren();
+  if (!datasets.length) {
+    const empty = document.createElement("p");
+    empty.className = "hint";
+    empty.textContent = "没有找到评测集。";
+    list.append(empty);
+    paintQuick();
+    return;
+  }
+  const groups = [["compliance", "合规"], ["security", "安全"]];
+  const placed = new Set();
+  for (const [group, title] of groups) {
+    const items = datasets.filter((item) => item.group === group);
+    if (!items.length) continue;
+    const block = document.createElement("section");
+    const head = document.createElement("div");
+    head.className = "group-head";
+    head.textContent = title;
+    block.append(head);
+    for (const item of items) {
+      placed.add(item.id);
+      block.append(datasetRow(item));
+    }
+    list.append(block);
+  }
+  for (const item of datasets) {
+    if (!placed.has(item.id)) list.append(datasetRow(item));
+  }
+  paintQuick();
+}
+function datasetRow(item) {
+  const label = document.createElement("label");
+  const box = document.createElement("input");
+  box.type = "checkbox";
+  box.name = "dataset";
+  box.value = item.id;
+  box.dataset.group = item.group || "";
+  const title = document.createElement("strong");
+  title.textContent = item.title;
+  const count = document.createElement("span");
+  count.className = "count";
+  count.textContent = item.count + " 题";
+  label.append(box, title, count);
+  if (item.detail) {
+    const detail = document.createElement("span");
+    detail.className = "detail";
+    detail.textContent = item.detail;
+    label.append(detail);
+  }
+  return label;
+}
+function paintQuick() {
+  paintGroup("compliance", "select-compliance", "AI合规类");
+  paintGroup("security", "select-security", "AI安全类");
+}
+function paintGroup(group, id, label) {
+  const boxes = [...document.querySelectorAll('#dataset-list input[data-group="' + group + '"]')];
+  const on = boxes.filter((box) => box.checked).length;
+  const button = document.getElementById(id);
+  button.textContent = label + " · " + on + "/" + boxes.length;
+  button.classList.toggle("on", boxes.length > 0 && on === boxes.length);
+  button.setAttribute("aria-pressed", boxes.length > 0 && on === boxes.length ? "true" : "false");
+}
+function toggleGroup(group) {
+  const boxes = [...document.querySelectorAll('#dataset-list input[data-group="' + group + '"]')];
+  const allOn = boxes.length > 0 && boxes.every((box) => box.checked);
+  boxes.forEach((box) => { box.checked = !allOn; });
+  paintQuick();
+}
+function selectedDatasets() {
+  return [...document.querySelectorAll("#dataset-list input:checked")].map((box) => box.value);
+}
+function payload() {
+  const data = {};
+  for (const name of fields) data[name] = document.getElementById(name).value.trim();
+  data.adversarial = adversarial.checked;
+  data.datasets = selectedDatasets();
+  return data;
+}
+function infraLines(text) {
+  return (text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+function missing(data) {
+  if (!data.service) return "请填写任务名称。例如：xx模型安全评测";
+  const parts = [data.target_model, data.target_base_url, data.target_api_key];
+  const hasModel = parts.every(Boolean);
+  const lines = infraLines(data.infra);
+  if (parts.some(Boolean) && !hasModel) {
+    return "请把被测模型的名称、接口地址和 API Key 填完整。例如：gpt-4o-mini、https://api.openai.com/v1、sk-xxxx";
+  }
+  if (!hasModel && !lines.length) {
+    return "请填写被测模型或基础设施地址，至少填一项。基础设施一行一个，例如：https://192.168.1.10:8080";
+  }
+  if (!hasModel && data.adversarial) return "做对抗测试需要填写被测模型。例如：gpt-4o-mini";
+  if (!hasModel) return "";
+  if (data.workers !== "" && data.workers != null) {
+    const workers = Number(data.workers);
+    if (!Number.isInteger(workers) || workers < 1 || workers > 16) return "并发请填 1 到 16";
+  }
+  if (!(data.datasets || []).length) return "请至少选择一个评测集";
+  const need = [
+    ["judge_model", "裁判模型名称。例如：gpt-4o"],
+    ["judge_base_url", "裁判模型接口地址。例如：https://api.openai.com/v1"],
+    ["judge_api_key", "裁判模型 API Key。例如：sk-xxxx"]
+  ];
+  if (data.adversarial) {
+    need.push(
+      ["attacker_model", "攻击模型名称。例如：gpt-4o"],
+      ["attacker_base_url", "攻击模型接口地址。例如：https://api.openai.com/v1"],
+      ["attacker_api_key", "攻击模型 API Key。例如：sk-xxxx"]
+    );
+  }
+  for (const [key, label] of need) if (!data[key]) return "请填写" + label;
+  return "";
+}
+function addRow(dl, title, value) {
+  const dt = document.createElement("dt");
+  dt.textContent = title;
+  const dd = document.createElement("dd");
+  dd.textContent = value;
+  dl.append(dt, dd);
+}
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = payload();
+  const problem = missing(data);
+  const slot = document.getElementById("form-error");
+  slot.textContent = problem;
+  if (problem) return;
+  const dl = document.getElementById("summary");
+  dl.replaceChildren();
+  const lines = infraLines(data.infra);
+  addRow(dl, "任务名称", data.service);
+  if (data.target_model) {
+    const titles = (data.datasets || []).map((id) => {
+      const current = datasets.find((item) => item.id === id);
+      return current ? current.title : id;
+    });
+    addRow(dl, "评测集", titles.join("、"));
+  }
+  if (data.target_model) addRow(dl, "并发", data.workers || "4");
+  if (data.target_model) addRow(dl, "被测模型", data.target_model + "  " + mask(data.target_api_key));
+  else addRow(dl, "被测模型", "跳过");
+  if (data.target_model) addRow(dl, "裁判模型", data.judge_model + "  " + mask(data.judge_api_key));
+  if (data.adversarial && data.target_model) addRow(dl, "攻击模型", data.attacker_model + "  " + mask(data.attacker_api_key));
+  else addRow(dl, "对抗测试", "跳过");
+  addRow(dl, "基础设施", lines.join("\n") || "跳过");
+  form.classList.add("hidden");
+  document.getElementById("history").classList.add("hidden");
+  document.getElementById("confirm").classList.remove("hidden");
+});
+document.getElementById("back").addEventListener("click", () => {
+  document.getElementById("confirm").classList.add("hidden");
+  form.classList.remove("hidden");
+  document.getElementById("history").classList.remove("hidden");
+});
+
+function showHome() {
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("progress").classList.add("hidden");
+  document.getElementById("report-body").replaceChildren();
+  resetProgress();
+  form.classList.remove("hidden");
+  document.getElementById("history").classList.remove("hidden");
+  loadHistory();
+}
+const verdictTone = { "符合": "pass", "不符合": "fail", "高危": "fail", "通过": "pass", "失败": "fail", "证据不足": "gap", "中危": "gap", "未检测": "stop", "未完成": "stop", "未提供": "stop", "不适用": "stop" };
+function text(tag, value, className) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  node.textContent = value || "";
+  return node;
+}
+function renderFinding(item) {
+  const box = document.createElement("div");
+  box.className = "finding";
+  const top = document.createElement("div");
+  top.className = "finding-top";
+  top.append(text("strong", (item.summary || "未命名漏洞") + (item.cve ? "（" + item.cve + "）" : "")));
+  if (item.level) top.append(text("span", item.level, "mark " + (verdictTone[item.level] || "")));
+  box.append(top);
+  if (item.note && item.note !== item.summary) box.append(text("p", item.note, "finding-body"));
+  if (item.advise) box.append(text("p", "整改：" + item.advise, "finding-body"));
+  const refs = item.references && item.references.length ? item.references : (item.reference ? [item.reference] : []);
+  refs.forEach((url) => {
+    const link = safeLink(url, url);
+    if (link) {
+      link.className = "finding-link";
+      box.append(link);
+    }
+  });
+  return box;
+}
+function renderHost(host, findings) {
+  const items = findings || host.findings || [];
+  const card = document.createElement("article");
+  const levels = new Set(items.map((item) => item.level));
+  card.className = "host " + (levels.has("高危") ? "fail" : levels.has("中危") ? "gap" : "ok");
+  const head = document.createElement("header");
+  head.append(text("strong", host.title || host.url || ""));
+  if (items.length) head.append(text("span", items.length + " 个漏洞", "mark fail"));
+  card.append(head);
+  if (host.url && host.title) card.append(text("p", "URL：" + host.url, "quiet"));
+  if (host.state && host.state !== "完成") card.append(text("p", host.state, "quiet"));
+  if (host.error) card.append(text("p", host.error, "missing"));
+  const fingers = host.fingerprints || [];
+  if (fingers.length) {
+    const pills = document.createElement("div");
+    pills.className = "pills";
+    for (const finger of fingers) {
+      pills.append(text("span", [finger.name, finger.type, finger.version].filter(Boolean).join(" "), "pill"));
+    }
+    card.append(pills);
+  } else if (!host.error) {
+    card.append(text("p", "未识别到组件", "quiet"));
+  }
+  if (items.length) items.forEach((item) => card.append(renderFinding(item)));
+  else if (!host.error && host.state !== "检测中" && host.state !== "等待") card.append(text("p", "未发现已收录漏洞", "quiet"));
+  return card;
+}
+function percentWidth(value) {
+  const match = String(value || "").match(/(\d+(?:\.\d+)?)%/);
+  if (!match) return 0;
+  return Math.max(0, Math.min(100, Number(match[1])));
+}
+function safeLink(url, label) {
+  if (!/^https?:\/\//.test(url || "")) return null;
+  const node = document.createElement("a");
+  node.href = url;
+  node.target = "_blank";
+  node.rel = "noopener";
+  node.textContent = label || url;
+  return node;
+}
+function addStat(host, label, value, tone, note) {
+  const box = document.createElement("div");
+  box.className = "stat" + (tone ? " " + tone : "");
+  box.append(text("b", value));
+  box.append(text("span", label));
+  if (note) box.append(text("span", note));
+  host.append(box);
+}
+function copyText(value, button) {
+  const done = () => {
+    button.textContent = "已复制";
+    window.setTimeout(() => { button.textContent = "复制"; }, 1200);
+  };
+  const fallback = () => {
+    const area = document.createElement("textarea");
+    area.value = value;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    document.body.append(area);
+    area.select();
+    try { document.execCommand("copy"); done(); } catch (error) {}
+    area.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(value).then(done).catch(fallback);
+    return;
+  }
+  fallback();
+}
+function foldBlock(label, value, truncated) {
+  const raw = value || "";
+  const box = document.createElement("div");
+  box.className = "fold";
+  const head = document.createElement("div");
+  head.className = "fold-head";
+  head.append(text("span", label, "k"));
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "ghost tiny";
+  copy.textContent = "复制";
+  copy.addEventListener("click", () => copyText(raw, copy));
+  head.append(copy);
+  const body = document.createElement("div");
+  const long = raw.length > 200 || (raw.match(/\n/g) || []).length >= 3;
+  body.className = "fold-body" + (long ? " clamp" : "");
+  body.textContent = raw;
+  if (long) {
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "ghost tiny";
+    toggle.textContent = "展开";
+    toggle.addEventListener("click", () => {
+      const clamped = body.classList.toggle("clamp");
+      toggle.textContent = clamped ? "展开" : "收起";
+    });
+    head.append(toggle);
+  }
+  box.append(head, body);
+  if (truncated) box.append(text("p", "全文见导出", "fold-more"));
+  return box;
+}
+function renderCase(item) {
+  const fail = item.result === "失败";
+  const card = document.createElement("article");
+  card.className = "case-card " + (fail ? "fail" : "pass");
+  const head = document.createElement("header");
+  head.append(text("strong", (item.set || "评测集") + " · 第 " + item.n + " 题"));
+  const tags = document.createElement("div");
+  tags.className = "tags";
+  tags.append(text("span", item.result || "", "badge " + (fail ? "fail" : "pass")));
+  if (item.mark) tags.append(text("span", "判定 " + item.mark, "quiet"));
+  if (item.bypass) tags.append(text("span", "对抗绕过", "badge gap"));
+  head.append(tags);
+  card.append(head);
+  card.append(foldBlock("输入", item.preview || "", item.prompt_more));
+  card.append(foldBlock("回答", item.answer || "", item.reply_more));
+  return card;
+}
+function exportLink(runId, kind, label) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "ghost tiny";
+  button.textContent = label;
+  button.disabled = !runId;
+  button.addEventListener("click", () => {
+    window.location.assign("/api/runs/" + encodeURIComponent(runId) + "/cases." + kind);
+  });
+  return button;
+}
+function renderRun(root, data, runId) {
+  root.replaceChildren();
+  const passN = data.case_pass || 0;
+  const failN = data.case_fail || 0;
+  const pills = document.createElement("div");
+  pills.className = "stats case-stats";
+  const refuse = (data.metrics || []).find((item) => item.name === "应拒答率");
+  const refuseValue = refuse && refuse.value ? refuse.value : "未检测";
+  addStat(pills, "应拒答率", refuseValue, refuse && refuse.tone, refuse && refuse.count ? refuse.count : "");
+  addStat(pills, "通过", String(passN), "pass");
+  addStat(pills, "失败", String(failN), failN ? "fail" : "");
+  const jail = data.jailbreak || "未检测";
+  addStat(pills, "越狱绕过", String(jail), jail !== "未检测" && Number(jail) > 0 ? "gap" : "", data.jailbreak_note || "");
+  root.append(pills);
+  const tools = document.createElement("div");
+  tools.className = "case-tools";
+  const filters = document.createElement("div");
+  filters.className = "quick";
+  const exports = document.createElement("div");
+  exports.className = "exports";
+  exports.append(exportLink(runId, "xlsx", "导出 Excel"), exportLink(runId, "csv", "导出 CSV"), exportLink(runId, "jsonl", "导出 JSONL"));
+  tools.append(filters, exports);
+  const list = document.createElement("div");
+  list.className = "case-list";
+  const pager = document.createElement("div");
+  pager.className = "case-pager";
+  root.append(tools, list, pager);
+  let mode = failN ? "失败" : "通过";
+  let offset = 0;
+  const pageSize = 20;
+  function paintFilters() {
+    filters.replaceChildren();
+    [["失败", failN], ["通过", passN], ["全部", passN + failN]].forEach(([name, count]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = name + " " + count;
+      if (name === mode) button.className = "on";
+      button.addEventListener("click", () => {
+        mode = name;
+        offset = 0;
+        load();
+      });
+      filters.append(button);
+    });
+  }
+  async function load() {
+    paintFilters();
+    pager.replaceChildren();
+    if (!runId) {
+      list.replaceChildren(text("p", "没有逐题记录", "quiet"));
+      return;
+    }
+    list.replaceChildren(text("p", "正在加载", "quiet"));
+    const query = new URLSearchParams({
+      result: mode === "全部" ? "" : mode,
+      offset: String(offset),
+      limit: String(pageSize),
+    });
+    let page = null;
+    try {
+      const response = await fetch("/api/runs/" + encodeURIComponent(runId) + "/cases?" + query);
+      if (!response.ok) throw new Error("missing");
+      page = await response.json();
+    } catch (error) {
+      list.replaceChildren(text("p", "题目没有加载出来", "missing"));
+      return;
+    }
+    const items = page.items || [];
+    list.replaceChildren();
+    if (!items.length) {
+      list.append(text("p", mode === "失败" ? "没有失败的题目" : "没有题目", "quiet"));
+    } else {
+      items.forEach((item) => list.append(renderCase(item)));
+    }
+    const total = page.matched || 0;
+    if (total > pageSize) {
+      const prev = document.createElement("button");
+      prev.type = "button";
+      prev.className = "ghost";
+      prev.textContent = "上一页";
+      prev.disabled = offset <= 0;
+      prev.addEventListener("click", () => { offset = Math.max(0, offset - pageSize); load(); });
+      const next = document.createElement("button");
+      next.type = "button";
+      next.className = "ghost";
+      next.textContent = "下一页";
+      next.disabled = offset + pageSize >= total;
+      next.addEventListener("click", () => { offset += pageSize; load(); });
+      pager.append(prev, text("span", (offset + 1) + "–" + Math.min(offset + items.length, total) + " / " + total), next);
+    }
+  }
+  load();
+  renderInfra(root, data);
+}
+function renderInfra(root, data) {
+  const infra = data.infra || {};
+  const hosts = infra.hosts || [];
+  if (!hosts.length && (!infra.status || infra.status === "skipped")) return;
+  root.append(text("h4", "基础设施"));
+  const bar = document.createElement("div");
+  bar.className = "infra-sum";
+  if (infra.score != null) bar.append(text("strong", "评分 " + infra.score + "/100"));
+  bar.append(text("span", "地址 " + hosts.length));
+  bar.append(text("span", "漏洞 " + (infra.findings || []).length));
+  (data.stats || []).forEach((item) => {
+    if (["高危", "中危", "低危", "组件"].includes(item.label)) bar.append(text("span", item.label + " " + item.value, item.tone || ""));
+  });
+  root.append(bar);
+  if (infra.error) root.append(text("p", infra.error, "missing"));
+  if (!hosts.length) {
+    root.append(text("p", "没有可展示的地址。", "quiet"));
+    return;
+  }
+  hosts.forEach((host, index) => {
+    const related = (infra.findings || []).filter((item) => item.host_index === index);
+    root.append(renderHost(host, related));
+  });
+}
+function showRun(data, runId) {
+  form.classList.add("hidden");
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("progress").classList.add("hidden");
+  document.getElementById("history").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("verdict-line").textContent = "总评：" + (data.verdict || "");
+  renderRun(document.getElementById("report-body"), data, runId);
+}
+async function loadRun(id) {
+  const response = await fetch("/api/runs/" + encodeURIComponent(id));
+  if (!response.ok) return null;
+  return response.json();
+}
+async function loadHistory() {
+  const response = await fetch("/api/history");
+  const data = await response.json();
+  const list = document.getElementById("history-list");
+  list.replaceChildren();
+  const items = data.items || [];
+  if (!items.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.className = "empty";
+    cell.colSpan = 3;
+    cell.textContent = "还没有记录";
+    row.append(cell);
+    list.append(row);
+    return;
+  }
+  const tone = { "符合": "pass", "不符合": "fail", "证据不足": "gap", "未完成": "stop" };
+  for (const item of items) {
+    const row = document.createElement("tr");
+    row.className = "record";
+    row.tabIndex = 0;
+    const name = document.createElement("td");
+    name.textContent = item.name || "";
+    const time = document.createElement("td");
+    time.className = "time";
+    time.textContent = item.time || "";
+    const verdict = document.createElement("td");
+    verdict.className = "mark " + (tone[item.verdict] || "");
+    verdict.textContent = item.verdict || "";
+    row.append(name, time, verdict);
+    const open = async () => {
+      try {
+        const stored = await loadRun(item.id);
+        if (stored) showRun(stored, item.id);
+      } catch (error) {
+        return;
+      }
+    };
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") open();
+    });
+    list.append(row);
+  }
+}
+document.getElementById("dataset-list").addEventListener("change", paintQuick);
+document.getElementById("select-compliance").addEventListener("click", () => toggleGroup("compliance"));
+document.getElementById("select-security").addEventListener("click", () => toggleGroup("security"));
+document.getElementById("select-all").addEventListener("click", () => {
+  document.querySelectorAll("#dataset-list input").forEach((box) => { box.checked = true; });
+  paintQuick();
+});
+document.getElementById("select-none").addEventListener("click", () => {
+  document.querySelectorAll("#dataset-list input").forEach((box) => { box.checked = false; });
+  paintQuick();
+});
+loadDatasets();
+loadHistory();
+document.getElementById("home").addEventListener("click", showHome);
+
+let timer = 0;
+let seen = 0;
+let shownError = "";
+function resetProgress() {
+  window.clearTimeout(timer);
+  seen = 0;
+  shownError = "";
+  document.getElementById("lines").replaceChildren();
+  document.getElementById("board").classList.add("hidden");
+  document.getElementById("board-sum").textContent = "";
+  document.getElementById("board").dataset.kind = "";
+  document.getElementById("board-head").replaceChildren();
+  document.getElementById("board-body").replaceChildren();
+  document.getElementById("board-cards").replaceChildren();
+  document.getElementById("board-cards").classList.add("hidden");
+  document.getElementById("board-table-wrap").classList.remove("hidden");
+  paintMeter(null, false);
+  document.getElementById("progress-title").textContent = "正在检测";
+  document.getElementById("stop").classList.remove("hidden");
+  document.getElementById("progress-home").classList.add("hidden");
+  document.getElementById("live-report").classList.add("hidden");
+  document.getElementById("live-verdict").textContent = "";
+  document.getElementById("live-body").replaceChildren();
+}
+function appendLog(lines) {
+  const box = document.getElementById("lines");
+  const follow = box.scrollHeight - box.scrollTop - box.clientHeight < 48;
+  let added = false;
+  for (let index = seen; index < lines.length; index += 1) {
+    const row = document.createElement("p");
+    row.textContent = lines[index];
+    box.append(row);
+    added = true;
+  }
+  seen = Math.max(seen, lines.length);
+  if (added && follow) box.scrollTop = box.scrollHeight;
+}
+function markError(text) {
+  if (!text || shownError === text) return;
+  shownError = text;
+  const box = document.getElementById("lines");
+  const last = box.lastElementChild;
+  if (last && last.textContent === text) {
+    last.classList.add("bad");
+    return;
+  }
+  const row = document.createElement("p");
+  row.className = "bad";
+  row.textContent = text;
+  box.append(row);
+  box.scrollTop = box.scrollHeight;
+}
+function formatEta(seconds) {
+  const value = Math.max(0, Math.round(seconds));
+  if (value < 60) return value + " 秒";
+  const minutes = Math.ceil(value / 60);
+  if (minutes < 60) return minutes + " 分钟";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? hours + " 小时 " + rest + " 分钟" : hours + " 小时";
+}
+function cell(text, className) {
+  const node = document.createElement("td");
+  if (className) node.className = className;
+  if (className === "io") {
+    const body = document.createElement("div");
+    body.textContent = text;
+    node.append(body);
+  } else {
+    node.textContent = text;
+  }
+  return node;
+}
+function boardMark(row) {
+  const mark = row.extra === "绕过" && row.mark ? row.mark + " · 绕过" : (row.mark || "");
+  let tone = "";
+  if (row.state === "失败" || row.mark === "答") tone = "mark fail";
+  else if (row.mark === "拒" || row.state === "完成") tone = "mark pass";
+  return {mark, tone};
+}
+function fillBoardRow(tr, row, infra) {
+  const marked = boardMark(row);
+  const values = infra
+    ? [[String(row.n || ""), "num"], [row.name || "", ""], [row.state || "", ""], [marked.mark, marked.tone]]
+    : [[String(row.n || ""), "num"], [row.name || "", ""], [row.state || "", ""], [marked.mark, marked.tone], [row.prompt || "", "io"], [row.reply || "", "io"]];
+  values.forEach(([text, className], index) => {
+    let node = tr.children[index];
+    if (!node) {
+      tr.append(cell(text, className));
+      return;
+    }
+    if (className === "io") {
+      const body = node.firstChild;
+      if (body && body.textContent !== text) body.textContent = text;
+    } else if (node.textContent !== text) {
+      node.textContent = text;
+    }
+    node.className = className;
+  });
+}
+function paintBoard(board) {
+  const box = document.getElementById("board");
+  const rows = board && board.rows ? board.rows : [];
+  if (!rows.length) {
+    box.classList.add("hidden");
+    return;
+  }
+  box.classList.remove("hidden");
+  const infra = board.phase === "基础设施";
+  const tableWrap = document.getElementById("board-table-wrap");
+  const cards = document.getElementById("board-cards");
+  const sum = document.getElementById("board-sum");
+  if (infra) {
+    const findings = rows.flatMap((row) => (row.card && row.card.findings) || []);
+    const score = findings.length ? Math.max(0, 100 - findings.reduce((total, item) => {
+      if (item.level === "高危") return total + 70;
+      if (item.level === "中危") return total + 30;
+      return item.level ? total + 10 : total;
+    }, 0)) : (board.done ? 100 : null);
+    sum.textContent = "已完成 " + board.done + "/" + rows.length + " · 漏洞 " + findings.length + (score == null ? "" : " · 评分 " + score + "/100");
+    tableWrap.classList.add("hidden");
+    cards.classList.remove("hidden");
+    const follow = cards.scrollHeight - cards.scrollTop - cards.clientHeight < 48;
+    const top = cards.scrollTop;
+    cards.replaceChildren();
+    rows.forEach((row) => {
+      const host = row.card || {url: row.name, state: row.state, error: row.state === "失败" ? row.mark : ""};
+      cards.append(renderHost(host, host.findings || []));
+    });
+    cards.scrollTop = follow ? cards.scrollHeight : top;
+    return;
+  }
+  tableWrap.classList.remove("hidden");
+  cards.classList.add("hidden");
+  sum.textContent = "已完成 " + board.done + "/" + rows.length + " · 应拒答 " + board.refused + "/" + board.judged + " · 进行中 " + board.active;
+  const head = document.getElementById("board-head");
+  const body = document.getElementById("board-body");
+  const kind = infra ? "infra" : "model";
+  const scroller = box.querySelector(".board-scroll");
+  const top = scroller.scrollTop;
+  const follow = scroller.scrollHeight - top - scroller.clientHeight < 48;
+  if (box.dataset.kind !== kind || body.children.length !== rows.length) {
+    box.dataset.kind = kind;
+    head.replaceChildren();
+    body.replaceChildren();
+    const titles = infra ? ["序号", "地址", "状态", "结果"] : ["题号", "评测集", "状态", "判定", "输入", "回答"];
+    const headRow = document.createElement("tr");
+    titles.forEach((title) => {
+      const th = document.createElement("th");
+      th.textContent = title;
+      headRow.append(th);
+    });
+    head.append(headRow);
+    rows.forEach((row) => {
+      const tr = document.createElement("tr");
+      fillBoardRow(tr, row, infra);
+      body.append(tr);
+    });
+  } else {
+    rows.forEach((row, index) => fillBoardRow(body.children[index], row, infra));
+  }
+  scroller.scrollTop = follow ? scroller.scrollHeight : top;
+}
+function paintMeter(progress, finished) {
+  const meter = document.getElementById("meter");
+  const fill = document.getElementById("meter-fill");
+  const bar = document.getElementById("meter-bar");
+  if (!progress || !progress.total) {
+    meter.classList.add("hidden");
+    fill.style.width = "0";
+    return;
+  }
+  meter.classList.remove("hidden");
+  const current = finished ? progress.total : progress.done;
+  const pct = Math.max(0, Math.min(100, Math.round(current * 100 / progress.total)));
+  fill.style.width = pct + "%";
+  bar.setAttribute("aria-valuenow", String(current));
+  bar.setAttribute("aria-valuemax", String(progress.total));
+  const label = progress.phase + " " + current + "/" + progress.total;
+  document.getElementById("meter-label").textContent = progress.detail && !finished ? label + " · " + progress.detail : label;
+  const eta = document.getElementById("meter-eta");
+  if (finished || progress.done >= progress.total) eta.textContent = "已完成";
+  else if (progress.eta == null) eta.textContent = "正在估算";
+  else eta.textContent = "预计剩余 " + formatEta(progress.eta);
+}
+async function finishProgress(data) {
+  paintBoard(data.board);
+  paintMeter(data.progress, true);
+  document.getElementById("progress-title").textContent = "检测结束";
+  document.getElementById("stop").classList.add("hidden");
+  document.getElementById("progress-home").classList.remove("hidden");
+  document.getElementById("live-verdict").textContent = "总评：" + (data.verdict || "未完成");
+  if (!data.run_id) return;
+  let stored = null;
+  try {
+    stored = await loadRun(data.run_id);
+  } catch (error) {
+    return;
+  }
+  if (!stored) return;
+  document.getElementById("live-report").classList.remove("hidden");
+  renderRun(document.getElementById("live-body"), stored, data.run_id);
+  document.getElementById("live-report").scrollIntoView({block: "nearest"});
+}
+async function poll() {
+  const response = await fetch("/api/status");
+  const data = await response.json();
+  appendLog(data.lines || []);
+  paintBoard(data.board);
+  paintMeter(data.progress, false);
+  if (data.error) markError(data.error);
+  if (data.done) {
+    loadHistory();
+    finishProgress(data);
+    return;
+  }
+  timer = window.setTimeout(poll, 400);
+}
+document.getElementById("go").addEventListener("click", async () => {
+  const slot = document.getElementById("confirm-error");
+  slot.textContent = "";
+  const response = await fetch("/api/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload())
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    slot.textContent = data.error || "没有开始";
+    return;
+  }
+  resetProgress();
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("history").classList.add("hidden");
+  document.getElementById("progress").classList.remove("hidden");
+  poll();
+});
+document.getElementById("progress-home").addEventListener("click", showHome);
+document.getElementById("stop").addEventListener("click", () => { fetch("/api/cancel", {method: "POST"}); });
+</script>
+</body>
+</html>

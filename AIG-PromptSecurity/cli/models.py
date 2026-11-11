@@ -27,3 +27,11 @@ def create_model(model_name: str, base_url: str, api_key: str, max_concurrent: i
         api_key=api_key,
         max_concurrent=max_concurrent
     )
+
+
+def complete(model_name: str, base_url: str, api_key: str, prompt: str, max_concurrent: int = 1, on_attempt=None) -> str:
+    """Send one prompt to an OpenAI-compatible model and return the reply text."""
+    text = create_model(model_name, base_url, api_key, max_concurrent).generate(prompt, on_attempt=on_attempt)
+    if not isinstance(text, str) or not text.strip():
+        raise RuntimeError("模型没有返回内容")
+    return text.strip()
