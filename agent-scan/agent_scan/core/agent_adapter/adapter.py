@@ -1069,7 +1069,11 @@ class AIProviderClient:
                 else:
                     error_msg = ""
                     if isinstance(raw_response, dict):
-                        error_msg = raw_response.get("error", {}).get("message", "") or str(raw_response.get("error", "")) or raw_response.get("message", "")
+                        error = raw_response.get("error", {})
+                        if isinstance(error, dict):
+                            error_msg = error.get("message", "") or str(raw_response.get("error", "")) or raw_response.get("message", "")
+                        else:
+                            error_msg = str(error or "") or raw_response.get("message", "")
                     elif isinstance(raw_response, str):
                         error_msg = raw_response
                     return ProviderTestResult(
