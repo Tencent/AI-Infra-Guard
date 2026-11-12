@@ -66,7 +66,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | tensorzero | 1 | 低 |
 | **LLM应用框架** | openwebui | 103 | 中高 |
 | | langflow | 228 | 中 |
-| | mlflow | 92 | 高 |
+| | mlflow | 96 | 高 |
 | | flowise | 119 | 中 |
 | | langchain | 52 | 高 |
 | | open-webui | 44 | 中高 |
@@ -96,7 +96,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | **工作流编排** | n8n | 114 | 中高 |
 | | ray | 11 | 中 |
 | | simstudioai | 9 | 中 |
-| | kubeflow | 21 | 中 |
+| | kubeflow | 22 | 中 |
 | | n8n-mcp | 4 | 中高 |
 | | 9router | 6 | 高 |
 | **其他AI组件** | openclaw | 740 | 中高 |
@@ -105,7 +105,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | astrbot | 14 | 中 |
 | | comfyui | 13 | 中 |
 | | crawl4ai | 19 | 严重 |
-| | sglang | 35 | 中 |
+| | sglang | 39 | 中 |
 | | bentoml | 7 | 中 |
 | | pinchtab | 6 | 中高 |
 | | kubepi | 7 | 中 |
@@ -114,7 +114,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | autogpt | 5 | 中 |
 | | flyto2 | 6 | 中 |
 | | llamafactory | 4 | 低 |
-| | lmdeploy | 11 | 低 |
+| | lmdeploy | 12 | 低 |
 | | lollms | 5 | 中 |
 | | pipecat | 4 | 低 |
 | | agenticmail | 2 | 中 |
@@ -157,15 +157,15 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | network-ai | 8 | 中 |
 | | nvidia-trt-llm | 1 | 高 |
 | | qnabot-on-aws | 1 | 低 |
-| | suna | 1 | 中 |
+| | suna | 2 | 中 |
 | | superagi | 7 | 低 |
 | | text-generation-webui | 1 | 中 |
 | | upsonic | 1 | 中 |
-| | nocobase | 1 | 严重 |
+| | nocobase | 4 | 严重 |
 | | sub2api | 1 | 高 |
 | | trigger.dev | 5 | 严重 |
 | | mcp-atlassian | 25 | 高 |
-| | hatchet | 5 | 高 |
+| | hatchet | 6 | 高 |
 | | mcp-searxng | 4 | 高 |
 | | omnigent | 5 | 严重 |
 | | lightllm | 8 | 严重 |
@@ -182,10 +182,10 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | graphiti | 1 | 高 |
 | | h2ogpt | 1 | 严重 |
 | | mcphub | 2 | 高 |
-| | memos | 1 | 严重 |
+| | memos | 2 | 严重 |
 | | ms-swift | 1 | 高 |
 | | notebooklm-mcp | 1 | 高 |
-| | obot | 6 | 严重 |
+| | obot | 9 | 严重 |
 | | omniroute | 1 | 严重 |
 | | open-genai-stack | 1 | 严重 |
 | | open-generative-ai | 1 | 高 |
@@ -195,7 +195,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | cognee | 1 | 中 |
 | | portkey-ai-gateway | 1 | 中 |
 | **AI Agent 配置安全** | AI-Agent-Config | 7 | 高 |
-| **总计** | | **2686+** | |
+| **总计** | | **2705+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 

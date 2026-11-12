@@ -72,7 +72,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | tensorzero | 1 | Low |
 | **LLM App Frameworks** | openwebui | 103 | Medium-High |
 | | langflow | 228 | Medium |
-| | mlflow | 92 | High |
+| | mlflow | 96 | High |
 | | flowise | 119 | Medium |
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
@@ -102,7 +102,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | **Workflow Orchestration** | n8n | 114 | Medium-High |
 | | ray | 11 | Medium |
 | | simstudioai | 9 | Medium |
-| | kubeflow | 21 | Medium |
+| | kubeflow | 22 | Medium |
 | | n8n-mcp | 4 | Medium-High |
 | | 9router | 6 | High |
 | **Other AI Components** | openclaw | 740 | Medium-High |
@@ -111,7 +111,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | astrbot | 14 | Medium |
 | | comfyui | 13 | Medium |
 | | crawl4ai | 19 | Critical |
-| | sglang | 35 | Medium |
+| | sglang | 39 | Medium |
 | | bentoml | 7 | Medium |
 | | pinchtab | 6 | Medium-High |
 | | kubepi | 7 | Medium |
@@ -120,7 +120,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | autogpt | 5 | Medium |
 | | flyto2 | 6 | Medium |
 | | llamafactory | 4 | Low |
-| | lmdeploy | 11 | Low |
+| | lmdeploy | 12 | Low |
 | | lollms | 5 | Medium |
 | | pipecat | 4 | Low |
 | | agenticmail | 2 | Medium |
@@ -163,15 +163,15 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | network-ai | 8 | Medium |
 | | nvidia-trt-llm | 1 | High |
 | | qnabot-on-aws | 1 | Low |
-| | suna | 1 | Medium |
+| | suna | 2 | Medium |
 | | superagi | 7 | Low |
 | | text-generation-webui | 1 | Medium |
 | | upsonic | 1 | Medium |
-| | nocobase | 1 | Critical |
+| | nocobase | 4 | Critical |
 | | sub2api | 1 | High |
 | | trigger.dev | 5 | Critical |
 | | mcp-atlassian | 25 | High |
-| | hatchet | 5 | High |
+| | hatchet | 6 | High |
 | | mcp-searxng | 4 | High |
 | | omnigent | 5 | Critical |
 | | lightllm | 8 | Critical |
@@ -188,10 +188,10 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | graphiti | 1 | High |
 | | h2ogpt | 1 | Critical |
 | | mcphub | 2 | High |
-| | memos | 1 | Critical |
+| | memos | 2 | Critical |
 | | ms-swift | 1 | High |
 | | notebooklm-mcp | 1 | High |
-| | obot | 6 | Critical |
+| | obot | 9 | Critical |
 | | omniroute | 1 | Critical |
 | | open-genai-stack | 1 | Critical |
 | | open-generative-ai | 1 | High |
@@ -201,7 +201,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | cognee | 1 | Medium |
 | | portkey-ai-gateway | 1 | Medium |
 | **AI Agent Config Security** | AI-Agent-Config | 7 | High |
-| **Total** | | **2686+** | |
+| **Total** | | **2705+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
