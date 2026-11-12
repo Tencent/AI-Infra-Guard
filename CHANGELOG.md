@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.10] - 2026-11-12
+
+### Added
+- **Data**: Add 19 AI product CVE advisories from NVD (PR #749, c33f4116)
+- **Compliance**: Add a local generative AI safety self-check (PR #748, 970bea9f)
+- **Data**: Add 15 AI product CVE advisories from NVD (PR #745, 29b004de)
+- **Data**: Add 33 AI product CVE advisories from NVD (PR #743, 6ee3cde7)
+- **Data**: Add 35 AI product CVE advisories from NVD (PR #742, 1050abe7)
+- **Data**: Add 33 AI product CVE advisories from NVD (PR #741, 0a480c5c)
+
+### Fixed
+- **Scanners**: Handle async local tool execution errors (PR #755, 77d7be03)
+- **Agent-Scan**: Decode batch arrays from XML parameters (PR #754, 14b70330)
+- **Scanners**: Forward optional reasoning effort to the model API (PR #753, a993bd38)
+- **Scanners**: Normalize hex-suffixed tool-call tags (PR #752, 7a1401d3)
+- **Agent-Scan**: Preserve prompt escapes in provider templates (PR #747, c12cf7ac)
+- **Agent-Scan**: Preserve non-object HTTP error responses (PR #746, dcaaad99)
+- **MCP-Scan**: Keep findings that omit optional level/suggestion tags (PR #744, acddd07b)
+
+### Changed
+- **Docs**: Document the AI safety compliance check install (29e589c8)
+
+### Contributors
+2SinceJuly, boyhack, Elon-Jiang, generaltony007, hansenzhf, zhuque
+
 ## [v4.6.9] - 2026-11-05
 
 ### Added
