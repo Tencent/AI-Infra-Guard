@@ -63,6 +63,9 @@ Edit `.env`:
 OPENROUTER_API_KEY=your-api-key-here
 DEFAULT_MODEL=deepseek/deepseek-v3.2-exp
 DEFAULT_BASE_URL=https://openrouter.ai/api/v1
+
+# Optional reasoning effort (for example, high); supported values depend on the model and provider. Unset or blank values omit the API parameter.
+REASONING_EFFORT=
 ```
 
 ### 4. Run a Scan

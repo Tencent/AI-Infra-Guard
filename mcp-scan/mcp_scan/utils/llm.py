@@ -20,6 +20,7 @@ import time
 
 import openai
 
+from mcp_scan.utils.config import reasoning_request_options
 from mcp_scan.utils.llm_retry import call_with_retry
 from mcp_scan.utils.loging import logger
 from mcp_scan.utils.tool_format_fix import normalize_tool_calls
@@ -86,6 +87,7 @@ class LLM:
             stream=True,
             # usage 一般在流式结束时返回，前面的 chunk 通常为空。
             stream_options={"include_usage": True},
+            **reasoning_request_options(),
         )
 
         ret = ""

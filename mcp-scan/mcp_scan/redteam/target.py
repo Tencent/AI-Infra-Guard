@@ -11,6 +11,7 @@ from typing import List, Optional
 
 from openai import AsyncOpenAI
 
+from mcp_scan.utils.config import reasoning_request_options
 from mcp_scan.utils.llm_retry import acall_with_retry
 
 # 源码分析：可读扩展名与单文件最大字符数（与 mcp-scan 能力对齐）
@@ -143,6 +144,7 @@ class TargetRunner:
             lambda: self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
+                **reasoning_request_options(),
             ),
             what="target respond_to_attack",
         )

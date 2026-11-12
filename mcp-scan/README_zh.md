@@ -199,6 +199,9 @@ DEFAULT_MODEL=deepseek/deepseek-v3.2-exp
 
 # API 基础 URL
 DEFAULT_BASE_URL=https://openrouter.ai/api/v1
+
+# 可选推理强度（例如 high）；支持的值取决于模型和服务提供商。未设置或为空白时不发送该 API 参数。
+REASONING_EFFORT=
 ```
 
 #### 专用 LLM 配置

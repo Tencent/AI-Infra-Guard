@@ -21,6 +21,7 @@ import time
 
 import openai
 from typing import List
+from agent_scan.utils.config import get_env
 from agent_scan.utils.logging import logger
 from agent_scan.utils.tool_format_fix import normalize_tool_calls
 
@@ -167,10 +168,15 @@ class LLM:
         """
         try:
             started = time.monotonic()
+            request_options = {}
+            reasoning_effort = (get_env("REASONING_EFFORT") or "").strip()
+            if reasoning_effort:
+                request_options["reasoning_effort"] = reasoning_effort
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=message,
                 stream=True,
+                **request_options,
             )
 
             for chunk in response:
