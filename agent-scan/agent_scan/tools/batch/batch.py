@@ -21,6 +21,7 @@ Batch 工具 - 批量执行多个工具调用
 校验不超过 10 个子调用，禁止嵌套批处理/finish
 """
 import asyncio
+import json
 from typing import Any, List, Dict, Optional
 from agent_scan.tools.registry import register_tool, get_tool_by_name, needs_context
 from agent_scan.utils.logging import logger
@@ -35,7 +36,7 @@ MAX_BATCH_SIZE = 10
 
 @register_tool
 async def batch(
-    tool_calls: List[Dict[str, Any]],
+    tool_calls: List[Dict[str, Any]] | str,
     context: ToolContext = None
 ) -> dict[str, Any]:
     """
@@ -48,6 +49,13 @@ async def batch(
     Returns:
         包含执行结果的字典
     """
+    # XML parameters arrive as text, including schema-declared arrays.
+    if isinstance(tool_calls, str):
+        try:
+            tool_calls = json.loads(tool_calls)
+        except json.JSONDecodeError:
+            return {"success": False, "error": "tool_calls must be a valid JSON array"}
+
     if not tool_calls:
         return {
             "success": False,
