@@ -124,7 +124,7 @@ class ToolDispatcher:
     async def call_tool(
         self, tool_name: str, args: dict[str, Any], context: Optional["ToolContext"] = None
     ) -> str:
-        """统一调用入口：自动识别是本地还是远程工具"""
+        """自动识别本地或远程工具；本地异步错误返回 Error，取消信号继续传播。"""
         # 动态扫描模式下的工具白名单拦截：
         # 防止恶意 MCP 工具描述中的 prompt injection 诱导 agent 调用
         # execute_shell / read_file 等危险本地工具。
@@ -145,10 +145,10 @@ class ToolDispatcher:
 
             try:
                 result = tool_func(**args)
+                if inspect.isawaitable(result):
+                    result = await result
             except Exception as e:
                 return f"Error: {e}"
-            if inspect.isawaitable(result):
-                result = await result
             return self._format_result(result)
         return f"Error: Tool '{tool_name}' not found locally or MCP server is unavailable"
 

@@ -33,7 +33,7 @@ class ToolDispatcher:
         return get_tools_prompt([])
 
     async def call_tool(self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None) -> str:
-        """统一调用入口：调用已注册的本地工具。"""
+        """调用本地工具；同步和异步执行错误返回 Error，取消信号继续传播。"""
         # 1. 尝试作为本地工具调用
         tool_func = get_tool_by_name(tool_name)
         if tool_func:
@@ -41,10 +41,10 @@ class ToolDispatcher:
                 args["context"] = context
             try:
                 result = tool_func(**args)
+                if inspect.isawaitable(result):
+                    result = await result
             except Exception as e:
                 return f"Error: {e}"
-            if inspect.isawaitable(result):
-                result = await result
             return self._format_result(result)
         return f"Error: Tool '{tool_name}' not found in the local tool registry"
 

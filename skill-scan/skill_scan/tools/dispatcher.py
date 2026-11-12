@@ -56,6 +56,7 @@ class ToolDispatcher:
         Missing/legacy arguments are normalized first so a bad LLM tool call
         returns a retryable error (or a recovered listing) instead of a raw
         TypeError that aborts project discovery (issue #629).
+        Async execution errors use the same handling; cancellation propagates.
         """
         canonical, prepared, error = prepare_tool_call(
             tool_name,
@@ -77,6 +78,8 @@ class ToolDispatcher:
             prepared["context"] = context
         try:
             result = tool_func(**prepared)
+            if inspect.isawaitable(result):
+                result = await result
         except TypeError as e:
             # Last-resort guard: never leak a raw missing-argument TypeError
             # back as an unexplained failure.
@@ -86,8 +89,6 @@ class ToolDispatcher:
             )
         except Exception as e:
             return f"Error: {e}"
-        if inspect.isawaitable(result):
-            result = await result
         formatted = self._format_result(result)
         if tool_name != canonical:
             formatted = (
