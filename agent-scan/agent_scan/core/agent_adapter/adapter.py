@@ -493,7 +493,8 @@ class AIProviderClient:
 
         body_str = json.dumps(template)
         body_str = body_str.replace("{{model}}", model)
-        body_str = body_str.replace("{{prompt}}", prompt.replace('"', '\\"'))
+        json_escaped_prompt = json.dumps(prompt, ensure_ascii=False)[1:-1]
+        body_str = body_str.replace("{{prompt}}", json_escaped_prompt)
         return json.loads(body_str)
 
     # ==================== Custom Endpoint Providers ====================
