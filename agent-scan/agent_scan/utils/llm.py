@@ -22,6 +22,7 @@ import time
 import openai
 from typing import List
 from agent_scan.utils.logging import logger
+from agent_scan.utils.tool_format_fix import normalize_tool_calls
 
 # Error prefix constant for consistent error detection across modules
 LLM_ERROR_PREFIX = "[LLM Error:"
@@ -137,6 +138,9 @@ class LLM:
                     f"Unexpected error occurred - {str(e)[:100]}",
                 )
 
+        ret, fixed = normalize_tool_calls(ret)
+        if fixed:
+            logger.info("Normalized malformed tool call in LLM response")
         if p:
             print(ret)
         return ret
