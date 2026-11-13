@@ -26,6 +26,18 @@ from skill_scan.utils.config import get_env
 from skill_scan.utils.loging import logger
 from skill_scan.utils.tool_format_fix import normalize_tool_calls
 
+# Transient failures of a single request are retried (5 trials, like mcp-scan);
+# authentication / bad-request errors are raised at once. ``TimeoutError`` is
+# raised by ``chat_stream`` when the whole response exceeds ``stream_timeout``.
+_RETRYABLE_ERRORS = (
+    TimeoutError,
+    openai.APIConnectionError,
+    openai.RateLimitError,
+    openai.InternalServerError,
+)
+_MAX_TRIALS = 5
+_RATE_LIMIT_BACKOFF = (8.0, 16.0, 32.0, 60.0)
+
 
 class LLM:
     def __init__(
@@ -56,7 +68,7 @@ class LLM:
         retry = 0
 
         while True:
-            ret, usage = self.chat_stream(message)
+            ret, usage = self._chat_stream_with_retry(message)
             if ret != "":
                 break
             else:
@@ -76,6 +88,24 @@ class LLM:
         if ret_usage:
             return ret, usage
         return ret
+
+    def _chat_stream_with_retry(self, message: list[dict]) -> tuple[str, dict]:
+        for attempt in range(_MAX_TRIALS):
+            try:
+                return self.chat_stream(message)
+            except _RETRYABLE_ERRORS as exc:
+                if attempt >= _MAX_TRIALS - 1:
+                    raise
+                if isinstance(exc, openai.RateLimitError):
+                    delay = _RATE_LIMIT_BACKOFF[min(attempt, len(_RATE_LIMIT_BACKOFF) - 1)]
+                else:
+                    delay = min(2.0**attempt, 8.0)
+                logger.error(
+                    f"LLM chat failed (trial {attempt + 1}/{_MAX_TRIALS}): "
+                    f"{type(exc).__name__}: {exc}; backoff {delay:.1f}s"
+                )
+                time.sleep(delay)
+        raise RuntimeError("unreachable")
 
     def chat_stream(self, message: list[dict]) -> tuple[str, dict]:
         started = time.monotonic()
