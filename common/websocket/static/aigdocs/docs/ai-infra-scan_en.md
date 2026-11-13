@@ -56,85 +56,85 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 
 | Category                   | Component Name          | Vulnerability Count | Risk Level  |
 | -------------------------- | ----------------------- | ------------------- | ----------- |
-| **Model Serving** | vllm | 72 | Medium |
-| | gradio | 51 | High |
+| **Model Serving** | vllm | 139 | Medium |
+| | gradio | 53 | High |
 | | triton-inference-server | 41 | Medium-High |
-| | ollama | 32 | Medium-High |
+| | ollama | 36 | Medium-High |
 | | tensorrt-llm | 12 | Medium-High |
-| | fastchat | 9 | Medium |
-| | llama-cpp | 9 | Medium-High |
-| | Xinference | 3 | Low |
+| | fastchat | 10 | Medium |
+| | llama-cpp | 18 | Medium-High |
+| | Xinference | 4 | Low |
 | | ChatRTX | 1 | Low |
 | | huggingface-tgi | 1 | Medium-High |
 | | kubeai | 1 | High |
 | | llmstudio | 1 | Low |
 | | localai | 1 | Medium |
 | | tensorzero | 1 | Low |
-| **LLM App Frameworks** | openwebui | 87 | Medium-High |
-| | langflow | 111 | Medium |
-| | mlflow | 79 | High |
-| | flowise | 97 | Medium |
+| **LLM App Frameworks** | openwebui | 103 | Medium-High |
+| | langflow | 228 | Medium |
+| | mlflow | 96 | High |
+| | flowise | 119 | Medium |
 | | langchain | 52 | High |
 | | open-webui | 44 | Medium-High |
-| | Dify | 32 | High |
-| | LiteLLM | 31 | Medium |
+| | Dify | 37 | High |
+| | LiteLLM | 49 | Medium |
 | | Chuanhugpt | 27 | Medium-High |
 | | librechat | 21 | Medium |
-| | anythingllm | 19 | Medium-High |
-| | ragflow | 12 | Medium |
-| | nextchat | 8 | Medium |
-| | qanything | 8 | Medium |
-| | fastgpt | 6 | Medium |
-| | new-api | 5 | Medium |
-| | LobeChat | 4 | Medium |
-| | crewai | 4 | Critical |
+| | anythingllm | 20 | Medium-High |
+| | ragflow | 15 | Medium |
+| | nextchat | 10 | Medium |
+| | qanything | 9 | Medium |
+| | fastgpt | 9 | Medium |
+| | new-api | 11 | Medium |
+| | LobeChat | 5 | Medium |
+| | crewai | 5 | Critical |
 | | langfuse | 4 | Low |
 | | chuanhuchatgpt | 1 | Medium |
 | | helicone | 1 | Medium |
 | | lobehub | 1 | Medium |
 | **Data Processing** | clickhouse | 26 | High |
 | | dask | 3 | Low |
-| | feast | 3 | Low |
-| **Visualization & UI** | jupyter-server | 19 | Medium-High |
-| | jupyterlab | 12 | Medium |
+| | feast | 5 | Low |
+| **Visualization & UI** | jupyter-server | 20 | Medium-High |
+| | jupyterlab | 16 | Medium |
 | | jupyter-notebook | 2 | Low |
-| | marimo | 2 | Medium |
-| **Workflow Orchestration** | n8n | 60 | Medium-High |
-| | ray | 12 | Medium |
+| | marimo | 3 | Medium |
+| **Workflow Orchestration** | n8n | 114 | Medium-High |
+| | ray | 11 | Medium |
 | | simstudioai | 9 | Medium |
-| | kubeflow | 8 | Medium |
+| | kubeflow | 22 | Medium |
 | | n8n-mcp | 4 | Medium-High |
-| | 9router | 3 | High |
-| **Other AI Components** | openclaw | 657 | Medium-High |
-| | praisonai | 112 | Critical |
+| | 9router | 6 | High |
+| **Other AI Components** | openclaw | 740 | Medium-High |
+| | praisonai | 151 | Critical |
 | | pyload-ng | 24 | Medium |
 | | astrbot | 14 | Medium |
 | | comfyui | 13 | Medium |
-| | crawl4ai | 11 | Critical |
-| | sglang | 15 | Medium |
-| | bentoml | 6 | Medium |
+| | crawl4ai | 19 | Critical |
+| | sglang | 39 | Medium |
+| | bentoml | 7 | Medium |
 | | pinchtab | 6 | Medium-High |
-| | kubepi | 5 | Medium |
-| | sillytavern | 5 | Medium |
-| | dynamo | 5 | High |
+| | kubepi | 7 | Medium |
+| | sillytavern | 6 | Medium |
+| | dynamo | 7 | High |
 | | autogpt | 5 | Medium |
-| | flyto2 | 4 | Medium |
+| | flyto2 | 6 | Medium |
 | | llamafactory | 4 | Low |
-| | lmdeploy | 4 | Low |
-| | lollms | 4 | Medium |
-| | pipecat | 3 | Low |
+| | lmdeploy | 12 | Low |
+| | lollms | 5 | Medium |
+| | pipecat | 4 | Low |
 | | agenticmail | 2 | Medium |
 | | boxlite | 2 | Medium |
-| | hermes | 2 | Critical |
+| | hermes | 7 | Critical |
 | | instructlab | 2 | Low |
-| | jan | 2 | Low |
+| | jan | 3 | Low |
 | | junoclaw | 2 | Medium |
 | | langroid | 2 | Critical |
-| | maxkb | 3 | Medium |
+| | maxkb | 16 | Medium |
 | | mcp | 2 | Medium |
 | | mcp sse | 2 | Medium |
-| | paperclip | 2 | Medium |
-| | weknora | 2 | Low |
+| | paperclip | 3 | Medium |
+| | weknora | 4 | Low |
 | | Clawdbot Gateway | 1 | Medium |
 | | ComfyUI-Ace-Nodes | 1 | Low |
 | | ComfyUI-Bmad-Nodes | 1 | Low |
@@ -146,32 +146,62 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | ai-chatbot | 1 | Medium |
 | | ai-code | 1 | Critical |
 | | ai-copilot | 1 | Medium |
-| | ai-engine-wordpress | 1 | Medium |
-| | blinko | 1 | Low |
+| | ai-engine-wordpress | 2 | Medium |
+| | blinko | 5 | Low |
 | | comfy_mtb | 1 | Low |
 | | f5-tts | 1 | Medium |
-| | gpt-sovits | 1 | Medium |
+| | gpt-sovits | 2 | Medium |
 | | guardrails-ai | 1 | Medium |
-| | langbot | 1 | Low |
-| | lightrag | 2 | Low |
+| | langbot | 3 | Low |
+| | lightrag | 6 | Low |
 | | lumiverse | 1 | Low |
 | | mcp-documentation-server | 1 | Medium |
 | | mcp-pinot | 1 | Medium |
 | | mcp-server-kubernetes | 1 | Medium |
 | | mem0 | 1 | Low |
 | | netlicensing-mcp | 1 | Medium |
-| | network-ai | 1 | Medium |
+| | network-ai | 8 | Medium |
 | | nvidia-trt-llm | 1 | High |
 | | qnabot-on-aws | 1 | Low |
-| | suna | 1 | Medium |
-| | superagi | 1 | Low |
+| | suna | 2 | Medium |
+| | superagi | 7 | Low |
 | | text-generation-webui | 1 | Medium |
 | | upsonic | 1 | Medium |
-| | nocobase | 1 | Critical |
+| | nocobase | 4 | Critical |
 | | sub2api | 1 | High |
-| | trigger.dev | 1 | Critical |
-| **AI Agent Config Security** | AI-Agent-Config | 4 | High |
-| **Total** | | **2000+** | |
+| | trigger.dev | 5 | Critical |
+| | mcp-atlassian | 25 | High |
+| | hatchet | 6 | High |
+| | mcp-searxng | 4 | High |
+| | omnigent | 5 | Critical |
+| | lightllm | 8 | Critical |
+| | meta-ads-mcp | 3 | Critical |
+| | onyx | 3 | Critical |
+| | chroma | 2 | High |
+| | dbhub | 2 | Critical |
+| | quivr | 2 | High |
+| | axolotl | 1 | High |
+| | bifrost | 1 | High |
+| | context7 | 1 | Critical |
+| | decepticon | 1 | Critical |
+| | eclipse-theia | 1 | High |
+| | graphiti | 1 | High |
+| | h2ogpt | 1 | Critical |
+| | mcphub | 2 | High |
+| | memos | 2 | Critical |
+| | ms-swift | 1 | High |
+| | notebooklm-mcp | 1 | High |
+| | obot | 9 | Critical |
+| | omniroute | 1 | Critical |
+| | open-genai-stack | 1 | Critical |
+| | open-generative-ai | 1 | High |
+| | qwed | 1 | High |
+| | trek | 1 | High |
+| | astron-agent | 1 | Medium |
+| | cognee | 1 | Medium |
+| | portkey-ai-gateway | 1 | Medium |
+| **AI Agent Config Security** | AI-Agent-Config | 7 | High |
+| **Total** | | **2705+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
