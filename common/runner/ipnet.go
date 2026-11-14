@@ -73,11 +73,11 @@ func IPAddressesIPnet(ipnet *net.IPNet) (ips []string) {
 	// find the final address
 	finish := (start & mask) | (mask ^ 0xffffffff)
 
-	// loop through addresses as uint32
-	for i := start; i <= finish; i++ {
+	// Use a wider counter so the final IPv4 address cannot wrap back to zero.
+	for i := uint64(start); i <= uint64(finish); i++ {
 		// convert back to net.IP
 		ip := make(net.IP, 4)
-		binary.BigEndian.PutUint32(ip, i)
+		binary.BigEndian.PutUint32(ip, uint32(i))
 		ips = append(ips, ip.String())
 	}
 	return ips
