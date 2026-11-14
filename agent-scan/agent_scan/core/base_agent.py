@@ -252,7 +252,7 @@ class BaseAgent:
             self.tool_usage_stats[tool_name] = 0
         self.tool_usage_stats[tool_name] += 1
 
-        if tool_name == "finish":
+        if tool_name.lower() == "finish":
             self.is_finished = True
             if self.format_on_finish:
                 # Full stages (recon, review): reformat the entire history via LLM
