@@ -267,7 +267,7 @@ class MCPTools:
             safe_desc = self._sanitize_description(t.description)
 
             parameters = ""
-            for k, param in t.input_schema["properties"].items():
+            for k, param in (t.input_schema.get("properties") or {}).items():
                 required = "true" if k in t.input_schema.get("required", []) else "false"
                 param_type = param.get("type", "string")
                 # 构建基础属性
@@ -336,7 +336,7 @@ class MCPTools:
         if not schema:
             return args
 
-        properties = schema.get("properties", {})
+        properties = schema.get("properties") or {}
         converted_args = {}
 
         for key, value in args.items():
