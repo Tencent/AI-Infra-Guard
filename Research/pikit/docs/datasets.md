@@ -362,7 +362,7 @@ It will be automatically discovered by `list_datasets()` and `pikit dataset list
 - **Open Prompt Injection** (Liu et al., USENIX Security 2024) — formalization
   and benchmarking of prompt injection attacks and defenses; the attack
   taxonomy and defense catalog in pikit follow this work.
-  [Paper](https://www.usenix.org/conference/usenixsecurity24/presentation/liu)
+  [Paper](https://www.usenix.org/conference/usenixsecurity24/presentation/liu-yupei)
 
 - **Greshake et al.** (AISec 2023) — introduced indirect prompt injection
   via compromised external data; pikit's channel taxonomy is based on this
