@@ -312,3 +312,47 @@ func TestChatStreamPreservesUsageOnAbort(t *testing.T) {
 		t.Fatalf("got %d tokens, want 7 credited before terminal event", got)
 	}
 }
+
+func TestChatStreamCountsUsageOnlyChunk(t *testing.T) {
+	for _, abort := range []bool{false, true} {
+		t.Run(fmt.Sprint(abort), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var body map[string]any
+				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+					t.Errorf("decode request: %v", err)
+				}
+				opts, ok := body["stream_options"].(map[string]any)
+				if !ok || opts["include_usage"] != true {
+					t.Error("request must enable usage reporting")
+				}
+				w.Header().Set("Content-Type", "text/event-stream")
+				fmt.Fprint(w, sseChunk("answer"))
+				fmt.Fprint(w, `data: {"choices":[],"usage":{"prompt_tokens":4,"completion_tokens":3,"total_tokens":7}}`+"\n\n")
+				w.(http.Flusher).Flush()
+				if abort {
+					dropConnection(w)
+					return
+				}
+				fmt.Fprint(w, "data: [DONE]\n\n")
+			}))
+			defer server.Close()
+			model := NewOpenAI("test-key", "gpt-test", server.URL+"/")
+			model.ExtraBody = map[string]any{"stream_options.include_usage": true}
+			for call := int64(1); call <= 2; call++ {
+				text, err := collectStream(t, model.ChatStream(context.Background(), []map[string]string{
+					{"role": "user", "content": "hi"},
+				}))
+				if text != "answer" || (err != nil) != abort {
+					t.Fatalf("got (%q, %v), want answer with abort=%v", text, err, abort)
+				}
+				if got := model.GetTotalToken(); got != call*7 {
+					t.Errorf("after %d calls got %d tokens, want %d", call, got, call*7)
+				}
+			}
+			model.ResetToken()
+			if got := model.GetTotalToken(); got != 0 {
+				t.Errorf("after reset got %d tokens, want 0", got)
+			}
+		})
+	}
+}

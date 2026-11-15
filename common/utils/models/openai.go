@@ -189,11 +189,12 @@ func (ai *OpenAI) ChatStream(ctx context.Context, history []map[string]string) <
 			emitted := false
 			for stream.Next() {
 				evt := stream.Current()
+				// The final usage-only chunk has no choices.
+				if evt.Usage.TotalTokens > 0 {
+					totalToken = evt.Usage.TotalTokens
+				}
 				if len(evt.Choices) > 0 {
 					word := evt.Choices[0].Delta.Content
-					if evt.Usage.TotalTokens > 0 {
-						totalToken = evt.Usage.TotalTokens
-					}
 					select {
 					case resp <- ChatStreamEvent{Text: word}:
 					case <-ctx.Done():
