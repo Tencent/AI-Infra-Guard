@@ -293,3 +293,42 @@ func TestHTTPOptions_Defaults(t *testing.T) {
 	assert.Equal(t, 3, h.Options.RetryMax)
 	assert.True(t, h.Options.FollowRedirects)
 }
+
+func TestHTTPXConfiguredHostHeader(t *testing.T) {
+	for _, method := range []string{"GET", "POST"} {
+		for _, header := range []string{"Host:scan.example", "host: scan.example", "hOsT: scan.example "} {
+			t.Run(method+"/"+header, func(t *testing.T) {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					assert.Equal(t, "scan.example", r.Host)
+					assert.Equal(t, "trace", r.Header.Get("X-Trace"))
+					w.WriteHeader(http.StatusOK)
+				}))
+				defer srv.Close()
+				opts := defaultOpts()
+				opts.CustomHeaders = []string{header, "X-Trace: trace"}
+				client, err := NewHttpx(opts)
+				require.NoError(t, err)
+				if method == "GET" {
+					_, err = client.Get(srv.URL, nil)
+				} else {
+					_, err = client.POST(srv.URL, "body", nil)
+				}
+				require.NoError(t, err)
+			})
+		}
+	}
+}
+
+func TestHTTPXPerRequestHostOverridesConfiguredHost(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "override.example", r.Host)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+	opts := defaultOpts()
+	opts.CustomHeaders = []string{"Host: configured.example"}
+	client, err := NewHttpx(opts)
+	require.NoError(t, err)
+	_, err = client.Get(srv.URL, map[string]string{"host": "override.example"})
+	require.NoError(t, err)
+}
