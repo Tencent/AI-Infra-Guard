@@ -121,3 +121,28 @@ func TestIPAddresses_Slash24(t *testing.T) {
 	assert.Equal(t, "10.0.0.0", ips[0])
 	assert.Equal(t, "10.0.0.255", ips[255])
 }
+
+func TestCIDRUpperBoundary(t *testing.T) {
+	cases := []struct {
+		name string
+		cidr string
+		want []string
+	}{
+		{"zero", "0.0.0.0/32", []string{"0.0.0.0"}},
+		{"penultimate", "255.255.255.254/32", []string{"255.255.255.254"}},
+		{"last_host", "255.255.255.255/32", []string{"255.255.255.255"}},
+		{"last_pair", "255.255.255.254/31", []string{"255.255.255.254", "255.255.255.255"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Run("addresses", func(t *testing.T) {
+				addresses, err := IPAddresses(tc.cidr)
+				require.NoError(t, err)
+				assert.Equal(t, tc.want, addresses)
+			})
+			t.Run("targets", func(t *testing.T) {
+				assert.Equal(t, tc.want, collectTargets(Targets(tc.cidr)))
+			})
+		})
+	}
+}
