@@ -195,9 +195,7 @@ func (h *HTTPX) newRequest(method, targetURL string, body interface{}) (req *ret
 		req.Header.Set("User-Agent", h.Options.DefaultUserAgent)
 		// set default encoding to accept utf8
 		req.Header.Add("Accept-Charset", "utf-8")
-		for k, v := range h.CustomHeaders {
-			req.Header.Set(k, v)
-		}
+		h.setCustomHeaders(req, h.CustomHeaders)
 	}
 	return
 }
@@ -208,7 +206,7 @@ func (h *HTTPX) setCustomHeaders(r *retryablehttp.Request, headers map[string]st
 		r.Header.Set(name, value)
 		// host header is particular
 		if strings.EqualFold(name, "host") {
-			r.Host = value
+			r.Host = strings.TrimSpace(value)
 		}
 	}
 }
