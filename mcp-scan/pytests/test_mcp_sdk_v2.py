@@ -318,6 +318,28 @@ class MCP20ToolSchemaTests(unittest.IsolatedAsyncioTestCase):
             "string",
         )
 
+    async def test_describe_mcp_tools_accepts_schema_without_properties(self):
+        # "properties" is optional in a tool inputSchema, e.g. a tool with no arguments.
+        for schema in ({"type": "object"}, {"type": "object", "properties": None}):
+            with self.subTest(schema=schema):
+
+                class _NoPropsSession:
+                    async def list_tools(self, _schema=schema):
+                        return _ListToolsResult([_Tool("ping", "Ping the server", _schema)])
+
+                manager = MCPTools("https://example.test/mcp", "streamable-http")
+
+                @asynccontextmanager
+                async def fake_session(_self, _session=_NoPropsSession()):
+                    yield _session
+
+                with patch.object(MCPTools, "_session", fake_session):
+                    description = await manager.describe_mcp_tools()
+
+                self.assertIn("<name>ping</name>", description)
+                self.assertNotIn('required="', description)
+                self.assertEqual(manager._convert_args_by_schema("ping", {"n": "1"}), {"n": "1"})
+
 
 if __name__ == "__main__":
     unittest.main()
