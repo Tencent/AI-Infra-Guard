@@ -24,7 +24,11 @@ import openai
 
 from skill_scan.utils.config import get_env
 from skill_scan.utils.loging import logger
-from skill_scan.utils.tool_format_fix import normalize_tool_calls
+from skill_scan.utils.tool_format_fix import (
+    has_runaway_tail,
+    normalize_tool_calls,
+    strip_runaway_tail,
+)
 
 # Transient failures of a single request are retried (5 trials, like mcp-scan);
 # authentication / bad-request errors are raised at once. ``TimeoutError`` is
@@ -37,6 +41,8 @@ _RETRYABLE_ERRORS = (
 )
 _MAX_TRIALS = 5
 _RATE_LIMIT_BACKOFF = (8.0, 16.0, 32.0, 60.0)
+# Check the reply for a runaway run of closing tags every this many characters.
+_RUNAWAY_CHECK_STEP = 500
 
 
 class LLM:
@@ -123,6 +129,7 @@ class LLM:
 
         ret = ""
         usage = None
+        next_check = _RUNAWAY_CHECK_STEP
 
         for chunk in response:
             # A provider may keep a broken stream alive with empty heartbeat
@@ -152,6 +159,21 @@ class LLM:
             content = getattr(delta, "content", None)
             if content:
                 ret += content
+                if len(ret) >= next_check:
+                    next_check = len(ret) + _RUNAWAY_CHECK_STEP
+                    if has_runaway_tail(ret):
+                        # The model keeps writing closing tags after a finished
+                        # call until the server cuts the stream (minutes).
+                        close = getattr(response, "close", None)
+                        if close:
+                            close()
+                        received = len(ret)
+                        ret = strip_runaway_tail(ret)
+                        logger.warning(
+                            "LLM reply ended in a run of closing tags; stream cut, "
+                            f"kept {len(ret)} of {received} characters received"
+                        )
+                        break
 
         return ret, usage
 
