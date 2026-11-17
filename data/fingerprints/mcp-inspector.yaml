@@ -1,0 +1,46 @@
+info:
+  name: mcp-inspector
+  author: Johnbjoseph-cybersec
+  severity: info
+  desc: >-
+    MCP Inspector (@modelcontextprotocol/inspector) is the official developer tool
+    for testing and debugging Model Context Protocol servers. It runs a web client
+    (default port 6274) and a Node.js proxy server (default port 6277) that connects
+    the client to MCP servers over stdio, SSE or streamable HTTP. The proxy's
+    GET /config endpoint returns the default stdio command, arguments and
+    environment as JSON.
+  metadata:
+    product: inspector
+    vendor: modelcontextprotocol
+http:
+  - method: GET
+    path: /config
+    matchers:
+      - body="\"defaultEnvironment\"" && body="\"defaultCommand\"" && body="\"defaultArgs\"" && body!="\"defaultTransport\""
+# Fingerprint note:
+# Scan the proxy port (6277 by default), not the web client port. The client
+# (6274) serves a static Vite build whose only identifying string is
+# <title>MCP Inspector</title>; it carries no version, so it is not matched here.
+#
+# This rule matches only a proxy whose /config answers WITHOUT a session token:
+# - 0.2.0 to 0.14.0: GET /config has no authentication and returns
+#   {"defaultEnvironment":...,"defaultCommand":...,"defaultArgs":...}, and the
+#   proxy listens on all interfaces (no host is passed to app.listen).
+# - 0.14.1 and later: /config sits behind authMiddleware and returns 401
+#   {"error":"Unauthorized",...} unless the proxy is started with
+#   DANGEROUSLY_OMIT_AUTH; the proxy also binds to loopback by default
+#   (127.0.0.1 in 0.14.1 to 0.15.x, "localhost" from 0.16.0).
+# - 0.16.3 and later add "defaultTransport" and "defaultServerUrl" to the /config
+#   body, so the body!= clause excludes them even when auth is disabled.
+# Residual overlap: 0.14.1 to 0.16.2 started with DANGEROUSLY_OMIT_AUTH and a
+# non-loopback HOST return the same body as 0.14.0. That instance exposes the
+# same unauthenticated stdio launch path, but is not inside the CVE-2025-49596
+# version range.
+# Verified by reading server/src/index.ts at tags 0.2.0, 0.14.0, 0.14.1, 0.16.2
+# and 0.16.3 of github.com/modelcontextprotocol/inspector.
+#
+# Version extraction: NOT possible via HTTP. The proxy has no version endpoint
+# (/health returns only {"status":"ok"}), and the client shows its
+# version only inside a content-hashed JS bundle. No version extractor is given;
+# because this rule only matches the unauthenticated state, a match without a
+# version does not flag patched, token-protected installs.
