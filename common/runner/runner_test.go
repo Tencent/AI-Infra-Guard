@@ -17,6 +17,7 @@ package runner
 import (
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/Tencent/AI-Infra-Guard/internal/gologger"
@@ -219,7 +220,11 @@ func TestRunner_Callback_Invoked(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	var received []interface{}
+	// Callback is invoked from the per-target worker goroutines, so guard the slice.
+	var (
+		mu       sync.Mutex
+		received []interface{}
+	)
 	opts := &options.Options{
 		Target:       []string{srv.URL},
 		TimeOut:      5,
@@ -227,6 +232,8 @@ func TestRunner_Callback_Invoked(t *testing.T) {
 		FPTemplates:  "../../data/fingerprints",
 		AdvTemplates: "../../data/vuln",
 		Callback: func(v interface{}) {
+			mu.Lock()
+			defer mu.Unlock()
 			received = append(received, v)
 		},
 	}
@@ -235,6 +242,8 @@ func TestRunner_Callback_Invoked(t *testing.T) {
 	defer r.Close()
 
 	r.RunEnumeration()
+	mu.Lock()
+	defer mu.Unlock()
 	assert.NotEmpty(t, received, "callback should have been called at least once")
 }
 
