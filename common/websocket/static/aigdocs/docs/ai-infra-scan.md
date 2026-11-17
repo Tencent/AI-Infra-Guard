@@ -127,6 +127,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | maxkb | 16 | 中 |
 | | mcp | 2 | 中 |
 | | mcp sse | 2 | 中 |
+| | mcp-inspector | 1 | 高 |
 | | paperclip | 3 | 中 |
 | | weknora | 4 | 低 |
 | | Clawdbot Gateway | 1 | 中 |
@@ -195,7 +196,7 @@ AI Infra Guard针对AI基础设施中的关键组件提供全面的安全检测�
 | | cognee | 1 | 中 |
 | | portkey-ai-gateway | 1 | 中 |
 | **AI Agent 配置安全** | AI-Agent-Config | 7 | 高 |
-| **总计** | | **2705+** | |
+| **总计** | | **2706+** | |
 
 > **注**：漏洞数据库持续更新中，高风险组件建议定期扫描。
 

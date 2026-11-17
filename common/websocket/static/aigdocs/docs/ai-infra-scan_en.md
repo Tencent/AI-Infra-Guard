@@ -133,6 +133,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | maxkb | 16 | Medium |
 | | mcp | 2 | Medium |
 | | mcp sse | 2 | Medium |
+| | mcp-inspector | 1 | High |
 | | paperclip | 3 | Medium |
 | | weknora | 4 | Low |
 | | Clawdbot Gateway | 1 | Medium |
@@ -201,7 +202,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | cognee | 1 | Medium |
 | | portkey-ai-gateway | 1 | Medium |
 | **AI Agent Config Security** | AI-Agent-Config | 7 | High |
-| **Total** | | **2705+** | |
+| **Total** | | **2706+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
