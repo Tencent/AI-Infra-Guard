@@ -19,7 +19,10 @@
 package gologger
 
 import (
+	"bytes"
 	"errors"
+	"strings"
+	"sync"
 	"testing"
 )
 
@@ -44,4 +47,35 @@ func TestLoggerFile(t *testing.T) {
 	//}
 	//Logger.SetOutput(io.MultiWriter(writer1, writer2))
 	//Infoln("test info")
+}
+
+// TestLoggerConcurrentCallerLookup logs from several goroutines at once. Run
+// with -race: getCaller used to write a package-level variable on every call.
+func TestLoggerConcurrentCallerLookup(t *testing.T) {
+	logger := NewLogger()
+	var buf bytes.Buffer
+	logger.Logrus().SetOutput(&buf) // logrus serialises writes to the output
+
+	const goroutines, perGoroutine = 8, 50
+	var wg sync.WaitGroup
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < perGoroutine; j++ {
+				logger.Infof("concurrent %d", j)
+			}
+		}()
+	}
+	wg.Wait()
+
+	lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	if len(lines) != goroutines*perGoroutine {
+		t.Fatalf("got %d log lines, want %d", len(lines), goroutines*perGoroutine)
+	}
+	for _, line := range lines {
+		if !strings.Contains(line, "gologger_test.go:") {
+			t.Fatalf("log line does not report the calling file: %q", line)
+		}
+	}
 }

@@ -29,11 +29,6 @@ import (
 	"strings"
 )
 
-var (
-	// Positions in the call stack when tracing to report the calling method
-	minimumCallerDepth int
-)
-
 const (
 	ErrorLevel = logrus.ErrorLevel
 	WarnLevel  = logrus.WarnLevel
@@ -43,7 +38,10 @@ const (
 )
 const (
 	maximumCallerDepth int = 20
-	knownLogrusFrames  int = 5
+	// knownLogrusFrames is the number of stack frames to skip before looking
+	// for the caller. It is a constant because getCaller runs on every log call
+	// from any goroutine, so it must not write shared state.
+	knownLogrusFrames int = 5
 )
 
 var StdLogger *Logger
@@ -55,10 +53,9 @@ func init() {
 // getCaller retrieves the name of the first non-logrus calling function
 // 获取第一个非logrus调用函数的名称
 func getCaller() *runtime.Frame {
-	minimumCallerDepth = knownLogrusFrames
 	pcs := make([]uintptr, maximumCallerDepth)
 	loggerPackage := "AI-Infra-Guard/internal/gologger/types.go"
-	depth := runtime.Callers(minimumCallerDepth, pcs)
+	depth := runtime.Callers(knownLogrusFrames, pcs)
 	frames := runtime.CallersFrames(pcs[:depth])
 	skip := false
 	for f, again := frames.Next(); again; f, again = frames.Next() {
