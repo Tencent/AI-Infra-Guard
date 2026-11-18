@@ -182,6 +182,12 @@ class BaseAgent:
 
     async def handle_response(self, response: str):
         tool_invocations = parse_tool_invocations_all(response)
+        # The dispatcher resolves tool names case-insensitively, so a model
+        # writing ``Finish`` runs the finish tool. Use the canonical name here
+        # as well, or the agent never treats the call as the end of the scan.
+        for call in tool_invocations:
+            if call["toolName"].lower() == "finish":
+                call["toolName"] = "finish"
         description = clean_content(response)
         # Some OpenAI-compatible models return the requested final payload
         # directly instead of wrapping it in a ``finish`` tool call. Accept a
