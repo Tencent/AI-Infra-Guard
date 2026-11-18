@@ -992,7 +992,7 @@ class AIProviderClient:
                     method=method,
                     url=url,
                     headers=headers,
-                    json=body if isinstance(body, dict) else None,
+                    json=body if isinstance(body, (dict, list)) else None,
                     content=body if isinstance(body, str) else None,
                 ) as response:
                     elapsed = time.time() - start_time
