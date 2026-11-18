@@ -46,7 +46,7 @@ type Options struct {
 	APICheckerURL   string            // API Checker 服务地址；空值表示禁用
 	Headers         multiStringFlag   // HTTP请求头
 	Language        string            // 语言
-	Callback        func(interface{}) `json:"-"` // 回调函数
+	Callback        func(interface{}) `json:"-"` // 回调函数，会被多个扫描协程并发调用，实现需自行保证并发安全
 	LoadRemote      bool              `json:"-"`
 }
 
