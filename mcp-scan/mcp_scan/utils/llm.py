@@ -23,7 +23,14 @@ import openai
 from mcp_scan.utils.config import reasoning_request_options
 from mcp_scan.utils.llm_retry import call_with_retry
 from mcp_scan.utils.loging import logger
-from mcp_scan.utils.tool_format_fix import normalize_tool_calls
+from mcp_scan.utils.tool_format_fix import (
+    has_runaway_tail,
+    normalize_tool_calls,
+    strip_runaway_tail,
+)
+
+# Check the reply for a runaway run of closing tags every this many characters.
+_RUNAWAY_CHECK_STEP = 500
 
 
 class LLM:
@@ -92,6 +99,7 @@ class LLM:
 
         ret = ""
         usage = None
+        next_check = _RUNAWAY_CHECK_STEP
 
         for chunk in response:
             # A provider may keep a broken stream alive with empty heartbeat
@@ -123,6 +131,21 @@ class LLM:
             content = getattr(delta, "content", None)
             if content:
                 ret += content
+                if len(ret) >= next_check:
+                    next_check = len(ret) + _RUNAWAY_CHECK_STEP
+                    if has_runaway_tail(ret):
+                        # The model keeps writing closing tags after a finished
+                        # call until the server cuts the stream (minutes).
+                        close = getattr(response, "close", None)
+                        if close:
+                            close()
+                        received = len(ret)
+                        ret = strip_runaway_tail(ret)
+                        logger.warning(
+                            "LLM reply ended in a run of closing tags; stream cut, "
+                            f"kept {len(ret)} of {received} characters received"
+                        )
+                        break
 
         return ret, usage
 

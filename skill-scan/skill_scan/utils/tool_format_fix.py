@@ -48,6 +48,9 @@ closed, and a ``tool_response`` the model fabricates after its own calls is
 dropped so the real tool result is used instead.
 
 Well-formed responses are returned unchanged.
+
+``has_runaway_tail`` / ``strip_runaway_tail`` let the LLM wrappers stop reading a
+stream that only repeats closing tags after a finished call.
 """
 
 from __future__ import annotations
@@ -171,3 +174,46 @@ def normalize_tool_calls(content: str) -> tuple[str, bool]:
             text = text[: fake.start()].rstrip()
 
     return text, text != content
+
+
+# ---------------------------------------------------------------------------
+# Runaway closing tags. After a finished call some models keep writing
+# ``</invoke></function></result></tool_call>`` until the server cuts the stream
+# (hundreds of thousands of characters, minutes per reply), and the whole reply
+# is then kept in the conversation history. The LLM wrappers call these helpers
+# while streaming and stop reading as soon as the tail of the reply is nothing
+# but closing tags.
+# ---------------------------------------------------------------------------
+_CLOSE_TAG_RE = re.compile(r"</[A-Za-z_][\w:-]*\s*>")
+_RUNAWAY_WINDOW = 2400
+_RUNAWAY_MIN_TAGS = 40
+_RUNAWAY_SLACK = 40  # characters of tags cut by the window edges
+# the received text may stop anywhere inside a tag: "<", "</", "</res", "</result "
+_RUNAWAY_RUN_RE = re.compile(r"(?:\s*</[A-Za-z_][\w:-]*\s*>){40,}\s*(?:<(?:/[\w:-]*\s*)?)?\Z")
+
+
+def has_runaway_tail(text: str) -> bool:
+    """True if the last ~2400 characters are nothing but closing tags."""
+    if not text or len(text) < _RUNAWAY_WINDOW:
+        return False
+    window = text[-_RUNAWAY_WINDOW:]
+    if len(_CLOSE_TAG_RE.findall(window)) < _RUNAWAY_MIN_TAGS:
+        return False
+    return len("".join(_CLOSE_TAG_RE.sub("", window).split())) <= _RUNAWAY_SLACK
+
+
+def strip_runaway_tail(text: str) -> str:
+    """Cut the run of closing tags off the end of ``text``.
+
+    The first ``</function>`` inside the run is kept, so the call the model
+    actually wrote stays closed. Meant for text that was cut shortly after
+    :func:`has_runaway_tail` became true (the run is searched in the last 8000
+    characters only).
+    """
+    if not has_runaway_tail(text):
+        return text
+    run = _RUNAWAY_RUN_RE.search(text, max(0, len(text) - 8000))
+    if run is None:
+        return text
+    close = _FUNCTION_CLOSE_RE.search(text, run.start())
+    return text[: close.end()] if close else text[: run.start()]
