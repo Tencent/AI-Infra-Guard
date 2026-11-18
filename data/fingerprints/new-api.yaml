@@ -14,7 +14,7 @@ http:
   - method: GET
     path: '/'
     matchers:
-      - body="<title>New API</title>" && body="content=\"new-api\""
+      - body="content=\"new-api\"" || body="newapi:theme" || body="content=\"Unified AI API gateway"
 
 version:
   - method: GET
