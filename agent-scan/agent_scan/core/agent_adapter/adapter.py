@@ -1539,8 +1539,8 @@ class AIProviderClient:
                     # Standard format with 'id' field
                     providers.append(ProviderOptions(
                         id=provider_data.get("id", ""),
-                        label=provider_data.get("config", {}).get("label"),
-                        delay=provider_data.get("config", {}).get("delay"),
+                        label=provider_data.get("label", provider_data.get("config", {}).get("label")),
+                        delay=provider_data.get("delay", provider_data.get("config", {}).get("delay")),
                         config=ProviderConfig(**provider_data.get("config", {}))
                     ))
 
