@@ -86,6 +86,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | qanything | 9 | Medium |
 | | fastgpt | 9 | Medium |
 | | new-api | 11 | Medium |
+| | one-api | 1 | High |
 | | LobeChat | 5 | Medium |
 | | crewai | 5 | Critical |
 | | langfuse | 4 | Low |
@@ -202,7 +203,7 @@ A.I.G delivers comprehensive security coverage for critical AI infrastructure co
 | | cognee | 1 | Medium |
 | | portkey-ai-gateway | 1 | Medium |
 | **AI Agent Config Security** | AI-Agent-Config | 7 | High |
-| **Total** | | **2706+** | |
+| **Total** | | **2707+** | |
 
 > **Note**: The vulnerability database is continuously updated. Regular scanning of high-risk components is recommended.
 
