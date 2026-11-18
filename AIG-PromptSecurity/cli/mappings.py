@@ -37,6 +37,7 @@ TECHNIQUE_CLASS_MAP = {
     "CharacterSplit": "deepteam.attacks.single_turn.CharacterSplit",
     "ChemicalSymbols": "deepteam.attacks.single_turn.ChemicalSymbols",
     "CodeAttack": "deepteam.attacks.single_turn.CodeAttack",
+    "CoTInjection": "deepteam.attacks.single_turn.CoTInjection",
     "ContextPoisoning": "deepteam.attacks.single_turn.ContextPoisoning",
     "Contradictory": "deepteam.attacks.single_turn.Contradictory",
     "Cursive": "deepteam.attacks.single_turn.Cursive",

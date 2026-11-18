@@ -18,6 +18,7 @@
 
 from .code_chameleon import CodeChameleon
 from .context_poisoning import ContextPoisoning
+from .cot_injection import CoTInjection
 from .deep_inception import DeepInception
 from .encoding import *
 from .equa_code import EquaCode
