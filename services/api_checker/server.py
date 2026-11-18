@@ -394,7 +394,7 @@ def _validate_target_address(hostname: str, port: int | None) -> None:
                 type=socket.SOCK_STREAM,
             )
         }
-    except socket.gaierror as exc:
+    except (socket.gaierror, UnicodeError) as exc:
         raise HTTPException(400, f"base_url 主机无法解析: {hostname}") from exc
     if not candidates:
         raise HTTPException(400, f"base_url 主机无法解析: {hostname}")
