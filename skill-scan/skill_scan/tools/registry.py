@@ -18,7 +18,7 @@ def _load_xml_schema(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
     try:
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
         # Simplified parsing using regex
         tools_dict = {}
         tool_pattern = r'<tool name="([^"]+)">.*?</tool>'
