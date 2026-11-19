@@ -429,8 +429,10 @@ func writeFile(path string, r io.Reader, mode int64) error {
 		return err
 	}
 
-	// 创建文件并设置权限
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.FileMode(mode))
+	// 创建文件并设置权限。只保留归档里的可执行位，属主始终可读写：扫描器以非 root
+	// 用户读取解压结果，归档里 0000/0200 之类的权限会让文件无法读取而被静默跳过。
+	perm := 0o644 | os.FileMode(mode).Perm()&0o111
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, perm)
 	if err != nil {
 		return err
 	}
