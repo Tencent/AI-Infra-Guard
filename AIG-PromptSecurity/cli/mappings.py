@@ -137,7 +137,8 @@ TECHNIQUE_CLASS_MAP = {
     "ManyShotJailbreaking": "deepteam.attacks.multi_turn.ManyShotJailbreaking",
     "PAIRJailbreaking": "deepteam.attacks.multi_turn.PAIRJailbreaking",
     "GoatJailbreaking": "deepteam.attacks.multi_turn.GoatJailbreaking",
-    "ActorAttack": "deepteam.attacks.multi_turn.ActorAttack"
+    "ActorAttack": "deepteam.attacks.multi_turn.ActorAttack",
+    "RefusalLadderJailbreaking": "deepteam.attacks.multi_turn.RefusalLadderJailbreaking"
 }
 
 SCENARIO_CLASS_MAP = {
