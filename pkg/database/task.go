@@ -176,6 +176,17 @@ func (s *TaskStore) GetSession(id string) (*Session, error) {
 	return &session, nil
 }
 
+// GetSessionStatus reads only the status column. Agent event handling calls
+// this once per event; loading the session's entire message history here makes
+// a long task O(n^2) in DB rows and JSON decoding.
+func (s *TaskStore) GetSessionStatus(id string) (string, error) {
+	var session Session
+	if err := s.db.Select("status").Where("id = ?", id).Take(&session).Error; err != nil {
+		return "", err
+	}
+	return session.Status, nil
+}
+
 // SetShare 设置会话共享
 func (s *TaskStore) SetShare(sessionID string, share bool) error {
 	return s.db.Model(&Session{}).Where("id = ?", sessionID).Update("share", share).Error

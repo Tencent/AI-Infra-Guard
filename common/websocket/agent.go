@@ -503,10 +503,16 @@ func (ac *AgentConnection) handleAgentEvent(am *AgentManager, content interface{
 
 	log.Debugf("收到Agent事件: agentId=%s, sessionId=%s, eventType=%s", ac.agentID, sessionId, eventType)
 
-	// 转发给 TaskManager 处理
+	// 转发给 TaskManager 处理。只读锁只保护 manager 指针；DB 和 SSE 写入
+	// 可能阻塞，不能把 AgentManager 的锁带进去，否则注册/派发会一起卡住。
 	am.mu.RLock()
-	am.taskManager.HandleAgentEvent(sessionId, eventType, event)
+	taskManager := am.taskManager
 	am.mu.RUnlock()
+	if taskManager == nil {
+		ac.sendError("任务管理器未初始化")
+		return
+	}
+	taskManager.HandleAgentEvent(sessionId, eventType, event)
 }
 
 // 添加获取可用 Agent 的方法

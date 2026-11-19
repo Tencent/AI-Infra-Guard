@@ -309,10 +309,10 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		//	return nil, fmt.Errorf("模型无效: %v", err)
 		//}
 		p := database.ModelParams{
-			Model:              model.ModelName,
-			Token:              model.Token,
-			BaseUrl:            model.BaseURL,
-			Limit:              model.Limit,
+			Model:   model.ModelName,
+			Token:   model.Token,
+			BaseUrl: model.BaseURL,
+			Limit:   model.Limit,
 
 			ExtraHeaders: model.ExtraHeaders,
 			ExtraBody:    model.ExtraBody,
@@ -699,16 +699,11 @@ func isTerminalTaskStatus(status string) bool {
 }
 
 func (tm *TaskManager) shouldIgnoreAgentEvent(sessionId string, eventType string) bool {
-	session, err := tm.taskStore.GetSession(sessionId)
-	if err != nil || session == nil {
+	status, err := tm.taskStore.GetSessionStatus(sessionId)
+	if err != nil {
 		return true
 	}
-
-	if !isTerminalTaskStatus(session.Status) {
-		return false
-	}
-
-	return true
+	return isTerminalTaskStatus(status)
 }
 
 // generateEventID 生成事件ID
@@ -1562,4 +1557,3 @@ func maskParamsToken(params map[string]interface{}) {
 		maskModel(v)
 	}
 }
-
