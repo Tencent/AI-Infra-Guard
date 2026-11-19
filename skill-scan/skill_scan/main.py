@@ -96,7 +96,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "-m",
         "--model",
-        default=config.DEFAULT_MODEL,
+        default=None,
         help=f"LLM model name (default: {config.DEFAULT_MODEL})",
     )
 
@@ -110,7 +110,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "-u",
         "--base_url",
-        default=config.DEFAULT_BASE_URL,
+        default=None,
         help=f"API base URL (default: {config.DEFAULT_BASE_URL})",
     )
 
