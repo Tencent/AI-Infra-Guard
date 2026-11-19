@@ -334,26 +334,39 @@ func ExtractZipFile(zipFile string, destPath string) error {
 			return fmt.Errorf("创建父目录失败: %v", err)
 		}
 
-		// 创建文件
-		outFile, err := os.Create(filePath)
-		if err != nil {
-			return fmt.Errorf("创建文件失败: %v", err)
-		}
-		defer outFile.Close()
-
-		// 打开文件内容
-		rc, err := file.Open()
-		if err != nil {
-			return fmt.Errorf("打开压缩文件内容失败: %v", err)
-		}
-		defer rc.Close()
-
-		// 复制内容
-		if _, err := io.Copy(outFile, rc); err != nil {
-			return fmt.Errorf("复制文件内容失败: %v", err)
+		if err := extractZipEntry(file, filePath); err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+// extractZipEntry 解压单个文件。文件在返回前关闭：若在 ExtractZipFile 的循环里
+// defer，所有文件会一直打开到解压结束，条目数超过打开文件上限时报 "too many open files"。
+func extractZipEntry(file *zip.File, filePath string) (err error) {
+	// 打开文件内容
+	rc, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("打开压缩文件内容失败: %v", err)
+	}
+	defer rc.Close()
+
+	// 创建文件
+	outFile, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("创建文件失败: %v", err)
+	}
+	defer func() {
+		if closeErr := outFile.Close(); closeErr != nil && err == nil {
+			err = fmt.Errorf("写入文件失败: %v", closeErr)
+		}
+	}()
+
+	// 复制内容
+	if _, err := io.Copy(outFile, rc); err != nil {
+		return fmt.Errorf("复制文件内容失败: %v", err)
+	}
 	return nil
 }
 
