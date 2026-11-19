@@ -445,32 +445,44 @@ func writeFile(path string, r io.Reader, mode int64) error {
 
 // GitClone 克隆Git仓库
 func GitClone(repoURL, targetDir string, timeout time.Duration) error {
+	// Only clean up a directory this call creates: git refuses to clone into
+	// a non-empty one, so a partial checkout from a failed or timed-out
+	// attempt would make every retry fail.
+	_, statErr := os.Stat(targetDir)
+	created := os.IsNotExist(statErr)
 	var err error
 	for i := 0; i < 3; i++ {
-		err = func() error {
-			ctx := context.Background()
-			ctx, cancel := context.WithTimeout(ctx, timeout)
-			defer cancel()
-			cmd := exec.CommandContext(ctx, "git", "clone", "--", repoURL, targetDir)
-			done := make(chan error)
-			go func() {
-				_, err := cmd.CombinedOutput()
-				done <- err
-			}()
-
-			select {
-			case <-ctx.Done():
-				_ = cmd.Process.Kill()
-				return fmt.Errorf("操作超时")
-			case err = <-done:
-				return err
-			}
-		}()
+		err = gitCloneOnce(repoURL, targetDir, timeout)
 		if err == nil {
 			return nil
 		}
+		if created {
+			_ = os.RemoveAll(targetDir)
+		}
 	}
 	return err
+}
+
+func gitCloneOnce(repoURL, targetDir string, timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "git", "clone", "--", repoURL, targetDir)
+	// Kill git's helpers (git-remote-http etc.) with it on timeout: they
+	// would otherwise keep running and hold the output pipes open.
+	setProcessGroup(cmd)
+	cmd.Cancel = func() error {
+		killProcessGroup(cmd)
+		return cmd.Process.Kill()
+	}
+	cmd.WaitDelay = 5 * time.Second
+	out, err := cmd.CombinedOutput()
+	if ctx.Err() == context.DeadlineExceeded {
+		return fmt.Errorf("操作超时")
+	}
+	if err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return nil
 }
 
 func RunCmd(dir, name string, arg []string, callback func(line string)) error {
