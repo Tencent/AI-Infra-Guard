@@ -161,6 +161,16 @@ func NewAgentConnection(conn *websocket.Conn) *AgentConnection {
 	}
 }
 
+// writeJSON serializes writes to the underlying websocket connection.
+// gorilla/websocket permits only one concurrent writer per connection.
+func (ac *AgentConnection) writeJSON(value interface{}) error {
+	ac.writeMu.Lock()
+	defer ac.writeMu.Unlock()
+
+	ac.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	return ac.conn.WriteJSON(value)
+}
+
 // HandleAgentWebSocket 处理agent的WebSocket连接
 func (am *AgentManager) HandleAgentWebSocket() gin.HandlerFunc {
 
@@ -305,7 +315,7 @@ func (ac *AgentConnection) handleRegister(am *AgentManager, content interface{})
 			Message: "注册成功",
 		},
 	}
-	ac.conn.WriteJSON(response)
+	ac.writeJSON(response)
 }
 
 // handleDisconnect 处理主动断开连接
@@ -347,7 +357,7 @@ func (ac *AgentConnection) handleDisconnect(am *AgentManager, content interface{
 			Message: "断开连接成功",
 		},
 	}
-	ac.conn.WriteJSON(response)
+	ac.writeJSON(response)
 
 	// 标记连接为非活跃
 	ac.stateMu.Lock()
@@ -375,11 +385,8 @@ func (ac *AgentConnection) writePump() {
 		agentID := ac.agentID
 		ac.stateMu.RUnlock()
 
-		// 设置写超时
-		ac.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
-		// 尝试发送ping消息
-		err := ac.conn.WriteMessage(websocket.PingMessage, nil)
+		// 尝试发送ping消息；WriteControl 允许与其他写操作并发。
+		err := ac.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(writeWait))
 		if err != nil {
 			log.Warnf("Agent心跳发送失败,准备重试: agentId=%s, error=%v", agentID, err)
 
@@ -393,8 +400,7 @@ func (ac *AgentConnection) writePump() {
 			}
 			ac.stateMu.RUnlock()
 
-			ac.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			err = ac.conn.WriteMessage(websocket.PingMessage, nil)
+			err = ac.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(writeWait))
 			if err != nil {
 				log.Errorf("Agent心跳重试失败,连接已失效: agentId=%s, error=%v", agentID, err)
 
@@ -461,10 +467,7 @@ func (ac *AgentConnection) sendError(message string) {
 		},
 	}
 
-	// 设置写超时
-	ac.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
-	err := ac.conn.WriteJSON(response)
+	err := ac.writeJSON(response)
 	if err != nil {
 		// 如果发送错误响应都失败，说明连接可能有问题
 		ac.stateMu.Lock()

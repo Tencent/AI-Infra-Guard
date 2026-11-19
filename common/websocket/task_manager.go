@@ -216,9 +216,8 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 	agentID := selectedAgent.agentID
 	selectedAgent.stateMu.RUnlock()
 
-	// 设置写超时并直接发送
-	selectedAgent.conn.SetWriteDeadline(time.Now().Add(writeWait))
-	err = selectedAgent.conn.WriteJSON(taskMsg)
+	// 直接发送
+	err = selectedAgent.writeJSON(taskMsg)
 	if err != nil {
 		return fmt.Errorf("下发任务给 %s 失败: %v", agentID, err)
 	}
@@ -309,10 +308,10 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		//	return nil, fmt.Errorf("模型无效: %v", err)
 		//}
 		p := database.ModelParams{
-			Model:              model.ModelName,
-			Token:              model.Token,
-			BaseUrl:            model.BaseURL,
-			Limit:              model.Limit,
+			Model:   model.ModelName,
+			Token:   model.Token,
+			BaseUrl: model.BaseURL,
+			Limit:   model.Limit,
 
 			ExtraHeaders: model.ExtraHeaders,
 			ExtraBody:    model.ExtraBody,
@@ -407,9 +406,8 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 		return fmt.Errorf("选中的Agent已不活跃: %s", agentID)
 	}
 
-	// 设置写超时并直接发送
-	selectedAgent.conn.SetWriteDeadline(time.Now().Add(writeWait))
-	err = selectedAgent.conn.WriteJSON(taskMsg)
+	// 直接发送
+	err = selectedAgent.writeJSON(taskMsg)
 	if err != nil {
 		log.Errorf("下发任务给Agent失败: trace_id=%s, sessionId=%s, agentId=%s, error=%v", traceID, task.SessionID, agentID, err)
 		return fmt.Errorf("下发任务给 %s 失败: %v", agentID, err)
@@ -657,8 +655,7 @@ func (tm *TaskManager) notifyAgentToTerminate(agentID string, sessionId string, 
 			}
 
 			// 直接发送，无重试机制
-			agent.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			err := agent.conn.WriteJSON(terminateMsg)
+			err := agent.writeJSON(terminateMsg)
 			if err != nil {
 				log.Errorf("发送终止消息给Agent %s失败: %v", agentID, err)
 			} else {
@@ -1562,4 +1559,3 @@ func maskParamsToken(params map[string]interface{}) {
 		maskModel(v)
 	}
 }
-
