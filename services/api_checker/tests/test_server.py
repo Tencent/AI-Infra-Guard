@@ -396,6 +396,17 @@ class ServerContractTests(unittest.TestCase):
             request.check_url()
         self.assertEqual(400, caught.exception.status_code)
 
+    def test_request_rejects_unencodable_hostname(self):
+        request = server.DetectRequest(
+            algorithm="quick",
+            base_url="https://" + "a" * 64 + ".com/v1",
+            api_key="secret",
+            model="model-a",
+        )
+        with self.assertRaises(HTTPException) as caught:
+            request.check_url()
+        self.assertEqual(400, caught.exception.status_code)
+
     def test_request_rejects_private_target_by_default(self):
         request = server.DetectRequest(
             algorithm="quick",
