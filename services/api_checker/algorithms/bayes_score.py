@@ -123,7 +123,11 @@ def identify_model(baseline_counts: NDArray[np.float64],
                    prior_strength: float,
                    base_measure: NDArray[np.float64],
                    model_priors: Optional[NDArray[np.float64]] = None) -> dict:
-    """模型识别：返回第一名、第二名、后验概率、log margin。"""
+    """模型识别：返回第一名、第二名、后验概率、log margin。
+
+    只有一个基准时没有第二名可比较：second_model 为 None，
+    log_margin 为 inf（后验恒为 1.0）。
+    """
     m = baseline_counts.shape[0]
     if m == 0:
         raise ValueError("无基准")
@@ -139,7 +143,18 @@ def identify_model(baseline_counts: NDArray[np.float64],
     posterior = np.exp(log_joint - logsumexp(log_joint))
 
     order = np.argsort(log_joint)[::-1]
-    first, second = int(order[0]), int(order[1])
+    first = int(order[0])
+    if m == 1:
+        # 只有一个基准：无第二名，log margin 无定义，记为 inf
+        return {
+            "best_model": first,
+            "second_model": None,
+            "best_posterior": float(posterior[first]),
+            "log_margin": float("inf"),
+            "posterior": posterior,
+            "log_predictive": log_marginal,
+        }
+    second = int(order[1])
 
     return {
         "best_model": first,
@@ -162,8 +177,12 @@ def known_alternative_log_bf(log_predictive: NDArray[np.float64],
     T_known = log( Σ_{a≠c} w_a * exp(ℓ_a) ) - ℓ_c
 
     正值支持已知替身，负值支持 claimed 模型。
+    只有一个基准（无替身）时返回 0.0（中性）。
     """
     m = len(log_predictive)
+    if m <= 1:
+        # 没有可比较的替身：Bayes factor 取中性值
+        return 0.0
     alternatives = np.array([i for i in range(m) if i != claimed])
 
     if alternative_weights is None:
@@ -394,7 +413,7 @@ def evaluate(test_results: list[int],
         "best_model_model": baselines[best_idx].get("model", "?"),
         "best_posterior": ident["best_posterior"],
         "log_margin": ident["log_margin"],
-        "second_model_name": names[ident["second_model"]],
+        "second_model_name": names[ident["second_model"]] if ident["second_model"] is not None else None,
         # 证据强度分级（log margin）
         "evidence_level": _evidence_level(ident["log_margin"]),
         # 解释性指标（仅展示，不参与判定）
