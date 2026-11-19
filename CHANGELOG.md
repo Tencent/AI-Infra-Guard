@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.11] - 2026-11-19
+
+### Added
+- **Prompt-Security**: Add single-turn static CoTInjection operator (PR #775, 26c9e138)
+- **Vuln**: Add one-api CVE-2026-81027 channel-pinning authz rule (PR #774, 1a0c3de6)
+- **Fingerprints**: Add MCP Inspector fingerprint and CVE-2025-49596 rule (PR #768, cfc2e629)
+- **Fingerprints**: Add one-api fingerprint rule (PR #756, 95814491)
+- **Data**: Add 24 AI product CVE advisories from NVD (PR #758, 90544757)
+
+### Fixed
+- **API-Checker**: Reject an unencodable base_url hostname with 400 (PR #779, a8eb00f6)
+- **Scanners**: Honor LLM_MODEL and LLM_BASE_URL overrides (PR #778, a79a845e)
+- **Agent-Scan**: Keep severity of CVSS-score and Chinese finding levels (PR #777, f92f375b)
+- **Skill-Scan**: Honor finish tool name casing (PR #776, 8aeab169)
+- **MCP-Scan**: Stop reading a reply that only repeats closing tags (PR #769, f54ac29f)
+- **Agent-Scan**: Preserve provider config metadata (PR #770, b99677e4)
+- **Agent-Scan**: Send JSON array request bodies (PR #771, 7c8f623e)
+- **Fingerprints**: Match new-api v1.0+ frontend in new-api rule (PR #773, e7ce0685)
+- **MCP-Scan**: Accept tool inputSchema without "properties" (PR #763, faf9c8ff)
+- **Gologger**: Stop writing a package global on every log call (PR #765, 8325862d)
+- **Agent-Scan**: Honor finish tool name casing (PR #760, 777859d7)
+- **Runner**: Stop CIDR enumeration at final IPv4 address (PR #761, 88c653de)
+- **Httpx**: Honor configured Host headers (PR #766, 093dee98)
+- **Models**: Count usage-only stream chunks (PR #767, c3ac798b)
+- **Skill-Scan**: Retry transient LLM errors instead of failing the scan (PR #757, 0e7a2a99)
+- **Runner**: Lock the callback slice in TestRunner_Callback_Invoked (PR #772, d3de0ee0)
+
+### Changed
+- **Docs**: Fix USENIX Security 2024 paper link (PR #764, 11a9c736)
+
+### Contributors
+2SinceJuly, Elon-Jiang, Goran, hansenzhf, John B Joseph, Kent Zhang, mengzhe gan, Natsuki, Tausif Ahmed, Yu
+
 ## [v4.6.10] - 2026-11-12
 
 ### Added
