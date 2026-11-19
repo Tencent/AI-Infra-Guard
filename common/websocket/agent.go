@@ -414,6 +414,24 @@ func (ac *AgentConnection) writePump() {
 	}
 }
 
+// removeConnectionIfCurrent removes agentID only when the map still points to
+// ac. An old connection's cleanup must not delete a newer connection that was
+// registered under the same agent ID after a reconnect.
+func (am *AgentManager) removeConnectionIfCurrent(agentID string, ac *AgentConnection) (removed, replaced bool) {
+	am.mu.Lock()
+	defer am.mu.Unlock()
+
+	current, exists := am.connections[agentID]
+	if !exists {
+		return false, false
+	}
+	if current != ac {
+		return false, true
+	}
+	delete(am.connections, agentID)
+	return true, false
+}
+
 // cleanup 清理连接
 func (ac *AgentConnection) cleanup(am *AgentManager) {
 	ac.stateMu.Lock()
@@ -425,15 +443,14 @@ func (ac *AgentConnection) cleanup(am *AgentManager) {
 	log.Infof("开始清理Agent连接: agentId=%s, wasActive=%v", agentID, wasActive)
 
 	if agentID != "" {
-		am.mu.Lock()
-		// 检查是否真的存在于连接管理器中
-		if _, exists := am.connections[agentID]; exists {
-			delete(am.connections, agentID)
+		removed, replaced := am.removeConnectionIfCurrent(agentID, ac)
+		if removed {
 			log.Infof("Agent已从连接管理器中移除: agentId=%s", agentID)
+		} else if replaced {
+			log.Infof("Agent连接已被新连接替换，保留新连接: agentId=%s", agentID)
 		} else {
 			log.Warnf("Agent不在连接管理器中，可能已被移除: agentId=%s", agentID)
 		}
-		am.mu.Unlock()
 
 		// ac.store.UpdateOnlineStatus(ac.agentID, false)
 	} else {
