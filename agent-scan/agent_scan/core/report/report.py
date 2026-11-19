@@ -62,6 +62,53 @@ def _severity_to_level(severity: Severity) -> str:
     return mapping.get(severity, "Low")
 
 
+_LEVEL_WORDS = {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+}
+_LEVEL_WORD_RE = re.compile(r"^(critical|high|medium|low)\b", re.IGNORECASE)
+_LEVEL_ZH = (("严重", "Critical"), ("高", "High"), ("中", "Medium"), ("低", "Low"))
+# A bare score or "CVSS [v3.1][:] 9.8". A vector string ("CVSS:3.1/AV:N/...")
+# is not a score and is left alone.
+_CVSS_SCORE_RE = re.compile(
+    r"^(?:cvss(?:\s*v?\d(?:\.\d)?)?\s*[:：]?\s*)?(\d{1,2}(?:\.\d+)?)(?![\d./])",
+    re.IGNORECASE,
+)
+
+
+def _normalize_level(level: str) -> str:
+    """Map the model's ``<level>`` text to Critical/High/Medium/Low.
+
+    The review prompt allows "a CVSS score or High/Medium/Low", and models
+    also write Chinese levels or a word followed by details. Everything
+    downstream (severity, security score, overall risk) compares against
+    the English words, so a "9.8" or "高危" finding used to count as Low and
+    cost no points. Unrecognized text is returned unchanged.
+    """
+    text = level.strip()
+    match = _LEVEL_WORD_RE.match(text)
+    if match:
+        return _LEVEL_WORDS[match.group(1).lower()]
+    for prefix, canonical in _LEVEL_ZH:
+        if text.startswith(prefix):
+            return canonical
+    match = _CVSS_SCORE_RE.match(text)
+    if match:
+        score = float(match.group(1))
+        if 0 <= score <= 10:
+            # CVSS v3/v4 qualitative severity rating scale.
+            if score >= 9.0:
+                return "Critical"
+            if score >= 7.0:
+                return "High"
+            if score >= 4.0:
+                return "Medium"
+            return "Low"
+    return text
+
+
 def _extract_tag_content(text: str, tag: str) -> Optional[str]:
     """Extract content from XML-like tag."""
     pattern = re.compile(rf'<{tag}>\s*(.*?)\s*</{tag}>', re.DOTALL)
@@ -163,7 +210,7 @@ def _extract_vuln_blocks(text: str) -> List[Dict[str, Any]]:
                 'title': title,
                 'description': desc,
                 'risk_type': risk_type,
-                'level': level or 'Medium',
+                'level': _normalize_level(level) if level else 'Medium',
                 'suggestion': suggestion or '',
                 'conversation': conversation,
             })
