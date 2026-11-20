@@ -38,3 +38,10 @@ func TestRemoveConnectionIfCurrentMissingEntry(t *testing.T) {
 		t.Fatalf("removed=%v replaced=%v, want false/false", removed, replaced)
 	}
 }
+
+func TestCurrentAgentIDReadsRegisteredValue(t *testing.T) {
+	ac := &AgentConnection{agentID: "agent-1"}
+	if got := ac.currentAgentID(); got != "agent-1" {
+		t.Fatalf("currentAgentID = %q", got)
+	}
+}
