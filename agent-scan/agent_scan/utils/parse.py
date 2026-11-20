@@ -23,10 +23,18 @@ from typing import Any
 
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
-    regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    eq_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    # Some models emit the tag as an XML attribute instead of `<tag=name>`,
+    # e.g. `<function name="read_file">`. Accept both forms.
+    attr_pattern = (
+        rf"<{tag_name}\s+[^>]*?(?<![\w-])name=[\"']([^\"']+)[\"'][^>]*>"
+        rf"\s*(.*?)</{tag_name}.*?>"
+    )
     param_regex_pattern = r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)</parameter>'
 
-    matches = re.finditer(regex_pattern, content, re.DOTALL)
+    matches = list(re.finditer(eq_pattern, content, re.DOTALL))
+    if not matches:
+        matches = list(re.finditer(attr_pattern, content, re.DOTALL))
     for match in matches:
         fn_name = match.group(1)
         if fn_name == "tool_name":  # Skip few-shot examples
