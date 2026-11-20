@@ -139,3 +139,16 @@ def test_parse_mcp_invocations_function_attribute_form():
     assert parse_mcp_invocations(content) == [
         {"toolName": "get_user_role", "args": {"username": "admin"}}
     ]
+
+
+def test_clean_content_removes_attribute_form_function():
+    content = '<function name="finish"><parameter=content>done</parameter></function>'
+    assert clean_content(content) == ""
+
+
+def test_clean_content_removes_attribute_form_mcp_function():
+    content = (
+        '<mcp_function name="get_user_role"><parameter=username>admin</parameter>'
+        "</mcp_function>"
+    )
+    assert clean_content(content) == ""

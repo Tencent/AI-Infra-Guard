@@ -98,8 +98,10 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<function\s+[^>]*>.*?</function.*?>",
         r"<finish>.*?</finish>",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
+        r"<mcp_function\s+[^>]*>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]
     cleaned = content
