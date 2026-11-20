@@ -187,6 +187,20 @@ func (s *TaskStore) GetSessionStatus(id string) (string, error) {
 	return session.Status, nil
 }
 
+// GetSessionHeader reads the columns used by the status endpoint without
+// preloading Messages. The endpoint only returns status, title and timestamps,
+// so loading the whole event history is unnecessary.
+func (s *TaskStore) GetSessionHeader(id string) (*Session, error) {
+	var session Session
+	err := s.db.Select("id", "status", "title", "created_at", "updated_at").
+		Where("id = ?", id).
+		Take(&session).Error
+	if err != nil {
+		return nil, err
+	}
+	return &session, nil
+}
+
 // SetShare 设置会话共享
 func (s *TaskStore) SetShare(sessionID string, share bool) error {
 	return s.db.Model(&Session{}).Where("id = ?", sessionID).Update("share", share).Error

@@ -54,3 +54,32 @@ func TestGetSessionStatusReadsOnlyStatus(t *testing.T) {
 	_, err = store.GetSessionStatus("missing-session")
 	require.Error(t, err)
 }
+
+func TestGetSessionHeaderDoesNotRequireMessages(t *testing.T) {
+	store, _, cleanup := newTestDB(t)
+	defer cleanup()
+
+	require.NoError(t, store.CreateSession(&Session{
+		ID:       "header-session",
+		Username: "public_user",
+		TaskType: "mcp_scan",
+		Content:  "test",
+		Title:    "header title",
+		Status:   "doing",
+	}))
+	require.NoError(t, store.CreateTaskMessage(&TaskMessage{
+		ID:        "header-message",
+		SessionID: "header-session",
+		Type:      "statusUpdate",
+		EventData: datatypes.JSON([]byte(`{}`)),
+		Timestamp: 1,
+	}))
+
+	header, err := store.GetSessionHeader("header-session")
+	require.NoError(t, err)
+	require.Equal(t, "header-session", header.ID)
+	require.Equal(t, "doing", header.Status)
+	require.Equal(t, "header title", header.Title)
+	require.NotZero(t, header.CreatedAt)
+	require.NotZero(t, header.UpdatedAt)
+}
