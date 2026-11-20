@@ -57,6 +57,8 @@ func (s *SkillTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 	if err := json.Unmarshal(request.Params, &params); err != nil {
 		return err
 	}
+	cleanup := utils.NewTempCleanup()
+	defer cleanup.Close()
 	params.Content = request.Content
 	files := request.Attachments
 
@@ -96,11 +98,13 @@ func (s *SkillTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 				}
 
 				fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), ext))
+				cleanup.Add(fileName)
 				err := utils.DownloadFile(s.Server, request.SessionId, file, fileName)
 				if err != nil {
 					return fmt.Errorf("download failed: %v", err)
 				}
 				extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
+				cleanup.Add(extractPath)
 				switch ext {
 				case ".zip", ".whl":
 					err = utils.ExtractZipFile(fileName, extractPath)
@@ -116,6 +120,7 @@ func (s *SkillTask) Execute(ctx context.Context, request TaskRequest, callbacks 
 			}
 		} else {
 			extractPath, _ := filepath.Abs(filepath.Join(tempDir, fmt.Sprintf("tmp-%d", time.Now().UnixMicro())))
+			cleanup.Add(extractPath)
 			err := utils.GitClone(params.Content, extractPath, 10*time.Minute)
 			if err != nil {
 				return fmt.Errorf("clone failed: %v", err)

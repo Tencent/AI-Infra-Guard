@@ -80,6 +80,8 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 	if err := json.Unmarshal(request.Params, &param); err != nil {
 		return err
 	}
+	cleanup := utils.NewTempCleanup()
+	defer cleanup.Close()
 	param.Prompt = request.Content
 	if param.Datasets.RandomSeed == 0 {
 		param.Datasets.RandomSeed = 42
@@ -147,6 +149,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 			gologger.Errorf("非法文件路径: %s", fileName)
 			return fmt.Errorf("非法文件路径")
 		}
+		cleanup.Add(fileName2)
 		scenarios := fmt.Sprintf("MultiDataset:dataset_file=%s,num_prompts=%d,random_seed=%d", fileName2, param.Datasets.NumPrompts, param.Datasets.RandomSeed)
 		if param.Datasets.PromptColumn != "" {
 			scenarios += fmt.Sprintf(",prompt_column=%s", param.Datasets.PromptColumn)
@@ -164,6 +167,7 @@ func (m *ModelRedteamReport) Execute(ctx context.Context, request TaskRequest, c
 		tempDir := os.TempDir()
 		fileName := filepath.Join(tempDir, fmt.Sprintf("%s-%d.json", dataName, time.Now().UnixMicro()))
 		fileName = strings.Replace(fileName, " ", "_", -1)
+		cleanup.Add(fileName)
 		data, err := utils.GetEvaluationsDetail(m.Server, dataName)
 		if err != nil {
 			gologger.Errorf("获取评测数据失败: %v", err)
