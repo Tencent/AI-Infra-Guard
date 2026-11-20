@@ -344,6 +344,19 @@ func (s *TaskStore) GetSessionEventsByType(sessionID string, eventType string) (
 	return messages, nil
 }
 
+// GetLatestSessionEventByType returns the newest event of a type. Task result
+// retrieval wants the final result, not the first one written.
+func (s *TaskStore) GetLatestSessionEventByType(sessionID string, eventType string) (*TaskMessage, error) {
+	var message TaskMessage
+	err := s.db.Where("session_id = ? AND type = ?", sessionID, eventType).
+		Order("timestamp DESC, created_at DESC").
+		Take(&message).Error
+	if err != nil {
+		return nil, err
+	}
+	return &message, nil
+}
+
 // SearchUserSessionsSimple 使用单个查询参数搜索用户的会话，支持在title、content、task_type字段中搜索
 func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams SimpleSearchParams) ([]*Session, int64, error) {
 	query := s.visibleSessionsQuery(username)
