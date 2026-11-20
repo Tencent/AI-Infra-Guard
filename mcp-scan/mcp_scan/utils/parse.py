@@ -23,7 +23,14 @@ from typing import Any
 
 def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
     results = []
-    regex_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    eq_pattern = f"<{tag_name}=([^>]+)>\n?(.*?)</{tag_name}.*?>"
+    # Some models emit the tag as an XML attribute instead of `<tag=name>`,
+    # e.g. `<function name="read_file">`. skill-scan already accepts both
+    # forms; keep mcp-scan consistent so such calls are not lost as text.
+    attr_pattern = (
+        rf"<{tag_name}\s+[^>]*?(?<![\w-])name=[\"']([^\"']+)[\"'][^>]*>"
+        rf"\s*(.*?)</{tag_name}.*?>"
+    )
     # Accept both the documented <parameter=name> form and the XML-attribute
     # <parameter name="..."> form that some OpenAI-compatible models (e.g.
     # DeepSeek) emit by default. Mirrors the agent-scan parser.
@@ -31,7 +38,9 @@ def _parse_tags(content: str, tag_name: str) -> list[dict[str, Any]]:
         r'<parameter\s*(?:=|name=["\'])([^>"\']+?)(?:["\'])?>(.*?)</parameter>'
     )
 
-    matches = re.finditer(regex_pattern, content, re.DOTALL)
+    matches = list(re.finditer(eq_pattern, content, re.DOTALL))
+    if not matches:
+        matches = list(re.finditer(attr_pattern, content, re.DOTALL))
     for match in matches:
         fn_name = match.group(1)
         if fn_name == "tool_name":  # Skip few-shot examples
@@ -94,8 +103,10 @@ def clean_content(content: str) -> str:
         return ""
     hidden_xml_patterns = [
         r"<function=[^>]+>.*?</function.*?>",
+        r"<function\s+[^>]*>.*?</function.*?>",
         r"<finish>.*?</finish>",
         r"<mcp_function=[^>]+>.*?</mcp_function.*?>",
+        r"<mcp_function\s+[^>]*>.*?</mcp_function.*?>",
         r"<inter_agent_message>.*?</inter_agent_message>",
     ]
     cleaned = content
