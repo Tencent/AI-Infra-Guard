@@ -473,6 +473,9 @@ func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, even
 		if err != nil {
 			log.Errorf("更新任务失败: sessionId=%s, error=%v", sessionId, err)
 		}
+		// 任务已进入终态；停止心跳并释放 SSE，否则前端会一直收到
+		// “思考中...”并停留在旧状态。
+		go tm.cleanupTask(sessionId)
 	case "resultUpdate":
 		if convertedEvent, err := convertToStruct(event, &ResultUpdateEvent{}); err == nil {
 			if _, ok := convertedEvent.(*ResultUpdateEvent); ok {
