@@ -135,9 +135,22 @@ def _extract_params(text: str) -> dict[str, str]:
     args: dict[str, str] = {}
 
     # A single call can mix both parameter dialects; collect both in document
-    # order instead of returning only the first form that matches.
+    # order instead of returning only the first form that matches. Drop a match
+    # nested inside another match's value (e.g. a legacy tag quoted inside a
+    # named argument), so the outer argument is not overwritten.
+    all_matches = [*_NAMED_PARAM_RE.finditer(text), *_LEGACY_PARAM_RE.finditer(text)]
     param_matches = sorted(
-        [*_NAMED_PARAM_RE.finditer(text), *_LEGACY_PARAM_RE.finditer(text)],
+        [
+            match
+            for match in all_matches
+            if not any(
+                other is not match
+                and other.start() <= match.start()
+                and match.end() <= other.end()
+                and (other.end() - other.start()) > (match.end() - match.start())
+                for other in all_matches
+            )
+        ],
         key=lambda match: match.start(),
     )
     for pm in param_matches:
