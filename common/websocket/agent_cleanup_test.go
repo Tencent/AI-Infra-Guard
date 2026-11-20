@@ -38,3 +38,21 @@ func TestRemoveConnectionIfCurrentMissingEntry(t *testing.T) {
 		t.Fatalf("removed=%v replaced=%v, want false/false", removed, replaced)
 	}
 }
+
+// A stale connection may send disconnect after a replacement has registered.
+// The disconnect must not remove the new connection from the map.
+func TestHandleDisconnectKeepsReplacementConnection(t *testing.T) {
+	am := NewAgentManager()
+	oldConn := &AgentConnection{agentID: "agent-1", isActive: true}
+	replacement := &AgentConnection{agentID: "agent-1", isActive: true}
+	am.connections["agent-1"] = replacement
+
+	oldConn.handleDisconnect(am, map[string]string{"agent_id": "agent-1"})
+
+	if got := am.connections["agent-1"]; got != replacement {
+		t.Fatal("stale disconnect removed the replacement connection")
+	}
+	if oldConn.isActive {
+		t.Fatal("stale connection should be marked inactive")
+	}
+}
