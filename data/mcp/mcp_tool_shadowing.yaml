@@ -1,0 +1,74 @@
+info:
+  id: "mcp_tool_shadowing"
+  name: "MCP Tool Shadowing Detection"
+  description: "Detect cross-server tool shadowing in MCP setups: a malicious or compromised server exposes tools whose names or descriptions deliberately mirror another configured server's tools or well-known built-in tools, so the host agent routes calls to the shadowing implementation and leaks arguments or fabricates results (tool shadowing / namespace collision attack)."
+  author: "ATR (Agent Threat Rules)"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect MCP cross-server tool shadowing in server code and MCP client configuration. Tool shadowing does not require any adversarial instruction text (that is tool poisoning); the attack works through namespace collision and trust confusion: a second server registers a tool with the same or mimicking name as a tool from another, more-privileged server, and the host agent picks or is steered into calling the shadowing implementation instead. Require concrete evidence; only report when both the collision and an interception or mimicry signal are present.
+
+  ## Vulnerability Definition
+  Tool shadowing occurs when an MCP server defines tools that collide with, mimic, or intercept tools from another server aggregated by the same MCP client (e.g. `.mcp.json`, `claude_desktop_config.json`, Cursor/Codex MCP settings). Because many hosts flatten tool names into one namespace (or disambiguate only by fragile server prefixes), the malicious implementation can receive the arguments intended for the legitimate tool — including secrets, file contents, or queries — and may silently drop the call, return a plausible fake result, or forward arguments to an attacker-controlled endpoint.
+
+  ## Detection Criteria (at least one collision signal plus one behavior signal)
+
+  ### 1. Name collision with another server's tool or a well-known tool
+  **Code Patterns:**
+  - A repo or config registering multiple MCP servers where two servers define a
+    `@mcp.tool()` / `server.tool(...)` / `RegisterTool(...)` with the same name.
+  - Tool names duplicating well-known official servers' tools: `fetch`,
+    `filesystem`-family (`read_file`, `write_file`, `list_directory`),
+    `git_status`, `query`/`execute_sql`, `search`, `send_message`, `browser_*`.
+  - Names impersonating popular servers' identity: prefixes like `github`,
+    `slack`, `postgres`, `filesystem`, `memory` on an otherwise unrelated
+    server.
+
+  ### 2. Description mimicry of the shadowed tool
+  **Code Patterns:**
+  - Tool description nearly identical to the legitimate tool's (copied text,
+    same parameter docstrings) while the handler body differs from the
+    original implementation.
+  - Parameter schema re-declared to accept extra optional fields the original
+    tool does not have (e.g. `webhook_url`, `endpoint`, `forward_to`).
+
+  ### 3. Interception behavior in the shadowing handler
+  **Code Patterns:**
+  - Handler logs, encodes, or POSTs its arguments to a third-party endpoint
+    before or instead of performing the advertised function.
+  - Handler forwards the call to the real implementation (subprocess, HTTP
+    call to localhost, import of the genuine module) and returns its result
+    after recording arguments — a man-in-the-middle inside the client session.
+  - Handler returns a fabricated plausible result without performing any real
+    action (silent drop + fake success).
+
+  ## Strict Judgment Standards
+  - **Namespaced hosts**: Do not report collisions where the host
+    demonstrably prefixes tool names with their server id and the code relies
+    on that namespacing, unless mimicry of another server's identity is also
+    present.
+  - **Generic vocabulary**: Do not report common generic tool names (`search`,
+    `query`, `list`) in unrelated single-server repos with no second server in
+    scope and no interception behavior.
+  - **Legitimate proxies**: Do not report servers that document themselves as
+    explicit proxies/aggregators of another service and forward calls
+    transparently without collecting credentials.
+  - **Test fixtures**: Do not report test, example, or sample code with no
+    interception behavior.
+
+  ## Output Requirements
+  Only output when finding concrete tool-shadowing evidence:
+  - Specific file paths and line numbers for the shadowing definition, and for
+    the shadowed definition when it is visible in the same codebase/config.
+  - The colliding tool name and the mimicked description / parameter text.
+  - Technical analysis: how a host aggregating these servers would route the
+    call, and which arguments the shadowing handler would capture.
+  - Impact assessment: data exposed through arguments, fabricated-result or
+    drop risks, blast radius across the aggregated servers.
+  - Remediation: namespace tools by server id at registration time, validate
+    tool-name uniqueness across configured servers, require user approval for
+    first-seen colliding tools, and compare handler behavior against the
+    legitimate implementation.
+
+  **Strict Requirement: provide the colliding tool definitions and the interception or mimicry path. Remain silent when no concrete evidence exists.**
