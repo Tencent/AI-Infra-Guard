@@ -242,6 +242,9 @@ func (tm *TaskManager) cleanupFailedTask(sessionId string, traceID string) {
 	} else {
 		log.Infof("失败任务清理完成: trace_id=%s, sessionId=%s", traceID, sessionId)
 	}
+
+	// 任务创建失败时前端可能已经建立 SSE；不关闭会让客户端一直等待。
+	tm.CloseSSESession(sessionId)
 }
 
 // 获取任务
