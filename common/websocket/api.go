@@ -62,13 +62,13 @@ type ModelParams struct {
 type MCPTaskRequest struct {
 	Prompt string `json:"prompt,omitempty" example:"Enter a URL for remote MCP scan, or leave empty for source-code scan"` // Scan description or MCP server URL
 	Model  struct {
-		Model   string `json:"model,omitempty" example:"gpt-4"`                         // Model name - optional, falls back to system default
-		Token   string `json:"token,omitempty" example:"sk-xxx"`                        // API key - optional, falls back to system default
+		Model   string `json:"model,omitempty" example:"gpt-4"`                        // Model name - optional, falls back to system default
+		Token   string `json:"token,omitempty" example:"sk-xxx"`                       // API key - optional, falls back to system default
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
 	} `json:"model,omitempty"` // Model configuration - optional, falls back to system default
-	Thread      int               `json:"thread,omitempty" example:"4"`              // Concurrent thread count
-	Language    string            `json:"language,omitempty" example:"zh"`           // Language code - optional
-	Attachments string            `json:"attachments,omitempty" example:"file1.zip"` // Attachment file path (upload first)
+	Thread      int               `json:"thread,omitempty" example:"4"`                                     // Concurrent thread count
+	Language    string            `json:"language,omitempty" example:"zh"`                                  // Language code - optional
+	Attachments string            `json:"attachments,omitempty" example:"file1.zip"`                        // Attachment file path (upload first)
 	Headers     map[string]string `json:"headers,omitempty" example:"{\"Authorization\":\"Bearer token\"}"` // Custom headers
 }
 
@@ -79,8 +79,8 @@ type AIInfraScanTaskRequest struct {
 	Headers map[string]string `json:"headers" example:"{\"Authorization\":\"Bearer token\"}"` // Custom request headers
 	Timeout int               `json:"timeout" example:"30"`                                   // Request timeout in seconds
 	Model   struct {
-		Model   string `json:"model,omitempty" example:"gpt-4"`               // Model name - optional, falls back to system default
-		Token   string `json:"token,omitempty" example:"sk-xxx"`              // API key - optional, falls back to system default
+		Model   string `json:"model,omitempty" example:"gpt-4"`                        // Model name - optional, falls back to system default
+		Token   string `json:"token,omitempty" example:"sk-xxx"`                       // API key - optional, falls back to system default
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
 	} `json:"model,omitempty"` // Model configuration - optional, falls back to system default
 }
@@ -109,10 +109,10 @@ type PromptSecurityTaskRequest struct {
 // @Description Agent security scan task parameters. agent_id and agent_config are mutually exclusive:
 // agent_id references a config pre-saved on the server; agent_config passes YAML content inline without prior saving.
 type AgentScanTaskRequest struct {
-	AgentID     string      `json:"agent_id,omitempty" example:"demo-agent"`                              // Agent config name (mutually exclusive with agent_config)
-	AgentConfig string      `json:"agent_config,omitempty" example:"provider: dify\nbase_url: ..."`       // Inline YAML config content (mutually exclusive with agent_id)
-	EvalModel   ModelParams `json:"eval_model"`                                                           // Evaluation model config - optional, falls back to system default
-	Language    string      `json:"language,omitempty" example:"zh"`                                      // Language code - optional
+	AgentID     string      `json:"agent_id,omitempty" example:"demo-agent"`                                         // Agent config name (mutually exclusive with agent_config)
+	AgentConfig string      `json:"agent_config,omitempty" example:"provider: dify\nbase_url: ..."`                  // Inline YAML config content (mutually exclusive with agent_id)
+	EvalModel   ModelParams `json:"eval_model"`                                                                      // Evaluation model config - optional, falls back to system default
+	Language    string      `json:"language,omitempty" example:"zh"`                                                 // Language code - optional
 	Prompt      string      `json:"prompt,omitempty" example:"Focus on privilege escalation and data leakage risks"` // Additional scan instructions - optional
 	Skills      []string    `json:"skills,omitempty" example:"data-leakage-detection,tool-abuse-detection"`          // Detection skills to run - optional, defaults to all
 }
@@ -122,8 +122,8 @@ type AgentScanTaskRequest struct {
 type SkillScanTaskRequest struct {
 	Prompt string `json:"prompt,omitempty" example:"https://github.com/user/skill-project or scan description"` // GitHub repo URL or scan description
 	Model  struct {
-		Model   string `json:"model,omitempty" example:"gpt-4"`                         // Model name - optional, falls back to system default
-		Token   string `json:"token,omitempty" example:"sk-xxx"`                        // API key - optional, falls back to system default
+		Model   string `json:"model,omitempty" example:"gpt-4"`                        // Model name - optional, falls back to system default
+		Token   string `json:"token,omitempty" example:"sk-xxx"`                       // API key - optional, falls back to system default
 		BaseUrl string `json:"base_url,omitempty" example:"https://api.openai.com/v1"` // Base URL - optional
 	} `json:"model,omitempty"` // Model configuration - optional, falls back to system default
 	Language    string `json:"language,omitempty" example:"zh"`           // Language code - optional
@@ -132,19 +132,19 @@ type SkillScanTaskRequest struct {
 
 // APIResponse is the common API response structure
 type APIResponse struct {
-	Status  int         `json:"status" example:"0"`     // Status code: 0=success, 1=failure
-	Message string      `json:"message" example:"ok"`     // Response message
-	Data    interface{} `json:"data"`     // Response data
+	Status  int         `json:"status" example:"0"`   // Status code: 0=success, 1=failure
+	Message string      `json:"message" example:"ok"` // Response message
+	Data    interface{} `json:"data"`                 // Response data
 }
 
 // TaskStatusResponse holds the task status response
 type TaskStatusResponse struct {
 	SessionID string `json:"session_id" example:"550e8400-e29b-41d4-a716-446655440000"` // Task session ID
 	Status    string `json:"status" example:"running"`                                  // Task status: pending, running, completed, failed
-	Title     string `json:"title" example:"MCP Scan Task"`                                   // Task title
+	Title     string `json:"title" example:"MCP Scan Task"`                             // Task title
 	CreatedAt int64  `json:"created_at" example:"1640995200000"`                        // Creation timestamp (ms)
 	UpdatedAt int64  `json:"updated_at" example:"1640995200000"`                        // Last update timestamp (ms)
-	Log       string `json:"log" example:"Task execution log..."`                           // Task execution log
+	Log       string `json:"log" example:"Task execution log..."`                       // Task execution log
 }
 
 // TaskCreateResponse holds the task creation response
@@ -788,9 +788,9 @@ func GetTaskResult(c *gin.Context, tm *TaskManager) {
 
 	log.Infof("fetching task result: trace_id=%s, sessionId=%s", traceID, sessionId)
 
-	// Fetch all task events
-	messages, err := tm.taskStore.GetSessionEventsByType(sessionId, "resultUpdate")
-	if err != nil || len(messages) == 0 {
+	// Fetch the final result, not the first result event in the session.
+	msg, err := tm.taskStore.GetLatestSessionEventByType(sessionId, "resultUpdate")
+	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
 			"message": "task result not available yet",
@@ -798,7 +798,6 @@ func GetTaskResult(c *gin.Context, tm *TaskManager) {
 		})
 		return
 	}
-	msg := messages[0]
 	// Parse event data
 	var eventData map[string]interface{}
 	if err := json.Unmarshal(msg.EventData, &eventData); err != nil {
