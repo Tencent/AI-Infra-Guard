@@ -344,20 +344,27 @@ func (ac *AgentConnection) handleDisconnect(am *AgentManager, content interface{
 		return
 	}
 
-	// 从连接管理器中移除
-	am.mu.Lock()
-	delete(am.connections, agentID)
-	am.mu.Unlock()
-
-	// 发送断开确认
-	response := WSMessage{
-		Type: "disconnect_ack",
-		Content: Response{
-			Status:  0,
-			Message: "断开连接成功",
-		},
+	// 从连接管理器中移除。旧连接可能在重连后仍在处理消息，不能让它
+	// 把已经注册的新连接一起删掉。
+	removed, replaced := am.removeConnectionIfCurrent(agentID, ac)
+	if replaced {
+		log.Warnf("收到已被替换连接的断开消息，保留新连接: agentId=%s", agentID)
+		ac.stateMu.Lock()
+		ac.isActive = false
+		ac.stateMu.Unlock()
+		return
 	}
-	ac.writeJSON(response)
+	if removed {
+		// 发送断开确认
+		response := WSMessage{
+			Type: "disconnect_ack",
+			Content: Response{
+				Status:  0,
+				Message: "断开连接成功",
+			},
+		}
+		ac.writeJSON(response)
+	}
 
 	// 标记连接为非活跃
 	ac.stateMu.Lock()
