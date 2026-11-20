@@ -139,7 +139,9 @@ func (sm *SSEManager) keepConnectionAlive(conn *SSEConnection) {
 			_, err = fmt.Fprintf(conn.Writer, "data: %s\n\n", eventData)
 			if err != nil {
 				log.Errorf("SSE心跳发送失败: sessionId=%s, error=%v", conn.SessionID, err)
-				sm.RemoveConnection(conn.SessionID)
+				// A replacement may own this session ID now; only remove the
+				// connection whose heartbeat actually failed.
+				sm.removeConnectionIfCurrent(conn.SessionID, conn)
 				return
 			}
 
@@ -160,6 +162,23 @@ func (sm *SSEManager) RemoveConnection(sessionID string) {
 		delete(sm.connections, sessionID)
 		log.Infof("SSE连接移除: sessionId=%s, username=%s, remainingConnections=%d", sessionID, conn.Username, len(sm.connections))
 	}
+}
+
+// removeConnectionIfCurrent removes a connection only when the map still
+// points at it. An old connection's heartbeat can fail after AddConnection
+// replaced it; deleting by session ID alone would remove the new client.
+func (sm *SSEManager) removeConnectionIfCurrent(sessionID string, conn *SSEConnection) bool {
+	sm.mutex.Lock()
+	defer sm.mutex.Unlock()
+
+	current, exists := sm.connections[sessionID]
+	if !exists || current != conn {
+		return false
+	}
+	close(current.CloseChan)
+	delete(sm.connections, sessionID)
+	log.Infof("SSE连接移除: sessionId=%s, username=%s, remainingConnections=%d", sessionID, current.Username, len(sm.connections))
+	return true
 }
 
 // SendEvent 向指定会话发送事件
