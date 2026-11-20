@@ -134,9 +134,12 @@ def _extract_params(text: str) -> dict[str, str]:
     """
     args: dict[str, str] = {}
 
-    param_matches = list(_NAMED_PARAM_RE.finditer(text))
-    if not param_matches:
-        param_matches = list(_LEGACY_PARAM_RE.finditer(text))
+    # A single call can mix both parameter dialects; collect both in document
+    # order instead of returning only the first form that matches.
+    param_matches = sorted(
+        [*_NAMED_PARAM_RE.finditer(text), *_LEGACY_PARAM_RE.finditer(text)],
+        key=lambda match: match.start(),
+    )
     for pm in param_matches:
         args[pm.group(1).strip()] = html.unescape(pm.group(2).strip())
     if args:
