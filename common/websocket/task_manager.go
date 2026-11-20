@@ -696,16 +696,11 @@ func isTerminalTaskStatus(status string) bool {
 }
 
 func (tm *TaskManager) shouldIgnoreAgentEvent(sessionId string, eventType string) bool {
-	session, err := tm.taskStore.GetSession(sessionId)
-	if err != nil || session == nil {
+	status, err := tm.taskStore.GetSessionStatus(sessionId)
+	if err != nil {
 		return true
 	}
-
-	if !isTerminalTaskStatus(session.Status) {
-		return false
-	}
-
-	return true
+	return isTerminalTaskStatus(status)
 }
 
 // generateEventID 生成事件ID
