@@ -8,8 +8,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import numpy as np
+
 from services.api_checker import server
-from services.api_checker.algorithms import common, pamela, relay_audit, signature
+from services.api_checker.algorithms import bayes_score, common, pamela, relay_audit, signature
 
 
 class BaselineTests(unittest.TestCase):
@@ -1244,6 +1246,52 @@ class RelayAuditGlitchFingerprintTests(unittest.TestCase):
         findings = relay_audit.build_findings([probe], "gpt-4o")
         self.assertEqual(1, len(findings))
         self.assertEqual("Glitch token family mismatch", findings[0].title)
+
+
+class BayesScoreSingleBaselineTests(unittest.TestCase):
+    """回归：只有一个基准时 full 模式不得崩溃（issue #784）。
+
+    单基准下没有第二名可比较：identify_model 返回 second_model=None、
+    posterior=1.0、log_margin=inf；known_alternative_log_bf 返回 0.0（中性）。
+    """
+
+    def test_identify_model_with_single_baseline(self):
+        counts = np.ones((1, 100), dtype=np.float64)
+        base_measure = np.ones(100, dtype=np.float64) / 100
+        result = bayes_score.identify_model(counts, np.ones(100), 1.0, base_measure)
+        self.assertEqual(0, result["best_model"])
+        self.assertIsNone(result["second_model"])
+        self.assertEqual(1.0, result["best_posterior"])
+        self.assertTrue(math.isinf(result["log_margin"]))
+
+    def test_known_alternative_log_bf_with_single_baseline(self):
+        self.assertEqual(0.0, bayes_score.known_alternative_log_bf(np.array([1.0]), 0))
+
+    def test_identify_model_with_two_baselines_still_ranks(self):
+        counts = np.array([[8.0] * 50 + [2.0] * 50, [2.0] * 50 + [8.0] * 50])
+        base_measure = np.ones(100, dtype=np.float64) / 100
+        result = bayes_score.identify_model(counts, np.array([5.0] * 100), 1.0, base_measure)
+        self.assertIsNotNone(result["second_model"])
+        self.assertNotEqual(result["best_model"], result["second_model"])
+        self.assertTrue(math.isfinite(result["log_margin"]))
+        self.assertTrue(math.isfinite(
+            bayes_score.known_alternative_log_bf(result["log_predictive"], 0)))
+
+    def test_evaluate_with_single_baseline(self):
+        baselines = [{
+            "name": "model-a",
+            "model": "model-a",
+            "rawData": [1] * 60 + [2] * 40,
+            "iterations": 100,
+        }]
+        result = bayes_score.evaluate(
+            [1] * 55 + [2] * 45, baselines, claimed_name="model-a",
+            n_sim=200, rng=np.random.default_rng(0))
+        self.assertEqual("model-a", result["best_model_name"])
+        self.assertIsNone(result["second_model_name"])
+        self.assertEqual(1.0, result["best_posterior"])
+        self.assertTrue(math.isinf(result["log_margin"]))
+        self.assertEqual(0.0, result["forgery"]["known_alt_log_bf"])
 
 
 class PamelaTests(unittest.TestCase):
