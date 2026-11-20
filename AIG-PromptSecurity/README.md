@@ -328,6 +328,7 @@ python cli_run.py --show-tool-params PromptInjection
 | LinearJailbreaking | Linear jailbreaking | Linear iterative attacks |
 | SequentialJailbreak | Sequential jailbreaking | Conversational attacks |
 | TreeJailbreaking | Tree jailbreaking | Multi-path search |
+| RefusalLadderJailbreaking | Refusal-driven remediation ladder | On refusal, auto-climbs retry → prefill → authorized-framing → simulator-rewrite on a clean session, stopping at the first non-refusal |
 
 ## 🙏 Acknowledgements
 

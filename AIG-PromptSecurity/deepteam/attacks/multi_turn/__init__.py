@@ -26,6 +26,7 @@ from .many_shot_jailbreaking import ManyShotJailbreaking
 from .pair_jailbreaking import PAIRJailbreaking
 from .goat_jailbreaking import GoatJailbreaking
 from .actor_attack import ActorAttack
+from .refusal_ladder import RefusalLadderJailbreaking
 
 __all__ = [
     "BadLikertJudge",
@@ -38,4 +39,5 @@ __all__ = [
     "PAIRJailbreaking",
     "GoatJailbreaking",
     "ActorAttack",
+    "RefusalLadderJailbreaking",
 ]

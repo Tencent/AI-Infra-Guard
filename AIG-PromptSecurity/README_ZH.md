@@ -324,6 +324,7 @@ python cli_run.py --show-tool-params PromptInjection
 | LinearJailbreaking | 线性越狱 | 线性迭代攻击 |
 | SequentialJailbreak | 序列化越狱 | 对话式攻击 |
 | TreeJailbreaking | 树形越狱 | 多路径搜索 | 
+| RefusalLadderJailbreaking | 拒答驱动的补救阶梯 | 被拒答后在干净会话上自动逐级补救（重试 → 预填充 → 授权场景重框 → 模型改写），命中首个不拒答即停 |
 
 ## 🙏 致谢 | Acknowledgements
 
