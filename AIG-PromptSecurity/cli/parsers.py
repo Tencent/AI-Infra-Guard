@@ -141,7 +141,7 @@ def parse_vulnerability(arg: str, plugin_manager: PluginManager):
         custom_vulnerability = plugin_manager.create_vulnerability_instance(class_name)
         if custom_vulnerability:
             kwargs = parse_kwargs(param_str)
-            return [custom_vulnerability.__class__(**kwargs)]
+            return [custom_vulnerability.__class__(**kwargs)], None
         
         if class_name == "Custom":
             from deepteam.vulnerabilities import CustomPrompt
