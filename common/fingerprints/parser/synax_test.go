@@ -155,6 +155,37 @@ func TestEval(t *testing.T) {
 	}
 }
 
+// TestEvalRegexCaseInsensitive: Eval lowercases the body before matching, so a
+// body~= pattern containing uppercase letters must still match.
+func TestEvalRegexCaseInsensitive(t *testing.T) {
+	tests := []struct {
+		name string
+		rule string
+		body string
+		want bool
+	}{
+		{"uppercase pattern matches", `body~="(OPENAI_API_KEY|ANTHROPIC_API_KEY)=[A-Za-z0-9_-]{16,}"`, "OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuv", true},
+		{"shipped .env rule shape", `body~="(OPENAI_API_KEY|GEMINI_API_KEY)\\s*=\\s*[A-Za-z0-9_\\-]{16,}"`, "GEMINI_API_KEY=AIzaSyabcdefghijklmnopqrstuv", true},
+		{"lowercase pattern still matches", `body~="^\\s*\\{"`, `{"a":1}`, true},
+		{"uppercase pattern, no key present", `body~="(OPENAI_API_KEY)=[A-Za-z0-9_-]{16,}"`, "PATH=/usr/bin", false},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tokens, err := ParseTokens(tc.rule)
+			if err != nil {
+				t.Fatal(err)
+			}
+			exp, err := TransFormExp(tokens)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := exp.Eval(&Config{Body: tc.body}); got != tc.want {
+				t.Fatalf("rule %s body %q: got %v want %v", tc.rule, tc.body, got, tc.want)
+			}
+		})
+	}
+}
+
 // TestVersionCheckPreRelease 覆盖 PEP 440 风格的预发布版本号。
 // 直接删除字母有两种错法：把两侧数字粘连成 "3.11.02"（即 3.11.2），
 // 或者丢掉没有尾随数字的标签，让 "3.11.0rc" 等同于正式版 "3.11.0"。
