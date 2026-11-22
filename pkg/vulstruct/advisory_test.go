@@ -335,3 +335,86 @@ func TestGetAdvisories_IsInternal_Flag(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, results, "external scan should NOT match isInternal==true rule")
 }
+
+// ---------------------------------------------------------------------------
+// Package-name matching is case-insensitive
+// ---------------------------------------------------------------------------
+
+// Rule files and fingerprint files come from different sources (hand-written
+// rules, bulk NVD imports), so the same product is spelled with different
+// casing across data/vuln and data/fingerprints — "vLLM" vs "vllm",
+// "Flowise" vs "flowise". GetAdvisories is called with the *fingerprint*
+// name, so a case-sensitive compare silently drops those rules: the scan
+// reports the component and none of its CVEs.
+var vllmMixedCaseVulnYAML = []byte(`
+info:
+  name: vLLM
+  cve: CVE-2026-54234
+  summary: vLLM vulnerability filed under the NVD product casing
+  severity: HIGH
+rule: version >= "0.17.1" && version < "0.24.0"
+references: []
+`)
+
+func TestGetAdvisories_PackageNameCaseInsensitive(t *testing.T) {
+	ae := newEngineFromYAMLs(t, vllmMixedCaseVulnYAML)
+
+	cases := []struct {
+		packageName string
+		wantHit     bool
+		desc        string
+	}{
+		{"vllm", true, "fingerprint casing (lowercase)"},
+		{"vLLM", true, "rule casing (as written in the rule file)"},
+		{"VLLM", true, "all uppercase"},
+		{"Vllm", true, "title case"},
+		{"vllm-project", false, "different product with a shared prefix"},
+		{"llm", false, "substring of the product name"},
+		{"", false, "empty package name"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			results, err := ae.GetAdvisories(tc.packageName, "0.20.0", true)
+			require.NoError(t, err)
+			if tc.wantHit {
+				require.Len(t, results, 1, "expected a match for package name %q", tc.packageName)
+				assert.Equal(t, "CVE-2026-54234", results[0].Info.CVEName)
+			} else {
+				assert.Empty(t, results, "expected no match for package name %q", tc.packageName)
+			}
+		})
+	}
+}
+
+func TestGetAdvisories_CaseInsensitive_EmptyVersionPath(t *testing.T) {
+	ae := newEngineFromYAMLs(t, vllmMixedCaseVulnYAML)
+
+	// The version == "" branch skips rule evaluation; it must apply the same
+	// name comparison as the rule-evaluating branch.
+	results, err := ae.GetAdvisories("vllm", "", true)
+	require.NoError(t, err)
+	assert.Len(t, results, 1)
+
+	results, err = ae.GetAdvisories("not-vllm", "", true)
+	require.NoError(t, err)
+	assert.Empty(t, results)
+}
+
+func TestAdvisoryEngine_RealVulns_MixedCaseRuleIsReachable(t *testing.T) {
+	ae := NewAdvisoryEngine()
+	require.NoError(t, ae.LoadFromDirectory("../../data/vuln/vllm"))
+
+	// data/fingerprints/vllm.yaml declares info.name "vllm", so that is the
+	// name a scan passes in. Every rule under data/vuln/vllm must be
+	// reachable with it, however the rule file spells the product.
+	results, err := ae.GetAdvisories("vllm", "0.20.0", true)
+	require.NoError(t, err)
+
+	cves := make(map[string]bool, len(results))
+	for _, r := range results {
+		cves[r.Info.CVEName] = true
+	}
+	assert.True(t, cves["CVE-2026-54234"],
+		"CVE-2026-54234 (filed as info.name: vLLM) should be reachable from fingerprint name vllm")
+}
