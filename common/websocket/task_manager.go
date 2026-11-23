@@ -162,7 +162,13 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 		return fmt.Errorf("任务已存在，sessionId: %s", req.SessionID)
 	}
 
-	// 2. 预存任务到数据库（状态为todo，assigned_agent为空）
+	// 2. 没有可用 Agent 时不要先落库，否则 API 返回失败却留下 todo 任务。
+	availableAgents := tm.agentManager.GetAvailableAgents()
+	if len(availableAgents) == 0 {
+		return fmt.Errorf("没有可用的Agent")
+	}
+
+	// 3. 预存任务到数据库（状态为todo，assigned_agent为空）
 	session := &database.Session{
 		ID:             req.SessionID,
 		Username:       req.Username,
@@ -181,19 +187,14 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 		return fmt.Errorf("预存任务失败: %v", err)
 	}
 
-	// 获取可用 Agent（简化：不做额外健康检查）
-	availableAgents := tm.agentManager.GetAvailableAgents()
-	if len(availableAgents) == 0 {
-		return fmt.Errorf("没有可用的Agent")
-	}
-
-	// 3. 选择 Agent（round-robin 策略：轮询所有可用 Agent，均匀分配任务）
+	// 4. 选择 Agent（round-robin 策略：轮询所有可用 Agent，均匀分配任务）
 	idxApi := atomic.AddUint64(&tm.dispatchCounter, 1) - 1
 	selectedAgent := availableAgents[idxApi%uint64(len(availableAgents))]
 
-	// 4. 更新session的assigned_agent和开始时间
+	// 5. 更新session的assigned_agent和开始时间
 	err = tm.taskStore.UpdateSessionAssignedAgent(req.SessionID, selectedAgent.agentID)
 	if err != nil {
+		tm.cleanupFailedTask(req.SessionID, "")
 		return fmt.Errorf("无法更新session的assigned_agent")
 	}
 
@@ -219,6 +220,7 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 	// 直接发送
 	err = selectedAgent.writeJSON(taskMsg)
 	if err != nil {
+		tm.cleanupFailedTask(req.SessionID, "")
 		return fmt.Errorf("下发任务给 %s 失败: %v", agentID, err)
 	}
 
