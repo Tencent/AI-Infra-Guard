@@ -788,9 +788,9 @@ func GetTaskResult(c *gin.Context, tm *TaskManager) {
 
 	log.Infof("fetching task result: trace_id=%s, sessionId=%s", traceID, sessionId)
 
-	// Fetch all task events
-	messages, err := tm.taskStore.GetSessionEventsByType(sessionId, "resultUpdate")
-	if err != nil || len(messages) == 0 {
+	// Fetch the final result, not the first result event in the session.
+	msg, err := tm.taskStore.GetLatestSessionEventByType(sessionId, "resultUpdate")
+	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  1,
 			"message": "task result not available yet",
@@ -798,7 +798,6 @@ func GetTaskResult(c *gin.Context, tm *TaskManager) {
 		})
 		return
 	}
-	msg := messages[0]
 	// Parse event data
 	var eventData map[string]interface{}
 	if err := json.Unmarshal(msg.EventData, &eventData); err != nil {
