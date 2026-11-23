@@ -36,6 +36,10 @@ type SSEConnection struct {
 	Flusher   http.Flusher
 	CloseChan chan bool
 	LastPing  time.Time
+	// writeMu serializes heartbeat and event writes. net/http response
+	// writers are not safe for concurrent use, and interleaved writes can
+	// corrupt one SSE frame.
+	writeMu sync.Mutex
 }
 
 // SSEManager 管理SSE连接和事件推送
@@ -136,7 +140,7 @@ func (sm *SSEManager) keepConnectionAlive(conn *SSEConnection) {
 				continue
 			}
 
-			_, err = fmt.Fprintf(conn.Writer, "data: %s\n\n", eventData)
+			err = conn.write([]byte(fmt.Sprintf("data: %s\n\n", eventData)))
 			if err != nil {
 				log.Errorf("SSE心跳发送失败: sessionId=%s, error=%v", conn.SessionID, err)
 				// A replacement may own this session ID now; only remove the
@@ -145,8 +149,6 @@ func (sm *SSEManager) keepConnectionAlive(conn *SSEConnection) {
 				return
 			}
 
-			conn.Flusher.Flush()
-			conn.LastPing = time.Now()
 			log.Debugf("SSE心跳发送成功: sessionId=%s", conn.SessionID)
 		}
 	}
@@ -216,19 +218,29 @@ func (sm *SSEManager) sendEventToConnection(conn *SSEConnection, id string, even
 
 	// 按照SSE规范发送消息
 	// 格式: id: <id>\nevent: <event_type>\ndata: <json_data>\n\n
-	_, err = fmt.Fprintf(conn.Writer, "id: %s\nevent: %s\ndata: %s\n\n",
-		id, eventType, eventData)
-	if err != nil {
+	payload := fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", id, eventType, eventData)
+	if err := conn.write([]byte(payload)); err != nil {
 		log.Errorf("SSE事件发送失败: sessionId=%s, eventType=%s, error=%v", conn.SessionID, eventType, err)
 		return fmt.Errorf("发送事件失败: %v", err)
 	}
 
-	// 刷新缓冲区
-	conn.Flusher.Flush()
-	conn.LastPing = time.Now()
-
 	log.Infof("发送事件: sessionId=%s, eventType=%s", conn.SessionID, eventType)
 	log.Debugf("SSE事件发送成功: sessionId=%s, eventType=%s, eventId=%s", conn.SessionID, eventType, id)
+	return nil
+}
+
+// write serializes writes and flushes the SSE stream. Heartbeat and task
+// events are produced by different goroutines; concurrent ResponseWriter
+// writes can interleave and break an SSE frame.
+func (conn *SSEConnection) write(payload []byte) error {
+	conn.writeMu.Lock()
+	defer conn.writeMu.Unlock()
+
+	if _, err := conn.Writer.Write(payload); err != nil {
+		return err
+	}
+	conn.Flusher.Flush()
+	conn.LastPing = time.Now()
 	return nil
 }
 
