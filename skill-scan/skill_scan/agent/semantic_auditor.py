@@ -45,7 +45,7 @@ from skill_scan.utils.semantic_slicer import (
     extract_capability_baseline,
 )
 
-_DEFAULT_CONCURRENCY = 4
+_DEFAULT_CONCURRENCY = 2
 DEFAULT_HIGH_DRIFT_THRESHOLD = 55
 
 _SURPRISE_SCORE_RE = re.compile(
@@ -569,7 +569,7 @@ async def audit_semantic_chunks(
     )
     return SemanticAuditReport(
         chunks_total=len(chunks),
-        chunks_audited=len(chunks),
+        chunks_audited=len(assessments),
         files_sliced=files_sliced,
         baseline=baseline,
         slice_assessments=assessments,
@@ -584,13 +584,19 @@ async def audit_semantic_files(
     language: str = "zh",
     max_chunks: int | None = None,
     max_chunk_chars: int = DEFAULT_MAX_CHUNK_CHARS,
-    max_concurrency: int = _DEFAULT_CONCURRENCY,
+    max_concurrency: int | None = None,
 ) -> SemanticAuditReport:
     """Slice pure semantic files in *repo_dir* and audit each slice in isolation."""
     budget = (
         max_chunks
         if max_chunks is not None
         else get_env_int("SKILL_SCAN_MAX_SEMANTIC_CHUNKS", DEFAULT_MAX_CHUNKS)
+    )
+    concurrency = max(
+        1,
+        max_concurrency
+        if max_concurrency is not None
+        else get_env_int("SKILL_SCAN_SEMANTIC_CONCURRENCY", _DEFAULT_CONCURRENCY),
     )
     chunks = collect_semantic_chunks(
         repo_dir,
@@ -610,5 +616,5 @@ async def audit_semantic_files(
         chunks,
         language=language,
         baseline=baseline,
-        max_concurrency=max_concurrency,
+        max_concurrency=concurrency,
     )

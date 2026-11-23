@@ -646,11 +646,11 @@ class Agent:
                 vuln_results = [parsed]
         verdict = extract_verdict(audit_result, vuln_results) or "suspicious"
 
-        # If continuous-context Code Audit returned normal despite isolated
-        # semantic-slice findings, surface the slice findings to Verdict Review
-        # so narrative framing cannot silently suppress them.
+        # If continuous-context Code Audit produced no findings (either lulled
+        # into normal by narrative framing or degraded without <vuln> blocks),
+        # surface the isolated semantic-slice findings to Verdict Review.
         rescued_from_semantic_slices = False
-        if verdict == "normal" and semantic_report.slice_findings:
+        if not vuln_results and semantic_report.slice_findings:
             slice_xml = semantic_report.to_vuln_xml()
             slice_vulns = extractor.extract_vulnerabilities(slice_xml)
             if slice_vulns:
