@@ -15,6 +15,7 @@
 package vulstruct
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -401,20 +402,67 @@ func TestGetAdvisories_CaseInsensitive_EmptyVersionPath(t *testing.T) {
 	assert.Empty(t, results)
 }
 
-func TestAdvisoryEngine_RealVulns_MixedCaseRuleIsReachable(t *testing.T) {
+// TestAdvisoryEngine_RealVulns_NameCasingIsIrrelevant is an INTEGRATION test:
+// it loads the shipped data/vuln/vllm rules rather than a fixture, so it is
+// deliberately coupled to that directory's contents.
+//
+// It asserts a property rather than a specific CVE: whatever casing a scan
+// passes in, GetAdvisories must return the same non-empty set. That holds no
+// matter which CVEs are added, removed or re-cased, so re-casing a rule file
+// cannot silently break it.
+//
+// The coupling is made explicit: if the directory ever contains only one
+// spelling of the product name, this test can no longer distinguish a
+// case-insensitive lookup from a case-sensitive one, so it skips with a
+// message instead of passing vacuously. Move it to a fixture at that point.
+func TestAdvisoryEngine_RealVulns_NameCasingIsIrrelevant(t *testing.T) {
+	const dir = "../../data/vuln/vllm"
+
 	ae := NewAdvisoryEngine()
-	require.NoError(t, ae.LoadFromDirectory("../../data/vuln/vllm"))
+	require.NoError(t, ae.LoadFromDirectory(dir))
+
+	spellings := make(map[string]struct{})
+	for _, ad := range ae.ads {
+		if name := strings.TrimSpace(ad.Info.FingerPrintName); name != "" {
+			spellings[name] = struct{}{}
+		}
+	}
+	if len(spellings) < 2 {
+		t.Skipf("%s now uses a single spelling of info.name (%v); "+
+			"this test can no longer prove the lookup folds case -- "+
+			"re-point it at a directory with mixed casing, or use a fixture", dir, spellings)
+	}
 
 	// data/fingerprints/vllm.yaml declares info.name "vllm", so that is the
-	// name a scan passes in. Every rule under data/vuln/vllm must be
-	// reachable with it, however the rule file spells the product.
-	results, err := ae.GetAdvisories("vllm", "0.20.0", true)
-	require.NoError(t, err)
-
-	cves := make(map[string]bool, len(results))
-	for _, r := range results {
-		cves[r.Info.CVEName] = true
+	// name a scan passes in; every rule in the directory must be reachable
+	// with it, however the rule file itself spells the product.
+	cveSet := func(ads []VersionVul) map[string]bool {
+		out := make(map[string]bool, len(ads))
+		for _, ad := range ads {
+			out[ad.Info.CVEName] = true
+		}
+		return out
 	}
-	assert.True(t, cves["CVE-2026-54234"],
-		"CVE-2026-54234 (filed as info.name: vLLM) should be reachable from fingerprint name vllm")
+
+	baseline, err := ae.GetAdvisories("vllm", "", true)
+	require.NoError(t, err)
+	require.NotEmpty(t, baseline, "fingerprint name %q must reach the rules in %s", "vllm", dir)
+	want := cveSet(baseline)
+
+	// Every rule in the directory, under every spelling it uses, is reachable
+	// from the single name the fingerprint declares.
+	require.Len(t, want, len(ae.ads), "every loaded rule should be returned")
+
+	for spelling := range spellings {
+		results, err := ae.GetAdvisories(spelling, "", true)
+		require.NoError(t, err)
+		assert.Equal(t, want, cveSet(results),
+			"querying with %q must return the same advisories as %q", spelling, "vllm")
+	}
+
+	for _, variant := range []string{"VLLM", "Vllm", "vLlM"} {
+		results, err := ae.GetAdvisories(variant, "", true)
+		require.NoError(t, err)
+		assert.Equal(t, want, cveSet(results), "casing %q must not change the result", variant)
+	}
 }
