@@ -550,7 +550,9 @@ func (am *AgentManager) GetAvailableAgents() []*AgentConnection {
 	var availableAgents []*AgentConnection
 	for _, conn := range am.connections {
 		conn.stateMu.RLock()
-		if conn.isActive {
+		// A freshly opened WebSocket is active before it sends register; it
+		// has no agent ID yet and must not receive a task in that window.
+		if conn.isActive && conn.agentID != "" {
 			availableAgents = append(availableAgents, conn)
 		}
 		conn.stateMu.RUnlock()
