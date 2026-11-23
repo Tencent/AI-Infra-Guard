@@ -22,6 +22,11 @@ import time
 from typing import Any
 
 from skill_scan.agent.base_agent import BaseAgent
+from skill_scan.agent.semantic_auditor import (
+    SemanticAuditReport,
+    audit_semantic_files,
+    is_semantic_slicing_enabled,
+)
 from skill_scan.tools.dispatcher import ToolDispatcher
 from skill_scan.utils.aig_logger import mcpLogger
 from skill_scan.utils.extract_vuln import (
@@ -478,15 +483,29 @@ class Agent:
         debug: bool = False,
         language: str = "zh",
         aig_mode: bool = False,
+        enable_semantic_slicing: bool | None = None,
     ):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
         self.language = language
         self.aig_mode = aig_mode
+        self.enable_semantic_slicing = (
+            is_semantic_slicing_enabled()
+            if enable_semantic_slicing is None
+            else enable_semantic_slicing
+        )
         self.last_verdict: str | None = None
         self.dispatcher = ToolDispatcher()
         self.pipeline = ScanPipeline(self)
+
+    async def _run_semantic_slice_audit(
+        self, repo_dir: str, language: str
+    ) -> SemanticAuditReport:
+        """Audit pure semantic files as isolated slices to resist framing."""
+        if not self.enable_semantic_slicing:
+            return SemanticAuditReport()
+        return await audit_semantic_files(self.llm, repo_dir, language=language)
 
     async def scan(self, repo_dir: str, prompt: str, language: str = "zh") -> dict:
         """Security audit pipeline.
@@ -588,6 +607,18 @@ class Agent:
                 + _VULN_XML_FORMAT_ZH
             )
 
+        semantic_report = await self._run_semantic_slice_audit(repo_dir, language)
+        semantic_hints = semantic_report.to_prompt_hints(language)
+        stage1_context = (
+            {
+                "Isolated Semantic Slice Findings"
+                if language == "en"
+                else "去语境化语义切片审计线索": semantic_hints
+            }
+            if semantic_hints
+            else None
+        )
+
         audit_result = await self.pipeline.execute_stage(
             ScanStage(
                 "1",
@@ -599,6 +630,7 @@ class Agent:
             ),
             repo_dir,
             prompt,
+            stage1_context,
             inject_repo_tree=True,
             inject_pre_scan=True,
         )
@@ -614,10 +646,30 @@ class Agent:
                 vuln_results = [parsed]
         verdict = extract_verdict(audit_result, vuln_results) or "suspicious"
 
+        # If continuous-context Code Audit returned normal despite isolated
+        # semantic-slice findings, surface the slice findings to Verdict Review
+        # so narrative framing cannot silently suppress them.
+        rescued_from_semantic_slices = False
+        if verdict == "normal" and semantic_report.slice_findings:
+            slice_xml = semantic_report.to_vuln_xml()
+            slice_vulns = extractor.extract_vulnerabilities(slice_xml)
+            if slice_vulns:
+                audit_result = slice_xml
+                vuln_results = slice_vulns
+                verdict = semantic_report.highest_verdict
+                rescued_from_semantic_slices = True
+
         # A suspicious first-pass verdict is the ambiguous boundary with the
         # most false positives. Run a focused evidence adjudication only for
         # this class; normal and clearly malicious results keep the fast path.
-        if verdict == "suspicious":
+        if verdict == "suspicious" or rescued_from_semantic_slices:
+            review_context = {"Draft audit report": audit_result}
+            if semantic_hints:
+                review_context[
+                    "Isolated Semantic Slice Findings"
+                    if language == "en"
+                    else "去语境化语义切片审计线索"
+                ] = semantic_hints
             review_result = await self.pipeline.execute_stage(
                 ScanStage(
                     "2",
@@ -632,7 +684,7 @@ class Agent:
                 ),
                 repo_dir,
                 prompt,
-                {"Draft audit report": audit_result},
+                review_context,
                 inject_repo_tree=True,
                 inject_pre_scan=True,
             )
@@ -711,12 +763,19 @@ class Agent:
         )
 
         # Stage 2: Code Audit -- reuses the SkillTrustBench T01-T09 core
+        semantic_report = await self._run_semantic_slice_audit(repo_dir, language)
+        semantic_hints = semantic_report.to_prompt_hints(language)
         if language == "en":
             audit_ret_format = _OUTPUT_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
             stage2_name = "Code Audit"
+            semantic_key = "Isolated Semantic Slice Findings"
         else:
             audit_ret_format = _OUTPUT_FORMAT
             stage2_name = "代码审计"
+            semantic_key = "去语境化语义切片审计线索"
+        stage2_context = {ctx_key1: info_collection}
+        if semantic_hints:
+            stage2_context[semantic_key] = semantic_hints
         code_audit = await self.pipeline.execute_stage(
             ScanStage(
                 "2",
@@ -727,7 +786,7 @@ class Agent:
             ),
             repo_dir,
             prompt,
-            {ctx_key1: info_collection},
+            stage2_context,
             inject_repo_tree=True,
             inject_pre_scan=True,
         )
@@ -741,6 +800,9 @@ class Agent:
             review_format = _VULN_XML_FORMAT_ZH
             stage3_name = "漏洞整理"
             ctx_key3 = "代码审计报告"
+        stage3_context = {ctx_key3: code_audit}
+        if semantic_hints:
+            stage3_context[semantic_key] = semantic_hints
         vuln_review = await self.pipeline.execute_stage(
             ScanStage(
                 "3",
@@ -752,7 +814,7 @@ class Agent:
             ),
             repo_dir,
             prompt,
-            {ctx_key3: code_audit},
+            stage3_context,
         )
 
         # Extract results + compute score
