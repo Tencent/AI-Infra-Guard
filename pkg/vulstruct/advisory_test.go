@@ -15,6 +15,7 @@
 package vulstruct
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -334,4 +335,134 @@ func TestGetAdvisories_IsInternal_Flag(t *testing.T) {
 	results, err = ae.GetAdvisories("testpkg_int", "4.0.0", false)
 	require.NoError(t, err)
 	assert.Empty(t, results, "external scan should NOT match isInternal==true rule")
+}
+
+// ---------------------------------------------------------------------------
+// Package-name matching is case-insensitive
+// ---------------------------------------------------------------------------
+
+// Rule files and fingerprint files come from different sources (hand-written
+// rules, bulk NVD imports), so the same product is spelled with different
+// casing across data/vuln and data/fingerprints — "vLLM" vs "vllm",
+// "Flowise" vs "flowise". GetAdvisories is called with the *fingerprint*
+// name, so a case-sensitive compare silently drops those rules: the scan
+// reports the component and none of its CVEs.
+var vllmMixedCaseVulnYAML = []byte(`
+info:
+  name: vLLM
+  cve: CVE-2026-54234
+  summary: vLLM vulnerability filed under the NVD product casing
+  severity: HIGH
+rule: version >= "0.17.1" && version < "0.24.0"
+references: []
+`)
+
+func TestGetAdvisories_PackageNameCaseInsensitive(t *testing.T) {
+	ae := newEngineFromYAMLs(t, vllmMixedCaseVulnYAML)
+
+	cases := []struct {
+		packageName string
+		wantHit     bool
+		desc        string
+	}{
+		{"vllm", true, "fingerprint casing (lowercase)"},
+		{"vLLM", true, "rule casing (as written in the rule file)"},
+		{"VLLM", true, "all uppercase"},
+		{"Vllm", true, "title case"},
+		{"vllm-project", false, "different product with a shared prefix"},
+		{"llm", false, "substring of the product name"},
+		{"", false, "empty package name"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			results, err := ae.GetAdvisories(tc.packageName, "0.20.0", true)
+			require.NoError(t, err)
+			if tc.wantHit {
+				require.Len(t, results, 1, "expected a match for package name %q", tc.packageName)
+				assert.Equal(t, "CVE-2026-54234", results[0].Info.CVEName)
+			} else {
+				assert.Empty(t, results, "expected no match for package name %q", tc.packageName)
+			}
+		})
+	}
+}
+
+func TestGetAdvisories_CaseInsensitive_EmptyVersionPath(t *testing.T) {
+	ae := newEngineFromYAMLs(t, vllmMixedCaseVulnYAML)
+
+	// The version == "" branch skips rule evaluation; it must apply the same
+	// name comparison as the rule-evaluating branch.
+	results, err := ae.GetAdvisories("vllm", "", true)
+	require.NoError(t, err)
+	assert.Len(t, results, 1)
+
+	results, err = ae.GetAdvisories("not-vllm", "", true)
+	require.NoError(t, err)
+	assert.Empty(t, results)
+}
+
+// TestAdvisoryEngine_RealVulns_NameCasingIsIrrelevant is an INTEGRATION test:
+// it loads the shipped data/vuln/vllm rules rather than a fixture, so it is
+// deliberately coupled to that directory's contents.
+//
+// It asserts a property rather than a specific CVE: whatever casing a scan
+// passes in, GetAdvisories must return the same non-empty set. That holds no
+// matter which CVEs are added, removed or re-cased, so re-casing a rule file
+// cannot silently break it.
+//
+// The coupling is made explicit: if the directory ever contains only one
+// spelling of the product name, this test can no longer distinguish a
+// case-insensitive lookup from a case-sensitive one, so it skips with a
+// message instead of passing vacuously. Move it to a fixture at that point.
+func TestAdvisoryEngine_RealVulns_NameCasingIsIrrelevant(t *testing.T) {
+	const dir = "../../data/vuln/vllm"
+
+	ae := NewAdvisoryEngine()
+	require.NoError(t, ae.LoadFromDirectory(dir))
+
+	spellings := make(map[string]struct{})
+	for _, ad := range ae.ads {
+		if name := strings.TrimSpace(ad.Info.FingerPrintName); name != "" {
+			spellings[name] = struct{}{}
+		}
+	}
+	if len(spellings) < 2 {
+		t.Skipf("%s now uses a single spelling of info.name (%v); "+
+			"this test can no longer prove the lookup folds case -- "+
+			"re-point it at a directory with mixed casing, or use a fixture", dir, spellings)
+	}
+
+	// data/fingerprints/vllm.yaml declares info.name "vllm", so that is the
+	// name a scan passes in; every rule in the directory must be reachable
+	// with it, however the rule file itself spells the product.
+	cveSet := func(ads []VersionVul) map[string]bool {
+		out := make(map[string]bool, len(ads))
+		for _, ad := range ads {
+			out[ad.Info.CVEName] = true
+		}
+		return out
+	}
+
+	baseline, err := ae.GetAdvisories("vllm", "", true)
+	require.NoError(t, err)
+	require.NotEmpty(t, baseline, "fingerprint name %q must reach the rules in %s", "vllm", dir)
+	want := cveSet(baseline)
+
+	// Every rule in the directory, under every spelling it uses, is reachable
+	// from the single name the fingerprint declares.
+	require.Len(t, want, len(ae.ads), "every loaded rule should be returned")
+
+	for spelling := range spellings {
+		results, err := ae.GetAdvisories(spelling, "", true)
+		require.NoError(t, err)
+		assert.Equal(t, want, cveSet(results),
+			"querying with %q must return the same advisories as %q", spelling, "vllm")
+	}
+
+	for _, variant := range []string{"VLLM", "Vllm", "vLlM"} {
+		results, err := ae.GetAdvisories(variant, "", true)
+		require.NoError(t, err)
+		assert.Equal(t, want, cveSet(results), "casing %q must not change the result", variant)
+	}
 }

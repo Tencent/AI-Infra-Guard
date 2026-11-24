@@ -93,10 +93,15 @@ func (ae *AdvisoryEngine) LoadFromHost(host string, lang string) error {
 // PackageName: 需要检查的包名
 // version: 需要检查的版本号
 // 返回: 匹配的漏洞建议列表和可能的错误
+//
+// 包名按大小写不敏感比较：规则库中的 info.name 与指纹库中的 info.name 多由
+// 不同来源（NVD 批量导入、人工编写）产生，大小写并不统一（如 "vLLM" 与
+// "vllm"、"Flowise" 与 "flowise"）。若按大小写敏感匹配，这类规则永远无法命中，
+// 扫描会在识别出组件的同时漏报其 CVE。
 func (ae *AdvisoryEngine) GetAdvisories(packageName, version string, isInternal bool) ([]VersionVul, error) {
 	ret := make([]VersionVul, 0)
 	for _, ad := range ae.ads {
-		if ad.Info.FingerPrintName != packageName {
+		if !strings.EqualFold(ad.Info.FingerPrintName, packageName) {
 			continue
 		}
 		if version != "" && ad.Rule != "" {
