@@ -1378,13 +1378,15 @@ class AIProviderClient:
 
     def _apply_transform(self, raw_response: Any, expression: str) -> Optional[str]:
         """Apply transform expression to extract data from response."""
-        import re
-
         expression = expression.strip()
 
-        # Remove common prefixes
+        # Remove common prefixes. A path that resolves as written wins, so a
+        # body such as {"data": {"text": "..."}} still works with "data.text".
         for prefix in ["response.", "json.", "data."]:
             if expression.lower().startswith(prefix):
+                literal = self._walk_transform_path(raw_response, expression)
+                if literal is not None:
+                    return literal
                 expression = expression[len(prefix):]
                 break
 
@@ -1392,6 +1394,12 @@ class AIProviderClient:
             if isinstance(raw_response, str):
                 return raw_response
             return json.dumps(raw_response, ensure_ascii=False) if raw_response else None
+
+        return self._walk_transform_path(raw_response, expression)
+
+    def _walk_transform_path(self, raw_response: Any, expression: str) -> Optional[str]:
+        """Follow a dotted/indexed path such as ``a.b[0].c`` through a parsed response."""
+        import re
 
         try:
             current = raw_response
