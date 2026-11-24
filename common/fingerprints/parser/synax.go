@@ -88,8 +88,46 @@ func TransFormExp(tokens []Token) (*Rule, error) {
 	return &Rule{root: root}, nil
 }
 
-// parseExpr 解析表达式
+// parseExpr 解析表达式，按运算符优先级结合："&&" 的优先级高于 "||"。
+//
+// 这与文档中 "() 分组改变优先级" 的约定一致：不加括号时 "&&" 先结合，
+// 括号才用于改变这一默认结合方式。
+//
+// 此前这里是一个忽略优先级的左折叠，`A || B && C` 会被解析成
+// `(A || B) && C`，使整条规则被末尾的 "&&" 支配。对 CVE 规则而言
+// 后果是漏报：一条由多个版本区间 "||" 起来的规则，只要最后一段写成
+// 不带括号的 "&&"，落在前面区间内的版本就不再命中。
 func parseExpr(stream *tokenStream) (Exp, error) {
+	return parseOrExpr(stream)
+}
+
+// parseOrExpr 解析 "||" 层级，左结合；其操作数为 "&&" 层级的表达式。
+func parseOrExpr(stream *tokenStream) (Exp, error) {
+	expr, err := parseAndExpr(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	for stream.hasNext() {
+		token, err := stream.next()
+		if err != nil {
+			return nil, err
+		}
+		if token.name != tokenOr {
+			stream.rewind()
+			break
+		}
+		right, err := parseAndExpr(stream)
+		if err != nil {
+			return nil, err
+		}
+		expr = &logicExp{op: token.content, left: expr, right: right}
+	}
+	return expr, nil
+}
+
+// parseAndExpr 解析 "&&" 层级，左结合；其操作数为基础表达式或括号表达式。
+func parseAndExpr(stream *tokenStream) (Exp, error) {
 	expr, err := parsePrimaryExpr(stream)
 	if err != nil {
 		return nil, err
@@ -100,21 +138,15 @@ func parseExpr(stream *tokenStream) (Exp, error) {
 		if err != nil {
 			return nil, err
 		}
-		if token.name == tokenAnd || token.name == tokenOr {
-			right, err := parsePrimaryExpr(stream)
-			if err != nil {
-				return nil, err
-			}
-			// 提高括号表达式的优先级
-			if _, ok := right.(*bracketExp); ok {
-				expr = &logicExp{op: token.content, left: right, right: expr}
-			} else {
-				expr = &logicExp{op: token.content, left: expr, right: right}
-			}
-		} else {
+		if token.name != tokenAnd {
 			stream.rewind()
 			break
 		}
+		right, err := parsePrimaryExpr(stream)
+		if err != nil {
+			return nil, err
+		}
+		expr = &logicExp{op: token.content, left: expr, right: right}
 	}
 	return expr, nil
 }
