@@ -23,7 +23,7 @@ import os
 import difflib
 from pathlib import Path
 from typing import Optional, List, Tuple, Generator
-from agent_scan.utils.path_utils import should_ignore_path, IGNORE_DIRECTORIES
+from agent_scan.utils.path_utils import IGNORE_DIRECTORIES, is_path_within
 
 
 # 常见二进制文件扩展名
@@ -184,13 +184,18 @@ def render_directory_tree(
     Returns:
         (树形字符串, 文件计数, 是否被截断)
     """
+    if not root_path or not os.path.isdir(root_path):
+        return "", 0, False
+
     ignore = IGNORE_DIRECTORIES.copy()
     if ignore_patterns:
         ignore.update(ignore_patterns)
     
+    real_root = os.path.realpath(root_path)
+    visited_dirs = {real_root}
     file_count = 0
     truncated = False
-    lines = [f"{os.path.basename(root_path) or root_path}/"]
+    lines = [f"{os.path.basename(real_root) or real_root}/"]
     
     def walk(path: str, prefix: str = "", depth: int = 0):
         nonlocal file_count, truncated
@@ -214,7 +219,12 @@ def render_directory_tree(
             if entry in ignore or entry.startswith('.'):
                 continue
             full_path = os.path.join(path, entry)
+            if not is_path_within(full_path, real_root):
+                continue
             if os.path.isdir(full_path):
+                real_dir = os.path.realpath(full_path)
+                if real_dir in visited_dirs:
+                    continue
                 dirs.append(entry)
             else:
                 files.append(entry)
@@ -231,6 +241,8 @@ def render_directory_tree(
             full_path = os.path.join(path, entry)
             
             if os.path.isdir(full_path):
+                real_dir = os.path.realpath(full_path)
+                visited_dirs.add(real_dir)
                 lines.append(f"{prefix}{connector}{entry}/")
                 extension = "    " if is_last else "│   "
                 walk(full_path, prefix + extension, depth + 1)
@@ -238,9 +250,33 @@ def render_directory_tree(
                 lines.append(f"{prefix}{connector}{entry}")
                 file_count += 1
     
-    walk(root_path)
+    walk(real_root)
     
     return '\n'.join(lines), file_count, truncated
+
+
+def read_text_with_fallback(path: str) -> tuple[str, str]:
+    """Decode text file safely, trying UTF-8 before common fallbacks."""
+    with open(path, 'rb') as f:
+        raw = f.read()
+
+    for encoding in ('utf-8-sig', 'utf-8', 'gb18030'):
+        try:
+            return raw.decode(encoding), encoding
+        except UnicodeDecodeError:
+            continue
+
+    return raw.decode('utf-8', errors='replace'), 'utf-8-replace'
+
+
+def _truncate_line_to_utf8_bytes(line: str, max_bytes: int) -> str:
+    """Truncate *line* so its UTF-8 encoding fits within *max_bytes*."""
+    if max_bytes <= 0:
+        return ""
+    if max_bytes > 3:
+        clipped = line.encode('utf-8')[: max_bytes - 3].decode('utf-8', errors='ignore')
+        return f"{clipped}..."
+    return line.encode('utf-8')[:max_bytes].decode('utf-8', errors='ignore')
 
 
 def read_file_with_lines(
@@ -263,8 +299,8 @@ def read_file_with_lines(
     Returns:
         (带行号的行列表, 总行数, 是否有更多行, 是否因字节限制截断)
     """
-    with open(path, 'r', encoding='utf-8') as f:
-        all_lines = f.readlines()
+    text, _ = read_text_with_fallback(path)
+    all_lines = text.splitlines(keepends=True)
     
     total_lines = len(all_lines)
     result = []
@@ -281,6 +317,10 @@ def read_file_with_lines(
         line_size = len(line.encode('utf-8')) + 1
         
         if bytes_count + line_size > max_bytes:
+            if not result and max_bytes > 0:
+                clipped = _truncate_line_to_utf8_bytes(line, max(0, max_bytes - 1))
+                line_num = str(i + 1).zfill(5)
+                result.append(f"{line_num}| {clipped}")
             truncated_by_bytes = True
             break
         

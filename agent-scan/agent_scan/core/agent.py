@@ -32,6 +32,7 @@ The top-level entry point is :class:`Agent`.  Internally it delegates to
 """
 
 import asyncio
+import os
 import re
 import time
 from typing import Any, Dict, List, Optional, Tuple
@@ -41,7 +42,9 @@ from agent_scan.core.agent_adapter.adapter import AIProviderClient, ProviderOpti
 from agent_scan.core.base_agent import run_agent
 from agent_scan.core.report import generate_report_from_xml
 from agent_scan.utils.aig_logger import scanLogger
+from agent_scan.utils.file_utils import render_directory_tree
 from agent_scan.utils.logging import logger
+from agent_scan.utils.path_utils import normalize_path
 from agent_scan.utils.project_analyzer import analyze_language, get_top_language
 from agent_scan.utils.prompt_manager import prompt_manager
 
@@ -384,14 +387,30 @@ class Agent:
         start_time = time.time()
         total_dialogue_count = 0
 
+        normalized_repo = normalize_path(repo_dir) if repo_dir else ""
+        if normalized_repo and not os.path.isdir(normalized_repo):
+            raise ValueError(f"Repository directory does not exist: {repo_dir}")
+
+        stage1_context: dict[str, Any] = {}
+        if normalized_repo:
+            tree_text, file_count, truncated = render_directory_tree(
+                normalized_repo, max_depth=4, max_files=120
+            )
+            if tree_text:
+                suffix = "\n(truncated)" if truncated else ""
+                stage1_context["Repository Directory Tree"] = (
+                    f"{tree_text}\n[{file_count} file(s) shown]{suffix}"
+                )
+
         # ------------------------------------------------------------------
         # Stage 1 — Info Collection
         # ------------------------------------------------------------------
         info_collection, info_stats = await self.pipeline.execute_stage(
             stage=ScanStage("1", "Info Collection", "project_summary", language=self.language),
-            repo_dir=repo_dir,
+            repo_dir=normalized_repo,
             prompt=prompt,
             agent_provider=self.agent_provider,
+            context_data=stage1_context or None,
         )
         total_dialogue_count += info_stats.get("dialogue", 0)
         logger.info(f"Stage 1 complete.  Dialogue calls: {info_stats.get('dialogue', 0)}.")
@@ -401,7 +420,7 @@ class Agent:
         # ------------------------------------------------------------------
         vuln_detection, vuln_stats = await self.pipeline.run_parallel_detection(
             recon_report=info_collection,
-            repo_dir=repo_dir,
+            repo_dir=normalized_repo,
             prompt=prompt,
             agent_provider=self.agent_provider,
         )
@@ -413,7 +432,7 @@ class Agent:
         # ------------------------------------------------------------------
         vuln_review, _review_stats = await self.pipeline.execute_stage(
             stage=ScanStage("3", "Vulnerability Review", "agent_security_reviewer", language=self.language),
-            repo_dir=repo_dir,
+            repo_dir=normalized_repo,
             prompt=prompt,
             agent_provider=self.agent_provider,
             context_data={"Vulnerability Detection Report": vuln_detection},
@@ -426,7 +445,7 @@ class Agent:
         elapsed_minutes = (end_time - start_time) / 60
         logger.info(f"Scan complete.  Total elapsed time: {elapsed_minutes:.2f} min.")
 
-        lang_stats = analyze_language(repo_dir)
+        lang_stats = analyze_language(normalized_repo)
         top_language = get_top_language(lang_stats)
 
         agent_type = ""

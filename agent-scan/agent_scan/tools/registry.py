@@ -150,15 +150,21 @@ def should_execute_in_sandbox(tool_name: str) -> bool:
     return True
 
 
-def get_tools_prompt(tool_list: list = []) -> str:
+def get_tools_prompt(
+    tool_list: list = [],
+    exclude_tools: set[str] | None = None,
+) -> str:
+    excluded = {name.lower() for name in (exclude_tools or set())}
     selected_tools = []
     if len(tool_list) != 0:
         for tool in tools:
-            name = tool.get('name')
-            if name in tool_list:
+            name = tool.get("name", "")
+            if name in tool_list and name.lower() not in excluded:
                 selected_tools.append(tool)
     else:
-        selected_tools = tools
+        selected_tools = [
+            tool for tool in tools if tool.get("name", "").lower() not in excluded
+        ]
 
     tools_by_module: dict[str, list[dict[str, Any]]] = {}
 
@@ -170,7 +176,9 @@ def get_tools_prompt(tool_list: list = []) -> str:
 
     xml_sections = []
     for module, module_tools in sorted(tools_by_module.items()):
-        tag_name = f"tools"
+        if not module_tools:
+            continue
+        tag_name = "tools"
         section_parts = [f"<{tag_name}>"]
         for tool in module_tools:
             tool_xml = tool.get("xml_schema", "")

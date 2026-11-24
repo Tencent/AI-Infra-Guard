@@ -89,6 +89,7 @@ packages = { find = { include = ["agent_scan*"] } }
 "agent_scan.tools" = ["*.xml"]
 "agent_scan.tools.batch" = ["*.xml"]
 "agent_scan.tools.dialogue" = ["*.xml"]
+"agent_scan.tools.file" = ["*.xml"]
 "agent_scan.tools.finish" = ["*.xml"]
 "agent_scan.tools.skill" = ["*.xml"]
 "agent_scan.tools.task" = ["*.xml"]

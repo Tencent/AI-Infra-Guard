@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="ls">
+  <description>
+    List immediate files and subdirectories under a directory in the configured target repository (--repo).
+  </description>
+  <details>
+    Lists one directory level (non-recursive) inside the repository root and hides ignored build/cache directories.
+  </details>
+  <parameters>
+    <parameter name="path" type="string" required="false">
+      Relative or absolute directory path inside the repository (defaults to ".").
+    </parameter>
+  </parameters>
+  <returns>
+    <return type="Dict[str, Any]">
+      Dictionary with success, path, count, and newline-separated entries.
+    </return>
+  </returns>
+</tool>
+</tools>

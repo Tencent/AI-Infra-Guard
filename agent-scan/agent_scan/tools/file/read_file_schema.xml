@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+<tool name="read_file">
+  <description>
+    Read text file contents with 1-based line numbers from the configured target repository (--repo).
+    Use this tool to inspect agent system prompts, tool definitions, endpoint handlers, auth middleware,
+    and dangerous sinks before or alongside dialogue() probing.
+  </description>
+  <details>
+    Important notes:
+    - Only works when --repo is configured; paths are restricted inside the repository root
+    - Binary files are skipped
+    - Default budget is max_lines=400 and max_chars=16000; pass start_line to read further ranges
+    - Supports paths relative to the repository root or absolute paths within it
+  </details>
+  <parameters>
+    <parameter name="file_path" type="string" required="true">
+      Relative or absolute path to the file inside the repository.
+    </parameter>
+    <parameter name="start_line" type="integer" required="false">
+      1-based starting line number (default 1).
+    </parameter>
+    <parameter name="max_lines" type="integer" required="false">
+      Maximum lines to return (default 400).
+    </parameter>
+    <parameter name="max_chars" type="integer" required="false">
+      Maximum characters/bytes budget to return (default 16000).
+    </parameter>
+  </parameters>
+  <returns>
+    <return type="Dict[str, Any]">
+      Dictionary with success, path, start_line, end_line, total_lines, truncated, content, and optional summary_hint.
+    </return>
+  </returns>
+</tool>
+</tools>
