@@ -215,6 +215,12 @@ class OpenaiAlikeModel(BaseLLM):
     # 限流专用退避：QPM 窗口通常为 60s，短退避会在窗口内反复撞墙浪费配额，
     # 故限流场景以 8s 起步并指数递增（8/16/32/60），普通错误仍用 base_wait_seconds
     rate_limit_base_wait_seconds = 8.0
+    # 单请求硬超时（秒）。内网模型排队时请求会长时间不回包，旧实现依赖 openai SDK
+    # 默认的 600s 超时 + 2 次内部重试，单次调用最长可静默约 30 分钟；在此期间上层的
+    # max_trial 退避与限流熔断拿不到任何信号，任务表现为一直 running、进度冻结（#665）。
+    request_timeout_seconds = 120.0
+    # SDK 内部重试置 0：重试策略统一由本类的 max_trial 退避负责，避免两层重试叠加
+    http_max_retries = 0
 
     def __init__(self, model_name: str, base_url: str, api_key: str, max_concurrent: int, *args, **kwargs):
         super().__init__(model_name, base_url, api_key, max_concurrent, *args, **kwargs)
@@ -245,14 +251,32 @@ class OpenaiAlikeModel(BaseLLM):
         with self._get_rate_limit_lock():
             return getattr(self, "_consecutive_rate_limit_failures", 0)
 
+    def _request_timeout(self) -> float:
+        """读取单请求超时（绕过 __init__ 构造的实例上回落到类默认值）"""
+        return float(getattr(self, "request_timeout_seconds", type(self).request_timeout_seconds))
+
+    def _http_max_retries(self) -> int:
+        """读取 SDK 内部重试次数（同上）"""
+        return int(getattr(self, "http_max_retries", type(self).http_max_retries))
+
     def reset_rate_limit_failures(self):
         """成功响应后清零连续限流失败计数"""
         with self._get_rate_limit_lock():
             self._consecutive_rate_limit_failures = 0
     
     def load_model(self):
-        self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
-        self.async_client = AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
+        self.client = OpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key,
+            timeout=self._request_timeout(),
+            max_retries=self._http_max_retries(),
+        )
+        self.async_client = AsyncOpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key,
+            timeout=self._request_timeout(),
+            max_retries=self._http_max_retries(),
+        )
         self.default_params = {
             "reasoning_effort": "low",
             "frequency_penalty": 1.0,
@@ -351,10 +375,15 @@ class OpenaiAlikeModel(BaseLLM):
                     else:
                         raise ValueError("prompt and messages cannot both be empty")
                     
-                    response = await self.async_client.chat.completions.create(
-                        model=self.model_name,
-                        messages=_messages,
-                        **self.default_params
+                    # 看门狗：即使底层 transport/网关不按 httpx 超时返回，
+                    # 也强制在 request_timeout_seconds 内放弃本次请求
+                    response = await asyncio.wait_for(
+                        self.async_client.chat.completions.create(
+                            model=self.model_name,
+                            messages=_messages,
+                            **self.default_params
+                        ),
+                        timeout=self._request_timeout(),
                     )
                     content = response.choices[0].message.content
                     if not isinstance(content, str):

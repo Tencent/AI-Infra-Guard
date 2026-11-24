@@ -409,3 +409,76 @@ def test_describe_probe_shows_404_and_hides_the_key():
     assert "gpt-4o-mini" in packet["request"]
     assert "HTTP/1.1 404 Not Found" in packet["response"]
     assert "no route" in packet["response"]
+
+
+# ---------------------------------------------------------------------------
+# 请求超时（#665：内网模型排队时不回包，任务永久 running）
+# ---------------------------------------------------------------------------
+
+import threading  # noqa: E402
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer  # noqa: E402
+
+
+class _HangHandler(BaseHTTPRequestHandler):
+    """接受连接、读完请求体后不回包，模拟内网模型排队导致的长时间挂起"""
+
+    protocol_version = "HTTP/1.1"
+
+    def do_POST(self):  # noqa: N802  (BaseHTTPRequestHandler 约定的方法名)
+        length = int(self.headers.get("Content-Length") or 0)
+        if length:
+            self.rfile.read(length)
+        time.sleep(30)  # 远大于被测的超时时间
+
+    def log_message(self, *args):  # 静音
+        pass
+
+
+def _start_hang_server():
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _HangHandler)
+    srv.daemon_threads = True
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
+def test_generate_times_out_on_hung_endpoint():
+    """不回包的端点上，generate() 必须在有限时间内放弃，而不是挂满 SDK 默认超时
+
+    现状（#665）：客户端未设置 timeout，openai SDK 默认 600s + 2 次内部重试，
+    单次调用最长可静默约 30 分钟，上层退避/熔断完全收不到信号。
+    """
+    srv = _start_hang_server()
+    try:
+        port = srv.server_address[1]
+        m = OpenaiAlikeModel(
+            model_name="fake",
+            base_url=f"http://127.0.0.1:{port}/v1",
+            api_key="sk-fake",
+            max_concurrent=1,
+        )
+        m.max_trial = 2
+        m.base_wait_seconds = 0.01
+        m.max_wait_seconds = 0.01
+        # 修复后由 load_model() 读取；main 上该属性不被使用，所以本用例在 main 上会挂住
+        m.request_timeout_seconds = 0.5
+        m.load_model()  # 用测试超时重建客户端（load_model 在 __init__ 里已执行过一次）
+
+        result = {}
+
+        def _run():
+            result["out"] = m.generate(prompt="hi")
+
+        worker = threading.Thread(target=_run, daemon=True)
+        start = time.monotonic()
+        worker.start()
+        worker.join(8.0)
+        elapsed = time.monotonic() - start
+
+        assert not worker.is_alive(), (
+            f"generate() 未超时返回，已阻塞 {elapsed:.1f}s（#665 的挂起现象）"
+        )
+        assert result.get("out") == ""
+        assert elapsed < 6.0, f"放弃耗时 {elapsed:.1f}s 超出预期"
+    finally:
+        srv.shutdown()
+        srv.server_close()
