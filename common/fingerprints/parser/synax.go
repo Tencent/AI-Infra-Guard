@@ -152,7 +152,9 @@ func parsePrimaryExpr(stream *tokenStream) (Exp, error) {
 		// 正则缓存对象
 		var dsl dslExp
 		if p2.name == tokenRegexEqual {
-			compile, err := regexp.Compile(p3.content)
+			// Eval lowercases the haystack, so the whole pattern must be case-insensitive.
+			// "(?i)" is a global flag: a pattern cannot mix case-sensitive and case-insensitive parts.
+			compile, err := regexp.Compile("(?i)" + p3.content)
 			if err != nil {
 				gologger.WithError(err).WithField("regex", p3.content).Errorln("指纹规则 正则编译失败")
 				return nil, err
