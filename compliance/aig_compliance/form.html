@@ -1164,6 +1164,31 @@ async function poll() {
   }
   timer = window.setTimeout(poll, 400);
 }
+function showProgress() {
+  resetProgress();
+  form.classList.add("hidden");
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("history").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("progress").classList.remove("hidden");
+  poll();
+}
+
+async function restoreProgress() {
+  const button = document.getElementById("go");
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/status");
+    if (!response.ok) return;
+    const data = await response.json();
+    if (data.running) showProgress();
+  } catch (error) {
+    console.warn("无法恢复检测进度，请刷新重试。", error);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 document.getElementById("go").addEventListener("click", async () => {
   const slot = document.getElementById("confirm-error");
   slot.textContent = "";
@@ -1177,14 +1202,11 @@ document.getElementById("go").addEventListener("click", async () => {
     slot.textContent = data.error || "没有开始";
     return;
   }
-  resetProgress();
-  document.getElementById("confirm").classList.add("hidden");
-  document.getElementById("history").classList.add("hidden");
-  document.getElementById("progress").classList.remove("hidden");
-  poll();
+  showProgress();
 });
 document.getElementById("progress-home").addEventListener("click", showHome);
 document.getElementById("stop").addEventListener("click", () => { fetch("/api/cancel", {method: "POST"}); });
+restoreProgress();
 </script>
 </body>
 </html>
