@@ -663,7 +663,25 @@ class Agent:
         # most false positives. Run a focused evidence adjudication only for
         # this class; normal and clearly malicious results keep the fast path.
         if verdict == "suspicious" or rescued_from_semantic_slices:
-            review_context = {"Draft audit report": audit_result}
+            draft_for_review = audit_result
+            if rescued_from_semantic_slices:
+                stripped_draft = _strip_internal_verdict(audit_result)
+                if language == "en":
+                    draft_for_review = (
+                        "[Rescued from Isolated Semantic Slice Audit — continuous Code Audit "
+                        "produced no findings; treat these slice <vuln> items strictly as "
+                        "unverified draft leads and adjudicate independently against full-file "
+                        "context]\n"
+                        f"{stripped_draft}"
+                    )
+                else:
+                    draft_for_review = (
+                        "[隔离语义切片审计救援草稿——连续代码审计未检出风险；"
+                        "请仅将以下切片 <vuln> 条目视为未经全文验证的候选线索，"
+                        "对照项目完整上下文独立裁决]\n"
+                        f"{stripped_draft}"
+                    )
+            review_context = {"Draft audit report": draft_for_review}
             if semantic_hints:
                 review_context[
                     "Isolated Semantic Slice Findings"

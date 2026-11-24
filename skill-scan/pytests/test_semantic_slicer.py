@@ -310,7 +310,11 @@ def test_single_stage_rescues_malicious_semantic_slice_from_narrative_framing(
             )
         return "<verdict>normal</verdict><empty>"
 
-    agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
+    agent = Agent(
+        SimpleNamespace(model_name="test-model", chat=slice_chat),
+        language="en",
+        enable_semantic_slicing=True,
+    )
     # Simulate Code Audit being lulled by narrative framing into returning normal,
     # followed by Verdict Review confirming the rescued isolated slice finding.
     agent.pipeline.execute_stage = AsyncMock(
@@ -321,7 +325,10 @@ def test_single_stage_rescues_malicious_semantic_slice_from_narrative_framing(
 
     assert agent.pipeline.execute_stage.await_count == 2
     stage1_context = agent.pipeline.execute_stage.await_args_list[0].args[3]
+    stage2_context = agent.pipeline.execute_stage.await_args_list[1].args[3]
     assert "Isolated Semantic Slice Findings" in stage1_context
+    assert "<verdict>" not in stage2_context["Draft audit report"]
+    assert "unverified draft leads" in stage2_context["Draft audit report"]
     assert agent.last_verdict == "malicious"
     assert len(result["results"]) == 1
     assert result["results"][0]["file"] == "SKILL.md"
@@ -346,7 +353,11 @@ def test_single_stage_allows_verdict_review_to_clear_rescued_false_positive(
             "<level>Medium</level><suggestion>Verify context.</suggestion></vuln>"
         )
 
-    agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
+    agent = Agent(
+        SimpleNamespace(model_name="test-model", chat=slice_chat),
+        language="en",
+        enable_semantic_slicing=True,
+    )
     agent.pipeline.execute_stage = AsyncMock(
         side_effect=["<verdict>normal</verdict><empty>", "<verdict>normal</verdict>"]
     )
@@ -381,6 +392,7 @@ def test_three_stage_injects_semantic_slice_hints_into_audit_and_review(
         SimpleNamespace(model_name="test-model", chat=slice_chat),
         language="zh",
         aig_mode=True,
+        enable_semantic_slicing=True,
     )
     review_xml = (
         "<verdict>malicious</verdict>"
@@ -403,7 +415,7 @@ def test_three_stage_injects_semantic_slice_hints_into_audit_and_review(
     assert len(result["results"]) == 1
 
 
-def test_semantic_slicing_can_be_disabled_via_env_or_flag(
+def test_semantic_slicing_is_opt_in_and_respects_env_and_flag(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     (tmp_path / "SKILL.md").write_text(
@@ -417,14 +429,29 @@ def test_semantic_slicing_can_be_disabled_via_env_or_flag(
         chat_calls += 1
         return "<verdict>normal</verdict><empty>"
 
-    monkeypatch.setenv("SKILL_SCAN_SEMANTIC_SLICE", "0")
-    agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
-    agent.pipeline.execute_stage = AsyncMock(return_value="<verdict>normal</verdict><empty>")
+    monkeypatch.delenv("SKILL_SCAN_SEMANTIC_SLICE", raising=False)
+    default_agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
+    default_agent.pipeline.execute_stage = AsyncMock(return_value="<verdict>normal</verdict><empty>")
 
-    result = asyncio.run(agent.scan(str(tmp_path), "", language="en"))
+    result = asyncio.run(default_agent.scan(str(tmp_path), "", language="en"))
 
     assert chat_calls == 0
     assert result["results"] == []
+
+    monkeypatch.setenv("SKILL_SCAN_SEMANTIC_SLICE", "1")
+    opt_in_agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
+    opt_in_agent.pipeline.execute_stage = AsyncMock(return_value="<verdict>normal</verdict><empty>")
+    asyncio.run(opt_in_agent.scan(str(tmp_path), "", language="en"))
+    assert chat_calls == 1
+
+    disabled_agent = Agent(
+        SimpleNamespace(model_name="test-model", chat=slice_chat),
+        language="en",
+        enable_semantic_slicing=False,
+    )
+    disabled_agent.pipeline.execute_stage = AsyncMock(return_value="<verdict>normal</verdict><empty>")
+    asyncio.run(disabled_agent.scan(str(tmp_path), "", language="en"))
+    assert chat_calls == 1
 
 
 def test_audit_semantic_files_end_to_end_on_directory(tmp_path: Path) -> None:
@@ -641,7 +668,11 @@ def test_single_stage_rescues_slice_findings_when_code_audit_degrades_without_vu
             "<suggestion>Remove curl upload.</suggestion></vuln>"
         )
 
-    agent = Agent(SimpleNamespace(model_name="test-model", chat=slice_chat), language="en")
+    agent = Agent(
+        SimpleNamespace(model_name="test-model", chat=slice_chat),
+        language="en",
+        enable_semantic_slicing=True,
+    )
     agent.pipeline.execute_stage = AsyncMock(
         side_effect=[
             "Failed to connect to the LLM after 5 retries; model output is empty.",

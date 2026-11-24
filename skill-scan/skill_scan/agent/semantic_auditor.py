@@ -333,9 +333,9 @@ class SemanticAuditReport:
 
 
 def is_semantic_slicing_enabled() -> bool:
-    """Check whether semantic slicing is enabled via environment configuration."""
-    raw = (get_env("SKILL_SCAN_SEMANTIC_SLICE") or "1").strip().lower()
-    return raw not in {"0", "false", "no", "off"}
+    """Check whether semantic slicing is explicitly enabled via env configuration."""
+    raw = (get_env("SKILL_SCAN_SEMANTIC_SLICE") or "0").strip().lower()
+    return raw in {"1", "true", "yes", "on"}
 
 
 def _clamp_score(raw_value: int) -> int:
