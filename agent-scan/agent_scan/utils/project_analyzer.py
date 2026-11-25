@@ -21,10 +21,11 @@
 用于分析项目的编程语言分布和计算安全评分
 """
 
-import math
-from pathlib import Path
+import os
 from collections import defaultdict
+
 from .logging import logger
+from .path_utils import is_path_within, should_ignore_path
 
 
 def classify_language(ext: str) -> str:
@@ -69,14 +70,31 @@ def analyze_language(directory: str) -> dict:
     Returns:
         字典，键为编程语言名称，值为该语言的文件数量
     """
+    if not directory or not os.path.isdir(directory):
+        return {}
+
     stats = defaultdict(int)
-    dir_path = Path(directory)
+    real_root = os.path.realpath(directory)
+    visited_dirs: set[str] = set()
 
     try:
-        # 遍历目录下的所有文件
-        for file_path in dir_path.rglob("*"):
-            if file_path.is_file():
-                ext = file_path.suffix.lower()
+        for dirpath, dirnames, filenames in os.walk(real_root, followlinks=False):
+            real_dir = os.path.realpath(dirpath)
+            if not is_path_within(real_dir, real_root) or real_dir in visited_dirs:
+                dirnames[:] = []
+                continue
+            visited_dirs.add(real_dir)
+            dirnames[:] = [
+                d
+                for d in dirnames
+                if not should_ignore_path(d)
+                and is_path_within(os.path.join(dirpath, d), real_root)
+            ]
+            for fname in filenames:
+                full_path = os.path.join(dirpath, fname)
+                if not is_path_within(full_path, real_root) or not os.path.isfile(full_path):
+                    continue
+                ext = os.path.splitext(fname)[1].lower()
                 lang = classify_language(ext)
                 if lang:
                     stats[lang] += 1

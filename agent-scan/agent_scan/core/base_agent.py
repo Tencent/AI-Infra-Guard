@@ -31,6 +31,7 @@ from agent_scan.utils.tool_context import ToolContext
 
 
 class BaseAgent:
+    _REPO_TOOLS = {"read_file", "grep", "ls"}
 
     def __init__(
             self,
@@ -43,6 +44,7 @@ class BaseAgent:
             agent_provider: Optional[ProviderOptions] = None,
             language: str = "zh",
             format_on_finish: bool = True,
+            repo_dir: str = "",
     ):
         self.llm = llm
         self.name = name
@@ -54,7 +56,7 @@ class BaseAgent:
         self.is_finished = False
         self.step_id = log_step_id
         self.debug = debug
-        self.repo_dir = ""
+        self.repo_dir = repo_dir or ""
         self.agent_provider = agent_provider
         self.language = language
         self.format_on_finish = format_on_finish
@@ -71,7 +73,7 @@ class BaseAgent:
         self.history.append({"role": "user", "content": message})
 
     def set_repo_dir(self, repo_dir: str):
-        self.repo_dir = repo_dir
+        self.repo_dir = repo_dir or ""
 
     async def compact_history(self) -> bool:
         if len(self.history) < 3:
@@ -92,8 +94,8 @@ class BaseAgent:
         return True
 
     async def generate_system_prompt(self):
-
-        tools_prompt = await self.dispatcher.get_all_tools_prompt()
+        exclude_tools = set() if self.repo_dir else set(self._REPO_TOOLS)
+        tools_prompt = await self.dispatcher.get_all_tools_prompt(exclude_tools=exclude_tools)
 
         template_name = "system_prompt"
         format_kwargs = {
@@ -242,7 +244,7 @@ class BaseAgent:
         tool_id = uuid.uuid4().__str__()
 
         params = json.dumps(tool_args, ensure_ascii=False) if tool_args else ""
-        if isinstance(params, str):
+        if isinstance(params, str) and self.repo_dir:
             params = params.replace(self.repo_dir, "")
 
         scanLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
@@ -364,10 +366,10 @@ async def run_agent(description: str, instruction: str, llm: LLM, prompt: str, s
         agent_provider=agent_provider,
         language=language,
         format_on_finish=format_on_finish,
+        repo_dir=repo_dir or "",
     )
     await agent.initialize()
     if repo_dir:
-        agent.set_repo_dir(repo_dir)
         user_msg = f"Please perform {description}. The repository folder is {repo_dir}\n"
     else:
         user_msg = ""

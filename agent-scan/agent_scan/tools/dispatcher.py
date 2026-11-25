@@ -29,8 +29,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class ToolDispatcher:
-    async def get_all_tools_prompt(self) -> str:
-        return get_tools_prompt([])
+    async def get_all_tools_prompt(self, exclude_tools: set[str] | None = None) -> str:
+        return get_tools_prompt([], exclude_tools=exclude_tools)
 
     async def call_tool(self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None) -> str:
         """调用本地工具；同步和异步执行错误返回 Error，取消信号继续传播。"""

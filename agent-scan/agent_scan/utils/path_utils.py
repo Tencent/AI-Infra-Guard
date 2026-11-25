@@ -57,10 +57,12 @@ def is_path_within(path: str, root: str) -> bool:
     Returns:
         如果路径在根目录内返回 True
     """
+    if not path or not root:
+        return False
     try:
         normalized_path = normalize_path(path)
         normalized_root = normalize_path(root)
-        
+
         # 使用 commonpath 检查是否有公共路径前缀
         common = os.path.commonpath([normalized_path, normalized_root])
         return common == normalized_root
@@ -80,14 +82,16 @@ def validate_path(path: str, root: str, must_exist: bool = False) -> Tuple[bool,
     Returns:
         (is_valid, resolved_path, error_message)
     """
+    if not root or not os.path.isdir(normalize_path(root)):
+        return False, path, "Repository directory (--repo) is not configured or does not exist"
     try:
         resolved = resolve_path(path, root)
         
         if not is_path_within(resolved, root):
-            return False, resolved, f"Path '{path}' is outside the allowed directory '{root}'"
+            return False, resolved, f"Path '{path}' is outside the repository root"
         
         if must_exist and not os.path.exists(resolved):
-            return False, resolved, f"Path does not exist: {resolved}"
+            return False, resolved, f"Path does not exist: {path}"
         
         return True, resolved, None
         
