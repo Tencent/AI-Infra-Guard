@@ -143,6 +143,27 @@ def _reset_consecutive_rate_limit_failures(model_callback: CallbackType) -> None
             pass
 
 
+def _safe_progress_update(progress, amount: int) -> None:
+    """Keep a closed progress output stream from aborting completed evaluations."""
+    if getattr(progress, "disable", False):
+        return
+    try:
+        progress.update(amount)
+    except BrokenPipeError:
+        # tqdm writes to its output stream while updating. In container/log-pipe
+        # environments that stream may already be closed even though evaluation
+        # and its result log are complete; stop rendering and let aggregation run.
+        progress.disable = True
+
+
+def _safe_progress_close(progress) -> None:
+    """Close tqdm without letting a broken output pipe mask the assessment result."""
+    try:
+        progress.close()
+    except BrokenPipeError:
+        progress.disable = True
+
+
 class RedTeamer:
     risk_assessment: Optional[RiskAssessment] = None
     simulated_attacks: Optional[List[SimulatedAttack]] = None
@@ -523,7 +544,7 @@ Direct translation without separators"""
                             case_md = self.get_risk_case_markdown(red_teaming_test_case, lang=logger.lang)
                             if case_md is not None:
                                 logger.action_log(actionLog(tool_id=tool_id, tool_name="Case measure", stepId="2", log=case_md))
-                            pbar.update(1)
+                            _safe_progress_update(pbar, 1)
                             red_teaming_test_cases.append(red_teaming_test_case)
                             progress_log.record(red_teaming_test_case)
 
@@ -534,7 +555,7 @@ Direct translation without separators"""
                     logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
                         "Measure model: {model_name}", model_name=model_name
                     ), status="completed"))
-                    pbar.close()
+                    _safe_progress_close(pbar)
                 finally:
                     progress_log.close()
 
@@ -653,7 +674,7 @@ Direct translation without separators"""
                     red_teaming_test_cases.extend(test_cases)
                     # 续跑时已完成的用例也算进度：它们不会再被评估，
                     # 但用户看到的应该是「这次跑完了多少」
-                    pbar.update(len(attacks))
+                    _safe_progress_update(pbar, len(attacks))
 
                 # Create a list of tasks for evaluating each vulnerability, with throttling
                 logger.tool_used(toolUsed(stepId="2", tool_id=self.asyncRandomId, brief=logger.translated_msg("Measure simulated attacks"), status="todo"))
@@ -664,7 +685,7 @@ Direct translation without separators"""
                 logger.status_update(statusUpdate(stepId="2", brief=logger.translated_msg("Risk Assessment"), description=logger.translated_msg(
                     "Measure model: {model_name}", model_name=model_name
                 ), status="completed"))
-                pbar.close()
+                _safe_progress_close(pbar)
             finally:
                 progress_log.close()
 
