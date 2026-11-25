@@ -217,3 +217,14 @@ def test_make_http_request_surfaces_agui_run_error():
     assert result.provider_response.output == "Hello"
     assert result.provider_response.raw["run_error"] == "agent crashed"
     assert result.provider_response.raw["protocol"] == "agui"
+
+
+def test_apply_transform_prefers_path_that_resolves_as_written():
+    client = object.__new__(AIProviderClient)
+
+    body = {"data": {"text": "hello"}}
+    assert client._extract_output(body, "data.text") == "hello"
+    assert client._extract_output(body, "json.data.text") == "hello"
+    # Prefixes are still stripped when the path does not resolve as written.
+    assert client._extract_output({"reply": "hi"}, "response.reply") == "hi"
+    assert client._extract_output({"text": "top"}, "data.text") == "top"
