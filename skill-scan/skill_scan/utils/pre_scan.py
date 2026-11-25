@@ -96,9 +96,12 @@ _BYTECODE_EXTS = {'.pyc', '.pyo', '.pyd'}
 # Dependency/cache/build dirs that may still be referenced at runtime by skill code;
 # they are scanned (not skipped) so referenced payloads inside them are audited (issue #631).
 _FLAG_DIR_NAMES = {'__pycache__', 'node_modules', '.venv', 'venv', 'dist', 'build', '.next', '.nuxt'}
-# Python bytecode files (3.7+) all share the trailing bytes 0x0d 0x0d 0x0a ("\r\r\n")
-# in their magic number; only the leading byte varies per minor version.
-_PYC_MAGIC_TAIL = b'\x0d\x0d\x0a'
+# A CPython bytecode header starts with a 2-byte little-endian magic number followed by
+# "\r\n". Python 3.6 to 3.13 use numbers 3379..3571 and 3.14 uses 3627 (bytes 2b 0e 0d 0a),
+# so the second byte is not always 0x0d. Python 2 numbers are above 62000. Any number in the window is accepted so a new minor version is not missed.
+_PYC_MAGIC_TAIL = b'\r\n'
+_PYC_MAGIC_MIN = 3328
+_PYC_MAGIC_MAX = 4096
 _MAX_FILE_SIZE = 512 * 1024  # 512KB
 
 # Patterns indicating that skill code loads/executes bytecode files directly
@@ -150,7 +153,11 @@ def pre_scan(repo_dir: str) -> str:
                 try:
                     with open(fpath, 'rb') as fh:
                         head = fh.read(4)
-                    is_pyc = head[1:] == _PYC_MAGIC_TAIL
+                    is_pyc = (
+                        len(head) == 4
+                        and head[2:] == _PYC_MAGIC_TAIL
+                        and _PYC_MAGIC_MIN <= int.from_bytes(head[:2], 'little') < _PYC_MAGIC_MAX
+                    )
                 except (PermissionError, OSError):
                     is_pyc = False
                 findings.append({
