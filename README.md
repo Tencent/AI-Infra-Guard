@@ -63,11 +63,11 @@
 ## Table of Contents
 - [🚀 Quick Start](#-quick-start)
 - [🧰 Standalone Use](#-standalone-use)
-- [🖼️ Showcase](#️-showcase)
+- [🖼️ Showcase](#-showcase)
 - [📖 User Guide](#-user-guide)
 - [🏗️ Architecture Evolution](./docs/architecture_evolution.md)
 - [📝 Contribution Guide](#-contribution-guide)
-- [🛡️ About the Team](#️-about-the-team)
+- [🛡️ About the Team](#-about-the-team)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
