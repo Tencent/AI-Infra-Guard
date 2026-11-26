@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.12] - 2026-11-26
+
+### Added
+- **Agent-Scan**: Add sandboxed --repo source tools and Stage 1 profiling (PR #812, 1ccb658d)
+- **Skill-Scan**: Add baseline-anchored semantic slicing for pure semantic files (PR #809, cae6e04d)
+- **MCP**: Add cross-server tool shadowing detection rule (PR #790, 0f53daeb)
+- **Prompt-Security**: Add RefusalLadderJailbreaking multi-turn attack (PR #780, 8e5e2fd7)
+
+### Fixed
+- **Docker**: Copy README_ZH.md from readme/ after docs reorg (PR #822, 59e9beb8)
+- **Prompt-Security**: Add request timeout so a stuck model call cannot block evaluation (PR #815, 1ebbe52b)
+- **Agent-Scan**: Try transform_response path as written before stripping the prefix (PR #814, b0dc252c)
+- **Compliance**: Restore running assessment after page reload (PR #810, 66bd1484)
+- **Vulstruct**: Match advisory fingerprint names case-insensitively (PR #808, 4d4f3cf5)
+- **Fingerprints**: Compile body~= regex case-insensitively (PR #807, 2071a0aa)
+- **Prompt-Security**: Return a tag for plugin scenarios with parameters (PR #805, 41a9837b)
+- **Task-API**: Return the latest result event (PR #802, 3ddc684a)
+- **Agent**: Clean up scanner temporary files and clones (PR #801, 6d24f9f1)
+- **Skill-Scan**: Keep both parameter dialects in one tool call (PR #799, f67d14c6)
+- **MCP-Scan, Agent-Scan**: Accept XML-attribute function tags (PR #798, 99b67766)
+- **Task**: Close SSE and stop heartbeats after an agent error event (PR #797, 8eafda17)
+- **Task**: Close the SSE stream when task creation fails (PR #796, 8a3f0831)
+- **Agent**: Do not dispatch to a connection that has not registered (PR #795, a0ca4a20)
+- **SSE**: Serialize heartbeat and event writes (PR #794, 1ad05859)
+- **API**: Do not persist a task when API dispatch cannot start (PR #793, 9738b646)
+- **SSE**: Keep replaced SSE connection when an old heartbeat fails (PR #792, 31cc632e)
+- **Agent**: Keep replacement connection on stale disconnect (PR #791, 2786a82b)
+- **Agent**: Serialize websocket writes (PR #788, 4738fde7)
+- **Scanners**: Load tool schemas as UTF-8 (PR #787, 9264f748)
+- **Agent**: Keep replacement connection when old agent disconnects (PR #786, 20f46856)
+- **API-Checker**: Handle a single baseline in full mode (PRs #784, #785, 00066965)
+- **Utils**: Make GitClone retries work after a timeout (PR #783, a8cba856)
+- **Utils**: Keep files extracted from .tgz targets readable (PR #782, cccac336)
+- **Utils**: Close each extracted zip entry before the next (PR #781, 3c89075b)
+
+### Changed
+- **Task-API**: Avoid loading message history for task status (PR #800, 5c2f3ee5)
+- **Agent**: Avoid loading session history for every event (PR #789, f175fef5)
+
+### Contributors
+Abhishek Sharma, Bharath Vemula, boyhack, Goran, jcj1996, Kent Zhang, ljg-lixufeng, mengzhe gan, Natsuki, Nurlan Mammadli, Simon Mayer, vastStage, Yu, Zhou Lu
+
 ## [v4.6.11] - 2026-11-19
 
 ### Added
