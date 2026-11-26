@@ -365,3 +365,4 @@ We would like to express our sincere gratitude to the research teams and communi
 | JADE 3.0 | Whitzard AI Team at Fudan University | [Github](https://github.com/whitzard-ai/jade-db/tree/main/jade-db-v3.0) |
 | BadPhoneAgent | JADE Team@Fudan (Yiming Sun, Chen Chen, Zifan Zhou) | [Dataset](https://github.com/ymsun2020/Mobile-GUI-Security) · [Paper](https://arxiv.org/abs/2606.27944) · [Synced coverage](https://mp.weixin.qq.com/s/RzkqGfrEKiu0l-2TzhLrPw) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
+| StrongREJECT | Souly et al. (Google DeepMind) | [Github](https://github.com/alexandrasouly/strongreject) · [Paper](https://arxiv.org/abs/2402.10260) |
