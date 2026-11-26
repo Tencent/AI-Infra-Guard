@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import threading
 import time
 
 import openai
@@ -67,6 +68,67 @@ class LLM:
         )
         self.context_window = context_window
         self.stream_timeout = stream_timeout
+        self._usage_lock = None
+        self._usage_totals = None
+        self._ensure_usage_state()
+
+    def _ensure_usage_state(self) -> tuple[threading.Lock, dict[str, int]]:
+        """Lazily initialize usage counters for ``object.__new__(LLM)`` test doubles."""
+        lock = getattr(self, "_usage_lock", None)
+        totals = getattr(self, "_usage_totals", None)
+        if lock is None or totals is None:
+            lock = threading.Lock()
+            totals = {
+                "calls": 0,
+                "prompt_tokens": 0,
+                "cached_tokens": 0,
+                "uncached_prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "usage_missing_calls": 0,
+            }
+            self._usage_lock = lock
+            self._usage_totals = totals
+        return lock, totals
+
+    def get_usage_stats(self) -> dict[str, int]:
+        """Return a thread-safe snapshot of cumulative LLM token usage."""
+        lock, totals = self._ensure_usage_state()
+        with lock:
+            return dict(totals)
+
+    def reset_usage_stats(self) -> None:
+        """Reset cumulative LLM token usage counters to zero."""
+        lock, totals = self._ensure_usage_state()
+        with lock:
+            for key in totals:
+                totals[key] = 0
+
+    def _record_usage(self, usage: dict | None) -> None:
+        """Accumulate normalized usage metrics from a single ``chat`` invocation."""
+        lock, totals = self._ensure_usage_state()
+        with lock:
+            totals["calls"] += 1
+            if not isinstance(usage, dict):
+                totals["usage_missing_calls"] += 1
+                return
+            prompt = int(usage.get("prompt_tokens") or 0)
+            cached = int(usage.get("cached_tokens") or 0)
+            uncached = max(0, prompt - cached)
+            completion = int(usage.get("completion_tokens") or 0)
+            total = usage.get("total_tokens")
+            total_int = int(total) if total is not None else (prompt + completion)
+            if (
+                usage.get("prompt_tokens") is None
+                and usage.get("completion_tokens") is None
+                and usage.get("total_tokens") is None
+            ):
+                totals["usage_missing_calls"] += 1
+            totals["prompt_tokens"] += prompt
+            totals["cached_tokens"] += cached
+            totals["uncached_prompt_tokens"] += uncached
+            totals["completion_tokens"] += completion
+            totals["total_tokens"] += total_int
 
     def chat(self, message: list[dict], p=False, ret_usage=False) -> str | tuple[str, dict]:
         ret = ""
@@ -85,6 +147,7 @@ class LLM:
                     logger.error("LLM chat error, retry 5 times, exit")
                     ret = "Failed to connect to the LLM after 5 retries; model output is empty. Please wait a minute and try again."
                     break
+        self._record_usage(usage)
         ret, fixed = normalize_tool_calls(ret)
         if fixed:
             logger.info("Normalized malformed tool call in LLM response")
@@ -181,8 +244,22 @@ class LLM:
         if not usage:
             return None
 
+        prompt_details = getattr(usage, "prompt_tokens_details", None)
+        cached = (
+            getattr(prompt_details, "cached_tokens", None)
+            if prompt_details is not None
+            else None
+        )
+        if cached is None and isinstance(prompt_details, dict):
+            cached = prompt_details.get("cached_tokens")
+        if cached is None:
+            cached = getattr(usage, "cached_tokens", None)
+        if cached is None:
+            cached = getattr(usage, "prompt_cache_hit_tokens", None)
+
         return {
             "prompt_tokens": getattr(usage, "prompt_tokens", None),
+            "cached_tokens": cached,
             "completion_tokens": getattr(usage, "completion_tokens", None),
             "total_tokens": getattr(usage, "total_tokens", None),
         }
