@@ -1387,7 +1387,7 @@ Direct translation without separators"""
             }
             results.append(result)
         df = pd.DataFrame(results)
-        attachment_path = f"logs/attachment_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}_{uuid.uuid4().hex[:8]}.csv"
+        attachment_path = f"logs/attachment_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.csv"
         df.to_csv(attachment_path, encoding="utf-8-sig", index=False)
         report = {
             "modelName": model_name,
