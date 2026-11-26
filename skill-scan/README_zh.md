@@ -150,6 +150,7 @@ asyncio.run(run())
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | 主模型上下文窗口 | `128000` |
 | `REASONING_EFFORT` | 可选推理强度（例如 `high`）；支持的值取决于模型和服务提供商。未设置或为空白时不发送该 API 参数。 | 未设置 |
 | `LOG_LEVEL` | 日志级别 | `INFO` |
+| `SKILL_SCAN_AUTONOMOUS_GUARDS` | `Code Audit` 阶段 0-Token 渐进文档清单、隐藏 Unicode/HTML 静态解码及未实读防早退护栏（设为 `0`/`false` 关闭） | `1` |
 | `SKILL_SCAN_SEMANTIC_SLICE` | 可选开启纯语义文件去语境化切片审计（设为 `1`/`true` 启用；每次扫描最多额外增加 `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` 次无状态 LLM 调用） | `0` |
 | `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` | 启用语义切片审计时单次扫描最多审计的切片数上限 | `24` |
 | `SKILL_SCAN_SEMANTIC_CONCURRENCY` | 语义切片审计阶段的最大并发 LLM 请求数 | `2` |

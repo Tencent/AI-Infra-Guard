@@ -78,6 +78,22 @@ _ARGKEY_PAIR_RE = re.compile(
 _ARGVALUE_CLOSE_RE = re.compile(r"</arg_value:[0-9a-fA-F]+>")
 _STRAY_CALL_CLOSE_RE = re.compile(r"</tool_call:[0-9a-fA-F]+\s*>")
 
+# DeepSeek native DSML dialect: <｜DSML｜invoke name="..."> / <｜｜DSML｜｜ ...>
+_DSML_PREFIX = r"[｜|]+DSML[｜|]+\s*"
+_DSML_DETECT_RE = re.compile(r"</?" + _DSML_PREFIX)
+_DSML_CALLS_RE = re.compile(r"</?" + _DSML_PREFIX + r"calls\s*>")
+_DSML_INVOKE_OPEN_RE = re.compile(
+    r"<" + _DSML_PREFIX + r"invoke\s+name=[\"']([A-Za-z_][\w-]*)[\"'][^>]*>"
+)
+_DSML_INVOKE_CLOSE_RE = re.compile(r"</" + _DSML_PREFIX + r"(?:invoke|function)\s*>")
+_DSML_PARAM_NAMED_RE = re.compile(
+    r"<" + _DSML_PREFIX + r"parameter\s+name=[\"']([^\"']+)[\"'][^>]*>"
+)
+_DSML_PARAM_EQ_RE = re.compile(
+    r"<" + _DSML_PREFIX + r"parameter\s*=\s*[\"']?([^>\"']+)[\"']?\s*>"
+)
+_DSML_PARAM_CLOSE_RE = re.compile(r"</" + _DSML_PREFIX + r"parameter\s*>")
+
 
 def _as_param(value) -> str:
     if isinstance(value, bool):
@@ -132,12 +148,25 @@ def _rewrite_bad_calls(content: str) -> str:
     return "".join(out)
 
 
+def _rewrite_dsml_calls(content: str) -> str:
+    """Translate DeepSeek native DSML tool tags into <function=NAME><parameter=KEY> form."""
+    text = _DSML_CALLS_RE.sub("", content)
+    text = _DSML_INVOKE_OPEN_RE.sub(r"<function=\1>", text)
+    text = _DSML_INVOKE_CLOSE_RE.sub("</function>", text)
+    text = _DSML_PARAM_NAMED_RE.sub(r"<parameter=\1>", text)
+    text = _DSML_PARAM_EQ_RE.sub(r"<parameter=\1>", text)
+    text = _DSML_PARAM_CLOSE_RE.sub("</parameter>", text)
+    return text
+
+
 def normalize_tool_calls(content: str) -> tuple[str, bool]:
     """Return ``(normalized_content, changed)``."""
     if not content or not isinstance(content, str):
         return content, False
+    has_dsml = "DSML" in content and bool(_DSML_DETECT_RE.search(content))
     if (
-        "<tool_call:" not in content
+        not has_dsml
+        and "<tool_call:" not in content
         and "<tool_calls:" not in content
         and "<arg_key:" not in content
         and "</tool_call:" not in content
@@ -147,6 +176,8 @@ def normalize_tool_calls(content: str) -> tuple[str, bool]:
         return content, False
 
     text = content
+    if has_dsml:
+        text = _rewrite_dsml_calls(text)
     if "<arg_key:" in text or "</arg_value:" in text:
         text = _ARGKEY_PAIR_RE.sub(r"<parameter=\1>", text)
         text = _ARGKEY_INLINE_RE.sub(r"<parameter=\1>", text)

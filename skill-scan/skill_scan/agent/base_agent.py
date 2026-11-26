@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import uuid
 
@@ -49,6 +50,7 @@ class BaseAgent:
         output_format: str | None = None,
         output_check_fn: callable = None,
         language: str = "zh",
+        required_read_files: list[str] | None = None,
     ):
         self.llm = llm
         self.name = name
@@ -62,6 +64,12 @@ class BaseAgent:
         self.repo_dir = ""
         self.output_check_fn = output_check_fn
         self.language = language
+        self._required_read_files: list[str] = [
+            p.replace("\\", "/").lstrip("./") for p in (required_read_files or []) if p
+        ]
+        self._read_files: set[str] = set()
+        self._coverage_nudges = 0
+        self._max_coverage_nudges = 2
         # loop control
         self.iter = 0
         self.max_iter = 80
@@ -199,6 +207,10 @@ class BaseAgent:
             and self.output_check_fn
             and self.output_check_fn(description)
         ):
+            missing_reads = self._missing_required_reads_for_conclusion(description)
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
             self.is_finished = True
             logger.info("Accepted valid direct final output without finish tool call.")
             mcpLogger.status_update(self.step_id, description, "", "completed")
@@ -231,6 +243,10 @@ class BaseAgent:
             and self.output_check_fn
             and (has_audit_evidence or is_verdict_stage or self.iter >= 12)
         ):
+            missing_reads = self._missing_required_reads_for_conclusion("")
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
             logger.info("No new audit evidence for 3 rounds; attempting final formatting.")
             final_output = await self._format_final_output()
             if self.output_check_fn(final_output):
@@ -273,6 +289,18 @@ class BaseAgent:
         mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
 
         if tool_name == "finish":
+            provided_content = tool_args.get("content") if tool_args else None
+            last_msg = self.history[-1]["content"] if self.history else ""
+            candidate_text = (
+                provided_content
+                if isinstance(provided_content, str) and provided_content.strip()
+                else clean_content(last_msg)
+            )
+            missing_reads = self._missing_required_reads_for_conclusion(candidate_text)
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
+
             self.is_finished = True
             logger.info("Finish tool called, final result formatted.")
 
@@ -281,8 +309,6 @@ class BaseAgent:
             # Some models place the complete requested payload in the finish
             # argument. Prefer it when valid instead of discarding it and
             # asking for the same report up to three more times.
-            provided_content = tool_args.get("content") if tool_args else None
-            last_msg = self.history[-1]["content"] if self.history else ""
             if (
                 isinstance(provided_content, str)
                 and self.output_check_fn
@@ -310,6 +336,7 @@ class BaseAgent:
 
         # Invoke the tool via the Dispatcher
         tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+        self._record_read_evidence(tool_name, tool_args, str(tool_result))
 
         # Format the tool result and append it to history (preserves aig-skill-scan's truncation logic)
         result_message = self._build_history_tool_result(
@@ -365,6 +392,7 @@ class BaseAgent:
             params = params.replace(self.repo_dir, "") if isinstance(params, str) else params
             mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
             tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+            self._record_read_evidence(tool_name, tool_args, str(tool_result))
             result_message = self._build_history_tool_result(
                 tool_name, tool_args, str(tool_result)
             )
@@ -540,6 +568,86 @@ class BaseAgent:
             else:
                 break
         return final_output
+
+    def _record_read_evidence(
+        self, tool_name: str, tool_args: dict | None, tool_result: str
+    ) -> None:
+        """Track repository files actually inspected via ``read_file``."""
+        required = getattr(self, "_required_read_files", None)
+        if not required:
+            return
+        read_set = getattr(self, "_read_files", None)
+        if read_set is None:
+            read_set = set()
+            self._read_files = read_set
+
+        low_name = (tool_name or "").lower()
+        args = tool_args if isinstance(tool_args, dict) else {}
+        if low_name == "read_file":
+            stripped = tool_result.lstrip()
+            if stripped.startswith("Error") or re.search(
+                r"<success>\s*false\s*</success>", stripped, re.IGNORECASE
+            ):
+                return
+            raw_path = str(args.get("file_path") or args.get("path") or "").strip()
+            if not raw_path:
+                return
+            repo_dir = getattr(self, "repo_dir", "") or ""
+            if repo_dir and os.path.isabs(raw_path):
+                try:
+                    rel = os.path.relpath(raw_path, repo_dir).replace("\\", "/")
+                except ValueError:
+                    rel = raw_path.replace("\\", "/")
+            else:
+                rel = raw_path.replace("\\", "/").lstrip("./")
+            read_set.add(rel)
+
+    def _missing_required_reads_for_conclusion(self, candidate_text: str) -> list[str]:
+        """Return unread required files if attempting to finish clean without full coverage."""
+        required = getattr(self, "_required_read_files", None)
+        if not required:
+            return []
+        nudges = getattr(self, "_coverage_nudges", 0)
+        max_nudges = getattr(self, "_max_coverage_nudges", 2)
+        if nudges >= max_nudges:
+            return []
+
+        text_low = (candidate_text or "").lower()
+        # Allow immediate finish if the audit already found concrete malicious/vuln findings
+        if "<vuln>" in text_low or "<verdict>malicious</verdict>" in text_low or (
+            "**malicious**" in text_low or "verdict: malicious" in text_low
+        ):
+            return []
+
+        read_set = getattr(self, "_read_files", set())
+        return [req for req in required if req not in read_set]
+
+    def _append_coverage_deferral(self, missing_files: list[str]) -> None:
+        """Defer premature finish and prompt the Agent to read missing key files."""
+        self._coverage_nudges = getattr(self, "_coverage_nudges", 0) + 1
+        self.stalled_rounds = 0
+        file_list = ", ".join(missing_files[:10])
+        if len(missing_files) > 10:
+            file_list += f", ... (+{len(missing_files) - 10} more)"
+        next_p = self.next_prompt()
+        if self.language == "en":
+            msg = (
+                f"{next_p}\n\n"
+                "Finish deferred: before concluding clean, you have not yet inspected the following "
+                f"required Skill/reference or pre-scan flagged file(s): [{file_list}]. "
+                "Call `read_file` on them (you may batch multiple `read_file` calls in one turn) "
+                "to inspect their actual contents before calling `finish`."
+            )
+        else:
+            msg = (
+                f"{next_p}\n\n"
+                "暂缓结束：在得出无风险结论前，你尚未实际读取以下关键 Skill/参考或静态预检命中的文件："
+                f"[{file_list}]。请调用 `read_file`（可在同一轮批量调用多个 `read_file`）读取完整内容核验后再调用 `finish`。"
+            )
+        logger.info(
+            f"Deferring premature finish on {self.name}; unread required files: {file_list}"
+        )
+        self.history.append({"role": "user", "content": msg})
 
     def _build_task_message(self) -> str:
         if not self.summary_memory:

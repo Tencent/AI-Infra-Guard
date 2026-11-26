@@ -150,6 +150,7 @@ Key environment variables:
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | Main model context window | `128000` |
 | `REASONING_EFFORT` | Optional reasoning effort (for example, `high`); supported values depend on the model and provider. Unset or blank values omit the API parameter. | Unset |
 | `LOG_LEVEL` | Log level | `INFO` |
+| `SKILL_SCAN_AUTONOMOUS_GUARDS` | 0-token progressive-disclosure inventory, hidden Unicode/HTML decoding, and anti-premature-finish read-coverage guardrails on `Code Audit` (`0`/`false` to disable) | `1` |
 | `SKILL_SCAN_SEMANTIC_SLICE` | Opt-in isolated slice audit for pure semantic files (`1`/`true` to enable; adds up to `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` stateless LLM calls per scan) | `0` |
 | `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` | Maximum number of isolated semantic slices audited per scan when enabled | `24` |
 | `SKILL_SCAN_SEMANTIC_CONCURRENCY` | Maximum concurrent LLM requests during semantic slice audit | `2` |
