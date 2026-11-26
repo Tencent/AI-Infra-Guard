@@ -139,7 +139,8 @@ deploy_application() {
     cp docker-compose.images.yml "../${RELEASE_DIR}/docker-compose.yml"
     cp -r data "../${RELEASE_DIR}/data"
     cp README.md "../${RELEASE_DIR}/README.md"
-    cp README_ZH.md "../${RELEASE_DIR}/README_ZH.md"
+    # README_ZH.md was migrated to readme/ in e08175b8 (multilingual README reorg)
+    cp readme/README_ZH.md "../${RELEASE_DIR}/README_ZH.md"
     cp CHANGELOG.md "../${RELEASE_DIR}/CHANGELOG.md"
 
     # 返回上级目录
