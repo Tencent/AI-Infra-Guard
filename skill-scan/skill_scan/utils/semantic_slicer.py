@@ -35,6 +35,11 @@ import re
 from dataclasses import dataclass
 
 from skill_scan.utils.loging import logger
+from skill_scan.utils.progressive_audit import (
+    _HTML_COMMENT_OPEN_RE,
+    _MALFORMED_COMMENT_CLOSE_RE,
+    _extract_hidden_unicode_text,
+)
 from skill_scan.utils.text_decoder import TextDecodeError, read_text_file
 
 SEMANTIC_FILENAMES = frozenset({"skill.md"})
@@ -88,6 +93,7 @@ class SemanticChunk:
     text: str
     heading: str = ""
     is_recovered_mojibake: bool = False
+    hidden_decoded_text: str = ""
 
 
 @dataclass(frozen=True)
@@ -363,6 +369,28 @@ def _parse_blocks(lines: list[str]) -> list[_Block]:
             idx += 2
             continue
 
+        # HTML comment block (<!-- ... --> or malformed <!-- ... >)
+        if _HTML_COMMENT_OPEN_RE.match(line):
+            start = idx
+            if "-->" not in line and not _MALFORMED_COMMENT_CLOSE_RE.match(line):
+                idx += 1
+                while idx < total:
+                    if "-->" in lines[idx] or _MALFORMED_COMMENT_CLOSE_RE.match(lines[idx]):
+                        idx += 1
+                        break
+                    idx += 1
+            else:
+                idx += 1
+            blocks.append(
+                _Block(
+                    kind="html_comment",
+                    text="\n".join(lines[start:idx]),
+                    line_start=start + 1,
+                    line_end=idx,
+                )
+            )
+            continue
+
         # Thematic break (section separator)
         if _THEMATIC_BREAK_RE.match(line):
             blocks.append(
@@ -571,6 +599,7 @@ def slice_semantic_text(
         joined = "\n\n".join(b.text for b in chunk_blocks if b.text.strip())
         if not joined.strip():
             return
+        hidden_decoded = _extract_hidden_unicode_text(joined)
         chunks.append(
             SemanticChunk(
                 file_path=file_path,
@@ -581,6 +610,7 @@ def slice_semantic_text(
                 text=joined,
                 heading=heading,
                 is_recovered_mojibake=is_recovered_mojibake,
+                hidden_decoded_text=hidden_decoded,
             )
         )
 
@@ -618,7 +648,7 @@ def slice_semantic_text(
             pending_heading = block
             continue
 
-        is_isolated_kind = block.kind in {"fenced_block", "blockquote", "table"}
+        is_isolated_kind = block.kind in {"fenced_block", "blockquote", "table", "html_comment"}
         is_substantial = is_isolated_kind or len(block.text.strip()) >= min_pack_chars
 
         if is_substantial:

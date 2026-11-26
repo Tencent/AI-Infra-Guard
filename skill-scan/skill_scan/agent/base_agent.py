@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import uuid
 
@@ -49,6 +50,7 @@ class BaseAgent:
         output_format: str | None = None,
         output_check_fn: callable = None,
         language: str = "zh",
+        required_read_files: list[str] | None = None,
     ):
         self.llm = llm
         self.name = name
@@ -62,6 +64,14 @@ class BaseAgent:
         self.repo_dir = ""
         self.output_check_fn = output_check_fn
         self.language = language
+        self._required_read_files: list[str] = [
+            p.replace("\\", "/").lstrip("./") for p in (required_read_files or []) if p
+        ]
+        self._read_files: set[str] = set()
+        self._coverage_nudges = 0
+        self._max_coverage_nudges = 2
+        self._triaged_tier_a_ranges: dict[str, list[tuple[int, int]]] = {}
+        self._read_ranges_by_file: dict[str, list[tuple[int, int]]] = {}
         # loop control
         self.iter = 0
         self.max_iter = 80
@@ -199,6 +209,10 @@ class BaseAgent:
             and self.output_check_fn
             and self.output_check_fn(description)
         ):
+            missing_reads = self._missing_required_reads_for_conclusion(description)
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
             self.is_finished = True
             logger.info("Accepted valid direct final output without finish tool call.")
             mcpLogger.status_update(self.step_id, description, "", "completed")
@@ -231,6 +245,10 @@ class BaseAgent:
             and self.output_check_fn
             and (has_audit_evidence or is_verdict_stage or self.iter >= 12)
         ):
+            missing_reads = self._missing_required_reads_for_conclusion("")
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
             logger.info("No new audit evidence for 3 rounds; attempting final formatting.")
             final_output = await self._format_final_output()
             if self.output_check_fn(final_output):
@@ -273,6 +291,18 @@ class BaseAgent:
         mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
 
         if tool_name == "finish":
+            provided_content = tool_args.get("content") if tool_args else None
+            last_msg = self.history[-1]["content"] if self.history else ""
+            candidate_text = (
+                provided_content
+                if isinstance(provided_content, str) and provided_content.strip()
+                else clean_content(last_msg)
+            )
+            missing_reads = self._missing_required_reads_for_conclusion(candidate_text)
+            if missing_reads:
+                self._append_coverage_deferral(missing_reads)
+                return None
+
             self.is_finished = True
             logger.info("Finish tool called, final result formatted.")
 
@@ -281,8 +311,6 @@ class BaseAgent:
             # Some models place the complete requested payload in the finish
             # argument. Prefer it when valid instead of discarding it and
             # asking for the same report up to three more times.
-            provided_content = tool_args.get("content") if tool_args else None
-            last_msg = self.history[-1]["content"] if self.history else ""
             if (
                 isinstance(provided_content, str)
                 and self.output_check_fn
@@ -310,6 +338,7 @@ class BaseAgent:
 
         # Invoke the tool via the Dispatcher
         tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+        self._record_read_evidence(tool_name, tool_args, str(tool_result))
 
         # Format the tool result and append it to history (preserves aig-skill-scan's truncation logic)
         result_message = self._build_history_tool_result(
@@ -365,6 +394,7 @@ class BaseAgent:
             params = params.replace(self.repo_dir, "") if isinstance(params, str) else params
             mcpLogger.tool_used(self.step_id, tool_id, tool_name, "done", tool_name, f"{params}")
             tool_result = await self.dispatcher.call_tool(tool_name, tool_args, context)
+            self._record_read_evidence(tool_name, tool_args, str(tool_result))
             result_message = self._build_history_tool_result(
                 tool_name, tool_args, str(tool_result)
             )
@@ -540,6 +570,228 @@ class BaseAgent:
             else:
                 break
         return final_output
+
+    @staticmethod
+    def _extract_xml_field(text: str, tag: str) -> str:
+        m = re.search(rf"<{tag}>(.*?)</{tag}>", text, re.DOTALL | re.IGNORECASE)
+        return m.group(1).strip() if m else ""
+
+    @staticmethod
+    def _merge_spans(spans: list[tuple[int, int]]) -> list[tuple[int, int]]:
+        if not spans:
+            return []
+        ordered = sorted(spans)
+        merged: list[tuple[int, int]] = [ordered[0]]
+        for s, e in ordered[1:]:
+            prev_s, prev_e = merged[-1]
+            if s <= prev_e + 1:
+                merged[-1] = (prev_s, max(prev_e, e))
+            else:
+                merged.append((s, e))
+        return merged
+
+    @classmethod
+    def _spans_cover_full_file(cls, spans: list[tuple[int, int]], total_lines: int) -> bool:
+        if total_lines <= 0 or not spans:
+            return False
+        merged = cls._merge_spans(spans)
+        return merged[0][0] <= 1 and merged[0][1] >= total_lines
+
+    def _is_tier_a_ranges_covered(self, rel: str) -> bool:
+        needed = getattr(self, "_triaged_tier_a_ranges", {}).get(rel, [])
+        if not needed:
+            return False
+        merged = self._merge_spans(
+            getattr(self, "_read_ranges_by_file", {}).get(rel, [])
+        )
+        return all(
+            any(rs <= ns and re_ >= ne for rs, re_ in merged)
+            for ns, ne in needed
+        )
+
+    def _record_read_evidence(
+        self, tool_name: str, tool_args: dict | None, tool_result: str
+    ) -> None:
+        """Track full-file ``read_file`` or ``semantic_slice_triage`` coverage evidence."""
+        required = getattr(self, "_required_read_files", None)
+        if required is None:
+            required = []
+            self._required_read_files = required
+        read_set = getattr(self, "_read_files", None)
+        if read_set is None:
+            read_set = set()
+            self._read_files = read_set
+        tier_a_ranges = getattr(self, "_triaged_tier_a_ranges", None)
+        if tier_a_ranges is None:
+            tier_a_ranges = {}
+            self._triaged_tier_a_ranges = tier_a_ranges
+        read_ranges = getattr(self, "_read_ranges_by_file", None)
+        if read_ranges is None:
+            read_ranges = {}
+            self._read_ranges_by_file = read_ranges
+
+        low_name = (tool_name or "").strip().lower()
+        args = tool_args if isinstance(tool_args, dict) else {}
+        stripped = tool_result.lstrip()
+        is_err = stripped.startswith("Error") or bool(
+            re.search(r"<success>\s*false\s*</success>", stripped, re.IGNORECASE)
+        )
+        if is_err:
+            return
+
+        if low_name == "semantic_slice_triage":
+            dispatcher = getattr(self, "dispatcher", None)
+            triage = getattr(dispatcher, "last_triage_result", None)
+            if triage is None:
+                return
+            unscanned_files = {
+                u.split(":L", 1)[0].strip().replace("\\", "/").lstrip("./")
+                for u in getattr(triage, "unscanned_slices", [])
+                if ":L" in u
+            }
+            for entry in getattr(triage, "tier_a_entries", []):
+                rel = str(entry.get("file", "")).replace("\\", "/").lstrip("./")
+                if rel:
+                    tier_a_ranges.setdefault(rel, []).append(
+                        (int(entry.get("line_start") or 1), int(entry.get("line_end") or 1))
+                    )
+            flagged_set = {
+                str(f).replace("\\", "/").lstrip("./")
+                for f in getattr(triage, "tier_a_files", [])
+                if f
+            } | unscanned_files
+
+            for rel in getattr(triage, "files_covered", []):
+                norm = str(rel).replace("\\", "/").lstrip("./")
+                if norm and norm not in flagged_set:
+                    read_set.add(norm)
+            for rel in sorted(flagged_set):
+                if rel and rel not in required:
+                    required.append(rel)
+                if rel in read_set and not self._is_tier_a_ranges_covered(rel):
+                    read_set.discard(rel)
+            return
+
+        if low_name == "read_file":
+            if not required:
+                return
+            raw_path = str(args.get("file_path") or args.get("path") or "").strip()
+            if not raw_path:
+                return
+            repo_dir = getattr(self, "repo_dir", "") or ""
+            if repo_dir and os.path.isabs(raw_path):
+                try:
+                    rel = os.path.relpath(raw_path, repo_dir).replace("\\", "/")
+                except ValueError:
+                    rel = raw_path.replace("\\", "/")
+            else:
+                rel = raw_path.replace("\\", "/").lstrip("./")
+
+            truncated = self._extract_xml_field(tool_result, "truncated").lower() == "true"
+            try:
+                s_line = int(self._extract_xml_field(tool_result, "start_line") or 1)
+                e_line = int(self._extract_xml_field(tool_result, "end_line") or 0)
+                t_lines = int(self._extract_xml_field(tool_result, "total_lines") or 0)
+                size_b = int(self._extract_xml_field(tool_result, "size_bytes") or 0)
+            except ValueError:
+                s_line, e_line, t_lines, size_b = 1, 0, 0, 0
+
+            if e_line >= s_line and e_line > 0:
+                read_ranges.setdefault(rel, []).append((s_line, e_line))
+
+            is_full_read = (
+                not truncated
+                and s_line <= 1
+                and (t_lines == 0 or e_line >= t_lines)
+            )
+            if is_full_read or self._spans_cover_full_file(read_ranges.get(rel, []), t_lines):
+                read_set.add(rel)
+            elif rel in tier_a_ranges and self._is_tier_a_ranges_covered(rel):
+                read_set.add(rel)
+            elif (
+                size_b <= 12000
+                and not truncated
+                and not args.get("start_line")
+                and not args.get("max_lines")
+            ):
+                read_set.add(rel)
+            else:
+                logger.info(
+                    f"Partial read on {rel} (L{s_line}-L{e_line}/{t_lines}, "
+                    f"truncated={truncated}, size={size_b}) does not satisfy full coverage."
+                )
+
+    def _missing_required_reads_for_conclusion(self, candidate_text: str) -> list[str]:
+        """Return unread required files if attempting to finish clean without full coverage."""
+        required = getattr(self, "_required_read_files", None)
+        if not required:
+            return []
+        nudges = getattr(self, "_coverage_nudges", 0)
+        max_nudges = getattr(self, "_max_coverage_nudges", 2)
+        if nudges >= max_nudges:
+            return []
+
+        text_low = (candidate_text or "").lower()
+        if (
+            "<vuln>" in text_low
+            or "<verdict>malicious</verdict>" in text_low
+            or "**malicious**" in text_low
+            or bool(
+                re.search(
+                    r"(?:verdict|结论|判定|结果)\s*[:：=]\s*\*{0,2}\s*malicious\b",
+                    text_low,
+                )
+            )
+        ):
+            return []
+
+        read_set = getattr(self, "_read_files", set())
+        return [req for req in required if req not in read_set]
+
+    def _append_coverage_deferral(self, missing_files: list[str]) -> None:
+        """Defer premature finish and prompt the Agent to read or triage missing files."""
+        self._coverage_nudges = getattr(self, "_coverage_nudges", 0) + 1
+        self.stalled_rounds = 0
+        file_list = ", ".join(missing_files[:10])
+        if len(missing_files) > 10:
+            file_list += f", ... (+{len(missing_files) - 10} more)"
+        next_p = self.next_prompt()
+        dispatcher = getattr(self, "dispatcher", None)
+        triage_enabled = bool(getattr(dispatcher, "enable_systemone_triage", False))
+        if self.language == "en":
+            if triage_enabled:
+                msg = (
+                    f"{next_p}\n\n"
+                    "Finish deferred: the following required Skill/reference files have not been "
+                    f"fully read or triaged yet (truncated/partial reads on large files do not count): [{file_list}]. "
+                    "Either call `semantic_slice_triage(target=\".\", granularity=\"coarse\")` first and then "
+                    "inspect every Tier A / unscanned file via `read_file`, OR read these files in full using `read_file`."
+                )
+            else:
+                msg = (
+                    f"{next_p}\n\n"
+                    "Finish deferred: before concluding clean, you have not yet inspected the following "
+                    f"required Skill/reference or pre-scan flagged file(s) in full: [{file_list}]. "
+                    "Call `read_file` on them (covering all lines) before calling `finish`."
+                )
+        else:
+            if triage_enabled:
+                msg = (
+                    f"{next_p}\n\n"
+                    "暂缓结束：以下关键文档尚未完成完整读取或切片覆盖（注意：对超长文件仅做截断或局部行号读取不算完整覆盖）："
+                    f"[{file_list}]。请先调用 `semantic_slice_triage(target=\".\", granularity=\"coarse\")` 覆盖全量文档并"
+                    "对 Tier A / 未完成切片文件调用 `read_file` 核验，或使用 `read_file` 分段完整读取上述文件。"
+                )
+            else:
+                msg = (
+                    f"{next_p}\n\n"
+                    "暂缓结束：在得出无风险结论前，你尚未完整读取以下关键 Skill/参考或静态预检命中的文件："
+                    f"[{file_list}]。请调用 `read_file` 完整读取后再调用 `finish`。"
+                )
+        logger.info(
+            f"Deferring premature finish on {self.name}; uncovered required files: {file_list}"
+        )
+        self.history.append({"role": "user", "content": msg})
 
     def _build_task_message(self) -> str:
         if not self.summary_memory:

@@ -22,11 +22,6 @@ import time
 from typing import Any
 
 from skill_scan.agent.base_agent import BaseAgent
-from skill_scan.agent.semantic_auditor import (
-    SemanticAuditReport,
-    audit_semantic_files,
-    is_semantic_slicing_enabled,
-)
 from skill_scan.tools.dispatcher import ToolDispatcher
 from skill_scan.utils.aig_logger import mcpLogger
 from skill_scan.utils.extract_vuln import (
@@ -37,8 +32,15 @@ from skill_scan.utils.extract_vuln import (
 )
 from skill_scan.utils.loging import logger
 from skill_scan.utils.pre_scan import pre_scan
+from skill_scan.utils.progressive_audit import (
+    build_progressive_semantic_map,
+    collect_required_audit_files,
+    is_autonomous_guards_enabled,
+    should_recommend_systemone_triage,
+)
 from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score, get_top_language
 from skill_scan.utils.prompt_manager import prompt_manager
+from skill_scan.utils.systemone_triage import is_systemone_enabled
 
 # Only .git is fully skipped from tree walks (clone noise).
 _TREE_SKIP_DIRS = {".git"}
@@ -404,23 +406,64 @@ class ScanPipeline:
         }:
             instruction += "\n\n" + prompt_manager.load_template("agents/audit_policy")
 
+        guards_enabled = getattr(self.agent_wrapper, "enable_autonomous_guards", True)
+        triage_enabled = bool(getattr(self.agent_wrapper.dispatcher, "enable_systemone_triage", False))
+        if stage.template == "agents/code_audit" and triage_enabled:
+            if stage.language == "en":
+                instruction += (
+                    "\n\n## Optional Semantic Slice Triage Accelerator (`semantic_slice_triage`)\n"
+                    "`read_file`, `ls`, and `grep` remain your primary audit workflow. System One "
+                    "`semantic_slice_triage` is an optional de-rhetoricizing accelerator for large pure-semantic docs:\n"
+                    "1. For small/medium skills or code-heavy repos, inspect `SKILL.md` and scripts directly via `read_file`/`grep` without calling triage.\n"
+                    "2. When you face many progressive docs (>= 6 docs totaling >= 20k bytes) or an oversized doc (> 24k bytes), "
+                    "invoke `semantic_slice_triage(target=\".\", granularity=\"coarse\")` BEFORE manually reading sub-docs (or pass a specific unread subdir like `target=\"references\"` if you already read `SKILL.md`) to avoid double-reading.\n"
+                    "3. After triage returns, read ONLY `SKILL.md`, executable scripts, Tier A flagged line windows (using `start_line`/`max_lines` with context on large files), and any `unscanned_slices`. Do NOT re-read clean Tier B (`inert_prose`/`passive_reference`) files when `unscanned_count=0`; if Tier A=0, unscanned=0, and entry/scripts are clean, finish immediately."
+                )
+            else:
+                instruction += (
+                    "\n\n## 可选语义切片加速工具（`semantic_slice_triage`）\n"
+                    "`read_file`、`ls`、`grep` 仍是主审计链路。System One 驱动的 `semantic_slice_triage` 是面向大规模纯语义文档的**可选增强选项**，不替代主链路：\n"
+                    "1. 中小规模 Skill 或以可执行代码为主的仓库，直接用 `read_file` / `grep` 通读 `SKILL.md` 与脚本即可，无需强行调用切片。\n"
+                    "2. 仅当面对大量渐进式文档（>= 6 个文档且总计 >= 20k 字节）或超长单文档（> 24k 字节，单次 `read_file` 会截断）且尚未手动通读子文档时，先调用一次 `semantic_slice_triage(target=\".\", granularity=\"coarse\")`（若已读 `SKILL.md`，只传未读目录如 `target=\"references\"` / `\"rules\"`），避免重复扫描。\n"
+                    "3. 切片返回后，仅针对 `SKILL.md`、可执行脚本、Tier A 命中文件/行区间（大文件可用 `start_line`/`max_lines` 带上下文精读）以及 `unscanned_slices`（Option A 兜底）调用 `read_file` 核验。当 `unscanned_count=0` 时，无需逐个重读 Tier B 良性/参考文档；若 Tier A=0、unscanned=0 且入口与脚本无异常，可直接收敛结论。"
+                )
+
         # Append the English directive
         if stage.language == "en":
             instruction = instruction + _LANGUAGE_DIRECTIVE_EN
 
-        # Initialize the stage Agent
-        agent = BaseAgent(
-            name=f"{stage.name} Agent",
-            instruction=instruction,
-            llm=self.agent_wrapper.llm,
-            dispatcher=self.agent_wrapper.dispatcher,
-            specialized_llms=self.agent_wrapper.specialized_llms,
-            log_step_id=stage.stage_id,
-            debug=self.agent_wrapper.debug,
-            output_format=stage.output_format,
-            output_check_fn=stage.output_check_fn,
-            language=stage.language,
+        pre_scan_hints = pre_scan(repo_dir) if inject_pre_scan else ""
+        progressive_map = (
+            build_progressive_semantic_map(repo_dir)
+            if inject_pre_scan and guards_enabled and stage.template == "agents/code_audit"
+            else ""
         )
+        required_files = (
+            collect_required_audit_files(
+                repo_dir,
+                pre_scan_hints,
+                include_all_t01_for_triage=triage_enabled,
+            )
+            if guards_enabled and stage.template == "agents/code_audit"
+            else []
+        )
+
+        # Initialize the stage Agent
+        agent_kwargs: dict[str, Any] = {
+            "name": f"{stage.name} Agent",
+            "instruction": instruction,
+            "llm": self.agent_wrapper.llm,
+            "dispatcher": self.agent_wrapper.dispatcher,
+            "specialized_llms": self.agent_wrapper.specialized_llms,
+            "log_step_id": stage.stage_id,
+            "debug": self.agent_wrapper.debug,
+            "output_format": stage.output_format,
+            "output_check_fn": stage.output_check_fn,
+            "language": stage.language,
+        }
+        if required_files:
+            agent_kwargs["required_read_files"] = required_files
+        agent = BaseAgent(**agent_kwargs)
         agent.set_repo_dir(repo_dir)
         await agent.initialize()
 
@@ -445,9 +488,28 @@ class ScanPipeline:
                 )
 
         if inject_pre_scan:
-            pre_scan_hints = pre_scan(repo_dir)
             if pre_scan_hints:
                 user_msg += f"\n\n{pre_scan_hints}"
+            if progressive_map:
+                user_msg += f"\n\n{progressive_map}"
+
+        if (
+            stage.template == "agents/code_audit"
+            and triage_enabled
+            and should_recommend_systemone_triage(repo_dir, required_files or None)
+        ):
+            if stage.language == "en":
+                user_msg += (
+                    "\n\nOptional triage hint: This repo contains large progressive markdown docs or an oversized file (>24k bytes). "
+                    "Instead of reading dozens of sub-docs one by one, you can call `semantic_slice_triage(target=\".\", granularity=\"coarse\")` first "
+                    "(before manual sub-doc reads) to isolate Tier A anomalies, then inspect only `SKILL.md`, scripts, Tier A line windows, and any `unscanned_slices`."
+                )
+            else:
+                user_msg += (
+                    "\n\n可选初筛提示：该项目包含较大量级渐进式文档或超长 Markdown 文件（>24k 字节）。"
+                    "为避免主模型逐个通读消耗过多上下文，建议在批量读子文档前先调用一次 "
+                    "`semantic_slice_triage(target=\".\", granularity=\"coarse\")`，之后只核验 `SKILL.md`、脚本、Tier A 命中区间及任何 `unscanned_slices`。"
+                )
 
         if context_data:
             if stage.language == "en":
@@ -483,29 +545,33 @@ class Agent:
         debug: bool = False,
         language: str = "zh",
         aig_mode: bool = False,
-        enable_semantic_slicing: bool | None = None,
+        enable_systemone_triage: bool | None = None,
+        enable_autonomous_guards: bool | None = None,
     ):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
         self.debug = debug
         self.language = language
         self.aig_mode = aig_mode
-        self.enable_semantic_slicing = (
-            is_semantic_slicing_enabled()
-            if enable_semantic_slicing is None
-            else enable_semantic_slicing
+        self.enable_systemone_triage = (
+            is_systemone_enabled()
+            if enable_systemone_triage is None
+            else bool(enable_systemone_triage)
+        )
+        self.enable_autonomous_guards = (
+            is_autonomous_guards_enabled()
+            if enable_autonomous_guards is None
+            else bool(enable_autonomous_guards)
         )
         self.last_verdict: str | None = None
-        self.dispatcher = ToolDispatcher()
+        self.dispatcher = ToolDispatcher(
+            enable_systemone_triage=self.enable_systemone_triage
+        )
         self.pipeline = ScanPipeline(self)
 
-    async def _run_semantic_slice_audit(
-        self, repo_dir: str, language: str
-    ) -> SemanticAuditReport:
-        """Audit pure semantic files as isolated slices to resist framing."""
-        if not self.enable_semantic_slicing:
-            return SemanticAuditReport()
-        return await audit_semantic_files(self.llm, repo_dir, language=language)
+    def _get_triage_ledger_hint(self) -> str:
+        triage = getattr(self.dispatcher, "last_triage_result", None)
+        return str(getattr(triage, "ledger_markdown", "") or "")
 
     async def scan(self, repo_dir: str, prompt: str, language: str = "zh") -> dict:
         """Security audit pipeline.
@@ -577,6 +643,7 @@ class Agent:
             mcpLogger.result_update(result_meta)
             return result_meta
 
+        self.dispatcher.last_triage_result = None
         if self.aig_mode:
             return await self._scan_three_stage(repo_dir, prompt, language, result_meta)
         else:
@@ -607,18 +674,6 @@ class Agent:
                 + _VULN_XML_FORMAT_ZH
             )
 
-        semantic_report = await self._run_semantic_slice_audit(repo_dir, language)
-        semantic_hints = semantic_report.to_prompt_hints(language)
-        stage1_context = (
-            {
-                "Isolated Semantic Slice Findings"
-                if language == "en"
-                else "去语境化语义切片审计线索": semantic_hints
-            }
-            if semantic_hints
-            else None
-        )
-
         audit_result = await self.pipeline.execute_stage(
             ScanStage(
                 "1",
@@ -630,7 +685,7 @@ class Agent:
             ),
             repo_dir,
             prompt,
-            stage1_context,
+            None,
             inject_repo_tree=True,
             inject_pre_scan=True,
         )
@@ -646,48 +701,18 @@ class Agent:
                 vuln_results = [parsed]
         verdict = extract_verdict(audit_result, vuln_results) or "suspicious"
 
-        # If continuous-context Code Audit produced no findings (either lulled
-        # into normal by narrative framing or degraded without <vuln> blocks),
-        # surface the isolated semantic-slice findings to Verdict Review.
-        rescued_from_semantic_slices = False
-        if not vuln_results and semantic_report.slice_findings:
-            slice_xml = semantic_report.to_vuln_xml()
-            slice_vulns = extractor.extract_vulnerabilities(slice_xml)
-            if slice_vulns:
-                audit_result = slice_xml
-                vuln_results = slice_vulns
-                verdict = semantic_report.highest_verdict
-                rescued_from_semantic_slices = True
-
         # A suspicious first-pass verdict is the ambiguous boundary with the
         # most false positives. Run a focused evidence adjudication only for
         # this class; normal and clearly malicious results keep the fast path.
-        if verdict == "suspicious" or rescued_from_semantic_slices:
-            draft_for_review = audit_result
-            if rescued_from_semantic_slices:
-                stripped_draft = _strip_internal_verdict(audit_result)
-                if language == "en":
-                    draft_for_review = (
-                        "[Rescued from Isolated Semantic Slice Audit — continuous Code Audit "
-                        "produced no findings; treat these slice <vuln> items strictly as "
-                        "unverified draft leads and adjudicate independently against full-file "
-                        "context]\n"
-                        f"{stripped_draft}"
-                    )
-                else:
-                    draft_for_review = (
-                        "[隔离语义切片审计救援草稿——连续代码审计未检出风险；"
-                        "请仅将以下切片 <vuln> 条目视为未经全文验证的候选线索，"
-                        "对照项目完整上下文独立裁决]\n"
-                        f"{stripped_draft}"
-                    )
-            review_context = {"Draft audit report": draft_for_review}
-            if semantic_hints:
+        if verdict == "suspicious":
+            review_context: dict[str, Any] = {"Draft audit report": audit_result}
+            ledger_hint = self._get_triage_ledger_hint()
+            if ledger_hint:
                 review_context[
-                    "Isolated Semantic Slice Findings"
+                    "Rhetoric-Free Behavior Ledger (System One)"
                     if language == "en"
-                    else "去语境化语义切片审计线索"
-                ] = semantic_hints
+                    else "去修辞行为原语清单（System One）"
+                ] = ledger_hint
             review_result = await self.pipeline.execute_stage(
                 ScanStage(
                     "2",
@@ -781,19 +806,15 @@ class Agent:
         )
 
         # Stage 2: Code Audit -- reuses the SkillTrustBench T01-T09 core
-        semantic_report = await self._run_semantic_slice_audit(repo_dir, language)
-        semantic_hints = semantic_report.to_prompt_hints(language)
         if language == "en":
             audit_ret_format = _OUTPUT_FORMAT_EN + _LANGUAGE_DIRECTIVE_EN
             stage2_name = "Code Audit"
-            semantic_key = "Isolated Semantic Slice Findings"
+            ledger_key = "Rhetoric-Free Behavior Ledger (System One)"
         else:
             audit_ret_format = _OUTPUT_FORMAT
             stage2_name = "代码审计"
-            semantic_key = "去语境化语义切片审计线索"
+            ledger_key = "去修辞行为原语清单（System One）"
         stage2_context = {ctx_key1: info_collection}
-        if semantic_hints:
-            stage2_context[semantic_key] = semantic_hints
         code_audit = await self.pipeline.execute_stage(
             ScanStage(
                 "2",
@@ -819,8 +840,9 @@ class Agent:
             stage3_name = "漏洞整理"
             ctx_key3 = "代码审计报告"
         stage3_context = {ctx_key3: code_audit}
-        if semantic_hints:
-            stage3_context[semantic_key] = semantic_hints
+        ledger_hint = self._get_triage_ledger_hint()
+        if ledger_hint:
+            stage3_context[ledger_key] = ledger_hint
         vuln_review = await self.pipeline.execute_stage(
             ScanStage(
                 "3",
