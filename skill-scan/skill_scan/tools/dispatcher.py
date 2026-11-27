@@ -22,6 +22,7 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 from skill_scan.tools.call_compat import prepare_tool_call
 from skill_scan.tools.registry import get_tool_by_name, get_tool_names, get_tools_prompt, needs_context
 from skill_scan.utils.loging import logger
+from skill_scan.utils.systemone_triage import is_systemone_enabled
 
 if TYPE_CHECKING:
     from skill_scan.utils.tool_context import ToolContext
@@ -36,17 +37,32 @@ _SKILL_TOOLS = [
     "dir_tree",
     "base64_decode",
 ]
+_SYSTEMONE_TOOL = "semantic_slice_triage"
 
 
 class ToolDispatcher:
     """Tool dispatcher for aig-skill-scan.
 
-    aig-skill-scan only uses local tools and does not make remote MCP calls.
+    aig-skill-scan only uses local tools and optional System One semantic triage.
     """
+
+    def __init__(self, enable_systemone_triage: bool | None = None):
+        self.enable_systemone_triage = (
+            is_systemone_enabled()
+            if enable_systemone_triage is None
+            else bool(enable_systemone_triage)
+        )
+        self.last_triage_result: Any = None
+        self.triage_history: list[Any] = []
+
+    def _active_tools(self) -> list[str]:
+        if getattr(self, "enable_systemone_triage", False):
+            return [*_SKILL_TOOLS, _SYSTEMONE_TOOL]
+        return list(_SKILL_TOOLS)
 
     async def get_all_tools_prompt(self) -> str:
         """Get the description prompt for all available tools."""
-        return get_tools_prompt(_SKILL_TOOLS)
+        return get_tools_prompt(self._active_tools())
 
     async def call_tool(
         self, tool_name: str, args: Dict[str, Any], context: Optional["ToolContext"] = None
@@ -58,14 +74,20 @@ class ToolDispatcher:
         TypeError that aborts project discovery (issue #629).
         Async execution errors use the same handling; cancellation propagates.
         """
+        active_tools = self._active_tools()
         canonical, prepared, error = prepare_tool_call(
             tool_name,
             args,
             context,
             get_tool=get_tool_by_name,
-            known_names=get_tool_names(),
-            available_prompt_tools=_SKILL_TOOLS,
+            known_names=[n for n in get_tool_names() if n in active_tools or n != _SYSTEMONE_TOOL],
+            available_prompt_tools=active_tools,
         )
+        if canonical == _SYSTEMONE_TOOL and _SYSTEMONE_TOOL not in active_tools:
+            return (
+                f"Error: Tool '{tool_name}' is not enabled (SYSTEMONE_BASE_URL is unset). "
+                f"Available tools: {', '.join(active_tools)}."
+            )
         if error:
             logger.warning(f"Tool call rejected/recovered: {tool_name} -> {error.splitlines()[0]}")
             return error

@@ -66,6 +66,7 @@ _ARG_ALIASES = {
     "thought": ("thinking", "think", "content", "text", "message", "reasoning", "analysis"),
     "path": ("dir", "directory", "folder", "dir_path", "target", "root", "cwd"),
     "file_path": ("path", "file", "filename", "filepath", "target"),
+    "target": ("path", "dir", "directory", "folder", "file_path"),
     "pattern": ("regex", "query", "search", "keyword", "text"),
     "command": ("cmd", "shell", "bash", "code", "script"),
     "content": ("text", "message", "result", "report", "output", "summary"),

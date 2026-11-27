@@ -154,3 +154,22 @@ def test_llm_chat_returns_normalized_tool_call():
     call = _first(llm.chat([{"role": "user", "content": "test"}]))
 
     assert call == {"toolName": "finish", "args": {"content": "done"}}
+
+
+def test_deepseek_dsml_tool_calls_are_normalized():
+    raw = (
+        "<｜DSML｜ calls>\n"
+        '<｜DSML｜ invoke name="read_file">\n'
+        '<｜DSML｜ parameter name="file_path" string="true">/repo/SKILL.md</｜DSML｜ parameter>\n'
+        '<｜DSML｜ parameter name="mode" string="true">full</｜DSML｜ parameter>\n'
+        "</｜DSML｜ parameter>\n"
+        "<｜DSML｜ invoke>\n"
+        "</｜DSML｜ calls>"
+    )
+    fixed, changed = normalize_tool_calls(raw)
+    calls = parse_tool_invocations_all(fixed) or []
+    assert changed
+    assert len(calls) == 1
+    assert calls[0]["toolName"] == "read_file"
+    assert calls[0]["args"].get("file_path") == "/repo/SKILL.md"
+    assert calls[0]["args"].get("mode") == "full"

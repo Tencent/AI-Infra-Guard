@@ -150,9 +150,11 @@ asyncio.run(run())
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | 主模型上下文窗口 | `128000` |
 | `REASONING_EFFORT` | 可选推理强度（例如 `high`）；支持的值取决于模型和服务提供商。未设置或为空白时不发送该 API 参数。 | 未设置 |
 | `LOG_LEVEL` | 日志级别 | `INFO` |
-| `SKILL_SCAN_SEMANTIC_SLICE` | 可选开启纯语义文件去语境化切片审计（设为 `1`/`true` 启用；每次扫描最多额外增加 `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` 次无状态 LLM 调用） | `0` |
-| `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` | 启用语义切片审计时单次扫描最多审计的切片数上限 | `24` |
-| `SKILL_SCAN_SEMANTIC_CONCURRENCY` | 语义切片审计阶段的最大并发 LLM 请求数 | `2` |
+| `SKILL_SCAN_AUTONOMOUS_GUARDS` | 启用 0-token 渐进文档清单、隐藏线索扫描与读覆盖防早退护栏（`1`/`0`） | `1` |
+| `SYSTEMONE_BASE_URL` | 可选 System One 端点（如 `http://127.0.0.1:8000/v1/systemone`），配置后暴露 `semantic_slice_triage` 工具 | 未设置（关闭） |
+| `SYSTEMONE_MODEL` | System One 判决模型名称 | `typesafe/jev-1.13` |
+| `SYSTEMONE_API_KEY` | System One API Key（未设时自动回退主 `LLM_API_KEY` / `OPENAI_API_KEY`） | — |
+| `SYSTEMONE_CONCURRENCY` | `semantic_slice_triage` 阶段的最大并发请求数 | `3` |
 
 ---
 
@@ -166,7 +168,7 @@ skill_scan/
 ├── tools/              # XML-schema 工具注册表
 │   ├── registry.py     # @register_tool 装饰器
 │   ├── dispatcher.py   # ToolDispatcher，工具调用分发
-│   ├── file/ ls/ grep/ dir/ base64_decode/ thinking/ finish/
+│   ├── file/ ls/ grep/ dir/ base64_decode/ thinking/ finish/ triage/
 │   └── *_schema.xml    # 工具的 XML schema（给 LLM 看）
 ├── utils/
 │   ├── llm.py          # OpenAI 兼容客户端
@@ -177,6 +179,9 @@ skill_scan/
 │   ├── project_analyzer.py # 语言识别 + calc_skill_score
 │   ├── text_decoder.py # 有界文本解码，带字符集走私检测
 │   └── pre_scan.py     # 预扫描：生成项目概要 + 编码异常检测 + 字节码（.pyc）及依赖/缓存/构建目录引用标记
+│   ├── progressive_audit.py # 0-token 渐进式文档地图、隐藏 Unicode/HTML 线索扫描与读覆盖辅助
+│   ├── semantic_slicer.py # 纯语义文档结构切片与能力基线提取
+│   └── systemone_triage.py # System One 去修辞能力原语编译器（4k 粗打包 + 灰区下钻）
 ├── prompt/             # 打包的 prompt 模板
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md

@@ -77,6 +77,16 @@ _ARGKEY_PAIR_RE = re.compile(
 )
 _ARGVALUE_CLOSE_RE = re.compile(r"</arg_value:[0-9a-fA-F]+>")
 _STRAY_CALL_CLOSE_RE = re.compile(r"</tool_call:[0-9a-fA-F]+\s*>")
+_DSML_MARKER_RE = re.compile(r"<\/?[｜|]\s*DSML\s*[｜|]")
+_DSML_CALLS_RE = re.compile(r"<\/?[｜|]\s*DSML\s*[｜|]\s*(?:function_)?calls\s*>")
+_DSML_INVOKE_OPEN_RE = re.compile(
+    r"<[｜|]\s*DSML\s*[｜|]\s*invoke\s+name\s*=\s*[\"']([A-Za-z_][\w-]*)[\"'][^>]*>"
+)
+_DSML_INVOKE_CLOSE_RE = re.compile(r"<\/?[｜|]\s*DSML\s*[｜|]\s*invoke\s*>")
+_DSML_PARAM_OPEN_RE = re.compile(
+    r"<[｜|]\s*DSML\s*[｜|]\s*parameter\s+name\s*=\s*[\"']([A-Za-z_][\w-]*)[\"'][^>]*>"
+)
+_DSML_PARAM_CLOSE_RE = re.compile(r"</[｜|]\s*DSML\s*[｜|]\s*parameter\s*>")
 
 
 def _as_param(value) -> str:
@@ -132,12 +142,45 @@ def _rewrite_bad_calls(content: str) -> str:
     return "".join(out)
 
 
+def _rewrite_dsml_calls(content: str) -> str:
+    """Convert DeepSeek DSML `<｜DSML｜ invoke ...>` blocks to `<function=...>`."""
+    text = _DSML_PARAM_OPEN_RE.sub(r"<parameter=\1>", content)
+    text = _DSML_PARAM_CLOSE_RE.sub("</parameter>", text)
+    text = _DSML_CALLS_RE.sub("", text)
+
+    out: list[str] = []
+    pos = 0
+    matches = list(_DSML_INVOKE_OPEN_RE.finditer(text))
+    for i, m in enumerate(matches):
+        if m.start() < pos:
+            continue
+        name = m.group(1)
+        seg_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        out.append(text[pos : m.start()])
+        out.append(f"<function={name}>\n")
+        body_start = m.end()
+        close = _DSML_INVOKE_CLOSE_RE.search(text, body_start, seg_end)
+        if close:
+            out.append(text[body_start : close.start()].rstrip())
+            out.append("\n</function>")
+            pos = close.end()
+        else:
+            out.append(text[body_start:seg_end].rstrip())
+            out.append("\n</function>")
+            pos = seg_end
+    out.append(text[pos:])
+    # Strip any stray DSML parameter tags that appeared outside invoke blocks
+    return _DSML_INVOKE_CLOSE_RE.sub("", "".join(out))
+
+
 def normalize_tool_calls(content: str) -> tuple[str, bool]:
     """Return ``(normalized_content, changed)``."""
     if not content or not isinstance(content, str):
         return content, False
+    has_dsml = bool(_DSML_MARKER_RE.search(content))
     if (
-        "<tool_call:" not in content
+        not has_dsml
+        and "<tool_call:" not in content
         and "<tool_calls:" not in content
         and "<arg_key:" not in content
         and "</tool_call:" not in content
@@ -146,7 +189,7 @@ def normalize_tool_calls(content: str) -> tuple[str, bool]:
     ):
         return content, False
 
-    text = content
+    text = _rewrite_dsml_calls(content) if has_dsml else content
     if "<arg_key:" in text or "</arg_value:" in text:
         text = _ARGKEY_PAIR_RE.sub(r"<parameter=\1>", text)
         text = _ARGKEY_INLINE_RE.sub(r"<parameter=\1>", text)

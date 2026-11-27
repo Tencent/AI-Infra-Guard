@@ -1,0 +1,9 @@
+<tool name="semantic_slice_triage">
+  <description>Optional System One (non-generative) accelerator for de-rhetoricized Capability Primitives compilation over pure semantic files (.md/.markdown/.txt/.rst). Complements the primary read_file/grep workflow on large progressive doc trees (&gt;= 6 docs totaling &gt;= 20k bytes) or oversized docs (&gt; 24k bytes). Avoid double-scanning files you already read (pass target="references" or a specific path). After triage, inspect Tier A line windows and any unscanned_slices via read_file; trust clean Tier B files without re-reading them one by one when unscanned_count=0.</description>
+  <parameters>
+    <parameter name="target" type="string" required="false">Relative file path, directory (e.g. "rules", "references"), or "." for all semantic files. Defaults to ".".</parameter>
+    <parameter name="granularity" type="string" required="false">"coarse" (default: ~4k packed chunks + auto zoom-in on gray-zone signals), "standard" (~1.2k chunks), or "fine" (~600 chunks).</parameter>
+    <parameter name="line_start" type="integer" required="false">Optional 1-based start line filter (default 0 = full file).</parameter>
+    <parameter name="line_end" type="integer" required="false">Optional 1-based end line filter (default 0 = full file).</parameter>
+  </parameters>
+</tool>

@@ -150,9 +150,11 @@ Key environment variables:
 | `DEFAULT_MODEL_CONTEXT_WINDOW` | Main model context window | `128000` |
 | `REASONING_EFFORT` | Optional reasoning effort (for example, `high`); supported values depend on the model and provider. Unset or blank values omit the API parameter. | Unset |
 | `LOG_LEVEL` | Log level | `INFO` |
-| `SKILL_SCAN_SEMANTIC_SLICE` | Opt-in isolated slice audit for pure semantic files (`1`/`true` to enable; adds up to `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` stateless LLM calls per scan) | `0` |
-| `SKILL_SCAN_MAX_SEMANTIC_CHUNKS` | Maximum number of isolated semantic slices audited per scan when enabled | `24` |
-| `SKILL_SCAN_SEMANTIC_CONCURRENCY` | Maximum concurrent LLM requests during semantic slice audit | `2` |
+| `SKILL_SCAN_AUTONOMOUS_GUARDS` | Enable 0-token progressive-disclosure inventory, hidden-cue scan, and read-coverage guardrails (`1`/`0`) | `1` |
+| `SYSTEMONE_BASE_URL` | Optional System One endpoint (e.g. `http://127.0.0.1:8000/v1/systemone`) enabling the `semantic_slice_triage` tool | Unset (disabled) |
+| `SYSTEMONE_MODEL` | System One decision model identifier | `typesafe/jev-1.13` |
+| `SYSTEMONE_API_KEY` | Optional API key for System One (falls back to `LLM_API_KEY` / `OPENAI_API_KEY`) | — |
+| `SYSTEMONE_CONCURRENCY` | Maximum concurrent requests during `semantic_slice_triage` | `3` |
 
 ---
 
@@ -166,7 +168,7 @@ skill_scan/
 ├── tools/              # XML-schema tool registry
 │   ├── registry.py     # @register_tool decorator
 │   ├── dispatcher.py   # ToolDispatcher, routes tool calls
-│   ├── file/ ls/ grep/ dir/ base64_decode/ thinking/ finish/
+│   ├── file/ ls/ grep/ dir/ base64_decode/ thinking/ finish/ triage/
 │   └── *_schema.xml    # XML schemas consumed by the LLM
 ├── utils/
 │   ├── llm.py          # OpenAI-compatible client
@@ -176,7 +178,10 @@ skill_scan/
 │   ├── sarif_formatter.py # Internal result → SARIF 2.1.0 conversion (used when --aig-mode is off)
 │   ├── project_analyzer.py # Language detection + calc_skill_score
 │   ├── text_decoder.py # Bounded text decoding with charset smuggling detection
-│   └── pre_scan.py     # Pre-scan: project summary + charset/encoding anomaly detection + bytecode (.pyc) & dependency/cache/build dir reference flagging
+│   ├── pre_scan.py     # Pre-scan: project summary + charset/encoding anomaly detection + bytecode (.pyc) & dependency/cache/build dir reference flagging
+│   ├── progressive_audit.py # 0-token progressive map, hidden Unicode/HTML cue scan, and read-coverage helper
+│   ├── semantic_slicer.py # Pure-semantic structural slicer & capability baseline extractor
+│   └── systemone_triage.py # System One Capability Primitives IR compiler (4k coarse packing + auto zoom-in)
 ├── prompt/             # Packaged prompt templates
 │   ├── system_prompt.md
 │   ├── compact.md  next_prompt.md  format_report.md
