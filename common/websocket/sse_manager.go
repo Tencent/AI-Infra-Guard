@@ -56,7 +56,7 @@ func NewSSEManager() *SSEManager {
 }
 
 // AddConnection 添加新的SSE连接
-func (sm *SSEManager) AddConnection(sessionID, username string, w http.ResponseWriter) error {
+func (sm *SSEManager) AddConnection(sessionID, username string, w http.ResponseWriter) (*SSEConnection, error) {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
 
@@ -71,7 +71,7 @@ func (sm *SSEManager) AddConnection(sessionID, username string, w http.ResponseW
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		log.Errorf("SSE流式传输不支持: sessionId=%s, username=%s", sessionID, username)
-		return fmt.Errorf("streaming unsupported")
+		return nil, fmt.Errorf("streaming unsupported")
 	}
 
 	// 设置SSE响应头
@@ -103,7 +103,7 @@ func (sm *SSEManager) AddConnection(sessionID, username string, w http.ResponseW
 	// 启动心跳和连接保持
 	go sm.keepConnectionAlive(conn)
 
-	return nil
+	return conn, nil
 }
 
 // keepConnectionAlive 保持连接活跃
