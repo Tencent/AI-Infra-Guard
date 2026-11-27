@@ -19,6 +19,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	vv "github.com/hashicorp/go-version"
@@ -104,13 +105,16 @@ func TestEval(t *testing.T) {
 			Ret: true,
 		},
 		{
+			// "&&" 优先于 "||"，故规则等价于 body="nginx" || (header="nginx" && icon="123")。
+			// body 已命中，整条规则即为真，icon 不匹配不影响结果。
+			// 此前的左折叠把规则读作 (body || header) && icon，命中 body 仍返回 false。
 			Rule: `body="nginx" || header="nginx" && icon="123"`,
 			Config: &Config{
 				Body:   "nginx",
 				Header: "nginx",
 				Icon:   456,
 			},
-			Ret: false,
+			Ret: true,
 		},
 		{
 			Rule: `body="nginx" && (icon=="123" || header="nginx")`,
@@ -289,5 +293,176 @@ func TestAdvisoryEvalPreRelease(t *testing.T) {
 		if got := rule.AdvisoryEval(&AdvisoryConfig{Version: c.version}); got != c.want {
 			t.Fatalf("rule %s with version %q = %v, want %v", c.rule, c.version, got, c.want)
 		}
+	}
+}
+
+// compileFpRule 编译指纹规则，便于优先级用例复用。
+func compileFpRule(t *testing.T, rule string) *Rule {
+	t.Helper()
+	tokens, err := ParseTokens(rule)
+	if err != nil {
+		t.Fatalf("ParseTokens(%q): %v", rule, err)
+	}
+	if err := CheckBalance(tokens); err != nil {
+		t.Fatalf("CheckBalance(%q): %v", rule, err)
+	}
+	compiled, err := TransFormExp(tokens)
+	if err != nil {
+		t.Fatalf("TransFormExp(%q): %v", rule, err)
+	}
+	return compiled
+}
+
+// compileAdvisoryRule 编译版本规则，便于优先级用例复用。
+func compileAdvisoryRule(t *testing.T, rule string) *Rule {
+	t.Helper()
+	tokens, err := ParseAdvisorTokens(rule)
+	if err != nil {
+		t.Fatalf("ParseAdvisorTokens(%q): %v", rule, err)
+	}
+	if err := CheckBalance(tokens); err != nil {
+		t.Fatalf("CheckBalance(%q): %v", rule, err)
+	}
+	compiled, err := TransFormExp(tokens)
+	if err != nil {
+		t.Fatalf("TransFormExp(%q): %v", rule, err)
+	}
+	return compiled
+}
+
+// TestAndBindsTighterThanOr 用穷举真值表固定 "&&" 优先于 "||" 的语义。
+// 以 body / header / icon 作为三个相互独立的原子条件 A、B、C。
+func TestAndBindsTighterThanOr(t *testing.T) {
+	const (
+		ruleOrAnd = `body="nginx" || header="nginx" && icon="123"`
+		ruleAndOr = `body="nginx" && header="nginx" || icon="123"`
+	)
+
+	configFor := func(a, b, c bool) *Config {
+		cfg := &Config{Body: "none", Header: "none", Icon: 456}
+		if a {
+			cfg.Body = "nginx"
+		}
+		if b {
+			cfg.Header = "nginx"
+		}
+		if c {
+			cfg.Icon = 123
+		}
+		return cfg
+	}
+
+	orAnd := compileFpRule(t, ruleOrAnd)
+	andOr := compileFpRule(t, ruleAndOr)
+
+	for _, a := range []bool{false, true} {
+		for _, b := range []bool{false, true} {
+			for _, c := range []bool{false, true} {
+				cfg := configFor(a, b, c)
+
+				// A || B && C 必须等价于 A || (B && C)
+				if got, want := orAnd.Eval(cfg), a || (b && c); got != want {
+					t.Errorf("%s with A=%v B=%v C=%v = %v, want %v (A || (B && C))",
+						ruleOrAnd, a, b, c, got, want)
+				}
+
+				// A && B || C 必须等价于 (A && B) || C
+				if got, want := andOr.Eval(cfg), (a && b) || c; got != want {
+					t.Errorf("%s with A=%v B=%v C=%v = %v, want %v ((A && B) || C)",
+						ruleAndOr, a, b, c, got, want)
+				}
+			}
+		}
+	}
+}
+
+// TestBracketsOverrideDefaultPrecedence 验证文档 "() 分组改变优先级" 的说明：
+// 加括号后的规则必须与不加括号的默认结合方式真正不同。
+func TestBracketsOverrideDefaultPrecedence(t *testing.T) {
+	// 文档中的示例规则。
+	bracketed := compileFpRule(t, `(body="gradio" || body="Gradio") && header="X-Gradio-Version"`)
+	bare := compileFpRule(t, `body="gradio" || body="Gradio" && header="X-Gradio-Version"`)
+
+	// body 命中但缺少版本头：括号版要求该头部，故为假；默认结合方式下 body 命中即为真。
+	cfg := &Config{Body: "a gradio app", Header: "server: none"}
+	if got := bracketed.Eval(cfg); got != false {
+		t.Errorf("bracketed rule = %v, want false (header required)", got)
+	}
+	if got := bare.Eval(cfg); got != true {
+		t.Errorf("bare rule = %v, want true (body alone satisfies the leading ||)", got)
+	}
+}
+
+// TestOrChainTopLevelOperator 固定 AST 形状：以 "||" 连接的规则，其根节点必须是 "||"，
+// 不能被末尾不带括号的 "&&" 夺走整条规则。
+func TestOrChainTopLevelOperator(t *testing.T) {
+	rule := compileAdvisoryRule(t, `version < "1.0.0" || version >= "2.0.0" && version < "2.1.0"`)
+	root, ok := rule.root.(*logicExp)
+	if !ok {
+		t.Fatalf("root is %T, want *logicExp", rule.root)
+	}
+	if root.op != tokenOr {
+		t.Fatalf("root operator = %q, want %q", root.op, tokenOr)
+	}
+	right, ok := root.right.(*logicExp)
+	if !ok {
+		t.Fatalf("right operand is %T, want *logicExp", root.right)
+	}
+	if right.op != tokenAnd {
+		t.Fatalf("right operand operator = %q, want %q", right.op, tokenAnd)
+	}
+}
+
+// TestShippedMixedOperatorRulesMatchExplicitGrouping 对仓库中实际发布的、
+// 同时在顶层使用 "&&" 与 "||" 的 CVE 规则做差分测试：按书写方式解析的结果，
+// 必须与按标准优先级显式加括号的等价规则一致。
+func TestShippedMixedOperatorRulesMatchExplicitGrouping(t *testing.T) {
+	cases := []struct {
+		name      string
+		asWritten string
+		explicit  string
+	}{
+		{
+			// data/vuln/jupyterlab/CVE-2021-41134.yaml
+			name:      "jupyterlab CVE-2021-41134",
+			asWritten: `version < "1.1.1" || (version >= "2.0.0" && version < "2.1.1") || (version >= "3.0.0" && version < "3.1.1") || version < "5.0.2" || version >= "6.0.0" && version < "6.1.2" || version < "1.0.1" || version >= "2.0.0" && version < "2.1.1"`,
+			explicit:  `version < "1.1.1" || (version >= "2.0.0" && version < "2.1.1") || (version >= "3.0.0" && version < "3.1.1") || version < "5.0.2" || (version >= "6.0.0" && version < "6.1.2") || version < "1.0.1" || (version >= "2.0.0" && version < "2.1.1")`,
+		},
+		{
+			// data/vuln/n8n/CVE-2025-68613.yaml
+			name:      "n8n CVE-2025-68613",
+			asWritten: `version >= "0.211.0" && version < "1.120.4" || version >= "1.121.0" && version < "1.121.1"`,
+			explicit:  `(version >= "0.211.0" && version < "1.120.4") || (version >= "1.121.0" && version < "1.121.1")`,
+		},
+		{
+			// data/vuln/langchain/CVE-2026-44843.yaml
+			name:      "langchain CVE-2026-44843",
+			asWritten: `version < "0.3.85" || version >= "1.0.0" && version < "1.3.3"`,
+			explicit:  `version < "0.3.85" || (version >= "1.0.0" && version < "1.3.3")`,
+		},
+	}
+
+	versions := make([]string, 0, 512)
+	for _, major := range []int{0, 1, 2, 3, 4, 5, 6, 7} {
+		for _, minor := range []int{0, 1, 2, 3, 100, 120, 121, 211} {
+			for _, patch := range []int{0, 1, 2, 3, 4, 5, 9, 85} {
+				versions = append(versions, fmt.Sprintf("%d.%d.%d", major, minor, patch))
+			}
+		}
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			asWritten := compileAdvisoryRule(t, c.asWritten)
+			explicit := compileAdvisoryRule(t, c.explicit)
+			for _, version := range versions {
+				cfg := &AdvisoryConfig{Version: version}
+				got := asWritten.AdvisoryEval(cfg)
+				want := explicit.AdvisoryEval(cfg)
+				if got != want {
+					t.Fatalf("version %q: rule as written = %v, explicit grouping = %v", version, got, want)
+				}
+			}
+		})
 	}
 }
