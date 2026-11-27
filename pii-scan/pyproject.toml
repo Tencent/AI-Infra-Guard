@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aig-pii-scan"
+version = "0.1.0"
+description = "Deterministic PII detection for text, files and directories (A.I.G plugin)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "vastStage" }]
+dependencies = []
+
+[project.scripts]
+aig-pii-scan = "pii_scan.main:cli"
+
+[tool.setuptools]
+packages = ["pii_scan", "pii_scan.recognizers", "pii_scan.utils", "pii_scan.report"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+pii_scan = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["pytests"]
