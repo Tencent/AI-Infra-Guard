@@ -1,0 +1,46 @@
+info:
+  id: "mcp_insecure_tls"
+  name: "MCP Insecure TLS / Certificate Verification Disabled Detection"
+  description: "Detect MCP servers and clients that disable TLS certificate verification, skip hostname checks, or fall back to plaintext HTTP/WS for a remote transport, exposing tool calls and credentials to network attackers (MITM)."
+  author: "vastStage"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect insecure TLS / disabled certificate verification in MCP server and client code. MCP remote transports carry tool arguments, credentials, and results; if TLS is disabled or downgraded, a network attacker can read and rewrite them (MITM). Require a concrete code path that weakens or disables transport security; only report with evidence.
+
+  ## Vulnerability Definition
+  Insecure TLS occurs when an MCP component disables peer-certificate validation (`verify=False`, `rejectUnauthorized: false`, `InsecureSkipVerify: true`), accepts any or no certificate, skips hostname verification, or uses unencrypted HTTP/WS for a non-loopback remote transport while carrying credentials or sensitive tool data.
+
+  ## Detection Criteria (require concrete weakened-transport evidence)
+
+  ### 1. Certificate verification disabled
+  **Code Patterns:**
+  - Python `requests`/`httpx`/`aiohttp`/`urllib3` with `verify=False` and no custom CA bundle.
+  - Node `https`/`tls`/`axios`/`fetch` with `rejectUnauthorized: false`, or `NODE_TLS_REJECT_UNAUTHORIZED=0` set in-process.
+  - Go `crypto/tls` with `InsecureSkipVerify: true` and no `VerifyPeerCertificate` compensating check.
+  - Java/Kotlin `X509TrustManager` whose `checkServerTrusted`/`checkClientTrusted` are empty (trust-all).
+
+  ### 2. Plaintext transport for a remote MCP endpoint
+  **Code Patterns:**
+  - MCP client/server configured with `http://`, `ws://`, or SSE over cleartext to a non-loopback host while sending Authorization/OAuth headers or tool data.
+  - A transport that silently falls back to cleartext on a TLS error, or forces a broken TLS version / cipher suite.
+
+  ### 3. No hostname verification
+  **Code Patterns:**
+  - Custom dial or SNI that ignores the certificate CN/SAN, or disables hostname matching after a successful handshake.
+
+  ## Strict Judgment Standards
+  - **Loopback / local dev**: Do not report cleartext to `127.0.0.1`/`localhost`/`[::1]` or a unix socket that stays on-host.
+  - **Proper CA bundle / pinning**: Do not report `verify=<pinned CA>` or a configured custom trust store, or when certificate pinning is actually enforced.
+  - **Test fixtures**: Do not report `InsecureSkipVerify`/`verify=False` confined to a test file whose only purpose is a local self-signed TLS fixture.
+  - **`VerifyPeerCertificate` compensation**: Do not report `InsecureSkipVerify: true` when a `VerifyPeerCertificate` callback performs real pinning.
+
+  ## Output Requirements
+  Only output when finding concrete weakened-transport evidence:
+  - Specific file paths and line numbers
+  - The transport/config sink and what data (credentials, tool arguments, results) crosses it
+  - Impact assessment: an on-path attacker can read/rewrite tool calls, steal tokens, or forge tool results
+  - Remediation: enable certificate verification, use a pinned CA bundle, forbid plaintext for non-loopback endpoints, pin certificates where feasible
+
+  **Strict Requirement: show the concrete disabled-verification or cleartext-transport path. Remain silent when no concrete evidence exists.**

@@ -1,0 +1,50 @@
+info:
+  id: "mcp_oauth_token_handling"
+  name: "MCP OAuth / Token Handling Weaknesses Detection"
+  description: "Detect MCP servers and clients that mishandle OAuth or API tokens: tokens written to logs/errors/results, caller tokens forwarded to untrusted parties, tokens accepted without signature/issuer/audience/expiry validation, long-lived static keys exposed to the model, or an OAuth flow missing PKCE/state."
+  author: "vastStage"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect OAuth / bearer-token handling weaknesses in MCP servers and clients. Authentication being "present" is not enough: tokens that leak, are unvalidated, or are forwarded to attacker-reachable places let an attacker read secrets or act as any user. Require a concrete token-handling defect; only report with evidence.
+
+  ## Vulnerability Definition
+  Token-handling weakness covers any of: logging or returning tokens (access/refresh/id tokens, authorization codes, full request headers) in logs, errors, telemetry, or tool output; forwarding the caller's bearer/refresh token to a third party or attacker-controlled endpoint (token passthrough/leakage); validating a token without checking signature, issuer, audience, or expiry; accepting tokens from an untrusted issuer; using a long-lived static API key as the only credential and exposing it; or an OAuth authorization-code flow missing PKCE or `state` validation.
+
+  ## Detection Criteria (require a concrete token-mishandling path)
+
+  ### 1. Token leakage (logs / errors / responses)
+  **Code Patterns:**
+  - Logging `Authorization`, `access_token`, `refresh_token`, or `code` (e.g., `logger.info(headers)`, `logger.debug(token)`, printing the whole request/response).
+  - Including the token in thrown errors, metrics, or a tool result returned to the model.
+
+  ### 2. Token passthrough / forwarding
+  **Code Patterns:**
+  - Taking the caller's bearer token and sending it to a downstream/third-party API that did not issue it (OAuth token passthrough), or echoing it back in tool output.
+  - Storing a caller token in shared/global state where another session can read it.
+
+  ### 3. Weak or missing validation
+  **Code Patterns:**
+  - Decoding a JWT without verifying the signature, or skipping `aud`/`iss`/`exp`/`nbf` checks.
+  - Accepting `alg: none` or any algorithm; trusting an `iss` not on an explicit allow-list; no key rotation handling.
+  - A long-lived static API key in config used as the sole auth, with no expiry or rotation.
+
+  ### 4. Flawed authorization flow
+  **Code Patterns:**
+  - OAuth authorization-code flow without PKCE, without `state` validation, or with a `redirect_uri` that is not pinned to an allow-list.
+
+  ## Strict Judgment Standards
+  - **Opaque, never-exposed token**: Do not report a token that is only ever compared or hashed server-side and never logged or forwarded.
+  - **Fully validated JWT**: Do not report when signature, `iss`, `aud`, and `exp` are all checked against an allow-list.
+  - **Secret-manager + rotation**: Do not report a key clearly loaded from a secret manager with rotation.
+  - **Test placeholders**: Do not report dummy `test-key`/`example` literals that never reach a real identity provider.
+
+  ## Output Requirements
+  Only output when finding concrete token-handling evidence:
+  - Specific file paths and line numbers
+  - The token source and the leak/forward/validation sink it reaches
+  - Technical analysis: what an attacker gains (token theft, impersonation, privilege escalation, data access)
+  - Remediation: never log tokens, do not forward caller tokens downstream, verify signature/iss/aud/exp against an allow-list, require PKCE+state and a pinned redirect_uri, use short-lived rotated credentials
+
+  **Strict Requirement: show the concrete token-to-sink path. Remain silent when no concrete evidence exists.**
