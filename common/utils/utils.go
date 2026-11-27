@@ -541,6 +541,16 @@ func RunCmdWithContext(ctx context.Context, dir, name string, arg []string, call
 	buf := make([]byte, 0, 64*1024)
 	scanner.Buffer(buf, maxCapacity)
 
+	// 启动命令
+	if err = cmd.Start(); err != nil {
+		// Start 失败时没人会调用 Wait，管道读端不会被自动关闭；显式关掉，
+		// 否则下面的读取会永远阻塞。此分支尚未启动读取 goroutine。
+		stdout.Close()
+		return err
+	}
+
+	// 启动扫描器 goroutine。放在 Start 成功之后：启动失败就没有需要清理的
+	// 读取协程，避免泄漏一个永远阻塞在管道/发送上的 goroutine。
 	done := make(chan error) // 改为传递错误信息
 	go func() {
 		defer close(done)
@@ -561,11 +571,6 @@ func RunCmdWithContext(ctx context.Context, dir, name string, arg []string, call
 		}
 		done <- nil
 	}()
-
-	// 启动命令
-	if err = cmd.Start(); err != nil {
-		return err
-	}
 
 	// 等待命令执行完成
 	cmdErr := cmd.Wait()
