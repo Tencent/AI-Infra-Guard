@@ -165,3 +165,15 @@ def test_dir_tree_flags_hidden_dirs_and_pyc(tmp_path: Path) -> None:
     assert "hidden.py" in tree
     assert "payload.pyc [!]" in tree
     assert ".git" not in tree  # .git stays hidden (clone noise)
+
+
+def test_pre_scan_accepts_python_314_magic_header(tmp_path: Path) -> None:
+    # Python 3.14 magic number is 3627: bytes 2b 0e 0d 0a
+    (tmp_path / "py314.pyc").write_bytes(b"\x2b\x0e\r\n" + b"\x00" * 12)
+    (tmp_path / "other.pyc").write_bytes(b"abcd" + b"\x00" * 12)
+
+    result = pre_scan(str(tmp_path))
+
+    flagged = {line for line in result.splitlines() if "bytecode file" in line}
+    assert any("py314.pyc" in line and "valid CPython magic header" in line for line in flagged)
+    assert any("other.pyc" in line and "valid CPython magic header" not in line for line in flagged)
