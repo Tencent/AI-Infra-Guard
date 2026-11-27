@@ -115,6 +115,8 @@ func RunWebServer(options *version.Options) {
 	if err != nil {
 		log.Fatalf("重置运行中的任务失败: %v", err)
 	}
+	// Conclude any re-verify derived tasks a restart left unfinished.
+	taskManager.FailOrphanedReverifies()
 
 	// 将 TaskManager 注入到 AgentManager
 	agentManager.SetTaskManager(taskManager)
@@ -246,6 +248,14 @@ func RunWebServer(options *version.Options) {
 				tasks.POST("/:sessionId/terminate", func(c *gin.Context) {
 					HandleTerminateTask(c, taskManager)
 				})
+				// 重扫任务接口
+				tasks.POST("/:sessionId/rescan", func(c *gin.Context) {
+					HandleRescanTask(c, taskManager)
+				})
+				// 漏洞复验接口
+				tasks.POST("/:sessionId/findings/reverify", func(c *gin.Context) {
+					HandleReverifyFinding(c, taskManager)
+				})
 			}
 			// 模型管理
 			models := appSecurity.Group("/models")
@@ -284,6 +294,10 @@ func RunWebServer(options *version.Options) {
 			// 创建任务
 			taskApi.POST("/tasks", func(c *gin.Context) {
 				SubmitTask(c, taskManager)
+			})
+			// 重扫任务
+			taskApi.POST("/tasks/:id/rescan", func(c *gin.Context) {
+				HandleRescanTask(c, taskManager)
 			})
 			// 获取任务状态
 			taskApi.GET("/status/:id", func(c *gin.Context) {

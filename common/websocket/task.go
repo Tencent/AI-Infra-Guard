@@ -143,6 +143,24 @@ type ResultUpdateEvent struct {
 	Result    interface{} `json:"result" validate:"required"`    // 结果信息 - 必需（不同任务类型结果字段各不相同）
 }
 
+// reverifyResult 事件体（派生复验任务结论，写在源会话上）
+type ReverifyResultEvent struct {
+	ID        string         `json:"id"`
+	Type      string         `json:"type"`
+	Timestamp int64          `json:"timestamp"`
+	SessionID string         `json:"sessionId"`
+	Result    ReverifyResult `json:"result"`
+}
+
+type ReverifyResult struct {
+	State            string `json:"state"` // reproduced | fixed | error
+	Reproduced       bool   `json:"reproduced"`
+	Target           string `json:"target"`
+	CVE              string `json:"cve"`
+	DerivedSessionID string `json:"derivedSessionId"`
+	Message          string `json:"message,omitempty"`
+}
+
 // 任务分配消息（Server -> Agent）
 type TaskAssignMessage struct {
 	Type    string      `json:"type" validate:"required"`    // 消息类型 - 必需
@@ -373,6 +391,61 @@ func HandleTerminateTask(c *gin.Context, tm *TaskManager) {
 		"message": "任务终止成功",
 		"data":    nil,
 	})
+}
+
+// 重扫任务接口
+func HandleRescanTask(c *gin.Context, tm *TaskManager) {
+	traceID := getTraceID(c)
+	sessionId := c.Param("sessionId")
+	if sessionId == "" {
+		sessionId = c.Param("id")
+	}
+	if !isValidSessionID(sessionId) {
+		c.JSON(http.StatusOK, gin.H{"status": 1, "message": "无效的会话ID格式", "data": nil})
+		return
+	}
+	username := c.GetString("username")
+	if c.Param("id") != "" {
+		// taskapi route: tasks created via SubmitTask are owned by resolveTaskAPIUsername.
+		username = resolveTaskAPIUsername(c)
+	}
+	var body struct {
+		SessionID string                 `json:"sessionId"`
+		Overrides map[string]interface{} `json:"overrides"`
+	}
+	_ = c.ShouldBindJSON(&body)
+
+	newID, err := tm.RescanTask(sessionId, username, traceID, body.Overrides, body.SessionID)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": 1, "message": "重扫失败: " + err.Error(), "data": nil})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": 0, "message": "重扫任务已创建", "data": gin.H{"sessionId": newID}})
+}
+
+// 漏洞复验接口
+func HandleReverifyFinding(c *gin.Context, tm *TaskManager) {
+	traceID := getTraceID(c)
+	sessionId := c.Param("sessionId")
+	if !isValidSessionID(sessionId) {
+		c.JSON(http.StatusOK, gin.H{"status": 1, "message": "无效的会话ID格式", "data": nil})
+		return
+	}
+	username := c.GetString("username")
+	var body struct {
+		Index      int    `json:"index"`
+		FindingRef string `json:"findingRef"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": 1, "message": "参数错误", "data": nil})
+		return
+	}
+	newID, err := tm.ReverifyFinding(sessionId, username, traceID, body.Index, body.FindingRef)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": 1, "message": "复验失败: " + err.Error(), "data": nil})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": 0, "message": "复验任务已创建", "data": gin.H{"reverifySessionId": newID}})
 }
 
 // 更新任务信息接口

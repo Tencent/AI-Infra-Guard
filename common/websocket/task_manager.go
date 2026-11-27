@@ -29,6 +29,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -109,6 +110,7 @@ func (tm *TaskManager) AddTask(req *TaskCreateRequest, traceID string) error {
 		AssignedAgent:  "", // 预存时为空
 		CountryIsoCode: req.CountryIsoCode,
 		Share:          true,
+		RescanKind:     "normal",
 	}
 
 	err = tm.taskStore.CreateSession(session)
@@ -181,6 +183,7 @@ func (tm *TaskManager) AddTaskApi(req *TaskCreateRequest) error {
 		AssignedAgent:  "", // 预存时为空
 		CountryIsoCode: req.CountryIsoCode,
 		Share:          true,
+		RescanKind:     "normal",
 	}
 	err = tm.taskStore.CreateSession(session)
 	if err != nil {
@@ -423,6 +426,427 @@ func (tm *TaskManager) dispatchTask(sessionId string, traceID string) error {
 }
 
 // HandleAgentEvent 处理来自Agent的事件
+// findingAt returns the index-th (target_url, cve) pair in a stored resultUpdate.
+func findingAt(eventData []byte, index int) (string, string, error) {
+	if index < 0 {
+		return "", "", fmt.Errorf("finding 索引无效")
+	}
+	var env struct {
+		Result struct {
+			Results []struct {
+				TargetURL       string `json:"target_url"`
+				Vulnerabilities []struct {
+					CVE string `json:"cve"`
+				} `json:"vulnerabilities"`
+			} `json:"results"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(eventData, &env); err != nil {
+		return "", "", fmt.Errorf("结果解析失败")
+	}
+	k := 0
+	for _, r := range env.Result.Results {
+		for _, v := range r.Vulnerabilities {
+			if k == index {
+				return r.TargetURL, v.CVE, nil
+			}
+			k++
+		}
+	}
+	return "", "", fmt.Errorf("finding 索引越界")
+}
+
+// reverifyVersionRe matches a dotted version token (e.g. "1.18"); the only
+// positive version evidence the fingerprint string reliably exposes.
+var reverifyVersionRe = regexp.MustCompile(`\d+\.\d+`)
+
+// classifyReverify decides the tri-state of a re-run from a derived AI-Infra-Scan
+// result. It needs positive evidence: a result entry for the target, a non-empty
+// fingerprint, and a version token. "No entry" means the target was not scanned.
+func classifyReverify(event interface{}, target, cve string, usedAI bool) (string, bool, string) {
+	raw, err := json.Marshal(event)
+	if err != nil {
+		return "error", false, "结果解析失败"
+	}
+	var env struct {
+		Result struct {
+			Results []struct {
+				TargetURL       string `json:"target_url"`
+				Fingerprint     string `json:"fingerprint"`
+				Vulnerabilities []struct {
+					CVE string `json:"cve"`
+				} `json:"vulnerabilities"`
+			} `json:"results"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return "error", false, "结果解析失败"
+	}
+	found := false
+	fp := ""
+	hasCVE := false
+	for _, r := range env.Result.Results {
+		if r.TargetURL != target {
+			continue
+		}
+		found = true
+		fp = r.Fingerprint
+		for _, v := range r.Vulnerabilities {
+			if v.CVE == cve {
+				hasCVE = true
+			}
+		}
+	}
+	if !found {
+		return "error", false, "目标未出现在复验结果(不可达或扫描失败)"
+	}
+	if fp == "" {
+		return "error", false, "目标可达但未识别指纹，无法判定"
+	}
+	if hasCVE {
+		if !reverifyVersionRe.MatchString(fp) {
+			return "error", false, "指纹无版本信息，无法确定性判定"
+		}
+		return "reproduced", true, ""
+	}
+	if usedAI {
+		return "error", false, "源含模型分析结果，无法确认已修复"
+	}
+	return "fixed", false, ""
+}
+
+// emitReverifyResult writes a re-verify conclusion event onto the source session.
+func (tm *TaskManager) emitReverifyResult(sourceID, derivedID, target, cve, state, message string, reproduced bool) {
+	if sourceID == "" {
+		return
+	}
+	payload := ReverifyResultEvent{
+		ID:        generateEventID(),
+		Type:      "reverifyResult",
+		Timestamp: time.Now().Unix(),
+		SessionID: sourceID,
+		Result: ReverifyResult{
+			State:            state,
+			Reproduced:       reproduced,
+			Target:           target,
+			CVE:              cve,
+			DerivedSessionID: derivedID,
+			Message:          message,
+		},
+	}
+	tm.handleEvent(sourceID, "reverifyResult", payload)
+}
+
+// maybeFinishReverify is called from terminal event handlers. If this session is
+// a re-verify derived task, it writes a conclusion onto the source session.
+func (tm *TaskManager) maybeFinishReverify(sessionId, eventType string, event interface{}) {
+	kind, sourceID, params, err := tm.taskStore.GetSessionReverifyMeta(sessionId)
+	if err != nil || kind != "reverify" || sourceID == "" {
+		return
+	}
+	var p map[string]interface{}
+	if len(params) > 0 {
+		_ = json.Unmarshal(params, &p)
+	}
+	target, _ := p["reverify_target"].(string)
+	cve, _ := p["reverify_cve"].(string)
+	usedAI, _ := p["reverify_used_ai"].(bool)
+
+	state := "error"
+	reproduced := false
+	message := "派生复验任务执行失败"
+	if eventType == "resultUpdate" {
+		state, reproduced, message = classifyReverify(event, target, cve, usedAI)
+	}
+
+	tm.emitReverifyResult(sourceID, sessionId, target, cve, state, message, reproduced)
+
+	// The derived task is internal; drop it after the conclusion is written so
+	// hidden re-verify sessions do not accumulate.
+	tm.mu.Lock()
+	delete(tm.tasks, sessionId)
+	tm.mu.Unlock()
+	_ = tm.taskStore.DeleteSessionWithMessages(sessionId)
+}
+
+func (tm *TaskManager) removeFiles(paths []string) {
+	for _, p := range paths {
+		_ = os.Remove(p)
+	}
+}
+
+// copyAttachmentsShadow copies each source attachment to a fresh secure name so
+// that deleting either the source or the derived task cannot break the other.
+func (tm *TaskManager) copyAttachmentsShadow(urls []string) ([]string, []string, error) {
+	newNames := make([]string, 0, len(urls))
+	copied := make([]string, 0, len(urls))
+	for _, u := range urls {
+		u = strings.TrimSpace(u)
+		if u == "" {
+			continue
+		}
+		name := filepath.Base(u)
+		src := filepath.Join(tm.fileConfig.UploadDir, name)
+		data, err := os.ReadFile(src)
+		if err != nil {
+			tm.removeFiles(copied)
+			return nil, nil, fmt.Errorf("源附件缺失: %s", name)
+		}
+		newName := generateSecureFileName(name)
+		dst := filepath.Join(tm.fileConfig.UploadDir, newName)
+		if err := os.WriteFile(dst, data, 0644); err != nil {
+			_ = os.Remove(dst)
+			tm.removeFiles(copied)
+			return nil, nil, fmt.Errorf("复制附件失败: %v", err)
+		}
+		newNames = append(newNames, newName)
+		copied = append(copied, dst)
+	}
+	return newNames, copied, nil
+}
+
+// RescanTask re-dispatches a finished task from its stored request.
+func (tm *TaskManager) RescanTask(sourceID, username, traceID string, overrides map[string]interface{}, newSessionID string) (string, error) {
+	source, err := tm.taskStore.GetSession(sourceID)
+	if err != nil {
+		return "", fmt.Errorf("任务不存在")
+	}
+	if source.Username != username {
+		return "", fmt.Errorf("无权限")
+	}
+	if !isTerminalTaskStatus(source.Status) {
+		return "", fmt.Errorf("任务进行中，无法重扫")
+	}
+
+	srcParams := make(map[string]interface{})
+	if len(source.Params) > 0 {
+		_ = json.Unmarshal(source.Params, &srcParams)
+	}
+	content := source.Content
+	if overrides != nil {
+		if c, ok := overrides["content"].(string); ok && c != "" {
+			content = c
+		}
+		if p, ok := overrides["params"].(map[string]interface{}); ok {
+			for k, v := range p {
+				srcParams[k] = v
+			}
+		}
+	}
+
+	var srcAtts []string
+	if len(source.Attachments) > 0 {
+		_ = json.Unmarshal(source.Attachments, &srcAtts)
+	}
+	newAtts, copied, err := tm.copyAttachmentsShadow(srcAtts)
+	if err != nil {
+		return "", err
+	}
+	if newAtts == nil {
+		newAtts = []string{}
+	}
+
+	if newSessionID == "" {
+		newSessionID = generateUUID()
+	}
+	if !isValidSessionID(newSessionID) {
+		tm.removeFiles(copied)
+		return "", fmt.Errorf("无效的会话ID格式")
+	}
+
+	req := &TaskCreateRequest{
+		ID:             generateEventID(),
+		SessionID:      newSessionID,
+		Username:       source.Username,
+		Task:           source.TaskType,
+		Timestamp:      time.Now().Unix(),
+		Content:        content,
+		Params:         srcParams,
+		Attachments:    newAtts,
+		CountryIsoCode: source.CountryIsoCode,
+	}
+	session := &database.Session{
+		ID:              newSessionID,
+		Username:        source.Username,
+		Title:           tm.generateTaskTitle(req),
+		TaskType:        source.TaskType,
+		Content:         content,
+		Params:          mustMarshalJSON(srcParams),
+		Attachments:     mustMarshalJSON(newAtts),
+		Status:          TaskStatusTodo,
+		AssignedAgent:   "",
+		CountryIsoCode:  source.CountryIsoCode,
+		Share:           source.Share,
+		ParentSessionID: sourceID,
+		RescanKind:      "normal",
+	}
+	if err := tm.taskStore.CreateSession(session); err != nil {
+		tm.removeFiles(copied)
+		return "", fmt.Errorf("预存任务失败: %v", err)
+	}
+
+	tm.mu.Lock()
+	tm.tasks[newSessionID] = req
+	tm.mu.Unlock()
+
+	if err := tm.dispatchTask(newSessionID, traceID); err != nil {
+		tm.cleanupFailedTask(newSessionID, traceID)
+		tm.removeFiles(copied)
+		return "", err
+	}
+	return newSessionID, nil
+}
+
+// ReverifyFinding re-runs the single Infra finding (target,cve) and later reports
+// a tri-state conclusion on the source session.
+func (tm *TaskManager) ReverifyFinding(sourceID, username, traceID string, index int, findingRef string) (string, error) {
+	source, err := tm.taskStore.GetSession(sourceID)
+	if err != nil {
+		return "", fmt.Errorf("任务不存在")
+	}
+	if source.Username != username {
+		return "", fmt.Errorf("无权限")
+	}
+	if source.TaskType != agent.TaskTypeAIInfraScan {
+		return "", fmt.Errorf("本期仅支持 AI-Infra-Scan 复验")
+	}
+	if !isTerminalTaskStatus(source.Status) {
+		return "", fmt.Errorf("任务进行中，无法复验")
+	}
+
+	resultMsg, err := tm.taskStore.GetLatestSessionEventByType(sourceID, "resultUpdate")
+	if err != nil {
+		return "", fmt.Errorf("任务结果不存在")
+	}
+	target, cve, err := findingAt(resultMsg.EventData, index)
+	if err != nil {
+		return "", err
+	}
+	if findingRef != "" && findingRef != fmt.Sprintf("infra|target=%s|cve=%s", target, cve) {
+		return "", fmt.Errorf("findingRef 不匹配")
+	}
+	if target == "" || cve == "" {
+		return "", fmt.Errorf("该 finding 缺少目标或 CVE，无法复验")
+	}
+
+	var srcParams map[string]interface{}
+	if len(source.Params) > 0 {
+		_ = json.Unmarshal(source.Params, &srcParams)
+	}
+	// If the source used model analysis its findings may include AI-derived ones a
+	// deterministic re-run cannot reproduce; remember that so "absent" becomes
+	// "error" (can't confirm fixed) rather than a false "fixed".
+	usedAI := false
+	for _, k := range []string{"model", "model_id", "eval_model", "eval_model_id"} {
+		if _, ok := srcParams[k]; ok {
+			usedAI = true
+			break
+		}
+	}
+	dparams := map[string]interface{}{
+		"reverify_source":  sourceID,
+		"reverify_target":  target,
+		"reverify_cve":     cve,
+		"reverify_used_ai": usedAI,
+	}
+	// Keep only non-model scan options; dropping any model key disables the AI leg
+	// so the re-run is deterministic.
+	for _, k := range []string{"headers", "timeout"} {
+		if v, ok := srcParams[k]; ok {
+			dparams[k] = v
+		}
+	}
+
+	newID := generateUUID()
+	req := &TaskCreateRequest{
+		ID:             generateEventID(),
+		SessionID:      newID,
+		Username:       source.Username,
+		Task:           agent.TaskTypeAIInfraScan,
+		Timestamp:      time.Now().Unix(),
+		Content:        target,
+		Params:         dparams,
+		CountryIsoCode: source.CountryIsoCode,
+	}
+	session := &database.Session{
+		ID:              newID,
+		Username:        source.Username,
+		Title:           "复验: " + cve + " " + target,
+		TaskType:        agent.TaskTypeAIInfraScan,
+		Content:         target,
+		Params:          mustMarshalJSON(dparams),
+		Attachments:     mustMarshalJSON([]string{}),
+		Status:          TaskStatusTodo,
+		CountryIsoCode:  source.CountryIsoCode,
+		Share:           false,
+		ParentSessionID: sourceID,
+		RescanKind:      "reverify",
+	}
+	if err := tm.taskStore.CreateSession(session); err != nil {
+		return "", fmt.Errorf("创建复验任务失败: %v", err)
+	}
+	tm.mu.Lock()
+	tm.tasks[newID] = req
+	tm.mu.Unlock()
+	if err := tm.dispatchTask(newID, traceID); err != nil {
+		tm.cleanupFailedTask(newID, traceID)
+		tm.emitReverifyResult(sourceID, newID, target, cve, "error", "复验任务下发失败", false)
+		return "", err
+	}
+	return newID, nil
+}
+
+// FailOrphanedReverifies writes an error conclusion for re-verify derived tasks
+// left unfinished by a restart, then removes them.
+func (tm *TaskManager) FailOrphanedReverifies() {
+	children, err := tm.taskStore.GetReverifyChildren()
+	if err != nil {
+		log.Errorf("扫描遗留复验任务失败: %v", err)
+		return
+	}
+	for _, s := range children {
+		if s.Status == TaskStatusDone || s.Status == TaskStatusTerminated {
+			_ = tm.taskStore.DeleteSessionWithMessages(s.ID)
+			continue
+		}
+		var p map[string]interface{}
+		_ = json.Unmarshal(s.Params, &p)
+		src, _ := p["reverify_source"].(string)
+		target, _ := p["reverify_target"].(string)
+		cve, _ := p["reverify_cve"].(string)
+		tm.emitReverifyResult(src, s.ID, target, cve, "error", "服务重启或中断，复验未完成", false)
+		_ = tm.taskStore.DeleteSessionWithMessages(s.ID)
+	}
+}
+
+// FailReverifiesForAgent concludes re-verify derived tasks assigned to an agent
+// that just disconnected, so the source does not wait forever.
+func (tm *TaskManager) FailReverifiesForAgent(agentID string) {
+	if agentID == "" {
+		return
+	}
+	children, err := tm.taskStore.GetReverifyChildren()
+	if err != nil {
+		log.Errorf("扫描遗留复验任务失败: %v", err)
+		return
+	}
+	for _, s := range children {
+		if s.AssignedAgent != agentID {
+			continue
+		}
+		if s.Status == TaskStatusDone || s.Status == TaskStatusTerminated {
+			continue
+		}
+		var p map[string]interface{}
+		_ = json.Unmarshal(s.Params, &p)
+		src, _ := p["reverify_source"].(string)
+		target, _ := p["reverify_target"].(string)
+		cve, _ := p["reverify_cve"].(string)
+		tm.emitReverifyResult(src, s.ID, target, cve, "error", "Agent 断开，复验未完成", false)
+		_ = tm.taskStore.DeleteSessionWithMessages(s.ID)
+	}
+}
+
 func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, event interface{}) {
 	log.Debugf("收到Agent事件: sessionId=%s, eventType=%s", sessionId, eventType)
 
@@ -474,6 +898,7 @@ func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, even
 		}
 	case "error":
 		log.Errorf("错误事件: sessionId=%s %v", sessionId, event)
+		tm.maybeFinishReverify(sessionId, "error", event)
 		err := tm.taskStore.UpdateSessionStatus(sessionId, TaskStatusError)
 		if err != nil {
 			log.Errorf("更新任务失败: sessionId=%s, error=%v", sessionId, err)
@@ -485,6 +910,7 @@ func (tm *TaskManager) HandleAgentEvent(sessionId string, eventType string, even
 		if convertedEvent, err := convertToStruct(event, &ResultUpdateEvent{}); err == nil {
 			if _, ok := convertedEvent.(*ResultUpdateEvent); ok {
 				log.Infof("任务完成: sessionId=%s", sessionId)
+				tm.maybeFinishReverify(sessionId, "resultUpdate", event)
 
 				// 监控相关代码已移除
 
@@ -633,6 +1059,16 @@ func (tm *TaskManager) TerminateTask(sessionId string, username string, traceID 
 	}
 
 	log.Infof("任务终止完成: trace_id=%s, sessionId=%s", traceID, sessionId)
+
+	// A terminated re-verify derived task must still leave a conclusion on its source.
+	if session.RescanKind == "reverify" && session.ParentSessionID != "" {
+		var p map[string]interface{}
+		_ = json.Unmarshal(session.Params, &p)
+		target, _ := p["reverify_target"].(string)
+		cve, _ := p["reverify_cve"].(string)
+		tm.emitReverifyResult(session.ParentSessionID, sessionId, target, cve, "error", "复验任务被终止", false)
+		_ = tm.taskStore.DeleteSessionWithMessages(sessionId)
+	}
 
 	// 监控相关代码已移除
 
