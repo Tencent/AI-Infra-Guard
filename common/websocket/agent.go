@@ -459,6 +459,9 @@ func (ac *AgentConnection) cleanup(am *AgentManager) {
 		removed, replaced := am.removeConnectionIfCurrent(agentID, ac)
 		if removed {
 			log.Infof("Agent已从连接管理器中移除: agentId=%s", agentID)
+			if am.taskManager != nil {
+				am.taskManager.FailReverifiesForAgent(agentID)
+			}
 		} else if replaced {
 			log.Infof("Agent连接已被新连接替换，保留新连接: agentId=%s", agentID)
 		} else {

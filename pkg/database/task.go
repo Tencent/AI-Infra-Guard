@@ -44,20 +44,22 @@ type User struct {
 
 // Session 会话表（一个会话对应一个任务）
 type Session struct {
-	ID             string         `gorm:"primaryKey;column:id" json:"id"` // 会话ID，也是任务ID
-	Username       string         `gorm:"column:username;not null" json:"username"`
-	Title          string         `gorm:"column:title" json:"title"`
-	TaskType       string         `gorm:"column:task_type;not null" json:"task_type"`          // 任务类型
-	Content        string         `gorm:"column:content;not null" json:"content"`              // 任务内容
-	Params         datatypes.JSON `gorm:"column:params" json:"params"`                         // 任务参数
-	Attachments    datatypes.JSON `gorm:"column:attachments" json:"attachments"`               // 附件
-	Status         string         `gorm:"column:status;not null;default:'todo'" json:"status"` // todo, doing, done, error
-	AssignedAgent  string         `gorm:"column:assigned_agent" json:"assigned_agent"`         // 分配的Agent
-	CountryIsoCode string         `gorm:"column:contry_iso_code" json:"countryIsoCode"`        // 标识语言
-	StartedAt      *int64         `gorm:"column:started_at" json:"started_at"`                 // 时间戳毫秒级
-	CompletedAt    *int64         `gorm:"column:completed_at" json:"completed_at"`             // 时间戳毫秒级
-	CreatedAt      int64          `gorm:"column:created_at;not null" json:"created_at"`        // 时间戳毫秒级
-	UpdatedAt      int64          `gorm:"column:updated_at;not null" json:"updated_at"`        // 时间戳毫秒级
+	ID              string         `gorm:"primaryKey;column:id" json:"id"` // 会话ID，也是任务ID
+	Username        string         `gorm:"column:username;not null" json:"username"`
+	Title           string         `gorm:"column:title" json:"title"`
+	TaskType        string         `gorm:"column:task_type;not null" json:"task_type"`            // 任务类型
+	Content         string         `gorm:"column:content;not null" json:"content"`                // 任务内容
+	Params          datatypes.JSON `gorm:"column:params" json:"params"`                           // 任务参数
+	Attachments     datatypes.JSON `gorm:"column:attachments" json:"attachments"`                 // 附件
+	Status          string         `gorm:"column:status;not null;default:'todo'" json:"status"`   // todo, doing, done, error
+	AssignedAgent   string         `gorm:"column:assigned_agent" json:"assigned_agent"`           // 分配的Agent
+	ParentSessionID string         `gorm:"column:parent_session_id" json:"parentSessionId"`       // 由哪个任务重扫/复验而来
+	RescanKind      string         `gorm:"column:rescan_kind;default:'normal'" json:"rescanKind"` // normal | rescan | reverify
+	CountryIsoCode  string         `gorm:"column:contry_iso_code" json:"countryIsoCode"`          // 标识语言
+	StartedAt       *int64         `gorm:"column:started_at" json:"started_at"`                   // 时间戳毫秒级
+	CompletedAt     *int64         `gorm:"column:completed_at" json:"completed_at"`               // 时间戳毫秒级
+	CreatedAt       int64          `gorm:"column:created_at;not null" json:"created_at"`          // 时间戳毫秒级
+	UpdatedAt       int64          `gorm:"column:updated_at;not null" json:"updated_at"`          // 时间戳毫秒级
 
 	// 关联关系
 	User     User          `gorm:"foreignKey:Username" json:"user"`
@@ -96,6 +98,44 @@ func (s *TaskStore) ResetRunningTasks() error {
 	}).Error
 }
 
+// GetReverifyChildren returns internal re-verify derived sessions.
+func (s *TaskStore) GetReverifyChildren() ([]*Session, error) {
+	var sessions []*Session
+	err := s.db.Where("rescan_kind = ? AND parent_session_id IS NOT NULL AND parent_session_id <> ''", "reverify").Find(&sessions).Error
+	if err != nil {
+		return nil, err
+	}
+	return sessions, nil
+}
+
+// GetSessionReverifyMeta returns the rescan kind, parent and params of a session.
+// Used to decide whether a terminal session is an internal re-verify task; the
+// decision must come from the DB, not from client-controlled in-memory params.
+func (s *TaskStore) GetSessionReverifyMeta(id string) (string, string, datatypes.JSON, error) {
+	var session Session
+	if err := s.db.Select("rescan_kind", "parent_session_id", "params").Where("id = ?", id).Take(&session).Error; err != nil {
+		return "", "", nil, err
+	}
+	return session.RescanKind, session.ParentSessionID, session.Params, nil
+}
+
+// DeleteChildrenByParent removes derived sessions (and their messages) of a parent.
+func (s *TaskStore) DeleteChildrenByParent(parentID string) error {
+	if parentID == "" {
+		return nil
+	}
+	var children []*Session
+	if err := s.db.Select("id").Where("parent_session_id = ?", parentID).Find(&children).Error; err != nil {
+		return err
+	}
+	for _, c := range children {
+		if err := s.DeleteSessionWithMessages(c.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Init 自动迁移任务相关表结构
 func (s *TaskStore) Init() error {
 	if err := s.db.AutoMigrate(&User{}, &Session{}, &TaskMessage{}); err != nil {
@@ -111,6 +151,8 @@ func (s *TaskStore) createIndexes() error {
 		"CREATE INDEX IF NOT EXISTS idx_sessions_username_created ON sessions(username, created_at DESC)",
 		"CREATE INDEX IF NOT EXISTS idx_sessions_username_tasktype ON sessions(username, task_type)",
 		"CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status)",
+		"CREATE INDEX IF NOT EXISTS idx_sessions_parent ON sessions(parent_session_id)",
+		"CREATE INDEX IF NOT EXISTS idx_sessions_rescan_kind ON sessions(rescan_kind)",
 		// TaskMessage 表索引
 		"CREATE INDEX IF NOT EXISTS idx_taskmessages_session_timestamp ON task_messages(session_id, timestamp)",
 		"CREATE INDEX IF NOT EXISTS idx_taskmessages_session_type ON task_messages(session_id, type)",
@@ -382,7 +424,7 @@ func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams Simpl
 
 	// 如果有查询关键词，在多个字段中搜索
 	if searchParams.Query != "" {
-		query = query.Where("title LIKE ? OR content LIKE ? OR task_type LIKE ?",
+		query = query.Where("(title LIKE ? OR content LIKE ? OR task_type LIKE ?)",
 			"%"+searchParams.Query+"%",
 			"%"+searchParams.Query+"%",
 			"%"+searchParams.Query+"%")
@@ -411,20 +453,26 @@ func (s *TaskStore) SearchUserSessionsSimple(username string, searchParams Simpl
 func (s *TaskStore) visibleSessionsQuery(username string) *gorm.DB {
 	query := s.db.Model(&Session{})
 
+	var visible *gorm.DB
 	if username == publicUserUsername || username == "" {
-		return query.Where(
-			"username = ? OR username = ? OR share = ?",
+		visible = query.Where(
+			"(username = ? OR username = ? OR share = ?)",
 			publicUserUsername,
 			demoTestUsername,
 			true,
 		)
+	} else {
+		visible = query.Where(
+			"(username = ? OR username = ?)",
+			username,
+			demoTestUsername,
+		)
 	}
 
-	return query.Where(
-		"username = ? OR username = ?",
-		username,
-		demoTestUsername,
-	)
+	// Re-verify derived tasks are internal and must not appear in lists/search.
+	// The column is nullable for old rows, so NULL is only excluded when it is
+	// explicitly 'reverify'.
+	return visible.Where("(rescan_kind IS NULL OR rescan_kind <> ?)", "reverify")
 }
 
 // SimpleSearchParams 简化搜索参数结构
