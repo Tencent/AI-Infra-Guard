@@ -56,3 +56,10 @@ func TestHandleDisconnectKeepsReplacementConnection(t *testing.T) {
 		t.Fatal("stale connection should be marked inactive")
 	}
 }
+
+func TestCurrentAgentIDReadsRegisteredValue(t *testing.T) {
+	ac := &AgentConnection{agentID: "agent-1"}
+	if got := ac.currentAgentID(); got != "agent-1" {
+		t.Fatalf("currentAgentID = %q", got)
+	}
+}

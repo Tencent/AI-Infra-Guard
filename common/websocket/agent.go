@@ -372,21 +372,29 @@ func (ac *AgentConnection) handleDisconnect(am *AgentManager, content interface{
 	ac.stateMu.Unlock()
 }
 
+// currentAgentID reads the registered id under the connection state lock.
+// writePump runs in a separate goroutine from handleRegister.
+func (ac *AgentConnection) currentAgentID() string {
+	ac.stateMu.RLock()
+	defer ac.stateMu.RUnlock()
+	return ac.agentID
+}
+
 // writePump 发送心跳包
 func (ac *AgentConnection) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		log.Infof("Agent心跳检测已停止: agentId=%s", ac.agentID)
+		log.Infof("Agent心跳检测已停止: agentId=%s", ac.currentAgentID())
 	}()
 
-	log.Infof("Agent心跳检测已启动: agentId=%s, pingPeriod=%v", ac.agentID, pingPeriod)
+	log.Infof("Agent心跳检测已启动: agentId=%s, pingPeriod=%v", ac.currentAgentID(), pingPeriod)
 
 	for range ticker.C {
 		ac.stateMu.RLock()
 		if !ac.isActive {
 			ac.stateMu.RUnlock()
-			log.Infof("Agent连接已标记为非活跃,停止心跳检测: agentId=%s", ac.agentID)
+			log.Infof("Agent连接已标记为非活跃,停止心跳检测: agentId=%s", ac.currentAgentID())
 			return
 		}
 		agentID := ac.agentID
