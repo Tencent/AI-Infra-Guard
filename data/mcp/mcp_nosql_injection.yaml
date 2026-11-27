@@ -1,0 +1,45 @@
+info:
+  id: "mcp_nosql_injection"
+  name: "MCP Tool NoSQL / Query Operator Injection Detection"
+  description: "Detect MCP tools that pass tool-call arguments directly into document-database queries (MongoDB, Firestore, DynamoDB, Elasticsearch, CouchDB, Redis) so attacker-controlled operators or objects alter the query (operator injection, $where/JS execution, auth bypass), distinct from SQL injection."
+  author: "vastStage"
+  categories:
+    - code
+
+prompt_template: |
+  As a professional AI-agent security analyst, precisely detect NoSQL / query-operator injection in MCP server tools. The agent controls tool arguments; if they reach a document-database query without type/operator validation, the caller can inject query operators or pass an object where a scalar is expected, altering the query (auth bypass, unintended data access, `$where` code execution). Require a concrete tainted-argument-to-query path; only report with evidence. Do not duplicate the SQL-injection class here; this is for non-SQL document stores.
+
+  ## Vulnerability Definition
+  NoSQL injection occurs when an MCP tool takes a tool argument and uses it in a document-store query (MongoDB, Firestore, DynamoDB, Elasticsearch, CouchDB, Redis) without validating its type or shape, letting the caller inject operators (`$ne`, `$gt`, `$where`, `$regex`, `$exists`, `$or`) or pass an object/array where a scalar is expected, changing the query's meaning — e.g., bypassing a login filter, matching records outside the intended tenant, or executing server-side JavaScript.
+
+  ## Detection Criteria (require a tainted argument reaching a document-DB query)
+
+  ### 1. Argument used as a query operand or filter object
+  **Code Patterns:**
+  - Tool argument passed as the filter object or a value inside it (`collection.find({"user": arg})`, `db.get(filter=arg)`, `collection.findOne(arg)`) with no schema/type validation.
+  - An object or array accepted where a string equality is intended, so an injected `{"$ne": null}` or `{"$gt": ""}` changes matching.
+
+  ### 2. Operator / server-side code injection
+  **Code Patterns:**
+  - `$where`, `$function`, `mapReduce`, or `eval` built from tool arguments (server-side JavaScript execution).
+  - DynamoDB/Elasticsearch query body built by string interpolation of arguments rather than a structured, typed query builder.
+
+  ### 3. Type-confusion authentication bypass
+  **Code Patterns:**
+  - A login/lookup filter uses a raw argument as the password or identifier, so `{"$gt": ""}` or `{"$ne": null}` bypasses the check.
+
+  ## Strict Judgment Standards
+  - **Typed / parameterized query builder**: Do not report queries that validate argument types (string/int) or build the filter field-by-field from a fixed schema.
+  - **No caller influence**: Do not report queries whose operands are constants, not tool arguments.
+  - **SQL string sink**: The SQL-injection class owns string-built SQL; not here.
+  - **Read-only constant lookup**: Do not report a fixed `find({"_id": <constant>})` with no argument influence.
+
+  ## Output Requirements
+  Only output when finding concrete NoSQL-injection evidence:
+  - Specific file paths and line numbers
+  - The tainted argument and the query sink it reaches
+  - Technical analysis: which operators or bypasses the caller can inject
+  - Impact assessment: auth bypass, cross-tenant data access, or code execution (`$where`)
+  - Remediation: validate and cast argument types, build filters from a fixed schema, reject object/operator keys in scalars, disable server-side JavaScript
+
+  **Strict Requirement: show the concrete argument-to-query path. Remain silent when no concrete evidence exists.**
