@@ -31,7 +31,17 @@ import (
 // drives the download through the real HTTP path and asserts the copy is gone
 // when prepareTargets returns.
 func TestPrepareTargetsCleansTempFiles(t *testing.T) {
-	t.Chdir(t.TempDir())
+	// Run in a temp working dir so temp_uploads/ is created there. Use
+	// os.Chdir + t.Cleanup instead of t.Chdir, which needs Go 1.24+ and is
+	// not available on the CI toolchain.
+	oldwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(t.TempDir()); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(oldwd) })
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("10.0.0.1\n10.0.0.2\n"))
