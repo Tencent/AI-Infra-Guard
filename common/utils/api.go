@@ -271,7 +271,9 @@ func LoadRemoteFingerPrints(hostname string) ([]parser.FingerPrint, error) {
 	for _, raw := range m.Data.FingerPrints {
 		fp, err := parser.InitFingerPrintFromData(raw)
 		if err != nil {
-			gologger.WithError(err).Fatalf("无法解析指纹模板:%s", string(raw))
+			// 单个指纹解析失败只应跳过该项。Fatalf 会调用 os.Exit(1)，
+			// 让服务端一条无法解析的指纹直接把整个 agent 进程杀掉。
+			gologger.WithError(err).Errorf("无法解析指纹模板，已跳过:%s", string(raw))
 			continue
 		}
 		fps = append(fps, *fp)
