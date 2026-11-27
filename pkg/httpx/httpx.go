@@ -21,6 +21,7 @@ package httpx
 
 import (
 	"crypto/tls"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -105,6 +106,22 @@ func NewHttpx(options *HTTPOptions) (*HTTPX, error) {
 	return httpx, nil
 }
 
+// readAndCloseBody reads the whole body and always closes it, including when
+// the read fails. The previous code returned on a read error without calling
+// Close, so a target that resets the connection mid-body leaked one
+// connection/file descriptor per attempt.
+func readAndCloseBody(body io.ReadCloser) ([]byte, error) {
+	data, readErr := ioutil.ReadAll(body)
+	closeErr := body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	return data, nil
+}
+
 // Do http request
 func (h *HTTPX) do(req *retryablehttp.Request) (*Response, error) {
 	httpresp, err := h.getResponse(req)
@@ -120,15 +137,12 @@ func (h *HTTPX) do(req *retryablehttp.Request) (*Response, error) {
 	// websockets don't have a readable body
 	if httpresp.StatusCode != http.StatusSwitchingProtocols {
 		var err error
-		respbody, err = ioutil.ReadAll(httpresp.Body)
+		respbody, err = readAndCloseBody(httpresp.Body)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	closeErr := httpresp.Body.Close()
-	if closeErr != nil {
-		return nil, closeErr
+	} else if err := httpresp.Body.Close(); err != nil {
+		return nil, err
 	}
 
 	respbodystr := string(respbody)
