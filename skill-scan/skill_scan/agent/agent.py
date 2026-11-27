@@ -346,6 +346,70 @@ def _strip_internal_verdict(content: str) -> str:
     ).strip()
 
 
+def _collect_llm_instances(llm: Any, specialized_llms: dict | None) -> list[Any]:
+    """Return unique LLM instances that expose ``get_usage_stats``."""
+    instances: list[Any] = []
+    seen_ids: set[int] = set()
+    for obj in [llm, *(specialized_llms.values() if isinstance(specialized_llms, dict) else ())]:
+        if obj is None or id(obj) in seen_ids:
+            continue
+        if callable(getattr(obj, "get_usage_stats", None)):
+            seen_ids.add(id(obj))
+            instances.append(obj)
+    return instances
+
+
+def _snapshot_llm_usage(llm: Any, specialized_llms: dict | None) -> dict[str, int]:
+    """Sum cumulative token counters across main and specialized LLM clients."""
+    totals = {
+        "calls": 0,
+        "prompt_tokens": 0,
+        "cached_tokens": 0,
+        "uncached_prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "usage_missing_calls": 0,
+    }
+    for inst in _collect_llm_instances(llm, specialized_llms):
+        stats = inst.get_usage_stats()
+        if isinstance(stats, dict):
+            for key in totals:
+                totals[key] += int(stats.get(key) or 0)
+    return totals
+
+
+def _build_scan_token_usage(
+    before: dict[str, int],
+    after: dict[str, int],
+    semantic_usage: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """Build per-scan token usage summary with semantic-slice breakdown."""
+    usage_keys = (
+        "calls",
+        "prompt_tokens",
+        "cached_tokens",
+        "uncached_prompt_tokens",
+        "completion_tokens",
+        "total_tokens",
+        "usage_missing_calls",
+    )
+    usage: dict[str, Any] = {
+        key: max(0, after.get(key, 0) - before.get(key, 0))
+        for key in usage_keys
+    }
+    sem = (
+        dict(semantic_usage)
+        if isinstance(semantic_usage, dict)
+        else {key: 0 for key in usage_keys}
+    )
+    usage["semantic_slice"] = sem
+    usage["main_pipeline"] = {
+        key: max(0, usage[key] - int(sem.get(key) or 0))
+        for key in usage_keys
+    }
+    return usage
+
+
 class ScanStage:
     """Defines a single scan stage"""
 
@@ -513,6 +577,8 @@ class Agent:
         Non-AIG mode: single-stage Code Audit → <vuln> XML.
         AIG mode: Info Collection → Code Audit → Vulnerability Review.
         """
+        self.last_semantic_report = None
+        usage_before = _snapshot_llm_usage(self.llm, self.specialized_llms)
         result_meta = {
             "readme": "",
             "score": 0,
@@ -521,6 +587,7 @@ class Agent:
             "end_time": 0,
             "results": [],
             "llm": self.llm.model_name,
+            "token_usage": _build_scan_token_usage(usage_before, usage_before),
         }
 
         # Empty-project detection: return normal immediately to avoid the Agent
@@ -578,9 +645,24 @@ class Agent:
             return result_meta
 
         if self.aig_mode:
-            return await self._scan_three_stage(repo_dir, prompt, language, result_meta)
+            scan_res = await self._scan_three_stage(repo_dir, prompt, language, result_meta)
         else:
-            return await self._scan_single_stage(repo_dir, prompt, language, result_meta)
+            scan_res = await self._scan_single_stage(repo_dir, prompt, language, result_meta)
+        usage_after = _snapshot_llm_usage(self.llm, self.specialized_llms)
+        sem_usage = getattr(self.last_semantic_report, "token_usage", None)
+        token_usage = _build_scan_token_usage(usage_before, usage_after, sem_usage)
+        scan_res["token_usage"] = token_usage
+        logger.info(
+            f"Token usage: calls={token_usage['calls']} "
+            f"prompt={token_usage['prompt_tokens']} "
+            f"cached={token_usage['cached_tokens']} "
+            f"completion={token_usage['completion_tokens']} "
+            f"total={token_usage['total_tokens']} "
+            f"(semantic_slice={token_usage['semantic_slice']['total_tokens']}, "
+            f"slice_cached={token_usage['semantic_slice'].get('cached_tokens', 0)})"
+        )
+        mcpLogger.result_update(scan_res)
+        return scan_res
 
     async def _scan_single_stage(
         self, repo_dir: str, prompt: str, language: str, result_meta: dict
@@ -736,7 +818,6 @@ class Agent:
                 "results": vuln_results,
             }
         )
-        mcpLogger.result_update(result_meta)
         return result_meta
 
     async def _scan_three_stage(
@@ -868,7 +949,6 @@ class Agent:
                 "results": vuln_results,
             }
         )
-        mcpLogger.result_update(result_meta)
         return result_meta
 
     async def close(self):
