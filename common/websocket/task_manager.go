@@ -817,11 +817,12 @@ func (tm *TaskManager) deleteSessionAttachments(session *database.Session) error
 		return fmt.Errorf("解析附件URL失败: %v", err)
 	}
 
-	for _, url := range attachmentURLs {
-		// 从URL中提取文件名
-		fileName := tm.extractFileNameFromURL(url)
-		if fileName == url {
-			// 如果无法提取文件名，跳过
+	for _, attachment := range attachmentURLs {
+		// 附件“URL”就是磁盘上的安全文件名（GetFileURL 原样返回文件名）。
+		// 直接用它的 base name 删除；之前先重建原始文件名，一旦重建结果与
+		// 原文相同就跳过删除，导致上传的文件永远不会被清理。
+		fileName := filepath.Base(attachment)
+		if fileName == "" || fileName == "." || fileName == ".." {
 			continue
 		}
 
