@@ -278,6 +278,11 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 		return nil, err
 	}
 
+	// 下载的附件只用于读取目标内容；本函数返回后立即删除，避免反复扫描把
+	// 目标清单/源码堆在 temp_uploads 里久留。共享的 temp_uploads 目录本身保留。
+	cleanup := utils.NewTempCleanup()
+	defer cleanup.Close()
+
 	for _, file := range request.Attachments {
 		gologger.Infof(texts.downloadFileLog, file)
 		fileName := filepath.Join(tempDir, fmt.Sprintf("tmp-%d%s", time.Now().UnixMicro(), filepath.Ext(file)))
@@ -288,6 +293,7 @@ func (t *AIInfraScanAgent) prepareTargets(request TaskRequest, reqScan ScanReque
 			gologger.WithError(fmt.Errorf("非法路径: %s", file)).Errorln(texts.downloadFile)
 			return nil, fmt.Errorf("非法文件路径")
 		}
+		cleanup.Add(fileName)
 		if err := utils.DownloadFile(t.Server, request.SessionId, file, fileName); err != nil {
 			gologger.WithError(err).Errorln(texts.downloadFile)
 			return nil, err
