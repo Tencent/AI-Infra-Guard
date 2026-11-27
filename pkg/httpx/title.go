@@ -39,6 +39,17 @@ func ExtractTitle(resp string) (title string) {
 func trimTitleTags(title string) string {
 	// trim <title>*</title>
 	titleBegin := strings.Index(title, ">")
-	titleEnd := strings.Index(title, "</")
-	return title[titleBegin+1 : titleEnd]
+	if titleBegin < 0 {
+		return ""
+	}
+	// Search for the closing tag only after the opening '>'. A '>' that
+	// appears before a '</' inside the title's attributes (e.g.
+	// <title x="</title>">) would otherwise make titleEnd smaller than
+	// titleBegin and panic with "slice bounds out of range".
+	rest := title[titleBegin+1:]
+	titleEnd := strings.Index(rest, "</")
+	if titleEnd < 0 {
+		return rest
+	}
+	return rest[:titleEnd]
 }

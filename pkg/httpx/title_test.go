@@ -88,3 +88,21 @@ func TestExtractTitle_ChineseTitle(t *testing.T) {
 	title := ExtractTitle(html)
 	assert.Equal(t, "腾讯安全平台", title, "中文 title 应正确提取")
 }
+
+// TestExtractTitle_NoPanicOnAdversarialInput ensures a hostile or broken title
+// tag (e.g. a '</' inside an attribute) cannot panic the scanner. Targets are
+// untrusted, so ExtractTitle must tolerate arbitrary bytes.
+func TestExtractTitle_NoPanicOnAdversarialInput(t *testing.T) {
+	inputs := []string{
+		`<html><title x="</title>">hi</title></html>`,
+		`<title a='>' >t</title>`,
+		`<title`,
+		`<title>`,
+		`</title>`,
+		`<title><</title>`,
+	}
+	for _, in := range inputs {
+		in := in
+		assert.NotPanics(t, func() { _ = ExtractTitle(in) }, "input %q must not panic", in)
+	}
+}
