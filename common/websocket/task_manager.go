@@ -1324,15 +1324,15 @@ func mustMarshalJSON(v interface{}) datatypes.JSON {
 }
 
 // EstablishSSEConnection 建立SSE连接
-func (tm *TaskManager) EstablishSSEConnection(w http.ResponseWriter, sessionId string, username string, traceID string) error {
+func (tm *TaskManager) EstablishSSEConnection(w http.ResponseWriter, sessionId string, username string, traceID string) (*SSEConnection, error) {
 	log.Infof("建立SSE连接: trace_id=%s, sessionId=%s, username=%s", traceID, sessionId, username)
-	err := tm.sseManager.AddConnection(sessionId, username, w)
+	conn, err := tm.sseManager.AddConnection(sessionId, username, w)
 	if err != nil {
 		log.Errorf("建立SSE连接失败: trace_id=%s, sessionId=%s, username=%s, error=%v", traceID, sessionId, username, err)
-	} else {
-		log.Infof("SSE连接建立成功: trace_id=%s, sessionId=%s, username=%s", traceID, sessionId, username)
+		return nil, err
 	}
-	return err
+	log.Infof("SSE连接建立成功: trace_id=%s, sessionId=%s, username=%s", traceID, sessionId, username)
+	return conn, nil
 }
 
 // CloseSSESession 关闭SSE会话
@@ -1340,6 +1340,18 @@ func (tm *TaskManager) CloseSSESession(sessionId string) {
 	log.Infof("关闭SSE会话: sessionId=%s", sessionId)
 	tm.sseManager.RemoveConnection(sessionId)
 	log.Infof("SSE会话已关闭: sessionId=%s", sessionId)
+}
+
+// CloseSSESessionIfCurrent closes an SSE connection only when it is still the
+// one registered for the session. The per-request handler uses it on client
+// disconnect: if a page reload or EventSource reconnect already replaced the
+// stream, tearing down by session ID alone would remove the live connection
+// and silently freeze the UI.
+func (tm *TaskManager) CloseSSESessionIfCurrent(sessionId string, conn *SSEConnection) {
+	if conn == nil {
+		return
+	}
+	tm.sseManager.removeConnectionIfCurrent(sessionId, conn)
 }
 
 // 任务完成/中断时的清理

@@ -246,7 +246,7 @@ func HandleTaskSSE(c *gin.Context, tm *TaskManager) {
 	username := c.GetString("username")
 
 	// 建立SSE连接
-	err = tm.EstablishSSEConnection(c.Writer, sessionId, username, traceID)
+	sseConn, err := tm.EstablishSSEConnection(c.Writer, sessionId, username, traceID)
 	if err != nil {
 		log.Errorf("建立SSE连接失败: trace_id=%s, sessionId=%s, username=%s, error=%v", traceID, sessionId, username, err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -262,8 +262,9 @@ func HandleTaskSSE(c *gin.Context, tm *TaskManager) {
 	// 保持连接活跃，等待客户端断开
 	<-c.Request.Context().Done()
 
-	// 客户端断开连接时，清理SSE连接
-	tm.CloseSSESession(sessionId)
+	// 客户端断开连接时，只清理本次请求创建的连接；若期间已被重连替换，
+	// 保留当前连接，避免误删新客户端的事件流。
+	tm.CloseSSESessionIfCurrent(sessionId, sseConn)
 	log.Infof("SSE连接已断开: trace_id=%s, sessionId=%s", traceID, sessionId)
 }
 
