@@ -1287,10 +1287,11 @@ func (tm *TaskManager) generateTaskTitle(req *TaskCreateRequest) string {
 	case agent.TaskTypeModelRedteamReport:
 		ret = texts.modelRedteamReport + ModelName
 	case agent.TaskTypeAgentScan:
-		agentId, ok := req.Params["agent_id"]
 		ret = texts.agentScan
-		if ok {
-			ret += agentId.(string)
+		// params 来自请求 JSON：agent_id 可能是 null（解成 nil）或数字，
+		// 盲目断言 string 会让任务标题生成 panic。
+		if agentId, ok := req.Params["agent_id"].(string); ok {
+			ret += agentId
 		}
 		if req.Content != "" {
 			ret += " " + req.Content
