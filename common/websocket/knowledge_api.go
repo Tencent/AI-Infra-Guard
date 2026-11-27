@@ -183,14 +183,7 @@ func HandleListFingerprints(c *gin.Context) {
 
 	// 6. 分页
 	total := len(filteredFingerprints)
-	start := (page - 1) * size
-	end := start + size
-	if start > total {
-		start = total
-	}
-	if end > total {
-		end = total
-	}
+	start, end := pageRange(page, size, total)
 	items := filteredFingerprints[start:end]
 
 	// 7. 返回
@@ -445,14 +438,7 @@ func HandleListVulnerabilities() gin.HandlerFunc {
 		}
 		// 5. 分页
 		total := len(filteredVuls)
-		start := (page - 1) * size
-		end := start + size
-		if start > total {
-			start = total
-		}
-		if end > total {
-			end = total
-		}
+		start, end := pageRange(page, size, total)
 		items := filteredVuls[start:end]
 
 		// 6. 返回
@@ -788,14 +774,7 @@ func HandleListEvaluations(c *gin.Context) {
 
 	// 6. 分页
 	total := len(filteredEvaluations)
-	start := (page - 1) * size
-	end := start + size
-	if start > total {
-		start = total
-	}
-	if end > total {
-		end = total
-	}
+	start, end := pageRange(page, size, total)
 	items := filteredEvaluations[start:end]
 
 	// 7. 返回
@@ -1065,4 +1044,35 @@ func HandleDeleteEvaluation(c *gin.Context) {
 		"status":  0,
 		"message": "ok",
 	})
+}
+
+// pageRange returns a safe [start,end) window into a slice of length total.
+// page and size come straight from query parameters, so (page-1)*size can
+// overflow int and produce a negative start, which then panics on
+// list[start:end]. Clamp everything into [0,total].
+func pageRange(page, size, total int) (int, int) {
+	if page < 1 {
+		page = 1
+	}
+	if size < 0 {
+		size = 0
+	}
+	start := (page - 1) * size
+	end := start + size
+	if start < 0 {
+		start = 0
+	}
+	if end < 0 {
+		end = 0
+	}
+	if start > total {
+		start = total
+	}
+	if end > total {
+		end = total
+	}
+	if end < start {
+		end = start
+	}
+	return start, end
 }
