@@ -21,6 +21,7 @@ package runner
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/Tencent/AI-Infra-Guard/common/utils"
 	"net"
 	"strings"
@@ -61,11 +62,22 @@ func IPAddresses(cidr string) ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	return IPAddressesIPnet(ipnet), nil
+	return IPAddressesIPnet(ipnet)
 }
 
-// IPAddressesIPnet returns all IP addresses in an IPNet.
-func IPAddressesIPnet(ipnet *net.IPNet) (ips []string) {
+// IPAddressesIPnet returns all IP addresses in an IPNet. Only IPv4 ranges are
+// enumerated. An IPv6 range wider than a single host returns an error rather
+// than silently producing a bogus IPv4: the uint32 conversion below only reads
+// the first four bytes of a 16-byte IPv6 address.
+func IPAddressesIPnet(ipnet *net.IPNet) ([]string, error) {
+	if ipnet.IP.To4() == nil {
+		ones, bits := ipnet.Mask.Size()
+		if bits == 128 && ones == 128 {
+			return []string{ipnet.IP.String()}, nil
+		}
+		return nil, fmt.Errorf("IPv6 CIDR %s is not supported; specify a single IPv6 host", ipnet.String())
+	}
+
 	// convert IPNet struct mask and address to uint32
 	mask := binary.BigEndian.Uint32(ipnet.Mask)
 	start := binary.BigEndian.Uint32(ipnet.IP)
@@ -73,6 +85,7 @@ func IPAddressesIPnet(ipnet *net.IPNet) (ips []string) {
 	// find the final address
 	finish := (start & mask) | (mask ^ 0xffffffff)
 
+	ips := make([]string, 0)
 	// Use a wider counter so the final IPv4 address cannot wrap back to zero.
 	for i := uint64(start); i <= uint64(finish); i++ {
 		// convert back to net.IP
@@ -80,5 +93,5 @@ func IPAddressesIPnet(ipnet *net.IPNet) (ips []string) {
 		binary.BigEndian.PutUint32(ip, uint32(i))
 		ips = append(ips, ip.String())
 	}
-	return ips
+	return ips, nil
 }
