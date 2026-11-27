@@ -37,7 +37,16 @@ from skill_scan.utils.extract_vuln import (
 )
 from skill_scan.utils.loging import logger
 from skill_scan.utils.pre_scan import pre_scan
-from skill_scan.utils.project_analyzer import analyze_language, calc_skill_score, get_top_language
+from skill_scan.utils.progressive_audit import (
+    build_progressive_semantic_map,
+    collect_required_audit_files,
+    is_autonomous_guards_enabled,
+)
+from skill_scan.utils.project_analyzer import (
+    analyze_language,
+    calc_skill_score,
+    get_top_language,
+)
 from skill_scan.utils.prompt_manager import prompt_manager
 
 # Only .git is fully skipped from tree walks (clone noise).
@@ -472,19 +481,35 @@ class ScanPipeline:
         if stage.language == "en":
             instruction = instruction + _LANGUAGE_DIRECTIVE_EN
 
-        # Initialize the stage Agent
-        agent = BaseAgent(
-            name=f"{stage.name} Agent",
-            instruction=instruction,
-            llm=self.agent_wrapper.llm,
-            dispatcher=self.agent_wrapper.dispatcher,
-            specialized_llms=self.agent_wrapper.specialized_llms,
-            log_step_id=stage.stage_id,
-            debug=self.agent_wrapper.debug,
-            output_format=stage.output_format,
-            output_check_fn=stage.output_check_fn,
-            language=stage.language,
+        guards_enabled = getattr(self.agent_wrapper, "enable_autonomous_guards", True)
+        pre_scan_hints = pre_scan(repo_dir) if inject_pre_scan else ""
+        progressive_map = (
+            build_progressive_semantic_map(repo_dir)
+            if inject_pre_scan and guards_enabled and stage.template == "agents/code_audit"
+            else ""
         )
+        required_files = (
+            collect_required_audit_files(repo_dir, pre_scan_hints)
+            if guards_enabled and stage.template == "agents/code_audit"
+            else []
+        )
+
+        # Initialize the stage Agent
+        agent_kwargs: dict[str, Any] = {
+            "name": f"{stage.name} Agent",
+            "instruction": instruction,
+            "llm": self.agent_wrapper.llm,
+            "dispatcher": self.agent_wrapper.dispatcher,
+            "specialized_llms": self.agent_wrapper.specialized_llms,
+            "log_step_id": stage.stage_id,
+            "debug": self.agent_wrapper.debug,
+            "output_format": stage.output_format,
+            "output_check_fn": stage.output_check_fn,
+            "language": stage.language,
+        }
+        if required_files:
+            agent_kwargs["required_read_files"] = required_files
+        agent = BaseAgent(**agent_kwargs)
         agent.set_repo_dir(repo_dir)
         await agent.initialize()
 
@@ -509,9 +534,10 @@ class ScanPipeline:
                 )
 
         if inject_pre_scan:
-            pre_scan_hints = pre_scan(repo_dir)
             if pre_scan_hints:
                 user_msg += f"\n\n{pre_scan_hints}"
+            if progressive_map:
+                user_msg += f"\n\n{progressive_map}"
 
         if context_data:
             if stage.language == "en":
@@ -548,6 +574,7 @@ class Agent:
         language: str = "zh",
         aig_mode: bool = False,
         enable_semantic_slicing: bool | None = None,
+        enable_autonomous_guards: bool | None = None,
     ):
         self.llm = llm
         self.specialized_llms = specialized_llms or {}
@@ -558,6 +585,11 @@ class Agent:
             is_semantic_slicing_enabled()
             if enable_semantic_slicing is None
             else enable_semantic_slicing
+        )
+        self.enable_autonomous_guards = (
+            is_autonomous_guards_enabled()
+            if enable_autonomous_guards is None
+            else enable_autonomous_guards
         )
         self.last_verdict: str | None = None
         self.dispatcher = ToolDispatcher()
