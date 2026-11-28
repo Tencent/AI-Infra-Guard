@@ -366,3 +366,5 @@ We would like to express our sincere gratitude to the research teams and communi
 | BadPhoneAgent | JADE Team@Fudan (Yiming Sun, Chen Chen, Zifan Zhou) | [Dataset](https://github.com/ymsun2020/Mobile-GUI-Security) · [Paper](https://arxiv.org/abs/2606.27944) · [Synced coverage](https://mp.weixin.qq.com/s/RzkqGfrEKiu0l-2TzhLrPw) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
 | StrongREJECT | Souly et al. (Google DeepMind) | [Github](https://github.com/alexandrasouly/strongreject) · [Paper](https://arxiv.org/abs/2402.10260) |
+
+Note: 25 of the 313 StrongREJECT prompts overlap with advbench.json by construction — StrongREJECT aggregates AdvBench as one of its eight attack sources — so these prompts are evaluated twice across the combined eval set and slightly up-weight the shared techniques.

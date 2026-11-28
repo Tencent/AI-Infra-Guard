@@ -361,3 +361,5 @@ python cli_run.py --show-tool-params PromptInjection
 | BadPhoneAgent | 复旦JADE团队 （孙翊铭、陈晨、周子凡） | [数据集](https://github.com/ymsun2020/Mobile-GUI-Security) · [Paper](https://arxiv.org/abs/2606.27944)  · [机器之心报道](https://mp.weixin.qq.com/s/RzkqGfrEKiu0l-2TzhLrPw) |
 | JailbreakPrompts | Simon Knuts | [HuggingFace](https://huggingface.co/datasets/Simsonsun/JailbreakPrompts) |
 | StrongREJECT | Souly等（Google DeepMind） | [Github](https://github.com/alexandrasouly/strongreject) · [Paper](https://arxiv.org/abs/2402.10260) |
+
+注：StrongREJECT 的 313 条提示中有 25 条与 advbench.json 天然重叠（StrongREJECT 将 AdvBench 作为其八类攻击来源之一聚合），这批提示在合并评测集中会被评测两次，相当于对共有攻击技术的轻微加权。
